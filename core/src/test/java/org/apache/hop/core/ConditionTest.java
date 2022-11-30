@@ -22,10 +22,15 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
+import static org.apache.hop.core.Condition.Function;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -36,7 +41,7 @@ public class ConditionTest {
   public void testNegatedTrueFuncEvaluatesAsFalse() throws Exception {
     String left = "test_filed";
     String right = "test_value";
-    int func = Condition.FUNC_TRUE;
+    Function func = Function.TRUE;
     boolean negate = true;
 
     Condition condition = new Condition(negate, left, func, right, null);
@@ -44,7 +49,7 @@ public class ConditionTest {
   }
 
   @Test
-  public void testPdi13227() throws Exception {
+  public void testCacheInvalidationTest() throws Exception {
     IRowMeta rowMeta1 = new RowMeta();
     rowMeta1.addValueMeta(new ValueMetaNumber("name1"));
     rowMeta1.addValueMeta(new ValueMetaNumber("name2"));
@@ -57,7 +62,7 @@ public class ConditionTest {
 
     String left = "name1";
     String right = "name3";
-    Condition condition = new Condition(left, Condition.FUNC_EQUAL, right, null);
+    Condition condition = new Condition(left, Function.EQUAL, right, null);
 
     assertTrue(condition.evaluate(rowMeta1, new Object[] {1.0, 2.0, 1.0}));
     assertTrue(condition.evaluate(rowMeta2, new Object[] {2.0, 1.0, 1.0}));
@@ -69,13 +74,46 @@ public class ConditionTest {
     rowMeta1.addValueMeta(new ValueMetaInteger("name1"));
 
     String left = "name1";
-    ValueMetaAndData rightExact =
-        new ValueMetaAndData(new ValueMetaInteger("name1"), new Long(-10));
+    ValueMetaAndData rightExact = new ValueMetaAndData(new ValueMetaInteger("name1"), -10L);
 
-    Condition condition = new Condition(left, Condition.FUNC_SMALLER, null, rightExact);
+    Condition condition = new Condition(left, Function.SMALLER, null, rightExact);
     assertFalse(condition.evaluate(rowMeta1, new Object[] {null, "test"}));
 
-    condition = new Condition(left, Condition.FUNC_SMALLER_EQUAL, null, rightExact);
+    condition = new Condition(left, Function.SMALLER_EQUAL, null, rightExact);
     assertFalse(condition.evaluate(rowMeta1, new Object[] {null, "test"}));
+  }
+
+  @Test
+  public void testSerialization() throws Exception {
+    Document document = XmlHandler.loadXmlFile(getClass().getResourceAsStream("/condition.xml"));
+    Node node = XmlHandler.getSubNode(document, Condition.XML_TAG);
+
+    Condition condition = new Condition(node);
+
+    Assert.assertNotNull(condition);
+    Assert.assertEquals(2, condition.getChildren().size());
+    Condition c1 = condition.getChildren().get(0);
+    Assert.assertEquals("stateCode", c1.getLeftValueName());
+    Assert.assertEquals("FL", c1.getRightValueString());
+
+    Condition c2 = condition.getChildren().get(1);
+    Assert.assertEquals("housenr", c2.getLeftValueName());
+    Assert.assertEquals("100", c2.getRightValueString());
+  }
+
+  @Test
+  public void testSerialization2() throws Exception {
+    Document document = XmlHandler.loadXmlFile(getClass().getResourceAsStream("/condition2.xml"));
+    Node node = XmlHandler.getSubNode(document, Condition.XML_TAG);
+
+    Condition condition = new Condition(node);
+
+    Assert.assertNotNull(condition);
+    Assert.assertEquals(0, condition.getChildren().size());
+
+    Assert.assertEquals("id1", condition.getLeftValueName());
+    Assert.assertEquals("rangeStart", condition.getRightValueName());
+    Assert.assertNull(condition.getRightValue());
+    Assert.assertEquals(Function.LARGER_EQUAL, condition.getFunction());
   }
 }

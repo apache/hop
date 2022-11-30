@@ -31,6 +31,7 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 
@@ -103,7 +104,15 @@ public class XmlMetadataUtil {
           if (property.storeWithName()) {
             xml += XmlHandler.addTagValue(tag, ((IHopMetadata) value).getName());
           } else {
-            xml += serializeObjectToXml(property, value, groupKey, tag, isPassword, storeWithCode);
+            xml +=
+                serializeObjectToXml(
+                    property,
+                    value,
+                    groupKey,
+                    tag,
+                    isPassword,
+                    storeWithCode,
+                    property.intCodeConverter());
           }
         }
       }
@@ -122,7 +131,8 @@ public class XmlMetadataUtil {
       String groupKey,
       String tag,
       boolean password,
-      boolean storeWithCode)
+      boolean storeWithCode,
+      Class<? extends IIntCodeConverter> intCodeConverterClass)
       throws HopException {
 
     String xml = "";
@@ -142,7 +152,19 @@ public class XmlMetadataUtil {
       } else if (value instanceof Boolean) {
         xml += XmlHandler.addTagValue(tag, (Boolean) value);
       } else if (value instanceof Integer) {
-        xml += XmlHandler.addTagValue(tag, (Integer) value);
+        if (intCodeConverterClass.equals(IIntCodeConverter.None.class)) {
+          xml += XmlHandler.addTagValue(tag, (Integer) value);
+        } else {
+          try {
+            IIntCodeConverter converter = intCodeConverterClass.getConstructor().newInstance();
+            xml += XmlHandler.addTagValue(tag, converter.getCode((int) value));
+          } catch (Exception e) {
+            throw new HopException(
+                "Error converting int to String code using converter class "
+                    + intCodeConverterClass,
+                e);
+          }
+        }
       } else if (value instanceof Long) {
         xml += XmlHandler.addTagValue(tag, (Long) value);
       } else if (value instanceof Date) {
@@ -167,7 +189,15 @@ public class XmlMetadataUtil {
         //
         List listItems = (List) value;
         for (Object listItem : listItems) {
-          xml += serializeObjectToXml(property, listItem, groupKey, tag, password, storeWithCode);
+          xml +=
+              serializeObjectToXml(
+                  property,
+                  listItem,
+                  groupKey,
+                  tag,
+                  password,
+                  storeWithCode,
+                  property.intCodeConverter());
         }
 
         if (StringUtils.isNotEmpty(groupKey)) {
@@ -263,6 +293,11 @@ public class XmlMetadataUtil {
       throws HopXmlException {
     if (object == null) {
       try {
+        // Do not create a new object if the node is null
+        //
+        if (node==null) {
+          return null;
+        }
 
         // See if this is an interface where we need to use a factory.
         //
@@ -352,7 +387,8 @@ public class XmlMetadataUtil {
                 storeWithName,
                 metadataProvider,
                 password,
-                storeWithCode);
+                storeWithCode,
+                property.intCodeConverter());
 
         try {
           // Only set a value if we have something to set.
@@ -387,7 +423,8 @@ public class XmlMetadataUtil {
       boolean storeWithName,
       IHopMetadataProvider metadataProvider,
       boolean password,
-      boolean storeWithCode)
+      boolean storeWithCode,
+      Class<? extends IIntCodeConverter> intCodeConverterClass)
       throws HopXmlException {
     String elementString = XmlHandler.getNodeValue(elementNode);
 
@@ -423,7 +460,21 @@ public class XmlMetadataUtil {
       }
     } else if (fieldType.equals(Integer.class) || fieldType.equals(int.class)) {
       if (elementNode != null) {
-        return Integer.valueOf(elementString);
+        if (intCodeConverterClass.equals(IIntCodeConverter.None.class)) {
+          return Integer.valueOf(elementString);
+        } else {
+          try {
+            IIntCodeConverter converter = intCodeConverterClass.getConstructor().newInstance();
+            return converter.getType(elementString);
+          } catch (Exception e) {
+            throw new HopXmlException(
+                "Error converting String code "
+                    + elementString
+                    + " to integer using converter class "
+                    + intCodeConverterClass,
+                e);
+          }
+        }
       }
     } else if (fieldType.equals(Long.class) || fieldType.equals(long.class)) {
       if (elementNode != null) {
@@ -504,7 +555,8 @@ public class XmlMetadataUtil {
                   false,
                   metadataProvider,
                   password,
-                  storeWithCode);
+                  storeWithCode,
+                  intCodeConverterClass);
 
           // Add it to the list
           //

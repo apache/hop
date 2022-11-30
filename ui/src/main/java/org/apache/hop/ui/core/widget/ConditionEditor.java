@@ -19,6 +19,7 @@ package org.apache.hop.ui.core.widget;
 
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -33,11 +34,8 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -60,6 +58,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
+
+import static org.apache.hop.core.Condition.Function.NOT_NULL;
+import static org.apache.hop.core.Condition.Function.NULL;
+import static org.apache.hop.core.Condition.Operator.*;
 
 /** Widget that allows you to edit a Condition in a graphical way. */
 public class ConditionEditor extends Canvas implements MouseMoveListener {
@@ -203,10 +205,10 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
       widget.addMouseMoveListener(this);
     }
 
-    widget.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDown(MouseEvent e) {
+    widget.addListener(
+        SWT.MouseDown,
+        e -> {
+          try {
             Point screen = new Point(e.x, e.y);
             int area = getAreaCode(screen);
 
@@ -233,7 +235,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                   String selection = esd.open(defnr);
                   if (selection != null) {
                     int opnr = Condition.getOperator(selection);
-                    activeCondition.getCondition(operator).setOperator(opnr);
+                    activeCondition.getCondition(operator).setOperator(lookupType(opnr));
                     setModified();
                   }
                   widget.redraw();
@@ -264,12 +266,12 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                     selection = esd.open(defnr);
                     if (selection != null) {
                       int fnnr = Condition.getFunction(selection);
-                      activeCondition.setFunction(fnnr);
+                      activeCondition.setFunction(Condition.Function.lookupType(fnnr));
 
-                      if (activeCondition.getFunction() == Condition.FUNC_NOT_NULL
-                          || activeCondition.getFunction() == Condition.FUNC_NULL) {
-                        activeCondition.setRightValuename(null);
-                        activeCondition.setRightExact(null);
+                      if (activeCondition.getFunction() == NOT_NULL
+                          || activeCondition.getFunction() == NULL) {
+                        activeCondition.setRightValueName(null);
+                        activeCondition.setRightValue(null);
                       }
 
                       setModified();
@@ -286,12 +288,12 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                             BaseMessages.getString(PKG, "ConditionEditor.Fields"),
                             BaseMessages.getString(PKG, "ConditionEditor.SelectAField"));
                     esd.setAvoidQuickSearch();
-                    def = activeCondition.getLeftValuename();
+                    def = activeCondition.getLeftValueName();
                     defnr = esd.getSelectionNr(def);
                     selection = esd.open(defnr);
                     if (selection != null) {
                       IValueMeta v = fields.getValueMeta(esd.getSelectionNr());
-                      activeCondition.setLeftValuename(v.getName());
+                      activeCondition.setLeftValueName(v.getName());
                       setModified();
                     }
                     widget.redraw();
@@ -306,13 +308,13 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                             BaseMessages.getString(PKG, "ConditionEditor.Fields"),
                             BaseMessages.getString(PKG, "ConditionEditor.SelectAField"));
                     esd.setAvoidQuickSearch();
-                    def = activeCondition.getLeftValuename();
+                    def = activeCondition.getLeftValueName();
                     defnr = esd.getSelectionNr(def);
                     selection = esd.open(defnr);
                     if (selection != null) {
                       IValueMeta v = fields.getValueMeta(esd.getSelectionNr());
-                      activeCondition.setRightValuename(v.getName());
-                      activeCondition.setRightExact(null);
+                      activeCondition.setRightValueName(v.getName());
+                      activeCondition.setRightValue(null);
                       setModified();
                     }
                     widget.redraw();
@@ -320,36 +322,41 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                   break;
                 case AREA_RIGHT_EXACT:
                   if (activeCondition.isAtomic()) {
-                    ValueMetaAndData v = activeCondition.getRightExact();
+                    Condition.CValue v = activeCondition.getRightValue();
                     if (v == null) {
                       IValueMeta leftval =
                           fields != null
-                              ? fields.searchValueMeta(activeCondition.getLeftValuename())
+                              ? fields.searchValueMeta(activeCondition.getLeftValueName())
                               : null;
                       if (leftval != null) {
                         try {
                           v =
-                              new ValueMetaAndData(
-                                  ValueMetaFactory.createValueMeta("constant", leftval.getType()),
-                                  null);
+                              new Condition.CValue(
+                                  new ValueMetaAndData(
+                                      ValueMetaFactory.createValueMeta(
+                                          "constant", leftval.getType()),
+                                      null));
                         } catch (Exception exception) {
                           new ErrorDialog(
                               shell, "Error", "Error creating value meta object", exception);
                         }
                       } else {
-                        v = new ValueMetaAndData(new ValueMetaString("constant"), null);
+                        v =
+                            new Condition.CValue(
+                                new ValueMetaAndData(new ValueMetaString("constant"), null));
                       }
                     }
                     EnterValueDialog evd =
-                        new EnterValueDialog(shell, SWT.NONE, v.getValueMeta(), v.getValueData());
+                        new EnterValueDialog(
+                            shell, SWT.NONE, v.createValueMeta(), v.createValueData());
                     evd.setModalDialog(
                         true); // To keep the condition editor from being closed with a value dialog
                     // still
                     // open.
                     ValueMetaAndData newval = evd.open();
                     if (newval != null) {
-                      activeCondition.setRightValuename(null);
-                      activeCondition.setRightExact(newval);
+                      activeCondition.setRightValueName(null);
+                      activeCondition.setRightValue(new Condition.CValue(newval));
                       setModified();
                     }
                     widget.redraw();
@@ -363,11 +370,8 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                   break;
               }
             }
-          }
-
-          @Override
-          public void mouseUp(MouseEvent e) {
-            // Disable mouseUp event
+          } catch (Exception ex) {
+            new ErrorDialog(shell, "Error", "Error editing condition", ex);
           }
         });
 
@@ -383,31 +387,25 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
           setMenu(area, wRel);
         });
 
-    sbVertical.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            offsety = -sbVertical.getSelection();
-            widget.redraw();
-          }
+    sbVertical.addListener(
+        SWT.Selection,
+        e -> {
+          offsety = -sbVertical.getSelection();
+          widget.redraw();
         });
 
-    sbHorizontal.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            offsetx = -sbHorizontal.getSelection();
-            widget.redraw();
-          }
+    sbHorizontal.addListener(
+        SWT.Selection,
+        e -> {
+          offsetx = -sbHorizontal.getSelection();
+          widget.redraw();
         });
 
-    widget.addControlListener(
-        new ControlAdapter() {
-          @Override
-          public void controlResized(ControlEvent arg0) {
-            sizeWidget = widget.getBounds();
-            setBars();
-          }
+    widget.addListener(
+        SWT.Resize,
+        e -> {
+          sizeWidget = widget.getBounds();
+          setBars();
         });
   }
 
@@ -431,7 +429,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   public void goUp() {
-    if (parents.size() > 0) {
+    if (!parents.isEmpty()) {
       int last = parents.size() - 1;
       activeCondition = parents.get(last);
       parents.remove(last);
@@ -447,7 +445,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   private void setMenu(int area, Point screen) {
-    final int cond_nr = getNrSubcondition(screen);
+    final int conditionIndex = getNrSubcondition(screen);
     if (mPop != null && !mPop.isDisposed()) {
       mPop.dispose();
     }
@@ -457,14 +455,12 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         mPop = new Menu(widget);
         MenuItem miNegate = new MenuItem(mPop, SWT.PUSH);
         miNegate.setText(BaseMessages.getString(PKG, "ConditionEditor.NegateCondition"));
-        miNegate.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                activeCondition.negate();
-                widget.redraw();
-                setModified();
-              }
+        miNegate.addListener(
+            SWT.Selection,
+            e -> {
+              activeCondition.negate();
+              widget.redraw();
+              setModified();
             });
         setMenu(mPop);
         break;
@@ -473,11 +469,13 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         mPop = new Menu(widget);
         MenuItem miAdd = new MenuItem(mPop, SWT.PUSH);
         miAdd.setText(BaseMessages.getString(PKG, "ConditionEditor.AddCondition.Label"));
-        miAdd.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
+        miAdd.addListener(
+            SWT.Selection,
+            e -> {
+              try {
                 addCondition();
+              } catch (Exception ex) {
+                new ErrorDialog(shell, "Error", "Error adding condition", ex);
               }
             });
         setMenu(mPop);
@@ -486,40 +484,38 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         mPop = new Menu(widget);
         MenuItem miEdit = new MenuItem(mPop, SWT.PUSH);
         miEdit.setText(BaseMessages.getString(PKG, "ConditionEditor.EditCondition.Label"));
-        miEdit.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                editCondition(cond_nr);
-                setModified();
-                widget.redraw();
-              }
+        miEdit.addListener(
+            SWT.Selection,
+            e -> {
+              editCondition(conditionIndex);
+              setModified();
+              widget.redraw();
             });
         MenuItem miDel = new MenuItem(mPop, SWT.PUSH);
         miDel.setText(BaseMessages.getString(PKG, "ConditionEditor.DeleteCondition.Label"));
-        miDel.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                removeCondition(cond_nr);
-                setModified();
-                widget.redraw();
-              }
+        miDel.addListener(
+            SWT.Selection,
+            e -> {
+              removeCondition(conditionIndex);
+              setModified();
+              widget.redraw();
             });
         // Add a sub-condition in the subcondition... (move down)
-        final Condition sub = activeCondition.getCondition(cond_nr);
-        if (sub.getLeftValuename() != null) {
+        final Condition sub = activeCondition.getCondition(conditionIndex);
+        if (sub.getLeftValueName() != null) {
           miAdd = new MenuItem(mPop, SWT.PUSH);
           miAdd.setText(BaseMessages.getString(PKG, "ConditionEditor.AddSubCondition.Label"));
-          miAdd.addSelectionListener(
-              new SelectionAdapter() {
-                @Override
-                public void widgetSelected(SelectionEvent e) {
+          miAdd.addListener(
+              SWT.Selection,
+              e -> {
+                try {
                   Condition c = new Condition();
-                  c.setOperator(Condition.OPERATOR_AND);
+                  c.setOperator(AND);
                   sub.addCondition(c);
                   setModified();
                   widget.redraw();
+                } catch (Exception ex) {
+                  new ErrorDialog(shell, "Error", "Error adding sub-condition", ex);
                 }
               });
         }
@@ -528,53 +524,49 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
 
         MenuItem miCopy = new MenuItem(mPop, SWT.PUSH);
         miCopy.setText(BaseMessages.getString(PKG, "ConditionEditor.CopyToClipboard"));
-        miCopy.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                Condition c = activeCondition.getCondition(cond_nr);
-                try {
-                  String xml = c.getXml();
-                  GuiResource.getInstance().toClipboard(xml);
-                  widget.redraw();
-                } catch (Exception ex) {
-                  new ErrorDialog(shell, "Error", "Error encoding to XML", ex);
-                }
+        miCopy.addListener(
+            SWT.Selection,
+            e -> {
+              Condition c = activeCondition.getCondition(conditionIndex);
+              try {
+                String xml = c.getXml();
+                GuiResource.getInstance().toClipboard(xml);
+                widget.redraw();
+              } catch (Exception ex) {
+                new ErrorDialog(shell, "Error", "Error encoding to XML", ex);
               }
             });
         MenuItem miPasteBef = new MenuItem(mPop, SWT.PUSH);
         miPasteBef.setText(
             BaseMessages.getString(PKG, "ConditionEditor.PasteFromClipboardBeforeCondition"));
-        miPasteBef.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                String xml = GuiResource.getInstance().fromClipboard();
-                try {
-                  Document d = XmlHandler.loadXmlString(xml);
-                  Node condNode = XmlHandler.getSubNode(d, "condition");
-                  if (condNode != null) {
-                    Condition c = new Condition(condNode);
-                    activeCondition.addCondition(cond_nr, c);
-                    widget.redraw();
-                  } else {
-                    new ErrorDialog(
-                        shell,
-                        BaseMessages.getString(PKG, "ConditionEditor.Error"),
-                        BaseMessages.getString(PKG, "ConditionEditor.NoConditionFoundXML"),
-                        new HopXmlException(
-                            BaseMessages.getString(
-                                PKG,
-                                "ConditionEditor.NoConditionFoundXML.Exception",
-                                Const.CR + Const.CR + xml)));
-                  }
-                } catch (HopXmlException ex) {
+        miPasteBef.addListener(
+            SWT.Selection,
+            e -> {
+              String xml = GuiResource.getInstance().fromClipboard();
+              try {
+                Document d = XmlHandler.loadXmlString(xml);
+                Node condNode = XmlHandler.getSubNode(d, "condition");
+                if (condNode != null) {
+                  Condition c = new Condition(condNode);
+                  activeCondition.addCondition(conditionIndex, c);
+                  widget.redraw();
+                } else {
                   new ErrorDialog(
                       shell,
                       BaseMessages.getString(PKG, "ConditionEditor.Error"),
-                      BaseMessages.getString(PKG, "ConditionEditor.ErrorParsingCondition"),
-                      ex);
+                      BaseMessages.getString(PKG, "ConditionEditor.NoConditionFoundXML"),
+                      new HopXmlException(
+                          BaseMessages.getString(
+                              PKG,
+                              "ConditionEditor.NoConditionFoundXML.Exception",
+                              Const.CR + Const.CR + xml)));
                 }
+              } catch (Exception ex) {
+                new ErrorDialog(
+                    shell,
+                    BaseMessages.getString(PKG, "ConditionEditor.Error"),
+                    BaseMessages.getString(PKG, "ConditionEditor.ErrorParsingCondition"),
+                    ex);
               }
             });
         // --------------------------------------------------
@@ -583,36 +575,34 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         MenuItem miPasteAft = new MenuItem(mPop, SWT.PUSH);
         miPasteAft.setText(
             BaseMessages.getString(PKG, "ConditionEditor.PasteFromClipboardAfterCondition"));
-        miPasteAft.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                String xml = GuiResource.getInstance().fromClipboard();
-                try {
-                  Document d = XmlHandler.loadXmlString(xml);
-                  Node condNode = XmlHandler.getSubNode(d, "condition");
-                  if (condNode != null) {
-                    Condition c = new Condition(condNode);
-                    activeCondition.addCondition(cond_nr + 1, c);
-                    widget.redraw();
-                  } else {
-                    new ErrorDialog(
-                        shell,
-                        BaseMessages.getString(PKG, "ConditionEditor.Error"),
-                        BaseMessages.getString(PKG, "ConditionEditor.NoConditionFoundXML"),
-                        new HopXmlException(
-                            BaseMessages.getString(
-                                PKG,
-                                "ConditionEditor.NoConditionFoundXML.Exception",
-                                Const.CR + Const.CR + xml)));
-                  }
-                } catch (HopXmlException ex) {
+        miPasteAft.addListener(
+            SWT.Selection,
+            e -> {
+              String xml = GuiResource.getInstance().fromClipboard();
+              try {
+                Document d = XmlHandler.loadXmlString(xml);
+                Node condNode = XmlHandler.getSubNode(d, "condition");
+                if (condNode != null) {
+                  Condition c = new Condition(condNode);
+                  activeCondition.addCondition(conditionIndex + 1, c);
+                  widget.redraw();
+                } else {
                   new ErrorDialog(
                       shell,
                       BaseMessages.getString(PKG, "ConditionEditor.Error"),
-                      BaseMessages.getString(PKG, "ConditionEditor.ErrorParsingCondition"),
-                      ex);
+                      BaseMessages.getString(PKG, "ConditionEditor.NoConditionFoundXML"),
+                      new HopXmlException(
+                          BaseMessages.getString(
+                              PKG,
+                              "ConditionEditor.NoConditionFoundXML.Exception",
+                              Const.CR + Const.CR + xml)));
                 }
+              } catch (Exception ex) {
+                new ErrorDialog(
+                    shell,
+                    BaseMessages.getString(PKG, "ConditionEditor.Error"),
+                    BaseMessages.getString(PKG, "ConditionEditor.ErrorParsingCondition"),
+                    ex);
               }
             });
         // --------------------------------------------------
@@ -620,21 +610,23 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         MenuItem miMoveSub = new MenuItem(mPop, SWT.PUSH);
         miMoveSub.setText(
             BaseMessages.getString(PKG, "ConditionEditor.MoveConditionToSubCondition"));
-        miMoveSub.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
+        miMoveSub.addListener(
+            SWT.Selection,
+            e -> {
+              try {
                 // Move the condition lower: this means create a subcondition and put the condition
                 // there in the list.
                 //
-                Condition down = activeCondition.getCondition(cond_nr);
+                Condition down = activeCondition.getCondition(conditionIndex);
                 Condition c = new Condition();
                 c.setOperator(down.getOperator());
-                down.setOperator(Condition.OPERATOR_NONE);
-                activeCondition.setCondition(cond_nr, c);
+                down.setOperator(NONE);
+                activeCondition.setCondition(conditionIndex, c);
                 c.addCondition(down);
 
                 widget.redraw();
+              } catch (Exception ex) {
+                new ErrorDialog(shell, "Error", "Error moving condition", ex);
               }
             });
         MenuItem miMoveParent = new MenuItem(mPop, SWT.PUSH);
@@ -643,15 +635,15 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
         if (getLevel() == 0) {
           miMoveParent.setEnabled(false);
         }
-        miMoveParent.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
+        miMoveParent.addListener(
+            SWT.Selection,
+            e -> {
+              try {
                 // Move the condition lower: this means delete the condition from the
                 // active_condition.
                 // After that, move it to the parent.
-                Condition up = activeCondition.getCondition(cond_nr);
-                activeCondition.removeCondition(cond_nr);
+                Condition up = activeCondition.getCondition(conditionIndex);
+                activeCondition.removeCondition(conditionIndex);
                 Condition parent = parents.get(getLevel() - 1);
 
                 parent.addCondition(up);
@@ -660,40 +652,46 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
                 goUp();
 
                 widget.redraw();
+              } catch (Exception ex) {
+                new ErrorDialog(shell, "Error", "Error removing condition", ex);
               }
             });
         // --------------------------------------------------
         new MenuItem(mPop, SWT.SEPARATOR);
         MenuItem miMoveDown = new MenuItem(mPop, SWT.PUSH);
         miMoveDown.setText(BaseMessages.getString(PKG, "ConditionEditor.MoveConditionDown"));
-        if (cond_nr >= activeCondition.nrConditions() - 1) {
+        if (conditionIndex >= activeCondition.nrConditions() - 1) {
           miMoveDown.setEnabled(false);
         }
-        miMoveDown.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                Condition down = activeCondition.getCondition(cond_nr);
-                activeCondition.removeCondition(cond_nr);
-                activeCondition.addCondition(cond_nr + 1, down);
+        miMoveDown.addListener(
+            SWT.Selection,
+            e -> {
+              try {
+                Condition down = activeCondition.getCondition(conditionIndex);
+                activeCondition.removeCondition(conditionIndex);
+                activeCondition.addCondition(conditionIndex + 1, down);
 
                 widget.redraw();
+              } catch (Exception ex) {
+                new ErrorDialog(shell, "Error", "Error moving condition", ex);
               }
             });
         MenuItem miMoveUp = new MenuItem(mPop, SWT.PUSH);
         miMoveUp.setText(BaseMessages.getString(PKG, "ConditionEditor.MoveConditionUp"));
-        if (cond_nr == 0) {
+        if (conditionIndex == 0) {
           miMoveUp.setEnabled(false);
         }
-        miMoveUp.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                Condition up = activeCondition.getCondition(cond_nr);
-                activeCondition.removeCondition(cond_nr);
-                activeCondition.addCondition(cond_nr - 1, up);
+        miMoveUp.addListener(
+            SWT.Selection,
+            e -> {
+              try {
+                Condition up = activeCondition.getCondition(conditionIndex);
+                activeCondition.removeCondition(conditionIndex);
+                activeCondition.addCondition(conditionIndex - 1, up);
 
                 widget.redraw();
+              } catch (Exception ex) {
+                new ErrorDialog(shell, "Error", "Error moving condition", ex);
               }
             });
 
@@ -852,145 +850,147 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
   }
 
   private void drawAtomic(GC gc, int x, int y, Condition condition) {
-
-    // First the text sizes...
-    String left = Const.rightPad(condition.getLeftValuename(), maxFieldLength);
-    Point extLeft = gc.textExtent(left);
-    if (condition.getLeftValuename() == null) {
-      extLeft = gc.textExtent("<field>");
-    }
-
-    String fnMax = Condition.functions[Condition.FUNC_NOT_NULL];
-    String fn = condition.getFunctionDesc();
-    Point extFn = gc.textExtent(fnMax);
-
-    String rightval = Const.rightPad(condition.getRightValuename(), maxFieldLength);
-    Point extRval = gc.textExtent(rightval);
-    if (condition.getLeftValuename() == null) {
-      extRval = gc.textExtent("<field>");
-    }
-
-    String rightex = condition.getRightExactString();
-
-    String rightexMax = rightex;
-    if (rightex == null) {
-      rightexMax = Const.rightPad(" ", 10);
-    } else {
-      if (rightex.length() < 10) {
-        rightexMax = Const.rightPad(rightex, 10);
-      }
-    }
-
-    Point extRex = gc.textExtent(rightexMax);
-
-    sizeLeft = new Rectangle(x + 5, y + sizeNot.height + 5, extLeft.x + 5, extLeft.y + 5);
-
-    sizeFn =
-        new Rectangle(
-            sizeLeft.x + sizeLeft.width + 15, y + sizeNot.height + 5, extFn.x + 5, extFn.y + 5);
-
-    sizeRightval =
-        new Rectangle(
-            sizeFn.x + sizeFn.width + 15, y + sizeNot.height + 5, extRval.x + 5, extRval.y + 5);
-
-    sizeRightex =
-        new Rectangle(
-            sizeFn.x + sizeFn.width + 15,
-            y + sizeNot.height + 5 + sizeRightval.height + 5,
-            extRex.x + 5,
-            extRex.y + 5);
-
-    if (hoverLeft) {
-      gc.setBackground(gray);
-    }
-    gc.fillRectangle(real2Screen(sizeLeft));
-    gc.drawRectangle(real2Screen(sizeLeft));
-    gc.setBackground(bg);
-
-    if (hoverFn) {
-      gc.setBackground(gray);
-    }
-    gc.fillRectangle(real2Screen(sizeFn));
-    gc.drawRectangle(real2Screen(sizeFn));
-    gc.setBackground(bg);
-
-    if (hoverRightval) {
-      gc.setBackground(gray);
-    }
-    gc.fillRectangle(real2Screen(sizeRightval));
-    gc.drawRectangle(real2Screen(sizeRightval));
-    gc.setBackground(bg);
-
-    if (hoverRightex) {
-      gc.setBackground(gray);
-    }
-    gc.fillRectangle(real2Screen(sizeRightex));
-    gc.drawRectangle(real2Screen(sizeRightex));
-    gc.setBackground(bg);
-
-    if (condition.getLeftValuename() != null) {
-      gc.drawText(left, sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
-    } else {
-      gc.setForeground(gray);
-      gc.drawText(
-          "<field>", sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
-      gc.setForeground(black);
-    }
-
-    gc.drawText(fn, sizeFn.x + 1 + offsetx, sizeFn.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
-
-    if (condition.getFunction() != Condition.FUNC_NOT_NULL
-        && condition.getFunction() != Condition.FUNC_NULL) {
-      String re = rightex == null ? "" : rightex;
-      String stype = "";
-      ValueMetaAndData v = condition.getRightExact();
-      if (v != null) {
-        stype = " (" + v.getValueMeta().getTypeDesc() + ")";
+    try {
+      // First the text sizes...
+      String left = Const.rightPad(condition.getLeftValueName(), maxFieldLength);
+      Point extLeft = gc.textExtent(left);
+      if (condition.getLeftValueName() == null) {
+        extLeft = gc.textExtent("<field>");
       }
 
-      if (condition.getRightValuename() != null) {
-        gc.drawText(
-            rightval,
-            sizeRightval.x + 1 + offsetx,
-            sizeRightval.y + 1 + offsety,
-            SWT.DRAW_TRANSPARENT);
+      String fnMax = Condition.functions[Condition.FUNC_NOT_NULL];
+      String fn = condition.getFunctionDesc();
+      Point extFn = gc.textExtent(fnMax);
+
+      String rightval = Const.rightPad(condition.getRightValueName(), maxFieldLength);
+      Point extRval = gc.textExtent(rightval);
+      if (condition.getLeftValueName() == null) {
+        extRval = gc.textExtent("<field>");
+      }
+
+      String rightex = condition.getRightValueString();
+
+      String rightexMax = rightex;
+      if (rightex == null) {
+        rightexMax = Const.rightPad(" ", 10);
       } else {
-        String nothing = rightex == null ? "<field>" : "";
-        gc.setForeground(gray);
-        gc.drawText(
-            nothing,
-            sizeRightval.x + 1 + offsetx,
-            sizeRightval.y + 1 + offsety,
-            SWT.DRAW_TRANSPARENT);
-        if (condition.getRightValuename() == null) {
-          gc.setForeground(black);
+        if (rightex.length() < 10) {
+          rightexMax = Const.rightPad(rightex, 10);
         }
       }
 
-      if (rightex != null) {
-        gc.drawText(
-            re, sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+      Point extRex = gc.textExtent(rightexMax);
+
+      sizeLeft = new Rectangle(x + 5, y + sizeNot.height + 5, extLeft.x + 5, extLeft.y + 5);
+
+      sizeFn =
+          new Rectangle(
+              sizeLeft.x + sizeLeft.width + 15, y + sizeNot.height + 5, extFn.x + 5, extFn.y + 5);
+
+      sizeRightval =
+          new Rectangle(
+              sizeFn.x + sizeFn.width + 15, y + sizeNot.height + 5, extRval.x + 5, extRval.y + 5);
+
+      sizeRightex =
+          new Rectangle(
+              sizeFn.x + sizeFn.width + 15,
+              y + sizeNot.height + 5 + sizeRightval.height + 5,
+              extRex.x + 5,
+              extRex.y + 5);
+
+      if (hoverLeft) {
+        gc.setBackground(gray);
+      }
+      gc.fillRectangle(real2Screen(sizeLeft));
+      gc.drawRectangle(real2Screen(sizeLeft));
+      gc.setBackground(bg);
+
+      if (hoverFn) {
+        gc.setBackground(gray);
+      }
+      gc.fillRectangle(real2Screen(sizeFn));
+      gc.drawRectangle(real2Screen(sizeFn));
+      gc.setBackground(bg);
+
+      if (hoverRightval) {
+        gc.setBackground(gray);
+      }
+      gc.fillRectangle(real2Screen(sizeRightval));
+      gc.drawRectangle(real2Screen(sizeRightval));
+      gc.setBackground(bg);
+
+      if (hoverRightex) {
+        gc.setBackground(gray);
+      }
+      gc.fillRectangle(real2Screen(sizeRightex));
+      gc.drawRectangle(real2Screen(sizeRightex));
+      gc.setBackground(bg);
+
+      if (condition.getLeftValueName() != null) {
+        gc.drawText(left, sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
       } else {
-        String nothing = condition.getRightValuename() == null ? "<value>" : "";
         gc.setForeground(gray);
         gc.drawText(
-            nothing,
-            sizeRightex.x + 1 + offsetx,
-            sizeRightex.y + 1 + offsety,
-            SWT.DRAW_TRANSPARENT);
+            "<field>", sizeLeft.x + 1 + offsetx, sizeLeft.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
         gc.setForeground(black);
       }
 
-      gc.drawText(
-          stype,
-          sizeRightex.x + 1 + sizeRightex.width + 10 + offsetx,
-          sizeRightex.y + 1 + offsety,
-          SWT.DRAW_TRANSPARENT);
-    } else {
-      gc.drawText(
-          "-", sizeRightval.x + 1 + offsetx, sizeRightval.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
-      gc.drawText(
-          "-", sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+      gc.drawText(fn, sizeFn.x + 1 + offsetx, sizeFn.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+
+      if (condition.getFunction() != NOT_NULL && condition.getFunction() != NULL) {
+        String re = rightex == null ? "" : rightex;
+        String stype = "";
+        Condition.CValue v = condition.getRightValue();
+        if (v != null) {
+          stype = " (" + v.createValueMeta().getTypeDesc() + ")";
+        }
+
+        if (condition.getRightValueName() != null) {
+          gc.drawText(
+              rightval,
+              sizeRightval.x + 1 + offsetx,
+              sizeRightval.y + 1 + offsety,
+              SWT.DRAW_TRANSPARENT);
+        } else {
+          String nothing = rightex == null ? "<field>" : "";
+          gc.setForeground(gray);
+          gc.drawText(
+              nothing,
+              sizeRightval.x + 1 + offsetx,
+              sizeRightval.y + 1 + offsety,
+              SWT.DRAW_TRANSPARENT);
+          if (condition.getRightValueName() == null) {
+            gc.setForeground(black);
+          }
+        }
+
+        if (rightex != null) {
+          gc.drawText(
+              re, sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+        } else {
+          String nothing = condition.getRightValueName() == null ? "<value>" : "";
+          gc.setForeground(gray);
+          gc.drawText(
+              nothing,
+              sizeRightex.x + 1 + offsetx,
+              sizeRightex.y + 1 + offsety,
+              SWT.DRAW_TRANSPARENT);
+          gc.setForeground(black);
+        }
+
+        gc.drawText(
+            stype,
+            sizeRightex.x + 1 + sizeRightex.width + 10 + offsetx,
+            sizeRightex.y + 1 + offsety,
+            SWT.DRAW_TRANSPARENT);
+      } else {
+        gc.drawText(
+            "-", sizeRightval.x + 1 + offsetx, sizeRightval.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+        gc.drawText(
+            "-", sizeRightex.x + 1 + offsetx, sizeRightex.y + 1 + offsety, SWT.DRAW_TRANSPARENT);
+      }
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error drawing condition", e);
     }
   }
 
@@ -1223,9 +1223,9 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     }
   }
 
-  private void addCondition() {
+  private void addCondition() throws HopValueException {
     Condition c = new Condition();
-    c.setOperator(Condition.OPERATOR_AND);
+    c.setOperator(AND);
 
     addCondition(c);
     setModified();
@@ -1238,7 +1238,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
    *
    * @param condition The condition to which we want to add one more.
    */
-  private void addCondition(Condition condition) {
+  private void addCondition(Condition condition) throws HopValueException {
     activeCondition.addCondition(condition);
   }
 
@@ -1251,12 +1251,16 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     activeCondition.removeCondition(nr);
   }
 
-  /** @param messageString The messageString to set. */
+  /**
+   * @param messageString The messageString to set.
+   */
   public void setMessageString(String messageString) {
     this.messageString = messageString;
   }
 
-  /** @return Returns the messageString. */
+  /**
+   * @return Returns the messageString.
+   */
   public String getMessageString() {
     return messageString;
   }

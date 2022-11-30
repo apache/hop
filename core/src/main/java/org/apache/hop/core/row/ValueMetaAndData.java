@@ -52,7 +52,7 @@ public class ValueMetaAndData {
     this.valueData = valueData;
   }
 
-  public ValueMetaAndData(String valueName, Object valueData) throws HopValueException {
+  public ValueMetaAndData(String valueName, Object valueData) {
     this.valueData = valueData;
     if (valueData instanceof String) {
       this.valueMeta = new ValueMetaString(valueName);
@@ -73,13 +73,22 @@ public class ValueMetaAndData {
     }
   }
 
+  public ValueMetaAndData(ValueMetaAndData v) {
+    try {
+      this.valueMeta = v.valueMeta.clone();
+      this.valueData = v.valueMeta.cloneValueData(v.getValueData());
+    } catch (Exception e) {
+      throw new RuntimeException("Error creating copy of value and metadata", e);
+    }
+  }
+
   @Override
   public Object clone() {
     ValueMetaAndData vmad = new ValueMetaAndData();
     try {
       vmad.valueData = valueMeta.cloneValueData(valueData);
     } catch (HopValueException e) {
-      vmad.valueData = null; // TODO: should we really do this? Is it safe?
+      throw new RuntimeException("Error cloning value data", e);
     }
     vmad.valueMeta = valueMeta.clone();
 
@@ -88,6 +97,9 @@ public class ValueMetaAndData {
 
   @Override
   public String toString() {
+    if (valueMeta == null) {
+      return "";
+    }
     try {
       return valueMeta.getString(valueData);
     } catch (HopValueException e) {
@@ -112,15 +124,17 @@ public class ValueMetaAndData {
     retval.append("<" + XML_TAG + ">");
     retval.append(XmlHandler.addTagValue("name", meta.getName(), false));
     retval.append(XmlHandler.addTagValue("type", meta.getTypeDesc(), false));
+
+    retval.append(XmlHandler.addTagValue("length", meta.getLength(), false));
+    retval.append(XmlHandler.addTagValue("precision", meta.getPrecision(), false));
+    retval.append(XmlHandler.addTagValue("mask", meta.getConversionMask(), false));
+
     try {
       retval.append(XmlHandler.addTagValue("text", meta.getCompatibleString(valueData), false));
     } catch (HopValueException e) {
       retval.append(XmlHandler.addTagValue("text", "", false));
     }
-    retval.append(XmlHandler.addTagValue("length", meta.getLength(), false));
-    retval.append(XmlHandler.addTagValue("precision", meta.getPrecision(), false));
     retval.append(XmlHandler.addTagValue("isnull", meta.isNull(valueData), false));
-    retval.append(XmlHandler.addTagValue("mask", meta.getConversionMask(), false));
     retval.append("</" + XML_TAG + ">");
 
     return retval.toString();
@@ -190,22 +204,30 @@ public class ValueMetaAndData {
     return valueMeta.toStringMeta();
   }
 
-  /** @return the valueData */
+  /**
+   * @return the valueData
+   */
   public Object getValueData() {
     return valueData;
   }
 
-  /** @param valueData the valueData to set */
+  /**
+   * @param valueData the valueData to set
+   */
   public void setValueData(Object valueData) {
     this.valueData = valueData;
   }
 
-  /** @return the valueMeta */
+  /**
+   * @return the valueMeta
+   */
   public IValueMeta getValueMeta() {
     return valueMeta;
   }
 
-  /** @param valueMeta the valueMeta to set */
+  /**
+   * @param valueMeta the valueMeta to set
+   */
   public void setValueMeta(IValueMeta valueMeta) {
     this.valueMeta = valueMeta;
   }

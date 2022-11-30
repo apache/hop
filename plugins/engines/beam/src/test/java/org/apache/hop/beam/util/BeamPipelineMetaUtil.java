@@ -193,9 +193,9 @@ public class BeamPipelineMetaUtil {
     // Send rows to A (true) and B (false)
     //
     FilterRowsMeta filter = new FilterRowsMeta();
-    filter.getCondition().setLeftValuename("name");
-    filter.getCondition().setFunction(Condition.FUNC_SMALLER);
-    filter.getCondition().setRightExact(new ValueMetaAndData("value", "k"));
+    filter.getCondition().setLeftValueName("name");
+    filter.getCondition().setFunction(Condition.Function.SMALLER);
+    filter.getCondition().setRightValue(new Condition.CValue(new ValueMetaAndData("value", "k")));
     filter.setTrueTransformName("A");
     filter.setFalseTransformName("B");
     TransformMeta filterMeta = new TransformMeta("Filter", filter);
@@ -349,9 +349,10 @@ public class BeamPipelineMetaUtil {
     // Add a Memory Group By transform which will
     MemoryGroupByMeta memoryGroupByMeta = new MemoryGroupByMeta();
     memoryGroupByMeta.setGroups(List.of(new GGroup("stateCode")));
-    memoryGroupByMeta.setAggregates(List.of(
-            new GAggregate("rowsPerState", "stateCode", MemoryGroupByMeta.GroupType.CountAll, null)
-    ));
+    memoryGroupByMeta.setAggregates(
+        List.of(
+            new GAggregate(
+                "rowsPerState", "stateCode", MemoryGroupByMeta.GroupType.CountAll, null)));
     TransformMeta memoryGroupByTransformMeta = new TransformMeta("rowsPerState", memoryGroupByMeta);
     pipelineMeta.addTransform(memoryGroupByTransformMeta);
     pipelineMeta.addPipelineHop(

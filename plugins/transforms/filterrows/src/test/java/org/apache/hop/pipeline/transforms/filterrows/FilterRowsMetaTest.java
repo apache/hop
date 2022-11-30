@@ -19,17 +19,15 @@ package org.apache.hop.pipeline.transforms.filterrows;
 import com.google.common.collect.ImmutableList;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ConditionLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -41,9 +39,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class FilterRowsMetaTest {
-  LoadSaveTester loadSaveTester;
-  Class<FilterRowsMeta> testMetaClass = FilterRowsMeta.class;
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setUpLoadSave() throws Exception {
@@ -65,15 +60,25 @@ public class FilterRowsMetaTest {
     setterMap.put("send_false_to", "setFalseTransformName");
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester(
-            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
+  public void testSerialization() throws Exception {
+
+    FilterRowsMeta meta = TransformSerializationTestUtil.testSerialization("/filter-rows-transform-basic.xml", FilterRowsMeta.class);
+    Assert.assertEquals("True", meta.getTransformIOMeta().getTargetStreams().get(0).getSubject());
+    Assert.assertEquals("False", meta.getTransformIOMeta().getTargetStreams().get(1).getSubject());
+
+    Condition condition = meta.getCondition();
+    Assert.assertNotNull(condition);
+    Assert.assertEquals(2, condition.getChildren().size());
+    Condition c1 = condition.getChildren().get(0);
+    Assert.assertEquals("stateCode", c1.getLeftValueName());
+    Assert.assertEquals("FL", c1.getRightValueString());
+
+    Condition c2 = condition.getChildren().get(1);
+    Assert.assertEquals("housenr", c2.getLeftValueName());
+    Assert.assertEquals("100", c2.getRightValueString());
   }
 
   @Test

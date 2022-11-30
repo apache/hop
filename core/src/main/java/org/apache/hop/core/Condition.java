@@ -17,22 +17,34 @@
 
 package org.apache.hop.core;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static org.apache.hop.core.Condition.Function.*;
+import static org.apache.hop.core.Condition.Operator.AND;
+import static org.apache.hop.core.Condition.Operator.NONE;
 
 /**
  * This class describes a condition in a general meaning.
@@ -112,18 +124,30 @@ public class Condition implements Cloneable {
   // NOT value = othervalue
   //
 
-  private boolean negate;
-  private int operator;
-  private String leftValuename;
-  private int function;
-  private String rightValuename;
-  private ValueMetaAndData rightExact;
+  @HopMetadataProperty(key = "negated")
+  private boolean negated;
 
-  private int leftFieldnr;
-  private int rightFieldnr;
+  @HopMetadataProperty(key = "operator", storeWithCode = true, enumNameWhenNotFound = "NONE")
+  private Operator operator;
 
-  private List<Condition> list;
+  @HopMetadataProperty(key = "leftvalue")
+  private String leftValueName;
 
+  @HopMetadataProperty(key = "function", storeWithCode = true)
+  private Function function;
+
+  @HopMetadataProperty(key = "rightvalue")
+  private String rightValueName;
+
+  @HopMetadataProperty(key = "value")
+  private CValue rightValue;
+
+  @HopMetadataProperty(groupKey = "conditions", key = "condition")
+  private List<Condition> children;
+
+  // Cached values for performance:
+  private int leftFieldIndex;
+  private int rightFieldIndex;
   private String rightString;
 
   /**
@@ -133,85 +157,83 @@ public class Condition implements Cloneable {
   private String[] inList;
 
   public Condition() {
-    list = new ArrayList<>();
-    this.operator = OPERATOR_NONE;
-    this.negate = false;
+    this.children = new ArrayList<>();
+    this.operator = NONE;
+    this.negated = false;
+    this.rightValue = null;
 
-    leftFieldnr = -2;
-    rightFieldnr = -2;
+    leftFieldIndex = -2;
+    rightFieldIndex = -2;
   }
 
-  public Condition(String valuename, int function, String valuename2, ValueMetaAndData exact) {
+  public Condition(String valueName, Function function, String valueName2, ValueMetaAndData exact)
+      throws HopValueException {
     this();
-    this.leftValuename = valuename;
+    this.leftValueName = valueName;
     this.function = function;
-    this.rightValuename = valuename2;
-    this.rightExact = exact;
+    this.rightValueName = valueName2;
+    this.rightValue = exact == null ? null : new CValue(exact);
 
     clearFieldPositions();
   }
 
   public Condition(
-      int operator, String valuename, int function, String valuename2, ValueMetaAndData exact) {
+      Operator operator,
+      String valueName,
+      Function function,
+      String valueName2,
+      ValueMetaAndData exact)
+      throws HopValueException {
     this();
     this.operator = operator;
-    this.leftValuename = valuename;
+    this.leftValueName = valueName;
     this.function = function;
-    this.rightValuename = valuename2;
-    this.rightExact = exact;
+    this.rightValueName = valueName2;
+    this.rightValue = exact == null ? null : new CValue(exact);
 
     clearFieldPositions();
   }
 
   public Condition(
-      boolean negate, String valuename, int function, String valuename2, ValueMetaAndData exact) {
-    this(valuename, function, valuename2, exact);
-    this.negate = negate;
+      boolean negated,
+      String valueName,
+      Function function,
+      String valueName2,
+      ValueMetaAndData exact)
+      throws HopValueException {
+    this(valueName, function, valueName2, exact);
+    this.negated = negated;
+  }
+
+  public Condition(Condition c) {
+    this();
+    this.negated = c.negated;
+    this.operator = c.operator;
+    this.function = c.function;
+    this.leftValueName = c.leftValueName;
+    this.rightValueName = c.rightValueName;
+    this.rightValue = c.rightValue == null ? null : new CValue(c.rightValue);
+    c.children.forEach(child -> this.children.add(new Condition(child)));
   }
 
   @Override
-  public Object clone() {
-    Condition retval = null;
-
-    retval = new Condition();
-    retval.negate = negate;
-    retval.operator = operator;
-
-    if (isComposite()) {
-      for (int i = 0; i < nrConditions(); i++) {
-        Condition c = getCondition(i);
-        Condition cCopy = (Condition) c.clone();
-        retval.addCondition(cCopy);
-      }
-    } else {
-      retval.negate = negate;
-      retval.leftValuename = leftValuename;
-      retval.operator = operator;
-      retval.rightValuename = rightValuename;
-      retval.function = function;
-      if (rightExact != null) {
-        retval.rightExact = (ValueMetaAndData) rightExact.clone();
-      } else {
-        retval.rightExact = null;
-      }
-    }
-
-    return retval;
+  public Condition clone() {
+    return new Condition(this);
   }
 
-  public void setOperator(int operator) {
+  public void setOperator(Operator operator) {
     this.operator = operator;
   }
 
-  public int getOperator() {
+  public Operator getOperator() {
     return operator;
   }
 
   public String getOperatorDesc() {
-    return Const.rightPad(operators[operator], 7);
+    return Const.rightPad(operator.getCode(), 7);
   }
 
-  public static final int getOperator(String description) {
+  public static int getOperator(String description) {
     if (description == null) {
       return OPERATOR_NONE;
     }
@@ -224,39 +246,39 @@ public class Condition implements Cloneable {
     return OPERATOR_NONE;
   }
 
-  public static final String[] getOperators() {
-    String[] retval = new String[operators.length - 1];
-    for (int i = 1; i < operators.length; i++) {
-      retval[i - 1] = operators[i];
+  public static String[] getOperators() {
+    String[] operatorCodes = new String[Condition.operators.length - 1];
+    for (int i = 1; i < Condition.operators.length; i++) {
+      operatorCodes[i - 1] = Condition.operators[i];
     }
-    return retval;
+    return operatorCodes;
   }
 
   public static final String[] getRealOperators() {
     return new String[] {"OR", "AND", "OR NOT", "AND NOT", "XOR"};
   }
 
-  public void setLeftValuename(String leftValuename) {
-    this.leftValuename = leftValuename;
+  public void setLeftValueName(String leftValueName) {
+    this.leftValueName = leftValueName;
   }
 
-  public String getLeftValuename() {
-    return leftValuename;
+  public String getLeftValueName() {
+    return leftValueName;
   }
 
-  public int getFunction() {
+  public Function getFunction() {
     return function;
   }
 
-  public void setFunction(int function) {
+  public void setFunction(Function function) {
     this.function = function;
   }
 
   public String getFunctionDesc() {
-    return functions[function];
+    return function == null ? EQUAL.getCode() : function.getCode();
   }
 
-  public static final int getFunction(String description) {
+  public static int getFunction(String description) {
     for (int i = 1; i < functions.length; i++) {
       if (functions[i].equalsIgnoreCase(Const.trim(description))) {
         return i;
@@ -265,43 +287,43 @@ public class Condition implements Cloneable {
     return FUNC_EQUAL;
   }
 
-  public void setRightValuename(String rightValuename) {
-    this.rightValuename = rightValuename;
+  public void setRightValueName(String rightValueName) {
+    this.rightValueName = rightValueName;
   }
 
-  public String getRightValuename() {
-    return rightValuename;
+  public String getRightValueName() {
+    return rightValueName;
   }
 
-  public void setRightExact(ValueMetaAndData rightExact) {
-    this.rightExact = rightExact;
+  public void setRightValue(CValue rightValue) {
+    this.rightValue = rightValue;
   }
 
-  public ValueMetaAndData getRightExact() {
-    return rightExact;
+  public CValue getRightValue() {
+    return rightValue;
   }
 
-  public String getRightExactString() {
-    if (rightExact == null) {
+  public String getRightValueString() {
+    if (rightValue == null) {
       return null;
     }
-    return rightExact.toString();
+    return rightValue.getText();
   }
 
   public boolean isAtomic() {
-    return list.isEmpty();
+    return children.isEmpty();
   }
 
   public boolean isComposite() {
-    return !list.isEmpty();
+    return !children.isEmpty();
   }
 
   public boolean isNegated() {
-    return negate;
+    return negated;
   }
 
   public void setNegated(boolean negate) {
-    this.negate = negate;
+    this.negated = negate;
   }
 
   public void negate() {
@@ -310,7 +332,7 @@ public class Condition implements Cloneable {
 
   /** A condition is empty when the condition is atomic and no left field is specified. */
   public boolean isEmpty() {
-    return (isAtomic() && leftValuename == null);
+    return (isAtomic() && leftValueName == null);
   }
 
   /**
@@ -318,8 +340,8 @@ public class Condition implements Cloneable {
    * clear these cached field positions...
    */
   public void clearFieldPositions() {
-    leftFieldnr = -2;
-    rightFieldnr = -2;
+    leftFieldIndex = -2;
+    rightFieldIndex = -2;
   }
 
   /**
@@ -330,8 +352,7 @@ public class Condition implements Cloneable {
    * @return true if the condition evaluates to true.
    */
   public boolean evaluate(IRowMeta rowMeta, Object[] r) {
-    // Start of evaluate
-    boolean retval = false;
+    boolean evaluation = false;
 
     // If we have 0 items in the list, evaluate the current condition
     // Otherwise, evaluate all sub-conditions
@@ -339,89 +360,99 @@ public class Condition implements Cloneable {
     try {
       if (isAtomic()) {
 
-        if (function == FUNC_TRUE) {
-          return !negate;
+        if (function == TRUE) {
+          return !negated;
         }
 
-        // Get fieldnrs left value
+        // Get field index: left value name
         //
-        // Check out the fieldnrs if we don't have them...
-        if (leftValuename != null && leftValuename.length() > 0) {
-          leftFieldnr = rowMeta.indexOfValue(leftValuename);
+        // Check out the field index if we don't have them...
+        if (StringUtils.isNotEmpty(leftValueName)) {
+          leftFieldIndex = rowMeta.indexOfValue(leftValueName);
         }
 
-        // Get fieldnrs right value
+        // Get field index: right value name
         //
-        if (rightValuename != null && rightValuename.length() > 0) {
-          rightFieldnr = rowMeta.indexOfValue(rightValuename);
+        if (StringUtils.isNotEmpty(rightValueName)) {
+          rightFieldIndex = rowMeta.indexOfValue(rightValueName);
+
+          // We can't have a right value in this case
+          rightValue = null;
         }
 
-        // Get fieldnrs left field
-        IValueMeta fieldMeta = null;
-        Object field = null;
-        if (leftFieldnr >= 0) {
-          fieldMeta = rowMeta.getValueMeta(leftFieldnr);
-          field = r[leftFieldnr];
+        // Get field index: left field
+        //
+        IValueMeta fieldMeta;
+        Object field;
+        if (leftFieldIndex >= 0) {
+          fieldMeta = rowMeta.getValueMeta(leftFieldIndex);
+          field = r[leftFieldIndex];
         } else {
           return false; // no fields to evaluate
         }
 
-        // Get fieldnrs right exact
-        IValueMeta fieldMeta2 = rightExact != null ? rightExact.getValueMeta() : null;
-        Object field2 = rightExact != null ? rightExact.getValueData() : null;
-        if (field2 == null && rightFieldnr >= 0) {
-          fieldMeta2 = rowMeta.getValueMeta(rightFieldnr);
-          field2 = r[rightFieldnr];
+        // Get field index: right value
+        //
+        IValueMeta fieldMeta2 = rightValue != null ? rightValue.createValueMeta() : null;
+        // Old metadata contains a right value block without name, type and so on.  This means: no
+        // value
+        Object field2 =
+            rightValue != null && rightValue.getName() != null
+                ? rightValue.createValueData()
+                : null;
+        if (field2 == null && rightFieldIndex >= 0) {
+          fieldMeta2 = rowMeta.getValueMeta(rightFieldIndex);
+          field2 = r[rightFieldIndex];
         }
 
         // Evaluate
         switch (function) {
-          case FUNC_EQUAL:
-            retval = (fieldMeta.compare(field, fieldMeta2, field2) == 0);
+          case EQUAL:
+            evaluation = (fieldMeta.compare(field, fieldMeta2, field2) == 0);
             break;
-          case FUNC_NOT_EQUAL:
-            retval = (fieldMeta.compare(field, fieldMeta2, field2) != 0);
+          case NOT_EQUAL:
+            evaluation = (fieldMeta.compare(field, fieldMeta2, field2) != 0);
             break;
-          case FUNC_SMALLER:
+          case SMALLER:
             if (fieldMeta.isNull(field)) {
-              retval = false;
+              evaluation = false;
             } else {
-              retval = (fieldMeta.compare(field, fieldMeta2, field2) < 0);
+              evaluation = (fieldMeta.compare(field, fieldMeta2, field2) < 0);
             }
             break;
-          case FUNC_SMALLER_EQUAL:
+          case SMALLER_EQUAL:
             if (fieldMeta.isNull(field)) {
-              retval = false;
+              evaluation = false;
             } else {
-              retval = (fieldMeta.compare(field, fieldMeta2, field2) <= 0);
+              evaluation = (fieldMeta.compare(field, fieldMeta2, field2) <= 0);
             }
             break;
-          case FUNC_LARGER:
-            retval = (fieldMeta.compare(field, fieldMeta2, field2) > 0);
+          case LARGER:
+            evaluation = (fieldMeta.compare(field, fieldMeta2, field2) > 0);
             break;
-          case FUNC_LARGER_EQUAL:
-            retval = (fieldMeta.compare(field, fieldMeta2, field2) >= 0);
+          case LARGER_EQUAL:
+            evaluation = (fieldMeta.compare(field, fieldMeta2, field2) >= 0);
             break;
-          case FUNC_REGEXP:
+          case REGEXP:
             if (fieldMeta.isNull(field) || field2 == null) {
-              retval = false;
+              evaluation = false;
             } else {
-              retval =
+              evaluation =
                   Pattern.matches(
                       fieldMeta2.getCompatibleString(field2), fieldMeta.getCompatibleString(field));
             }
             break;
-          case FUNC_NULL:
-            retval = (fieldMeta.isNull(field));
+          case NULL:
+            evaluation = (fieldMeta.isNull(field));
             break;
-          case FUNC_NOT_NULL:
-            retval = (!fieldMeta.isNull(field));
+          case NOT_NULL:
+            evaluation = (!fieldMeta.isNull(field));
             break;
-          case FUNC_IN_LIST:
+          case IN_LIST:
             // performance reason: create the array first or again when it is against a field and
             // not a constant
             //
-            if (inList == null || rightFieldnr >= 0) {
+            if (inList == null || rightFieldIndex >= 0) {
               inList = Const.splitString(fieldMeta2.getString(field2), ';', true);
               for (int i = 0; i < inList.length; i++) {
                 inList[i] = inList[i] == null ? null : inList[i].replace("\\", "");
@@ -433,51 +464,47 @@ public class Condition implements Cloneable {
             if (searchString != null) {
               inIndex = Arrays.binarySearch(inList, searchString);
             }
-            retval = inIndex >= 0;
+            evaluation = inIndex >= 0;
             break;
-          case FUNC_CONTAINS:
-            retval =
+          case CONTAINS:
+            evaluation =
                 fieldMeta.getCompatibleString(field) != null
-                    ? fieldMeta
-                            .getCompatibleString(field)
-                            .indexOf(fieldMeta2.getCompatibleString(field2))
-                        >= 0
-                    : false;
-            break;
-          case FUNC_STARTS_WITH:
-            retval =
-                fieldMeta.getCompatibleString(field) != null
-                    ? fieldMeta
+                    && fieldMeta
                         .getCompatibleString(field)
-                        .startsWith(fieldMeta2.getCompatibleString(field2))
-                    : false;
+                        .contains(fieldMeta2.getCompatibleString(field2));
             break;
-          case FUNC_ENDS_WITH:
+          case STARTS_WITH:
+            evaluation =
+                fieldMeta.getCompatibleString(field) != null
+                    && fieldMeta
+                        .getCompatibleString(field)
+                        .startsWith(fieldMeta2.getCompatibleString(field2));
+            break;
+          case ENDS_WITH:
             String string = fieldMeta.getCompatibleString(field);
             if (!Utils.isEmpty(string)) {
               if (rightString == null && field2 != null) {
                 rightString = fieldMeta2.getCompatibleString(field2);
               }
               if (rightString != null) {
-                retval = string.endsWith(fieldMeta2.getCompatibleString(field2));
+                evaluation = string.endsWith(fieldMeta2.getCompatibleString(field2));
               } else {
-                retval = false;
+                evaluation = false;
               }
             } else {
-              retval = false;
+              evaluation = false;
             }
             break;
-          case FUNC_LIKE:
+          case LIKE:
             // Converts to a regular expression
-            // TODO: optimize the patterns and String replacements
             //
             if (fieldMeta.isNull(field) || field2 == null) {
-              retval = false;
+              evaluation = false;
             } else {
               String regex = fieldMeta2.getCompatibleString(field2);
               regex = regex.replace("%", ".*");
               regex = regex.replace("?", ".");
-              retval = Pattern.matches(regex, fieldMeta.getCompatibleString(field));
+              evaluation = Pattern.matches(regex, fieldMeta.getCompatibleString(field));
             }
             break;
           default:
@@ -488,39 +515,39 @@ public class Condition implements Cloneable {
         // Optionally negate
         //
         if (isNegated()) {
-          retval = !retval;
+          evaluation = !evaluation;
         }
       } else {
         // Composite : get first
-        Condition cb0 = list.get(0);
-        retval = cb0.evaluate(rowMeta, r);
+        Condition cb0 = children.get(0);
+        evaluation = cb0.evaluate(rowMeta, r);
 
         // Loop over the conditions listed below.
         //
-        for (int i = 1; i < list.size(); i++) {
+        for (int i = 1; i < children.size(); i++) {
           // Composite : #i
           // Get right hand condition
-          Condition cb = list.get(i);
+          Condition cb = children.get(i);
 
           // Evaluate the right hand side of the condition cb.evaluate() within
           // the switch statement
           // because the condition may be short-circuited due to the left hand
-          // side (retval)
+          // side (evaluation)
           switch (cb.getOperator()) {
-            case Condition.OPERATOR_OR:
-              retval = retval || cb.evaluate(rowMeta, r);
+            case OR:
+              evaluation = evaluation || cb.evaluate(rowMeta, r);
               break;
-            case Condition.OPERATOR_AND:
-              retval = retval && cb.evaluate(rowMeta, r);
+            case AND:
+              evaluation = evaluation && cb.evaluate(rowMeta, r);
               break;
-            case Condition.OPERATOR_OR_NOT:
-              retval = retval || (!cb.evaluate(rowMeta, r));
+            case OR_NOT:
+              evaluation = evaluation || (!cb.evaluate(rowMeta, r));
               break;
-            case Condition.OPERATOR_AND_NOT:
-              retval = retval && (!cb.evaluate(rowMeta, r));
+            case AND_NOT:
+              evaluation = evaluation && (!cb.evaluate(rowMeta, r));
               break;
-            case Condition.OPERATOR_XOR:
-              retval = retval ^ cb.evaluate(rowMeta, r);
+            case XOR:
+              evaluation = evaluation ^ cb.evaluate(rowMeta, r);
               break;
             default:
               break;
@@ -529,58 +556,56 @@ public class Condition implements Cloneable {
 
         // Composite: optionally negate
         if (isNegated()) {
-          retval = !retval;
+          evaluation = !evaluation;
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Unexpected error evaluation condition [" + toString() + "]", e);
+      throw new RuntimeException("Unexpected error evaluation condition [" + this + "]", e);
     }
 
-    return retval;
+    return evaluation;
   }
 
-  public void addCondition(Condition cb) {
-    if (isAtomic() && getLeftValuename() != null) {
+  public void addCondition(Condition cb) throws HopValueException {
+    if (isAtomic() && getLeftValueName() != null) {
       /*
        * Copy current atomic setup...
        */
-      Condition current =
-          new Condition(getLeftValuename(), getFunction(), getRightValuename(), getRightExact());
+      Condition current = new Condition(this);
       current.setNegated(isNegated());
       setNegated(false);
-      list.add(current);
+      children.add(current);
     } else {
       // Set default operator if not on first position...
-      if (isComposite() && cb.getOperator() == OPERATOR_NONE) {
-        cb.setOperator(OPERATOR_AND);
+      if (isComposite() && (cb.getOperator() == NONE)) {
+        cb.setOperator(AND);
       }
     }
-    list.add(cb);
+    children.add(cb);
   }
 
-  public void addCondition(int idx, Condition cb) {
-    if (isAtomic() && getLeftValuename() != null) {
+  public void addCondition(int idx, Condition cb) throws HopValueException {
+    if (isAtomic() && getLeftValueName() != null) {
       /*
        * Copy current atomic setup...
        */
-      Condition current =
-          new Condition(getLeftValuename(), getFunction(), getRightValuename(), getRightExact());
+      Condition current = new Condition(this);
       current.setNegated(isNegated());
       setNegated(false);
-      list.add(current);
+      children.add(current);
     } else {
       // Set default operator if not on first position...
-      if (isComposite() && idx > 0 && cb.getOperator() == OPERATOR_NONE) {
-        cb.setOperator(OPERATOR_AND);
+      if (isComposite() && idx > 0 && cb.getOperator() == NONE) {
+        cb.setOperator(AND);
       }
     }
-    list.add(idx, cb);
+    children.add(idx, cb);
   }
 
   public void removeCondition(int nr) {
     if (isComposite()) {
-      Condition c = list.get(nr);
-      list.remove(nr);
+      Condition c = children.get(nr);
+      children.remove(nr);
 
       // Nothing left or only one condition left: move it to the parent: make it atomic.
 
@@ -590,10 +615,10 @@ public class Condition implements Cloneable {
       }
 
       if (moveUp) {
-        setLeftValuename(c.getLeftValuename());
+        setLeftValueName(c.getLeftValueName());
         setFunction(c.getFunction());
-        setRightValuename(c.getRightValuename());
-        setRightExact(c.getRightExact());
+        setRightValueName(c.getRightValueName());
+        setRightValue(c.getRightValue());
         setNegated(isNegated() ^ c.isNegated());
       }
     }
@@ -618,7 +643,7 @@ public class Condition implements Cloneable {
       Condition condition = getCondition(i);
       changed |= condition.simplify();
       if (i == 0) {
-        condition.setOperator(OPERATOR_NONE);
+        condition.setOperator(NONE);
       }
     }
     return changed;
@@ -630,27 +655,27 @@ public class Condition implements Cloneable {
     // if parent only contain a single child: simplify
     //
     if (condition.isAtomic() && parent.nrConditions() == 1) {
-      parent.setLeftValuename(condition.getLeftValuename());
+      parent.setLeftValueName(condition.getLeftValueName());
       parent.setFunction(condition.getFunction());
-      parent.setRightValuename(condition.getRightValuename());
-      parent.setRightExact(condition.getRightExact());
+      parent.setRightValueName(condition.getRightValueName());
+      parent.setRightValue(condition.getRightValue());
       parent.setNegated(condition.isNegated() ^ parent.isNegated());
-      parent.list.clear();
+      parent.children.clear();
       return true;
     }
     return false;
   }
 
   public int nrConditions() {
-    return list.size();
+    return children.size();
   }
 
   public Condition getCondition(int i) {
-    return list.get(i);
+    return children.get(i);
   }
 
   public void setCondition(int i, Condition subCondition) {
-    list.set(i, subCondition);
+    children.set(i, subCondition);
   }
 
   @Override
@@ -666,7 +691,7 @@ public class Condition implements Cloneable {
         retval.append("  ");
       }
 
-      if (showOperator && getOperator() != OPERATOR_NONE) {
+      if (showOperator && getOperator() != NONE) {
         retval.append(getOperatorDesc());
         retval.append(" ");
       } else {
@@ -680,17 +705,17 @@ public class Condition implements Cloneable {
         retval.append("      ");
       }
 
-      if (function == FUNC_TRUE) {
+      if (function == TRUE) {
         retval.append(" TRUE");
       } else {
-        retval.append(leftValuename + " " + getFunctionDesc());
-        if (function != FUNC_NULL && function != FUNC_NOT_NULL) {
-          if (rightValuename != null) {
+        retval.append(leftValueName + " " + getFunctionDesc());
+        if (function != NULL && function != NOT_NULL) {
+          if (rightValueName != null) {
             retval.append(" ");
-            retval.append(rightValuename);
+            retval.append(rightValueName);
           } else {
             retval.append(
-                " [" + (getRightExactString() == null ? "" : getRightExactString()) + "]");
+                " [" + (getRightValueString() == null ? "" : getRightValueString()) + "]");
           }
         }
       }
@@ -711,7 +736,7 @@ public class Condition implements Cloneable {
         retval.append(Const.CR);
       }
       // Group is preceded by an operator:
-      if (getOperator() != OPERATOR_NONE && (showOperator || level > 0)) {
+      if (getOperator() != NONE && (showOperator || level > 0)) {
         for (int i = 0; i < level; i++) {
           retval.append("  ");
         }
@@ -722,8 +747,8 @@ public class Condition implements Cloneable {
         retval.append("  ");
       }
       retval.append("(" + Const.CR);
-      for (int i = 0; i < list.size(); i++) {
-        Condition cb = list.get(i);
+      for (int i = 0; i < children.size(); i++) {
+        Condition cb = children.get(i);
         retval.append(cb.toString(level + 1, true, i > 0));
       }
       for (int i = 0; i < level; i++) {
@@ -737,42 +762,13 @@ public class Condition implements Cloneable {
   }
 
   public String getXml() throws HopValueException {
-    return getXML(0);
-  }
-
-  public String getXML(int level) throws HopValueException {
-    String retval = "";
-    String indent1 = Const.rightPad(" ", level);
-    String indent2 = Const.rightPad(" ", level + 1);
-    String indent3 = Const.rightPad(" ", level + 2);
-
-    retval += indent1 + XmlHandler.openTag(XML_TAG) + Const.CR;
-
-    retval += indent2 + XmlHandler.addTagValue("negated", isNegated());
-
-    if (getOperator() != OPERATOR_NONE) {
-      retval += indent2 + XmlHandler.addTagValue("operator", Const.rtrim(getOperatorDesc()));
+    try {
+      return XmlHandler.openTag(XML_TAG)
+          + XmlMetadataUtil.serializeObjectToXml(this)
+          + XmlHandler.closeTag(XML_TAG);
+    } catch (Exception e) {
+      throw new HopValueException("Error serializing Condition to XML", e);
     }
-
-    if (isAtomic()) {
-      retval += indent2 + XmlHandler.addTagValue("leftvalue", getLeftValuename());
-      retval += indent2 + XmlHandler.addTagValue("function", getFunctionDesc());
-      retval += indent2 + XmlHandler.addTagValue("rightvalue", getRightValuename());
-      if (getRightExact() != null) {
-        retval += indent2 + getRightExact().getXml();
-      }
-    } else {
-      retval += indent2 + "<conditions>" + Const.CR;
-      for (int i = 0; i < nrConditions(); i++) {
-        Condition c = getCondition(i);
-        retval += c.getXML(level + 2);
-      }
-      retval += indent3 + "</conditions>" + Const.CR;
-    }
-
-    retval += indent2 + XmlHandler.closeTag(XML_TAG) + Const.CR;
-
-    return retval;
   }
 
   public Condition(String xml) throws HopXmlException {
@@ -782,66 +778,27 @@ public class Condition implements Cloneable {
   /**
    * Build a new condition using an XML Document Node
    *
-   * @param condnode
+   * @param conditionNode
    * @throws HopXmlException
    */
-  public Condition(Node condnode) throws HopXmlException {
+  public Condition(Node conditionNode) throws HopXmlException {
     this();
-
-    list = new ArrayList<>();
-    try {
-      String strNegated = XmlHandler.getTagValue(condnode, "negated");
-      setNegated("Y".equalsIgnoreCase(strNegated));
-
-      String strOperator = XmlHandler.getTagValue(condnode, "operator");
-      setOperator(getOperator(strOperator));
-
-      Node conditions = XmlHandler.getSubNode(condnode, "conditions");
-      int nrconditions = XmlHandler.countNodes(conditions, "condition");
-      if (nrconditions == 0) {
-        // ATOMIC!
-        setLeftValuename(XmlHandler.getTagValue(condnode, "leftvalue"));
-        setFunction(getFunction(XmlHandler.getTagValue(condnode, "function")));
-        setRightValuename(XmlHandler.getTagValue(condnode, "rightvalue"));
-        Node exactnode = XmlHandler.getSubNode(condnode, ValueMetaAndData.XML_TAG);
-        if (exactnode != null) {
-          ValueMetaAndData exact = new ValueMetaAndData(exactnode);
-          setRightExact(exact);
-        }
-      } else {
-        for (int i = 0; i < nrconditions; i++) {
-          Node subcondnode = XmlHandler.getSubNodeByNr(conditions, "condition", i);
-          Condition c = new Condition(subcondnode);
-          addCondition(c);
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to create condition using xml: " + Const.CR + condnode, e);
-    }
+    XmlMetadataUtil.deSerializeFromXml(conditionNode, Condition.class, this, null);
   }
 
   public String[] getUsedFields() {
-    Hashtable<String, String> fields = new Hashtable<>();
+    Map<String, String> fields = new HashMap<>();
     getUsedFields(fields);
-
-    String[] retval = new String[fields.size()];
-    Enumeration<String> keys = fields.keys();
-    int i = 0;
-    while (keys.hasMoreElements()) {
-      retval[i] = keys.nextElement();
-      i++;
-    }
-
-    return retval;
+    return fields.keySet().toArray(new String[0]);
   }
 
   public void getUsedFields(Map<String, String> fields) {
     if (isAtomic()) {
-      if (getLeftValuename() != null) {
-        fields.put(getLeftValuename(), "-");
+      if (getLeftValueName() != null) {
+        fields.put(getLeftValueName(), "-");
       }
-      if (getRightValuename() != null) {
-        fields.put(getRightValuename(), "-");
+      if (getRightValueName() != null) {
+        fields.put(getRightValueName(), "-");
       }
     } else {
       for (int i = 0; i < nrConditions(); i++) {
@@ -851,7 +808,350 @@ public class Condition implements Cloneable {
     }
   }
 
+  /**
+   * Gets children
+   *
+   * @return value of children
+   */
   public List<Condition> getChildren() {
-    return list;
+    return children;
+  }
+
+  /**
+   * Sets children
+   *
+   * @param children value of children
+   */
+  public void setChildren(List<Condition> children) {
+    this.children = children;
+  }
+
+  public static final class CValue {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "type")
+    private String type;
+
+    @HopMetadataProperty(key = "text")
+    private String text;
+
+    @HopMetadataProperty(key = "length")
+    private int length;
+
+    @HopMetadataProperty(key = "precision")
+    private int precision;
+
+    @HopMetadataProperty(key = "isnull")
+    private boolean nullValue;
+
+    @HopMetadataProperty(key = "mask")
+    private String mask;
+
+    public CValue() {}
+
+    public CValue(CValue c) {
+      this.name = c.name;
+      this.type = c.type;
+      this.text = c.text;
+      this.length = c.length;
+      this.precision = c.precision;
+      this.nullValue = c.nullValue;
+      this.mask = c.mask;
+    }
+
+    public CValue(ValueMetaAndData v) throws HopValueException {
+      if (v == null) {
+        return;
+      }
+      IValueMeta valueMeta = v.getValueMeta();
+      Object valueData = v.getValueData();
+      nullValue = valueMeta.isNull(valueData);
+      text = valueMeta.getCompatibleString(valueData);
+      name = valueMeta.getName();
+      type = valueMeta.getTypeDesc();
+      length = valueMeta.getLength();
+      precision = valueMeta.getPrecision();
+      mask = valueMeta.getConversionMask();
+    }
+
+    public int getHopType() {
+      return ValueMetaFactory.getIdForValueMeta(type);
+    }
+
+    /**
+     * Create a new IValueMeta object to describe the right value of the condition
+     *
+     * @return A new value metadata object
+     * @throws HopPluginException
+     */
+    public IValueMeta createValueMeta() throws HopPluginException {
+      IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, getHopType());
+      valueMeta.setLength(length, precision);
+      valueMeta.setConversionMask(mask);
+      valueMeta.setDecimalSymbol(".");
+      valueMeta.setGroupingSymbol(null);
+      valueMeta.setCurrencySymbol(null);
+      return valueMeta;
+    }
+
+    /**
+     * Convert the text stored to the desired data type in a compatible way
+     *
+     * @return
+     */
+    public Object createValueData() throws HopException {
+      if (isNullValue()) {
+        return null;
+      }
+      IValueMeta valueMeta = createValueMeta();
+      return valueMeta.convertDataCompatible(new ValueMetaString("text"), text);
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public String getType() {
+      return type;
+    }
+
+    /**
+     * Sets type
+     *
+     * @param type value of type
+     */
+    public void setType(String type) {
+      this.type = type;
+    }
+
+    /**
+     * Gets text
+     *
+     * @return value of text
+     */
+    public String getText() {
+      return text;
+    }
+
+    /**
+     * Sets text
+     *
+     * @param text value of text
+     */
+    public void setText(String text) {
+      this.text = text;
+    }
+
+    /**
+     * Gets length
+     *
+     * @return value of length
+     */
+    public int getLength() {
+      return length;
+    }
+
+    /**
+     * Sets length
+     *
+     * @param length value of length
+     */
+    public void setLength(int length) {
+      this.length = length;
+    }
+
+    /**
+     * Gets precision
+     *
+     * @return value of precision
+     */
+    public int getPrecision() {
+      return precision;
+    }
+
+    /**
+     * Sets precision
+     *
+     * @param precision value of precision
+     */
+    public void setPrecision(int precision) {
+      this.precision = precision;
+    }
+
+    /**
+     * Gets nullValue
+     *
+     * @return value of nullValue
+     */
+    public boolean isNullValue() {
+      return nullValue;
+    }
+
+    /**
+     * Sets nullValue
+     *
+     * @param nullValue value of nullValue
+     */
+    public void setNullValue(boolean nullValue) {
+      this.nullValue = nullValue;
+    }
+
+    /**
+     * Gets mask
+     *
+     * @return value of mask
+     */
+    public String getMask() {
+      return mask;
+    }
+
+    /**
+     * Sets mask
+     *
+     * @param mask value of mask
+     */
+    public void setMask(String mask) {
+      this.mask = mask;
+    }
+  }
+
+  public enum Operator implements IEnumHasCode {
+    NONE("-", OPERATOR_NONE),
+    OR("OR", OPERATOR_OR),
+    AND("AND", OPERATOR_AND),
+    NOT("NOT", OPERATOR_NOT),
+    OR_NOT("OR NOT", OPERATOR_OR_NOT),
+    AND_NOT("AND NOT", OPERATOR_AND_NOT),
+    XOR("XOR", OPERATOR_XOR);
+    private final String code;
+    private final int type;
+
+    Operator(String code, int type) {
+      this.code = code;
+      this.type = type;
+    }
+
+    public static Operator lookupType(int type) {
+      for (Operator value : values()) {
+        if (value.getType() == type) {
+          return value;
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public int getType() {
+      return type;
+    }
+  }
+
+  public enum Function implements IEnumHasCodeAndDescription {
+    EQUAL("=", FUNC_EQUAL),
+    NOT_EQUAL("<>", FUNC_NOT_EQUAL),
+    SMALLER("<", FUNC_SMALLER),
+    SMALLER_EQUAL("<=", FUNC_SMALLER_EQUAL),
+    LARGER(">", FUNC_LARGER),
+    LARGER_EQUAL(">=", FUNC_LARGER_EQUAL),
+    REGEXP("REGEXP", FUNC_REGEXP),
+    NULL("IS NULL", FUNC_NULL),
+    NOT_NULL("IS NOT NULL", FUNC_NOT_NULL),
+    IN_LIST("IN LIST", FUNC_IN_LIST),
+    CONTAINS("CONTAINS", FUNC_CONTAINS),
+    STARTS_WITH("STARTS WITH", FUNC_STARTS_WITH),
+    ENDS_WITH("ENDS WITH", FUNC_ENDS_WITH),
+    LIKE("LIKE", FUNC_LIKE),
+    TRUE("TRUE", FUNC_TRUE),
+    ;
+    private final String code;
+    private final String description;
+    private final int type;
+
+    Function(String code, int type) {
+      this.code = code;
+      this.description = code;
+      this.type = type;
+    }
+
+    public static Function lookupType(int type) {
+      for (Function value : values()) {
+        if (value.getType() == type) {
+          return value;
+        }
+      }
+      return null;
+    }
+
+    public static Function lookupCode(String code) {
+      for (Function value : values()) {
+        if (value.getCode().equalsIgnoreCase(code)) {
+          return value;
+        }
+      }
+      return null;
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    @Override
+    public String getDescription() {
+      return description;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public int getType() {
+      return type;
+    }
   }
 }

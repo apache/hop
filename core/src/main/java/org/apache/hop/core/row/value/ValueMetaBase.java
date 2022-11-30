@@ -36,6 +36,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
@@ -137,25 +139,44 @@ public class ValueMetaBase implements IValueMeta {
 
   public static final String COMPATIBLE_DATE_FORMAT_PATTERN = "yyyy/MM/dd HH:mm:ss.SSS";
 
+  @HopMetadataProperty(key = "name")
   protected String name;
+
+  @HopMetadataProperty(key = "length")
   protected int length;
+
+  @HopMetadataProperty(key = "precision")
   protected int precision;
+
+  @HopMetadataProperty(key = "type", intCodeConverter = ValueTypeCodeConverter.class)
   protected int type;
+
+  @HopMetadataProperty(key = "trim_type", intCodeConverter = TrimTypeCodeConverter.class)
   protected int trimType;
+
+  // The storage-type isn't meant to be serialized as metadata
   protected int storageType;
 
   protected String origin;
   protected String comments;
 
-  /**
-   * Don't serialize the index to JSON for now
-   */
+  /** Don't serialize the index to JSON for now */
   @JsonIgnore protected Object[] index;
+
+  @HopMetadataProperty(key = "mask")
   protected String conversionMask;
+
   protected String stringEncoding;
+
+  @HopMetadataProperty(key = "decimal")
   protected String decimalSymbol;
+
+  @HopMetadataProperty(key = "group")
   protected String groupingSymbol;
+
+  @HopMetadataProperty(key = "currency")
   protected String currencySymbol;
+
   protected int collatorStrength;
   protected boolean caseInsensitive;
   protected boolean collatorDisabled;
@@ -5736,5 +5757,33 @@ public class ValueMetaBase implements IValueMeta {
     setPrecision((int) precision);
     String conversionMask = (String) jValue.get("conversionMask");
     setConversionMask(conversionMask);
+  }
+
+  public static final class TrimTypeCodeConverter implements IIntCodeConverter {
+    public TrimTypeCodeConverter() {}
+
+    @Override
+    public String getCode(int type) {
+      return TrimType.lookupType(type).getCode();
+    }
+
+    @Override
+    public int getType(String code) {
+      return TrimType.lookupCode(code).getType();
+    }
+  }
+
+  public static final class ValueTypeCodeConverter implements IIntCodeConverter {
+    public ValueTypeCodeConverter() {}
+
+    @Override
+    public String getCode(int type) {
+      return ValueMetaFactory.getValueMetaName(type);
+    }
+
+    @Override
+    public int getType(String code) {
+      return ValueMetaFactory.getIdForValueMeta(code);
+    }
   }
 }

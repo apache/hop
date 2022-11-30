@@ -56,10 +56,10 @@ public class PoiWorkbook implements IKWorkbook {
         String localFilename = HopVfs.getFilename(fileObject);
         File excelFile = new File(localFilename);
         try {
-          poifs = new POIFSFileSystem(excelFile);
+          poifs = new POIFSFileSystem(excelFile, true);
           workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(poifs);
         } catch (Exception ofe) {
-          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile);
+          workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile, null, true);
         }
       } else {
         try (InputStream internalIS = HopVfs.getInputStream(filename)) {
