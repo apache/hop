@@ -65,6 +65,9 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
   @HopMetadataProperty(key = "algorithm", storeWithCode = true)
   private Algorithm algorithm;
 
+  @HopMetadataProperty(key = "from")
+  private String lookupTransformName;
+
   /** field in lookup stream with which we look up values */
   @HopMetadataProperty(key = "lookupfield")
   private String lookupField;
@@ -431,17 +434,12 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
               null,
               BaseMessages.getString(PKG, "FuzzyMatchMeta.InfoStream.Description"),
               StreamIcon.INFO,
-              null);
+              lookupTransformName);
       ioMeta.addStream(stream);
       setTransformIOMeta(ioMeta);
     }
 
     return ioMeta;
-  }
-
-  @Override
-  public void resetTransformIoMeta() {
-    // Do nothing, don't reset as there is no need to do this.
   }
 
   /**
@@ -460,6 +458,24 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
    */
   public void setAlgorithm(Algorithm algorithm) {
     this.algorithm = algorithm;
+  }
+
+  /**
+   * Gets lookupTransformName
+   *
+   * @return value of lookupTransformName
+   */
+  public String getLookupTransformName() {
+    return lookupTransformName;
+  }
+
+  /**
+   * Sets lookupTransformName
+   *
+   * @param lookupTransformName value of lookupTransformName
+   */
+  public void setLookupTransformName(String lookupTransformName) {
+    this.lookupTransformName = lookupTransformName;
   }
 
   /**

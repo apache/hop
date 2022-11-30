@@ -28,6 +28,7 @@ public class FuzzyMatchMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/fuzzy-match-transform.xml", FuzzyMatchMeta.class);
 
+    Assert.assertEquals("Data grid", meta.getLookupTransformName());
     Assert.assertEquals("name", meta.getLookupField());
     Assert.assertEquals("name", meta.getMainStreamField());
     Assert.assertEquals("match", meta.getOutputMatchField());
