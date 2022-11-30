@@ -49,6 +49,7 @@ import org.neo4j.driver.types.Path;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -202,6 +203,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
 
     if (viewer.getExecution().getParentId()==null) {
       // There is no lineage since this is the parent
+      return Collections.emptyList();
     }
 
     // Now get the lineage to the parent (if any)

@@ -17,35 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.flattener;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class FlattenerMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
   @Test
-  public void testRoundTrip() throws HopException {
-    List<String> attributes = Arrays.asList("field_name", "target");
+  public void testSerialization() throws Exception {
+    FlattenerMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/flattener-transform.xml", FlattenerMeta.class);
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("field_name", "getFieldName");
-    getterMap.put("target", "getTargetField");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("field_name", "setFieldName");
-    setterMap.put("target", "setTargetField");
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(FlattenerMeta.class, attributes, getterMap, setterMap);
-
-    loadSaveTester.testSerialization();
+    Assert.assertEquals("flatten", meta.getFieldName());
+    Assert.assertEquals(2, meta.getTargetFields().size());
+    Assert.assertEquals("target1", meta.getTargetFields().get(0).getName());
+    Assert.assertEquals("target2", meta.getTargetFields().get(1).getName());
   }
 }
