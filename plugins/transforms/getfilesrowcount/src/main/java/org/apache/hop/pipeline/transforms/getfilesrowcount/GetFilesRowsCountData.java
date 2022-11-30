@@ -26,23 +26,22 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import java.io.InputStream;
 
 public class GetFilesRowsCountData extends BaseTransformData implements ITransformData {
-  public String thisline;
+  public String thisLine;
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;
   public Object[] previousRow;
 
   public FileInputList files;
-  public boolean last_file;
+  public boolean lastFile;
   public FileObject file;
-  public long filenr;
+  public long fileNumber;
 
-  public InputStream fr;
-  public long rownr;
+  public long rowNumber;
   public int fileFormatType;
   public StringBuilder lineStringBuilder;
-  public int totalpreviousfields;
+  public int totalPreviousFields;
   public int indexOfFilenameField;
-  public Object[] readrow;
+  public Object[] inputRow;
   public IRowMeta inputRowMeta;
   public char separator;
 
@@ -52,14 +51,12 @@ public class GetFilesRowsCountData extends BaseTransformData implements ITransfo
   public GetFilesRowsCountData() {
     super();
     previousRow = null;
-    thisline = null;
-    previousRow = null;
+    thisLine = null;
 
-    fr = null;
     lineStringBuilder = new StringBuilder(256);
-    totalpreviousfields = 0;
+    totalPreviousFields = 0;
     indexOfFilenameField = -1;
-    readrow = null;
+    inputRow = null;
     separator = '\n';
     foundData = false;
   }

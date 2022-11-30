@@ -1,0 +1,30 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rowsCount",
+          "data_set_field": "rowsCount"
+        },
+        {
+          "transform_field": "filesCount",
+          "data_set_field": "filesCount"
+        }
+      ],
+      "field_order": [
+        "rowsCount",
+        "filesCount"
+      ],
+      "data_set_name": "golden-get-files-rows-count",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0059-get-files-rows-count UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0059-get-files-rows-count.hpl",
+  "test_type": "UNIT_TEST"
+}
