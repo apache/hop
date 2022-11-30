@@ -201,7 +201,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
     Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
     return new MetadataManager<>(
-        HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
+        HopGui.getInstance().getVariables(), metadataProvider, metadataClass, hopGui.getShell());
   }
 
   protected void createTree(Composite parent) {
@@ -509,7 +509,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
         MetadataManager<IHopMetadata> manager =
             new MetadataManager<>(
-                HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
+                HopGui.getInstance().getVariables(), metadataProvider, metadataClass, hopGui.getShell());
 
         manager.newMetadataWithEditor();
 

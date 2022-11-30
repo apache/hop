@@ -66,7 +66,10 @@ public class ActionLogIconClickedExtensionPoint
             if (serializer.exists(serviceName)) {
               MetadataManager<AsyncWebService> manager =
                   new MetadataManager<>(
-                      workflowGraph.getVariables(), metadataProvider, AsyncWebService.class);
+                      workflowGraph.getVariables(),
+                      metadataProvider,
+                      AsyncWebService.class,
+                      extension.getWorkflowGraph().getShell());
               manager.editMetadata(serviceName);
               extension.setPreventingDefault(true);
             }

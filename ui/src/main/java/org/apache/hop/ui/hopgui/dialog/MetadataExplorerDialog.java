@@ -290,10 +290,8 @@ public class MetadataExplorerDialog {
     try {
       IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
       Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(activeObjectKey);
-      MetadataManager<IHopMetadata> manager =
-          new MetadataManager<>(
-              HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
-      return manager;
+      return new MetadataManager<>(
+          HopGui.getInstance().getVariables(), metadataProvider, metadataClass, shell);
     } catch (Exception e) {
       new ErrorDialog(
           shell,

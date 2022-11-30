@@ -70,6 +70,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   public static final String TOOLBAR_ITEM_NEW = "10020-metadata-new";
   public static final String TOOLBAR_ITEM_META = "10030-metadata-perspective";
 
+  private Composite parentComposite;
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;
   private MetadataManager<T> manager;
@@ -131,17 +132,20 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       boolean leftAlignedLabel,
       boolean negativeMargin) {
     super(parentComposite, SWT.NONE);
+    this.parentComposite = parentComposite;
     this.variables = variables;
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
     this.props = PropsUi.getInstance();
 
-    this.manager = new MetadataManager<>(variables, metadataProvider, managedClass);
+    this.manager =
+        new MetadataManager<>(
+            variables, metadataProvider, managedClass, parentComposite.getShell());
 
     PropsUi.setLook(this);
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;

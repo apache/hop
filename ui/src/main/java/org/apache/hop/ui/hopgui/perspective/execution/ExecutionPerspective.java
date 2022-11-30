@@ -196,7 +196,7 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
     IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
     Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
     return new MetadataManager<>(
-        HopGui.getInstance().getVariables(), metadataProvider, metadataClass);
+        HopGui.getInstance().getVariables(), metadataProvider, metadataClass, hopGui.getShell());
   }
 
   protected void createTree(Composite parent) {

@@ -231,7 +231,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       }
 
       MetadataManager<IHopMetadata> manager =
-          new MetadataManager<>(variables, metadataProvider, serializer.getManagedClass());
+          new MetadataManager<>(variables, metadataProvider, serializer.getManagedClass(), hopGui.getShell());
       manager.editMetadata(name);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error viewing the metadata", e);
