@@ -174,12 +174,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   protected String connectionName;
 
   private ILogChannel log;
-  private NeoConnection connection;
-  private IVariables variables;
   private Driver driver;
   private Session session;
-
-  // private Object lock = new Object();
 
   public NeoExecutionInfoLocation() {}
 
@@ -197,16 +193,19 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   @Override
   public void initialize(IVariables variables, IHopMetadataProvider metadataProvider)
       throws HopException {
-    this.variables = variables;
     this.log = LogChannel.GENERAL;
 
     validateSettings();
 
     try {
-      this.connection =
+      NeoConnection connection =
           metadataProvider
               .getSerializer(NeoConnection.class)
               .load(variables.resolve(connectionName));
+
+      if (connection == null) {
+        throw new HopException("Unable to find Neo4j connection " + connectionName);
+      }
 
       // Connect to the database
       //
@@ -393,7 +392,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   private void validateSettings() throws HopException {
-    if (connectionName == null) {
+    if (StringUtils.isEmpty(connectionName)) {
       throw new HopException("Please specify a Neo4j connection to send execution information to.");
     }
   }

@@ -40,7 +40,7 @@ public final class PipelineExecutionViewerUpdateXP
 
     String jobId = null;
     ExecutionState executionState = viewer.getExecutionState();
-    if (executionState != null) {
+    if (executionState != null && executionState.getDetails() != null) {
       jobId = executionState.getDetails().get(BeamDataFlowPipelineEngine.DETAIL_DATAFLOW_JOB_ID);
     }
     // Enable/Disable the toolbar icon in the pipeline execution viewer.
