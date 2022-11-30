@@ -634,6 +634,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     }
 
     input.setMainStreamField(wMainStreamField.getText());
+    input.setLookupTransformName(wTransform.getText());
     input.setLookupField(wLookupField.getText());
 
     input.setAlgorithm(lookupDescription(wAlgorithm.getText()));
@@ -647,30 +648,11 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     input.setSeparator(wSeparator.getText());
 
     input.getLookupValues().clear();
-    // CHECKSTYLE:Indentation:OFF
     for (TableItem item : wReturn.getNonEmptyItems()) {
       FuzzyMatchMeta.FMLookupValue lookupValue = new FuzzyMatchMeta.FMLookupValue();
       lookupValue.setName(item.getText(1));
       lookupValue.setRename(item.getText(2));
       input.getLookupValues().add(lookupValue);
-    }
-
-    IStream infoStream = input.getTransformIOMeta().getInfoStreams().get(0);
-    infoStream.setTransformMeta(pipelineMeta.findTransform(wTransform.getText()));
-    if (infoStream.getTransformMeta() == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      if (Utils.isEmpty(wTransform.getText())) {
-        mb.setMessage(
-            BaseMessages.getString(
-                PKG, "FuzzyMatchDialog.NotTransformSpecified.DialogMessage", wTransform.getText()));
-      } else {
-        mb.setMessage(
-            BaseMessages.getString(
-                PKG, "FuzzyMatchDialog.TransformCanNotFound.DialogMessage", wTransform.getText()));
-      }
-
-      mb.setText(BaseMessages.getString(PKG, "FuzzyMatchDialog.TransformCanNotFound.DialogTitle"));
-      mb.open();
     }
 
     transformName = wTransformName.getText(); // return value
