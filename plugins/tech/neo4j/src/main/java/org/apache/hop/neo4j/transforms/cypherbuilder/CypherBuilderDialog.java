@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -83,9 +84,10 @@ import java.util.List;
 import java.util.function.Function;
 
 public class CypherBuilderDialog extends BaseTransformDialog implements ITransformDialog {
-
   private static final Class<?> PKG =
       CypherBuilderMeta.class; // for i18n purposes, needed by Translator2!!
+
+  public static final String STRING_EXPERIMENTAL_WARNING = "CypherBuilderWarning";
 
   private CTabFolder wTabFolder;
 
@@ -114,6 +116,8 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
   private CypherBuilderMeta input;
 
   private CypherBuilderMeta copy;
+
+  private boolean warningShown;
 
   public CypherBuilderDialog(
       Shell parent,
@@ -189,6 +193,9 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
             .result());
 
     getData();
+
+    // When the shell activates, show a warning
+    shell.addListener(SWT.Activate, e -> showExperimentalWarning());
 
     wTabFolder.setSelection(0);
 
@@ -285,7 +292,7 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     fdRetries.top = new FormAttachment(wlRetries, 0, SWT.CENTER);
     wRetries.setLayoutData(fdRetries);
     wRetries.addListener(SWT.Modify, e -> copy.setRetries(wRetries.getText()));
-    
+
     wOptionsComp.layout();
     wOptionsTab.setControl(wOptionsComp);
   }
@@ -437,7 +444,8 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
 
     // Below that toolbar we have the list of operations
     //
-    wOperationsList = new org.eclipse.swt.widgets.List(wOperationsComp, SWT.SINGLE | SWT.BORDER|SWT.V_SCROLL);
+    wOperationsList =
+        new org.eclipse.swt.widgets.List(wOperationsComp, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL);
     PropsUi.setLook(wOperationsList);
     FormData fdOperationsList = new FormData();
     fdOperationsList.left = new FormAttachment(0, 0);
@@ -1404,6 +1412,30 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
     }
 
     enableFields();
+  }
+
+  public void showExperimentalWarning() {
+    // Only show this warning once.
+    if (warningShown) {
+      return;
+    }
+    warningShown = true;
+
+    // Tell folks about the experimental nature of this code
+    //
+    MessageDialogWithToggle md =
+        new MessageDialogWithToggle(
+            shell,
+            "Work in progress",
+            "This transform is not finished yet! \n"
+                + "It's intended to get feedback from you. \n"
+                + "It's not intended to be used in production",
+            SWT.ICON_WARNING,
+            new String[] {BaseMessages.getString(PKG, "System.Button.OK")},
+            "Don't show this message again",
+            "N".equalsIgnoreCase(props.getCustomParameter(STRING_EXPERIMENTAL_WARNING, "Y")));
+    md.open();
+    props.setCustomParameter(STRING_EXPERIMENTAL_WARNING, md.getToggleState() ? "N" : "Y");
   }
 
   private void ok() {
