@@ -18,26 +18,20 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
-import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,85 +45,120 @@ import java.util.List;
     categoryDescription = "Neo4j",
     keywords = "i18n::CypherMeta.keyword",
     documentationUrl = "/pipeline/transforms/neo4j-cypher.html")
-@InjectionSupported(
-    localizationPrefix = "Cypher.Injection.",
-    groups = {"PARAMETERS", "RETURNS"})
 public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
-
-  public static final String CONNECTION = "connection";
-  public static final String CYPHER = "cypher";
-  public static final String BATCH_SIZE = "batch_size";
-  public static final String READ_ONLY = "read_only";
-  public static final String RETRY = "retry";
-  public static final String NR_RETRIES_ON_ERROR = "nr_retries_on_error";
-  public static final String CYPHER_FROM_FIELD = "cypher_from_field";
-  public static final String CYPHER_FIELD = "cypher_field";
-  public static final String UNWIND = "unwind";
-  public static final String UNWIND_MAP = "unwind_map";
-  public static final String RETURNING_GRAPH = "returning_graph";
-  public static final String RETURN_GRAPH_FIELD = "return_graph_field";
-  public static final String MAPPINGS = "mappings";
-  public static final String MAPPING = "mapping";
-  public static final String PARAMETERS = "parameters";
-  public static final String PARAMETER = "parameter";
-  public static final String FIELD = "field";
-  public static final String TYPE = "type";
-  public static final String SOURCE_TYPE = "source_type";
-  public static final String RETURNS = "returns";
-  public static final String RETURN = "return";
-  public static final String NAME = "name";
-  public static final String PARAMETER_NAME = "parameter_name";
-  public static final String PARAMETER_FIELD = "parameter_field";
-  public static final String PARAMETER_TYPE = "parameter_type";
-
-  public static final String RETURN_NAME = "return_name";
-  public static final String RETURN_TYPE = "return_type";
-  public static final String RETURN_SOURCE_TYPE = "return_source_type";
-
-  @Injection(name = CONNECTION)
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKey = "connection",
+      injectionKeyDescription = "Cypher.Injection.connection")
   private String connectionName;
 
-  @Injection(name = CYPHER)
+  @HopMetadataProperty(
+      key = "cypher",
+      injectionKey = "cypher",
+      injectionKeyDescription = "Cypher.Injection.cypher")
   private String cypher;
 
-  @Injection(name = BATCH_SIZE)
+  @HopMetadataProperty(
+      key = "batch_size",
+      injectionKey = "batch_size",
+      injectionKeyDescription = "Cypher.Injection.batch_size")
   private String batchSize;
 
-  @Injection(name = READ_ONLY)
+  @HopMetadataProperty(
+      key = "read_only",
+      injectionKey = "read_only",
+      injectionKeyDescription = "Cypher.Injection.read_only")
   private boolean readOnly;
 
-  @Injection(name = RETRY)
+  @HopMetadataProperty(
+      key = "retry",
+      injectionKey = "retry",
+      injectionKeyDescription = "Cypher.Injection.retry")
   private boolean retryingOnDisconnect;
 
-  @Injection(name = NR_RETRIES_ON_ERROR)
+  @HopMetadataProperty(
+      key = "nr_retries_on_error",
+      injectionKey = "nr_retries_on_error",
+      injectionKeyDescription = "Cypher.Injection.nr_retries_on_error")
   private String nrRetriesOnError;
 
-  @Injection(name = CYPHER_FROM_FIELD)
+  @HopMetadataProperty(
+      key = "cypher_from_field",
+      injectionKey = "cypher_from_field",
+      injectionKeyDescription = "Cypher.Injection.cypher_from_field")
   private boolean cypherFromField;
 
-  @Injection(name = CYPHER_FIELD)
+  @HopMetadataProperty(
+      key = "cypher_field",
+      injectionKey = "cypher_field",
+      injectionKeyDescription = "Cypher.Injection.cypher_field")
   private String cypherField;
 
-  @Injection(name = UNWIND)
+  @HopMetadataProperty(
+      key = "unwind",
+      injectionKey = "unwind",
+      injectionKeyDescription = "Cypher.Injection.unwind")
   private boolean usingUnwind;
 
-  @Injection(name = UNWIND_MAP)
+  @HopMetadataProperty(
+      key = "unwind_map",
+      injectionKey = "unwind_map",
+      injectionKeyDescription = "Cypher.Injection.unwind_map")
   private String unwindMapName;
 
-  @Injection(name = RETURNING_GRAPH)
+  @HopMetadataProperty(
+      key = "returning_graph",
+      injectionKey = "returning_graph",
+      injectionKeyDescription = "Cypher.Injection.returning_graph")
   private boolean returningGraph;
 
-  @Injection(name = RETURN_GRAPH_FIELD)
+  @HopMetadataProperty(
+      key = "return_graph_field",
+      injectionKey = "return_graph_field",
+      injectionKeyDescription = "Cypher.Injection.return_graph_field")
   private String returnGraphField;
 
-  @InjectionDeep private List<ParameterMapping> parameterMappings;
+  @HopMetadataProperty(
+      groupKey = "mappings",
+      key = "mapping",
+      injectionGroupKey = "PARAMETERS",
+      injectionGroupDescription = "Cypher.Injection.PARAMETERS")
+  private List<ParameterMapping> parameterMappings;
 
-  @InjectionDeep private List<ReturnValue> returnValues;
+  @HopMetadataProperty(
+      groupKey = "returns",
+      key = "return",
+      injectionGroupKey = "RETURNS",
+      injectionKeyDescription = "Cypher.Injection.RETURNS")
+  private List<ReturnValue> returnValues;
 
   public CypherMeta() {
     super();
     parameterMappings = new ArrayList<>();
     returnValues = new ArrayList<>();
+  }
+
+  public CypherMeta(CypherMeta m) {
+    this();
+    this.connectionName = m.connectionName;
+    this.cypher = m.cypher;
+    this.batchSize = m.batchSize;
+    this.readOnly = m.readOnly;
+    this.retryingOnDisconnect = m.retryingOnDisconnect;
+    this.nrRetriesOnError = m.nrRetriesOnError;
+    this.cypherFromField = m.cypherFromField;
+    this.cypherField = m.cypherField;
+    this.usingUnwind = m.usingUnwind;
+    this.unwindMapName = m.unwindMapName;
+    this.returningGraph = m.returningGraph;
+    this.returnGraphField = m.returnGraphField;
+    m.parameterMappings.forEach(p -> this.parameterMappings.add(new ParameterMapping(p)));
+    m.returnValues.forEach(v -> this.returnValues.add(new ReturnValue(v)));
+  }
+
+  @Override
+  public CypherMeta clone() {
+    return new CypherMeta(this);
   }
 
   @Override
@@ -183,93 +212,6 @@ public class CypherMeta extends BaseTransformMeta<Cypher, CypherData> {
         }
       }
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-    xml.append(XmlHandler.addTagValue(CONNECTION, connectionName));
-    xml.append(XmlHandler.addTagValue(CYPHER, cypher));
-    xml.append(XmlHandler.addTagValue(BATCH_SIZE, batchSize));
-    xml.append(XmlHandler.addTagValue(READ_ONLY, readOnly));
-    xml.append(XmlHandler.addTagValue(NR_RETRIES_ON_ERROR, nrRetriesOnError));
-    xml.append(XmlHandler.addTagValue(RETRY, retryingOnDisconnect));
-    xml.append(XmlHandler.addTagValue(CYPHER_FROM_FIELD, cypherFromField));
-    xml.append(XmlHandler.addTagValue(CYPHER_FIELD, cypherField));
-    xml.append(XmlHandler.addTagValue(UNWIND, usingUnwind));
-    xml.append(XmlHandler.addTagValue(UNWIND_MAP, unwindMapName));
-    xml.append(XmlHandler.addTagValue(RETURNING_GRAPH, returningGraph));
-    xml.append(XmlHandler.addTagValue(RETURN_GRAPH_FIELD, returnGraphField));
-
-    xml.append(XmlHandler.openTag(MAPPINGS));
-    for (ParameterMapping parameterMapping : parameterMappings) {
-      xml.append(XmlHandler.openTag(MAPPING));
-      xml.append(XmlHandler.addTagValue(PARAMETER, parameterMapping.getParameter()));
-      xml.append(XmlHandler.addTagValue(FIELD, parameterMapping.getField()));
-      xml.append(XmlHandler.addTagValue(TYPE, parameterMapping.getNeoType()));
-      xml.append(XmlHandler.closeTag(MAPPING));
-    }
-    xml.append(XmlHandler.closeTag(MAPPINGS));
-
-    xml.append(XmlHandler.openTag(RETURNS));
-    for (ReturnValue returnValue : returnValues) {
-      xml.append(XmlHandler.openTag(RETURN));
-      xml.append(XmlHandler.addTagValue(NAME, returnValue.getName()));
-      xml.append(XmlHandler.addTagValue(TYPE, returnValue.getType()));
-      xml.append(XmlHandler.addTagValue(SOURCE_TYPE, returnValue.getSourceType()));
-      xml.append(XmlHandler.closeTag(RETURN));
-    }
-    xml.append(XmlHandler.closeTag(RETURNS));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    connectionName = XmlHandler.getTagValue(transformNode, CONNECTION);
-    cypher = XmlHandler.getTagValue(transformNode, CYPHER);
-    batchSize = XmlHandler.getTagValue(transformNode, BATCH_SIZE);
-    readOnly = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, READ_ONLY));
-    String retryString = XmlHandler.getTagValue(transformNode, RETRY);
-    retryingOnDisconnect = StringUtils.isEmpty(retryString) || "Y".equalsIgnoreCase(retryString);
-    nrRetriesOnError = XmlHandler.getTagValue(transformNode, NR_RETRIES_ON_ERROR);
-    cypherFromField =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CYPHER_FROM_FIELD));
-    cypherField = XmlHandler.getTagValue(transformNode, CYPHER_FIELD);
-    usingUnwind = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, UNWIND));
-    unwindMapName = XmlHandler.getTagValue(transformNode, UNWIND_MAP);
-    returningGraph = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, RETURNING_GRAPH));
-    returnGraphField = XmlHandler.getTagValue(transformNode, RETURN_GRAPH_FIELD);
-
-    // Parse parameter mappings
-    //
-    Node mappingsNode = XmlHandler.getSubNode(transformNode, MAPPINGS);
-    List<Node> mappingNodes = XmlHandler.getNodes(mappingsNode, MAPPING);
-    parameterMappings = new ArrayList<>();
-    for (Node mappingNode : mappingNodes) {
-      String parameter = XmlHandler.getTagValue(mappingNode, PARAMETER);
-      String field = XmlHandler.getTagValue(mappingNode, FIELD);
-      String neoType = XmlHandler.getTagValue(mappingNode, TYPE);
-      if (StringUtils.isEmpty(neoType)) {
-        neoType = GraphPropertyType.String.name();
-      }
-      parameterMappings.add(new ParameterMapping(parameter, field, neoType));
-    }
-
-    // Parse return values
-    //
-    Node returnsNode = XmlHandler.getSubNode(transformNode, RETURNS);
-    List<Node> returnNodes = XmlHandler.getNodes(returnsNode, RETURN);
-    returnValues = new ArrayList<>();
-    for (Node returnNode : returnNodes) {
-      String name = XmlHandler.getTagValue(returnNode, NAME);
-      String type = XmlHandler.getTagValue(returnNode, TYPE);
-      String sourceType = XmlHandler.getTagValue(returnNode, SOURCE_TYPE);
-      returnValues.add(new ReturnValue(name, type, sourceType));
-    }
-
-    super.loadXml(transformNode, metadataProvider);
   }
 
   /**

@@ -18,20 +18,36 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
-import org.apache.hop.core.injection.Injection;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ParameterMapping {
 
-  @Injection(name = "PARAMETER_NAME", group = "PARAMETERS")
+  @HopMetadataProperty(
+      key = "parameter",
+      injectionKey = "PARAMETER_NAME",
+      injectionKeyDescription = "Cypher.Injection.PARAMETER_NAME")
   private String parameter;
 
-  @Injection(name = "PARAMETER_FIELD", group = "PARAMETERS")
+  @HopMetadataProperty(
+      key = "field",
+      injectionKey = "PARAMETER_FIELD",
+      injectionKeyDescription = "Cypher.Injection.PARAMETER_FIELD")
   private String field;
 
-  @Injection(name = "PARAMETER_NEO4J_TYPE", group = "PARAMETERS")
+  @HopMetadataProperty(
+      key = "type",
+      injectionKey = "PARAMETER_NEO4J_TYPE",
+      injectionKeyDescription = "Cypher.Injection.PARAMETER_NEO4J_TYPE")
   private String neoType;
 
   public ParameterMapping() {}
+
+  public ParameterMapping(ParameterMapping m) {
+    this();
+    this.parameter = m.parameter;
+    this.field = m.field;
+    this.neoType = m.neoType;
+  }
 
   public ParameterMapping(String parameter, String field, String neoType) {
     this.parameter = parameter;
