@@ -1,0 +1,10 @@
+# Ignore everything
+*
+
+# Allow files and directories
+!/assemblies/client/target/hop-*
+!/assemblies/client/target/hop
+!/integration-tests/scripts
+!/assemblies/web/target
+!/assemblies/plugins/dist/target
+!/docker
