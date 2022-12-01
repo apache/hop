@@ -1,0 +1,3 @@
+name,type,entityType,labelsOrTypes,properties,createStatement
+pk_person_id,UNIQUENESS,NODE,"[""Person""]","[""ID""]","CREATE CONSTRAINT `pk_person_id` FOR (n:`Person`) REQUIRE (n.`ID`) IS UNIQUE OPTIONS {indexConfig: {}, indexProvider: 'range-1.0'}"
+nn_person_name,NODE_PROPERTY_EXISTENCE,NODE,"[""Person""]","[""name""]",CREATE CONSTRAINT `nn_person_name` FOR (n:`Person`) REQUIRE (n.`name`) IS NOT NULL
