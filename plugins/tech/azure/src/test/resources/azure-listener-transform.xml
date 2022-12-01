@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <namespace>namespace</namespace>
+    <event_hub_name>instance</event_hub_name>
+    <sas_key_name>key-name</sas_key_name>
+    <sas_key>Encrypted 2be98afc86aa7f28fae00e366df9ebadf</sas_key>
+    <batch_size>123</batch_size>
+    <prefetch_size>234</prefetch_size>
+    <output_field>message</output_field>
+    <partition_id_field>partitionId</partition_id_field>
+    <offset_field>offset</offset_field>
+    <sequence_number_field>sequenceNumber</sequence_number_field>
+    <host_field>host</host_field>
+    <enqueued_time_field>enqueuedTime</enqueued_time_field>
+    <consumer_group_name>$Default</consumer_group_name>
+    <storage_connection_string>connection-string</storage_connection_string>
+    <storage_container_name>container-name</storage_container_name>
+    <batch_transformation>pipeline.hpl</batch_transformation>
+    <batch_input_Transform>input</batch_input_Transform>
+    <batch_output_Transform>output</batch_output_Transform>
+    <batch_max_wait_time>5000</batch_max_wait_time>
+</transform>
