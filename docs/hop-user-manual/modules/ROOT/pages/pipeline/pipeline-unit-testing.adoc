@@ -112,7 +112,7 @@ The options in this dialog are:
 |The pipeline to test|the pipeline this test applies to.
 By default, you should see the active pipeline filename here.
 |Test pipeline filename (Optional)|the filename to use for this unit test.
-|Base test path (or use HOP_UNIT_TEST_FOLDER)|the folder to store this unit test to.
+|Base test path (or use HOP_UNIT_TESTS_FOLDER)|the folder to store this unit test to.
 |Select this test automatically|default: false
 |Replace a database connection with another|specify a list of database connections for this pipeline that you'd like to swap out for a test-specific connection.
 |Variables|a list of variables to use in testing.
