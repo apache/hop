@@ -735,8 +735,13 @@ public class XmlHandler {
 
   public static TransformerFactory createSecureTransformerFactory() {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    try {
     transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
     transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    } catch(IllegalArgumentException e) {
+      // Ignore this: the library doesn't support these features.
+      // We don't need to disable them.
+    }
     return transformerFactory;
   }
 
