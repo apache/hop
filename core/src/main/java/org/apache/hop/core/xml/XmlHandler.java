@@ -37,6 +37,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -732,9 +733,17 @@ public class XmlHandler {
     }
   }
 
+  public static TransformerFactory createSecureTransformerFactory() {
+    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    return transformerFactory;
+  }
+
   public static String getXmlString(Node document, boolean omitXmlDeclaration, boolean indent)
       throws HopException {
-    TransformerFactory transformerFactory = TransformerFactory.newInstance();
+    TransformerFactory transformerFactory = createSecureTransformerFactory();
+
     Transformer transformer;
     try {
       transformer = transformerFactory.newTransformer();
@@ -1183,7 +1192,7 @@ public class XmlHandler {
   public static String formatNode(Node node) throws HopXmlException {
     StringWriter sw = new StringWriter();
     try {
-      Transformer t = TransformerFactory.newInstance().newTransformer();
+      Transformer t = createSecureTransformerFactory().newTransformer();
       t.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
       t.transform(new DOMSource(node), new StreamResult(sw));
     } catch (Exception e) {

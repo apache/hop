@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +89,7 @@ public class SwitchCaseTest {
     PKG = PKG + "/";
     URL url = SwitchCaseTest.class.getClassLoader().getResource(PKG + fileName);
     File file = new File(url.toURI());
-    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory dbFactory = XmlParserFactoryProducer.createSecureDocBuilderFactory();
     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
     Document doc = dBuilder.parse(file);
     NodeList nList = doc.getElementsByTagName("transform");

@@ -21,6 +21,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
@@ -36,7 +37,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -46,10 +46,7 @@ import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class WorkflowEntrySetVariablesTest {
@@ -243,9 +240,8 @@ public class WorkflowEntrySetVariablesTest {
     InputStream stream = new ByteArrayInputStream(sb.toString().getBytes(StandardCharsets.UTF_8));
     DocumentBuilder db;
     Document doc;
-    db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    db = XmlParserFactoryProducer.createSecureDocBuilderFactory().newDocumentBuilder();
     doc = db.parse(stream);
-    Node entryNode = doc.getFirstChild();
-    return entryNode;
+    return doc.getFirstChild();
   }
 }

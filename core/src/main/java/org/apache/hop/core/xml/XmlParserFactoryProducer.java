@@ -17,8 +17,6 @@
 
 package org.apache.hop.core.xml;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
@@ -28,17 +26,14 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
 public class XmlParserFactoryProducer {
-
-  private static final Log logger = LogFactory.getLog(XmlParserFactoryProducer.class);
-
   private XmlParserFactoryProducer() {
     // Static class
   }
 
   /**
    * Creates an instance of {@link DocumentBuilderFactory} class with enabled {@link
-   * XMLConstants#FEATURE_SECURE_PROCESSING} property. Enabling this feature prevents from some XXE
-   * attacks (e.g. XML bomb) See PPP-3506 for more details.
+   * XMLConstants#FEATURE_SECURE_PROCESSING} property. Enabling this feature protects us from some
+   * XXE attacks (e.g. XML bomb).
    *
    * @throws ParserConfigurationException if feature can't be enabled
    */
@@ -66,7 +61,7 @@ public class XmlParserFactoryProducer {
   public static SAXParserFactory createSecureSAXParserFactory()
       throws SAXNotSupportedException, SAXNotRecognizedException, ParserConfigurationException {
     SAXParserFactory factory = SAXParserFactory.newInstance();
-    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);    
+    factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
     factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
     factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
