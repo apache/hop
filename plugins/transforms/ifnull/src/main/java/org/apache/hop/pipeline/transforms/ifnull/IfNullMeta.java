@@ -21,21 +21,15 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -46,153 +40,54 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::IfNullMeta.keyword",
     documentationUrl = "/pipeline/transforms/ifnull.html")
-@InjectionSupported(
-    localizationPrefix = "IfNull.Injection.",
-    groups = {"FIELDS", "VALUE_TYPES"})
 public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
 
   private static final Class<?> PKG = IfNullMeta.class; // For Translator
 
-  public static class Fields implements Cloneable {
+  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "IfNull.Injection.FIELDS")
+  private List<Field> fields;
 
-    /** which fields to display? */
-    @Injection(name = "FIELD_NAME", group = "FIELDS")
-    private String fieldName;
+  @HopMetadataProperty(groupKey = "valuetypes", key = "valuetype", injectionGroupKey = "VALUE_TYPES",
+      injectionGroupDescription = "IfNull.Injection.VALUE_TYPES")
+  private List<ValueType> valueTypes;
 
-    /** by which value we replace */
-    @Injection(name = "REPLACE_VALUE", group = "FIELDS")
-    private String replaceValue;
-
-    @Injection(name = "REPLACE_MASK", group = "FIELDS")
-    private String replaceMask;
-
-    /** Flag : set empty string */
-    @Injection(name = "SET_EMPTY_STRING", group = "FIELDS")
-    private boolean setEmptyString;
-
-    public String getFieldName() {
-      return fieldName;
-    }
-
-    public void setFieldName(String fieldName) {
-      this.fieldName = fieldName;
-    }
-
-    public String getReplaceValue() {
-      return replaceValue;
-    }
-
-    public void setReplaceValue(String replaceValue) {
-      this.replaceValue = replaceValue;
-    }
-
-    public String getReplaceMask() {
-      return replaceMask;
-    }
-
-    public void setReplaceMask(String replaceMask) {
-      this.replaceMask = replaceMask;
-    }
-
-    public boolean isSetEmptyString() {
-      return setEmptyString;
-    }
-
-    public void setEmptyString(boolean setEmptyString) {
-      this.setEmptyString = setEmptyString;
-    }
-
-    @Override
-    public Fields clone() {
-      try {
-        return (Fields) super.clone();
-      } catch (CloneNotSupportedException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  public static class ValueTypes implements Cloneable {
-
-    /** which types to display? */
-    @Injection(name = "TYPE_NAME", group = "VALUE_TYPES")
-    private String typeName;
-
-    /** by which value we replace */
-    @Injection(name = "TYPE_REPLACE_VALUE", group = "VALUE_TYPES")
-    private String typereplaceValue;
-
-    @Injection(name = "TYPE_REPLACE_MASK", group = "VALUE_TYPES")
-    private String typereplaceMask;
-
-    /** Flag : set empty string for type */
-    @Injection(name = "SET_TYPE_EMPTY_STRING", group = "VALUE_TYPES")
-    private boolean setTypeEmptyString;
-
-    public String getTypeName() {
-      return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-      this.typeName = typeName;
-    }
-
-    public String getTypereplaceValue() {
-      return typereplaceValue;
-    }
-
-    public void setTypereplaceValue(String typereplaceValue) {
-      this.typereplaceValue = typereplaceValue;
-    }
-
-    public String getTypereplaceMask() {
-      return typereplaceMask;
-    }
-
-    public void setTypereplaceMask(String typereplaceMask) {
-      this.typereplaceMask = typereplaceMask;
-    }
-
-    public boolean isSetTypeEmptyString() {
-      return setTypeEmptyString;
-    }
-
-    public void setTypeEmptyString(boolean setTypeEmptyString) {
-      this.setTypeEmptyString = setTypeEmptyString;
-    }
-
-    @Override
-    public ValueTypes clone() {
-      try {
-        return (ValueTypes) super.clone();
-      } catch (CloneNotSupportedException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  @InjectionDeep private Fields[] fields;
-
-  @InjectionDeep private ValueTypes[] valueTypes;
-
-  @Injection(name = "SELECT_FIELDS")
+  @HopMetadataProperty(key = "selectFields", injectionKey = "SELECT_FIELDS", injectionKeyDescription = "IfNull.Injection.SELECT_FIELDS")
   private boolean selectFields;
 
-  @Injection(name = "SELECT_VALUES_TYPE")
+  @HopMetadataProperty(key = "selectValuesType", injectionKey = "SELECT_VALUES_TYPE", injectionKeyDescription = "IfNull.Injection.SELECT_VALUES_TYPE")
   private boolean selectValuesType;
-
-  @Injection(name = "REPLACE_ALL_BY_VALUE")
+  
+  @HopMetadataProperty(key = "replaceAllByValue", injectionKey = "REPLACE_ALL_BY_VALUE", injectionKeyDescription = "IfNull.Injection.REPLACE_ALL_BY_VALUE")
   private String replaceAllByValue;
 
-  @Injection(name = "REPLACE_ALL_MASK")
+  @HopMetadataProperty(key = "replaceAllMask", injectionKey = "REPLACE_ALL_MASK", injectionKeyDescription = "IfNull.Injection.REPLACE_ALL_MASK")
   private String replaceAllMask;
 
   /** The flag to set auto commit on or off on the connection */
-  @Injection(name = "SET_EMPTY_STRING_ALL")
+  @HopMetadataProperty(key = "setEmptyStringAll", injectionKey = "SET_EMPTY_STRING_ALL", injectionKeyDescription = "IfNull.Injection.SET_EMPTY_STRING_ALL")
   private boolean setEmptyStringAll;
 
   public IfNullMeta() {
     super(); // allocate BaseTransformMeta
+    this.valueTypes = new ArrayList<>();
+    this.fields = new ArrayList<>();
+  }
+  
+  public IfNullMeta(final IfNullMeta meta) {
+    this(); 
+    this.selectFields = meta.selectFields;
+    this.selectValuesType = meta.selectValuesType;
+    this.replaceAllByValue = meta.replaceAllByValue;
+    this.replaceAllMask = meta.replaceAllMask;
+    this.setEmptyStringAll = meta.setEmptyStringAll;
+    
+    for (Field field:meta.fields) {
+      this.fields.add(new Field(field));
+    }
+    for (ValueType vt:meta.valueTypes) {
+      this.valueTypes.add(new ValueType(vt));
+    } 
   }
 
   /** @return Returns the setEmptyStringAll. */
@@ -201,44 +96,13 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
   }
 
   /** @param setEmptyStringAll The setEmptyStringAll to set. */
-  public void setEmptyStringAll(boolean setEmptyStringAll) {
+  public void setSetEmptyStringAll(boolean setEmptyStringAll) {
     this.setEmptyStringAll = setEmptyStringAll;
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  @Override
   public Object clone() {
-    IfNullMeta retval = (IfNullMeta) super.clone();
-
-    int nrTypes = valueTypes.length;
-    int nrFields = fields.length;
-    retval.allocate(nrTypes, nrFields);
-
-    for (int i = 0; i < nrTypes; i++) {
-      retval.getValueTypes()[i] = valueTypes[i].clone();
-    }
-
-    for (int i = 0; i < nrFields; i++) {
-      retval.getFields()[i] = fields[i].clone();
-    }
-
-    return retval;
-  }
-
-  public void allocate(int nrtypes, int nrFields) {
-    valueTypes = new ValueTypes[nrtypes];
-    for (int i = 0; i < nrtypes; i++) {
-      valueTypes[i] = new ValueTypes();
-    }
-    fields = new Fields[nrFields];
-    for (int i = 0; i < nrFields; i++) {
-      fields[i] = new Fields();
-    }
+    return new IfNullMeta(this);
   }
 
   public boolean isSelectFields() {
@@ -273,115 +137,31 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
     return replaceAllMask;
   }
 
-  public Fields[] getFields() {
+  public List<Field> getFields() {
     return fields;
   }
 
-  public void setFields(Fields[] fields) {
+  public void setFields(List<Field> fields) {
     this.fields = fields;
   }
 
-  public ValueTypes[] getValueTypes() {
+  public List<ValueType> getValueTypes() {
     return valueTypes;
   }
 
-  public void setValueTypes(ValueTypes[] valueTypes) {
+  public void setValueTypes(List<ValueType> valueTypes) {
     this.valueTypes = valueTypes;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      selectFields = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "selectFields"));
-      selectValuesType =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "selectValuesType"));
-      replaceAllByValue = XmlHandler.getTagValue(transformNode, "replaceAllByValue");
-      replaceAllMask = XmlHandler.getTagValue(transformNode, "replaceAllMask");
-      String setEmptyStringAllString = XmlHandler.getTagValue(transformNode, "setEmptyStringAll");
-      setEmptyStringAll =
-          !Utils.isEmpty(setEmptyStringAllString) && "Y".equalsIgnoreCase(setEmptyStringAllString);
-
-      Node types = XmlHandler.getSubNode(transformNode, "valuetypes");
-      int nrtypes = XmlHandler.countNodes(types, "valuetype");
-      Node fieldNodes = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fieldNodes, "field");
-
-      allocate(nrtypes, nrFields);
-
-      for (int i = 0; i < nrtypes; i++) {
-        Node tnode = XmlHandler.getSubNodeByNr(types, "valuetype", i);
-        valueTypes[i].setTypeName(XmlHandler.getTagValue(tnode, "name"));
-        valueTypes[i].setTypereplaceValue(XmlHandler.getTagValue(tnode, "value"));
-        valueTypes[i].setTypereplaceMask(XmlHandler.getTagValue(tnode, "mask"));
-        String typeemptyString = XmlHandler.getTagValue(tnode, "set_type_empty_string");
-        valueTypes[i].setTypeEmptyString(
-            !Utils.isEmpty(typeemptyString) && "Y".equalsIgnoreCase(typeemptyString));
-      }
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fieldNodes, "field", i);
-        fields[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
-        fields[i].setReplaceValue(XmlHandler.getTagValue(fnode, "value"));
-        fields[i].setReplaceMask(XmlHandler.getTagValue(fnode, "mask"));
-        String emptyString = XmlHandler.getTagValue(fnode, "set_empty_string");
-        fields[i].setEmptyString(!Utils.isEmpty(emptyString) && "Y".equalsIgnoreCase(emptyString));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("It was not possibke to load the IfNull metadata from XML", e);
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-
-    retval.append("      " + XmlHandler.addTagValue("replaceAllByValue", replaceAllByValue));
-    retval.append("      " + XmlHandler.addTagValue("replaceAllMask", replaceAllMask));
-    retval.append("      " + XmlHandler.addTagValue("selectFields", selectFields));
-    retval.append("      " + XmlHandler.addTagValue("selectValuesType", selectValuesType));
-    retval.append("      " + XmlHandler.addTagValue("setEmptyStringAll", setEmptyStringAll));
-
-    retval.append("    <valuetypes>" + Const.CR);
-    for (int i = 0; i < valueTypes.length; i++) {
-      retval.append("      <valuetype>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", valueTypes[i].getTypeName()));
-      retval.append(
-          "        " + XmlHandler.addTagValue("value", valueTypes[i].getTypereplaceValue()));
-      retval.append(
-          "        " + XmlHandler.addTagValue("mask", valueTypes[i].getTypereplaceMask()));
-      retval.append(
-          "        "
-              + XmlHandler.addTagValue(
-                  "set_type_empty_string", valueTypes[i].isSetTypeEmptyString()));
-      retval.append("        </valuetype>" + Const.CR);
-    }
-    retval.append("      </valuetypes>" + Const.CR);
-
-    retval.append("    <fields>" + Const.CR);
-    for (int i = 0; i < fields.length; i++) {
-      retval.append("      <field>" + Const.CR);
-      retval.append("        " + XmlHandler.addTagValue("name", fields[i].getFieldName()));
-      retval.append("        " + XmlHandler.addTagValue("value", fields[i].getReplaceValue()));
-      retval.append("        " + XmlHandler.addTagValue("mask", fields[i].getReplaceMask()));
-      retval.append(
-          "        " + XmlHandler.addTagValue("set_empty_string", fields[i].isSetEmptyString()));
-      retval.append("        </field>" + Const.CR);
-    }
-    retval.append("      </fields>" + Const.CR);
-
-    return retval.toString();
   }
 
   @Override
   public void setDefault() {
-    replaceAllByValue = null;
-    replaceAllMask = null;
-    selectFields = false;
-    selectValuesType = false;
-    setEmptyStringAll = false;
-
-    int nrFields = 0;
-    int nrtypes = 0;
-    allocate(nrtypes, nrFields);
+    this.replaceAllByValue = null;
+    this.replaceAllMask = null;
+    this.selectFields = false;
+    this.selectValuesType = false;
+    this.setEmptyStringAll = false;
+    this.valueTypes = new ArrayList<>();
+    this.fields = new ArrayList<>();
   }
 
   @Override
@@ -399,7 +179,7 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
     if (prev == null || prev.size() == 0) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               BaseMessages.getString(PKG, "IfNullMeta.CheckResult.NotReceivingFields"),
               transformMeta);
       remarks.add(cr);
@@ -416,10 +196,10 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < fields.length; i++) {
-        int idx = prev.indexOfValue(fields[i].getFieldName());
+      for (Field field : this.fields) {
+        int idx = prev.indexOfValue(field.getName());
         if (idx < 0) {
-          errorMessage += "\t\t" + fields[i].getFieldName() + Const.CR;
+          errorMessage += "\t\t" + field.getName() + Const.CR;
           errorFound = true;
         }
       }
@@ -430,7 +210,7 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (fields.length > 0) {
+        if (fields.size() > 0) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -440,7 +220,7 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
         } else {
           cr =
               new CheckResult(
-                  CheckResult.TYPE_RESULT_WARNING,
+                  ICheckResult.TYPE_RESULT_WARNING,
                   BaseMessages.getString(PKG, "IfNullMeta.CheckResult.NoFieldsEntered"),
                   transformMeta);
           remarks.add(cr);

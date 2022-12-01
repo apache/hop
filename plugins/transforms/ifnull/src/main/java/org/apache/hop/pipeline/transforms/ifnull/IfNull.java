@@ -71,35 +71,36 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
 
       if (meta.isSelectFields()) {
         // Consider only selected fields
-        if (meta.getFields() != null && meta.getFields().length > 0) {
-          int fieldsLength = meta.getFields().length;
+        if (meta.getFields() != null && meta.getFields().size() > 0) {
+          int fieldsLength = meta.getFields().size();
           data.fieldnrs = new int[fieldsLength];
           data.defaultValues = new String[fieldsLength];
           data.defaultMasks = new String[fieldsLength];
           data.setEmptyString = new boolean[fieldsLength];
 
-          for (int i = 0; i < meta.getFields().length; i++) {
-            data.fieldnrs[i] = data.outputRowMeta.indexOfValue(meta.getFields()[i].getFieldName());
+          for (int i = 0; i < meta.getFields().size(); i++) {
+            Field field = meta.getFields().get(i);
+            data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
             if (data.fieldnrs[i] < 0) {
               logError(
                   BaseMessages.getString(
-                      PKG, "IfNull.Log.CanNotFindField", meta.getFields()[i].getFieldName()));
+                      PKG, "IfNull.Log.CanNotFindField", field.getName()));
               throw new HopException(
                   BaseMessages.getString(
-                      PKG, "IfNull.Log.CanNotFindField", meta.getFields()[i].getFieldName()));
+                      PKG, "IfNull.Log.CanNotFindField", field.getName()));
             }
-            data.defaultValues[i] = resolve(meta.getFields()[i].getReplaceValue());
-            data.defaultMasks[i] = resolve(meta.getFields()[i].getReplaceMask());
-            data.setEmptyString[i] = meta.getFields()[i].isSetEmptyString();
+            data.defaultValues[i] = resolve(field.getValue());
+            data.defaultMasks[i] = resolve(field.getMask());
+            data.setEmptyString[i] = field.isSetEmptyString();
           }
         } else {
           throw new HopException(BaseMessages.getString(PKG, "IfNull.Log.SelectFieldsEmpty"));
         }
       } else if (meta.isSelectValuesType()) {
         // Consider only select value types
-        if (meta.getValueTypes() != null && meta.getValueTypes().length > 0) {
+        if (meta.getValueTypes() != null && meta.getValueTypes().size() > 0) {
           // return the real default values
-          int typeLength = meta.getValueTypes().length;
+          int typeLength = meta.getValueTypes().size();
           data.defaultValues = new String[typeLength];
           data.defaultMasks = new String[typeLength];
           data.setEmptyString = new boolean[typeLength];
@@ -110,19 +111,20 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
             alllistTypes.add(IValueMeta.typeCodes[i]);
           }
 
-          for (int i = 0; i < meta.getValueTypes().length; i++) {
-            if (!alllistTypes.contains(meta.getValueTypes()[i].getTypeName())) {
+          for (int i = 0; i < meta.getValueTypes().size(); i++) {
+            ValueType valueType = meta.getValueTypes().get(i);
+            if (!alllistTypes.contains(valueType.getName())) {
               throw new HopException(
                   BaseMessages.getString(
                       PKG,
                       "IfNull.Log.CanNotFindValueType",
-                      meta.getValueTypes()[i].getTypeName()));
+                      valueType.getName()));
             }
 
-            data.ListTypes.put(meta.getValueTypes()[i].getTypeName(), i);
-            data.defaultValues[i] = resolve(meta.getValueTypes()[i].getTypereplaceValue());
-            data.defaultMasks[i] = resolve(meta.getValueTypes()[i].getTypereplaceMask());
-            data.setEmptyString[i] = meta.getValueTypes()[i].isSetTypeEmptyString();
+            data.ListTypes.put(valueType.getName(), i);
+            data.defaultValues[i] = resolve(valueType.getValue());
+            data.defaultMasks[i] = resolve(valueType.getMask());
+            data.setEmptyString[i] = valueType.isSetEmptyString();
           }
 
           HashSet<Integer> fieldsSelectedIndex = new HashSet<>();

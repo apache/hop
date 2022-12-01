@@ -110,9 +110,9 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     formLayout.marginHeight = PropsUi.getFormMargin();
 
     int middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
-    fieldsRows = input.getFields().length;
+    fieldsRows = input.getFields().size();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "IfNullDialog.Shell.Title"));
@@ -284,7 +284,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     fdlValueTypes.top = new FormAttachment(wSelectValuesType, margin);
     wlValueTypes.setLayoutData(fdlValueTypes);
 
-    int valueTypesRows = input.getValueTypes().length;
+    int valueTypesRows = input.getValueTypes().size();
 
     ColumnInfo[] colval =
         new ColumnInfo[] {
@@ -514,24 +514,25 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     wSelectValuesType.setSelection(input.isSelectValuesType());
 
     Table table = wValueTypes.table;
-    if (input.getValueTypes().length > 0) {
+    if ( !input.getValueTypes().isEmpty() ) {
       table.removeAll();
     }
-    for (int i = 0; i < input.getValueTypes().length; i++) {
+    for (int i = 0; i < input.getValueTypes().size(); i++) {
+      ValueType valueType = input.getValueTypes().get(i);      
       TableItem ti = new TableItem(table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
-      if (input.getValueTypes()[i].getTypeName() != null) {
-        ti.setText(1, input.getValueTypes()[i].getTypeName());
+      if (valueType.getName() != null) {
+        ti.setText(1, valueType.getName());
       }
-      if (input.getValueTypes()[i].getTypereplaceValue() != null) {
-        ti.setText(2, input.getValueTypes()[i].getTypereplaceValue());
+      if (valueType.getValue() != null) {
+        ti.setText(2, valueType.getValue());
       }
-      if (input.getValueTypes()[i].getTypereplaceMask() != null) {
-        ti.setText(3, input.getValueTypes()[i].getTypereplaceMask());
+      if (valueType.getMask() != null) {
+        ti.setText(3, valueType.getMask());
       }
       ti.setText(
           4,
-          input.getValueTypes()[i].isSetTypeEmptyString()
+          valueType.isSetEmptyString()
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
               : BaseMessages.getString(PKG, "System.Combo.No"));
     }
@@ -541,24 +542,25 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     wValueTypes.optWidth(true);
 
     table = wFields.table;
-    if (input.getFields().length > 0) {
+    if (!input.getFields().isEmpty()) {
       table.removeAll();
     }
-    for (int i = 0; i < input.getFields().length; i++) {
+    for (int i = 0; i < input.getFields().size(); i++) {
+      Field field = input.getFields().get(i);
       TableItem ti = new TableItem(table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
-      if (input.getFields()[i].getFieldName() != null) {
-        ti.setText(1, input.getFields()[i].getFieldName());
+      if (field.getName() != null) {
+        ti.setText(1, field.getName());
       }
-      if (input.getFields()[i].getReplaceValue() != null) {
-        ti.setText(2, input.getFields()[i].getReplaceValue());
+      if (field.getValue() != null) {
+        ti.setText(2, field.getValue());
       }
-      if (input.getFields()[i].getReplaceMask() != null) {
-        ti.setText(3, input.getFields()[i].getReplaceMask());
+      if (field.getMask() != null) {
+        ti.setText(3, field.getMask());
       }
       ti.setText(
           4,
-          input.getFields()[i].isSetEmptyString()
+          field.isSetEmptyString()
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
               : BaseMessages.getString(PKG, "System.Combo.No"));
     }
@@ -587,7 +589,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     }
     transformName = wTransformName.getText(); // return value
 
-    input.setEmptyStringAll(wSetEmptyStringAll.getSelection());
+    input.setSetEmptyStringAll(wSetEmptyStringAll.getSelection());
 
     if (wSetEmptyStringAll.getSelection()) {
       input.setReplaceAllByValue("");
@@ -603,36 +605,39 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
 
     int nrtypes = wValueTypes.nrNonEmpty();
     int nrFields = wFields.nrNonEmpty();
-    input.allocate(nrtypes, nrFields);
-
-    // CHECKSTYLE:Indentation:OFF
+    
+    input.getValueTypes().clear();
     for (int i = 0; i < nrtypes; i++) {
       TableItem ti = wValueTypes.getNonEmpty(i);
-      input.getValueTypes()[i].setTypeName(ti.getText(1));
-      input.getValueTypes()[i].setTypeEmptyString(
+      ValueType valueType = new ValueType();
+      valueType.setName(ti.getText(1));
+      valueType.setSetEmptyString(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(4)));
-      if (input.getValueTypes()[i].isSetTypeEmptyString()) {
-        input.getValueTypes()[i].setTypereplaceValue("");
-        input.getValueTypes()[i].setTypereplaceMask("");
+      if (valueType.isSetEmptyString()) {
+        valueType.setValue("");
+        valueType.setMask("");
       } else {
-        input.getValueTypes()[i].setTypereplaceValue(ti.getText(2));
-        input.getValueTypes()[i].setTypereplaceMask(ti.getText(3));
+        valueType.setValue(ti.getText(2));
+        valueType.setMask(ti.getText(3));
       }
+      input.getValueTypes().add(valueType);
     }
 
-    // CHECKSTYLE:Indentation:OFF
+    input.getFields().clear();
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
-      input.getFields()[i].setFieldName(ti.getText(1));
-      input.getFields()[i].setEmptyString(
+      Field field = new Field();
+      field.setName(ti.getText(1));
+      field.setSetEmptyString(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(4)));
-      if (input.getFields()[i].isSetEmptyString()) {
-        input.getFields()[i].setReplaceValue("");
-        input.getFields()[i].setReplaceMask("");
+      if (field.isSetEmptyString()) {
+        field.setValue("");
+        field.setMask("");
       } else {
-        input.getFields()[i].setReplaceValue(ti.getText(2));
-        input.getFields()[i].setReplaceMask(ti.getText(3));
+        field.setValue(ti.getText(2));
+        field.setMask(ti.getText(3));
       }
+      input.getFields().add(field);
     }
     dispose();
   }

@@ -33,13 +33,13 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.ifnull.IfNullMeta.Fields;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
+import java.util.ArrayList;
+import java.util.List;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
@@ -94,12 +94,12 @@ public class IfNullTest {
     return processRowMeta;
   }
 
-  private static Fields[] createFields(String... fieldNames) {
-    Fields[] fields = new Fields[fieldNames.length];
-    for (int i = 0; i < fields.length; i++) {
-      Fields currentField = new Fields();
-      currentField.setFieldName(fieldNames[i]);
-      fields[i] = currentField;
+  private static List<Field> createFields(String... fieldNames) {
+    List<Field> fields = new ArrayList<>();
+    for (int i = 0; i < fieldNames.length; i++) {
+      Field field = new Field();
+      field.setName(fieldNames[i]);
+      fields.add(field);
     }
     return fields;
   }
