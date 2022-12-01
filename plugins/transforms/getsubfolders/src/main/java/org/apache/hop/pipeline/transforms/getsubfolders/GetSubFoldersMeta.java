@@ -19,12 +19,9 @@ package org.apache.hop.pipeline.transforms.getsubfolders;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,16 +32,16 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,174 +56,56 @@ import java.util.Map;
 public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFoldersData> {
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 
-  public static final String[] RequiredFoldersDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-  public static final String[] RequiredFoldersCode = new String[] {"N", "Y"};
-
-  public static final String NO = "N";
-
-  /** Array of filenames */
-  private String[] folderName;
-
-  /** Array of boolean values as string, indicating if a file is required. */
-  private String[] folderRequired;
+  /** The files/folders to get subfolders for */
+  @HopMetadataProperty(key = "file")
+  private List<GSFile> files;
 
   /** Flag indicating that a row number field should be included in the output */
+  @HopMetadataProperty(key = "rownum")
   private boolean includeRowNumber;
 
   /** The name of the field in the output containing the row number */
+  @HopMetadataProperty(key = "rownum_field")
   private String rowNumberField;
 
   /** The name of the field in the output containing the foldername */
-  private String dynamicFoldernameField;
+  @HopMetadataProperty(key = "foldername_field")
+  private String dynamicFolderNameField;
 
   /** folder name from previous fields */
-  private boolean isFoldernameDynamic;
+  @HopMetadataProperty(key = "foldername_dynamic")
+  private boolean folderNameDynamic;
 
   /** The maximum number or lines to read */
+  @HopMetadataProperty(key = "limit")
   private long rowLimit;
 
   public GetSubFoldersMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    files = new ArrayList<>();
   }
 
-  public String getRequiredFilesDesc(String tt) {
-    if (Utils.isEmpty(tt)) {
-      return RequiredFoldersDesc[0];
-    }
-    if (tt.equalsIgnoreCase(RequiredFoldersCode[1])) {
-      return RequiredFoldersDesc[1];
-    } else {
-      return RequiredFoldersDesc[0];
-    }
-  }
-
-  /** @return Returns the rowNumberField. */
-  public String getRowNumberField() {
-    return rowNumberField;
-  }
-
-  /** @param dynamicFoldernameField The dynamic foldername field to set. */
-  public void setDynamicFoldernameField(String dynamicFoldernameField) {
-    this.dynamicFoldernameField = dynamicFoldernameField;
-  }
-
-  /** @param rowNumberField The rowNumberField to set. */
-  public void setRowNumberField(String rowNumberField) {
-    this.rowNumberField = rowNumberField;
-  }
-
-  /** @return Returns the dynamic folder field (from previous transforms) */
-  public String getDynamicFoldernameField() {
-    return dynamicFoldernameField;
-  }
-
-  /** @return Returns the includeRowNumber. */
-  public boolean includeRowNumber() {
-    return includeRowNumber;
-  }
-
-  /** @return Returns the dynamic foldername flag. */
-  public boolean isFoldernameDynamic() {
-    return isFoldernameDynamic;
-  }
-
-  /** @param isFoldernameDynamic The isFoldernameDynamic to set. */
-  public void setFolderField(boolean isFoldernameDynamic) {
-    this.isFoldernameDynamic = isFoldernameDynamic;
-  }
-
-  /** @param includeRowNumber The includeRowNumber to set. */
-  public void setIncludeRowNumber(boolean includeRowNumber) {
-    this.includeRowNumber = includeRowNumber;
-  }
-
-  /** @return Returns the folderRequired. */
-  public String[] getFolderRequired() {
-    return folderRequired;
-  }
-
-  public String getRequiredFoldersCode(String tt) {
-    if (tt == null) {
-      return RequiredFoldersCode[0];
-    }
-    if (tt.equals(RequiredFoldersDesc[1])) {
-      return RequiredFoldersCode[1];
-    } else {
-      return RequiredFoldersCode[0];
-    }
-  }
-
-  /** @param folderRequiredin The folderRequired to set. */
-  public void setFolderRequired(String[] folderRequiredin) {
-    this.folderRequired = new String[folderRequiredin.length];
-    for (int i = 0; i < folderRequiredin.length; i++) {
-      this.folderRequired[i] = getRequiredFoldersCode(folderRequiredin[i]);
-    }
-  }
-
-  /** @return Returns the folderName. */
-  public String[] getFolderName() {
-    return folderName;
-  }
-
-  /** @param folderName The folderName to set. */
-  public void setFolderName(String[] folderName) {
-    this.folderName = folderName;
-  }
-
-  /** @return Returns the rowLimit. */
-  public long getRowLimit() {
-    return rowLimit;
-  }
-
-  /** @param rowLimit The rowLimit to set. */
-  public void setRowLimit(long rowLimit) {
-    this.rowLimit = rowLimit;
+  public GetSubFoldersMeta(GetSubFoldersMeta m) {
+    this();
+    this.includeRowNumber = m.includeRowNumber;
+    this.rowNumberField = m.rowNumberField;
+    this.dynamicFolderNameField = m.dynamicFolderNameField;
+    this.folderNameDynamic = m.folderNameDynamic;
+    this.rowLimit = m.rowLimit;
+    m.files.forEach(f -> this.files.add(new GSFile(f)));
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    GetSubFoldersMeta retval = (GetSubFoldersMeta) super.clone();
-
-    int nrfiles = folderName.length;
-
-    retval.allocate(nrfiles);
-
-    System.arraycopy(folderName, 0, retval.folderName, 0, nrfiles);
-    System.arraycopy(folderRequired, 0, retval.folderRequired, 0, nrfiles);
-
-    return retval;
-  }
-
-  public void allocate(int nrfiles) {
-    folderName = new String[nrfiles];
-    folderRequired = new String[nrfiles];
+  public GetSubFoldersMeta clone() {
+    return new GetSubFoldersMeta(this);
   }
 
   @Override
   public void setDefault() {
-    int nrfiles = 0;
-    isFoldernameDynamic = false;
+    folderNameDynamic = false;
     includeRowNumber = false;
     rowNumberField = "";
-    dynamicFoldernameField = "";
-
-    allocate(nrfiles);
-
-    for (int i = 0; i < nrfiles; i++) {
-      folderName[i] = "folderName" + (i + 1);
-      folderRequired[i] = NO;
-    }
+    dynamicFolderNameField = "";
   }
 
   @Override
@@ -236,65 +115,64 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
 
     // the folderName
-    IValueMeta folderName = new ValueMetaString("folderName");
-    folderName.setLength(500);
-    folderName.setPrecision(-1);
-    folderName.setOrigin(name);
-    row.addValueMeta(folderName);
+    IValueMeta folderNameValueMeta = new ValueMetaString("folderName");
+    folderNameValueMeta.setLength(500);
+    folderNameValueMeta.setPrecision(-1);
+    folderNameValueMeta.setOrigin(name);
+    row.addValueMeta(folderNameValueMeta);
 
     // the short folderName
-    IValueMeta shortFolderName = new ValueMetaString("short_folderName");
-    shortFolderName.setLength(500);
-    shortFolderName.setPrecision(-1);
-    shortFolderName.setOrigin(name);
-    row.addValueMeta(shortFolderName);
+    IValueMeta shortFolderNameValueMeta = new ValueMetaString("short_folderName");
+    shortFolderNameValueMeta.setLength(500);
+    shortFolderNameValueMeta.setPrecision(-1);
+    shortFolderNameValueMeta.setOrigin(name);
+    row.addValueMeta(shortFolderNameValueMeta);
 
     // the path
-    IValueMeta path = new ValueMetaString("path");
-    path.setLength(500);
-    path.setPrecision(-1);
-    path.setOrigin(name);
-    row.addValueMeta(path);
+    IValueMeta pathValueMeta = new ValueMetaString("path");
+    pathValueMeta.setLength(500);
+    pathValueMeta.setPrecision(-1);
+    pathValueMeta.setOrigin(name);
+    row.addValueMeta(pathValueMeta);
 
-    // the ishidden
-    IValueMeta ishidden = new ValueMetaBoolean("ishidden");
-    ishidden.setOrigin(name);
-    row.addValueMeta(ishidden);
+    // the is hidden
+    IValueMeta isHiddenValueMeta = new ValueMetaBoolean("ishidden");
+    isHiddenValueMeta.setOrigin(name);
+    row.addValueMeta(isHiddenValueMeta);
 
-    // the isreadable
-    IValueMeta isreadable = new ValueMetaBoolean("isreadable");
-    isreadable.setOrigin(name);
-    row.addValueMeta(isreadable);
+    // the is readable?
+    IValueMeta isReadableValueMeta = new ValueMetaBoolean("isreadable");
+    isReadableValueMeta.setOrigin(name);
+    row.addValueMeta(isReadableValueMeta);
 
-    // the iswriteable
-    IValueMeta iswriteable = new ValueMetaBoolean("iswriteable");
-    iswriteable.setOrigin(name);
-    row.addValueMeta(iswriteable);
+    // the is writeable
+    IValueMeta isWriteableValueMeta = new ValueMetaBoolean("iswriteable");
+    isWriteableValueMeta.setOrigin(name);
+    row.addValueMeta(isWriteableValueMeta);
 
-    // the lastmodifiedtime
-    IValueMeta lastmodifiedtime = new ValueMetaDate("lastmodifiedtime");
-    lastmodifiedtime.setOrigin(name);
-    row.addValueMeta(lastmodifiedtime);
+    // the last modified time
+    IValueMeta lastModifiedTimeValueMeta = new ValueMetaDate("lastmodifiedtime");
+    lastModifiedTimeValueMeta.setOrigin(name);
+    row.addValueMeta(lastModifiedTimeValueMeta);
 
     // the uri
-    IValueMeta uri = new ValueMetaString("uri");
-    uri.setOrigin(name);
-    row.addValueMeta(uri);
+    IValueMeta uriValueMeta = new ValueMetaString("uri");
+    uriValueMeta.setOrigin(name);
+    row.addValueMeta(uriValueMeta);
 
-    // the rooturi
-    IValueMeta rooturi = new ValueMetaString("rooturi");
-    rooturi.setOrigin(name);
-    row.addValueMeta(rooturi);
+    // the root uri
+    IValueMeta rootUriValueMeta = new ValueMetaString("rooturi");
+    rootUriValueMeta.setOrigin(name);
+    row.addValueMeta(rootUriValueMeta);
 
-    // childrens
-    IValueMeta childrens = new ValueMetaInteger(variables.resolve("childrens"));
-    childrens.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
-    childrens.setOrigin(name);
-    row.addValueMeta(childrens);
+    // children
+    IValueMeta childrenValueMeta = new ValueMetaInteger(variables.resolve("childrens"));
+    childrenValueMeta.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
+    childrenValueMeta.setOrigin(name);
+    row.addValueMeta(childrenValueMeta);
 
     if (includeRowNumber) {
       IValueMeta v = new ValueMetaInteger(variables.resolve(rowNumberField));
@@ -304,57 +182,24 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
     }
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
-    retval.append("    ").append(XmlHandler.addTagValue("foldername_dynamic", isFoldernameDynamic));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("foldername_field", dynamicFoldernameField));
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-    retval.append("    <file>").append(Const.CR);
-
-    for (int i = 0; i < folderName.length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", folderName[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", folderRequired[i]));
+  public String[] getFilesNames() {
+    String[] names = new String[files.size()];
+    for (int i = 0; i < names.length; i++) {
+      names[i] = files.get(i).getName();
     }
-    retval.append("    </file>").append(Const.CR);
-
-    return retval.toString();
+    return names;
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
-      isFoldernameDynamic =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "foldername_dynamic"));
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      dynamicFoldernameField = XmlHandler.getTagValue(transformNode, "foldername_field");
-
-      // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong(XmlHandler.getTagValue(transformNode, "limit"), 0L);
-
-      Node filenode = XmlHandler.getSubNode(transformNode, "file");
-      int nrfiles = XmlHandler.countNodes(filenode, "name");
-
-      allocate(nrfiles);
-
-      for (int i = 0; i < nrfiles; i++) {
-        Node folderNamenode = XmlHandler.getSubNodeByNr(filenode, "name", i);
-        Node folderRequirednode = XmlHandler.getSubNodeByNr(filenode, "file_required", i);
-        folderName[i] = XmlHandler.getNodeValue(folderNamenode);
-        folderRequired[i] = XmlHandler.getNodeValue(folderRequirednode);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
+  public String[] getFilesRequired() {
+    String[] required = new String[files.size()];
+    for (int i = 0; i < required.length; i++) {
+      required[i] = files.get(i).isRequired() ? "Y" : "N";
     }
+    return required;
   }
 
   public FileInputList getFolderList(IVariables variables) {
-    return FileInputList.createFolderList(variables, folderName, folderRequired);
+    return FileInputList.createFolderList(variables, getFilesNames(), getFilesRequired());
   }
 
   public FileInputList getDynamicFolderList(
@@ -376,7 +221,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
     CheckResult cr;
 
     // See if we get input...
-    if (isFoldernameDynamic) {
+    if (folderNameDynamic) {
       if (input.length > 0) {
         cr =
             new CheckResult(
@@ -392,7 +237,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
       }
       remarks.add(cr);
 
-      if (Utils.isEmpty(dynamicFoldernameField)) {
+      if (Utils.isEmpty(dynamicFolderNameField)) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -452,8 +297,8 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
    * pray that the file is on a shared drive or something like that.
    *
    * @param variables the variable variables to use
-   * @param definitions
-   * @param iResourceNaming
+   * @param definitions The definitions to use
+   * @param iResourceNaming The naming method
    * @param metadataProvider the metadataProvider in which non-hop metadata could reside.
    * @return the filename of the exported resource
    */
@@ -469,15 +314,174 @@ public class GetSubFoldersMeta extends BaseTransformMeta<GetSubFolders, GetSubFo
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      if (!isFoldernameDynamic) {
-        for (int i = 0; i < folderName.length; i++) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(folderName[i]));
-          folderName[i] = iResourceNaming.nameResource(fileObject, variables, true);
+      if (!folderNameDynamic) {
+        for (GSFile file : files) {
+          FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getName()));
+          file.setName(iResourceNaming.nameResource(fileObject, variables, true));
         }
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
     }
+  }
+
+  public static final class GSFile {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "file_required")
+    private boolean required;
+
+    public GSFile() {}
+
+    public GSFile(GSFile f) {
+      this.name = f.name;
+      this.required = f.required;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets required
+     *
+     * @return value of required
+     */
+    public boolean isRequired() {
+      return required;
+    }
+
+    /**
+     * Sets required
+     *
+     * @param required value of required
+     */
+    public void setRequired(boolean required) {
+      this.required = required;
+    }
+  }
+
+  /**
+   * Gets files
+   *
+   * @return value of files
+   */
+  public List<GSFile> getFiles() {
+    return files;
+  }
+
+  /**
+   * Sets files
+   *
+   * @param files value of files
+   */
+  public void setFiles(List<GSFile> files) {
+    this.files = files;
+  }
+
+  /**
+   * Gets includeRowNumber
+   *
+   * @return value of includeRowNumber
+   */
+  public boolean isIncludeRowNumber() {
+    return includeRowNumber;
+  }
+
+  /**
+   * Sets includeRowNumber
+   *
+   * @param includeRowNumber value of includeRowNumber
+   */
+  public void setIncludeRowNumber(boolean includeRowNumber) {
+    this.includeRowNumber = includeRowNumber;
+  }
+
+  /**
+   * Gets rowNumberField
+   *
+   * @return value of rowNumberField
+   */
+  public String getRowNumberField() {
+    return rowNumberField;
+  }
+
+  /**
+   * Sets rowNumberField
+   *
+   * @param rowNumberField value of rowNumberField
+   */
+  public void setRowNumberField(String rowNumberField) {
+    this.rowNumberField = rowNumberField;
+  }
+
+  /**
+   * Gets dynamicFolderNameField
+   *
+   * @return value of dynamicFolderNameField
+   */
+  public String getDynamicFolderNameField() {
+    return dynamicFolderNameField;
+  }
+
+  /**
+   * Sets dynamicFolderNameField
+   *
+   * @param dynamicFolderNameField value of dynamicFolderNameField
+   */
+  public void setDynamicFolderNameField(String dynamicFolderNameField) {
+    this.dynamicFolderNameField = dynamicFolderNameField;
+  }
+
+  /**
+   * Gets folderNameDynamic
+   *
+   * @return value of folderNameDynamic
+   */
+  public boolean isFolderNameDynamic() {
+    return folderNameDynamic;
+  }
+
+  /**
+   * Sets folderNameDynamic
+   *
+   * @param folderNameDynamic value of folderNameDynamic
+   */
+  public void setFolderNameDynamic(boolean folderNameDynamic) {
+    this.folderNameDynamic = folderNameDynamic;
+  }
+
+  /**
+   * Gets rowLimit
+   *
+   * @return value of rowLimit
+   */
+  public long getRowLimit() {
+    return rowLimit;
+  }
+
+  /**
+   * Sets rowLimit
+   *
+   * @param rowLimit value of rowLimit
+   */
+  public void setRowLimit(long rowLimit) {
+    this.rowLimit = rowLimit;
   }
 }
