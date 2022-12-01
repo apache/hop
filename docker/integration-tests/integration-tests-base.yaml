@@ -18,6 +18,7 @@
 version: '2.4'
 services:
   integration_test:
+    image: hop-base-image
     build:
       context: ../../.
       dockerfile: docker/integration-tests/Dockerfile.unit-tests

@@ -803,6 +803,7 @@
                         <exclude>**/PUT_JDBC_HERE</exclude>
                         <exclude>**/hop.pwd</exclude>
                         <exclude>**/*.iml</exclude>
+                        <exclude>.dockerignore</exclude>
 
                         <!-- Unit Test Exclusions -->
                         <exclude>**/test/**/*.txt</exclude>
