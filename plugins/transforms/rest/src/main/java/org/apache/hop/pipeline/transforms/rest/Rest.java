@@ -32,6 +32,7 @@ import org.glassfish.jersey.apache.connector.ApacheConnectorProvider;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
+import org.glassfish.jersey.client.RequestEntityProcessing;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.uri.UriComponent;
 import org.json.simple.JSONObject;
@@ -293,6 +294,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       // Use ApacheHttpClient for supporting proxy authentication.
       data.config = new ClientConfig();
       data.config.connectorProvider(new ApacheConnectorProvider());
+      data.config.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
       if (!Utils.isEmpty(data.realProxyHost)) {
         // PROXY CONFIGURATION
         data.config.property(ClientProperties.PROXY_URI,"http://"+ data.realProxyHost + ":" + data.realProxyPort);
