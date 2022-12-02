@@ -1,0 +1,4 @@
+script,value1,value2,output,Error output,Exit value
+/usr/bin/echo,value1A,value2A,value1A value2A,,0
+/usr/bin/echo,value1B,value2B,value1B value2B,,0
+/usr/bin/echo,value1C,value2C,value1C value2C,,0

@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -57,85 +57,37 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
 
   @Override
   public boolean processRow() throws HopException {
-
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if (r == null) { // no more input to be expected...
-
       setOutputDone();
       return false;
     }
 
     if (first) {
       first = false;
-      // get the RowMeta
-      data.previousRowMeta = getInputRowMeta().clone();
-      data.NrPrevFields = data.previousRowMeta.size();
-      data.outputRowMeta = data.previousRowMeta;
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-      // Check is process field is provided
-      if (Utils.isEmpty(meta.getProcessField())) {
-        logError(BaseMessages.getString(PKG, "ExecProcess.Error.ProcessFieldMissing"));
-        throw new HopException(
-            BaseMessages.getString(PKG, "ExecProcess.Error.ProcessFieldMissing"));
-      }
-
-      // cache the position of the field
-      if (data.indexOfProcess < 0) {
-        data.indexOfProcess = data.previousRowMeta.indexOfValue(meta.getProcessField());
-        if (data.indexOfProcess < 0) {
-          // The field is unreachable !
-          logError(
-              BaseMessages.getString(PKG, "ExecProcess.Exception.CouldnotFindField")
-                  + "["
-                  + meta.getProcessField()
-                  + "]");
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG, "ExecProcess.Exception.CouldnotFindField", meta.getProcessField()));
-        }
-      }
-      if (meta.isArgumentsInFields() && data.indexOfArguments == null) {
-        data.indexOfArguments = new int[meta.getArgumentFieldNames().length];
-        for (int i = 0; i < data.indexOfArguments.length; i++) {
-          String fieldName = meta.getArgumentFieldNames()[i];
-          data.indexOfArguments[i] = data.previousRowMeta.indexOfValue(fieldName);
-          if (data.indexOfArguments[i] < 0) {
-            logError(
-                BaseMessages.getString(PKG, "ExecProcess.Exception.CouldnotFindField")
-                    + "["
-                    + fieldName
-                    + "]");
-            throw new HopException(
-                BaseMessages.getString(PKG, "ExecProcess.Exception.CouldnotFindField", fieldName));
-          }
-        }
-      }
-    } // End If first
-
-    Object[] outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-    for (int i = 0; i < data.NrPrevFields; i++) {
-      outputRow[i] = r[i];
+      initializeAndLookup();
     }
+
+    Object[] outputRow = RowDataUtil.createResizedCopy(r, data.outputRowMeta.size());
+
     // get process to execute
-    String processString = data.previousRowMeta.getString(r, data.indexOfProcess);
+    String processString = getInputRowMeta().getString(r, data.indexOfProcess);
+    if (StringUtils.isEmpty(processString)) {
+      throw new HopException(BaseMessages.getString(PKG, "ExecProcess.ProcessEmpty"));
+    }
 
     ProcessResult processResult = new ProcessResult();
 
     try {
-      if (Utils.isEmpty(processString)) {
-        throw new HopException(BaseMessages.getString(PKG, "ExecProcess.ProcessEmpty"));
-      }
-
       // execute and return result
       if (meta.isArgumentsInFields()) {
         List<String> cmdArray = new ArrayList<>();
         cmdArray.add(processString);
 
-        for (int i = 0; i < data.indexOfArguments.length; i++) {
+        for (int argumentIndex : data.argumentIndexes) {
           // Runtime.exec will fail on null array elements
           // Convert to an empty string if value is null
-          String argString = data.previousRowMeta.getString(r, data.indexOfArguments[i]);
+          String argString = getInputRowMeta().getString(r, argumentIndex);
           cmdArray.add(Const.NVL(argString, ""));
         }
 
@@ -146,21 +98,21 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
 
       if (meta.isFailWhenNotSuccess() && processResult.getExistStatus() != 0) {
         String errorString = processResult.getErrorStream();
-        if (Utils.isEmpty(errorString)) {
+        if (StringUtils.isEmpty(errorString)) {
           errorString = processResult.getOutputStream();
         }
         throw new HopException(errorString);
       }
 
       // Add result field to input stream
-      int rowIndex = data.NrPrevFields;
+      int rowIndex = getInputRowMeta().size();
       outputRow[rowIndex++] = processResult.getOutputStream();
 
       // Add result field to input stream
       outputRow[rowIndex++] = processResult.getErrorStream();
 
       // Add result field to input stream
-      outputRow[rowIndex++] = processResult.getExistStatus();
+      outputRow[rowIndex] = processResult.getExistStatus();
 
       // add new values to the row.
       putRow(data.outputRowMeta, outputRow); // copy row to output rowset(s)
@@ -173,13 +125,9 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
                 getLinesRead() + " : " + getInputRowMeta().getString(r)));
       }
     } catch (HopException e) {
-
-      boolean sendToErrorRow = false;
-      String errorMessage = null;
-
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
-        errorMessage = e.toString();
+        putError(
+            getInputRowMeta(), r, 1, e.toString(), meta.getResultFieldName(), "ExecProcess001");
       } else {
         logError(
             BaseMessages.getString(PKG, "ExecProcess.ErrorInTransformRunning") + e.getMessage());
@@ -188,14 +136,56 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(
-            getInputRowMeta(), r, 1, errorMessage, meta.getResultFieldName(), "ExecProcess001");
-      }
     }
 
     return true;
+  }
+
+  private void initializeAndLookup() throws HopException {
+    // Calculate the output row metadata.
+    //
+    data.outputRowMeta = getInputRowMeta().clone();
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+    // Check if a process field name is provided
+    //
+    if (StringUtils.isEmpty(meta.getProcessField())) {
+      logError(BaseMessages.getString(PKG, "ExecProcess.Error.ProcessFieldMissing"));
+      throw new HopException(BaseMessages.getString(PKG, "ExecProcess.Error.ProcessFieldMissing"));
+    }
+
+    // cache the position of the field
+    if (data.indexOfProcess < 0) {
+      data.indexOfProcess = getInputRowMeta().indexOfValue(meta.getProcessField());
+      if (data.indexOfProcess < 0) {
+        // The field is unreachable !
+        logError(
+            BaseMessages.getString(PKG, "ExecProcess.Exception.CouldNotFindField")
+                + "["
+                + meta.getProcessField()
+                + "]");
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "ExecProcess.Exception.CouldNotFindField", meta.getProcessField()));
+      }
+    }
+    if (meta.isArgumentsInFields() && data.argumentIndexes == null) {
+      data.argumentIndexes = new ArrayList<>();
+      for (ExecProcessMeta.EPField field : meta.getArgumentFields()) {
+        String fieldName = field.getName();
+        int argumentIndex = getInputRowMeta().indexOfValue(fieldName);
+        if (argumentIndex < 0) {
+          logError(
+              BaseMessages.getString(PKG, "ExecProcess.Exception.CouldNotFindField")
+                  + "["
+                  + fieldName
+                  + "]");
+          throw new HopException(
+              BaseMessages.getString(PKG, "ExecProcess.Exception.CouldNotFindField", fieldName));
+        }
+        data.argumentIndexes.add(argumentIndex);
+      }
+    }
   }
 
   @Override
@@ -215,7 +205,6 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
   }
 
   private void execProcess(String[] process, ProcessResult processresult) throws HopException {
-
     Process p = null;
     waitForLatch = new CountDownLatch(1);
     try {
@@ -300,7 +289,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
   }
 
   private String getOutputString(BufferedReader b) throws IOException {
-    StringBuilder retvalBuff = new StringBuilder();
+    StringBuilder returnValueBuffer = new StringBuilder();
     String line;
     String delim = meta.getOutputLineDelimiter();
     if (delim == null) {
@@ -310,19 +299,19 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     }
 
     while ((line = b.readLine()) != null) {
-      if (retvalBuff.length() > 0) {
-        retvalBuff.append(delim);
+      if (returnValueBuffer.length() > 0) {
+        returnValueBuffer.append(delim);
       }
-      retvalBuff.append(line);
+      returnValueBuffer.append(line);
     }
-    return retvalBuff.toString();
+    return returnValueBuffer.toString();
   }
 
   @Override
   public boolean init() {
 
     if (super.init()) {
-      if (Utils.isEmpty(meta.getResultFieldName())) {
+      if (StringUtils.isEmpty(meta.getResultFieldName())) {
         logError(BaseMessages.getString(PKG, "ExecProcess.Error.ResultFieldMissing"));
         return false;
       }
