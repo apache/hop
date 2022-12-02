@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -45,7 +45,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
    * Vol. 11, No. 1, March 1985. Pages 37-57.
    *
    * @param transformMeta holds the transform's meta data
-   * @param meta
+   * @param meta The metadata to use
    * @param data holds the transform's temporary data
    * @param copyNr the number assigned to the transform
    * @param pipelineMeta meta data for the pipeline
@@ -69,80 +69,47 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
    */
   @Override
   public boolean processRow() throws HopException {
-
     if (data.getProcessingMode() == PROC_MODE.DISABLED) {
       setOutputDone();
       data.cleanUp();
-      return (false);
+      return false;
     }
 
-    Object[] r = getRow();
+    // Read a row from previous transform(s).
+    //
+    Object[] row = getRow();
 
-    // Handle the first row
     if (first) {
       first = false;
-      if (r == null) { // no input to be expected...
 
+      if (row == null) {
         setOutputDone();
         return false;
       }
 
-      // Initialize the data object
+      // Initialize the data object.
+      //
       data.setOutputRowMeta(getInputRowMeta().clone());
       String sampleSize = resolve(meta.getSampleSize());
       String seed = resolve(meta.getSeed());
-      data.initialize(Integer.valueOf(sampleSize), Integer.valueOf(seed));
+      data.initialize(Integer.parseInt(sampleSize), Integer.parseInt(seed));
 
       // no real reason to determine the output fields here
       // as we don't add/delete any fields
-    } // end (if first)
+    }
 
-    if (data.getProcessingMode() == PROC_MODE.PASSTHROUGH) {
-      if (r == null) {
-        setOutputDone();
-        data.cleanUp();
-        return (false);
-      }
-      putRow(data.getOutputRowMeta(), r);
+    boolean finished = false;
+    if (data.getProcessingMode() == PROC_MODE.PASS_THROUGH) {
+      finished = passThroughRow(row);
     } else if (data.getProcessingMode() == PROC_MODE.SAMPLING) {
-      if (r == null) {
-        // Output the rows in the sample
-        List<Object[]> samples = data.getSample();
-
-        int numRows = (samples != null) ? samples.size() : 0;
-        logBasic(
-            this.getTransformName()
-                + " Actual/Sample: "
-                + numRows
-                + "/"
-                + data.m_k
-                + " Seed:"
-                + resolve(meta.m_randomSeed));
-        if (samples != null) {
-          for (int i = 0; i < samples.size(); i++) {
-            Object[] sample = samples.get(i);
-            if (sample != null) {
-              putRow(data.getOutputRowMeta(), sample);
-            } else {
-              // user probably requested more rows in
-              // the sample than there were in total
-              // in the end. Just break in this case
-              break;
-            }
-          }
-        }
-        setOutputDone();
-        data.cleanUp();
-        return false;
-      }
-
-      // just pass the row to the data class for possible caching
-      // in the sample
-      data.processRow(r);
+      finished = sampleRow(row);
+    }
+    if (finished) {
+      return false;
     }
 
     if (log.isRowLevel()) {
-      logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
+      logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(row));
     }
 
     if (checkFeedback(getLinesRead())) {
@@ -151,41 +118,54 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
     return true;
   }
 
-  /**
-   * Initialize the transform.
-   *
-   * @return a <code>boolean</code> value
-   */
-  @Override
-  public boolean init() {
+  private boolean sampleRow(Object[] r) throws HopTransformException {
+    // Check if we're at the end of the data stream.
+    //
+    if (r == null) {
+      // Output the rows in the sample
+      //
+      List<Object[]> samples = data.getSamples();
 
-    if (super.init()) {
-      List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-
+      int numRows = (samples != null) ? samples.size() : 0;
+      logBasic(
+          this.getTransformName()
+              + " Actual/Sample: "
+              + numRows
+              + "/"
+              + data.sampleSize
+              + " Seed:"
+              + resolve(meta.seed));
+      if (samples != null) {
+        for (Object[] sample : samples) {
+          if (sample != null) {
+            putRow(data.getOutputRowMeta(), sample);
+          } else {
+            // user probably requested more rows in
+            // the sample than there were in total
+            // in the end. Just break in this case
+            break;
+          }
+        }
+      }
+      setOutputDone();
+      data.cleanUp();
       return true;
     }
+
+    // Just pass the row to the data class for possible caching
+    // in the samples.
+    //
+    data.addRowToSamples(r);
     return false;
   }
 
-  /** Run is where the action happens! */
-  public void run() {
-    logBasic("Starting to run...");
-    try {
-      // Wait
-      while (processRow()) {
-        if (isStopped()) {
-          break;
-        }
-      }
-    } catch (Exception e) {
-      logError("Unexpected error : " + e.toString());
-      logError(Const.getStackTracker(e));
-      setErrors(1);
-      stopAll();
-    } finally {
-      dispose();
-      logBasic("Finished, processing " + getLinesRead() + " rows");
-      markStop();
+  private boolean passThroughRow(Object[] r) throws HopTransformException {
+    if (r == null) {
+      setOutputDone();
+      data.cleanUp();
+      return true;
     }
+    putRow(data.getOutputRowMeta(), r);
+    return false;
   }
 }

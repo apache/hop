@@ -13,39 +13,27 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.junit.Assert.*;
 
 public class ReservoirSamplingMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  @Test
-  public void testLoadSaveMeta() throws HopException {
+    @Test
+    public void testSerialization() throws Exception {
+        ReservoirSamplingMeta meta = TransformSerializationTestUtil.testSerialization(
+                "/reservoir-sampling-transform.xml",
+                ReservoirSamplingMeta.class
+        );
 
-    List<String> attributes = Arrays.asList("sample_size", "seed");
-
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("sample_size", "getSampleSize");
-    getterMap.put("seed", "getSeed");
-
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("sample_size", "setSampleSize");
-    setterMap.put("seed", "setSeed");
-
-    LoadSaveTester tester =
-        new LoadSaveTester(ReservoirSamplingMeta.class, attributes, getterMap, setterMap);
-    tester.testSerialization();
-  }
+    Assert.assertEquals("5", meta.getSampleSize());
+    Assert.assertEquals("123456", meta.getSeed());
+    }
 }

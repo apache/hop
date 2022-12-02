@@ -18,22 +18,18 @@
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataWrapper;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
-import java.util.Objects;
 
 @Transform(
     id = "ReservoirSampling",
@@ -44,99 +40,36 @@ import java.util.Objects;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::ReservoirSamplingMeta.keyword",
     documentationUrl = "/pipeline/transforms/reservoirsampling.html")
-public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, ReservoirSamplingData> {
+@HopMetadataWrapper(tag="reservoir_sampling")
+public class ReservoirSamplingMeta
+    extends BaseTransformMeta<ReservoirSampling, ReservoirSamplingData> {
 
   public static final String XML_TAG = "reservoir_sampling";
 
   // Size of the sample to output
-  protected String m_sampleSize = "100";
+  @HopMetadataProperty(key = "sample_size")
+  protected String sampleSize;
 
   // Seed for the random number generator
-  protected String m_randomSeed = "1";
+  @HopMetadataProperty(key = "seed")
+  protected String seed;
 
   /** Creates a new <code>ReservoirMeta</code> instance. */
   public ReservoirSamplingMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
   }
 
-  /**
-   * Get the sample size to generate.
-   *
-   * @return the sample size
-   */
-  public String getSampleSize() {
-    return m_sampleSize;
-  }
-
-  /**
-   * Set the size of the sample to generate
-   *
-   * @param sampleS the size of the sample
-   */
-  public void setSampleSize(String sampleS) {
-    m_sampleSize = sampleS;
-  }
-
-  /**
-   * Get the random seed
-   *
-   * @return the random seed
-   */
-  public String getSeed() {
-    return m_randomSeed;
-  }
-
-  /**
-   * Set the seed value for the random number generator
-   *
-   * @param seed the seed value
-   */
-  public void setSeed(String seed) {
-    m_randomSeed = seed;
-  }
-
-  /**
-   * Return the XML describing this (configured) transform
-   *
-   * @return a <code>String</code> containing the XML
-   */
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(100);
-
-    retval.append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
-    retval.append(XmlHandler.addTagValue("sample_size", m_sampleSize));
-    retval.append(XmlHandler.addTagValue("seed", m_randomSeed));
-    retval.append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
-
-    return retval.toString();
-  }
-
-  /**
-   * Check for equality
-   *
-   * @param obj an <code>Object</code> to compare with
-   * @return true if equal to the supplied object
-   */
-  public boolean equals(Object obj) {
-    if (obj != null && (obj.getClass().equals(this.getClass()))) {
-      ReservoirSamplingMeta m = (ReservoirSamplingMeta) obj;
-      return (getXml() == m.getXml());
-    }
-
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(m_sampleSize, m_randomSeed);
+  public ReservoirSamplingMeta(ReservoirSamplingMeta m) {
+    this();
+    this.sampleSize = m.sampleSize;
+    this.seed = m.seed;
   }
 
   /** Set the defaults for this transform. */
   @Override
   public void setDefault() {
-    m_sampleSize = "100";
-    m_randomSeed = "1";
+    sampleSize = "100";
+    seed = "1";
   }
 
   /**
@@ -145,29 +78,8 @@ public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, 
    * @return the cloned meta data
    */
   @Override
-  public Object clone() {
-    ReservoirSamplingMeta retval = (ReservoirSamplingMeta) super.clone();
-    return retval;
-  }
-
-  /**
-   * Loads the meta data for this (configured) transform from XML.
-   *
-   * @param transformNode the transform to load
-   * @throws HopXmlException if an error occurs
-   */
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    int nrTransforms = XmlHandler.countNodes(transformNode, XML_TAG);
-
-    if (nrTransforms > 0) {
-      Node reservoirnode = XmlHandler.getSubNodeByNr(transformNode, XML_TAG, 0);
-
-      m_sampleSize = XmlHandler.getTagValue(reservoirnode, "sample_size");
-      m_randomSeed = XmlHandler.getTagValue(reservoirnode, "seed");
-    }
+  public ReservoirSamplingMeta clone() {
+    return new ReservoirSamplingMeta(this);
   }
 
   @Override
@@ -177,8 +89,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, 
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
 
     // nothing to do, as no fields are added/deleted
   }
@@ -200,7 +111,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, 
     if ((prev == null) || (prev.size() == 0)) {
       cr =
           new CheckResult(
-              CheckResult.TYPE_RESULT_WARNING,
+              ICheckResult.TYPE_RESULT_WARNING,
               "Not receiving any fields from previous transforms!",
               transformMeta);
       remarks.add(cr);
@@ -229,5 +140,41 @@ public class ReservoirSamplingMeta extends BaseTransformMeta<ReservoirSampling, 
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  /**
+   * Get the sample size to generate.
+   *
+   * @return the sample size
+   */
+  public String getSampleSize() {
+    return sampleSize;
+  }
+
+  /**
+   * Set the size of the sample to generate
+   *
+   * @param sampleSize the size of the sample
+   */
+  public void setSampleSize(String sampleSize) {
+    this.sampleSize = sampleSize;
+  }
+
+  /**
+   * Get the random seed
+   *
+   * @return the random seed
+   */
+  public String getSeed() {
+    return seed;
+  }
+
+  /**
+   * Set the seed value for the random number generator
+   *
+   * @param seed the seed value
+   */
+  public void setSeed(String seed) {
+    this.seed = seed;
   }
 }
