@@ -194,7 +194,7 @@
             </exclusions>
         </dependency>
 
-        <!--- XML Graphics commons -->
+        <!-- XML Graphics commons -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
             <artifactId>xmlgraphics-commons</artifactId>
