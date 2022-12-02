@@ -1,0 +1,43 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "tablename",
+          "data_set_field": "tablename"
+        },
+        {
+          "transform_field": "type",
+          "data_set_field": "type"
+        },
+        {
+          "transform_field": "isSystem",
+          "data_set_field": "is system"
+        },
+        {
+          "transform_field": "sql",
+          "data_set_field": "sql"
+        }
+      ],
+      "field_order": [
+        "tablename",
+        "type",
+        "is system",
+        "sql"
+      ],
+      "data_set_name": "golden-get-table-names",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0024-get-table-names-parent UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0024-get-table-names-parent.hpl",
+  "test_type": "UNIT_TEST"
+}

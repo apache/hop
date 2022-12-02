@@ -1,0 +1,40 @@
+{
+  "base_filename": "golden-get-table-names.csv",
+  "name": "golden-get-table-names",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "tablename",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "type",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "is system",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 500,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "sql",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
