@@ -17,15 +17,15 @@
 
 package org.apache.hop.workflow.actions.createfolder;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -34,9 +34,7 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -52,60 +50,32 @@ import java.util.List;
     keywords = "i18n::ActionCreateFolder.keyword",
     documentationUrl = "/workflow/actions/createfolder.html")
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
+
+  @HopMetadataProperty(key = "foldername")
   private String folderName;
-  private boolean failOfFolderExists;
+
+  @HopMetadataProperty(key = "fail_of_folder_exists")
+  private boolean failIfFolderExists;
 
   public ActionCreateFolder(String n) {
     super(n, "");
     folderName = null;
-    failOfFolderExists = true;
+    failIfFolderExists = true;
   }
 
   public ActionCreateFolder() {
     this("");
   }
 
-  @Override
-  public Object clone() {
-    ActionCreateFolder je = (ActionCreateFolder) super.clone();
-    return je;
+  public ActionCreateFolder(ActionCreateFolder f) {
+    super(f);
+    this.folderName = f.folderName;
+    this.failIfFolderExists = f.failIfFolderExists;
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(50);
-
-    xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    xml.append("      ")
-        .append(XmlHandler.addTagValue("fail_of_folder_exists", failOfFolderExists));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      folderName = XmlHandler.getTagValue(entrynode, "foldername");
-      failOfFolderExists =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "fail_of_folder_exists"));
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'create folder' from XML node", xe);
-    }
-  }
-
-  public void setFoldername(String folderName) {
-    this.folderName = folderName;
-  }
-
-  public String getFoldername() {
-    return folderName;
-  }
-
-  public String getRealFoldername() {
-    return resolve(getFoldername());
+  public ActionCreateFolder clone() {
+    return new ActionCreateFolder(this);
   }
 
   @Override
@@ -113,59 +83,50 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     Result result = previousResult;
     result.setResult(false);
 
-    if (folderName != null) {
-      String realFoldername = getRealFoldername();
-      FileObject folderObject = null;
-      try {
-        folderObject = HopVfs.getFileObject(realFoldername);
+    if (StringUtils.isEmpty(folderName)) {
+      logError("No folder name is defined.");
+      return result;
+    }
 
-        if (folderObject.exists()) {
-          boolean isFolder = false;
+    String realFolderName = getRealFolderName();
+    try (FileObject folderObject = HopVfs.getFileObject(realFolderName)) {
 
-          // Check if it's a folder
-          if (folderObject.getType() == FileType.FOLDER) {
-            isFolder = true;
-          }
+      if (folderObject.exists()) {
+        boolean isFolder = folderObject.getType() == FileType.FOLDER;
 
-          if (isFailOfFolderExists()) {
-            // Folder exists and fail flag is on.
-            result.setResult(false);
-            if (isFolder) {
-              logError("Folder [" + realFoldername + "] exists, failing.");
-            } else {
-              logError("File [" + realFoldername + "] exists, failing.");
-            }
+        // Check if it's a folder
+        //
+        if (isFailIfFolderExists()) {
+          // Folder exists and fail flag is enabled.
+          //
+          result.setResult(false);
+          if (isFolder) {
+            logError("Folder [" + realFolderName + "] exists, failing.");
           } else {
-            // Folder already exists, no reason to try to create it
-            result.setResult(true);
-            if (log.isDetailed()) {
-              logDetailed("Folder [" + realFoldername + "] already exists, not recreating.");
-            }
+            logError("File [" + realFolderName + "] exists, failing.");
           }
-
         } else {
-          // No Folder yet, create an empty Folder.
-          folderObject.createFolder();
-          if (log.isDetailed()) {
-            logDetailed("Folder [" + realFoldername + "] created!");
-          }
+          // Folder already exists: there is no reason to try and create it.
+          //
           result.setResult(true);
-        }
-      } catch (Exception e) {
-        logError("Could not create Folder [" + realFoldername + "]", e);
-        result.setResult(false);
-        result.setNrErrors(1);
-      } finally {
-        if (folderObject != null) {
-          try {
-            folderObject.close();
-          } catch (IOException ex) {
-            /* Ignore */
+          if (log.isDetailed()) {
+            logDetailed("Folder [" + realFolderName + "] already exists, not recreating.");
           }
         }
+        return result;
       }
-    } else {
-      logError("No Foldername is defined.");
+
+      // No Folder yet, create an empty Folder.
+      folderObject.createFolder();
+      if (log.isDetailed()) {
+        logDetailed("Folder [" + realFolderName + "] created!");
+      }
+      result.setResult(true);
+
+    } catch (Exception e) {
+      logError("Could not create Folder [" + realFolderName + "]", e);
+      result.setResult(false);
+      result.setNrErrors(1);
     }
 
     return result;
@@ -174,14 +135,6 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
   @Override
   public boolean isEvaluation() {
     return true;
-  }
-
-  public boolean isFailOfFolderExists() {
-    return failOfFolderExists;
-  }
-
-  public void setFailOfFolderExists(boolean failIfFolderExists) {
-    this.failOfFolderExists = failIfFolderExists;
   }
 
   @Override
@@ -197,5 +150,45 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
         ActionValidatorUtils.notNullValidator(),
         ActionValidatorUtils.fileDoesNotExistValidator());
     ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+  }
+
+  public String getRealFolderName() {
+    return resolve(getFolderName());
+  }
+
+  /**
+   * Gets folderName
+   *
+   * @return value of folderName
+   */
+  public String getFolderName() {
+    return folderName;
+  }
+
+  /**
+   * Sets folderName
+   *
+   * @param folderName value of folderName
+   */
+  public void setFolderName(String folderName) {
+    this.folderName = folderName;
+  }
+
+  /**
+   * Gets failIfFolderExists
+   *
+   * @return value of failIfFolderExists
+   */
+  public boolean isFailIfFolderExists() {
+    return failIfFolderExists;
+  }
+
+  /**
+   * Sets failIfFolderExists
+   *
+   * @param failIfFolderExists value of failIfFolderExists
+   */
+  public void setFailIfFolderExists(boolean failIfFolderExists) {
+    this.failIfFolderExists = failIfFolderExists;
   }
 }

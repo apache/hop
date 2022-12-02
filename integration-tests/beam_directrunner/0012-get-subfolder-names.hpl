@@ -25,7 +25,13 @@ limitations under the License.
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
     <parameters>
+      <parameter>
+        <name>TEST_FOLDER</name>
+        <default_value>/tmp/0012</default_value>
+        <description/>
+      </parameter>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
@@ -44,23 +50,8 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values</from>
-      <to>lookup folder</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>folderName, rowNumber only</from>
       <to>projectHome</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>folders</from>
-      <to>lookup folder</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>lookup folder</from>
-      <to>only found</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -74,12 +65,7 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>only found</from>
-      <to>limit</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>limit</from>
+      <from>Select values</from>
       <to>/tmp/0012/get-subfolder-names*.csv</to>
       <enabled>Y</enabled>
     </hop>
@@ -101,7 +87,7 @@ limitations under the License.
     <windowed>N</windowed>
     <attributes/>
     <GUI>
-      <xloc>944</xloc>
+      <xloc>608</xloc>
       <yloc>176</yloc>
     </GUI>
   </transform>
@@ -116,15 +102,14 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <rownum>Y</rownum>
-    <foldername_dynamic>N</foldername_dynamic>
-    <rownum_field>rowNumber</rownum_field>
-    <foldername_field/>
-    <limit>0</limit>
     <file>
-      <name>${PROJECT_HOME}</name>
       <file_required>Y</file_required>
+      <name>${TEST_FOLDER}</name>
     </file>
+    <foldername_dynamic>N</foldername_dynamic>
+    <limit>0</limit>
+    <rownum>Y</rownum>
+    <rownum_field>rowNumber</rownum_field>
     <attributes/>
     <GUI>
       <xloc>112</xloc>
@@ -184,195 +169,6 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>folders</name>
-    <type>DataGrid</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <data>
-      <line>
-        <item>metadata</item>
-      </line>
-      <line>
-        <item>metadata/workflow-run-configuration</item>
-      </line>
-      <line>
-        <item>metadata/cassandra-connection</item>
-      </line>
-      <line>
-        <item>metadata/execution-info-location</item>
-      </line>
-      <line>
-        <item>metadata/rdbms</item>
-      </line>
-      <line>
-        <item>metadata/pipeline-probe</item>
-      </line>
-      <line>
-        <item>metadata/neo4j-connection</item>
-      </line>
-      <line>
-        <item>metadata/unit-test</item>
-      </line>
-      <line>
-        <item>metadata/splunk</item>
-      </line>
-      <line>
-        <item>metadata/partition</item>
-      </line>
-      <line>
-        <item>metadata/neo4j-graph-model</item>
-      </line>
-      <line>
-        <item>metadata/dataset</item>
-      </line>
-      <line>
-        <item>metadata/server</item>
-      </line>
-      <line>
-        <item>metadata/file-definition</item>
-      </line>
-      <line>
-        <item>metadata/pipeline-run-configuration</item>
-      </line>
-      <line>
-        <item>metadata/async-web-service</item>
-      </line>
-      <line>
-        <item>metadata/execution-data-profile</item>
-      </line>
-      <line>
-        <item>metadata/mongodb-connection</item>
-      </line>
-      <line>
-        <item>metadata/web-service</item>
-      </line>
-      <line>
-        <item>metadata/workflow-log</item>
-      </line>
-      <line>
-        <item>metadata/pipeline-log</item>
-      </line>
-      <line>
-        <item>input</item>
-      </line>
-      <line>
-        <item>datasets</item>
-      </line>
-      <line>
-        <item>output</item>
-      </line>
-    </data>
-    <fields>
-      <field>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <name>folder</name>
-        <type>String</type>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>400</xloc>
-      <yloc>288</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>limit</name>
-    <type>SelectValues</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>rowNumber</name>
-      </field>
-      <field>
-        <name>shortName</name>
-      </field>
-      <select_unspecified>N</select_unspecified>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>736</xloc>
-      <yloc>176</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>lookup folder</name>
-    <type>StreamLookup</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <from>folders</from>
-    <input_sorted>N</input_sorted>
-    <preserve_memory>N</preserve_memory>
-    <sorted_list>N</sorted_list>
-    <integer_pair>N</integer_pair>
-    <lookup>
-      <key>
-        <name>shortName</name>
-        <field>folder</field>
-      </key>
-      <value>
-        <name>folder</name>
-        <rename>found</rename>
-        <default/>
-        <type>String</type>
-      </value>
-    </lookup>
-    <attributes/>
-    <GUI>
-      <xloc>496</xloc>
-      <yloc>176</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>only found</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compare>
-      <condition>
-        <conditions>
-</conditions>
-        <function>IS NOT NULL</function>
-        <leftvalue>found</leftvalue>
-        <negated>N</negated>
-        <operator>-</operator>
-      </condition>
-    </compare>
-    <send_false_to>/tmp/not-found*.csv</send_false_to>
-    <send_true_to>limit</send_true_to>
-    <attributes/>
-    <GUI>
-      <xloc>624</xloc>
-      <yloc>176</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>projectHome</name>
     <type>GetVariable</type>
     <description/>
@@ -386,7 +182,7 @@ limitations under the License.
     <fields>
       <field>
         <name>projectHome</name>
-        <variable>${PROJECT_HOME}</variable>
+        <variable>${TEST_FOLDER}</variable>
         <type>String</type>
         <format/>
         <currency/>
@@ -467,7 +263,7 @@ var shortName = replace(folderName, projectHome+"/", "");
     </fields>
     <attributes/>
     <GUI>
-      <xloc>672</xloc>
+      <xloc>688</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>

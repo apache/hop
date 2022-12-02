@@ -141,6 +141,15 @@ public abstract class ActionBase
   }
 
   /**
+   * Copy constructor variant
+   * @param b The action base to copy
+   */
+  protected ActionBase(ActionBase b) {
+    this(b.name, b.description);
+  }
+
+
+  /**
    * Checks if the Action object is equal to the specified object
    *
    * @return true if the two objects are equal, false otherwise

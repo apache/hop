@@ -60,21 +60,6 @@ limitations under the License.
     </hop>
     <hop>
       <from>Select values</from>
-      <to>lookup folder</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>folders</from>
-      <to>lookup folder</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>lookup folder</from>
-      <to>only found</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>only found</from>
       <to>validate</to>
       <enabled>Y</enabled>
     </hop>
@@ -90,15 +75,14 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <rownum>Y</rownum>
-    <foldername_dynamic>N</foldername_dynamic>
-    <rownum_field>rowNumber</rownum_field>
-    <foldername_field/>
-    <limit>0</limit>
     <file>
-      <name>${PROJECT_HOME}</name>
       <file_required>Y</file_required>
+      <name>${java.io.tmpdir}/0060/</name>
     </file>
+    <foldername_dynamic>N</foldername_dynamic>
+    <limit>0</limit>
+    <rownum>Y</rownum>
+    <rownum_field>rowNumber</rownum_field>
     <attributes/>
     <GUI>
       <xloc>112</xloc>
@@ -158,173 +142,6 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>folders</name>
-    <type>DataGrid</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <data>
-      <line>
-        <item>datasets</item>
-      </line>
-      <line>
-        <item>files</item>
-      </line>
-      <line>
-        <item>files/excel</item>
-      </line>
-      <line>
-        <item>metadata</item>
-      </line>
-      <line>
-        <item>metadata/async-web-service</item>
-      </line>
-      <line>
-        <item>metadata/cassandra-connection</item>
-      </line>
-      <line>
-        <item>metadata/dataset</item>
-      </line>
-      <line>
-        <item>metadata/execution-data-profile</item>
-      </line>
-      <line>
-        <item>metadata/execution-info-location</item>
-      </line>
-      <line>
-        <item>metadata/file-definition</item>
-      </line>
-      <line>
-        <item>metadata/git</item>
-      </line>
-      <line>
-        <item>metadata/log-reader</item>
-      </line>
-      <line>
-        <item>metadata/mongodb-connection</item>
-      </line>
-      <line>
-        <item>metadata/neo4j-connection</item>
-      </line>
-      <line>
-        <item>metadata/neo4j-graph-model</item>
-      </line>
-      <line>
-        <item>metadata/partition</item>
-      </line>
-      <line>
-        <item>metadata/pipeline-log</item>
-      </line>
-      <line>
-        <item>metadata/pipeline-probe</item>
-      </line>
-      <line>
-        <item>metadata/pipeline-run-configuration</item>
-      </line>
-      <line>
-        <item>metadata/rdbms</item>
-      </line>
-      <line>
-        <item>metadata/server</item>
-      </line>
-      <line>
-        <item>metadata/splunk</item>
-      </line>
-      <line>
-        <item>metadata/unit-test</item>
-      </line>
-      <line>
-        <item>metadata/web-service</item>
-      </line>
-      <line>
-        <item>metadata/workflow-log</item>
-      </line>
-      <line>
-        <item>metadata/workflow-run-configuration</item>
-      </line>
-    </data>
-    <fields>
-      <field>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <name>folder</name>
-        <type>String</type>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>432</xloc>
-      <yloc>272</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>lookup folder</name>
-    <type>StreamLookup</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <from>folders</from>
-    <input_sorted>N</input_sorted>
-    <preserve_memory>N</preserve_memory>
-    <sorted_list>N</sorted_list>
-    <integer_pair>N</integer_pair>
-    <lookup>
-      <key>
-        <name>shortName</name>
-        <field>folder</field>
-      </key>
-      <value>
-        <name>folder</name>
-        <rename>found</rename>
-        <default/>
-        <type>String</type>
-      </value>
-    </lookup>
-    <attributes/>
-    <GUI>
-      <xloc>496</xloc>
-      <yloc>160</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>only found</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compare>
-      <condition>
-        <conditions>
-</conditions>
-        <function>IS NOT NULL</function>
-        <leftvalue>found</leftvalue>
-        <negated>N</negated>
-        <operator>-</operator>
-      </condition>
-    </compare>
-    <attributes/>
-    <GUI>
-      <xloc>624</xloc>
-      <yloc>160</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>projectHome</name>
     <type>GetVariable</type>
     <description/>
@@ -338,7 +155,7 @@ limitations under the License.
     <fields>
       <field>
         <name>projectHome</name>
-        <variable>${PROJECT_HOME}</variable>
+        <variable>${java.io.tmpdir}/0060/</variable>
         <type>String</type>
         <format/>
         <currency/>
@@ -351,7 +168,7 @@ limitations under the License.
     </fields>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
+      <xloc>528</xloc>
       <yloc>48</yloc>
     </GUI>
   </transform>
@@ -436,7 +253,7 @@ var shortName = replace(folderName, projectHome+"/", "");
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>752</xloc>
+      <xloc>576</xloc>
       <yloc>160</yloc>
     </GUI>
   </transform>
