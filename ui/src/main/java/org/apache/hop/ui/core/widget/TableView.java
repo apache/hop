@@ -2066,6 +2066,7 @@ public class TableView extends Composite {
       separator = true)
   public void selectAll() {
     table.selectAll();
+    enableToolbarButtons();
   }
 
   @GuiToolbarElement(
