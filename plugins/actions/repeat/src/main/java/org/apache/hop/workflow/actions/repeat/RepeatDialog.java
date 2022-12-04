@@ -548,9 +548,9 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     // Get the run configurations for both pipelines and workflows
     //
     MetadataManager<PipelineRunConfiguration> prcManager =
-        new MetadataManager<>(variables, getMetadataProvider(), PipelineRunConfiguration.class);
+        new MetadataManager<>(variables, getMetadataProvider(), PipelineRunConfiguration.class, shell);
     MetadataManager<WorkflowRunConfiguration> wrcManager =
-        new MetadataManager<>(variables, getMetadataProvider(), WorkflowRunConfiguration.class);
+        new MetadataManager<>(variables, getMetadataProvider(), WorkflowRunConfiguration.class, shell);
     List<String> entries = new ArrayList<>();
     try {
       prcManager.getNames().forEach(name -> entries.add("Pipeline" + COLON_SEPARATOR + name));

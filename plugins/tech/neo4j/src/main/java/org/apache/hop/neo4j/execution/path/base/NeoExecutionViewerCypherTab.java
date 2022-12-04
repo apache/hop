@@ -88,7 +88,7 @@ public class NeoExecutionViewerCypherTab extends NeoExecutionViewerTabBase {
     if (state != null) {
       cypher += Const.CR + Const.CR;
       cypher +=
-          "Execute this Cypher to get the paths to the lowest level failed execution nodes:"
+          "Execute this Cypher to get the paths to the lowest level failed execution nodes, if there are any:"
               + Const.CR
               + Const.CR;
       cypher += getPathToFailedCypher();

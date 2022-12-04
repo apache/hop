@@ -19,4 +19,21 @@ package org.apache.hop.metadata.api;
 
 public interface IEnumHasCode {
   String getCode();
+
+  static <E extends IEnumHasCode> String[] getDescriptions(Class<E> clazz) {
+    String[] codes = new String[clazz.getEnumConstants().length];
+    for (int i = 0; i < codes.length; i++) {
+      codes[i] = clazz.getEnumConstants()[i].getCode();
+    }
+    return codes;
+  }
+
+  static <E extends IEnumHasCode> E lookupCode(Class<E> clazz, String code, E defaultValue) {
+    for (E e : clazz.getEnumConstants()) {
+      if (e.getCode().equalsIgnoreCase(code)) {
+        return e;
+      }
+    }
+    return defaultValue;
+  }
 }

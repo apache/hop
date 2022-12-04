@@ -80,7 +80,7 @@ public class WebServiceGuiPlugin {
       IHopMetadataSerializer<WebService> serializer =
           metadataProvider.getSerializer(WebService.class);
       MetadataManager<WebService> manager =
-          new MetadataManager<>(hopGui.getVariables(), metadataProvider, WebService.class);
+          new MetadataManager<>(hopGui.getVariables(), metadataProvider, WebService.class, hopGui.getShell());
 
       WebService webService = null;
       List<String> serviceNames = serializer.listObjectNames();

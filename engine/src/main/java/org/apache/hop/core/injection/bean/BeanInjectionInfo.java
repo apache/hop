@@ -24,6 +24,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 import org.apache.hop.metadata.util.ReflectionUtil;
 
 import java.lang.reflect.Field;
@@ -253,7 +254,11 @@ public class BeanInjectionInfo<Meta extends Object> {
       } else {
         // See if this class has any children...
         //
-        if (isChildlessClass(fieldType, property)) {
+        boolean childless = isChildlessClass(fieldType, property);
+        boolean hasStringConverter =
+            !property.injectionStringObjectConverter().equals(IStringObjectConverter.None.class);
+
+        if (childless || hasStringConverter) {
           // Normal property: add it to the root group
           //
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
@@ -267,7 +272,8 @@ public class BeanInjectionInfo<Meta extends Object> {
                   property.isExcludedFromInjection());
           rootGroup.properties.add(p);
           properties.put(injectionKey, p);
-        } else {
+        }
+        if (!childless) {
           // POJO: look deeper..
           //
           List<BeanLevelInfo> path = new ArrayList<>(parentPath);
@@ -301,12 +307,25 @@ public class BeanInjectionInfo<Meta extends Object> {
     if (property != null) {
       fieldLevelInfo.storeWithName = property.storeWithName();
       try {
-        fieldLevelInfo.converter = property.injectionConverter().newInstance();
+        fieldLevelInfo.converter = property.injectionConverter().getConstructor().newInstance();
       } catch (Exception e) {
         throw new RuntimeException(
             "Unable to instantiate injection metadata converter class "
                 + property.injectionConverter().getName(),
             e);
+      }
+      // If we have a non-standard string-to-object converter...
+      //
+      if (!property.injectionStringObjectConverter().equals(IStringObjectConverter.None.class)) {
+        try {
+          fieldLevelInfo.stringObjectConverter =
+              property.injectionStringObjectConverter().getConstructor().newInstance();
+        } catch (Exception e) {
+          throw new RuntimeException(
+              "Unable to instantiate injection string-to-object converter class "
+                  + property.injectionStringObjectConverter().getName(),
+              e);
+        }
       }
     }
     fieldLevelInfo.nameKey = injectionKey;

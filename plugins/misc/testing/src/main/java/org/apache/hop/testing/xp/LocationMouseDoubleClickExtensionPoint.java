@@ -167,11 +167,10 @@ public class LocationMouseDoubleClickExtensionPoint
   }
 
   private void openDataSet(String dataSetName) {
-
     HopGui hopGui = HopGui.getInstance();
 
     MetadataManager<DataSet> manager =
-        new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class);
+        new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class, hopGui.getShell());
     manager.editMetadata(dataSetName);
   }
 }

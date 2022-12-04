@@ -22,6 +22,7 @@ import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.events.KeyAdapter;
@@ -94,6 +95,13 @@ public class HopGuiKeyHandler extends KeyAdapter {
       } catch (SWTException e) {
         // Invalid thread: none of our business, bail out
         //
+        return false;
+      }
+    }
+    // If this is attached to a perspective, and it's not active, bail out.
+    if (parentObject instanceof IHopPerspective) {
+      IHopPerspective perspective = (IHopPerspective) parentObject;
+      if (!perspective.isActive()) {
         return false;
       }
     }

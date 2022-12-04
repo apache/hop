@@ -41,14 +41,14 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>144</xloc>
       <yloc>112</yloc>
@@ -70,9 +70,7 @@ limitations under the License.
       <add_time>N</add_time>
       <loglevel>Nothing</loglevel>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
-      <pass_export>N</pass_export>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -88,7 +86,7 @@ limitations under the License.
       <description/>
       <type>ABORT</type>
       <attributes/>
-      <messageAbort>Test failed!</messageAbort>
+      <always_log_rows>N</always_log_rows>
       <parallel>N</parallel>
       <xloc>480</xloc>
       <yloc>112</yloc>

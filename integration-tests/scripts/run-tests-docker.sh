@@ -33,6 +33,7 @@ for ARGUMENT in "$@"; do
   JENKINS_GROUP) JENKINS_GROUP=${VALUE} ;;
   JENKINS_GID) JENKINS_GID=${VALUE} ;;
   GCP_KEY_FILE) GCP_KEY_FILE=${VALUE} ;;
+  KEEP_IMAGES) KEEP_IMAGES=${VALUE} ;;
   *) ;;
   esac
 
@@ -66,9 +67,17 @@ if [ -z "${GCP_KEY_FILE}" ]; then
   GCP_KEY_FILE=""
 fi
 
+if [ -z "${KEEP_IMAGES}" ]; then
+  KEEP_IMAGES="false"
+fi
+
 #Cleanup surefire reports
 rm -rf "${CURRENT_DIR}"/../surefire-reports
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
+
+#Build base image only once
+  docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
+
 
 #Loop over project folders
 for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
@@ -88,14 +97,10 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
       if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
         echo "Project compose exists."
-        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
         PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
-        docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml down
       else
         echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
         PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
-        docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml down
       fi
     fi
   fi
@@ -110,10 +115,13 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
   fi
 done
 
+echo "Keep images value: ${KEEP_IMAGES}"
 #Cleanup all images
-for d in ${DOCKER_FILES_DIR}/integration-tests-*.yaml; do
-  docker-compose --log-level ERROR -f $d down --rmi all --remove-orphans
-done
+if [ ! "${KEEP_IMAGES}" == "true" ]; then
+  for d in ${DOCKER_FILES_DIR}/integration-tests-*.yaml; do
+    docker-compose --log-level ERROR -f $d down --rmi all --remove-orphans
+  done
+fi
 
 #Print Final Results
 if [ -f "${CURRENT_DIR}/../surefire-reports/passed_tests" ]; then

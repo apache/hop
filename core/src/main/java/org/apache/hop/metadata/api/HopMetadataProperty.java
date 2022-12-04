@@ -117,4 +117,17 @@ public @interface HopMetadataProperty {
    * @return true to store metadata inline with the parent metadata, not in a sub-element.
    */
   boolean inline() default false;
+
+  /**
+   * For metadata injection: if you want to convert an integer to a code (and vice-versa)
+   * @return The integer-to-string converter
+   */
+  Class<? extends IIntCodeConverter> intCodeConverter() default IIntCodeConverter.None.class;
+
+  /**
+   * For metadata injection: if you want to convert a String (XML, JSON, ...) to an object
+   * @return The string-to-object converter
+   */
+  Class<? extends IStringObjectConverter> injectionStringObjectConverter() default
+      IStringObjectConverter.None.class;
 }

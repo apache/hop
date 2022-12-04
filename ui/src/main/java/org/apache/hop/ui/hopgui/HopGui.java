@@ -295,9 +295,9 @@ public class HopGui
   }
 
   private void updateMetadataManagers() {
-    databaseMetaManager = new MetadataManager<>(variables, metadataProvider, DatabaseMeta.class);
-    hopServerManager = new MetadataManager<>(variables, metadataProvider, HopServer.class);
-    partitionManager = new MetadataManager<>(variables, metadataProvider, PartitionSchema.class);
+    databaseMetaManager = new MetadataManager<>(variables, metadataProvider, DatabaseMeta.class, shell);
+    hopServerManager = new MetadataManager<>(variables, metadataProvider, HopServer.class, shell);
+    partitionManager = new MetadataManager<>(variables, metadataProvider, PartitionSchema.class, shell);
   }
 
   private static final ISingletonProvider PROVIDER;

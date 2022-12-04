@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.filterrows;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -64,10 +65,9 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
   public FilterRowsDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+    super(parent, variables, (BaseTransformMeta<FilterRows, FilterRowsData>) in, tr, sname);
     input = (FilterRowsMeta) in;
-
-    condition = (Condition) input.getCondition().clone();
+    condition = new Condition(input.getCondition());
   }
 
   @Override
@@ -80,7 +80,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
     ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
-    backupCondition = (Condition) condition.clone();
+    backupCondition = new Condition(condition);
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -90,7 +90,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     shell.setText(BaseMessages.getString(PKG, "FilterRowsDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -173,7 +173,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     fdlCondition.top = new FormAttachment(wFalseTo, margin);
     wlCondition.setLayoutData(fdlCondition);
 
-    IRowMeta inputfields = null;
+    IRowMeta inputfields;
     try {
       inputfields = pipelineMeta.getPrevTransformFields(variables, transformName);
     } catch (HopException ke) {
@@ -243,21 +243,17 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
       wCondition.goUp();
     } else {
       String trueTransformName = wTrueTo.getText();
-      if (trueTransformName.length() == 0) {
+      if (StringUtils.isEmpty(trueTransformName)) {
         trueTransformName = null;
       }
       String falseTransformName = wFalseTo.getText();
-      if (falseTransformName.length() == 0) {
+      if (StringUtils.isEmpty(falseTransformName)) {
         falseTransformName = null;
       }
 
-      List<IStream> targetStreams = input.getTransformIOMeta().getTargetStreams();
-
-      targetStreams.get(0).setTransformMeta(pipelineMeta.findTransform(trueTransformName));
-      targetStreams.get(1).setTransformMeta(pipelineMeta.findTransform(falseTransformName));
-
       input.setTrueTransformName(trueTransformName);
       input.setFalseTransformName(falseTransformName);
+      input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
       transformName = wTransformName.getText(); // return value
       input.setCondition(condition);

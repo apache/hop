@@ -19,8 +19,9 @@
 ---
 notifications:
   commits: commits@hop.apache.org
-  pullrequests: commits@hop.apache.org
-  jira_options: link label worklog
+  issues: issues@hop.apache.org
+  pullrequests_status: dev@hop.apache.org
+  pullrequests_comment: issues@hop.apache.org
 
 github:
   description: "Hop Orchestration Platform"

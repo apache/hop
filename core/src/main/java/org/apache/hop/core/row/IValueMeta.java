@@ -26,9 +26,12 @@ import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.json.simple.JSONObject;
 import org.w3c.dom.Node;
 
@@ -139,6 +142,7 @@ import java.util.TimeZone;
  * </Table>
  */
 @JsonDeserialize(using = ValueMetaDeserializer.class)
+@HopMetadataObject(objectFactory = IValueMeta.ValueMetaHopMetadataObjectFactory.class)
 public interface IValueMeta extends Cloneable {
   public static final Class<?> PKG = IValueMeta.class; // For Translator
 
@@ -283,6 +287,24 @@ public interface IValueMeta extends Cloneable {
     public static TrimType lookupDescription(String description) {
       for (TrimType value : values()) {
         if (value.description.equals(description)) {
+          return value;
+        }
+      }
+      return NONE;
+    }
+
+    public static TrimType lookupCode(String code) {
+      for (TrimType value : values()) {
+        if (value.code.equals(code)) {
+          return value;
+        }
+      }
+      return NONE;
+    }
+
+    public static TrimType lookupType(int type) {
+      for (TrimType value : values()) {
+        if (value.type == type) {
           return value;
         }
       }
@@ -1356,4 +1378,19 @@ public interface IValueMeta extends Cloneable {
    * @param jValue The json object to load value metadata from
    */
   void loadMetaFromJson(JSONObject jValue);
+
+  class ValueMetaHopMetadataObjectFactory implements IHopMetadataObjectFactory {
+    public ValueMetaHopMetadataObjectFactory() {}
+
+    @Override
+    public Object createObject(String id, Object parentObject) throws HopException {
+      int type = ValueMetaFactory.getIdForValueMeta(id);
+      return ValueMetaFactory.getValueMetaName(type);
+    }
+
+    @Override
+    public String getObjectId(Object object) throws HopException {
+      return ((IValueMeta) object).getTypeDesc();
+    }
+  }
 }

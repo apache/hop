@@ -42,9 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FuzzyMatchTest {
   @InjectMocks private FuzzyMatchHandler fuzzyMatch;
@@ -131,7 +129,7 @@ public class FuzzyMatchTest {
     fuzzyMatch.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(rows));
     fuzzyMatch.addRowSetToInputRowSets(mockHelper.getMockInputRowSet(lookupRows));
 
-    when(mockHelper.iTransformMeta.getAlgorithmType()).thenReturn(8);
+    when(mockHelper.iTransformMeta.getAlgorithm()).thenReturn(FuzzyMatchMeta.Algorithm.SOUNDEX);
     mockHelper.iTransformData.look = mock(HashSet.class);
     when(mockHelper.iTransformData.look.iterator()).thenReturn(lookupRows.iterator());
 
@@ -168,7 +166,7 @@ public class FuzzyMatchTest {
     when(meta.getMainStreamField()).thenReturn("field1");
     fuzzyMatch.setInputRowMeta(iRowMeta.clone());
 
-    when(meta.getAlgorithmType()).thenReturn(1);
+    when(meta.getAlgorithm()).thenReturn(FuzzyMatchMeta.Algorithm.DAMERAU_LEVENSHTEIN);
     ITransformIOMeta transformIOMetaInterface = mock(ITransformIOMeta.class);
     when(meta.getTransformIOMeta()).thenReturn(transformIOMetaInterface);
     IStream streamInterface = mock(IStream.class);

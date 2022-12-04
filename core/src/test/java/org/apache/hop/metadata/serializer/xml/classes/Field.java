@@ -19,6 +19,7 @@ package org.apache.hop.metadata.serializer.xml.classes;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IIntCodeConverter;
 
 import java.util.Objects;
 
@@ -36,6 +37,9 @@ public class Field {
 
   @HopMetadataProperty(key = "ott")
   private TestEnum oneTwoThree;
+
+  @HopMetadataProperty(key = "test_code", intCodeConverter = TestCodeConverter.class)
+  private int testCode;
 
   public Field() {}
 
@@ -71,6 +75,40 @@ public class Field {
     return Objects.hash(name, type, length, precision, format, oneTwoThree);
   }
 
+  public static final class TestCodeConverter implements IIntCodeConverter {
+    public TestCodeConverter() {}
+
+    @Override
+    public String getCode(int type) {
+      switch (type) {
+        case 0:
+          return "NONE";
+        case 1:
+          return "ONE";
+        case 2:
+          return "TWO";
+        case 3:
+          return "THREE";
+        default:
+          return "NONE";
+      }
+    }
+
+    @Override
+    public int getType(String code) {
+      switch (code) {
+        case "ONE":
+          return 1;
+        case "TWO":
+          return 2;
+        case "THREE":
+          return 3;
+        default:
+          return 0;
+      }
+    }
+  }
+
   /**
    * Gets name
    *
@@ -80,7 +118,9 @@ public class Field {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -94,7 +134,9 @@ public class Field {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -108,7 +150,9 @@ public class Field {
     return length;
   }
 
-  /** @param length The length to set */
+  /**
+   * @param length The length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }
@@ -122,7 +166,9 @@ public class Field {
     return precision;
   }
 
-  /** @param precision The precision to set */
+  /**
+   * @param precision The precision to set
+   */
   public void setPrecision(int precision) {
     this.precision = precision;
   }
@@ -136,7 +182,9 @@ public class Field {
     return format;
   }
 
-  /** @param format The format to set */
+  /**
+   * @param format The format to set
+   */
   public void setFormat(String format) {
     this.format = format;
   }
@@ -150,8 +198,28 @@ public class Field {
     return oneTwoThree;
   }
 
-  /** @param oneTwoThree The oneTwoThree to set */
+  /**
+   * @param oneTwoThree The oneTwoThree to set
+   */
   public void setOneTwoThree(TestEnum oneTwoThree) {
     this.oneTwoThree = oneTwoThree;
+  }
+
+  /**
+   * Gets testCode
+   *
+   * @return value of testCode
+   */
+  public int getTestCode() {
+    return testCode;
+  }
+
+  /**
+   * Sets testCode
+   *
+   * @param testCode value of testCode
+   */
+  public void setTestCode(int testCode) {
+    this.testCode = testCode;
   }
 }

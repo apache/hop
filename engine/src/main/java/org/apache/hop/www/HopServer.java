@@ -250,9 +250,6 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         Document document = XmlHandler.loadXmlFile(file);
         Node configNode = XmlHandler.getSubNode(document, HopServerConfig.XML_TAG);
         config = new HopServerConfig(new LogChannel("Hop server config"), configNode);
-        if (config.getAutoSequence() != null) {
-          config.readAutoSequences();
-        }
         config.setFilename(parameters.get(0));
       }
       if (parameters != null

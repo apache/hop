@@ -25,17 +25,14 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.ValueMetaAndData;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
@@ -45,14 +42,12 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@InjectionSupported(localizationPrefix = "FilterRowsMeta.Injection.")
 @Transform(
     id = "FilterRows",
     image = "filterrows.svg",
@@ -65,138 +60,58 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
   /** This is the main condition for the complete filter. */
-  private Condition condition;
+  @HopMetadataProperty(
+      key = "compare",
+      injectionKey = "CONDITION",
+      injectionKeyDescription = "FilterRowsMeta.Injection.CONDITION",
+      injectionStringObjectConverter = ConditionXmlConverter.class)
+  private FRCompare compare;
+
+  @HopMetadataProperty(
+      key = "send_true_to",
+      injectionKey = "SEND_TRUE_TRANSFORM",
+      injectionKeyDescription = "FilterRowsMeta.Injection.SEND_TRUE_TRANSFORM")
+  private String trueTransformName;
+
+  @HopMetadataProperty(
+      key = "send_false_to",
+      injectionKey = "SEND_FALSE_TRANSFORM",
+      injectionKeyDescription = "FilterRowsMeta.Injection.SEND_FALSE_TRANSFORM")
+  private String falseTransformName;
 
   public FilterRowsMeta() {
-    super(); // allocate BaseTransformMeta
-    condition = new Condition();
+    super();
+    compare = new FRCompare();
+  }
+
+  @SuppressWarnings("CopyConstructorMissesField")
+  public FilterRowsMeta(FilterRowsMeta m) {
+    this.compare = m.compare == null ? new FRCompare() : new FRCompare(m.compare);
+    this.setTrueTransformName(m.getTrueTransformName());
+    this.setFalseTransformName(m.getFalseTransformName());
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  /** @return Returns the condition. */
-  public Condition getCondition() {
-    return condition;
-  }
-
-  /** @param condition The condition to set. */
-  public void setCondition(Condition condition) {
-    this.condition = condition;
-  }
-
-  public void allocate() {
-    condition = new Condition();
-  }
-
-  @Override
-  public Object clone() {
-    FilterRowsMeta retval = (FilterRowsMeta) super.clone();
-
-    retval.setTrueTransformName(getTrueTransformName());
-    retval.setFalseTransformName(getFalseTransformName());
-
-    if (condition != null) {
-      retval.condition = (Condition) condition.clone();
-    } else {
-      retval.condition = null;
-    }
-
-    return retval;
-  }
-
-  @Override
-  public String getXml() throws HopException {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(XmlHandler.addTagValue("send_true_to", getTrueTransformName()));
-    retval.append(XmlHandler.addTagValue("send_false_to", getFalseTransformName()));
-    retval.append("    <compare>").append(Const.CR);
-
-    if (condition != null) {
-      retval.append(condition.getXml());
-    }
-
-    retval.append("    </compare>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      setTrueTransformName(XmlHandler.getTagValue(transformNode, "send_true_to"));
-      setFalseTransformName(XmlHandler.getTagValue(transformNode, "send_false_to"));
-
-      Node compare = XmlHandler.getSubNode(transformNode, "compare");
-      Node condnode = XmlHandler.getSubNode(compare, "condition");
-
-      // The new situation...
-      if (condnode != null) {
-        condition = new Condition(condnode);
-      } else {
-        // Old style condition: Line1 OR Line2 OR Line3: @deprecated!
-        condition = new Condition();
-
-        int nrkeys = XmlHandler.countNodes(compare, "key");
-        if (nrkeys == 1) {
-          Node knode = XmlHandler.getSubNodeByNr(compare, "key", 0);
-
-          String key = XmlHandler.getTagValue(knode, "name");
-          String value = XmlHandler.getTagValue(knode, "value");
-          String field = XmlHandler.getTagValue(knode, "field");
-          String comparator = XmlHandler.getTagValue(knode, "condition");
-
-          condition.setOperator(Condition.OPERATOR_NONE);
-          condition.setLeftValuename(key);
-          condition.setFunction(Condition.getFunction(comparator));
-          condition.setRightValuename(field);
-          condition.setRightExact(new ValueMetaAndData("value", value));
-        } else {
-          for (int i = 0; i < nrkeys; i++) {
-            Node knode = XmlHandler.getSubNodeByNr(compare, "key", i);
-
-            String key = XmlHandler.getTagValue(knode, "name");
-            String value = XmlHandler.getTagValue(knode, "value");
-            String field = XmlHandler.getTagValue(knode, "field");
-            String comparator = XmlHandler.getTagValue(knode, "condition");
-
-            Condition subc = new Condition();
-            if (i > 0) {
-              subc.setOperator(Condition.OPERATOR_OR);
-            } else {
-              subc.setOperator(Condition.OPERATOR_NONE);
-            }
-            subc.setLeftValuename(key);
-            subc.setFunction(Condition.getFunction(comparator));
-            subc.setRightValuename(field);
-            subc.setRightExact(new ValueMetaAndData("value", value));
-
-            condition.addCondition(subc);
-          }
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "FilterRowsMeta.Exception..UnableToLoadTransformMetaFromXML"),
-          e);
-    }
+  public FilterRowsMeta clone() {
+    return new FilterRowsMeta(this);
   }
 
   @Override
   public void setDefault() {
-    allocate();
+    compare = new FRCompare();
   }
 
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
     for (IStream stream : targetStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, (String) stream.getSubject()));
+      stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
     }
+  }
+
+  @Override
+  public void resetTransformIoMeta() {
+    // Do nothing, keep dialog information around
   }
 
   @Override
@@ -211,9 +126,9 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
     // Clear the sortedDescending flag on fields used within the condition - otherwise the
     // comparisons will be
     // inverted!!
-    String[] conditionField = condition.getUsedFields();
-    for (int i = 0; i < conditionField.length; i++) {
-      int idx = rowMeta.indexOfValue(conditionField[i]);
+    String[] conditionField = getCondition().getUsedFields();
+    for (String s : conditionField) {
+      int idx = rowMeta.indexOfValue(s);
       if (idx >= 0) {
         IValueMeta valueMeta = rowMeta.getValueMeta(idx);
         valueMeta.setSortedDescending(false);
@@ -233,12 +148,12 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    String errorMessage = "";
+    StringBuilder errorMessage;
 
     checkTarget(transformMeta, "true", getTrueTransformName(), output).ifPresent(remarks::add);
     checkTarget(transformMeta, "false", getFalseTransformName(), output).ifPresent(remarks::add);
 
-    if (condition.isEmpty()) {
+    if (getCondition().isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -263,16 +178,15 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
               transformMeta);
       remarks.add(cr);
 
-      List<String> orphanFields = getOrphanFields(condition, prev);
-      if (orphanFields.size() > 0) {
-        errorMessage =
-            BaseMessages.getString(
-                    PKG, "FilterRowsMeta.CheckResult.FieldsNotFoundFromPreviousTransform")
-                + Const.CR;
+      List<String> orphanFields = getOrphanFields(getCondition(), prev);
+      if (!orphanFields.isEmpty()) {
+        errorMessage = new StringBuilder(BaseMessages.getString(
+                PKG, "FilterRowsMeta.CheckResult.FieldsNotFoundFromPreviousTransform")
+                + Const.CR);
         for (String field : orphanFields) {
-          errorMessage += "\t\t" + field + Const.CR;
+          errorMessage.append("\t\t").append(field).append(Const.CR);
         }
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
       } else {
         cr =
             new CheckResult(
@@ -283,31 +197,29 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
       }
       remarks.add(cr);
     } else {
-      errorMessage =
-          BaseMessages.getString(
-                  PKG, "FilterRowsMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform")
-              + Const.CR;
-      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
-      remarks.add(cr);
+      remarks.add(
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG, "FilterRowsMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform"),
+              transformMeta));
     }
 
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
-      cr =
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
               BaseMessages.getString(
                   PKG, "FilterRowsMeta.CheckResult.TransformReceivingInfoFromOtherTransforms"),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     } else {
-      cr =
+      remarks.add(
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
                   PKG, "FilterRowsMeta.CheckResult.NoInputReceivedFromOtherTransforms"),
-              transformMeta);
-      remarks.add(cr);
+              transformMeta));
     }
   }
 
@@ -358,9 +270,6 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
     return ioMeta;
   }
 
-  @Override
-  public void resetTransformIoMeta() {}
-
   /**
    * When an optional stream is selected, this method is called to handled the ETL metadata
    * implications of that.
@@ -401,9 +310,9 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
   /**
    * Get non-existing referenced input fields
    *
-   * @param condition
-   * @param prev
-   * @return
+   * @param condition The condition to examine
+   * @param prev The list of fields coming from previous transforms.
+   * @return The list of orphaned fields
    */
   public List<String> getOrphanFields(Condition condition, IRowMeta prev) {
     List<String> orphans = new ArrayList<>();
@@ -411,13 +320,13 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
       return orphans;
     }
     String[] key = condition.getUsedFields();
-    for (int i = 0; i < key.length; i++) {
-      if (Utils.isEmpty(key[i])) {
+    for (String s : key) {
+      if (Utils.isEmpty(s)) {
         continue;
       }
-      IValueMeta v = prev.searchValueMeta(key[i]);
+      IValueMeta v = prev.searchValueMeta(s);
       if (v == null) {
-        orphans.add(key[i]);
+        orphans.add(s);
       }
     }
     return orphans;
@@ -427,7 +336,6 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
     return getTargetTransformName(0);
   }
 
-  @Injection(name = "SEND_TRUE_TRANSFORM")
   public void setTrueTransformName(String trueTransformName) {
     getTransformIOMeta().getTargetStreams().get(0).setSubject(trueTransformName);
   }
@@ -436,7 +344,6 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
     return getTargetTransformName(1);
   }
 
-  @Injection(name = "SEND_FALSE_TRANSFORM")
   public void setFalseTransformName(String falseTransformName) {
     getTransformIOMeta().getTargetStreams().get(1).setSubject(falseTransformName);
   }
@@ -453,19 +360,100 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
   public String getConditionXml() {
     String conditionXML = null;
     try {
-      conditionXML = condition.getXml();
+      conditionXML = getCondition().getXml();
     } catch (HopValueException e) {
       log.logError(e.getMessage());
     }
     return conditionXML;
   }
 
-  @Injection(name = "CONDITION")
-  public void setConditionXml(String conditionXml) {
-    try {
-      this.condition = new Condition(conditionXml);
-    } catch (HopXmlException e) {
-      log.logError(e.getMessage());
+  /**
+   * @return Returns the condition.
+   */
+  public Condition getCondition() {
+    return compare.condition;
+  }
+
+  /**
+   * @param condition The condition to set.
+   */
+  public void setCondition(Condition condition) {
+    this.compare.condition = condition;
+  }
+
+  /**
+   * Gets compare
+   *
+   * @return value of compare
+   */
+  public FRCompare getCompare() {
+    return compare;
+  }
+
+  /**
+   * Sets compare
+   *
+   * @param compare value of compare
+   */
+  public void setCompare(FRCompare compare) {
+    this.compare = compare;
+  }
+
+  public static final class FRCompare {
+    @HopMetadataProperty(key = "condition")
+    private Condition condition;
+
+    public FRCompare() {
+      condition = new Condition();
+    }
+
+    public FRCompare(FRCompare c) {
+      this.condition = new Condition(c.condition);
+    }
+
+    public FRCompare(Condition condition) {
+      this.condition = condition;
+    }
+
+    /**
+     * Gets condition
+     *
+     * @return value of condition
+     */
+    public Condition getCondition() {
+      return condition;
+    }
+
+    /**
+     * Sets condition
+     *
+     * @param condition value of condition
+     */
+    public void setCondition(Condition condition) {
+      this.condition = condition;
+    }
+  }
+
+  public static final class ConditionXmlConverter implements IStringObjectConverter {
+    @Override
+    public String getString(Object object) throws HopException {
+      if (!(object instanceof FRCompare)) {
+        throw new HopException("We only support XML serialization of Condition objects here");
+      }
+      try {
+        return ((FRCompare) object).getCondition().getXml();
+      } catch (Exception e) {
+        throw new HopException("Error serializing Condition to XML", e);
+      }
+    }
+
+    @Override
+    public Object getObject(String xml) throws HopException {
+      try {
+        return new FRCompare(new Condition(xml));
+      } catch (Exception e) {
+        throw new HopException("Error serializing Condition from XML", e);
+      }
     }
   }
 }

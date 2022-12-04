@@ -147,13 +147,13 @@ public class Neo4jConstraint extends ActionBase implements IAction {
               + constraintUpdate.getObjectProperties());
     }
 
-    cypher += " IF NOT EXISTS ON ";
+    cypher += " IF NOT EXISTS FOR ";
 
     if (constraintUpdate.getObjectType() == ObjectType.NODE) {
       // Constraint on a node
       //
       cypher += "(n:" + constraintUpdate.getObjectName() + ") ";
-      cypher += "ASSERT ";
+      cypher += "REQUIRE ";
       switch (constraintUpdate.getConstraintType()) {
         case UNIQUE:
           cypher += " n." + constraintUpdate.getObjectProperties() + " IS UNIQUE ";
@@ -167,7 +167,7 @@ public class Neo4jConstraint extends ActionBase implements IAction {
       // constraint on a relationship
       //
       cypher += "()-[r:" + constraintUpdate.getObjectName() + "]-() ";
-      cypher += "ASSERT ";
+      cypher += "REQUIRE ";
       switch (constraintUpdate.getConstraintType()) {
         case UNIQUE:
           cypher += " r." + constraintUpdate.getObjectProperties() + " IS UNIQUE ";

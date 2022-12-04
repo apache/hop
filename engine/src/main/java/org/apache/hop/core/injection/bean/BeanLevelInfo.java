@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionTypeConverter;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
@@ -57,6 +58,8 @@ public class BeanLevelInfo<Meta extends Object> {
   public DIMENSION dim = DIMENSION.NONE;
   /** Values converter. */
   public InjectionTypeConverter converter;
+  /** Convert Strings (XML, JSON, ...) to the target object */
+  public IStringObjectConverter stringObjectConverter;
 
   /** False if source empty value shouldn't affect on target field. */
   public boolean convertEmpty;
@@ -177,7 +180,7 @@ public class BeanLevelInfo<Meta extends Object> {
       }
       if (annotationInjection != null) {
         try {
-          leaf.converter = annotationInjection.converter().newInstance();
+          leaf.converter = annotationInjection.converter().getConstructor().newInstance();
         } catch (Exception ex) {
           throw new RuntimeException("Error instantiate converter for " + f, ex);
         }
@@ -240,7 +243,7 @@ public class BeanLevelInfo<Meta extends Object> {
         leaf.setter = m;
         leaf.leafClass = setterClass;
         try {
-          leaf.converter = annotationInjection.converter().newInstance();
+          leaf.converter = annotationInjection.converter().getConstructor().newInstance();
         } catch (Exception ex) {
           throw new RuntimeException("Error instantiate converter for " + m, ex);
         }

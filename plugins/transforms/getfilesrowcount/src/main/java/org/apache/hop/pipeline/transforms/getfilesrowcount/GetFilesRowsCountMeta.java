@@ -17,31 +17,29 @@
 
 package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,7 +51,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::GetFilesRowsCountMeta.keyword",
     documentationUrl = "/pipeline/transforms/getfilesrowcount.html")
-public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
+public class GetFilesRowsCountMeta
+    extends BaseTransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // For Translator
 
   public static final String[] RequiredFilesDesc =
@@ -64,365 +63,78 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
   public static final String[] RequiredFilesCode = new String[] {"N", "Y"};
   private static final String YES = "Y";
 
-  public static final String DEFAULT_ROWSCOUNT_FIELDNAME = "rowscount";
-
-  /** Array of filenames */
-  private String[] fileName;
-
-  /** Wildcard or filemask (regular expression) */
-  private String[] fileMask;
-
-  /** Wildcard or filemask to exclude (regular expression) */
-  private String[] excludeFileMask;
+  @HopMetadataProperty(key = "file")
+  private List<GCFile> files;
 
   /** Flag indicating that a row number field should be included in the output */
+  @HopMetadataProperty(key = "files_count")
   private boolean includeFilesCount;
 
   /** The name of the field in the output containing the file number */
+  @HopMetadataProperty(key = "files_count_fieldname")
   private String filesCountFieldName;
 
   /** The name of the field in the output containing the row number */
+  @HopMetadataProperty(key = "rows_count_fieldname")
   private String rowsCountFieldName;
 
   /** The row separator type */
-  private String rowSeparatorFormat;
+  @HopMetadataProperty(key = "rowseparator_format", storeWithCode = true)
+  private SeparatorFormat rowSeparatorFormat;
 
   /** The row separator */
+  @HopMetadataProperty(key = "row_separator")
   private String rowSeparator;
 
   /** file name from previous fields */
-  private boolean filefield;
+  @HopMetadataProperty(key = "filefield")
+  private boolean fileFromField;
 
-  private boolean isaddresult;
+  @HopMetadataProperty(key = "isaddresult")
+  private boolean addResultFilename;
 
+  @HopMetadataProperty(key = "filename_Field")
   private String outputFilenameField;
 
-  /** Array of boolean values as string, indicating if a file is required. */
-  private String[] fileRequired;
-
-  /** Array of boolean values as string, indicating if we need to fetch sub folders. */
-  private String[] includeSubFolders;
-
   /** Flag : check if a data is there right after separator */
+  @HopMetadataProperty(key = "smartCount")
   private boolean smartCount;
 
   public GetFilesRowsCountMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.files = new ArrayList<>();
   }
 
-  /** @return Returns the row separator. */
-  public String getRowSeparator() {
-    return rowSeparator;
-  }
-
-  /** @param rowSeparatorin The RowSeparator to set. */
-  public void setRowSeparator(String rowSeparatorin) {
-    this.rowSeparator = rowSeparatorin;
-  }
-
-  /** @return Returns the row separator format. */
-  public String getRowSeparatorFormat() {
-    return rowSeparatorFormat;
-  }
-
-  /** @param isaddresult The isaddresult to set. */
-  public void setAddResultFile(boolean isaddresult) {
-    this.isaddresult = isaddresult;
-  }
-
-  /** @param smartCount The smartCount to set. */
-  public void setSmartCount(boolean smartCount) {
-    this.smartCount = smartCount;
-  }
-
-  /** @return Returns the excludeFileMask. */
-  public String[] getExcludeFileMask() {
-    return excludeFileMask;
-  }
-
-  /** @param excludeFileMask The excludeFileMask to set. */
-  public void setExcludeFileMask(String[] excludeFileMask) {
-    this.excludeFileMask = excludeFileMask;
-  }
-
-  /** @return Returns isaddresult. */
-  public boolean isAddResultFile() {
-    return isaddresult;
-  }
-
-  /** @return Returns smartCount. */
-  public boolean isSmartCount() {
-    return smartCount;
-  }
-
-  /** @return Returns the output filename_Field. */
-  public String getOutputFilenameField() {
-    return outputFilenameField;
-  }
-
-  /** @param outputFilenameField The output filename_field to set. */
-  public void setOutputFilenameField(String outputFilenameField) {
-    this.outputFilenameField = outputFilenameField;
-  }
-
-  /** @return Returns the File field. */
-  public boolean isFileField() {
-    return filefield;
-  }
-
-  /** @param filefield The file field to set. */
-  public void setFileField(boolean filefield) {
-    this.filefield = filefield;
-  }
-
-  /** @param rowSeparatorFormatin The RowSeparator_format to set. */
-  public void setRowSeparatorFormat(String rowSeparatorFormatin) {
-    this.rowSeparatorFormat = rowSeparatorFormatin;
-  }
-
-  /** @return Returns the fileMask. */
-  public String[] getFileMask() {
-    return fileMask;
-  }
-
-  public void setFileRequired(String[] fileRequiredin) {
-    for (int i = 0; i < fileRequiredin.length; i++) {
-      this.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
-    }
-  }
-
-  public String[] getIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  public void setIncludeSubFolders(String[] includeSubFoldersin) {
-    for (int i = 0; i < includeSubFoldersin.length; i++) {
-      this.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
-    }
-  }
-
-  public String getRequiredFilesCode(String tt) {
-    if (tt == null) {
-      return RequiredFilesCode[0];
-    }
-    if (tt.equals(RequiredFilesDesc[1])) {
-      return RequiredFilesCode[1];
-    } else {
-      return RequiredFilesCode[0];
-    }
-  }
-
-  public String getRequiredFilesDesc(String tt) {
-    if (tt == null) {
-      return RequiredFilesDesc[0];
-    }
-    if (tt.equals(RequiredFilesCode[1])) {
-      return RequiredFilesDesc[1];
-    } else {
-      return RequiredFilesDesc[0];
-    }
-  }
-
-  /** @param fileMask The fileMask to set. */
-  public void setFileMask(String[] fileMask) {
-    this.fileMask = fileMask;
-  }
-
-  /** @return Returns the fileName. */
-  public String[] getFileName() {
-    return fileName;
-  }
-
-  /** @param fileName The fileName to set. */
-  public void setFileName(String[] fileName) {
-    this.fileName = fileName;
-  }
-
-  /** @return Returns the includeCountFiles. */
-  public boolean includeCountFiles() {
-    return includeFilesCount;
-  }
-
-  /** @param includeFilesCount The "includes files count" flag to set. */
-  public void setIncludeCountFiles(boolean includeFilesCount) {
-    this.includeFilesCount = includeFilesCount;
-  }
-
-  public String[] getFileRequired() {
-    return this.fileRequired;
-  }
-
-  /** @return Returns the FilesCountFieldName. */
-  public String getFilesCountFieldName() {
-    return filesCountFieldName;
-  }
-
-  /** @return Returns the RowsCountFieldName. */
-  public String getRowsCountFieldName() {
-    return rowsCountFieldName;
-  }
-
-  /** @param filesCountFieldName The filesCountFieldName to set. */
-  public void setFilesCountFieldName(String filesCountFieldName) {
-    this.filesCountFieldName = filesCountFieldName;
-  }
-
-  /** @param rowsCountFieldName The rowsCountFieldName to set. */
-  public void setRowsCountFieldName(String rowsCountFieldName) {
-    this.rowsCountFieldName = rowsCountFieldName;
+  public GetFilesRowsCountMeta(GetFilesRowsCountMeta m) {
+    this();
+    this.includeFilesCount = m.includeFilesCount;
+    this.filesCountFieldName = m.filesCountFieldName;
+    this.rowsCountFieldName = m.rowsCountFieldName;
+    this.rowSeparatorFormat = m.rowSeparatorFormat;
+    this.rowSeparator = m.rowSeparator;
+    this.fileFromField = m.fileFromField;
+    this.addResultFilename = m.addResultFilename;
+    this.outputFilenameField = m.outputFilenameField;
+    this.smartCount = m.smartCount;
+    m.files.forEach(f -> this.files.add(new GCFile(f)));
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  @Override
-  public Object clone() {
-    GetFilesRowsCountMeta retval = (GetFilesRowsCountMeta) super.clone();
-
-    int nrFiles = fileName.length;
-
-    retval.allocate(nrFiles);
-    System.arraycopy(fileName, 0, retval.fileName, 0, nrFiles);
-    System.arraycopy(fileMask, 0, retval.fileMask, 0, nrFiles);
-    System.arraycopy(excludeFileMask, 0, retval.excludeFileMask, 0, nrFiles);
-    System.arraycopy(fileRequired, 0, retval.fileRequired, 0, nrFiles);
-    System.arraycopy(includeSubFolders, 0, retval.includeSubFolders, 0, nrFiles);
-
-    return retval;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("    ").append(XmlHandler.addTagValue("files_count", includeFilesCount));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("files_count_fieldname", filesCountFieldName));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("rows_count_fieldname", rowsCountFieldName));
-    retval.append("    ").append(XmlHandler.addTagValue("rowseparator_format", rowSeparatorFormat));
-    retval.append("    ").append(XmlHandler.addTagValue("row_separator", rowSeparator));
-    retval.append("    ").append(XmlHandler.addTagValue("isaddresult", isaddresult));
-    retval.append("    ").append(XmlHandler.addTagValue("filefield", filefield));
-    retval.append("    ").append(XmlHandler.addTagValue("filename_Field", outputFilenameField));
-    retval.append("    ").append(XmlHandler.addTagValue("smartCount", smartCount));
-
-    retval.append("    <file>").append(Const.CR);
-    for (int i = 0; i < fileName.length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", fileName[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", fileMask[i]));
-      retval
-          .append("      ")
-          .append(XmlHandler.addTagValue("exclude_filemask", excludeFileMask[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", fileRequired[i]));
-      retval
-          .append("      ")
-          .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders[i]));
-    }
-    retval.append("    </file>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  /**
-   * Adjust old outdated values to new ones
-   *
-   * @param original The original value
-   * @return The new/correct equivelant
-   */
-  private String scrubOldRowSeparator(String original) {
-    if (original != null) {
-      // Update old files to the new format
-      if (original.equalsIgnoreCase("CR")) {
-        return "LINEFEED";
-      } else if (original.equalsIgnoreCase("LF")) {
-        return "CARRIAGERETURN";
-      }
-    }
-    return original;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-
-      includeFilesCount =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "files_count"));
-      filesCountFieldName = XmlHandler.getTagValue(transformNode, "files_count_fieldname");
-      rowsCountFieldName = XmlHandler.getTagValue(transformNode, "rows_count_fieldname");
-
-      rowSeparatorFormat =
-          scrubOldRowSeparator(XmlHandler.getTagValue(transformNode, "rowseparator_format"));
-      rowSeparator = XmlHandler.getTagValue(transformNode, "row_separator");
-
-      smartCount = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "smartCount"));
-
-      String addresult = XmlHandler.getTagValue(transformNode, "isaddresult");
-      if (Utils.isEmpty(addresult)) {
-        isaddresult = true;
-      } else {
-        isaddresult = "Y".equalsIgnoreCase(addresult);
-      }
-
-      filefield = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "filefield"));
-      outputFilenameField = XmlHandler.getTagValue(transformNode, "filename_Field");
-
-      Node filenode = XmlHandler.getSubNode(transformNode, "file");
-      int nrFiles = XmlHandler.countNodes(filenode, "name");
-      allocate(nrFiles);
-
-      for (int i = 0; i < nrFiles; i++) {
-        Node filenamenode = XmlHandler.getSubNodeByNr(filenode, "name", i);
-        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, "filemask", i);
-        Node excludefilemasknode = XmlHandler.getSubNodeByNr(filenode, "exclude_filemask", i);
-        Node fileRequirednode = XmlHandler.getSubNodeByNr(filenode, "file_required", i);
-        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr(filenode, "include_subfolders", i);
-        fileName[i] = XmlHandler.getNodeValue(filenamenode);
-        fileMask[i] = XmlHandler.getNodeValue(filemasknode);
-        excludeFileMask[i] = XmlHandler.getNodeValue(excludefilemasknode);
-        fileRequired[i] = XmlHandler.getNodeValue(fileRequirednode);
-        includeSubFolders[i] = XmlHandler.getNodeValue(includeSubFoldersnode);
-      }
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
-  public void allocate(int nrfiles) {
-    fileName = new String[nrfiles];
-    fileMask = new String[nrfiles];
-    excludeFileMask = new String[nrfiles];
-    fileRequired = new String[nrfiles];
-    includeSubFolders = new String[nrfiles];
+  public GetFilesRowsCountMeta clone() {
+    return new GetFilesRowsCountMeta(this);
   }
 
   @Override
   public void setDefault() {
     smartCount = false;
     outputFilenameField = "";
-    filefield = false;
-    isaddresult = true;
+    fileFromField = false;
+    addResultFilename = true;
     includeFilesCount = false;
     filesCountFieldName = "";
-    rowsCountFieldName = "rowscount";
-    rowSeparatorFormat = "CR";
+    rowsCountFieldName = "rowsCount";
+    rowSeparatorFormat = SeparatorFormat.CR;
     rowSeparator = "";
-    int nrFiles = 0;
-
-    allocate(nrFiles);
-
-    for (int i = 0; i < nrFiles; i++) {
-      fileName[i] = "filename" + (i + 1);
-      fileMask[i] = "";
-      excludeFileMask[i] = "";
-      fileRequired[i] = RequiredFilesCode[0];
-      includeSubFolders[i] = RequiredFilesCode[0];
-    }
   }
 
   @Override
@@ -432,8 +144,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
+      IHopMetadataProvider metadataProvider) {
     IValueMeta v = new ValueMetaInteger(variables.resolve(rowsCountFieldName));
     v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
     v.setOrigin(name);
@@ -447,18 +158,38 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
     }
   }
 
-  public FileInputList getFiles(IVariables variables) {
-    return FileInputList.createFileList(
-        variables, fileName, fileMask, excludeFileMask, fileRequired, includeSubFolderBoolean());
+  public String[] getFilesNames() {
+    return files.stream().map(GCFile::getName).toArray(String[]::new);
   }
 
-  private boolean[] includeSubFolderBoolean() {
-    int len = fileName.length;
-    boolean[] includeSubFolderBoolean = new boolean[len];
-    for (int i = 0; i < len; i++) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(includeSubFolders[i]);
+  public String[] getFilesMasks() {
+    return files.stream().map(GCFile::getMask).toArray(String[]::new);
+  }
+
+  public String[] getFilesExcludeMasks() {
+    return files.stream().map(GCFile::getExcludeMask).toArray(String[]::new);
+  }
+
+  public String[] getFilesRequired() {
+    return files.stream().map(f -> f.isRequired() ? "Y" : "N").toArray(String[]::new);
+  }
+
+  public boolean[] getFilesSubFolderIncluded() {
+    boolean[] b = new boolean[files.size()];
+    for (int i = 0; i < b.length; i++) {
+      b[i] = files.get(i).isIncludeSubFolder();
     }
-    return includeSubFolderBoolean;
+    return b;
+  }
+
+  public FileInputList getFiles(IVariables variables) {
+    return FileInputList.createFileList(
+        variables,
+        getFilesNames(),
+        getFilesMasks(),
+        getFilesExcludeMasks(),
+        getFilesRequired(),
+        getFilesSubFolderIncluded());
   }
 
   @Override
@@ -494,7 +225,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
 
     FileInputList fileInputList = getFiles(variables);
 
-    if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+    if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -554,16 +285,366 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta<GetFilesRowsCount, 
       // So let's change the filename from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      if (!filefield) {
-        for (int i = 0; i < fileName.length; i++) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName[i]));
-          fileName[i] =
-              iResourceNaming.nameResource(fileObject, variables, Utils.isEmpty(fileMask[i]));
+      if (!fileFromField) {
+        for (GCFile file : files) {
+          FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getName()));
+          file.setName(
+              iResourceNaming.nameResource(
+                  fileObject, variables, StringUtils.isEmpty(file.getMask())));
         }
       }
       return null;
     } catch (Exception e) {
       throw new HopException(e);
+    }
+  }
+
+  /**
+   * Gets files
+   *
+   * @return value of files
+   */
+  public List<GCFile> getFiles() {
+    return files;
+  }
+
+  /**
+   * Sets files
+   *
+   * @param files value of files
+   */
+  public void setFiles(List<GCFile> files) {
+    this.files = files;
+  }
+
+  /**
+   * Gets includeFilesCount
+   *
+   * @return value of includeFilesCount
+   */
+  public boolean isIncludeFilesCount() {
+    return includeFilesCount;
+  }
+
+  /**
+   * Sets includeFilesCount
+   *
+   * @param includeFilesCount value of includeFilesCount
+   */
+  public void setIncludeFilesCount(boolean includeFilesCount) {
+    this.includeFilesCount = includeFilesCount;
+  }
+
+  /**
+   * Gets filesCountFieldName
+   *
+   * @return value of filesCountFieldName
+   */
+  public String getFilesCountFieldName() {
+    return filesCountFieldName;
+  }
+
+  /**
+   * Sets filesCountFieldName
+   *
+   * @param filesCountFieldName value of filesCountFieldName
+   */
+  public void setFilesCountFieldName(String filesCountFieldName) {
+    this.filesCountFieldName = filesCountFieldName;
+  }
+
+  /**
+   * Gets rowsCountFieldName
+   *
+   * @return value of rowsCountFieldName
+   */
+  public String getRowsCountFieldName() {
+    return rowsCountFieldName;
+  }
+
+  /**
+   * Sets rowsCountFieldName
+   *
+   * @param rowsCountFieldName value of rowsCountFieldName
+   */
+  public void setRowsCountFieldName(String rowsCountFieldName) {
+    this.rowsCountFieldName = rowsCountFieldName;
+  }
+
+  /**
+   * Gets rowSeparatorFormat
+   *
+   * @return value of rowSeparatorFormat
+   */
+  public SeparatorFormat getRowSeparatorFormat() {
+    return rowSeparatorFormat;
+  }
+
+  /**
+   * Sets rowSeparatorFormat
+   *
+   * @param rowSeparatorFormat value of rowSeparatorFormat
+   */
+  public void setRowSeparatorFormat(SeparatorFormat rowSeparatorFormat) {
+    this.rowSeparatorFormat = rowSeparatorFormat;
+  }
+
+  /**
+   * Gets rowSeparator
+   *
+   * @return value of rowSeparator
+   */
+  public String getRowSeparator() {
+    return rowSeparator;
+  }
+
+  /**
+   * Sets rowSeparator
+   *
+   * @param rowSeparator value of rowSeparator
+   */
+  public void setRowSeparator(String rowSeparator) {
+    this.rowSeparator = rowSeparator;
+  }
+
+  /**
+   * Gets fileFromField
+   *
+   * @return value of fileFromField
+   */
+  public boolean isFileFromField() {
+    return fileFromField;
+  }
+
+  /**
+   * Sets fileFromField
+   *
+   * @param fileFromField value of fileFromField
+   */
+  public void setFileFromField(boolean fileFromField) {
+    this.fileFromField = fileFromField;
+  }
+
+  /**
+   * Gets addResultFilename
+   *
+   * @return value of addResultFilename
+   */
+  public boolean isAddResultFilename() {
+    return addResultFilename;
+  }
+
+  /**
+   * Sets addResultFilename
+   *
+   * @param addResultFilename value of addResultFilename
+   */
+  public void setAddResultFilename(boolean addResultFilename) {
+    this.addResultFilename = addResultFilename;
+  }
+
+  /**
+   * Gets outputFilenameField
+   *
+   * @return value of outputFilenameField
+   */
+  public String getOutputFilenameField() {
+    return outputFilenameField;
+  }
+
+  /**
+   * Sets outputFilenameField
+   *
+   * @param outputFilenameField value of outputFilenameField
+   */
+  public void setOutputFilenameField(String outputFilenameField) {
+    this.outputFilenameField = outputFilenameField;
+  }
+
+  /**
+   * Gets smartCount
+   *
+   * @return value of smartCount
+   */
+  public boolean isSmartCount() {
+    return smartCount;
+  }
+
+  /**
+   * Sets smartCount
+   *
+   * @param smartCount value of smartCount
+   */
+  public void setSmartCount(boolean smartCount) {
+    this.smartCount = smartCount;
+  }
+
+  public static final class GCFile {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "filemask")
+    private String mask;
+
+    @HopMetadataProperty(key = "exclude_filemask")
+    private String excludeMask;
+
+    @HopMetadataProperty(key = "file_required")
+    private boolean required;
+
+    @HopMetadataProperty(key = "include_subfolders")
+    private boolean includeSubFolder;
+
+    public GCFile() {}
+
+    public GCFile(GCFile f) {
+      this();
+      this.name = f.name;
+      this.mask = f.mask;
+      this.excludeMask = f.excludeMask;
+      this.required = f.required;
+      this.includeSubFolder = f.includeSubFolder;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets mask
+     *
+     * @return value of mask
+     */
+    public String getMask() {
+      return mask;
+    }
+
+    /**
+     * Sets mask
+     *
+     * @param mask value of mask
+     */
+    public void setMask(String mask) {
+      this.mask = mask;
+    }
+
+    /**
+     * Gets excludeMask
+     *
+     * @return value of excludeMask
+     */
+    public String getExcludeMask() {
+      return excludeMask;
+    }
+
+    /**
+     * Sets excludeMask
+     *
+     * @param excludeMask value of excludeMask
+     */
+    public void setExcludeMask(String excludeMask) {
+      this.excludeMask = excludeMask;
+    }
+
+    /**
+     * Gets required
+     *
+     * @return value of required
+     */
+    public boolean isRequired() {
+      return required;
+    }
+
+    /**
+     * Sets required
+     *
+     * @param required value of required
+     */
+    public void setRequired(boolean required) {
+      this.required = required;
+    }
+
+    /**
+     * Gets includeSubFolder
+     *
+     * @return value of includeSubFolder
+     */
+    public boolean isIncludeSubFolder() {
+      return includeSubFolder;
+    }
+
+    /**
+     * Sets includeSubFolder
+     *
+     * @param includeSubFolder value of includeSubFolder
+     */
+    public void setIncludeSubFolder(boolean includeSubFolder) {
+      this.includeSubFolder = includeSubFolder;
+    }
+  }
+
+  public enum SeparatorFormat implements IEnumHasCodeAndDescription {
+    CR(
+        "CARRIAGERETURN",
+        BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.CR.Label")),
+    LF(
+        "LINEFEED",
+        BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.LF.Label")),
+    CRLF(
+        "CRLF",
+        BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.CRLF.Label")),
+    TAB("TAB", BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.TAB.Label")),
+    CUSTOM(
+        "CUSTOM",
+        BaseMessages.getString(PKG, "GetFilesRowsCountDialog.RowSeparatorFormat.CUSTOM.Label"));
+    private final String code;
+    private final String description;
+
+    SeparatorFormat(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(SeparatorFormat.class);
+    }
+
+    public static SeparatorFormat lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(SeparatorFormat.class, description, CR);
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    @Override
+    public String getDescription() {
+      return description;
     }
   }
 }
