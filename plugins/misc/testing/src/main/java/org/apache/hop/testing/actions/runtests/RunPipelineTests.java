@@ -115,8 +115,11 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
             }
           },
           (test1, pipelineMeta, e) -> {
-            this.logError(
-                "There was an exception executing pipeline unit test '" + test.getName(), e);
+            if (test == null) {
+              this.logError("Unable to load unit test for '" + testName, e);
+            } else {
+              this.logError("There was an exception executing pipeline unit test '" + test.getName(), e);
+            }
             success.set(false);
           });
     }
