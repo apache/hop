@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.getvariable;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -26,11 +27,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 /** Get information from the System or the supervising pipeline. */
 public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData> {
-
   public GetVariable(
       TransformMeta transformMeta,
       GetVariableMeta meta,
@@ -57,7 +55,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
     }
 
     // initialize
-    if (first && rowData != null) {
+    if (first) {
       first = false;
 
       // Make output meta data
@@ -80,30 +78,23 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
       // amounts, there's always going to
       // be those cases where performance is required.
       //
-      int fieldsLength = meta.getFieldDefinitions().length;
+      int fieldsLength = meta.getFieldDefinitions().size();
       data.extraData = new Object[fieldsLength];
-      for (int i = 0; i < fieldsLength; i++) {
-        String newValue = resolve(meta.getFieldDefinitions()[i].getVariableString());
+      for (int i = 0; i < meta.getFieldDefinitions().size(); i++) {
+        GetVariableMeta.FieldDefinition fieldDefinition = meta.getFieldDefinitions().get(i);
+        String newValue = resolve(fieldDefinition.getVariableString());
         if (log.isDetailed()) {
           logDetailed(
-              "field ["
-                  + meta.getFieldDefinitions()[i].getFieldName()
-                  + "] has value ["
-                  + newValue
-                  + "]");
+              "field [" + fieldDefinition.getFieldName() + "] has value [" + newValue + "]");
         }
 
         // Convert the data to the desired data type...
         //
         IValueMeta targetMeta = data.outputRowMeta.getValueMeta(data.inputRowMeta.size() + i);
-        IValueMeta sourceMeta =
-            data.conversionMeta.getValueMeta(data.inputRowMeta.size() + i); // String type
-        // +
-        // conversion
-        // masks,
-        // symbols,
-        // trim type,
-        // etc
+
+        // String type, conversion masks, symbols, trim type, etc
+        //
+        IValueMeta sourceMeta = data.conversionMeta.getValueMeta(data.inputRowMeta.size() + i);
         data.extraData[i] = targetMeta.convertData(sourceMeta, newValue);
       }
     }
@@ -123,10 +114,9 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
 
   @Override
   public boolean init() {
-
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && previous.size() > 0) {
+      if (previous != null && !previous.isEmpty()) {
         data.readsRows = true;
       }
 

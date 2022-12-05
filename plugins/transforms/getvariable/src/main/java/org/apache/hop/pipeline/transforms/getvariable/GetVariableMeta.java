@@ -17,36 +17,26 @@
 
 package org.apache.hop.pipeline.transforms.getvariable;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-import java.util.List;
-
-@InjectionSupported(
-    localizationPrefix = "GetVariable.Injection.",
-    groups = {"FIELDS"})
 @Transform(
     id = "GetVariable",
     image = "getvariable.svg",
@@ -58,181 +48,46 @@ import java.util.List;
 public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableData> {
   private static final Class<?> PKG = GetVariableMeta.class; // For Translator
 
-  @InjectionDeep private FieldDefinition[] fieldDefinitions;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "GetVariable.Injection.FIELDS")
+  private List<FieldDefinition> fieldDefinitions;
 
   public GetVariableMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.fieldDefinitions = new ArrayList<>();
   }
 
-  public FieldDefinition[] getFieldDefinitions() {
-    return fieldDefinitions;
-  }
-
-  public void setFieldDefinitions(FieldDefinition[] fieldDefinitions) {
-    this.fieldDefinitions = fieldDefinitions;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int count) {
-    fieldDefinitions = new FieldDefinition[count];
-    for (int i = 0; i < fieldDefinitions.length; i++) {
-      fieldDefinitions[i] = new FieldDefinition();
-    }
+  public GetVariableMeta(GetVariableMeta m) {
+    this();
+    m.fieldDefinitions.forEach(f -> this.fieldDefinitions.add(new FieldDefinition(f)));
   }
 
   @Override
-  public Object clone() {
-    GetVariableMeta retval = (GetVariableMeta) super.clone();
-
-    int count = fieldDefinitions.length;
-
-    retval.allocate(count);
-    for (int i = 0; i < count; i++) {
-      retval.getFieldDefinitions()[i] = fieldDefinitions[i].clone();
-    }
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fields, "field");
-
-      allocate(count);
-
-      for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldDefinitions[i].setFieldName(XmlHandler.getTagValue(fnode, "name"));
-        fieldDefinitions[i].setVariableString(XmlHandler.getTagValue(fnode, "variable"));
-        fieldDefinitions[i].setFieldType(
-            ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        fieldDefinitions[i].setFieldFormat(XmlHandler.getTagValue(fnode, "format"));
-        fieldDefinitions[i].setCurrency(XmlHandler.getTagValue(fnode, "currency"));
-        fieldDefinitions[i].setDecimal(XmlHandler.getTagValue(fnode, "decimal"));
-        fieldDefinitions[i].setGroup(XmlHandler.getTagValue(fnode, "group"));
-        fieldDefinitions[i].setFieldLength(
-            Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-        fieldDefinitions[i].setFieldPrecision(
-            Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-        fieldDefinitions[i].setTrimType(
-            ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-
-        // Backward compatibility
-        //
-        if (fieldDefinitions[i].getFieldType() == IValueMeta.TYPE_NONE) {
-          fieldDefinitions[i].setFieldType(IValueMeta.TYPE_STRING);
-        }
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to read transform information from XML", e);
-    }
-  }
-
-  @Override
-  public void setDefault() {
-    int count = 0;
-
-    allocate(count);
-
-    for (int i = 0; i < count; i++) {
-      fieldDefinitions[i].setFieldName("field" + i);
-      fieldDefinitions[i].setVariableString("");
-    }
+  public GetVariableMeta clone() {
+    return new GetVariableMeta(this);
   }
 
   @Override
   public void getFields(
-      IRowMeta inputRowMeta,
+      IRowMeta rowMeta,
       String name,
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    IRowMeta row = new RowMeta();
-    for (int i = 0; i < fieldDefinitions.length; i++) {
-      IValueMeta v;
-      try {
-        v =
-            ValueMetaFactory.createValueMeta(
-                fieldDefinitions[i].getFieldName(), fieldDefinitions[i].getFieldType());
-      } catch (HopPluginException e) {
-        throw new HopTransformException(e);
+    try {
+      for (FieldDefinition fieldDefinition : fieldDefinitions) {
+        IValueMeta valueMeta = fieldDefinition.createValueMeta();
+        valueMeta.setOrigin(name);
+        rowMeta.addValueMeta(valueMeta);
       }
-      int fieldLength = fieldDefinitions[i].getFieldLength();
-      v.setLength(fieldLength);
-      int fieldPrecision = fieldDefinitions[i].getFieldPrecision();
-      if (fieldPrecision >= 0) {
-        v.setPrecision(fieldPrecision);
-      }
-      v.setConversionMask(fieldDefinitions[i].getFieldFormat());
-      v.setGroupingSymbol(fieldDefinitions[i].getGroup());
-      v.setDecimalSymbol(fieldDefinitions[i].getDecimal());
-      v.setCurrencySymbol(fieldDefinitions[i].getCurrency());
-      v.setTrimType(fieldDefinitions[i].getTrimType());
-      v.setOrigin(name);
-
-      row.addValueMeta(v);
+    } catch (HopPluginException e) {
+      throw new HopTransformException(e);
     }
-
-    inputRowMeta.mergeRowMeta(row, name);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < fieldDefinitions.length; i++) {
-      String fieldName = fieldDefinitions[i].getFieldName();
-      if (fieldName != null && fieldName.length() != 0) {
-        retval.append("      <field>").append(Const.CR);
-        retval.append("        ").append(XmlHandler.addTagValue("name", fieldName));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("variable", fieldDefinitions[i].getVariableString()));
-        retval
-            .append("        ")
-            .append(
-                XmlHandler.addTagValue(
-                    "type", ValueMetaFactory.getValueMetaName(fieldDefinitions[i].getFieldType())));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("format", fieldDefinitions[i].getFieldFormat()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("currency", fieldDefinitions[i].getCurrency()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("decimal", fieldDefinitions[i].getDecimal()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("group", fieldDefinitions[i].getGroup()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("length", fieldDefinitions[i].getFieldLength()));
-        retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("precision", fieldDefinitions[i].getFieldPrecision()));
-        retval
-            .append("        ")
-            .append(
-                XmlHandler.addTagValue(
-                    "trim_type",
-                    ValueMetaString.getTrimTypeCode(fieldDefinitions[i].getTrimType())));
-
-        retval.append("      </field>").append(Const.CR);
-      }
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -248,15 +103,15 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
       IHopMetadataProvider metadataProvider) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
-    for (int i = 0; i < fieldDefinitions.length; i++) {
-      if (Utils.isEmpty(fieldDefinitions[i].getVariableString())) {
+    for (FieldDefinition fieldDefinition : fieldDefinitions) {
+      if (Utils.isEmpty(fieldDefinition.getVariableString())) {
         CheckResult cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
                     PKG,
                     "GetVariableMeta.CheckResult.VariableNotSpecified",
-                    fieldDefinitions[i].getFieldName()),
+                    fieldDefinition.getFieldName()),
                 transformMeta);
         remarks.add(cr);
       }
@@ -271,145 +126,312 @@ public class GetVariableMeta extends BaseTransformMeta<GetVariable, GetVariableD
     }
   }
 
-  public static class FieldDefinition implements Cloneable {
+  public static final class IntTypeConverter implements IIntCodeConverter {
+    public IntTypeConverter() {}
 
-    @Injection(name = "FIELDNAME", group = "FIELDS")
+    @Override
+    public String getCode(int type) {
+      return ValueMetaFactory.getValueMetaName(type);
+    }
+
+    @Override
+    public int getType(String code) {
+      return ValueMetaFactory.getIdForValueMeta(code);
+    }
+  }
+
+  public static final class FieldDefinition {
+    @HopMetadataProperty(
+        key = "name",
+        injectionKey = "FIELDNAME",
+        injectionKeyDescription = "GetVariable.Injection.FIELDNAME")
     private String fieldName;
 
-    @Injection(name = "VARIABLE", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "variable",
+        injectionKey = "VARIABLE",
+        injectionKeyDescription = "GetVariable.Injection.VARIABLE")
     private String variableString;
 
-    @Injection(name = "FIELDTYPE", group = "FIELDS")
-    private int fieldType;
+    @HopMetadataProperty(
+        key = "type",
+        injectionKey = "FIELDTYPE",
+        injectionKeyDescription = "GetVariable.Injection.FIELDTYPE",
+        intCodeConverter = IntTypeConverter.class)
+    private String fieldType;
 
-    @Injection(name = "FIELDFORMAT", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "format",
+        injectionKey = "FIELDFORMAT",
+        injectionKeyDescription = "GetVariable.Injection.FIELDFORMAT")
     private String fieldFormat;
 
-    @Injection(name = "FIELDLENGTH", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "length",
+        injectionKey = "FIELDLENGTH",
+        injectionKeyDescription = "GetVariable.Injection.FIELDLENGTH")
     private int fieldLength;
 
-    @Injection(name = "FIELDPRECISION", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "precision",
+        injectionKey = "FIELDPRECISION",
+        injectionKeyDescription = "GetVariable.Injection.FIELDPRECISION")
     private int fieldPrecision;
 
-    @Injection(name = "CURRENCY", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "currency",
+        injectionKey = "CURRENCY",
+        injectionKeyDescription = "GetVariable.Injection.CURRENCY")
     private String currency;
 
-    @Injection(name = "DECIMAL", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "decimal",
+        injectionKey = "DECIMAL",
+        injectionKeyDescription = "GetVariable.Injection.DECIMAL")
     private String decimal;
 
-    @Injection(name = "GROUP", group = "FIELDS")
+    @HopMetadataProperty(
+        key = "group",
+        injectionKey = "GROUP",
+        injectionKeyDescription = "GetVariable.Injection.GROUP")
     private String group;
 
-    @Injection(name = "TRIMTYPE", group = "FIELDS")
-    private int trimType;
+    @HopMetadataProperty(
+        key = "trim_type",
+        storeWithCode = true,
+        injectionKey = "TRIMTYPE",
+        injectionKeyDescription = "GetVariable.Injection.TRIMTYPE")
+    private IValueMeta.TrimType trimType;
 
-    /** @return Returns the fieldName. */
+    public FieldDefinition() {
+      trimType = IValueMeta.TrimType.NONE;
+    }
+
+    public FieldDefinition(FieldDefinition d) {
+      this();
+      this.fieldName = d.fieldName;
+      this.variableString = d.variableString;
+      this.fieldType = d.fieldType;
+      this.fieldFormat = d.fieldFormat;
+      this.fieldLength = d.fieldLength;
+      this.fieldPrecision = d.fieldPrecision;
+      this.currency = d.currency;
+      this.decimal = d.decimal;
+      this.group = d.group;
+      this.trimType = d.trimType;
+    }
+
+    public int getHopType() {
+      return ValueMetaFactory.getIdForValueMeta(fieldType);
+    }
+
+    public IValueMeta createValueMeta() throws HopPluginException {
+      IValueMeta valueMeta = ValueMetaFactory.createValueMeta(fieldName, getHopType());
+      valueMeta.setLength(fieldLength, fieldPrecision);
+      valueMeta.setConversionMask(fieldFormat);
+      valueMeta.setDecimalSymbol(decimal);
+      valueMeta.setGroupingSymbol(group);
+      valueMeta.setCurrencySymbol(currency);
+      valueMeta.setTrimType(trimType.getType());
+      return valueMeta;
+    }
+
+    /**
+     * Gets fieldName
+     *
+     * @return value of fieldName
+     */
     public String getFieldName() {
       return fieldName;
     }
 
-    /** @param fieldName The fieldName to set. */
+    /**
+     * Sets fieldName
+     *
+     * @param fieldName value of fieldName
+     */
     public void setFieldName(String fieldName) {
       this.fieldName = fieldName;
     }
 
-    /** @return Returns the strings containing variables. */
+    /**
+     * Gets variableString
+     *
+     * @return value of variableString
+     */
     public String getVariableString() {
       return variableString;
     }
 
-    /** @param variableString The variable strings to set. */
+    /**
+     * Sets variableString
+     *
+     * @param variableString value of variableString
+     */
     public void setVariableString(String variableString) {
       this.variableString = variableString;
     }
 
-    /** @return the field type (IValueMeta.TYPE_*) */
-    public int getFieldType() {
+    /**
+     * Gets fieldType
+     *
+     * @return value of fieldType
+     */
+    public String getFieldType() {
       return fieldType;
     }
 
-    /** @param fieldType the field type to set (IValueMeta.TYPE_*) */
-    public void setFieldType(int fieldType) {
+    /**
+     * Sets fieldType
+     *
+     * @param fieldType value of fieldType
+     */
+    public void setFieldType(String fieldType) {
       this.fieldType = fieldType;
     }
 
-    /** @return the fieldFormat */
+    /**
+     * Gets fieldFormat
+     *
+     * @return value of fieldFormat
+     */
     public String getFieldFormat() {
       return fieldFormat;
     }
 
-    /** @param fieldFormat the fieldFormat to set */
+    /**
+     * Sets fieldFormat
+     *
+     * @param fieldFormat value of fieldFormat
+     */
     public void setFieldFormat(String fieldFormat) {
       this.fieldFormat = fieldFormat;
     }
 
-    /** @return the fieldLength */
+    /**
+     * Gets fieldLength
+     *
+     * @return value of fieldLength
+     */
     public int getFieldLength() {
       return fieldLength;
     }
 
-    /** @param fieldLength the fieldLength to set */
+    /**
+     * Sets fieldLength
+     *
+     * @param fieldLength value of fieldLength
+     */
     public void setFieldLength(int fieldLength) {
       this.fieldLength = fieldLength;
     }
 
-    /** @return the fieldPrecision */
+    /**
+     * Gets fieldPrecision
+     *
+     * @return value of fieldPrecision
+     */
     public int getFieldPrecision() {
       return fieldPrecision;
     }
 
-    /** @param fieldPrecision the fieldPrecision to set */
+    /**
+     * Sets fieldPrecision
+     *
+     * @param fieldPrecision value of fieldPrecision
+     */
     public void setFieldPrecision(int fieldPrecision) {
       this.fieldPrecision = fieldPrecision;
     }
 
-    /** @return the currency */
+    /**
+     * Gets currency
+     *
+     * @return value of currency
+     */
     public String getCurrency() {
       return currency;
     }
 
-    /** @param currency the currency to set */
+    /**
+     * Sets currency
+     *
+     * @param currency value of currency
+     */
     public void setCurrency(String currency) {
       this.currency = currency;
     }
 
-    /** @return the decimal */
+    /**
+     * Gets decimal
+     *
+     * @return value of decimal
+     */
     public String getDecimal() {
       return decimal;
     }
 
-    /** @param decimal the decimal to set */
+    /**
+     * Sets decimal
+     *
+     * @param decimal value of decimal
+     */
     public void setDecimal(String decimal) {
       this.decimal = decimal;
     }
 
-    /** @return the group */
+    /**
+     * Gets group
+     *
+     * @return value of group
+     */
     public String getGroup() {
       return group;
     }
 
-    /** @param group the group to set */
+    /**
+     * Sets group
+     *
+     * @param group value of group
+     */
     public void setGroup(String group) {
       this.group = group;
     }
 
-    /** @return the trimType */
-    public int getTrimType() {
+    /**
+     * Gets trimType
+     *
+     * @return value of trimType
+     */
+    public IValueMeta.TrimType getTrimType() {
       return trimType;
     }
 
-    /** @param trimType the trimType to set */
-    public void setTrimType(int trimType) {
+    /**
+     * Sets trimType
+     *
+     * @param trimType value of trimType
+     */
+    public void setTrimType(IValueMeta.TrimType trimType) {
       this.trimType = trimType;
     }
+  }
 
-    @Override
-    public FieldDefinition clone() {
-      try {
-        return (FieldDefinition) super.clone();
-      } catch (CloneNotSupportedException e) {
-        throw new RuntimeException(e);
-      }
-    }
+  /**
+   * Gets fieldDefinitions
+   *
+   * @return value of fieldDefinitions
+   */
+  public List<FieldDefinition> getFieldDefinitions() {
+    return fieldDefinitions;
+  }
+
+  /**
+   * Sets fieldDefinitions
+   *
+   * @param fieldDefinitions value of fieldDefinitions
+   */
+  public void setFieldDefinitions(List<FieldDefinition> fieldDefinitions) {
+    this.fieldDefinitions = fieldDefinitions;
   }
 }
