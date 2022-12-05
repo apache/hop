@@ -17,20 +17,8 @@
 
 package org.apache.hop.core;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang.text.StrBuilder;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.Variable;
-import org.apache.hop.core.variables.VariableScope;
-import org.apache.hop.i18n.BaseMessages;
-
-import java.awt.*;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +48,18 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.text.StrBuilder;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variable;
+import org.apache.hop.core.variables.VariableScope;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * This class is used to define a number of default values for various settings throughout Hop. It

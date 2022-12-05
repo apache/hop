@@ -18,6 +18,9 @@
 // CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -79,11 +82,9 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.*;
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.RequiredFilesCode;
 
 public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator

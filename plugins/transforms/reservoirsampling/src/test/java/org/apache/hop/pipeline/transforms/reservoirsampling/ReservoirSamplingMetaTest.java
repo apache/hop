@@ -22,18 +22,15 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 public class ReservoirSamplingMetaTest {
 
-    @Test
-    public void testSerialization() throws Exception {
-        ReservoirSamplingMeta meta = TransformSerializationTestUtil.testSerialization(
-                "/reservoir-sampling-transform.xml",
-                ReservoirSamplingMeta.class
-        );
+  @Test
+  public void testSerialization() throws Exception {
+    ReservoirSamplingMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/reservoir-sampling-transform.xml", ReservoirSamplingMeta.class);
 
     Assert.assertEquals("5", meta.getSampleSize());
     Assert.assertEquals("123456", meta.getSeed());
-    }
+  }
 }
