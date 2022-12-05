@@ -95,7 +95,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     shell.setText(BaseMessages.getString(PKG, "NormaliserDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -156,8 +156,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     wlFields.setLayoutData(fdlFields);
 
     final int fieldsCols = 3;
-    final int fieldsRows = input.getNormaliserFields().length;
-
+    final int fieldsRows = input.getNormaliserFields().size();
     colinf = new ColumnInfo[fieldsCols];
     colinf[0] =
         new ColumnInfo(
@@ -244,16 +243,17 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
       wTypefield.setText(input.getTypeField());
     }
 
-    for (int i = 0; i < input.getNormaliserFields().length; i++) {
+    for (int i = 0; i < input.getNormaliserFields().size(); i++) {
       TableItem item = wFields.table.getItem(i);
-      if (input.getNormaliserFields()[i].getName() != null) {
-        item.setText(NAME_INDEX, input.getNormaliserFields()[i].getName());
+      NormaliserField field = input.getNormaliserFields().get(i);
+      if (field.getName() != null) {
+        item.setText(NAME_INDEX, field.getName());
       }
-      if (input.getNormaliserFields()[i].getValue() != null) {
-        item.setText(VALUE_INDEX, input.getNormaliserFields()[i].getValue());
+      if (field.getValue() != null) {
+        item.setText(VALUE_INDEX,field.getValue());
       }
-      if (input.getNormaliserFields()[i].getNorm() != null) {
-        item.setText(NORM_INDEX, input.getNormaliserFields()[i].getNorm());
+      if (field.getNorm() != null) {
+        item.setText(NORM_INDEX, field.getNorm());
       }
     }
 
@@ -281,15 +281,17 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
 
     int i;
 
-    int nrFields = wFields.nrNonEmpty();
-    input.allocate(nrFields);
+    int nrFields = wFields.nrNonEmpty();   
+    input.getNormaliserFields().clear();
 
     // CHECKSTYLE:Indentation:OFF
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getNormaliserFields()[i].setName(item.getText(NAME_INDEX));
-      input.getNormaliserFields()[i].setValue(item.getText(VALUE_INDEX));
-      input.getNormaliserFields()[i].setNorm(item.getText(NORM_INDEX));
+      NormaliserField field = new NormaliserField();
+      field.setName(item.getText(NAME_INDEX));
+      field.setValue(item.getText(VALUE_INDEX));
+      field.setNorm(item.getText(NORM_INDEX));
+      input.getNormaliserFields().add(field);
     }
 
     dispose();

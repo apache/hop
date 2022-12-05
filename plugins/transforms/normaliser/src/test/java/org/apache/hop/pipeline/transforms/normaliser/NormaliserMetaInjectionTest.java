@@ -33,8 +33,9 @@ public class NormaliserMetaInjectionTest extends BaseMetadataInjectionTest<Norma
 
   @Test
   public void test() throws Exception {
-    check("NAME", () -> meta.getNormaliserFields()[0].getName());
-    check("VALUE", () -> meta.getNormaliserFields()[0].getValue());
-    check("NORMALISED", () -> meta.getNormaliserFields()[0].getNorm());
+    check("TYPEFIELD", () -> meta.getTypeField());
+    check("NAME", () -> meta.getNormaliserFields().get(0).getName());
+    check("VALUE", () -> meta.getNormaliserFields().get(0).getValue());
+    check("NORMALISED", () -> meta.getNormaliserFields().get(0).getNorm());
   }
 }
