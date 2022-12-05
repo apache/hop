@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -34,12 +40,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.ini4j.Wini;
-
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * Read all Properties files (& INI files) , convert them to rows and writes these to one or more
@@ -84,11 +84,6 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       //
       data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
     }
-    Object[] r = null;
-
-    boolean sendToErrorRow = false;
-    String errorMessage = null;
-
     try {
       // Grab one row
       Object[] outputRowData = getOneRow();
@@ -100,14 +95,13 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       putRow(data.outputRowMeta, outputRowData); // copy row to output rowset(s)
 
       if (meta.getRowLimit() > 0
-          && data.rownr > meta.getRowLimit()) { // limit has been reached: stop now.
+          && data.rowNumber > meta.getRowLimit()) { // limit has been reached: stop now.
         setOutputDone();
         return false;
       }
     } catch (HopException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
-        errorMessage = e.toString();
+        putError(new RowMeta(), new Object[0], 1, e.toString(), null, "PropertyInput001");
       } else {
         logError(
             BaseMessages.getString(PKG, "PropertyInput.ErrorInTransformRunning", e.getMessage()));
@@ -116,17 +110,13 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, "PropertyInput001");
-      }
     }
     return true;
   }
 
   private void handleMissingFiles() throws HopException {
     List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
-    if (nonExistantFiles.size() != 0) {
+    if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
       logError(
           BaseMessages.getString(PKG, "PropertyInput.Log.RequiredFilesTitle"),
@@ -137,7 +127,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
     }
 
     List<FileObject> nonAccessibleFiles = data.files.getNonAccessibleFiles();
-    if (nonAccessibleFiles.size() != 0) {
+    if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
       logError(
           BaseMessages.getString(PKG, "PropertyInput.Log.RequiredFilesTitle"),
@@ -152,18 +142,18 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
   private Object[] getOneRow() throws HopException {
     try {
       if (meta.isFileField()) {
-        while ((data.readrow == null)
-            || ((data.propfiles && !data.it.hasNext())
-                || (!data.propfiles && !data.iniIt.hasNext()))) {
+        while ((data.inputRow == null)
+            || ((data.propFiles && !data.iterator.hasNext())
+                || (!data.propFiles && !data.iniNameIterator.hasNext()))) {
 
           // In case we read all sections
           // maybe we have to change section for ini files...
-          if (!data.propfiles
+          if (!data.propFiles
               && data.realSection == null
-              && data.readrow != null
-              && data.itSection.hasNext()) {
-            data.iniSection = data.wini.get(data.itSection.next().toString());
-            data.iniIt = data.iniSection.keySet().iterator();
+              && data.inputRow != null
+              && data.sectionNameIterator.hasNext()) {
+            data.iniSection = data.wini.get(data.sectionNameIterator.next().toString());
+            data.iniNameIterator = data.iniSection.keySet().iterator();
           } else {
             if (!openNextFile()) {
               return null;
@@ -172,16 +162,16 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         }
       } else {
         while ((data.file == null)
-            || ((data.propfiles && !data.it.hasNext())
-                || (!data.propfiles && !data.iniIt.hasNext()))) {
+            || ((data.propFiles && !data.iterator.hasNext())
+                || (!data.propFiles && !data.iniNameIterator.hasNext()))) {
           // In case we read all sections
           // maybe we have to change section for ini files...
-          if (!data.propfiles
+          if (!data.propFiles
               && data.realSection == null
               && data.file != null
-              && data.itSection.hasNext()) {
-            data.iniSection = data.wini.get(data.itSection.next().toString());
-            data.iniIt = data.iniSection.keySet().iterator();
+              && data.sectionNameIterator.hasNext()) {
+            data.iniSection = data.wini.get(data.sectionNameIterator.next());
+            data.iniNameIterator = data.iniSection.keySet().iterator();
           } else {
             if (!openNextFile()) {
               return null;
@@ -194,40 +184,43 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       return null;
     }
     // Build an empty row based on the meta-data
-    Object[] r = buildEmptyRow();
+    Object[] outputRow;
 
     // Create new row or clone
     if (meta.isFileField()) {
-      r = data.readrow.clone();
+      outputRow =
+          RowDataUtil.createResizedCopy(
+              getInputRowMeta().cloneRow(data.inputRow), data.outputRowMeta.size());
+    } else {
+      outputRow = RowDataUtil.allocateRowData(data.outputRowMeta.size());
     }
 
     try {
       String key = null;
-      if (data.propfiles) {
-        key = data.it.next().toString();
+      if (data.propFiles) {
+        key = data.iterator.next().toString();
       } else {
-        key = data.iniIt.next().toString();
+        key = data.iniNameIterator.next();
       }
 
       // Execute for each Input field...
-      for (int i = 0; i < meta.getInputFields().length; i++) {
+      for (int i = 0; i < meta.getInputFields().size(); i++) {
+        PropertyInputMeta.PIField field = meta.getInputFields().get(i);
         // Get field value
         String value = null;
 
-        if (meta.getInputFields()[i]
-            .getColumnCode()
-            .equals(PropertyInputField.ColumnCode[PropertyInputField.COLUMN_KEY])) {
+        if (field.getColumn() == PropertyInputMeta.KeyValue.KEY) {
           value = key;
         } else {
-          if (meta.isResolveValueVariable()) {
-            if (data.propfiles) {
-              value = resolve(data.pro.getProperty(key));
+          if (meta.isResolvingValueVariable()) {
+            if (data.propFiles) {
+              value = resolve(data.properties.getProperty(key));
             } else {
               value = resolve(data.iniSection.fetch(key)); // for INI files
             }
           } else {
-            if (data.propfiles) {
-              value = data.pro.getProperty(key);
+            if (data.propFiles) {
+              value = data.properties.getProperty(key);
             } else {
               value = data.iniSection.fetch(key); // for INI files
             }
@@ -235,95 +228,96 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         }
 
         // DO Trimming!
-        switch (meta.getInputFields()[i].getTrimType()) {
-          case PropertyInputField.TYPE_TRIM_LEFT:
-            value = Const.ltrim(value);
-            break;
-          case PropertyInputField.TYPE_TRIM_RIGHT:
-            value = Const.rtrim(value);
-            break;
-          case PropertyInputField.TYPE_TRIM_BOTH:
-            value = Const.trim(value);
-            break;
-          default:
-            break;
+        if (field.getTrimType() != null) {
+          switch (field.getTrimType()) {
+            case LEFT:
+              value = Const.ltrim(value);
+              break;
+            case RIGHT:
+              value = Const.rtrim(value);
+              break;
+            case BOTH:
+              value = Const.trim(value);
+              break;
+            default:
+              break;
+          }
         }
 
         if (meta.isFileField()) {
           // Add result field to input stream
-          r = RowDataUtil.addValueData(r, data.totalpreviousfields + i, value);
+          outputRow = RowDataUtil.addValueData(outputRow, data.totalPreviousFields + i, value);
         }
 
         // DO CONVERSIONS...
         //
-        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(data.totalpreviousfields + i);
-        IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta(data.totalpreviousfields + i);
-        r[data.totalpreviousfields + i] = targetValueMeta.convertData(sourceValueMeta, value);
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(data.totalPreviousFields + i);
+        IValueMeta sourceValueMeta = data.convertRowMeta.getValueMeta(data.totalPreviousFields + i);
+        outputRow[data.totalPreviousFields + i] =
+            targetValueMeta.convertData(sourceValueMeta, value);
 
         // Do we need to repeat this field if it is null?
-        if (meta.getInputFields()[i].isRepeated()) {
-          if (data.previousRow != null && Utils.isEmpty(value)) {
-            r[data.totalpreviousfields + i] = data.previousRow[data.totalpreviousfields + i];
-          }
+        if (field.isRepeating() && (data.previousRow != null && Utils.isEmpty(value))) {
+          outputRow[data.totalPreviousFields + i] = data.previousRow[data.totalPreviousFields + i];
         }
       } // End of loop over fields...
 
-      int rowIndex = meta.getInputFields().length;
+      int rowIndex = meta.getInputFields().size();
 
       // See if we need to add the filename to the row...
-      if (meta.includeFilename() && !Utils.isEmpty(meta.getFilenameField())) {
-        r[data.totalpreviousfields + rowIndex++] = data.filename;
+      if (meta.isIncludingFilename() && !Utils.isEmpty(meta.getFilenameField())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.filename;
       }
 
       // See if we need to add the row number to the row...
-      if (meta.includeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-        r[data.totalpreviousfields + rowIndex++] = Long.valueOf(data.rownr);
+      if (meta.isIncludeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.rowNumber;
       }
 
       // See if we need to add the section for INI files ...
-      if (meta.includeIniSection() && !Utils.isEmpty(meta.getINISectionField())) {
-        r[data.totalpreviousfields + rowIndex++] = resolve(data.iniSection.getName());
+      if (meta.isIncludeIniSection() && !Utils.isEmpty(meta.getIniSectionField())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = resolve(data.iniSection.getName());
       }
       // Possibly add short filename...
-      if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = data.shortFilename;
+      if (StringUtils.isNotEmpty(meta.getShortFileFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.shortFilename;
       }
       // Add Extension
-      if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = data.extension;
+      if (StringUtils.isNotEmpty(meta.getExtensionFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.extension;
       }
       // add path
-      if (meta.getPathField() != null && meta.getPathField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = data.path;
+      if (StringUtils.isNotEmpty(meta.getPathFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.path;
       }
       // Add Size
-      if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = Long.valueOf(data.size);
+      if (StringUtils.isNotEmpty(meta.getSizeFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.size;
       }
       // add Hidden
-      if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = Boolean.valueOf(data.hidden);
+      if (StringUtils.isNotEmpty(meta.getHiddenFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.hidden;
       }
       // Add modification date
-      if (meta.getLastModificationDateField() != null
-          && meta.getLastModificationDateField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = data.lastModificationDateTime;
+      if (StringUtils.isNotEmpty(meta.getLastModificationTimeFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.lastModificationDateTime;
       }
       // Add Uri
-      if (meta.getUriField() != null && meta.getUriField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = data.uriName;
+      if (StringUtils.isNotEmpty(meta.getUriNameFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex++] = data.uriName;
       }
       // Add RootUri
-      if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
-        r[data.totalpreviousfields + rowIndex++] = data.rootUriName;
+      if (StringUtils.isNotEmpty(meta.getRootUriNameFieldName())) {
+        outputRow[data.totalPreviousFields + rowIndex] = data.rootUriName;
       }
-      IRowMeta irow = getInputRowMeta();
+      IRowMeta inputRowMeta = getInputRowMeta();
 
-      data.previousRow = irow == null ? r : irow.cloneRow(r); // copy it to make
+      data.previousRow =
+          inputRowMeta == null ? outputRow : inputRowMeta.cloneRow(outputRow); // copy it to make
       // surely the next transform doesn't change it in between...
 
       incrementLinesInput();
-      data.rownr++;
+      data.rowNumber++;
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
@@ -331,14 +325,14 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
           e);
     }
 
-    return r;
+    return outputRow;
   }
 
   private boolean openNextFile() {
-    InputStream fis = null;
+    InputStream inputStream = null;
     try {
       if (!meta.isFileField()) {
-        if (data.filenr >= data.files.nrOfFiles()) { // finished processing!
+        if (data.fileNumber >= data.files.nrOfFiles()) { // finished processing!
 
           if (log.isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "PropertyInput.Log.FinishedProcessing"));
@@ -347,14 +341,14 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         }
 
         // Is this the last file?
-        data.last_file = (data.filenr == data.files.nrOfFiles() - 1);
-        data.file = data.files.getFile(data.filenr);
+        data.lastFile = (data.fileNumber == data.files.nrOfFiles() - 1);
+        data.file = data.files.getFile(data.fileNumber);
 
         // Move file pointer ahead!
-        data.filenr++;
+        data.fileNumber++;
       } else {
-        data.readrow = getRow(); // Get row from input rowset & set row busy!
-        if (data.readrow == null) {
+        data.inputRow = getRow(); // Get row from input rowset & set row busy!
+        if (data.inputRow == null) {
           if (log.isDetailed()) {
             logDetailed(BaseMessages.getString(PKG, "PropertyInput.Log.FinishedProcessing"));
           }
@@ -370,7 +364,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
               data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
           // Get total previous fields
-          data.totalpreviousfields = data.inputRowMeta.size();
+          data.totalPreviousFields = data.inputRowMeta.size();
 
           // Create convert meta-data objects that will contain Date & Number formatters
           data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
@@ -395,13 +389,13 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
               throw new HopException(
                   BaseMessages.getString(
                       PKG,
-                      "PropertyInput.Exception.CouldnotFindField",
+                      "PropertyInput.Exception.CouldNotFindField",
                       meta.getDynamicFilenameField()));
             }
           }
         } // End if first
 
-        String filename = getInputRowMeta().getString(data.readrow, data.indexOfFilenameField);
+        String filename = getInputRowMeta().getString(data.inputRow, data.indexOfFilenameField);
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
@@ -418,34 +412,33 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       // Check if file is empty
       data.filename = HopVfs.getFilename(data.file);
       // Add additional fields?
-      if (meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getShortFileFieldName())) {
         data.shortFilename = data.file.getName().getBaseName();
       }
-      if (meta.getPathField() != null && meta.getPathField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getPathFieldName())) {
         data.path = HopVfs.getFilename(data.file.getParent());
       }
-      if (meta.isHiddenField() != null && meta.isHiddenField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getHiddenFieldName())) {
         data.hidden = data.file.isHidden();
       }
-      if (meta.getExtensionField() != null && meta.getExtensionField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getExtensionFieldName())) {
         data.extension = data.file.getName().getExtension();
       }
-      if (meta.getLastModificationDateField() != null
-          && meta.getLastModificationDateField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getLastModificationTimeFieldName())) {
         data.lastModificationDateTime = new Date(data.file.getContent().getLastModifiedTime());
       }
-      if (meta.getUriField() != null && meta.getUriField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getUriNameFieldName())) {
         data.uriName = data.file.getName().getURI();
       }
-      if (meta.getRootUriField() != null && meta.getRootUriField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getRootUriNameFieldName())) {
         data.rootUriName = data.file.getName().getRootURI();
       }
-      if (meta.getSizeField() != null && meta.getSizeField().length() > 0) {
+      if (StringUtils.isNotEmpty(meta.getSizeFieldName())) {
         data.size = data.file.getContent().getSize();
       }
 
-      if (meta.resetRowNumber()) {
-        data.rownr = 0;
+      if (meta.isResettingRowNumber()) {
+        data.rowNumber = 0;
       }
 
       if (log.isDetailed()) {
@@ -453,7 +446,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
             BaseMessages.getString(PKG, "PropertyInput.Log.OpeningFile", data.file.toString()));
       }
 
-      if (meta.isAddResultFile()) {
+      if (meta.isAddResult()) {
         // Add this to the result file names...
         ResultFile resultFile =
             new ResultFile(
@@ -465,12 +458,12 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         addResultFile(resultFile);
       }
 
-      fis = data.file.getContent().getInputStream();
-      if (data.propfiles) {
+      inputStream = data.file.getContent().getInputStream();
+      if (data.propFiles) {
         // load properties file
-        data.pro = new Properties();
-        data.pro.load(fis);
-        data.it = data.pro.keySet().iterator();
+        data.properties = new Properties();
+        data.properties.load(inputStream);
+        data.iterator = data.properties.keySet().iterator();
       } else {
 
         // create wini object
@@ -480,7 +473,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         }
 
         // load INI file
-        data.wini.load(fis);
+        data.wini.load(inputStream);
 
         if (data.realSection != null) {
           // just one section
@@ -495,10 +488,10 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
           }
         } else {
           // We need to fetch all sections
-          data.itSection = data.wini.keySet().iterator();
-          data.iniSection = data.wini.get(data.itSection.next().toString());
+          data.sectionNameIterator = data.wini.keySet().iterator();
+          data.iniSection = data.wini.get(data.sectionNameIterator.next());
         }
-        data.iniIt = data.iniSection.keySet().iterator();
+        data.iniNameIterator = data.iniSection.keySet().iterator();
       }
 
       if (log.isDetailed()) {
@@ -508,7 +501,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
             BaseMessages.getString(
                 PKG,
                 "PropertyInput.log.TotalKey",
-                "" + (data.propfiles ? data.pro.size() : data.iniSection.size()),
+                "" + (data.propFiles ? data.properties.size() : data.iniSection.size()),
                 HopVfs.getFilename(data.file)));
       }
     } catch (Exception e) {
@@ -516,27 +509,16 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
           BaseMessages.getString(
               PKG,
               "PropertyInput.Log.UnableToOpenFile",
-              "" + data.filenr,
+              "" + data.fileNumber,
               data.file.toString(),
               e.toString()));
       stopAll();
       setErrors(1);
       return false;
     } finally {
-      BaseTransform.closeQuietly(fis);
+      BaseTransform.closeQuietly(inputStream);
     }
     return true;
-  }
-
-  /**
-   * Build an empty row based on the meta-data...
-   *
-   * @return
-   */
-  private Object[] buildEmptyRow() {
-    Object[] rowData = RowDataUtil.allocateRowData(data.outputRowMeta.size());
-
-    return rowData;
   }
 
   @Override
@@ -552,11 +534,9 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
       if (!Utils.isEmpty(realSection)) {
         data.realSection = realSection;
       }
-      data.propfiles =
-          (PropertyInputMeta.getFileTypeByDesc(meta.getFileType())
-              == PropertyInputMeta.FILE_TYPE_PROPERTY);
-      data.rownr = 1L;
-      data.totalpreviousfields = 0;
+      data.propFiles = meta.getFileType() == PropertyInputMeta.FileType.PROPERTY;
+      data.rowNumber = 1L;
+      data.totalPreviousFields = 0;
 
       return true;
     }
@@ -565,16 +545,15 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
 
   @Override
   public void dispose() {
-
-    if (data.readrow != null) {
-      data.readrow = null;
+    if (data.inputRow != null) {
+      data.inputRow = null;
     }
     if (data.iniSection != null) {
       data.iniSection.clear();
     }
     data.iniSection = null;
-    if (data.itSection != null) {
-      data.itSection = null;
+    if (data.sectionNameIterator != null) {
+      data.sectionNameIterator = null;
     }
     if (data.file != null) {
       try {

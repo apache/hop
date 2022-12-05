@@ -19,22 +19,6 @@ package org.apache.hop.core.row;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopEofException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.HopMetadataObject;
-import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
-import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
-import org.json.simple.JSONObject;
-import org.w3c.dom.Node;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -48,6 +32,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
+import org.json.simple.JSONObject;
+import org.w3c.dom.Node;
 
 /**
  * IValueMeta objects are used to determine the characteristics of the row fields. They are
@@ -277,29 +277,15 @@ public interface IValueMeta extends Cloneable {
     }
 
     public static String[] getDescriptions() {
-      String[] descriptions = new String[values().length];
-      for (int i = 0; i < descriptions.length; i++) {
-        descriptions[i] = values()[i].description;
-      }
-      return descriptions;
+      return IEnumHasCodeAndDescription.getDescriptions(TrimType.class);
     }
 
     public static TrimType lookupDescription(String description) {
-      for (TrimType value : values()) {
-        if (value.description.equals(description)) {
-          return value;
-        }
-      }
-      return NONE;
+      return IEnumHasCodeAndDescription.lookupDescription(TrimType.class, description, NONE);
     }
 
     public static TrimType lookupCode(String code) {
-      for (TrimType value : values()) {
-        if (value.code.equals(code)) {
-          return value;
-        }
-      }
-      return NONE;
+      return IEnumHasCode.lookupCode(TrimType.class, code, NONE);
     }
 
     public static TrimType lookupType(int type) {

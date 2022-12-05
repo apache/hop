@@ -38,45 +38,45 @@ import java.util.Map;
 import java.util.Properties;
 
 public class PropertyInputData extends BaseTransformData implements ITransformData {
-  public String thisline;
+  public String currentLine;
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;
   public Object[] previousRow;
-  public int nr_repeats;
+  public int repeatsCount;
 
-  public NumberFormat nf;
-  public DecimalFormat df;
-  public DecimalFormatSymbols dfs;
-  public SimpleDateFormat daf;
-  public DateFormatSymbols dafs;
+  public NumberFormat numberFormat;
+  public DecimalFormat decimalFormat;
+  public DecimalFormatSymbols decimalFormatSymbols;
+  public SimpleDateFormat simpleDateFormat;
+  public DateFormatSymbols dateFormatSymbols;
 
   public FileInputList files;
-  public boolean last_file;
+  public boolean lastFile;
   public FileObject file;
-  public int filenr;
+  public int fileNumber;
 
   public FileInputStream fr;
   public BufferedInputStream is;
-  public long rownr;
+  public long rowNumber;
   public Map<String, Object> rw;
   public IRowMeta inputRowMeta;
-  public int totalpreviousfields;
+  public int totalPreviousFields;
   public int indexOfFilenameField;
-  public Object[] readrow;
+  public Object[] inputRow;
 
   // Properties files
-  public Properties pro;
-  public Iterator<Object> it;
+  public Properties properties;
+  public Iterator<Object> iterator;
 
   // INI files
   public Section iniSection;
   public Wini wini;
-  public Iterator<String> itSection;
+  public Iterator<String> sectionNameIterator;
   public String realEncoding;
   public String realSection;
-  public Iterator<String> iniIt;
+  public Iterator<String> iniNameIterator;
 
-  public boolean propfiles;
+  public boolean propFiles;
 
   public String filename;
   public String shortFilename;
@@ -91,32 +91,32 @@ public class PropertyInputData extends BaseTransformData implements ITransformDa
   public PropertyInputData() {
     super();
     previousRow = null;
-    thisline = null;
-    nf = NumberFormat.getInstance();
-    df = (DecimalFormat) nf;
-    dfs = new DecimalFormatSymbols();
-    daf = new SimpleDateFormat();
-    dafs = new DateFormatSymbols();
+    currentLine = null;
+    numberFormat = NumberFormat.getInstance();
+    decimalFormat = (DecimalFormat) numberFormat;
+    decimalFormatSymbols = new DecimalFormatSymbols();
+    simpleDateFormat = new SimpleDateFormat();
+    dateFormatSymbols = new DateFormatSymbols();
 
-    nr_repeats = 0;
+    repeatsCount = 0;
     previousRow = null;
-    filenr = 0;
+    fileNumber = 0;
 
     fr = null;
     is = null;
     rw = null;
-    totalpreviousfields = 0;
+    totalPreviousFields = 0;
     indexOfFilenameField = -1;
-    readrow = null;
+    inputRow = null;
 
-    pro = null;
-    it = null;
+    properties = null;
+    iterator = null;
     iniSection = null;
     wini = null;
-    itSection = null;
+    sectionNameIterator = null;
     realEncoding = null;
     realSection = null;
-    propfiles = true;
-    iniIt = null;
+    propFiles = true;
+    iniNameIterator = null;
   }
 }

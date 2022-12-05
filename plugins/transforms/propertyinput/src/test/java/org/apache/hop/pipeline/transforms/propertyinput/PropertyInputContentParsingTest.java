@@ -17,6 +17,8 @@
 package org.apache.hop.pipeline.transforms.propertyinput;
 
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta.KeyValue;
+import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta.PIField;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -27,10 +29,10 @@ public class PropertyInputContentParsingTest extends BasePropertyParsingTest {
   public void testDefaultOptions() throws Exception {
     init("default.properties");
 
-    PropertyInputField f1 = new PropertyInputField("f1");
-    f1.setColumn(PropertyInputField.COLUMN_KEY);
-    PropertyInputField f2 = new PropertyInputField("f2");
-    f2.setColumn(PropertyInputField.COLUMN_VALUE);
+    PIField f1 = new PIField("f1");
+    f1.setColumn(KeyValue.KEY);
+    PIField f2 = new PIField("f2");
+    f2.setColumn(KeyValue.VALUE);
     setFields(f1, f2);
 
     process();
