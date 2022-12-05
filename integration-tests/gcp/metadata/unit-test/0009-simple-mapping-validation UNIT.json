@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "first",
+          "data_set_field": "first"
+        },
+        {
+          "transform_field": "last",
+          "data_set_field": "last"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        }
+      ],
+      "field_order": [
+        "first",
+        "last",
+        "name"
+      ],
+      "data_set_name": "golden-simple-mapping",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0009-simple-mapping-validation UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0009-simple-mapping-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
