@@ -149,7 +149,7 @@ public class GetTableNamesTest {
     setInternalState(getTableNamesData, "realIsSystemObjectFieldName", "Y");
 
     when(getTableNamesMeta.isIncludeView()).thenReturn(true);
-    when(getTableNamesMeta.isAddSchemaInOut()).thenReturn(includeSchema);
+    when(getTableNamesMeta.isAddSchemaInOutput()).thenReturn(includeSchema);
     when(database.getViews("schema", true)).thenReturn(getTableNamesWithSchema());
     when(database.getViews("schema", false)).thenReturn(getTableNamesWithoutSchema());
   }
@@ -162,7 +162,7 @@ public class GetTableNamesTest {
     setInternalState(getTableNamesData, "realIsSystemObjectFieldName", "Y");
 
     when(getTableNamesMeta.isIncludeTable()).thenReturn(true);
-    when(getTableNamesMeta.isAddSchemaInOut()).thenReturn(includeSchema);
+    when(getTableNamesMeta.isAddSchemaInOutput()).thenReturn(includeSchema);
     when(database.getTablenames("schema", true)).thenReturn(getTableNamesWithSchema());
     when(database.getTablenames("schema", false)).thenReturn(getTableNamesWithoutSchema());
     when(database.getCreateTableStatement(

@@ -23,6 +23,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -264,7 +265,7 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> {
     }
 
     try {
-      setSerializer(TransformerFactory.newInstance().newTransformer());
+      setSerializer(XmlHandler.createSecureTransformerFactory().newTransformer());
 
       setDomImplentation(
           XmlParserFactoryProducer.createSecureDocBuilderFactory()

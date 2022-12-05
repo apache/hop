@@ -1,0 +1,358 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0024-replace-in-string-parent</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2022/12/05 15:30:15.782</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2022/12/05 15:30:15.782</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>fields</from>
+      <to>0024-replace-in-string-child.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>0024-replace-in-string-child.hpl</from>
+      <to>Verify</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>0024-replace-in-string-child.hpl</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/0024-replace-in-string-child.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform>Output</source_transform>
+    <source_output_fields>
+      <source_output_field>
+        <source_output_field_name>strA</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>strB</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>strC</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>strD</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+    </source_output_fields>
+    <target_file/>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>N</no_execution>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>CASE_SENSITIVE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Case sensitive</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>USE_REGEX</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>use RegEx</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>EMPTY_STRING</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Set empty string?</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>FIELD_IN_STREAM</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>In stream field</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>REPLACE_STRING</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Search</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>REPLACE_WITH_FIELD</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Replace with field</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>REPLACE_WHOLE_WORD</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Whole Word</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>REPLACE_BY</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Replace with</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>IS_UNICODE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Is Unicode</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Replace in string</target_transform_name>
+        <target_attribute_key>FIELD_OUT_STREAM</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>fields</source_transform>
+        <source_field>Out stream field</source_field>
+      </mapping>
+    </mappings>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Verify</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>fields</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>strA</item>
+        <item/>
+        <item>0</item>
+        <item>HOP</item>
+        <item> Apache Hop </item>
+        <item>N</item>
+        <item/>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+      </line>
+      <line>
+        <item>strB</item>
+        <item/>
+        <item>1</item>
+        <item>\s*</item>
+        <item> </item>
+        <item>N</item>
+        <item/>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+      </line>
+      <line>
+        <item>strB</item>
+        <item/>
+        <item>1</item>
+        <item>^\s</item>
+        <item/>
+        <item>N</item>
+        <item/>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+      </line>
+      <line>
+        <item>strA</item>
+        <item/>
+        <item>1</item>
+        <item>\s</item>
+        <item/>
+        <item>N</item>
+        <item/>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+      </line>
+      <line>
+        <item>strC</item>
+        <item/>
+        <item>1</item>
+        <item>[cioksx]</item>
+        <item/>
+        <item>N</item>
+        <item/>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+      </line>
+      <line>
+        <item>strD</item>
+        <item/>
+        <item>1</item>
+        <item>[CIOKSX]</item>
+        <item/>
+        <item>N</item>
+        <item/>
+        <item>0</item>
+        <item>0</item>
+        <item>0</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>In stream field</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Out stream field</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>use RegEx</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Search</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Replace with</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Set empty string?</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Replace with field</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Whole Word</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Case sensitive</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>Is Unicode</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>112</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

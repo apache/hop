@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.replacestring;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -116,8 +118,7 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
     return getInputRowMeta().getString(row, data.replaceFieldIndex[index]);
   }
 
-  synchronized Object[] getOneRow(IRowMeta rowMeta, Object[] row) throws HopException {
-
+  synchronized Object[] handleOneRow(IRowMeta rowMeta, Object[] row) throws HopException {
     Object[] rowData = RowDataUtil.resizeArray(row, data.outputRowMeta.size());
     int index = 0;
     Set<Integer> numFieldsAlreadyBeenTransformed = new HashSet<>();
@@ -147,10 +148,10 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
 
   @Override
   public boolean processRow() throws HopException {
-
-    Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if (r == null) { // no more input to be expected...
-
+    Object[] r = getRow();
+    if (r == null) {
+      // There is no more input to be expected.
+      //
       setOutputDone();
       return false;
     }
@@ -163,7 +164,7 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
       data.inputFieldsNr = data.outputRowMeta.size();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      data.numFields = meta.getFieldInStream().length;
+      data.numFields = meta.getFields().size();
       data.inStreamNrs = new int[data.numFields];
       data.outStreamNrs = new String[data.numFields];
       data.patterns = new Pattern[data.numFields];
@@ -172,11 +173,12 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
       data.replaceFieldIndex = new int[data.numFields];
 
       for (int i = 0; i < data.numFields; i++) {
-        data.inStreamNrs[i] = getInputRowMeta().indexOfValue(meta.getFieldInStream()[i]);
+        ReplaceStringMeta.RSField field = meta.getFields().get(i);
+        data.inStreamNrs[i] = getInputRowMeta().indexOfValue(field.getFieldInStream());
         if (data.inStreamNrs[i] < 0) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "ReplaceString.Exception.FieldRequired", meta.getFieldInStream()[i]));
+                  PKG, "ReplaceString.Exception.FieldRequired", field.getFieldInStream()));
         }
 
         // check field type
@@ -184,48 +186,45 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
             != IValueMeta.TYPE_STRING) {
           throw new HopTransformException(
               BaseMessages.getString(
-                  PKG, "ReplaceString.Exception.FieldTypeNotString", meta.getFieldInStream()[i]));
+                  PKG, "ReplaceString.Exception.FieldTypeNotString", field.getFieldInStream()));
         }
 
-        data.outStreamNrs[i] = resolve(meta.getFieldOutStream()[i]);
+        data.outStreamNrs[i] = resolve(field.getFieldOutStream());
 
         data.patterns[i] =
             buildPattern(
-                meta.getUseRegEx()[i] != ReplaceStringMeta.USE_REGEX_YES,
-                meta.getCaseSensitive()[i] == ReplaceStringMeta.CASE_SENSITIVE_YES,
-                meta.getWholeWord()[i] == ReplaceStringMeta.WHOLE_WORD_YES,
-                resolve(meta.getReplaceString()[i]),
-                meta.isUnicode()[i] == ReplaceStringMeta.IS_UNICODE_YES);
+                !field.isUsingRegEx(),
+                field.isCaseSensitive(),
+                field.isReplacingWholeWord(),
+                resolve(field.getReplaceString()),
+                field.isUnicode());
 
-        String field = meta.getFieldReplaceByString()[i];
-        if (!Utils.isEmpty(field)) {
-          data.replaceFieldIndex[i] = getInputRowMeta().indexOfValue(field);
+        String replaceField = field.getReplaceFieldByString();
+        if (StringUtils.isNotEmpty(replaceField)) {
+          data.replaceFieldIndex[i] = getInputRowMeta().indexOfValue(replaceField);
           if (data.replaceFieldIndex[i] < 0) {
             throw new HopTransformException(
-                BaseMessages.getString(PKG, "ReplaceString.Exception.FieldRequired", field));
+                BaseMessages.getString(
+                    PKG, "ReplaceString.Exception.FieldRequired", field.getFieldInStream()));
           }
         } else {
           data.replaceFieldIndex[i] = -1;
-          data.replaceByString[i] = resolve(meta.getReplaceByString()[i]);
+          data.replaceByString[i] = Const.NVL(resolve(field.getReplaceByString()), "");
         }
-        data.setEmptyString[i] = meta.isSetEmptyString()[i];
+        data.setEmptyString[i] = field.isSettingEmptyString();
       }
     } // end if first
 
     try {
-      Object[] output = getOneRow(getInputRowMeta(), r);
+      Object[] output = handleOneRow(getInputRowMeta(), r);
       putRow(data.outputRowMeta, output);
 
       if (checkFeedback(getLinesRead()) && log.isDetailed()) {
         logDetailed(BaseMessages.getString(PKG, "ReplaceString.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
-      boolean sendToErrorRow = false;
-      String errorMessage = null;
-
       if (getTransformMeta().isDoingErrorHandling()) {
-        sendToErrorRow = true;
-        errorMessage = e.toString();
+        putError(getInputRowMeta(), r, 1, e.toString(), null, "ReplaceString001");
       } else {
         logError(BaseMessages.getString(PKG, "ReplaceString.Log.ErrorInTransform", e.getMessage()));
         setErrors(1);
@@ -233,22 +232,12 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
         setOutputDone(); // signal end to receiver(s)
         return false;
       }
-      if (sendToErrorRow) {
-        // Simply add this row to the error row
-        putError(getInputRowMeta(), r, 1, errorMessage, null, "ReplaceString001");
-      }
     }
     return true;
   }
 
   @Override
-  public boolean init() {
-    return super.init();
-  }
-
-  @Override
   public void dispose() {
-
     data.outStreamNrs = null;
     data.patterns = null;
     data.replaceByString = null;

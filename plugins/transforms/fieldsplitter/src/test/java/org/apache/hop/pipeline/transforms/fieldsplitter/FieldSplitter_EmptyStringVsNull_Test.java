@@ -17,9 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -32,10 +33,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.*;
+import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -94,7 +92,6 @@ public class FieldSplitter_EmptyStringVsNull_Test {
     f3.setName("s3");
     f3.setType("String");
     meta.getFields().addAll(List.of(f1, f2, f3));
-
 
     FieldSplitterData data = new FieldSplitterData();
 

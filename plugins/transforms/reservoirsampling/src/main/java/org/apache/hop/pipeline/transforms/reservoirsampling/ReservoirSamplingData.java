@@ -40,26 +40,26 @@ import java.util.Random;
 public class ReservoirSamplingData extends BaseTransformData implements ITransformData {
 
   // the output data format
-  protected IRowMeta mOutputRowMeta;
+  protected IRowMeta outputRowMeta;
 
   // holds the sampled rows
-  protected List<Object[]> m_sample = null;
+  protected List<Object[]> samples = null;
 
   // the size of the sample
-  protected int m_k;
+  protected int sampleSize;
 
   // the current row number
-  protected int m_currentRow;
+  protected int currentInputRow;
 
   // random number generator
-  protected Random m_random;
+  protected Random random;
 
   // state of processing
-  protected PROC_MODE m_state;
+  protected PROC_MODE state;
 
   public enum PROC_MODE {
     SAMPLING,
-    PASSTHROUGH,
+    PASS_THROUGH,
     DISABLED
   }
 
@@ -73,7 +73,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    * @param rmi a <code>IRowMeta</code> value
    */
   public void setOutputRowMeta(IRowMeta rmi) {
-    mOutputRowMeta = rmi;
+    outputRowMeta = rmi;
   }
 
   /**
@@ -82,7 +82,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    * @return a <code>IRowMeta</code> value
    */
   public IRowMeta getOutputRowMeta() {
-    return mOutputRowMeta;
+    return outputRowMeta;
   }
 
   /**
@@ -90,8 +90,8 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    *
    * @return the sampled rows
    */
-  public List<Object[]> getSample() {
-    return m_sample;
+  public List<Object[]> getSamples() {
+    return samples;
   }
 
   /**
@@ -101,23 +101,23 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    * @param seed the seed for the random number generator
    */
   public void initialize(int sampleSize, int seed) {
-    m_k = sampleSize;
+    this.sampleSize = sampleSize;
 
-    if (m_k == 0) {
-      m_state = PROC_MODE.PASSTHROUGH;
-    } else if (m_k < 0) {
-      m_state = PROC_MODE.DISABLED;
-    } else if (m_k > 0) {
-      m_state = PROC_MODE.SAMPLING;
+    if (this.sampleSize == 0) {
+      state = PROC_MODE.PASS_THROUGH;
+    } else if (this.sampleSize < 0) {
+      state = PROC_MODE.DISABLED;
+    } else {
+      state = PROC_MODE.SAMPLING;
     }
 
-    m_sample = (m_k > 0) ? new ArrayList<>(m_k) : new ArrayList<>();
-    m_currentRow = 0;
-    m_random = new Random(seed);
+    samples = (this.sampleSize > 0) ? new ArrayList<>(this.sampleSize) : new ArrayList<>();
+    currentInputRow = 0;
+    random = new Random(seed);
 
     // throw away the first 100 random numbers
     for (int i = 0; i < 100; i++) {
-      m_random.nextDouble();
+      random.nextDouble();
     }
   }
 
@@ -128,7 +128,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    * @return current operational state
    */
   public PROC_MODE getProcessingMode() {
-    return m_state;
+    return state;
   }
 
   /**
@@ -137,7 +137,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    * @param state member of PROC_MODE enumeration indicating the desired operational state
    */
   public void setProcessingMode(PROC_MODE state) {
-    this.m_state = state;
+    this.state = state;
   }
 
   /**
@@ -146,20 +146,20 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
    *
    * @param row an incoming row
    */
-  public void processRow(Object[] row) {
-    if (m_currentRow < m_k) {
+  public void addRowToSamples(Object[] row) {
+    if (currentInputRow < sampleSize) {
       // Fill sample size with first available data
-      setElement(m_sample, m_currentRow, row);
-    } else if (m_k > 0) {
+      setElement(samples, currentInputRow, row);
+    } else if (sampleSize > 0) {
       // Replace random positions within the sample
-      double r = m_random.nextDouble();
-      if (r < ((double) m_k / (double) m_currentRow)) {
-        r = m_random.nextDouble();
-        int replace = (int) (m_k * r);
-        setElement(m_sample, replace, row);
+      double r = random.nextDouble();
+      if (r < ((double) sampleSize / (double) currentInputRow)) {
+        r = random.nextDouble();
+        int replace = (int) (sampleSize * r);
+        setElement(samples, replace, row);
       }
     }
-    m_currentRow++;
+    currentInputRow++;
   }
 
   // brute force way of filling list when item index is out of range,
@@ -177,6 +177,6 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
   }
 
   public void cleanUp() {
-    m_sample = null;
+    samples = null;
   }
 }

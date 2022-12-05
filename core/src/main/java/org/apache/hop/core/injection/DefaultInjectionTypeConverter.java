@@ -50,7 +50,10 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public boolean string2booleanPrimitive(String v) {
-    return "Y".equalsIgnoreCase(v) || "Yes".equalsIgnoreCase(v) || "true".equalsIgnoreCase(v);
+    return "Y".equalsIgnoreCase(v)
+        || "Yes".equalsIgnoreCase(v)
+        || "true".equalsIgnoreCase(v)
+        || "1".equals(v);
   }
 
   @Override

@@ -21,16 +21,16 @@ package org.apache.hop.pipeline.transforms.concatfields;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class ConcatFieldsMetaTest {
 
-    @Test
-    public void testSerialization() throws Exception {
-        ConcatFieldsMeta meta = TransformSerializationTestUtil.testSerialization("/concat-fields-transform.xml",
-                ConcatFieldsMeta.class);
+  @Test
+  public void testSerialization() throws Exception {
+    ConcatFieldsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/concat-fields-transform.xml", ConcatFieldsMeta.class);
 
-        assertEquals(meta.getOutputFields().size(), 9);
-    }
-
+    assertEquals(meta.getOutputFields().size(), 9);
+  }
 }

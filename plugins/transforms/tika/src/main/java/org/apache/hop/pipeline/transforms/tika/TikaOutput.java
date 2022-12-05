@@ -35,6 +35,7 @@ import org.apache.tika.sax.ExpandedTitleContentHandler;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -123,6 +124,9 @@ public class TikaOutput {
       OutputStream output, String method, String encoding, boolean prettyPrint)
       throws TransformerConfigurationException {
     SAXTransformerFactory factory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+
     TransformerHandler handler = factory.newTransformerHandler();
     handler.getTransformer().setOutputProperty(OutputKeys.METHOD, method);
     handler.getTransformer().setOutputProperty(OutputKeys.INDENT, prettyPrint ? "yes" : "no");

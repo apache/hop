@@ -17,14 +17,13 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Utils;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Utils;
 
 /** Contains the base IRowSet class to help implement IRowSet variants. */
 abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {

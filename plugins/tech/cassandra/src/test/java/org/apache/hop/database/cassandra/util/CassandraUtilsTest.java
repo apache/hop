@@ -18,6 +18,9 @@
 package org.apache.hop.database.cassandra.util;
 
 import com.datastax.oss.driver.api.core.type.DataTypes;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.cassandra.cql3.functions.types.LocalDate;
 import org.apache.cassandra.dht.ByteOrderedPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
@@ -32,11 +35,9 @@ import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;

@@ -1,0 +1,32 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "rowNumber",
+          "data_set_field": "rowNumber"
+        },
+        {
+          "transform_field": "shortName",
+          "data_set_field": "shortName"
+        }
+      ],
+      "field_order": [
+        "rowNumber"
+      ],
+      "data_set_name": "golden-get-subfolder-names",
+      "transform_name": "validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0060-get-subfolder-names UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0060-get-subfolder-names.hpl",
+  "test_type": "UNIT_TEST"
+}

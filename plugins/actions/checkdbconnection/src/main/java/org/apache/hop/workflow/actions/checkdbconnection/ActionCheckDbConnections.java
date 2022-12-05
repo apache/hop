@@ -24,10 +24,10 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -37,8 +37,8 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /** This check db connections */
@@ -53,34 +53,12 @@ import java.util.List;
 public class ActionCheckDbConnections extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckDbConnections.class; // For Translator
 
-  private DatabaseMeta[] connections;
-
-  protected static final String[] unitTimeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeMilliSecond.Label"),
-        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeSecond.Label"),
-        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeMinute.Label"),
-        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeHour.Label"),
-      };
-  protected static final String[] unitTimeCode =
-      new String[] {"millisecond", "second", "minute", "hour"};
-
-  public static final int UNIT_TIME_MILLI_SECOND = 0;
-  public static final int UNIT_TIME_SECOND = 1;
-  public static final int UNIT_TIME_MINUTE = 2;
-  public static final int UNIT_TIME_HOUR = 3;
-
-  private String[] waitfors;
-  private int[] waittimes;
-
-  private long timeStart;
-  private long now;
+  @HopMetadataProperty(groupKey = "connections", key = "connection")
+  private List<CDConnection> connections;
 
   public ActionCheckDbConnections(String name) {
     super(name, "");
-    connections = null;
-    waitfors = null;
-    waittimes = null;
+    connections = new ArrayList<>();
   }
 
   public ActionCheckDbConnections() {
@@ -93,143 +71,22 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
     return je;
   }
 
-  public DatabaseMeta[] getConnections() {
-    return connections;
-  }
-
-  public void setConnections(DatabaseMeta[] connections) {
-    this.connections = connections;
-  }
-
-  public String[] getWaitfors() {
-    return waitfors;
-  }
-
-  public void setWaitfors(String[] waitfors) {
-    this.waitfors = waitfors;
-  }
-
-  public int[] getWaittimes() {
-    return waittimes;
-  }
-
-  public void setWaittimes(int[] waittimes) {
-    this.waittimes = waittimes;
-  }
-
-  public long getTimeStart() {
-    return timeStart;
-  }
-
-  public long getNow() {
-    return now;
-  }
-
-  private static String getWaitTimeCode(int i) {
-    if (i < 0 || i >= unitTimeCode.length) {
-      return unitTimeCode[0];
-    }
-    return unitTimeCode[i];
-  }
-
-  public static String getWaitTimeDesc(int i) {
-    if (i < 0 || i >= unitTimeDesc.length) {
-      return unitTimeDesc[0];
-    }
-    return unitTimeDesc[i];
-  }
-
-  public static int getWaitTimeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < unitTimeDesc.length; i++) {
-      if (unitTimeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getWaitTimeByCode(tt);
-  }
-
-  private static int getWaitTimeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < unitTimeCode.length; i++) {
-      if (unitTimeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(120);
-    xml.append(super.getXml());
-    xml.append("      <connections>").append(Const.CR);
-    if (connections != null) {
-      for (int i = 0; i < connections.length; i++) {
-        xml.append("        <connection>").append(Const.CR);
-        xml.append("          ")
-            .append(
-                XmlHandler.addTagValue(
-                    "name", connections[i] == null ? null : connections[i].getName()));
-        xml.append("          ").append(XmlHandler.addTagValue("waitfor", waitfors[i]));
-        xml.append("          ")
-            .append(XmlHandler.addTagValue("waittime", getWaitTimeCode(waittimes[i])));
-        xml.append("        </connection>").append(Const.CR);
-      }
-    }
-    xml.append("      </connections>").append(Const.CR);
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      Node fields = XmlHandler.getSubNode(entrynode, "connections");
-
-      // How many hosts?
-      int nrFields = XmlHandler.countNodes(fields, "connection");
-      connections = new DatabaseMeta[nrFields];
-      waitfors = new String[nrFields];
-      waittimes = new int[nrFields];
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "connection", i);
-        String dbname = XmlHandler.getTagValue(fnode, "name");
-        connections[i] = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-        waitfors[i] = XmlHandler.getTagValue(fnode, "waitfor");
-        waittimes[i] = getWaitTimeByCode(Const.NVL(XmlHandler.getTagValue(fnode, "waittime"), ""));
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG,
-              "ActionCheckDbConnections.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node",
-              xe.getMessage()));
-    }
-  }
-
-  @Override
-  public Result execute(Result previousResult, int nr) {
-    Result result = previousResult;
+  public Result execute(Result result, int nr) {
     result.setResult(true);
-    int nrerrors = 0;
-    int nrsuccess = 0;
+    int nrErrors = 0;
+    int nrSuccess = 0;
+
+    long timeStart;
+    long now;
 
     if (connections != null) {
-      for (int i = 0; i < connections.length && !parentWorkflow.isStopped(); i++) {
-        Database db = new Database(this, this, connections[i]);
-        try {
+      for (CDConnection connection : connections) {
+        if (parentWorkflow.isStopped()) {
+          break;
+        }
+        DatabaseMeta databaseMeta = connection.getDatabaseMeta();
+        try (Database db = new Database(this, this, databaseMeta)) {
           db.connect();
 
           if (isDetailed()) {
@@ -237,44 +94,23 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
                 BaseMessages.getString(
                     PKG,
                     "ActionCheckDbConnections.Connected",
-                    connections[i].getDatabaseName(),
-                    connections[i].getName()));
+                    databaseMeta.getDatabaseName(),
+                    databaseMeta.getName()));
           }
 
-          int iMaximumTimeout = Const.toInt(resolve(waitfors[i]), 0);
+          long iMaximumTimeout = Const.toLong(resolve(connection.getWaitTime()), 0L);
           if (iMaximumTimeout > 0) {
 
-            int multiple = 1;
-            String waitTimeMessage = unitTimeDesc[0];
-            switch (waittimes[i]) {
-              case ActionCheckDbConnections.UNIT_TIME_MILLI_SECOND:
-                multiple = 1;
-                waitTimeMessage = unitTimeDesc[0];
-                break;
-              case ActionCheckDbConnections.UNIT_TIME_SECOND:
-                multiple = 1000; // Second
-                waitTimeMessage = unitTimeDesc[1];
-                break;
-              case ActionCheckDbConnections.UNIT_TIME_MINUTE:
-                multiple = 60000; // Minute
-                waitTimeMessage = unitTimeDesc[2];
-                break;
-              case ActionCheckDbConnections.UNIT_TIME_HOUR:
-                multiple = 3600000; // Hour
-                waitTimeMessage = unitTimeDesc[3];
-                break;
-              default:
-                multiple = 1000; // Second
-                waitTimeMessage = unitTimeDesc[1];
-                break;
-            }
+            WaitTimeUnit timeUnit = connection.getWaitTimeUnit();
+            long multiple = timeUnit.getFactor();
+            String waitTimeMessage = connection.getWaitTimeUnit().getDescription();
             if (isDetailed()) {
               logDetailed(
                   BaseMessages.getString(
                       PKG, "ActionCheckDbConnections.Wait", "" + iMaximumTimeout, waitTimeMessage));
             }
 
-            // starttime (in seconds ,Minutes or Hours)
+            // The start time (in seconds ,Minutes or Hours)
             timeStart = System.currentTimeMillis();
 
             boolean continueLoop = true;
@@ -289,8 +125,8 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
                       BaseMessages.getString(
                           PKG,
                           "ActionCheckDbConnections.WaitTimeIsElapsed.Label",
-                          connections[i].getDatabaseName(),
-                          connections[i].getName()));
+                          databaseMeta.getDatabaseName(),
+                          databaseMeta.getName()));
                 }
 
                 continueLoop = false;
@@ -304,39 +140,30 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
             }
           }
 
-          nrsuccess++;
+          nrSuccess++;
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
                     PKG,
                     "ActionCheckDbConnections.ConnectionOK",
-                    connections[i].getDatabaseName(),
-                    connections[i].getName()));
+                    databaseMeta.getDatabaseName(),
+                    databaseMeta.getName()));
           }
         } catch (HopDatabaseException e) {
-          nrerrors++;
+          nrErrors++;
           logError(
               BaseMessages.getString(
                   PKG,
                   "ActionCheckDbConnections.Exception",
-                  connections[i].getDatabaseName(),
-                  connections[i].getName(),
+                  databaseMeta.getDatabaseName(),
+                  databaseMeta.getName(),
                   e.toString()));
-        } finally {
-          if (db != null) {
-            try {
-              db.disconnect();
-              db = null;
-            } catch (Exception e) {
-              /* Ignore */
-            }
-          }
         }
       }
     }
 
-    if (nrerrors > 0) {
-      result.setNrErrors(nrerrors);
+    if (nrErrors > 0) {
+      result.setNrErrors(nrErrors);
       result.setResult(false);
     }
 
@@ -344,10 +171,10 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
       logDetailed("=======================================");
       logDetailed(
           BaseMessages.getString(
-              PKG, "ActionCheckDbConnections.Log.Info.ConnectionsInError", "" + nrerrors));
+              PKG, "ActionCheckDbConnections.Log.Info.ConnectionsInError", "" + nrErrors));
       logDetailed(
           BaseMessages.getString(
-              PKG, "ActionCheckDbConnections.Log.Info.ConnectionsInSuccess", "" + nrsuccess));
+              PKG, "ActionCheckDbConnections.Log.Info.ConnectionsInSuccess", "" + nrSuccess));
       logDetailed("=======================================");
     }
 
@@ -361,26 +188,34 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
 
   @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    return connections;
+    List<DatabaseMeta> used = new ArrayList<>();
+    for (CDConnection connection : connections) {
+      if (connection.getDatabaseMeta() != null) {
+        used.add(connection.getDatabaseMeta());
+      }
+    }
+    return used.toArray(new DatabaseMeta[0]);
   }
 
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (connections != null) {
-      for (int i = 0; i < connections.length; i++) {
-        DatabaseMeta connection = connections[i];
+
+    for (CDConnection connection : connections) {
+      DatabaseMeta databaseMeta = connection.getDatabaseMeta();
+      if (databaseMeta != null) {
         ResourceReference reference = new ResourceReference(this);
         reference
             .getEntries()
-            .add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+            .add(new ResourceEntry(databaseMeta.getHostname(), ResourceType.SERVER));
         reference
             .getEntries()
-            .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+            .add(new ResourceEntry(databaseMeta.getDatabaseName(), ResourceType.DATABASENAME));
         references.add(reference);
       }
     }
+
     return references;
   }
 
@@ -402,5 +237,167 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
             "columnname",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
+  }
+
+  public enum WaitTimeUnit implements IEnumHasCodeAndDescription {
+    MILLISECOND(
+        "millisecond",
+        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeMilliSecond.Label"),
+        1L),
+    SECOND(
+        "second",
+        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeSecond.Label"),
+        1000L),
+    MINUTE(
+        "minute",
+        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeMinute.Label"),
+        60000L),
+    HOUR(
+        "hour",
+        BaseMessages.getString(PKG, "ActionCheckDbConnections.UnitTimeHour.Label"),
+        3600000L),
+    ;
+    private final String code;
+    private final String description;
+    private final long factor;
+
+    WaitTimeUnit(String code, String description, long factor) {
+      this.code = code;
+      this.description = description;
+      this.factor = factor;
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(WaitTimeUnit.class);
+    }
+
+    public static WaitTimeUnit lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(
+          WaitTimeUnit.class, description, MILLISECOND);
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    @Override
+    public String getDescription() {
+      return description;
+    }
+
+    /**
+     * Gets factor
+     *
+     * @return value of factor
+     */
+    public long getFactor() {
+      return factor;
+    }
+  }
+
+  public static final class CDConnection {
+    @HopMetadataProperty(key = "name", storeWithName = true)
+    private DatabaseMeta databaseMeta;
+
+    @HopMetadataProperty(key = "waitfor")
+    private String waitTime;
+
+    @HopMetadataProperty(key = "waittime", storeWithCode = true)
+    private WaitTimeUnit waitTimeUnit;
+
+    public CDConnection() {
+      waitTime = "200";
+      waitTimeUnit = WaitTimeUnit.MILLISECOND;
+    }
+
+    public CDConnection(CDConnection c) {
+      this();
+      this.databaseMeta = c.databaseMeta == null ? null : new DatabaseMeta(c.databaseMeta);
+      this.waitTime = c.waitTime;
+      this.waitTimeUnit = c.waitTimeUnit;
+    }
+
+    /**
+     * Gets connection
+     *
+     * @return value of connection
+     */
+    public DatabaseMeta getDatabaseMeta() {
+      return databaseMeta;
+    }
+
+    /**
+     * Sets connection
+     *
+     * @param databaseMeta value of connection
+     */
+    public void setDatabaseMeta(DatabaseMeta databaseMeta) {
+      this.databaseMeta = databaseMeta;
+    }
+
+    /**
+     * Gets waitTime
+     *
+     * @return value of waitTime
+     */
+    public String getWaitTime() {
+      return waitTime;
+    }
+
+    /**
+     * Sets waitTime
+     *
+     * @param waitTime value of waitTime
+     */
+    public void setWaitTime(String waitTime) {
+      this.waitTime = waitTime;
+    }
+
+    /**
+     * Gets waitTimeUnit
+     *
+     * @return value of waitTimeUnit
+     */
+    public WaitTimeUnit getWaitTimeUnit() {
+      return waitTimeUnit;
+    }
+
+    /**
+     * Sets waitTimeUnit
+     *
+     * @param waitTimeUnit value of waitTimeUnit
+     */
+    public void setWaitTimeUnit(WaitTimeUnit waitTimeUnit) {
+      this.waitTimeUnit = waitTimeUnit;
+    }
+  }
+
+  /**
+   * Gets connections
+   *
+   * @return value of connections
+   */
+  public List<CDConnection> getConnections() {
+    return connections;
+  }
+
+  /**
+   * Sets connections
+   *
+   * @param connections value of connections
+   */
+  public void setConnections(List<CDConnection> connections) {
+    this.connections = connections;
   }
 }

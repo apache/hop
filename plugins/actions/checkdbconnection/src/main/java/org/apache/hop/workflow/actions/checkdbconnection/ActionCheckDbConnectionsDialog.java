@@ -22,8 +22,10 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -150,14 +152,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fdbdSourceFileFolder.top = new FormAttachment(wbGetConnections, margin);
     wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
 
-    int rows =
-        action.getConnections() == null
-            ? 1
-            : (action.getConnections().length == 0 ? 0 : action.getConnections().length);
+    final int fieldsRows = action.getConnections().size();
 
-    final int FieldsRows = rows;
-
-    ColumnInfo[] colinf =
+    ColumnInfo[] columns =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Argument.Label"),
@@ -171,21 +168,21 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.WaitForTime.Label"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              ActionCheckDbConnections.unitTimeDesc,
+              ActionCheckDbConnections.WaitTimeUnit.getDescriptions(),
               false),
         };
 
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Column"));
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.WaitFor.ToolTip"));
+    columns[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.Fields.Column"));
+    columns[1].setUsingVariables(true);
+    columns[1].setToolTip(BaseMessages.getString(PKG, "ActionCheckDbConnections.WaitFor.ToolTip"));
 
     wFields =
         new TableView(
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            columns,
+            fieldsRows,
             lsMod,
             props);
 
@@ -221,7 +218,8 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     List<DatabaseMeta> databases = this.getWorkflowMeta().getDatabases();
     for (DatabaseMeta ci : databases) {
       if (ci != null) {
-        wFields.add(new String[] {ci.getName(), "0", ActionCheckDbConnections.unitTimeDesc[0]});
+        wFields.add(
+            ci.getName(), "0", ActionCheckDbConnections.WaitTimeUnit.MILLISECOND.getDescription());
       }
     }
     wFields.removeEmptyRows();
@@ -231,22 +229,19 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (action.getName() != null) {
-      wName.setText(action.getName());
-    }
+    wName.setText(Const.NVL(action.getName(), ""));
 
-    if (action.getConnections() != null) {
-      for (int i = 0; i < action.getConnections().length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (action.getConnections()[i] != null) {
-          ti.setText(1, action.getConnections()[i].getName());
-          ti.setText(2, "" + Const.toInt(action.getWaitfors()[i], 0));
-          ti.setText(3, ActionCheckDbConnections.getWaitTimeDesc(action.getWaittimes()[i]));
-        }
+    for (int i = 0; i < action.getConnections().size(); i++) {
+      ActionCheckDbConnections.CDConnection connection = action.getConnections().get(i);
+      TableItem ti = wFields.table.getItem(i);
+      if (connection.getDatabaseMeta() != null) {
+        ti.setText(1, Const.NVL(connection.getDatabaseMeta().getName(), ""));
+        ti.setText(2, Const.NVL(connection.getWaitTime(), ""));
+        ti.setText(3, connection.getWaitTimeUnit().getDescription());
       }
-      wFields.setRowNums();
-      wFields.optWidth(true);
     }
+    wFields.optimizeTableView();
+
     wName.selectAll();
     wName.setFocus();
   }
@@ -265,28 +260,31 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
       mb.open();
       return;
     }
-    action.setName(wName.getText());
 
-    int nrItems = wFields.nrNonEmpty();
+    try {
+      IHopMetadataSerializer<DatabaseMeta> serializer =
+          metadataProvider.getSerializer(DatabaseMeta.class);
 
-    DatabaseMeta[] connections = new DatabaseMeta[nrItems];
-    String[] waitfors = new String[nrItems];
-    int[] waittimes = new int[nrItems];
+      action.setName(wName.getText());
 
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      DatabaseMeta dbMeta = this.getWorkflowMeta().findDatabase(arg);
-      if (dbMeta != null) {
-        connections[i] = dbMeta;
-        waitfors[i] = "" + Const.toInt(wFields.getNonEmpty(i).getText(2), 0);
-        waittimes[i] =
-            ActionCheckDbConnections.getWaitTimeByDesc(wFields.getNonEmpty(i).getText(3));
+      action.getConnections().clear();
+      for (TableItem item : wFields.getNonEmptyItems()) {
+        DatabaseMeta databaseMeta = serializer.load(item.getText(1));
+        String waitTime = item.getText(2);
+        ActionCheckDbConnections.WaitTimeUnit unit =
+            ActionCheckDbConnections.WaitTimeUnit.lookupDescription(item.getText(3));
+
+        ActionCheckDbConnections.CDConnection connection =
+            new ActionCheckDbConnections.CDConnection();
+        connection.setDatabaseMeta(databaseMeta);
+        connection.setWaitTime(waitTime);
+        connection.setWaitTimeUnit(unit);
+        action.getConnections().add(connection);
       }
-    }
-    action.setConnections(connections);
-    action.setWaitfors(waitfors);
-    action.setWaittimes(waittimes);
 
-    dispose();
+      dispose();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting dialog information", e);
+    }
   }
 }

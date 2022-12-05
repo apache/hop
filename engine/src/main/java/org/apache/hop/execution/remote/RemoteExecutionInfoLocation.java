@@ -19,7 +19,6 @@
 package org.apache.hop.execution.remote;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
@@ -221,7 +220,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       URI uri =
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
-                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.ids.name())
+                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.IDS.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_CHILDREN, includeChildren ? "Y" : "N")
               .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(limit))
@@ -243,7 +242,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
-                  GetExecutionInfoServlet.Type.execution.name())
+                  GetExecutionInfoServlet.Type.EXECUTION.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .build();
@@ -262,7 +261,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       URI uri =
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
-                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.state.name())
+                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.STATE.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
               .build();
@@ -282,7 +281,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
-                  GetExecutionInfoServlet.Type.children.name())
+                  GetExecutionInfoServlet.Type.CHILDREN.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
               .build();
@@ -338,7 +337,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
       URI uri =
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
-                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.data.name())
+                  GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.DATA.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_PARENT_ID, parentExecutionId)
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
@@ -359,7 +358,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
-                  GetExecutionInfoServlet.Type.lastExecution.name())
+                  GetExecutionInfoServlet.Type.LAST_EXECUTION.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, executionType.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_NAME, name)
@@ -381,7 +380,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
-                  GetExecutionInfoServlet.Type.childIds.name())
+                  GetExecutionInfoServlet.Type.CHILD_IDS.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_EXEC_TYPE, parentExecutionType.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, parentExecutionId)
@@ -403,7 +402,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
           new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
               .addParameter(
                   GetExecutionInfoServlet.PARAMETER_TYPE,
-                  GetExecutionInfoServlet.Type.parentId.name())
+                  GetExecutionInfoServlet.Type.PARENT_ID.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, childId)
               .build();

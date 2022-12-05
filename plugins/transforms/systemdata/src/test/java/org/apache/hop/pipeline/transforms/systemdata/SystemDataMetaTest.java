@@ -20,8 +20,8 @@ package org.apache.hop.pipeline.transforms.systemdata;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -31,7 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
@@ -86,12 +85,11 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
   @Test
   public void testLoadXml() throws Exception {
     SystemDataMeta systemDataMeta = new SystemDataMeta();
-    DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilderFactory documentBuilderFactory =
+        XmlParserFactoryProducer.createSecureDocBuilderFactory();
     DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-    Document document = documentBuilder.parse(new InputSource(new StringReader(expectedXML)));
-    Node node = document;
-    IHopMetadataProvider store = null;
-    systemDataMeta.loadXml(node, store);
+    Node node = documentBuilder.parse(new InputSource(new StringReader(expectedXML)));
+    systemDataMeta.loadXml(node, null);
     assertEquals(expectedSystemDataMeta, systemDataMeta);
   }
 

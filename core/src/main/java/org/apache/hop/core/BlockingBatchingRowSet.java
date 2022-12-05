@@ -17,11 +17,10 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.row.IRowMeta;
 
 /**
  * Contains a buffer of rows. Instead of passing rows along the chain immediately we will batch them

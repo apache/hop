@@ -17,19 +17,6 @@
 
 package org.apache.hop.core;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang.text.StrBuilder;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.Variable;
-import org.apache.hop.core.variables.VariableScope;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.io.BufferedReader;
@@ -61,6 +48,18 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.text.StrBuilder;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.Variable;
+import org.apache.hop.core.variables.VariableScope;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * This class is used to define a number of default values for various settings throughout Hop. It
@@ -207,20 +206,23 @@ public class Const {
   /** Specifies the length (width) of fields in a number of pixels in dialog boxes. */
   public static final int LENGTH = 350;
 
-  /** The margin between the different dialog components & widgets.
-   * This method is deprecated. Please use PropsUi.getMargin() instead. */
-  @Deprecated
-  public static final int MARGIN = 4;
+  /**
+   * The margin between the different dialog components & widgets. This method is deprecated. Please
+   * use PropsUi.getMargin() instead.
+   */
+  @Deprecated public static final int MARGIN = 4;
 
-  /** The default percentage of the width of screen where we consider the middle of a dialog.
-   *  This method is deprecated. Please use PropsUi.getMiddlePct() instead.*/
-  @Deprecated
-  public static final int MIDDLE_PCT = 35;
+  /**
+   * The default percentage of the width of screen where we consider the middle of a dialog. This
+   * method is deprecated. Please use PropsUi.getMiddlePct() instead.
+   */
+  @Deprecated public static final int MIDDLE_PCT = 35;
 
-  /** The horizontal and vertical margin of a dialog box.
-   * This method is deprecated. Please use PropsUi.getFormMargin() instead.*/
-  @Deprecated
-  public static final int FORM_MARGIN = 5;
+  /**
+   * The horizontal and vertical margin of a dialog box. This method is deprecated. Please use
+   * PropsUi.getFormMargin() instead.
+   */
+  @Deprecated public static final int FORM_MARGIN = 5;
 
   /** The default locale for the hop environment (system defined) */
   public static final Locale DEFAULT_LOCALE = Locale.getDefault();
@@ -518,7 +520,9 @@ public class Const {
   }
 
   public static boolean toBoolean(String string) {
-    return "y".equalsIgnoreCase(string) || "true".equalsIgnoreCase(string);
+    return "y".equalsIgnoreCase(string)
+        || "yes".equalsIgnoreCase(string)
+        || "true".equalsIgnoreCase(string);
   }
 
   /**
@@ -899,10 +903,9 @@ public class Const {
           "This is the name of the variable which when set should contains the path to a file which will be included in the serialization of pipelines and workflows")
   public static final String HOP_LICENSE_HEADER_FILE = "HOP_LICENSE_HEADER_FILE";
 
-  /**
-   * The variable says Hop to consider nulls when parsing JSON files
-   */
-  @Variable(value = "Y",
+  /** The variable says Hop to consider nulls when parsing JSON files */
+  @Variable(
+      value = "Y",
       description =
           "Name of the variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included (default behavior) otherwise they will not be included")
   public static final String HOP_JSON_INPUT_INCLUDE_NULLS = "HOP_JSON_INPUT_INCLUDE_NULLS";

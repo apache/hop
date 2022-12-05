@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -199,7 +200,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
         data.useParameters = true;
       }
 
-      data.factory = TransformerFactory.newInstance();
+      data.factory = XmlHandler.createSecureTransformerFactory();
 
       if (meta.getXSLFactory().equals("SAXON")) {
         // Set the TransformerFactory to the SAXON implementation.

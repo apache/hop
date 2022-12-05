@@ -17,37 +17,28 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_ERROR;
 import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 
-@InjectionSupported(
-    localizationPrefix = "ReplaceString.Injection.",
-    groups = {"FIELDS"})
 @Transform(
     id = "ReplaceString",
     image = "replaceinstring.svg",
@@ -59,322 +50,26 @@ import static org.apache.hop.core.ICheckResult.TYPE_RESULT_OK;
 public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceStringData> {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
-  @Injection(name = "FIELD_IN_STREAM", group = "FIELDS")
-  private String[] fieldInStream;
-
-  @Injection(name = "FIELD_OUT_STREAM", group = "FIELDS")
-  private String[] fieldOutStream;
-
-  @Injection(name = "USE_REGEX", group = "FIELDS")
-  private int[] useRegEx;
-
-  @Injection(name = "REPLACE_STRING", group = "FIELDS")
-  private String[] replaceString;
-
-  @Injection(name = "REPLACE_BY", group = "FIELDS")
-  private String[] replaceByString;
-
-  /** Flag : set empty string */
-  @Injection(name = "EMPTY_STRING", group = "FIELDS")
-  private boolean[] setEmptyString;
-
-  @Injection(name = "REPLACE_WITH_FIELD", group = "FIELDS")
-  private String[] replaceFieldByString;
-
-  @Injection(name = "REPLACE_WHOLE_WORD", group = "FIELDS")
-  private int[] wholeWord;
-
-  @Injection(name = "CASE_SENSITIVE", group = "FIELDS")
-  private int[] caseSensitive;
-
-  @Injection(name = "IS_UNICODE", group = "FIELDS")
-  private int[] isUnicode;
-
-  protected static final String[] caseSensitiveCode = {"no", "yes"};
-
-  protected static final String[] isUnicodeCode = {"no", "yes"};
-
-  protected static final String[] caseSensitiveDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-
-  protected static final String[] isUnicodeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-
-  public static final int CASE_SENSITIVE_NO = 0;
-
-  public static final int CASE_SENSITIVE_YES = 1;
-
-  public static final int IS_UNICODE_NO = 0;
-
-  public static final int IS_UNICODE_YES = 1;
-
-  protected static final String[] wholeWordDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-
-  protected static final String[] wholeWordCode = {"no", "yes"};
-
-  public static final int WHOLE_WORD_NO = 0;
-
-  public static final int WHOLE_WORD_YES = 1;
-
-  protected static final String[] useRegExDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-
-  protected static final String[] useRegExCode = {"no", "yes"};
-
-  public static final int USE_REGEX_NO = 0;
-
-  public static final int USE_REGEX_YES = 1;
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "ReplaceString.Injection.FIELDS")
+  private List<RSField> fields;
 
   public ReplaceStringMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.fields = new ArrayList<>();
   }
 
-  /** @return Returns the fieldInStream. */
-  public String[] getFieldInStream() {
-    return fieldInStream;
-  }
-
-  /** @param keyStream The fieldInStream to set. */
-  public void setFieldInStream(String[] keyStream) {
-    this.fieldInStream = keyStream;
-  }
-
-  public int[] getCaseSensitive() {
-    return caseSensitive;
-  }
-
-  public int[] isUnicode() {
-    return isUnicode;
-  }
-
-  public int[] getWholeWord() {
-    return wholeWord;
-  }
-
-  public void setWholeWord(int[] wholeWord) {
-    this.wholeWord = wholeWord;
-  }
-
-  public int[] getUseRegEx() {
-    return useRegEx;
-  }
-
-  public void setUseRegEx(int[] useRegEx) {
-    this.useRegEx = useRegEx;
-  }
-
-  /** @return the setEmptyString */
-  public boolean[] isSetEmptyString() {
-    return setEmptyString;
-  }
-
-  /** @param setEmptyString the setEmptyString to set */
-  public void setEmptyString(boolean[] setEmptyString) {
-    this.setEmptyString = setEmptyString;
-  }
-
-  /** @return Returns the fieldOutStream. */
-  public String[] getFieldOutStream() {
-    return fieldOutStream;
-  }
-
-  /** @param keyStream The fieldOutStream to set. */
-  public void setFieldOutStream(String[] keyStream) {
-    this.fieldOutStream = keyStream;
-  }
-
-  public String[] getReplaceString() {
-    return replaceString;
-  }
-
-  public void setReplaceString(String[] replaceString) {
-    this.replaceString = replaceString;
-  }
-
-  public String[] getReplaceByString() {
-    return replaceByString;
-  }
-
-  public void setReplaceByString(String[] replaceByString) {
-    this.replaceByString = replaceByString;
-  }
-
-  public String[] getFieldReplaceByString() {
-    return replaceFieldByString;
-  }
-
-  public void setFieldReplaceByString(String[] replaceFieldByString) {
-    this.replaceFieldByString = replaceFieldByString;
-  }
-
-  public void setCaseSensitive(int[] caseSensitive) {
-    this.caseSensitive = caseSensitive;
-  }
-
-  public void setIsUnicode(int[] isUnicode) {
-    this.isUnicode = isUnicode;
+  public ReplaceStringMeta(ReplaceStringMeta m) {
+    this();
+    m.fields.forEach(f -> this.fields.add(new RSField(f)));
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
-  }
-
-  public void allocate(int nrkeys) {
-    fieldInStream = new String[nrkeys];
-    fieldOutStream = new String[nrkeys];
-    useRegEx = new int[nrkeys];
-    replaceString = new String[nrkeys];
-    replaceByString = new String[nrkeys];
-    setEmptyString = new boolean[nrkeys];
-    replaceFieldByString = new String[nrkeys];
-    wholeWord = new int[nrkeys];
-    caseSensitive = new int[nrkeys];
-    isUnicode = new int[nrkeys];
-  }
-
-  @Override
-  public Object clone() {
-    ReplaceStringMeta retval = (ReplaceStringMeta) super.clone();
-    int nrkeys = fieldInStream.length;
-
-    retval.allocate(nrkeys);
-
-    System.arraycopy(fieldInStream, 0, retval.fieldInStream, 0, nrkeys);
-    System.arraycopy(fieldOutStream, 0, retval.fieldOutStream, 0, nrkeys);
-    System.arraycopy(useRegEx, 0, retval.useRegEx, 0, nrkeys);
-    System.arraycopy(replaceString, 0, retval.replaceString, 0, nrkeys);
-    System.arraycopy(replaceByString, 0, retval.replaceByString, 0, nrkeys);
-    System.arraycopy(setEmptyString, 0, retval.setEmptyString, 0, nrkeys);
-    System.arraycopy(replaceFieldByString, 0, retval.replaceFieldByString, 0, nrkeys);
-    System.arraycopy(wholeWord, 0, retval.wholeWord, 0, nrkeys);
-    System.arraycopy(caseSensitive, 0, retval.caseSensitive, 0, nrkeys);
-    System.arraycopy(isUnicode, 0, retval.isUnicode, 0, nrkeys);
-    return retval;
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      int nrkeys;
-
-      Node lookup = XmlHandler.getSubNode(transformNode, "fields");
-      nrkeys = XmlHandler.countNodes(lookup, "field");
-
-      allocate(nrkeys);
-
-      for (int i = 0; i < nrkeys; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(lookup, "field", i);
-
-        fieldInStream[i] = Const.NVL(XmlHandler.getTagValue(fnode, "in_stream_name"), "");
-        fieldOutStream[i] = Const.NVL(XmlHandler.getTagValue(fnode, "out_stream_name"), "");
-        useRegEx[i] =
-            getCaseSensitiveByCode(Const.NVL(XmlHandler.getTagValue(fnode, "use_regex"), ""));
-        replaceString[i] = Const.NVL(XmlHandler.getTagValue(fnode, "replace_string"), "");
-        replaceByString[i] = Const.NVL(XmlHandler.getTagValue(fnode, "replace_by_string"), "");
-        String emptyString = XmlHandler.getTagValue(fnode, "set_empty_string");
-
-        setEmptyString[i] = !Utils.isEmpty(emptyString) && "Y".equalsIgnoreCase(emptyString);
-        replaceFieldByString[i] =
-            Const.NVL(XmlHandler.getTagValue(fnode, "replace_field_by_string"), "");
-        wholeWord[i] =
-            getWholeWordByCode(Const.NVL(XmlHandler.getTagValue(fnode, "whole_word"), ""));
-        caseSensitive[i] =
-            getCaseSensitiveByCode(Const.NVL(XmlHandler.getTagValue(fnode, "case_sensitive"), ""));
-        isUnicode[i] =
-            getIsUniCodeByCode(Const.NVL(XmlHandler.getTagValue(fnode, "is_unicode"), ""));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "ReplaceStringMeta.Exception.UnableToReadTransformMetaFromXML"),
-          e);
-    }
-  }
-
-  private static int getIsUniCodeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < isUnicodeCode.length; i++) {
-      if (isUnicodeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  @Override
-  public void setDefault() {
-    fieldInStream = null;
-    fieldOutStream = null;
-    int nrkeys = 0;
-
-    allocate(nrkeys);
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append("    <fields>").append(Const.CR);
-
-    for (int i = 0; i < fieldInStream.length; i++) {
-      retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("out_stream_name", fieldOutStream[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("use_regex", getUseRegExCode(useRegEx[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("replace_string", replaceString[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("replace_by_string", replaceByString[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("set_empty_string", setEmptyString[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("replace_field_by_string", replaceFieldByString[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("whole_word", getWholeWordCode(wholeWord[i])));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("case_sensitive", getCaseSensitiveCode(caseSensitive[i])));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("is_unicode", getIsUniCodeCode(isUnicode[i])));
-      retval.append("      </field>").append(Const.CR);
-    }
-
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  private static String getIsUniCodeCode(int i) {
-    if (i < 0 || i >= isUnicodeCode.length) {
-      return isUnicodeCode[0];
-    }
-    return isUnicodeCode[i];
+  public ReplaceStringMeta clone() {
+    return new ReplaceStringMeta(this);
   }
 
   @Override
@@ -384,24 +79,22 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
-    int nrFields = fieldInStream == null ? 0 : fieldInStream.length;
-    for (int i = 0; i < nrFields; i++) {
-      String fieldName = variables.resolve(fieldOutStream[i]);
+      IHopMetadataProvider metadataProvider) {
+    for (RSField field : fields) {
+      String fieldName = variables.resolve(field.getFieldOutStream());
       IValueMeta valueMeta;
-      if (!Utils.isEmpty(fieldOutStream[i])) {
+      if (!Utils.isEmpty(field.getFieldOutStream())) {
         // We have a new field
         valueMeta = new ValueMetaString(fieldName);
         valueMeta.setOrigin(name);
         // set encoding to new field from source field
-        IValueMeta sourceField = inputRowMeta.searchValueMeta(fieldInStream[i]);
+        IValueMeta sourceField = inputRowMeta.searchValueMeta(field.getFieldInStream());
         if (sourceField != null) {
           valueMeta.setStringEncoding(sourceField.getStringEncoding());
         }
         inputRowMeta.addValueMeta(valueMeta);
       } else {
-        valueMeta = inputRowMeta.searchValueMeta(fieldInStream[i]);
+        valueMeta = inputRowMeta.searchValueMeta(field.getFieldInStream());
         if (valueMeta == null) {
           continue;
         }
@@ -435,10 +128,10 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
       remarks.add(cr);
     } else {
 
-      for (int i = 0; i < fieldInStream.length; i++) {
-        String field = fieldInStream[i];
+      for (RSField field : fields) {
+        String fieldIn = field.getFieldInStream();
 
-        IValueMeta v = prev.searchValueMeta(field);
+        IValueMeta v = prev.searchValueMeta(fieldIn);
         if (v == null) {
           if (first) {
             first = false;
@@ -449,7 +142,7 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
                 .append(Const.CR);
           }
           errorFound = true;
-          errorMessage.append("\t\t").append(field).append(Const.CR);
+          errorMessage.append("\t\t").append(fieldIn).append(Const.CR);
         }
       }
       if (errorFound) {
@@ -466,10 +159,10 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
       // Check whether all are strings
       first = true;
       errorFound = false;
-      for (int i = 0; i < fieldInStream.length; i++) {
-        String field = fieldInStream[i];
+      for (RSField field : fields) {
+        String fieldIn = field.getFieldInStream();
 
-        IValueMeta v = prev.searchValueMeta(field);
+        IValueMeta v = prev.searchValueMeta(fieldIn);
         if (v != null && v.getType() != IValueMeta.TYPE_STRING) {
           if (first) {
             first = false;
@@ -480,7 +173,7 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
                 .append(Const.CR);
           }
           errorFound = true;
-          errorMessage.append("\t\t").append(field).append(Const.CR);
+          errorMessage.append("\t\t").append(fieldIn).append(Const.CR);
         }
       }
       if (errorFound) {
@@ -495,29 +188,33 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
       }
       remarks.add(cr);
 
-      if (fieldInStream.length > 0) {
-        for (int idx = 0; idx < fieldInStream.length; idx++) {
-          if (Utils.isEmpty(fieldInStream[idx])) {
-            cr =
-                new CheckResult(
-                    TYPE_RESULT_ERROR,
-                    BaseMessages.getString(
-                        PKG,
-                        "ReplaceStringMeta.CheckResult.InStreamFieldMissing",
-                        Integer.toString(idx + 1)),
-                    transforminfo);
-            remarks.add(cr);
-          }
+      int x = 0;
+      for (RSField field : fields) {
+        x++;
+        if (Utils.isEmpty(field.getFieldInStream())) {
+          cr =
+              new CheckResult(
+                  TYPE_RESULT_ERROR,
+                  BaseMessages.getString(
+                      PKG,
+                      "ReplaceStringMeta.CheckResult.InStreamFieldMissing",
+                      Integer.toString(x)),
+                  transforminfo);
+          remarks.add(cr);
         }
       }
 
       // Check if all input fields are distinct.
-      for (int idx = 0; idx < fieldInStream.length; idx++) {
-        for (int jdx = 0; jdx < fieldInStream.length; jdx++) {
-          if (fieldInStream[idx].equals(fieldInStream[jdx]) && idx != jdx && idx < jdx) {
+      for (int idx = 0; idx < fields.size(); idx++) {
+        for (int jdx = 0; jdx < fields.size(); jdx++) {
+          RSField field1 = fields.get(idx);
+          RSField field2 = fields.get(jdx);
+          if (field1.getFieldInStream().equals(field2.getFieldInStream()) && idx < jdx) {
             String errMessage =
                 BaseMessages.getString(
-                    PKG, "ReplaceStringMeta.CheckResult.FieldInputError", fieldInStream[idx]);
+                    PKG,
+                    "ReplaceStringMeta.CheckResult.FieldInputError",
+                    field1.getFieldInStream());
             cr = new CheckResult(TYPE_RESULT_ERROR, errMessage, transforminfo);
             remarks.add(cr);
           }
@@ -531,193 +228,279 @@ public class ReplaceStringMeta extends BaseTransformMeta<ReplaceString, ReplaceS
     return true;
   }
 
-  private static String getCaseSensitiveCode(int i) {
-    if (i < 0 || i >= caseSensitiveCode.length) {
-      return caseSensitiveCode[0];
-    }
-    return caseSensitiveCode[i];
-  }
+  public static final class RSField {
+    @HopMetadataProperty(
+        key = "in_stream_name",
+        injectionKey = "FIELD_IN_STREAM",
+        injectionKeyDescription = "ReplaceString.Injection.FIELD_IN_STREAM")
+    private String fieldInStream;
 
-  private static String getWholeWordCode(int i) {
-    if (i < 0 || i >= wholeWordCode.length) {
-      return wholeWordCode[0];
-    }
-    return wholeWordCode[i];
-  }
+    @HopMetadataProperty(
+        key = "out_stream_name",
+        injectionKey = "FIELD_OUT_STREAM",
+        injectionKeyDescription = "ReplaceString.Injection.FIELD_OUT_STREAM")
+    private String fieldOutStream;
 
-  private static String getUseRegExCode(int i) {
-    if (i < 0 || i >= useRegExCode.length) {
-      return useRegExCode[0];
-    }
-    return useRegExCode[i];
-  }
+    @HopMetadataProperty(
+        key = "use_regex",
+        injectionKey = "USE_REGEX",
+        injectionKeyDescription = "ReplaceString.Injection.USE_REGEX")
+    private boolean usingRegEx;
 
-  public static String getCaseSensitiveDesc(int i) {
-    if (i < 0 || i >= caseSensitiveDesc.length) {
-      return caseSensitiveDesc[0];
-    }
-    return caseSensitiveDesc[i];
-  }
+    @HopMetadataProperty(
+        key = "replace_string",
+        injectionKey = "REPLACE_STRING",
+        injectionKeyDescription = "ReplaceString.Injection.REPLACE_STRING")
+    private String replaceString;
 
-  public static String getIsUnicodeDesc(int i) {
-    if (i < 0 || i >= isUnicodeDesc.length) {
-      return isUnicodeDesc[0];
-    }
-    return isUnicodeDesc[i];
-  }
+    @HopMetadataProperty(
+        key = "replace_by_string",
+        injectionKey = "REPLACE_BY",
+        injectionKeyDescription = "ReplaceString.Injection.REPLACE_BY")
+    private String replaceByString;
 
-  public static String getWholeWordDesc(int i) {
-    if (i < 0 || i >= wholeWordDesc.length) {
-      return wholeWordDesc[0];
-    }
-    return wholeWordDesc[i];
-  }
+    @HopMetadataProperty(
+        key = "set_empty_string",
+        injectionKey = "EMPTY_STRING",
+        injectionKeyDescription = "ReplaceString.Injection.EMPTY_STRING")
+    private boolean settingEmptyString;
 
-  public static String getUseRegExDesc(int i) {
-    if (i < 0 || i >= useRegExDesc.length) {
-      return useRegExDesc[0];
-    }
-    return useRegExDesc[i];
-  }
+    @HopMetadataProperty(
+        key = "replace_field_by_string",
+        injectionKey = "REPLACE_WITH_FIELD",
+        injectionKeyDescription = "ReplaceString.Injection.REPLACE_WITH_FIELD")
+    private String replaceFieldByString;
 
-  private static int getCaseSensitiveByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
+    @HopMetadataProperty(
+        key = "whole_word",
+        injectionKey = "REPLACE_WHOLE_WORD",
+        injectionKeyDescription = "ReplaceString.Injection.REPLACE_WHOLE_WORD")
+    private boolean replacingWholeWord;
 
-    for (int i = 0; i < caseSensitiveCode.length; i++) {
-      if (caseSensitiveCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
+    @HopMetadataProperty(
+        key = "case_sensitive",
+        injectionKey = "CASE_SENSITIVE",
+        injectionKeyDescription = "ReplaceString.Injection.CASE_SENSITIVE")
+    private boolean caseSensitive;
 
-  private static int getWholeWordByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
+    @HopMetadataProperty(
+        key = "is_unicode",
+        injectionKey = "IS_UNICODE",
+        injectionKeyDescription = "ReplaceString.Injection.IS_UNICODE")
+    private boolean unicode;
 
-    for (int i = 0; i < wholeWordCode.length; i++) {
-      if (wholeWordCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
+    public RSField() {}
 
-  private static int getRegExByCode(String tt) {
-    if (tt == null) {
-      return 0;
+    public RSField(RSField f) {
+      this();
+      this.fieldInStream = f.fieldInStream;
+      this.fieldOutStream = f.fieldOutStream;
+      this.usingRegEx = f.usingRegEx;
+      this.replaceString = f.replaceString;
+      this.replaceByString = f.replaceByString;
+      this.settingEmptyString = f.settingEmptyString;
+      this.replaceFieldByString = f.replaceFieldByString;
+      this.replacingWholeWord = f.replacingWholeWord;
+      this.caseSensitive = f.caseSensitive;
+      this.unicode = f.unicode;
     }
 
-    for (int i = 0; i < useRegExCode.length; i++) {
-      if (useRegExCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static int getCaseSensitiveByDesc(String tt) {
-    if (tt == null) {
-      return 0;
+    /**
+     * Gets fieldInStream
+     *
+     * @return value of fieldInStream
+     */
+    public String getFieldInStream() {
+      return fieldInStream;
     }
 
-    for (int i = 0; i < caseSensitiveDesc.length; i++) {
-      if (caseSensitiveDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
+    /**
+     * Sets fieldInStream
+     *
+     * @param fieldInStream value of fieldInStream
+     */
+    public void setFieldInStream(String fieldInStream) {
+      this.fieldInStream = fieldInStream;
     }
 
-    // If this fails, try to match using the code.
-    return getCaseSensitiveByCode(tt);
-  }
-
-  public static int getIsUnicodeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
+    /**
+     * Gets fieldOutStream
+     *
+     * @return value of fieldOutStream
+     */
+    public String getFieldOutStream() {
+      return fieldOutStream;
     }
 
-    for (int i = 0; i < isUnicodeDesc.length; i++) {
-      if (isUnicodeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
+    /**
+     * Sets fieldOutStream
+     *
+     * @param fieldOutStream value of fieldOutStream
+     */
+    public void setFieldOutStream(String fieldOutStream) {
+      this.fieldOutStream = fieldOutStream;
     }
 
-    // If this fails, try to match using the code.
-    return getIsUniCodeByCode(tt);
-  }
-
-  public static int getWholeWordByDesc(String tt) {
-    if (tt == null) {
-      return 0;
+    /**
+     * Gets usingRegEx
+     *
+     * @return value of usingRegEx
+     */
+    public boolean isUsingRegEx() {
+      return usingRegEx;
     }
 
-    for (int i = 0; i < wholeWordDesc.length; i++) {
-      if (wholeWordDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
+    /**
+     * Sets usingRegEx
+     *
+     * @param usingRegEx value of usingRegEx
+     */
+    public void setUsingRegEx(boolean usingRegEx) {
+      this.usingRegEx = usingRegEx;
     }
 
-    // If this fails, try to match using the code.
-    return getWholeWordByCode(tt);
-  }
-
-  public static int getUseRegExByDesc(String tt) {
-    if (tt == null) {
-      return 0;
+    /**
+     * Gets replaceString
+     *
+     * @return value of replaceString
+     */
+    public String getReplaceString() {
+      return replaceString;
     }
 
-    for (int i = 0; i < useRegExDesc.length; i++) {
-      if (useRegExDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
+    /**
+     * Sets replaceString
+     *
+     * @param replaceString value of replaceString
+     */
+    public void setReplaceString(String replaceString) {
+      this.replaceString = replaceString;
     }
 
-    // If this fails, try to match using the code.
-    return getRegExByCode(tt);
-  }
+    /**
+     * Gets replaceByString
+     *
+     * @return value of replaceByString
+     */
+    public String getReplaceByString() {
+      return replaceByString;
+    }
 
-  private void nullToEmpty(String[] strings) {
-    for (int i = 0; i < strings.length; i++) {
-      if (strings[i] == null) {
-        strings[i] = StringUtils.EMPTY;
-      }
+    /**
+     * Sets replaceByString
+     *
+     * @param replaceByString value of replaceByString
+     */
+    public void setReplaceByString(String replaceByString) {
+      this.replaceByString = replaceByString;
+    }
+
+    /**
+     * Gets settingEmptyString
+     *
+     * @return value of settingEmptyString
+     */
+    public boolean isSettingEmptyString() {
+      return settingEmptyString;
+    }
+
+    /**
+     * Sets settingEmptyString
+     *
+     * @param settingEmptyString value of settingEmptyString
+     */
+    public void setSettingEmptyString(boolean settingEmptyString) {
+      this.settingEmptyString = settingEmptyString;
+    }
+
+    /**
+     * Gets replaceFieldByString
+     *
+     * @return value of replaceFieldByString
+     */
+    public String getReplaceFieldByString() {
+      return replaceFieldByString;
+    }
+
+    /**
+     * Sets replaceFieldByString
+     *
+     * @param replaceFieldByString value of replaceFieldByString
+     */
+    public void setReplaceFieldByString(String replaceFieldByString) {
+      this.replaceFieldByString = replaceFieldByString;
+    }
+
+    /**
+     * Gets replacingWholeWord
+     *
+     * @return value of replacingWholeWord
+     */
+    public boolean isReplacingWholeWord() {
+      return replacingWholeWord;
+    }
+
+    /**
+     * Sets replacingWholeWord
+     *
+     * @param replacingWholeWord value of replacingWholeWord
+     */
+    public void setReplacingWholeWord(boolean replacingWholeWord) {
+      this.replacingWholeWord = replacingWholeWord;
+    }
+
+    /**
+     * Gets caseSensitive
+     *
+     * @return value of caseSensitive
+     */
+    public boolean isCaseSensitive() {
+      return caseSensitive;
+    }
+
+    /**
+     * Sets caseSensitive
+     *
+     * @param caseSensitive value of caseSensitive
+     */
+    public void setCaseSensitive(boolean caseSensitive) {
+      this.caseSensitive = caseSensitive;
+    }
+
+    /**
+     * Gets unicode
+     *
+     * @return value of unicode
+     */
+    public boolean isUnicode() {
+      return unicode;
+    }
+
+    /**
+     * Sets unicode
+     *
+     * @param unicode value of unicode
+     */
+    public void setUnicode(boolean unicode) {
+      this.unicode = unicode;
     }
   }
 
   /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
+   * Gets fields
+   *
+   * @return value of fields
    */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    int nrFields = (fieldInStream == null) ? -1 : fieldInStream.length;
-    if (nrFields <= 0) {
-      return;
-    }
-    String[][] rtnStringArrays =
-        Utils.normalizeArrays(
-            nrFields, fieldOutStream, replaceString, replaceByString, replaceFieldByString);
-    fieldOutStream = rtnStringArrays[0];
-    replaceString = rtnStringArrays[1];
-    replaceByString = rtnStringArrays[2];
-    replaceFieldByString = rtnStringArrays[3];
+  public List<RSField> getFields() {
+    return fields;
+  }
 
-    nullToEmpty(fieldOutStream);
-    nullToEmpty(replaceString);
-    nullToEmpty(replaceByString);
-    nullToEmpty(replaceFieldByString);
-
-    int[][] rtnIntArrays =
-        Utils.normalizeArrays(nrFields, useRegEx, wholeWord, caseSensitive, isUnicode);
-    useRegEx = rtnIntArrays[0];
-    wholeWord = rtnIntArrays[1];
-    caseSensitive = rtnIntArrays[2];
-    isUnicode = rtnIntArrays[3];
-
-    boolean[][] rtnBooleanArrays = Utils.normalizeArrays(nrFields, setEmptyString);
-    setEmptyString = rtnBooleanArrays[0];
+  /**
+   * Sets fields
+   *
+   * @param fields value of fields
+   */
+  public void setFields(List<RSField> fields) {
+    this.fields = fields;
   }
 }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -25,7 +26,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -39,11 +39,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -76,7 +71,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
 
   public ExecProcessDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
+    super(parent, variables, (ExecProcessMeta) in, pipelineMeta, sname);
     input = (ExecProcessMeta) in;
   }
 
@@ -88,10 +83,6 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod = e -> input.setChanged();
-
-    changed = input.hasChanged();
-
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
@@ -100,7 +91,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     shell.setText(BaseMessages.getString(PKG, "ExecProcessDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
@@ -123,7 +114,6 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
@@ -163,25 +153,19 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wProcess = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY);
     wProcess.setEditable(true);
     PropsUi.setLook(wProcess);
-    wProcess.addModifyListener(lsMod);
     FormData fdProcess = new FormData();
     fdProcess.left = new FormAttachment(middle, 0);
     fdProcess.top = new FormAttachment(wTransformName, margin);
     fdProcess.right = new FormAttachment(100, -margin);
     wProcess.setLayoutData(fdProcess);
-    wProcess.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            get();
-            shell.setCursor(null);
-            busy.dispose();
-          }
+    wProcess.addListener(
+        SWT.FocusIn,
+        e -> {
+          Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+          shell.setCursor(busy);
+          get();
+          shell.setCursor(null);
+          busy.dispose();
         });
 
     // Command Arguments are in separate fields
@@ -203,14 +187,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     fdArgumentsInFields.top = new FormAttachment(wlArgumentsInFields, 0, SWT.CENTER);
     fdArgumentsInFields.right = new FormAttachment(100, 0);
     wArgumentsInFields.setLayoutData(fdArgumentsInFields);
-    wArgumentsInFields.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            enableFields();
-            input.setChanged();
-          }
-        });
+    wArgumentsInFields.addListener(SWT.Selection, e -> enableFields());
 
     // Fail when status is different than 0
     Label wlFailWhenNotSuccess = new Label(wGeneralComp, SWT.RIGHT);
@@ -231,13 +208,6 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     fdFailWhenNotSuccess.top = new FormAttachment(wlFailWhenNotSuccess, 0, SWT.CENTER);
     fdFailWhenNotSuccess.right = new FormAttachment(100, 0);
     wFailWhenNotSuccess.setLayoutData(fdFailWhenNotSuccess);
-    wFailWhenNotSuccess.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
 
     // List of Argument Fields when ArgumentsInFields is enabled
     Label wlArgumentFields = new Label(wGeneralComp, SWT.LEFT);
@@ -248,22 +218,22 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     fdlArgumentFields.top = new FormAttachment(wFailWhenNotSuccess, margin);
     fdlArgumentFields.right = new FormAttachment(middle, -margin);
     wlArgumentFields.setLayoutData(fdlArgumentFields);
-    ColumnInfo[] colinf = new ColumnInfo[1];
-    colinf[0] =
+    ColumnInfo[] columns = new ColumnInfo[1];
+    columns[0] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ExecProcessDialog.ArgumentField.Label"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "ExecProcessDialog.ArgumentField.Tooltip"));
+    columns[0].setToolTip(BaseMessages.getString(PKG, "ExecProcessDialog.ArgumentField.Tooltip"));
     wArgumentFields =
         new TableView(
             null,
             wGeneralComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            1,
-            lsMod,
+            columns,
+            input.getArgumentFields().size(),
+            null,
             props);
     FormData fdArgumentFields = new FormData();
     fdArgumentFields.left = new FormAttachment(0, 0);
@@ -310,14 +280,13 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ExecProcessDialog.OutputDelimiterField.Label"),
             BaseMessages.getString(PKG, "ExecProcessDialog.OutputDelimiterField.Tooltip"));
-    wOutputDelim.addModifyListener(lsMod);
     FormData fdOutputDelim = new FormData();
     fdOutputDelim.left = new FormAttachment(0, 0);
     fdOutputDelim.top = new FormAttachment(0, margin);
     fdOutputDelim.right = new FormAttachment(100, 0);
     wOutputDelim.setLayoutData(fdOutputDelim);
 
-    // Result fieldname ...
+    // Result field name ...
     wResult =
         new LabelTextVar(
             variables,
@@ -325,14 +294,13 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ExecProcessDialog.ResultField.Label"),
             BaseMessages.getString(PKG, "ExecProcessDialog.ResultField.Tooltip"));
-    wResult.addModifyListener(lsMod);
     FormData fdResult = new FormData();
     fdResult.left = new FormAttachment(0, 0);
     fdResult.top = new FormAttachment(wOutputDelim, margin);
     fdResult.right = new FormAttachment(100, 0);
     wResult.setLayoutData(fdResult);
 
-    // Error fieldname ...
+    // Error field name ...
     wError =
         new LabelTextVar(
             variables,
@@ -340,14 +308,13 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ExecProcessDialog.ErrorField.Label"),
             BaseMessages.getString(PKG, "ExecProcessDialog.ErrorField.Tooltip"));
-    wError.addModifyListener(lsMod);
     FormData fdError = new FormData();
     fdError.left = new FormAttachment(0, 0);
     fdError.top = new FormAttachment(wResult, margin);
     fdError.right = new FormAttachment(100, 0);
     wError.setLayoutData(fdError);
 
-    // ExitValue fieldname ...
+    // Exit Value field name ...
     wExitValue =
         new LabelTextVar(
             variables,
@@ -355,7 +322,6 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ExecProcessDialog.ExitValueField.Label"),
             BaseMessages.getString(PKG, "ExecProcessDialog.ExitValueField.Tooltip"));
-    wExitValue.addModifyListener(lsMod);
     FormData fdExitValue = new FormData();
     fdExitValue.left = new FormAttachment(0, 0);
     fdExitValue.top = new FormAttachment(wError, margin);
@@ -414,34 +380,20 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
       logDebug(BaseMessages.getString(PKG, "ExecProcessDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getProcessField() != null) {
-      wProcess.setText(input.getProcessField());
-    }
-    if (input.getResultFieldName() != null) {
-      wResult.setText(input.getResultFieldName());
-    }
-    if (input.getErrorFieldName() != null) {
-      wError.setText(input.getErrorFieldName());
-    }
-    if (input.getExitValueFieldName() != null) {
-      wExitValue.setText(input.getExitValueFieldName());
-    }
-    if (input.getOutputLineDelimiter() != null) {
-      wOutputDelim.setText(input.getOutputLineDelimiter());
-    }
+    wProcess.setText(Const.NVL(input.getProcessField(), ""));
+    wResult.setText(Const.NVL(input.getResultFieldName(), ""));
+    wError.setText(Const.NVL(input.getErrorFieldName(), ""));
+    wExitValue.setText(Const.NVL(input.getExitValueFieldName(), ""));
+    wOutputDelim.setText(Const.NVL(input.getOutputLineDelimiter(), ""));
     wFailWhenNotSuccess.setSelection(input.isFailWhenNotSuccess());
     wArgumentsInFields.setSelection(input.isArgumentsInFields());
-    int nrRows = input.getArgumentFieldNames().length;
-    if (nrRows <= 0) {
-      wArgumentFields.getTable().setItemCount(1);
-    } else {
-      wArgumentFields.getTable().setItemCount(nrRows);
-      for (int i = 0; i < input.getArgumentFieldNames().length; i++) {
-        TableItem item = wArgumentFields.getTable().getItem(i);
-        item.setText(1, input.getArgumentFieldNames()[i]);
-      }
+
+    for (int i = 0; i < input.getArgumentFields().size(); i++) {
+      ExecProcessMeta.EPField field = input.getArgumentFields().get(i);
+      TableItem item = wArgumentFields.table.getItem(i);
+      item.setText(1, Const.NVL(field.getName(), ""));
     }
-    wArgumentFields.setRowNums();
+    wArgumentFields.optimizeTableView();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -461,6 +413,9 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
+    // return value
+    transformName = wTransformName.getText();
+
     input.setProcessField(wProcess.getText());
     input.setResultFieldName(wResult.getText());
     input.setErrorFieldName(wError.getText());
@@ -468,32 +423,28 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     input.setFailWhenNotSuccess(wFailWhenNotSuccess.getSelection());
     input.setOutputLineDelimiter(wOutputDelim.getText());
     input.setArgumentsInFields(wArgumentsInFields.getSelection());
-    String[] argumentFields = null;
-    if (wArgumentsInFields.getSelection()) {
-      argumentFields = new String[wArgumentFields.nrNonEmpty()];
-    } else {
-      argumentFields = new String[0];
+    input.getArgumentFields().clear();
+    for (TableItem item : wArgumentFields.getNonEmptyItems()) {
+      ExecProcessMeta.EPField field = new ExecProcessMeta.EPField();
+      field.setName(item.getText(1));
+      input.getArgumentFields().add(field);
     }
-    for (int i = 0; i < argumentFields.length; i++) {
-      argumentFields[i] = wArgumentFields.getNonEmpty(i).getText(1);
-    }
-    input.setArgumentFieldNames(argumentFields);
-    transformName = wTransformName.getText(); // return value
 
+    input.setChanged();
     dispose();
   }
 
   private void get() {
     if (!gotPreviousFields) {
       try {
-        String fieldvalue = wProcess.getText();
+        String fieldValue = wProcess.getText();
         wProcess.removeAll();
         IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
         if (r != null) {
           wProcess.setItems(r.getFieldNames());
         }
-        if (fieldvalue != null) {
-          wProcess.setText(fieldvalue);
+        if (fieldValue != null) {
+          wProcess.setText(fieldValue);
         }
         gotPreviousFields = true;
       } catch (HopException ke) {

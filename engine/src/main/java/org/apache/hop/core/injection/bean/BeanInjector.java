@@ -151,13 +151,13 @@ public class BeanInjector<Meta extends Object> {
   }
 
   public boolean hasProperty(Object root, String propName) {
-    BeanInjectionInfo.Property prop = info.getProperties().get(propName);
+    BeanInjectionInfo<Meta>.Property prop = info.getProperties().get(propName);
     return prop != null;
   }
 
   public void setProperty(Object root, String propName, List<RowMetaAndData> data, String dataN)
       throws HopException {
-    BeanInjectionInfo.Property prop = info.getProperties().get(propName);
+    BeanInjectionInfo<Meta>.Property prop = info.getProperties().get(propName);
     if (prop == null) {
       throw new HopException(
           "Property '" + propName + "' not found for injection to " + root.getClass());
@@ -385,13 +385,13 @@ public class BeanInjector<Meta extends Object> {
       // Object can be inner of metadata class. In this case constructor will require parameter
       for (Constructor<?> c : clazz.getConstructors()) {
         if (c.getParameterTypes().length == 0) {
-          return clazz.newInstance();
+          return clazz.getConstructor().newInstance();
         } else if (c.getParameterTypes().length == 1
             && c.getParameterTypes()[0].isAssignableFrom(info.clazz)) {
           return c.newInstance(root);
         }
       }
-    } catch (Throwable ex) {
+    } catch (Exception ex) {
       throw new HopException("Can't create object " + clazz, ex);
     }
     throw new HopException("Constructor not found for " + clazz);

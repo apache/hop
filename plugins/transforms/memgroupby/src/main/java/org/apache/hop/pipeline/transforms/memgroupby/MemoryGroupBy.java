@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.StringJoiner;
+import java.util.TreeSet;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -38,15 +45,10 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.StringJoiner;
-import java.util.TreeSet;
-
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.*;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAll;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAny;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountDistinct;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Percentile;
 
 /** Groups information based on aggregation rules. (sum, count, ...) */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> {
@@ -460,8 +462,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           v = new TreeSet<>();
           break;
         default:
-          throw new HopException(
-              "Unknown data type for aggregation : " + agg.getField());
+          throw new HopException("Unknown data type for aggregation : " + agg.getField());
       }
 
       if (agg.getType() != CountAll
@@ -509,10 +510,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
         case Average:
           ag =
               ValueDataUtil.divide(
-                  data.aggMeta.getValueMeta(i),
-                  ag,
-                  new ValueMetaInteger("c"),
-                  aggregate.counts[i]);
+                  data.aggMeta.getValueMeta(i), ag, new ValueMetaInteger("c"), aggregate.counts[i]);
           break;
         case Median:
         case Percentile:

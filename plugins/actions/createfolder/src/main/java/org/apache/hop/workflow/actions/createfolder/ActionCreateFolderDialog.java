@@ -184,10 +184,10 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
-    if (action.getFoldername() != null) {
-      wFoldername.setText(action.getFoldername());
+    if (action.getFolderName() != null) {
+      wFoldername.setText(action.getFolderName());
     }
-    wAbortExists.setSelection(action.isFailOfFolderExists());
+    wAbortExists.setSelection(action.isFailIfFolderExists());
 
     wName.selectAll();
     wName.setFocus();
@@ -208,8 +208,8 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
       return;
     }
     action.setName(wName.getText());
-    action.setFoldername(wFoldername.getText());
-    action.setFailOfFolderExists(wAbortExists.getSelection());
+    action.setFolderName(wFoldername.getText());
+    action.setFailIfFolderExists(wAbortExists.getSelection());
     dispose();
   }
 }

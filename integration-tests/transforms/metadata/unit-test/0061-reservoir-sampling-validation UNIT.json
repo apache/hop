@@ -1,0 +1,29 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "id"
+      ],
+      "data_set_name": "golden-reservoir-sampling",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0061-reservoir-sampling-validation UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0061-reservoir-sampling-validation.hpl",
+  "test_type": "UNIT_TEST"
+}

@@ -22,6 +22,7 @@ import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.DOMGroupManager;
 import org.apache.batik.svggen.SVGGraphics2D;
 import org.apache.batik.util.SVGConstants;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -83,7 +84,7 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
   }
 
   public String toXml() throws TransformerException {
-    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+    Transformer transformer = XmlHandler.createSecureTransformerFactory().newTransformer();
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
     transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
     StreamResult streamResult = new StreamResult(new StringWriter());

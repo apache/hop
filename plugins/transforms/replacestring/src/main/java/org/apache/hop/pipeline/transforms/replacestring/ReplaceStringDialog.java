@@ -25,7 +25,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -66,7 +65,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
 
   public ReplaceStringDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+    super(parent, variables, (ReplaceStringMeta) in, tr, sname);
     input = (ReplaceStringMeta) in;
     inputFields = new HashMap<>();
   }
@@ -90,7 +89,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     shell.setText(BaseMessages.getString(PKG, "ReplaceStringDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -132,7 +131,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     wlKey.setLayoutData(fdlKey);
 
     int nrFieldCols = 10;
-    int nrFieldRows = (input.getFieldInStream() != null ? input.getFieldInStream().length : 1);
+    int nrFieldRows = input.getFields().size();
 
     ciKey = new ColumnInfo[nrFieldCols];
     ciKey[0] =
@@ -150,7 +149,8 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.useRegEx"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ReplaceStringMeta.useRegExDesc);
+            BaseMessages.getString(PKG, "System.Combo.YES"),
+            BaseMessages.getString(PKG, "System.Combo.NO"));
     ciKey[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.Replace"),
@@ -165,10 +165,8 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.SetEmptyString"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            new String[] {
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
-              BaseMessages.getString(PKG, "System.Combo.No")
-            });
+            BaseMessages.getString(PKG, "System.Combo.Yes"),
+            BaseMessages.getString(PKG, "System.Combo.No"));
 
     ciKey[6] =
         new ColumnInfo(
@@ -181,17 +179,20 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.WholeWord"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ReplaceStringMeta.wholeWordDesc);
+            BaseMessages.getString(PKG, "System.Combo.YES"),
+            BaseMessages.getString(PKG, "System.Combo.NO"));
     ciKey[8] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.CaseSensitive"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ReplaceStringMeta.caseSensitiveDesc);
+            BaseMessages.getString(PKG, "System.Combo.YES"),
+            BaseMessages.getString(PKG, "System.Combo.NO"));
     ciKey[9] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.IsUnicode"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            ReplaceStringMeta.isUnicodeDesc);
+            BaseMessages.getString(PKG, "System.Combo.YES"),
+            BaseMessages.getString(PKG, "System.Combo.NO"));
 
     ciKey[1].setToolTip(
         BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField.Tooltip"));
@@ -251,53 +252,47 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
-    fields.putAll(inputFields);
+    final Map<String, Integer> fields = new HashMap<>(inputFields);
 
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<>(keySet);
 
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
+    String[] fieldNames = entries.toArray(new String[0]);
 
     Const.sortStrings(fieldNames);
     ciKey[0].setComboValues(fieldNames);
     ciKey[6].setComboValues(fieldNames);
   }
 
+  public String toBooleanDescription(boolean b) {
+    if (b) {
+      return BaseMessages.getString(PKG, "System.Combo.Yes");
+    } else {
+      return BaseMessages.getString(PKG, "System.Combo.No");
+    }
+  }
+
+  public boolean toBoolean(String description) {
+    return BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(description);
+  }
+
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getFieldInStream() != null) {
-      for (int i = 0; i < input.getFieldInStream().length; i++) {
-        TableItem item = wFields.table.getItem(i);
-        if (input.getFieldInStream()[i] != null) {
-          item.setText(1, input.getFieldInStream()[i]);
-        }
-        if (input.getFieldOutStream()[i] != null) {
-          item.setText(2, input.getFieldOutStream()[i]);
-        }
-        item.setText(3, ReplaceStringMeta.getUseRegExDesc(input.getUseRegEx()[i]));
-        if (input.getReplaceString()[i] != null) {
-          item.setText(4, input.getReplaceString()[i]);
-        }
-        if (input.getReplaceByString()[i] != null) {
-          item.setText(5, input.getReplaceByString()[i]);
-        }
-        item.setText(
-            6,
-            input.isSetEmptyString()[i]
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No"));
-
-        if (input.getFieldReplaceByString()[i] != null) {
-          item.setText(7, input.getFieldReplaceByString()[i]);
-        }
-
-        item.setText(8, ReplaceStringMeta.getWholeWordDesc(input.getWholeWord()[i]));
-        item.setText(9, ReplaceStringMeta.getCaseSensitiveDesc(input.getCaseSensitive()[i]));
-        item.setText(10, ReplaceStringMeta.getIsUnicodeDesc(input.isUnicode()[i]));
-      }
+    for (int i = 0; i < input.getFields().size(); i++) {
+      ReplaceStringMeta.RSField field = input.getFields().get(i);
+      TableItem item = wFields.table.getItem(i);
+      item.setText(1, Const.NVL(field.getFieldInStream(), ""));
+      item.setText(2, Const.NVL(field.getFieldOutStream(), ""));
+      item.setText(3, toBooleanDescription(field.isUsingRegEx()));
+      item.setText(4, Const.NVL(field.getReplaceString(), ""));
+      item.setText(5, Const.NVL(field.getReplaceByString(), ""));
+      item.setText(6, toBooleanDescription(field.isSettingEmptyString()));
+      item.setText(7, Const.NVL(field.getReplaceFieldByString(), ""));
+      item.setText(8, toBooleanDescription(field.isReplacingWholeWord()));
+      item.setText(9, toBooleanDescription(field.isCaseSensitive()));
+      item.setText(10, toBooleanDescription(field.isUnicode()));
     }
 
     wFields.setRowNums();
@@ -313,38 +308,23 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     dispose();
   }
 
-  private void getInfo(ReplaceStringMeta inf) {
+  private void getInfo(ReplaceStringMeta m) {
 
-    int nrkeys = wFields.nrNonEmpty();
+    m.getFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      ReplaceStringMeta.RSField field = new ReplaceStringMeta.RSField();
+      m.getFields().add(field);
 
-    inf.allocate(nrkeys);
-    if (isDebug()) {
-      logDebug(
-          BaseMessages.getString(
-              PKG, "ReplaceStringDialog.Log.FoundFields", String.valueOf(nrkeys)));
-    }
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < nrkeys; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      inf.getFieldInStream()[i] = item.getText(1);
-      inf.getFieldOutStream()[i] = item.getText(2);
-      inf.getUseRegEx()[i] = ReplaceStringMeta.getUseRegExByDesc(item.getText(3));
-      inf.getReplaceString()[i] = item.getText(4);
-      inf.getReplaceByString()[i] = item.getText(5);
-
-      inf.isSetEmptyString()[i] =
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(6));
-      if (inf.isSetEmptyString()[i]) {
-        inf.getReplaceByString()[i] = "";
-      }
-      inf.getFieldReplaceByString()[i] = item.getText(7);
-      if (!Utils.isEmpty(item.getText(7))) {
-        inf.getReplaceByString()[i] = "";
-      }
-
-      inf.getWholeWord()[i] = ReplaceStringMeta.getWholeWordByDesc(item.getText(8));
-      inf.getCaseSensitive()[i] = ReplaceStringMeta.getCaseSensitiveByDesc(item.getText(9));
-      inf.isUnicode()[i] = ReplaceStringMeta.getIsUnicodeByDesc(item.getText(10));
+      field.setFieldInStream(item.getText(1));
+      field.setFieldOutStream(item.getText(2));
+      field.setUsingRegEx(toBoolean(item.getText(3)));
+      field.setReplaceString(item.getText(4));
+      field.setReplaceByString(item.getText(5));
+      field.setSettingEmptyString(toBoolean(item.getText(6)));
+      field.setReplaceFieldByString(item.getText(7));
+      field.setReplacingWholeWord(toBoolean(item.getText(8)));
+      field.setCaseSensitive(toBoolean(item.getText(9)));
+      field.setUnicode(toBoolean(item.getText(10)));
     }
 
     transformName = wTransformName.getText(); // return value

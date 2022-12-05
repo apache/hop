@@ -1,0 +1,31 @@
+tablename,type,is system,sql
+t_0024_1,TABLE,N,"CREATE TABLE t_0024_1
+(
+  n VARCHAR(100)
+, PRIMARY KEY ()
+)
+;"
+t_0024_2,TABLE,N,"CREATE TABLE t_0024_2
+(
+  n VARCHAR(100)
+, PRIMARY KEY ()
+)
+;"
+t_0024_3,TABLE,N,"CREATE TABLE t_0024_3
+(
+  n VARCHAR(100)
+, PRIMARY KEY ()
+)
+;"
+t_0024_4,TABLE,N,"CREATE TABLE t_0024_4
+(
+  n VARCHAR(100)
+, PRIMARY KEY ()
+)
+;"
+t_0024_5,TABLE,N,"CREATE TABLE t_0024_5
+(
+  n VARCHAR(100)
+, PRIMARY KEY ()
+)
+;"

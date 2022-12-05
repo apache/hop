@@ -623,9 +623,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> {
        * safeguard that existing code continues working as intended
        */
 
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+      TransformerFactory transformerFactory = XmlHandler.createSecureTransformerFactory();
       transformer = transformerFactory.newTransformer();
 
       transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
