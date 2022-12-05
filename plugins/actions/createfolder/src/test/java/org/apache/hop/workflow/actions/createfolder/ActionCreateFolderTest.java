@@ -13,27 +13,24 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
+
 package org.apache.hop.workflow.actions.createfolder;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
+public class ActionCreateFolderTest {
 
-public class WorkflowActionCreateFolderLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionCreateFolder> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  @Test
+  public void testSerialization() throws Exception {
+    ActionCreateFolder action =
+        ActionSerializationTestUtil.testSerialization(
+            "/create-folder-action.xml", ActionCreateFolder.class);
 
-  @Override
-  protected Class<ActionCreateFolder> getActionClass() {
-    return ActionCreateFolder.class;
-  }
-
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList("foldername", "failOfFolderExists");
+    Assert.assertEquals("${TEST_FOLDER}/one", action.getFolderName());
+    Assert.assertTrue(action.isFailIfFolderExists());
   }
 }

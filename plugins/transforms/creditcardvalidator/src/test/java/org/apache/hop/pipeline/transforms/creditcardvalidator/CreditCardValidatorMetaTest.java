@@ -25,16 +25,16 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CreditCardValidatorMetaTest {
   @Test
   public void testLoadSave() throws Exception {
     CreditCardValidatorMeta meta =
         TransformSerializationTestUtil.testSerialization(
-            "/credit-card-validator-transform.xml",
-            CreditCardValidatorMeta.class
-        );
+            "/credit-card-validator-transform.xml", CreditCardValidatorMeta.class);
     Assert.assertNotNull(meta.getFieldName());
     Assert.assertNotNull(meta.getResultFieldName());
     Assert.assertNotNull(meta.getNotValidMessage());

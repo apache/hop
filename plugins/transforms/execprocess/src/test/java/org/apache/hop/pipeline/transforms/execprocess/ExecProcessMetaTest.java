@@ -17,34 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class ExecProcessMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
   @Test
-  public void testRoundTrip() throws HopException {
-    List<String> attributes =
-        Arrays.asList(
-            "ProcessField",
-            "ResultFieldName",
-            "ErrorFieldName",
-            "ExitValueFieldName",
-            "FailWhenNotSuccess",
-            "OutputLineDelimiter",
-            "ArgumentsInFields",
-            "ArgumentFieldNames");
+  public void testSerialization() throws Exception {
+    ExecProcessMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/execute-process-transform.xml", ExecProcessMeta.class);
 
-    LoadSaveTester<ExecProcessMeta> loadSaveTester =
-        new LoadSaveTester<>(ExecProcessMeta.class, attributes);
-
-    loadSaveTester.testSerialization();
+    Assert.assertEquals("script", meta.getProcessField());
+    Assert.assertEquals("output", meta.getResultFieldName());
+    Assert.assertEquals("error", meta.getErrorFieldName());
+    Assert.assertEquals("exit", meta.getExitValueFieldName());
+    Assert.assertTrue(meta.isFailWhenNotSuccess());
+    Assert.assertEquals(2, meta.getArgumentFields().size());
+    Assert.assertEquals("value1", meta.getArgumentFields().get(0).getName());
+    Assert.assertEquals("value2", meta.getArgumentFields().get(1).getName());
   }
 }

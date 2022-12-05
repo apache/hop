@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -41,29 +41,25 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
 
   private static final Class<?> PKG = ReservoirSamplingMeta.class; // For Translator
 
-  private Text mWTransformName;
+  private TextVar wSampleSize;
 
-  private TextVar mWSampleSize;
-
-  private TextVar mWSeed;
+  private TextVar wSeed;
 
   /**
    * meta data for the transform. A copy is made so that changes, in terms of choices made by the
    * user, can be detected.
    */
-  private final ReservoirSamplingMeta mCurrentMeta;
-
-  private final ReservoirSamplingMeta mOriginalMeta;
+  private final ReservoirSamplingMeta input;
 
   public ReservoirSamplingDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
 
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+    super(parent, variables, (ReservoirSamplingMeta) in, tr, sname);
 
     // The order here is important...
-    // m_currentMeta is looked at for changes
-    mCurrentMeta = (ReservoirSamplingMeta) in;
-    mOriginalMeta = (ReservoirSamplingMeta) mCurrentMeta.clone();
+    // currentMeta is looked at for changes
+    //
+    input = (ReservoirSamplingMeta) in;
   }
 
   /**
@@ -78,12 +74,10 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
 
     PropsUi.setLook(shell);
-    setShellImage(shell, mCurrentMeta);
+    setShellImage(shell, input);
 
     // used to listen to a text field (m_wTransformName)
-    ModifyListener lsMod = e -> mCurrentMeta.setChanged();
-
-    changed = mCurrentMeta.hasChanged();
+    ModifyListener lsMod = e -> input.setChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -93,7 +87,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     shell.setText(BaseMessages.getString(PKG, "ReservoirSamplingDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     // various UI bits and pieces
@@ -107,17 +101,17 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     mFdlTransformName.right = new FormAttachment(middle, -margin);
     mFdlTransformName.top = new FormAttachment(0, margin);
     mWlTransformName.setLayoutData(mFdlTransformName);
-    mWTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    mWTransformName.setText(transformName);
-    PropsUi.setLook(mWTransformName);
-    mWTransformName.addModifyListener(lsMod);
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
 
     // format the text field
     FormData mFdTransformName = new FormData();
     mFdTransformName.left = new FormAttachment(middle, 0);
     mFdTransformName.top = new FormAttachment(0, margin);
     mFdTransformName.right = new FormAttachment(100, 0);
-    mWTransformName.setLayoutData(mFdTransformName);
+    wTransformName.setLayoutData(mFdTransformName);
 
     // Sample size text field
     Label mWlSampleSize = new Label(shell, SWT.RIGHT);
@@ -127,18 +121,17 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     FormData mFdlSampleSize = new FormData();
     mFdlSampleSize.left = new FormAttachment(0, 0);
     mFdlSampleSize.right = new FormAttachment(middle, -margin);
-    mFdlSampleSize.top = new FormAttachment(mWTransformName, margin);
+    mFdlSampleSize.top = new FormAttachment(wTransformName, margin);
     mWlSampleSize.setLayoutData(mFdlSampleSize);
 
-    mWSampleSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(mWSampleSize);
-    mWSampleSize.addModifyListener(lsMod);
-    mWSampleSize.setText("" + mOriginalMeta.getSampleSize());
+    wSampleSize = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSampleSize);
+    wSampleSize.addModifyListener(lsMod);
     FormData mFdSampleSize = new FormData();
     mFdSampleSize.left = new FormAttachment(mWlSampleSize, margin);
     mFdSampleSize.right = new FormAttachment(100, -margin);
-    mFdSampleSize.top = new FormAttachment(mWTransformName, margin);
-    mWSampleSize.setLayoutData(mFdSampleSize);
+    mFdSampleSize.top = new FormAttachment(wTransformName, margin);
+    wSampleSize.setLayoutData(mFdSampleSize);
 
     // Seed text field
     Label mWlSeed = new Label(shell, SWT.RIGHT);
@@ -148,18 +141,17 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     FormData mFdlSeed = new FormData();
     mFdlSeed.left = new FormAttachment(0, 0);
     mFdlSeed.right = new FormAttachment(middle, -margin);
-    mFdlSeed.top = new FormAttachment(mWSampleSize, margin);
+    mFdlSeed.top = new FormAttachment(wSampleSize, margin);
     mWlSeed.setLayoutData(mFdlSeed);
 
-    mWSeed = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(mWSeed);
-    mWSeed.addModifyListener(lsMod);
-    mWSeed.setText("" + mOriginalMeta.getSeed());
+    wSeed = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSeed);
+    wSeed.addModifyListener(lsMod);
     FormData mFdSeed = new FormData();
     mFdSeed.left = new FormAttachment(mWlSeed, margin);
     mFdSeed.right = new FormAttachment(100, -margin);
-    mFdSeed.top = new FormAttachment(mWSampleSize, margin);
-    mWSeed.setLayoutData(mFdSeed);
+    mFdSeed.top = new FormAttachment(wSampleSize, margin);
+    wSeed.setLayoutData(mFdSeed);
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -167,20 +159,20 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, mWSeed);
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, wSeed);
 
     // Add listeners
     wCancel.addListener(SWT.Selection, e -> cancel());
     wOk.addListener(SWT.Selection, e -> ok());
 
     // Whenever something changes, set the tooltip to the expanded version:
-    mWSampleSize.addModifyListener(
-        e -> mWSampleSize.setToolTipText(variables.resolve(mWSampleSize.getText())));
+    wSampleSize.addModifyListener(
+        e -> wSampleSize.setToolTipText(variables.resolve(wSampleSize.getText())));
 
     // Whenever something changes, set the tooltip to the expanded version:
-    mWSeed.addModifyListener(e -> mWSeed.setToolTipText(variables.resolve(mWSeed.getText())));
+    wSeed.addModifyListener(e -> wSeed.setToolTipText(variables.resolve(wSeed.getText())));
 
-    mCurrentMeta.setChanged(changed);
+    getData();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -189,24 +181,27 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
 
   private void cancel() {
     transformName = null;
-    mCurrentMeta.setChanged(changed);
+    input.setChanged(changed);
     dispose();
   }
 
+  private void getData() {
+    wTransformName.setText(Const.NVL(transformName, ""));
+    wSampleSize.setText(Const.NVL(input.getSampleSize(), ""));
+    wSeed.setText(Const.NVL(input.getSeed(), ""));
+  }
+
   private void ok() {
-    if (Utils.isEmpty(mWTransformName.getText())) {
+    if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
 
-    transformName = mWTransformName.getText(); // return value
+    transformName = wTransformName.getText(); // return value
 
-    mCurrentMeta.setSampleSize(mWSampleSize.getText());
-    mCurrentMeta.setSeed(mWSeed.getText());
-    if (!mOriginalMeta.equals(mCurrentMeta)) {
-      mCurrentMeta.setChanged();
-      changed = mCurrentMeta.hasChanged();
-    }
+    input.setSampleSize(wSampleSize.getText());
+    input.setSeed(wSeed.getText());
 
+    input.setChanged();
     dispose();
   }
 }

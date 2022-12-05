@@ -37,6 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.imp.HopImportBase;
 import org.apache.hop.imp.IHopImport;
 import org.apache.hop.imp.ImportPlugin;
@@ -199,7 +200,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
   public void importFiles() throws HopException {
 
     try {
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
+      TransformerFactory transformerFactory = XmlHandler.createSecureTransformerFactory();
       Transformer transformer = transformerFactory.newTransformer();
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
 
@@ -672,11 +673,10 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
   private Document getDocFromFile(FileObject kettleFile) throws HopException {
     try {
-      DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+      DocumentBuilderFactory dbFactory = XmlParserFactoryProducer.createSecureDocBuilderFactory();
       dbFactory.setIgnoringElementContentWhitespace(true);
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-      Document doc = dBuilder.parse(HopVfs.getInputStream(kettleFile));
-      return doc;
+      return dBuilder.parse(HopVfs.getInputStream(kettleFile));
     } catch (Exception e) {
       throw new HopException("Error importing file '" + kettleFile + "'", e);
     }

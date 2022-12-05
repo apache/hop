@@ -1,0 +1,49 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "script",
+          "data_set_field": "script"
+        },
+        {
+          "transform_field": "value1",
+          "data_set_field": "value1"
+        },
+        {
+          "transform_field": "value2",
+          "data_set_field": "value2"
+        },
+        {
+          "transform_field": "output",
+          "data_set_field": "output"
+        },
+        {
+          "transform_field": "Error output",
+          "data_set_field": "Error output"
+        },
+        {
+          "transform_field": "Exit value",
+          "data_set_field": "Exit value"
+        }
+      ],
+      "field_order": [
+        "value1",
+        "value2"
+      ],
+      "data_set_name": "golden-execute-process",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0062-execute-process UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0062-execute-process.hpl",
+  "test_type": "UNIT_TEST"
+}

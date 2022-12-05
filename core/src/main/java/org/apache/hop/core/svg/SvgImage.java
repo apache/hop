@@ -18,6 +18,7 @@
 package org.apache.hop.core.svg;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 
 import javax.xml.XMLConstants;
@@ -48,9 +49,7 @@ public class SvgImage {
       DOMSource domSource = new DOMSource(document);
       StringWriter stringWriter = new StringWriter();
       StreamResult streamResult = new StreamResult(stringWriter);
-      TransformerFactory transformerFactory = TransformerFactory.newInstance();
-      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+      TransformerFactory transformerFactory = XmlHandler.createSecureTransformerFactory();
       Transformer transformer = transformerFactory.newTransformer();
       transformer.transform(domSource, streamResult);
       return stringWriter.toString();

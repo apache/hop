@@ -36,7 +36,7 @@ public class GetTableNamesData extends BaseTransformData implements ITransformDa
   public int totalpreviousfields;
   public int indexOfSchemaField;
 
-  public Object[] readrow;
+  public Object[] inputRow;
 
   public GetTableNamesData() {
     super();
@@ -48,7 +48,7 @@ public class GetTableNamesData extends BaseTransformData implements ITransformDa
     rownr = 0;
     realSchemaName = null;
     totalpreviousfields = 0;
-    readrow = null;
+    inputRow = null;
     indexOfSchemaField = -1;
   }
 }

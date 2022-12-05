@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
@@ -46,17 +53,12 @@ import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DL
 import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType;
 import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.INSERT;
 import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.PUNCH_THROUGH;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.*;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.COLUMN_VALUE;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NONE;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NULL;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.SYSTEM_DATE;
 
 /** Manages a slowly changing dimension (lookup or update) */
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> {
@@ -846,8 +848,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     for (DLField field : f.getFields()) {
       // Don't retrieve the fields without input
       if (StringUtils.isNotEmpty(field.getLookup())
-          && DimensionLookupMeta.isUpdateTypeWithArgument(
-              meta.isUpdate(), field.getUpdateType())) {
+          && DimensionLookupMeta.isUpdateTypeWithArgument(meta.isUpdate(), field.getUpdateType())) {
         sql += ", " + databaseMeta.quoteField(field.getLookup());
 
         if (StringUtils.isNotEmpty(field.getName()) && !field.getLookup().equals(field.getName())) {
@@ -914,7 +915,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
   }
 
   protected boolean isAutoIncrement() {
-    return meta.getFields().getReturns().getCreationMethod() == TechnicalKeyCreationMethod.AUTO_INCREMENT;
+    return meta.getFields().getReturns().getCreationMethod()
+        == TechnicalKeyCreationMethod.AUTO_INCREMENT;
   }
 
   /**
@@ -980,8 +982,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         // Ignore last_version, last_updated etc, they are handled below (at the
         // back of the row).
         //
-        if (DimensionLookupMeta.isUpdateTypeWithArgument(
-                meta.isUpdate(), field.getUpdateType())) {
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(meta.isUpdate(), field.getUpdateType())) {
           sql += ", " + databaseMeta.quoteField(field.getLookup());
           insertRowMeta.addValueMeta(inputRowMeta.getValueMeta(data.fieldnrs[i]));
         }
@@ -1023,8 +1024,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (DLField field : f.getFields()) {
         // Ignore last_version, last_updated, etc. These are handled below...
         //
-        if (DimensionLookupMeta.isUpdateTypeWithArgument(
-                meta.isUpdate(), field.getUpdateType())) {
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(meta.isUpdate(), field.getUpdateType())) {
           sql += ", ?";
         }
       }
@@ -1318,8 +1318,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       boolean comma = false;
       for (int i = 0; i < f.getFields().size(); i++) {
         DLField field = f.getFields().get(i);
-        if (DimensionLookupMeta.isUpdateTypeWithArgument(
-                meta.isUpdate(), field.getUpdateType())) {
+        if (DimensionLookupMeta.isUpdateTypeWithArgument(meta.isUpdate(), field.getUpdateType())) {
           if (comma) {
             sql += ", ";
           } else {

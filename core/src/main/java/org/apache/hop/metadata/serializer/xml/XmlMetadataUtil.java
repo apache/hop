@@ -486,7 +486,7 @@ public class XmlMetadataUtil {
       }
     } else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
       if (elementNode != null) {
-        return "y".equalsIgnoreCase(elementString) || "true".equalsIgnoreCase(elementString);
+        return Const.toBoolean(elementString);
       } else {
         return defaultBoolean;
       }

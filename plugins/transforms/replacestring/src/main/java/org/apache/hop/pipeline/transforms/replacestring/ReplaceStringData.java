@@ -49,7 +49,7 @@ public class ReplaceStringData extends BaseTransformData implements ITransformDa
 
   public String[] valueChange;
 
-  public String finalvalueChange;
+  public String finalValueChange;
 
   public IRowMeta outputRowMeta;
 
@@ -64,7 +64,7 @@ public class ReplaceStringData extends BaseTransformData implements ITransformDa
     super();
     realChangeField = null;
     valueChange = null;
-    finalvalueChange = null;
+    finalValueChange = null;
     inputFieldsNr = 0;
   }
 }

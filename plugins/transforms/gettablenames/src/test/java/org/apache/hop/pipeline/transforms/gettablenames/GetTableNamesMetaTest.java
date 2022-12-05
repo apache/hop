@@ -17,48 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.gettablenames;
 
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class GetTableNamesMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws HopException {
-    HopEnvironment.init();
-  }
-
   @Test
-  public void testLoadSave() throws HopException {
-    List<String> attributes =
-        Arrays.asList(
-            "Database",
-            "SchemaName",
-            "TablenameFieldName",
-            "ObjectTypeFieldName",
-            "SystemObjectFieldName",
-            "sqlCreationFieldName",
-            "includeCatalog",
-            "includeSchema",
-            "includeTable",
-            "includeView",
-            "includeProcedure",
-            "includeSynonym",
-            "AddSchemaInOut",
-            "DynamicSchema",
-            "SchemaFieldName");
-
-    LoadSaveTester<GetTableNamesMeta> loadSaveTester =
-        new LoadSaveTester<>(GetTableNamesMeta.class, attributes);
-
-    loadSaveTester.testSerialization();
+  public void testSerialization() throws Exception {
+    TransformSerializationTestUtil.testSerialization(
+        "/get-table-names-transform.xml", GetTableNamesMeta.class);
   }
 }

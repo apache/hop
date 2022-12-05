@@ -33,33 +33,33 @@ public class GetSubFoldersData extends BaseTransformData implements ITransformDa
 
   public boolean isLastFile;
 
-  public int filenr;
+  public int fileIndex;
 
-  public int filessize;
+  public int filesCount;
 
   public FileObject file;
 
-  public long rownr;
+  public long rowNumber;
 
-  public int totalpreviousfields;
+  public int totalPreviousFields;
 
-  public int indexOfFoldernameField;
+  public int indexOfFolderNameField;
 
   public IRowMeta inputRowMeta;
 
-  public Object[] readrow;
+  public Object[] inputRow;
 
   public int nrTransformFields;
 
   public GetSubFoldersData() {
     super();
     previousRow = null;
-    filenr = 0;
-    filessize = 0;
+    fileIndex = 0;
+    filesCount = 0;
     file = null;
-    totalpreviousfields = 0;
-    indexOfFoldernameField = -1;
-    readrow = null;
+    totalPreviousFields = 0;
+    indexOfFolderNameField = -1;
+    inputRow = null;
     nrTransformFields = 0;
   }
 }

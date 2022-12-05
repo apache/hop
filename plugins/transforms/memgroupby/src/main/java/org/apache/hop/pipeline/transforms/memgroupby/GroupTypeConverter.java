@@ -21,7 +21,10 @@ package org.apache.hop.pipeline.transforms.memgroupby;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.injection.InjectionTypeConverter;
 
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.*;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.None;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.getTypeWithCode;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.getTypeWithDescription;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.values;
 
 public class GroupTypeConverter extends InjectionTypeConverter {
   public GroupTypeConverter() {}

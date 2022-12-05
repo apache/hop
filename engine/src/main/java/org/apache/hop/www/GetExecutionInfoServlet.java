@@ -17,13 +17,11 @@
 
 package org.apache.hop.www;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
-import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.execution.Execution;
 import org.apache.hop.execution.ExecutionData;
 import org.apache.hop.execution.ExecutionInfoLocation;
@@ -33,12 +31,11 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DataBindingException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
@@ -60,14 +57,14 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
   public static final String PARAMETER_PARENT_ID = "parentId";
 
   public enum Type {
-    state,
-    ids,
-    execution,
-    children,
-    data,
-    lastExecution,
-    childIds,
-    parentId
+    STATE,
+    IDS,
+    EXECUTION,
+    CHILDREN,
+    DATA,
+    LAST_EXECUTION,
+    CHILD_IDS,
+    PARENT_ID
   }
 
   public GetExecutionInfoServlet() {}
@@ -138,7 +135,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
 
       try {
         switch (type) {
-          case state:
+          case STATE:
             {
               // Get the state of an execution: we need an execution ID
               //
@@ -149,10 +146,10 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               }
               ExecutionState executionState =
                   location.getExecutionInfoLocation().getExecutionState(id);
-              HopJson.newMapper().writeValue(out, executionState);
+              outputExecutionStateAsJson(out, executionState);
             }
             break;
-          case ids:
+          case IDS:
             {
               String children = request.getParameter(PARAMETER_CHILDREN);
               boolean includeChildren =
@@ -161,10 +158,10 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               int limitNr = Const.toInt(limit, 100);
               List<String> ids =
                   location.getExecutionInfoLocation().getExecutionIds(includeChildren, limitNr);
-              HopJson.newMapper().writeValue(out, ids);
+              outputExecutionIdsAsJson(out, ids);
             }
             break;
-          case execution:
+          case EXECUTION:
             {
               // Get an execution: we need an execution ID
               //
@@ -173,24 +170,23 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
                 throw new HopException("Please specify the execution ID with parameter 'id'");
               }
               Execution execution = location.getExecutionInfoLocation().getExecution(id);
-              HopJson.newMapper().writeValue(out, execution);
+              outputExecutionAsJson(out, execution);
             }
             break;
-          case children:
+          case CHILDREN:
             {
               String id = request.getParameter(PARAMETER_ID);
               if (StringUtils.isEmpty(id)) {
                 throw new HopException(
                     "Please specify the parent execution ID with parameter 'id'");
               }
-              List<Execution> children =
-                  location.getExecutionInfoLocation().findExecutions(id);
-              HopJson.newMapper().writeValue(out, children);
+              List<Execution> children = location.getExecutionInfoLocation().findExecutions(id);
+              outputExecutionChildrenAsJson(out, children);
             }
             break;
-          case data:
+          case DATA:
             {
-              // Get a execution data: we need an execution ID and its parent
+              // Get execution data: we need an execution ID and its parent
               //
               String parentId = request.getParameter(PARAMETER_PARENT_ID);
               if (StringUtils.isEmpty(parentId)) {
@@ -203,10 +199,10 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               }
               ExecutionData data =
                   location.getExecutionInfoLocation().getExecutionData(parentId, id);
-              HopJson.newMapper().writeValue(out, data);
+              outputExecutionDataAsJson(out, data);
             }
             break;
-          case lastExecution:
+          case LAST_EXECUTION:
             {
               // Get the last execution: we need an execution type and a name
               //
@@ -224,10 +220,10 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
 
               Execution execution =
                   location.getExecutionInfoLocation().findLastExecution(executionType, name);
-              HopJson.newMapper().writeValue(out, execution);
+              outputExecutionAsJson(out, execution);
             }
             break;
-          case childIds:
+          case CHILD_IDS:
             {
               String execType = request.getParameter(PARAMETER_EXEC_TYPE);
               if (StringUtils.isEmpty(execType)) {
@@ -244,10 +240,10 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
 
               List<String> ids =
                   location.getExecutionInfoLocation().findChildIds(executionType, id);
-              HopJson.newMapper().writeValue(out, ids);
+              outputExecutionIdsAsJson(out, ids);
             }
             break;
-          case parentId:
+          case PARENT_ID:
             {
               String id = request.getParameter(PARAMETER_ID);
               if (StringUtils.isEmpty(id)) {
@@ -255,7 +251,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
                     "Please specify the child execution ID to find the parent for with parameter 'id'");
               }
               String parentId = location.getExecutionInfoLocation().findParentId(id);
-              HopJson.newMapper().writeValue(out, parentId);
+              outputIdAsJson(out, parentId);
             }
             break;
           default:
@@ -271,8 +267,64 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
       }
     } catch (Exception e) {
       String message = Const.getStackTracker(e);
-      HopJson.newMapper().writeValue(out, message);
+      try {
+        HopJson.newMapper().writeValue(out, message);
+      } catch (IOException | DataBindingException ex) {
+        throw new ServletException(
+            "Error writing execution state as JSON to servlet output stream", ex);
+      }
       response.setStatus(500);
+    }
+  }
+
+  private void outputIdAsJson(PrintWriter out, String parentId) throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, parentId);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException("Error writing execution ID as JSON to servlet output stream", e);
+    }
+  }
+
+  private void outputExecutionDataAsJson(PrintWriter out, ExecutionData data) throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, data);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException("Error writing execution data as JSON to servlet output stream", e);
+    }
+  }
+
+  private void outputExecutionChildrenAsJson(PrintWriter out, List<Execution> children)
+      throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, children);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException(
+          "Error writing execution children as JSON to servlet output stream", e);
+    }
+  }
+
+  private void outputExecutionAsJson(PrintWriter out, Execution execution) throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, execution);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException("Error writing execution as JSON to servlet output stream", e);
+    }
+  }
+
+  private void outputExecutionIdsAsJson(PrintWriter out, List<String> ids) throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, ids);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException("Error writing execution IDs as JSON to servlet output stream", e);
+    }
+  }
+
+  private void outputExecutionStateAsJson(PrintWriter out, ExecutionState executionState)
+      throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, executionState);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException("Error writing execution state as JSON to servlet output stream", e);
     }
   }
 
@@ -288,16 +340,5 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
   @Override
   public String getContextPath() {
     return CONTEXT_PATH;
-  }
-
-  private String getLogText(IWorkflowEngine<WorkflowMeta> workflow, int startLineNr, int lastLineNr)
-      throws HopException {
-    try {
-      return HopLogStore.getAppender()
-          .getBuffer(workflow.getLogChannel().getLogChannelId(), false, startLineNr, lastLineNr)
-          .toString();
-    } catch (OutOfMemoryError error) {
-      throw new HopException("Log string is too long");
-    }
   }
 }

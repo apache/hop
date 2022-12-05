@@ -19,10 +19,8 @@ package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -30,12 +28,11 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "AzureListener",
@@ -46,54 +43,93 @@ import org.w3c.dom.Node;
     keywords = "i18n::AzureListenerMeta.keyword",
     documentationUrl = "/pipeline/transforms/azure-event-hubs-listener.html")
 public class AzureListenerMeta extends BaseTransformMeta<AzureListener, AzureListenerData> {
-
-  public static final String NAMESPACE = "namespace";
-  public static final String EVENT_HUB_NAME = "event_hub_name";
-  public static final String SAS_KEY_NAME = "sas_key_name";
-  public static final String SAS_KEY = "sas_key";
-  public static final String BATCH_SIZE = "batch_size";
-  public static final String PREFETCH_SIZE = "prefetch_size";
-  public static final String OUTPUT_FIELD = "output_field";
-  public static final String PARTITION_ID_FIELD = "partition_id_field";
-  public static final String OFFSET_FIELD = "offset_field";
-  public static final String SEQUENCE_NUMBER_FIELD = "sequence_number_field";
-  public static final String HOST_FIELD = "host_field";
-  public static final String ENQUEUED_TIME_FIELD = "enqueued_time_field";
-  public static final String BATCH_TRANSFORMATION = "batch_transformation";
-  public static final String BATCH_INPUT_Transform = "batch_input_Transform";
-  public static final String BATCH_OUTPUT_Transform = "batch_output_Transform";
-  public static final String BATCH_MAX_WAIT_TIME = "batch_max_wait_time";
-
-  public static final String CONSUMER_GROUP_NAME = "consumer_group_name";
-  public static final String EVENT_HUB_CONNECTION_STRING = "event_hub_connection_string";
-  public static final String STORAGE_CONNECTION_STRING = "storage_connection_string";
-  public static final String STORAGE_CONTAINER_NAME = "storage_container_name";
-
+  @HopMetadataProperty(key = "namespace")
   private String namespace;
+
+  @HopMetadataProperty(key = "event_hub_name")
   private String eventHubName;
+
+  @HopMetadataProperty(key = "sas_key_name")
   private String sasKeyName;
+
+  @HopMetadataProperty(key = "sas_key", password = true)
   private String sasKey;
+
+  @HopMetadataProperty(key = "consumer_group_name")
   private String consumerGroupName;
+
+  @HopMetadataProperty(key = "storage_connection_string")
   private String storageConnectionString;
+
+  @HopMetadataProperty(key = "storage_container_name")
   private String storageContainerName;
 
+  @HopMetadataProperty(key = "prefetch_size")
   private String prefetchSize;
+
+  @HopMetadataProperty(key = "batch_size")
   private String batchSize;
 
+  @HopMetadataProperty(key = "output_field")
   private String outputField;
+
+  @HopMetadataProperty(key = "partition_id_field")
   private String partitionIdField;
+
+  @HopMetadataProperty(key = "offset_field")
   private String offsetField;
+
+  @HopMetadataProperty(key = "sequence_number_field")
   private String sequenceNumberField;
+
+  @HopMetadataProperty(key = "host_field")
   private String hostField;
+
+  @HopMetadataProperty(key = "enqueued_time_field")
   private String enqueuedTimeField;
 
+  @HopMetadataProperty(key = "batch_transformation")
   private String batchPipeline;
+
+  @HopMetadataProperty(key = "batch_input_Transform")
   private String batchInputTransform;
+
+  @HopMetadataProperty(key = "batch_output_Transform")
   private String batchOutputTransform;
+
+  @HopMetadataProperty(key = "batch_max_wait_time")
   private String batchMaxWaitTime;
 
   public AzureListenerMeta() {
     super();
+  }
+
+  public AzureListenerMeta(AzureListenerMeta m) {
+    this();
+    this.namespace = m.namespace;
+    this.eventHubName = m.eventHubName;
+    this.sasKeyName = m.sasKeyName;
+    this.sasKey = m.sasKey;
+    this.consumerGroupName = m.consumerGroupName;
+    this.storageConnectionString = m.storageConnectionString;
+    this.storageContainerName = m.storageContainerName;
+    this.prefetchSize = m.prefetchSize;
+    this.batchSize = m.batchSize;
+    this.outputField = m.outputField;
+    this.partitionIdField = m.partitionIdField;
+    this.offsetField = m.offsetField;
+    this.sequenceNumberField = m.sequenceNumberField;
+    this.hostField = m.hostField;
+    this.enqueuedTimeField = m.enqueuedTimeField;
+    this.batchPipeline = m.batchPipeline;
+    this.batchInputTransform = m.batchInputTransform;
+    this.batchOutputTransform = m.batchOutputTransform;
+    this.batchMaxWaitTime = m.batchMaxWaitTime;
+  }
+
+  @Override
+  public AzureListenerMeta clone() {
+    return new AzureListenerMeta(this);
   }
 
   @Override
@@ -184,58 +220,6 @@ public class AzureListenerMeta extends BaseTransformMeta<AzureListener, AzureLis
       IValueMeta outputValueMeta = new ValueMetaTimestamp(enqueuedTimeFieldName);
       rowMeta.addValueMeta(outputValueMeta);
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder();
-    xml.append(XmlHandler.addTagValue(NAMESPACE, namespace));
-    xml.append(XmlHandler.addTagValue(EVENT_HUB_NAME, eventHubName));
-    xml.append(XmlHandler.addTagValue(SAS_KEY_NAME, sasKeyName));
-    xml.append(XmlHandler.addTagValue(SAS_KEY, Encr.encryptPasswordIfNotUsingVariables(sasKey)));
-    xml.append(XmlHandler.addTagValue(BATCH_SIZE, batchSize));
-    xml.append(XmlHandler.addTagValue(PREFETCH_SIZE, prefetchSize));
-    xml.append(XmlHandler.addTagValue(OUTPUT_FIELD, outputField));
-    xml.append(XmlHandler.addTagValue(PARTITION_ID_FIELD, partitionIdField));
-    xml.append(XmlHandler.addTagValue(OFFSET_FIELD, offsetField));
-    xml.append(XmlHandler.addTagValue(SEQUENCE_NUMBER_FIELD, sequenceNumberField));
-    xml.append(XmlHandler.addTagValue(HOST_FIELD, hostField));
-    xml.append(XmlHandler.addTagValue(ENQUEUED_TIME_FIELD, enqueuedTimeField));
-    xml.append(XmlHandler.addTagValue(CONSUMER_GROUP_NAME, consumerGroupName));
-    xml.append(XmlHandler.addTagValue(STORAGE_CONNECTION_STRING, storageConnectionString));
-    xml.append(XmlHandler.addTagValue(STORAGE_CONTAINER_NAME, storageContainerName));
-    xml.append(XmlHandler.addTagValue(BATCH_TRANSFORMATION, batchPipeline));
-    xml.append(XmlHandler.addTagValue(BATCH_INPUT_Transform, batchInputTransform));
-    xml.append(XmlHandler.addTagValue(BATCH_OUTPUT_Transform, batchOutputTransform));
-    xml.append(XmlHandler.addTagValue(BATCH_MAX_WAIT_TIME, batchMaxWaitTime));
-
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node Transformnode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    namespace = XmlHandler.getTagValue(Transformnode, NAMESPACE);
-    eventHubName = XmlHandler.getTagValue(Transformnode, EVENT_HUB_NAME);
-    sasKeyName = XmlHandler.getTagValue(Transformnode, SAS_KEY_NAME);
-    sasKey =
-        Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(Transformnode, SAS_KEY));
-    batchSize = XmlHandler.getTagValue(Transformnode, BATCH_SIZE);
-    prefetchSize = XmlHandler.getTagValue(Transformnode, PREFETCH_SIZE);
-    outputField = XmlHandler.getTagValue(Transformnode, OUTPUT_FIELD);
-    partitionIdField = XmlHandler.getTagValue(Transformnode, PARTITION_ID_FIELD);
-    offsetField = XmlHandler.getTagValue(Transformnode, OFFSET_FIELD);
-    sequenceNumberField = XmlHandler.getTagValue(Transformnode, SEQUENCE_NUMBER_FIELD);
-    hostField = XmlHandler.getTagValue(Transformnode, HOST_FIELD);
-    enqueuedTimeField = XmlHandler.getTagValue(Transformnode, ENQUEUED_TIME_FIELD);
-    consumerGroupName = XmlHandler.getTagValue(Transformnode, CONSUMER_GROUP_NAME);
-    storageConnectionString = XmlHandler.getTagValue(Transformnode, STORAGE_CONNECTION_STRING);
-    storageContainerName = XmlHandler.getTagValue(Transformnode, STORAGE_CONTAINER_NAME);
-    batchPipeline = XmlHandler.getTagValue(Transformnode, BATCH_TRANSFORMATION);
-    batchInputTransform = XmlHandler.getTagValue(Transformnode, BATCH_INPUT_Transform);
-    batchOutputTransform = XmlHandler.getTagValue(Transformnode, BATCH_OUTPUT_Transform);
-    batchMaxWaitTime = XmlHandler.getTagValue(Transformnode, BATCH_MAX_WAIT_TIME);
-    super.loadXml(Transformnode, metadataProvider);
   }
 
   public static final synchronized PipelineMeta loadBatchPipelineMeta(

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -69,14 +74,15 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.*;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.*;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DLField;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DLFields;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DLKey;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.AUTO_INCREMENT;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.SEQUENCE;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod.TABLE_MAXIMUM;
 
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
