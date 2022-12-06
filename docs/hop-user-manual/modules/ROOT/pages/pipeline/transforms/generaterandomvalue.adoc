@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-The Generate Random Value transform generates random numbers, integers, strings, UUIDs and more.
+The "Generate Random Value" transform generates random numbers, integers, strings, UUIDs and more.
 
 |
 == Supported Engines
@@ -43,15 +43,28 @@ The Generate Random Value transform generates random numbers, integers, strings,
 [options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform.
-|Type a|The type of data you want to get back:
 
-* Random number : generates a random number between 0 and 1
-* Random integer : generates a random 32-bit integer
-* Random string : generates a random string based on a 64-bit long random value
-* Universally Unique Identifier (UUID)
-* Universally Unique Identifier type 4 (UUID4)
-* Random Message Authentication Code (HmacMD5)
-* Random Message Authentication Code (HmacSHA1)
+|Transform name
+|Name of the transform.
+
+|Seed
+|The seed to use for the random `number`, `integer` and `string` type.
+
+|Type
+|The type of data you want to get back:
+
+- `Random number` : generates a random number between 0 and 1
+
+- `Random integer` : generates a random 32-bit integer
+
+- `Random string` : generates a random string based on a 64-bit long random value
+
+- `Universally Unique Identifier (UUID)`
+
+- `Universally Unique Identifier type 4 (UUID4)`
+
+- `Random Message Authentication Code (HmacMD5)`
+
+- `Random Message Authentication Code (HmacSHA1)`
 
 |===

@@ -16,8 +16,18 @@
  */
 package org.apache.hop.pipeline.transforms.randomvalue;
 
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Uuid4Util;
 import org.apache.hop.i18n.BaseMessages;
@@ -25,13 +35,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import java.util.UUID;
 
 /** Get random value. */
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> {
@@ -49,34 +52,29 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
   }
 
   private Object[] getRandomValue(IRowMeta inputRowMeta, Object[] inputRowData) {
-    Object[] row = new Object[data.outputRowMeta.size()];
-    for (int i = 0; i < inputRowMeta.size(); i++) {
-      row[i] = inputRowData[i]; // no data is changed, clone is not
-      // needed here.
-    }
+    Object[] row = RowDataUtil.createResizedCopy(inputRowData, data.outputRowMeta.size());
 
-    for (int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++) {
-      switch (meta.getFieldType()[i]) {
-        case RandomValueMeta.TYPE_RANDOM_NUMBER:
-          row[index] = data.randomgen.nextDouble();
+    int index = inputRowMeta.size();
+    for (RandomValueMeta.RVField field : meta.getFields()) {
+      switch (field.getType()) {
+        case NUMBER:
+          row[index] = data.randomGenerator.nextDouble();
           break;
-        case RandomValueMeta.TYPE_RANDOM_INTEGER:
-          row[index] = Long.valueOf(data.randomgen.nextInt());
+        case INTEGER:
+          row[index] = (long) data.randomGenerator.nextInt();
           break;
-        case RandomValueMeta.TYPE_RANDOM_STRING:
-          // TODO Math.abs(Long.MIN_VALUE) == Long.MIN_VALUE --> Don't expect Math.abs always return
-          // positive.
-          row[index] = Long.toString(Math.abs(data.randomgen.nextLong()), 32);
+        case STRING:
+          row[index] = Long.toString(Math.abs(data.randomGenerator.nextLong()), 32);
           break;
-        case RandomValueMeta.TYPE_RANDOM_UUID:
+        case UUID:
           row[index] = UUID.randomUUID().toString();
           break;
-        case RandomValueMeta.TYPE_RANDOM_UUID4:
+        case UUID4:
           row[index] = data.u4.getUUID4AsString();
           break;
-        case RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5:
+        case HMAC_MD5:
           try {
-            row[index] = generateRandomMACHash(RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5);
+            row[index] = generateRandomMACHash(RandomValueMeta.RandomType.HMAC_MD5);
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
@@ -85,9 +83,9 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
             stopAll();
           }
           break;
-        case RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1:
+        case HMAC_SHA1:
           try {
-            row[index] = generateRandomMACHash(RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1);
+            row[index] = generateRandomMACHash(RandomValueMeta.RandomType.HMAC_SHA1);
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
@@ -99,19 +97,20 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
         default:
           break;
       }
+      index++;
     }
 
     return row;
   }
 
-  private String generateRandomMACHash(int algorithm) throws Exception {
+  private String generateRandomMACHash(RandomValueMeta.RandomType algorithm) throws Exception {
     // Generates a secret key
     SecretKey sk = null;
     switch (algorithm) {
-      case RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5:
+      case HMAC_MD5:
         sk = data.keyGenHmacMD5.generateKey();
         break;
-      case RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1:
+      case HMAC_SHA1:
         sk = data.keyGenHmacSHA1.generateKey();
         break;
       default:
@@ -128,8 +127,8 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     // digest
     byte[] hashCode = mac.doFinal();
     StringBuilder encoded = new StringBuilder();
-    for (int i = 0; i < hashCode.length; i++) {
-      String b = Integer.toHexString(hashCode[i]);
+    for (byte value : hashCode) {
+      String b = Integer.toHexString(value);
       if (b.length() == 1) {
         b = "0" + b;
       }
@@ -153,6 +152,13 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+
+        if (StringUtils.isEmpty(meta.getSeed())) {
+          data.randomGenerator = new Random();
+        } else {
+          long seed = Const.toLong(resolve(meta.getSeed()), 0);
+          data.randomGenerator = new Random(seed);
+        }
       }
     } else {
       row = new Object[] {}; // empty row
@@ -182,7 +188,6 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     putRow(data.outputRowMeta, row);
 
     if (!data.readsRows) { // Just one row and then stop!
-
       setOutputDone();
       return false;
     }
@@ -192,57 +197,56 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
 
   @Override
   public boolean init() {
-
-    if (super.init()) {
-      List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-
-      if (previous != null && !previous.isEmpty()) {
-        data.readsRows = true;
-      }
-      boolean genHmacMD5 = false;
-      boolean genHmacSHA1 = false;
-      boolean uuid4 = false;
-
-      for (int i = 0; i < meta.getFieldName().length; i++) {
-        switch (meta.getFieldType()[i]) {
-          case RandomValueMeta.TYPE_RANDOM_MAC_HMACMD5:
-            genHmacMD5 = true;
-            break;
-          case RandomValueMeta.TYPE_RANDOM_MAC_HMACSHA1:
-            genHmacSHA1 = true;
-            break;
-          case RandomValueMeta.TYPE_RANDOM_UUID4:
-            uuid4 = true;
-            break;
-          default:
-            break;
-        }
-      }
-      if (genHmacMD5) {
-        try {
-          data.keyGenHmacMD5 = KeyGenerator.getInstance("HmacMD5");
-        } catch (NoSuchAlgorithmException s) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "RandomValue.Log.HmacMD5AlgorithmException", s.getMessage()));
-          return false;
-        }
-      }
-      if (genHmacSHA1) {
-        try {
-          data.keyGenHmacSHA1 = KeyGenerator.getInstance("HmacSHA1");
-        } catch (NoSuchAlgorithmException s) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
-          return false;
-        }
-      }
-      if (uuid4) {
-        data.u4 = new Uuid4Util();
-      }
-      return true;
+    if (!super.init()) {
+      return false;
     }
-    return false;
+    List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
+
+    if (previous != null && !previous.isEmpty()) {
+      data.readsRows = true;
+    }
+    boolean genHmacMD5 = false;
+    boolean genHmacSHA1 = false;
+    boolean uuid4 = false;
+
+    for (RandomValueMeta.RVField field : meta.getFields()) {
+      switch (field.getType()) {
+        case HMAC_MD5:
+          genHmacMD5 = true;
+          break;
+        case HMAC_SHA1:
+          genHmacSHA1 = true;
+          break;
+        case UUID4:
+          uuid4 = true;
+          break;
+        default:
+          break;
+      }
+    }
+    if (genHmacMD5) {
+      try {
+        data.keyGenHmacMD5 = KeyGenerator.getInstance("HmacMD5");
+      } catch (NoSuchAlgorithmException s) {
+        logError(
+            BaseMessages.getString(
+                PKG, "RandomValue.Log.HmacMD5AlgorithmException", s.getMessage()));
+        return false;
+      }
+    }
+    if (genHmacSHA1) {
+      try {
+        data.keyGenHmacSHA1 = KeyGenerator.getInstance("HmacSHA1");
+      } catch (NoSuchAlgorithmException s) {
+        logError(
+            BaseMessages.getString(
+                PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+        return false;
+      }
+    }
+    if (uuid4) {
+      data.u4 = new Uuid4Util();
+    }
+    return true;
   }
 }

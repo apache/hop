@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "num",
+          "data_set_field": "num"
+        },
+        {
+          "transform_field": "int",
+          "data_set_field": "int"
+        },
+        {
+          "transform_field": "str",
+          "data_set_field": "str"
+        }
+      ],
+      "field_order": [
+        "num",
+        "int",
+        "str"
+      ],
+      "data_set_name": "golden-generate-random-values",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0063-generate-random-values UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0063-generate-random-values.hpl",
+  "test_type": "UNIT_TEST"
+}
