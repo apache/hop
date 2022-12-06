@@ -32,7 +32,7 @@
     <name>Hop Plugins Actions Get/Put/Delete a file with FTP/SFTP</name>
 
     <properties>
-        <commons-net-version>3.7.2</commons-net-version>
+        <commons-net-version>3.9.0</commons-net-version>
     </properties>
 
     <dependencies>
