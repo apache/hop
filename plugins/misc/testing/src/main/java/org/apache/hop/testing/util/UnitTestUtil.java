@@ -38,6 +38,10 @@ public class UnitTestUtil {
   public static final PipelineMeta loadTestPipeline(
       PipelineUnitTest test, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException {
+    if (test == null) {
+      throw new HopException("Unable to find a valid unit test");
+    }
+
     PipelineMeta unitTestPipelineMeta = null;
     // Environment substitution is not yet supported in the UI
     //
