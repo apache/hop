@@ -16,96 +16,32 @@
  */
 package org.apache.hop.pipeline.transforms.normaliser;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-public class NormaliserMetaTest implements IInitializer<NormaliserMeta> {
-  LoadSaveTester<NormaliserMeta> loadSaveTester;
-  Class<NormaliserMeta> testMetaClass = NormaliserMeta.class;
+public class NormaliserMetaTest {
+  
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
-    List<String> attributes = Arrays.asList("typeField", "normaliserFields");
-
-    Map<String, String> getterMap = new HashMap<>();
-    Map<String, String> setterMap = new HashMap<>();
-
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put(
-        "normaliserFields",
-        new ArrayLoadSaveValidator<>(new NormaliserFieldLoadSaveValidator(), 5));
-
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
-
-    loadSaveTester =
-        new LoadSaveTester<>(
-            testMetaClass,
-            attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap,
-            this);
-  }
-
-  // Call the allocate method on the LoadSaveTester meta class
-  @Override
-  public void modify(NormaliserMeta someMeta) {
-    if (someMeta instanceof NormaliserMeta) {
-      ((NormaliserMeta) someMeta).allocate(5);
-    }
   }
 
   @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
-  }
-
-  // NormaliserFieldLoadSaveValidator
-  public class NormaliserFieldLoadSaveValidator
-      implements IFieldLoadSaveValidator<NormaliserMeta.NormaliserField> {
-    final Random rand = new Random();
-
-    @Override
-    public NormaliserMeta.NormaliserField getTestObject() {
-      NormaliserMeta.NormaliserField rtn = new NormaliserMeta.NormaliserField();
-      rtn.setName(UUID.randomUUID().toString());
-      rtn.setNorm(UUID.randomUUID().toString());
-      rtn.setValue(UUID.randomUUID().toString());
-      return rtn;
-    }
-
-    @Override
-    public boolean validateTestObject(NormaliserMeta.NormaliserField testObject, Object actual) {
-      if (!(actual instanceof NormaliserMeta.NormaliserField)) {
-        return false;
-      }
-      NormaliserMeta.NormaliserField another = (NormaliserMeta.NormaliserField) actual;
-      return new EqualsBuilder()
-          .append(testObject.getName(), another.getName())
-          .append(testObject.getNorm(), another.getNorm())
-          .append(testObject.getValue(), another.getValue())
-          .isEquals();
-    }
+  public void testSerialization() throws Exception {
+    NormaliserMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/normaliser-transform.xml", NormaliserMeta.class);
+    
+    //assertEquals(2, meta.getFields().size());
+    //assertEquals("fieldName", meta.getFields().get(0).getName());
+    //assertEquals("two", meta.getFields().get(0).getValue());    
   }
 }

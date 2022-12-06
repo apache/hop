@@ -43,34 +43,34 @@ public class NormaliserTest {
     HopEnvironment.init();
   }
 
-  private NormaliserMeta.NormaliserField[] getTestNormaliserFieldsWiki() {
-    NormaliserMeta.NormaliserField[] rtn = new NormaliserMeta.NormaliserField[6];
-    rtn[0] = new NormaliserMeta.NormaliserField();
+  private NormaliserField[] getTestNormaliserFieldsWiki() {
+    NormaliserField[] rtn = new NormaliserField[6];
+    rtn[0] = new NormaliserField();
     rtn[0].setName("pr_sl");
     rtn[0].setNorm("Product Sales");
     rtn[0].setValue("Product1"); // Type
 
-    rtn[1] = new NormaliserMeta.NormaliserField();
+    rtn[1] = new NormaliserField();
     rtn[1].setName("pr1_nr");
     rtn[1].setNorm("Product Number");
     rtn[1].setValue("Product1");
 
-    rtn[2] = new NormaliserMeta.NormaliserField();
+    rtn[2] = new NormaliserField();
     rtn[2].setName("pr2_sl");
     rtn[2].setNorm("Product Sales");
     rtn[2].setValue("Product2");
 
-    rtn[3] = new NormaliserMeta.NormaliserField();
+    rtn[3] = new NormaliserField();
     rtn[3].setName("pr2_nr");
     rtn[3].setNorm("Product Number");
     rtn[3].setValue("Product2");
 
-    rtn[4] = new NormaliserMeta.NormaliserField();
+    rtn[4] = new NormaliserField();
     rtn[4].setName("pr3_sl");
     rtn[4].setNorm("Product Sales");
     rtn[4].setValue("Product3");
 
-    rtn[5] = new NormaliserMeta.NormaliserField();
+    rtn[5] = new NormaliserField();
     rtn[5].setName("pr3_nr");
     rtn[5].setNorm("Product Number");
     rtn[5].setValue("Product3");

@@ -55,8 +55,6 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
     }
 
     List<Integer> normFieldList;
-    int i;
-    int e;
 
     if (first) { // INITIALISE
 
@@ -65,7 +63,6 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = data.inputRowMeta.clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-      int normFieldsLength = meta.getNormaliserFields().length;
       data.typeToFieldIndex = new HashMap<>();
       String typeValue;
       int dataFieldNr;
@@ -75,8 +72,8 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       data.type_occ = new ArrayList<>();
       data.maxlen = 0;
 
-      for (i = 0; i < normFieldsLength; i++) {
-        typeValue = meta.getNormaliserFields()[i].getValue();
+      for (NormaliserField field : meta.getNormaliserFields()) {        
+        typeValue = field.getValue();
         if (!data.type_occ.contains(typeValue)) {
           data.type_occ.add(typeValue);
         }
@@ -93,13 +90,13 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
         // On a test data set with 2500 fields and about 36000 input rows (outputting over 22m
         // rows), the time went from
         // 12min to about 1min 35sec.
-        dataFieldNr = data.inputRowMeta.indexOfValue(meta.getNormaliserFields()[i].getName());
+        dataFieldNr = data.inputRowMeta.indexOfValue(field.getName());
         if (dataFieldNr < 0) {
           logError(
               BaseMessages.getString(
                   PKG,
                   "Normaliser.Log.CouldNotFindFieldInRow",
-                  meta.getNormaliserFields()[i].getName()));
+                  field.getName()));
           setErrors(1);
           stopAll();
           return false;
@@ -119,7 +116,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       Set<String> normaliserFields = meta.getFieldNames();
       int irmSize = data.inputRowMeta.size();
 
-      for (i = 0; i < irmSize; i++) {
+      for (int i = 0; i < irmSize; i++) {
         IValueMeta v = data.inputRowMeta.getValueMeta(Integer.valueOf(i));
         // Backwards compatibility - old loop called Const.indexofstring which uses equalsIgnoreCase
         if (!normaliserFields.contains(v.getName().toLowerCase())) {
@@ -144,7 +141,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
     // Now do the normalization
     // Loop over the unique occurrences of the different types.
     //
-    for (e = 0; e < typeOccSize; e++) {
+    for (int e = 0; e < typeOccSize; e++) {
       typeValue = data.type_occ.get(e);
 
       // Create an output row per type
@@ -154,7 +151,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
 
       // Copy the input row data, excluding the fields that are normalized...
       //
-      for (i = 0; i < copyFldNrsSz; i++) {
+      for (int i = 0; i < copyFldNrsSz; i++) {
         nr = data.copyFieldnrs.get(i);
         outputRowData[outputIndex++] = r[nr];
       }
@@ -167,7 +164,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       //
       normFieldList = data.typeToFieldIndex.get(typeValue);
       int normFieldListSz = normFieldList.size();
-      for (i = 0; i < normFieldListSz; i++) {
+      for (int i = 0; i < normFieldListSz; i++) {
         value = r[normFieldList.get(i)];
         outputRowData[outputIndex++] = value;
       }
@@ -184,14 +181,5 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
     }
 
     return true;
-  }
-
-  @Override
-  public boolean init() {
-    if (super.init()) {
-      // Add init code here.
-      return true;
-    }
-    return false;
   }
 }
