@@ -248,8 +248,8 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
-    if (action.getFoldername() != null) {
-      wFoldername.setText(action.getFoldername());
+    if (action.getFolderName() != null) {
+      wFoldername.setText(action.getFolderName());
     }
     wIncludeSubFolders.setSelection(action.isIncludeSubFolders());
     wSpecifyWildcard.setSelection(action.isSpecifyWildcard());
@@ -276,7 +276,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
       return;
     }
     action.setName(wName.getText());
-    action.setFoldername(wFoldername.getText());
+    action.setFolderName(wFoldername.getText());
     action.setIncludeSubFolders(wIncludeSubFolders.getSelection());
     action.setSpecifyWildcard(wSpecifyWildcard.getSelection());
     action.setWildcard(wWildcard.getText());

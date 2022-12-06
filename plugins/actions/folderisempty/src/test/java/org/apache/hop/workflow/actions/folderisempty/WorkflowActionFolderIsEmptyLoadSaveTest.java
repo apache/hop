@@ -42,7 +42,7 @@ public class WorkflowActionFolderIsEmptyLoadSaveTest
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
-        "foldername", "getFoldername",
+        "foldername", "getFolderName",
         "includeSubfolders", "isIncludeSubFolders",
         "specifywildcard", "isSpecifyWildcard",
         "wildcard", "getWildcard");
@@ -51,7 +51,7 @@ public class WorkflowActionFolderIsEmptyLoadSaveTest
   @Override
   protected Map<String, String> createSettersMap() {
     return toMap(
-        "foldername", "setFoldername",
+        "foldername", "setFolderName",
         "includeSubfolders", "setIncludeSubFolders",
         "specifywildcard", "setSpecifyWildcard",
         "wildcard", "setWildcard");
