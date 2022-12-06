@@ -24,6 +24,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.ui.core.PropsUi;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 
@@ -300,5 +301,19 @@ public abstract class DragViewZoomBase extends Composite {
     validateOffset();
 
     redraw();
+  }
+  
+  protected void mouseScrolled(MouseEvent mouseEvent) {
+    // Zoom in or out every time we get an event.
+    //
+    // In the future we do want to take the location of the mouse into account.
+    // That way we can adjust the offset accordingly to keep the screen centered on the mouse while
+    // zooming in or out.
+    //
+    if (mouseEvent.count > 0) {
+      zoomIn();
+    } else {
+      zoomOut();
+    }
   }
 }

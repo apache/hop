@@ -215,6 +215,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     canvas.addMouseListener(this);
     if (!EnvironmentUtils.getInstance().isWeb()) {
       canvas.addMouseMoveListener(this);
+      canvas.addMouseWheelListener(this::mouseScrolled);
     }
 
     // The execution information tabs at the bottom
