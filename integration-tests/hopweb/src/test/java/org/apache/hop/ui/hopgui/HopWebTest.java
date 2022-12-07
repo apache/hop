@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
@@ -93,8 +94,10 @@ public class HopWebTest {
         isHeadless = Boolean.valueOf(properties.getProperty("headless"));
         transformsFile = properties.getProperty("transformsFile");
 
-        System.setProperty("webdriver.chrome.driver", driverFile.getAbsolutePath());
         System.setProperty("webdriver.chrome.whitelistedIps", "");
+
+        //Use webDriverManager to fetch correct chromedriver
+        WebDriverManager.chromedriver().setup();
 
         ChromeOptions options = new ChromeOptions();
         if (isHeadless) {
