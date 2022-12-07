@@ -36,9 +36,9 @@ import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
 @ConfigPlugin(id = "WelcomeDialogOption", description = "Enable or disable the welcome dialog")
-@GuiPlugin(description = "Welcome dialog")
+@GuiPlugin(description = "Welcome Dialog")
 public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
-
+  protected static Class<?> PKG = WelcomeDialogOptions.class; // For Translator
   @CommandLine.Option(
       names = {"-wd", "--welcome-dialog-disabled"},
       description = "Disable the welcome dialog at startup of the Hop GUI")
@@ -53,7 +53,7 @@ public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginComposite
       id = "NoWelcomeDialog",
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "Present the welcome dialog at the startup of the Hop GUI")
+      label = "i18n::WelcomeDialog.Show.Label")
   private boolean welcomeDialogShowAtStartup;
 
   public WelcomeDialogOptions() {

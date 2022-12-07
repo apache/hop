@@ -106,7 +106,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.DefaultProject.Message")
   @CommandLine.Option(
       names = {"-dp", "--default-project"},
-      description = "The name of the default project to use when none is specified")
+      description = "i18n::ProjectConfig.DefaultProject.Description")
   private String defaultProject;
 
   @GuiWidgetElement(
@@ -117,7 +117,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.DefaultEnvironment.Message")
   @CommandLine.Option(
       names = {"-de", "--default-environment"},
-      description = "The name of the default environment to use when none is specified")
+      description = "i18n::ProjectConfig.DefaultEnvironment.Description")
   private String defaultEnvironment;
 
   @GuiWidgetElement(
@@ -141,7 +141,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.StdProjectFolder.Message")
   @CommandLine.Option(
       names = {"-sj", "--standard-projects-folder"},
-      description = "The projects folder for new projects")
+      description = "i18n::ProjectConfig.StdProjectFolder.Description")
   private String standardProjectsFolder;
 
   @GuiWidgetElement(
@@ -149,10 +149,10 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "The project configuration filename for new projects")
+      label = "i18n::ProjectConfig.StdProjectFilename.Message")
   @CommandLine.Option(
       names = {"-dc", "--default-projects-folder"},
-      description = "The project configuration filename for new projects")
+      description = "i18n::ProjectConfig.StdProjectFilename.Message")
   private String defaultProjectConfigFile;
 
   /**

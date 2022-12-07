@@ -83,7 +83,8 @@ public class ConfigGeneralOptionsTab {
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setImage(GuiResource.getInstance().getImageHop());
     PropsUi.setLook(wGeneralTab);
-    wGeneralTab.setText("General options");
+    wGeneralTab.setText(
+            BaseMessages.getString(PKG, "EnterOptionsDialog.General.Label"));
 
     ScrolledComposite sGeneralComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     sGeneralComp.setLayout(new FillLayout());
