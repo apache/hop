@@ -16,27 +16,27 @@
  */
 package org.apache.hop.pipeline.transforms.randomvalue;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
@@ -45,13 +45,14 @@ import org.eclipse.swt.widgets.Text;
 public class RandomValueDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 
+  private TextVar wSeed;
   private TableView wFields;
 
   private final RandomValueMeta input;
 
   public RandomValueDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
+    super(parent, variables, (RandomValueMeta) in, pipelineMeta, sname);
     input = (RandomValueMeta) in;
   }
 
@@ -63,9 +64,6 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod = e -> input.setChanged();
-    changed = input.hasChanged();
-
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
@@ -74,7 +72,7 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     shell.setText(BaseMessages.getString(PKG, "RandomValueDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
@@ -88,12 +86,31 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
-    wTransformName.addModifyListener(lsMod);
     FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
     fdTransformName.top = new FormAttachment(0, margin);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
+    Control lastControl = wTransformName;
+
+    // Seed line
+    Label wlSeed = new Label(shell, SWT.RIGHT);
+    wlSeed.setText(BaseMessages.getString(PKG, "RandomValueDialog.Seed.Label"));
+    PropsUi.setLook(wlSeed);
+    FormData fdlSeed = new FormData();
+    fdlSeed.left = new FormAttachment(0, 0);
+    fdlSeed.right = new FormAttachment(middle, -margin);
+    fdlSeed.top = new FormAttachment(lastControl, margin);
+    wlSeed.setLayoutData(fdlSeed);
+    wSeed = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSeed.setText(transformName);
+    PropsUi.setLook(wSeed);
+    FormData fdSeed = new FormData();
+    fdSeed.left = new FormAttachment(middle, 0);
+    fdSeed.top = new FormAttachment(wlSeed, 0, SWT.CENTER);
+    fdSeed.right = new FormAttachment(100, 0);
+    wSeed.setLayoutData(fdSeed);
+    lastControl = wSeed;
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -102,7 +119,6 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     Label wlFields = new Label(shell, SWT.NONE);
@@ -110,44 +126,27 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     PropsUi.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(wTransformName, margin);
+    fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsCols = 2;
-    final int FieldsRows = input.getFieldName().length;
+    final int nrRows = input.getFields().size();
 
-    final String[] functionDesc = new String[RandomValueMeta.functions.length - 1];
-    for (int i = 1; i < RandomValueMeta.functions.length; i++) {
-      functionDesc[i - 1] = RandomValueMeta.functions[i].getDescription();
-    }
-
-    ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
-    colinf[0] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "RandomValueDialog.NameColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[1] =
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "RandomValueDialog.TypeColumn.Column"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false);
-    colinf[1].setSelectionAdapter(
+    ColumnInfo[] columns =
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "RandomValueDialog.NameColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "RandomValueDialog.TypeColumn.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false)
+        };
+    columns[1].setSelectionAdapter(
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            EnterSelectionDialog esd =
-                new EnterSelectionDialog(
-                    shell,
-                    functionDesc,
-                    BaseMessages.getString(PKG, "RandomValueDialog.SelectInfoType.DialogTitle"),
-                    BaseMessages.getString(PKG, "RandomValueDialog.SelectInfoType.DialogMessage"));
-            String string = esd.open();
-            if (string != null) {
-              TableView tv = (TableView) e.widget;
-              tv.setText(string, e.x, e.y);
-              input.setChanged();
-            }
+            enterTypeSelection(e);
           }
         });
 
@@ -156,9 +155,9 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
-            lsMod,
+            columns,
+            nrRows,
+            null,
             props);
 
     FormData fdFields = new FormData();
@@ -176,28 +175,36 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     return transformName;
   }
 
-  @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {}
+  private void enterTypeSelection(SelectionEvent e) {
+    EnterSelectionDialog esd =
+        new EnterSelectionDialog(
+            shell,
+            RandomValueMeta.RandomType.getDescriptions(),
+            BaseMessages.getString(PKG, "RandomValueDialog.SelectInfoType.DialogTitle"),
+            BaseMessages.getString(PKG, "RandomValueDialog.SelectInfoType.DialogMessage"));
+    String string = esd.open();
+    if (string != null) {
+      TableView tv = (TableView) e.widget;
+      tv.setText(string, e.x, e.y);
+      input.setChanged();
+    }
+  }
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wTransformName.setText(transformName);
-
-    for (int i = 0; i < input.getFieldName().length; i++) {
+    wSeed.setText(Const.NVL(input.getSeed(), ""));
+    for (int i = 0; i < input.getFields().size(); i++) {
       TableItem item = wFields.table.getItem(i);
-      String name = input.getFieldName()[i];
-      String type = RandomValueMeta.getTypeDesc(input.getFieldType()[i]);
+      RandomValueMeta.RVField field = input.getFields().get(i);
 
-      if (name != null) {
-        item.setText(1, name);
-      }
-      if (type != null) {
-        item.setText(2, type);
+      item.setText(1, Const.NVL(field.getName(), ""));
+      if (field.getType() != null) {
+        item.setText(2, field.getType().getDescription());
       }
     }
 
-    wFields.setRowNums();
-    wFields.optWidth(true);
+    wFields.optimizeTableView();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -205,7 +212,6 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
 
   private void cancel() {
     transformName = null;
-    input.setChanged(changed);
     dispose();
   }
 
@@ -215,16 +221,15 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     }
 
     transformName = wTransformName.getText(); // return value
-
-    int count = wFields.nrNonEmpty();
-    input.allocate(count);
-
-    // CHECKSTYLE:Indentation:OFF
-    for (int i = 0; i < count; i++) {
-      TableItem item = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = item.getText(1);
-      input.getFieldType()[i] = RandomValueMeta.getType(item.getText(2));
+    input.setSeed(wSeed.getText());
+    input.getFields().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      RandomValueMeta.RVField field = new RandomValueMeta.RVField();
+      input.getFields().add(field);
+      field.setName(item.getText(1));
+      field.setType(RandomValueMeta.RandomType.lookupDescription(item.getText(2)));
     }
+    input.setChanged();
     dispose();
   }
 }

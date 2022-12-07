@@ -16,12 +16,11 @@
  */
 package org.apache.hop.pipeline.transforms.randomvalue;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -29,15 +28,14 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "RandomValue",
@@ -48,159 +46,28 @@ import java.util.List;
     keywords = "i18n::RandomValueMeta.keyword",
     documentationUrl = "/pipeline/transforms/generaterandomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueData> {
-
   private static final Class<?> PKG = RandomValueMeta.class; // For Translator
 
-  public static final int TYPE_RANDOM_NONE = 0;
+  @HopMetadataProperty(key = "seed")
+  private String seed;
 
-  public static final int TYPE_RANDOM_NUMBER = 1;
-
-  public static final int TYPE_RANDOM_INTEGER = 2;
-
-  public static final int TYPE_RANDOM_STRING = 3;
-
-  public static final int TYPE_RANDOM_UUID = 4;
-
-  public static final int TYPE_RANDOM_UUID4 = 5;
-
-  public static final int TYPE_RANDOM_MAC_HMACMD5 = 6;
-
-  public static final int TYPE_RANDOM_MAC_HMACSHA1 = 7;
-
-  protected static final RandomValueMetaFunction[] functions =
-      new RandomValueMetaFunction[] {
-        null,
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_NUMBER,
-            "random number",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomNumber")),
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_INTEGER,
-            "random integer",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomInteger")),
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_STRING,
-            "random string",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomString")),
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_UUID,
-            "random uuid",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomUUID")),
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_UUID4,
-            "random uuid4",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomUUID4")),
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_MAC_HMACMD5,
-            "random machmacmd5",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACMD5")),
-        new RandomValueMetaFunction(
-            TYPE_RANDOM_MAC_HMACSHA1,
-            "random machmacsha1",
-            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA1"))
-      };
-
-  private String[] fieldName;
-
-  private int[] fieldType;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  private List<RVField> fields;
 
   public RandomValueMeta() {
-    super(); // allocate BaseTransformMeta
+    super();
+    this.fields = new ArrayList<>();
   }
 
-  /** @return Returns the fieldName. */
-  public String[] getFieldName() {
-    return fieldName;
-  }
-
-  /** @param fieldName The fieldName to set. */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /** @return Returns the fieldType. */
-  public int[] getFieldType() {
-    return fieldType;
-  }
-
-  /** @param fieldType The fieldType to set. */
-  public void setFieldType(int[] fieldType) {
-    this.fieldType = fieldType;
+  public RandomValueMeta(RandomValueMeta m) {
+    this();
+    this.seed = m.seed;
+    m.fields.forEach(f -> this.fields.add(new RVField(f)));
   }
 
   @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
-  }
-
-  public void allocate(int count) {
-    fieldName = new String[count];
-    fieldType = new int[count];
-  }
-
-  @Override
-  public Object clone() {
-    RandomValueMeta retval = (RandomValueMeta) super.clone();
-
-    int count = fieldName.length;
-
-    retval.allocate(count);
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, count);
-    System.arraycopy(fieldType, 0, retval.fieldType, 0, count);
-
-    return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int count = XmlHandler.countNodes(fields, "field");
-      String type;
-
-      allocate(count);
-
-      for (int i = 0; i < count; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        type = XmlHandler.getTagValue(fnode, "type");
-        fieldType[i] = getType(type);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to read transform information from XML", e);
-    }
-  }
-
-  public static final int getType(String type) {
-    for (int i = 1; i < functions.length; i++) {
-      if (functions[i].getCode().equalsIgnoreCase(type)) {
-        return i;
-      }
-      if (functions[i].getDescription().equalsIgnoreCase(type)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  public static final String getTypeDesc(int t) {
-    if (t < 0 || t >= functions.length || functions[t] == null) {
-      return null;
-    }
-    return functions[t].getDescription();
-  }
-
-  @Override
-  public void setDefault() {
-    int count = 0;
-
-    allocate(count);
-
-    for (int i = 0; i < count; i++) {
-      fieldName[i] = "field" + i;
-      fieldType[i] = TYPE_RANDOM_NUMBER;
-    }
+  public RandomValueMeta clone() {
+    return new RandomValueMeta(this);
   }
 
   @Override
@@ -210,62 +77,35 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider)
-      throws HopTransformException {
-    for (int i = 0; i < fieldName.length; i++) {
+      IHopMetadataProvider metadataProvider) {
+    for (RVField field : fields) {
       IValueMeta v;
 
-      switch (fieldType[i]) {
-        case TYPE_RANDOM_NUMBER:
-          v = new ValueMetaNumber(fieldName[i], 10, 5);
+      switch (field.getType()) {
+        case NUMBER:
+          v = new ValueMetaNumber(field.getName(), 10, 5);
           break;
-        case TYPE_RANDOM_INTEGER:
-          v = new ValueMetaInteger(fieldName[i], 10, 0);
+        case INTEGER:
+          v = new ValueMetaInteger(field.getName(), 10, 0);
           break;
-        case TYPE_RANDOM_STRING:
-          v = new ValueMetaString(fieldName[i], 13, 0);
+        case STRING:
+          v = new ValueMetaString(field.getName(), 13, 0);
           break;
-        case TYPE_RANDOM_UUID:
-          v = new ValueMetaString(fieldName[i], 36, 0);
+        case UUID:
+        case UUID4:
+          v = new ValueMetaString(field.getName(), 36, 0);
           break;
-        case TYPE_RANDOM_UUID4:
-          v = new ValueMetaString(fieldName[i], 36, 0);
-          break;
-        case TYPE_RANDOM_MAC_HMACMD5:
-          v = new ValueMetaString(fieldName[i], 100, 0);
-          break;
-        case TYPE_RANDOM_MAC_HMACSHA1:
-          v = new ValueMetaString(fieldName[i], 100, 0);
+        case HMAC_MD5:
+        case HMAC_SHA1:
+          v = new ValueMetaString(field.getName(), 100, 0);
           break;
         default:
-          v = new ValueMetaNone(fieldName[i]);
+          v = new ValueMetaNone(field.getName());
           break;
       }
       v.setOrigin(name);
       row.addValueMeta(v);
     }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append("    <fields>").append(Const.CR);
-
-    for (int i = 0; i < fieldName.length; i++) {
-      retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", fieldName[i]));
-      retval
-          .append("        ")
-          .append(
-              XmlHandler.addTagValue(
-                  "type",
-                  functions[fieldType[i]] != null ? functions[fieldType[i]].getCode() : ""));
-      retval.append("      </field>").append(Const.CR);
-    }
-    retval.append("    </fields>" + Const.CR);
-
-    return retval.toString();
   }
 
   @Override
@@ -281,13 +121,13 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
       IHopMetadataProvider metadataProvider) {
     // See if we have input streams leading to this transform!
     int nrRemarks = remarks.size();
-    for (int i = 0; i < fieldName.length; i++) {
-      if (fieldType[i] <= TYPE_RANDOM_NONE) {
+    for (RVField field : fields) {
+      if (field.getType() == null || field.getType() == RandomType.NONE) {
         CheckResult cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "RandomValueMeta.CheckResult.FieldHasNoType", fieldName[i]),
+                    PKG, "RandomValueMeta.CheckResult.FieldHasNoType", field.getName()),
                 transformMeta);
         remarks.add(cr);
       }
@@ -300,5 +140,149 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
               transformMeta);
       remarks.add(cr);
     }
+  }
+
+  public enum RandomType implements IEnumHasCodeAndDescription {
+    NONE("", ""),
+    NUMBER("random number", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomNumber")),
+    INTEGER(
+        "random integer", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomInteger")),
+    STRING("random string", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomString")),
+    UUID("random uuid", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomUUID")),
+    UUID4("random uuid4", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomUUID4")),
+    HMAC_MD5(
+        "random machmacmd5", BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACMD5")),
+    HMAC_SHA1(
+        "random machmacsha1",
+        BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA1"));
+    private final String code;
+    private final String description;
+
+    RandomType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(RandomType.class);
+    }
+
+    public static RandomType lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(RandomType.class, description, NONE);
+    }
+
+    public static RandomType lookupCode(String code) {
+      return IEnumHasCode.lookupCode(RandomType.class, code, NONE);
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  public static final class RVField {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "type", storeWithCode = true)
+    private RandomType type;
+
+    public RVField() {
+      type = RandomType.NONE;
+    }
+
+    public RVField(RVField f) {
+      this();
+      this.name = f.name;
+      this.type = f.type;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets type
+     *
+     * @return value of type
+     */
+    public RandomType getType() {
+      return type;
+    }
+
+    /**
+     * Sets type
+     *
+     * @param type value of type
+     */
+    public void setType(RandomType type) {
+      this.type = type;
+    }
+  }
+
+  /**
+   * Gets fields
+   *
+   * @return value of fields
+   */
+  public List<RVField> getFields() {
+    return fields;
+  }
+
+  /**
+   * Sets fields
+   *
+   * @param fields value of fields
+   */
+  public void setFields(List<RVField> fields) {
+    this.fields = fields;
+  }
+
+  /**
+   * Gets seed
+   *
+   * @return value of seed
+   */
+  public String getSeed() {
+    return seed;
+  }
+
+  /**
+   * Sets seed
+   *
+   * @param seed value of seed
+   */
+  public void setSeed(String seed) {
+    this.seed = seed;
   }
 }

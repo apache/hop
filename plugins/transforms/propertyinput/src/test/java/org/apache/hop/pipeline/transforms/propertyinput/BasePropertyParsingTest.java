@@ -17,10 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
+import java.util.Arrays;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
+import org.apache.hop.pipeline.transforms.propertyinput.PropertyInputMeta.PIField;
 import org.junit.Before;
 import org.junit.Ignore;
 
@@ -40,10 +42,9 @@ public class BasePropertyParsingTest
 
   /** Initialize for processing specified file. */
   protected void init(String file) throws Exception {
-    meta.setFileName(new String[] {getFile(file).getURL().getFile()});
-    meta.setFileMask(new String[1]);
-    meta.setExcludeFileMask(new String[1]);
-    meta.setFileRequired(new String[] {"N"});
+    PropertyInputMeta.PIFile f1 = new PropertyInputMeta.PIFile();
+    f1.setName(getFile(file).getURL().getFile());
+    meta.getFiles().add(f1);
 
     transform = new PropertyInput(transformMeta, meta, data, 1, pipelineMeta, pipeline);
     transform.init();
@@ -51,8 +52,8 @@ public class BasePropertyParsingTest
   }
 
   /** Declare fields for test. */
-  protected void setFields(PropertyInputField... fields) throws Exception {
-    meta.setInputFields(fields);
+  protected void setFields(PIField... fields) throws Exception {
+    meta.setInputFields(Arrays.asList(fields));
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
     data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
   }

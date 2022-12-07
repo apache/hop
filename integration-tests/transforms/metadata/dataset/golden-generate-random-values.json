@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-generate-random-values.csv",
+  "name": "golden-generate-random-values",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 1,
+      "field_precision": 5,
+      "field_name": "num",
+      "field_format": "####0.0#########;-####0.0#########"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "int",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": 13,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "str",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

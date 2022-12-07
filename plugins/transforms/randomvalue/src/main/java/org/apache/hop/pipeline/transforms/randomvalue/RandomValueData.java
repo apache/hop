@@ -35,7 +35,7 @@ public class RandomValueData extends BaseTransformData implements ITransformData
   /* Generating a random Message Authentication Code (MAC SHA1) */
   KeyGenerator keyGenHmacSHA1;
 
-  public final Random randomgen = new Random();
+  public Random randomGenerator;
 
   public RandomValueData() {
     super();

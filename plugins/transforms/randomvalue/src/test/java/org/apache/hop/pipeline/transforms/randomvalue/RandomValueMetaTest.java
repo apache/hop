@@ -16,53 +16,36 @@
  */
 package org.apache.hop.pipeline.transforms.randomvalue;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.ClassRule;
+import java.util.List;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class RandomValueMetaTest {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
-  public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList("name", "type");
+  public void testSerialization() throws Exception {
+    RandomValueMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/generate-random-values-transform.xml", RandomValueMeta.class);
+    Assert.assertEquals("12345", meta.getSeed());
+    Assert.assertEquals(7, meta.getFields().size());
 
-    Map<String, String> getterMap = new HashMap<>();
-    getterMap.put("name", "getFieldName");
-    getterMap.put("type", "getFieldType");
+    List<RandomValueMeta.RVField> fields = meta.getFields();
 
-    Map<String, String> setterMap = new HashMap<>();
-    setterMap.put("name", "setFieldName");
-    setterMap.put("type", "setFieldType");
-
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
-    fieldLoadSaveValidatorAttributeMap.put(
-        "name", new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25));
-    fieldLoadSaveValidatorAttributeMap.put(
-        "type",
-        new PrimitiveIntArrayLoadSaveValidator(
-            new IntLoadSaveValidator(RandomValueMeta.functions.length), 25));
-
-    LoadSaveTester loadSaveTester =
-        new LoadSaveTester(
-            RandomValueMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            fieldLoadSaveValidatorAttributeMap,
-            new HashMap<>());
-    loadSaveTester.testSerialization();
+    Assert.assertEquals(RandomValueMeta.RandomType.NUMBER, fields.get(0).getType());
+    Assert.assertEquals("num", fields.get(0).getName());
+    Assert.assertEquals(RandomValueMeta.RandomType.INTEGER, fields.get(1).getType());
+    Assert.assertEquals("int", fields.get(1).getName());
+    Assert.assertEquals(RandomValueMeta.RandomType.STRING, fields.get(2).getType());
+    Assert.assertEquals("str", fields.get(2).getName());
+    Assert.assertEquals(RandomValueMeta.RandomType.UUID, fields.get(3).getType());
+    Assert.assertEquals("uuid", fields.get(3).getName());
+    Assert.assertEquals(RandomValueMeta.RandomType.UUID4, fields.get(4).getType());
+    Assert.assertEquals("uuid4", fields.get(4).getName());
+    Assert.assertEquals(RandomValueMeta.RandomType.HMAC_MD5, fields.get(5).getType());
+    Assert.assertEquals("hmac_md5", fields.get(5).getName());
+    Assert.assertEquals(RandomValueMeta.RandomType.HMAC_SHA1, fields.get(6).getType());
+    Assert.assertEquals("hmac_sha1", fields.get(6).getName());
   }
 }
