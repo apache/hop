@@ -24,12 +24,11 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -41,7 +40,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -63,10 +61,12 @@ import java.util.List;
 public class ActionFileCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileCompare.class; // For Translator
 
+  @HopMetadataProperty(key = "filename1")
   private String filename1;
+  @HopMetadataProperty(key = "filename2")
   private String filename2;
-  private boolean addFilenameToResult;
-  private WorkflowMeta parentWorkflowMeta;
+  @HopMetadataProperty(key = "add_filename_result")
+  private boolean addFilenameToResult; 
 
   public ActionFileCompare(String n) {
     super(n, "");
@@ -79,40 +79,16 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     this("");
   }
 
+  public ActionFileCompare(ActionFileCompare meta) {
+    this("");
+    this.filename1 = meta.filename1;
+    this.filename2 = meta.filename2;
+    this.addFilenameToResult = meta.addFilenameToResult;    
+  }
+  
   @Override
   public Object clone() {
-    ActionFileCompare je = (ActionFileCompare) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("filename1", filename1));
-    retval.append("      ").append(XmlHandler.addTagValue("filename2", filename2));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("add_filename_result", addFilenameToResult));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      filename1 = XmlHandler.getTagValue(entrynode, "filename1");
-      filename2 = XmlHandler.getTagValue(entrynode, "filename2");
-      addFilenameToResult =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_filename_result"));
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionFileCompare.ERROR_0001_Unable_To_Load_From_Xml_Node"),
-          xe);
-    }
+    return new ActionFileCompare(this);
   }
 
   public String getRealFilename1() {
@@ -323,15 +299,5 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
     ActionValidatorUtils.andValidator().validate(this, "filename1", remarks, ctx);
     ActionValidatorUtils.andValidator().validate(this, "filename2", remarks, ctx);
-  }
-
-  @Override
-  public WorkflowMeta getParentWorkflowMeta() {
-    return parentWorkflowMeta;
-  }
-
-  @Override
-  public void setParentWorkflowMeta(WorkflowMeta parentWorkflowMeta) {
-    this.parentWorkflowMeta = parentWorkflowMeta;
   }
 }

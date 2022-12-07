@@ -22,12 +22,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -39,12 +38,11 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 import java.util.List;
 import java.util.Map;
 
-/** This defines an SQL action. */
+/** The File Exists action verifies that a specified file exists on the server on which Hop is running. */
 @Action(
     id = "FILE_EXISTS",
     name = "i18n::ActionFileExists.Name",
@@ -55,7 +53,8 @@ import java.util.Map;
     documentationUrl = "/workflow/actions/fileexists.html")
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileExists.class; // For Translator
-
+  
+  @HopMetadataProperty(key = "filename")
   private String filename;
 
   public ActionFileExists(String n) {
@@ -67,34 +66,14 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  public ActionFileExists(ActionFileExists meta) {
+    this("");
+    this.filename = meta.filename;
+  }
+  
   @Override
   public Object clone() {
-    ActionFileExists je = (ActionFileExists) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(20);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "ActionFileExists.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
-          xe);
-    }
+    return new ActionFileExists(this);    
   }
 
   public void setFilename(String filename) {

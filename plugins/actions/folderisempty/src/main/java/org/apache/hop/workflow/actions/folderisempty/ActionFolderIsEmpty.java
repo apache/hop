@@ -24,19 +24,17 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,19 +56,24 @@ import java.util.regex.Pattern;
 public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator
 
-  private String folderName;
+  @HopMetadataProperty(key = "foldername")
+  private String folderName;  
+  @HopMetadataProperty(key = "include_subfolders")
+  private boolean includeSubFolders;
+  @HopMetadataProperty(key = "specify_wildcard")
+  private boolean specifyWildcard;
+  @HopMetadataProperty(key = "wildcard")
+  private String wildcard;
+ 
   private int filescount;
   private int folderscount;
-  private boolean includeSubfolders;
-  private boolean specifyWildcard;
-  private String wildcard;
   private Pattern pattern;
-
+  
   public ActionFolderIsEmpty(String n) {
     super(n, "");
     folderName = null;
     wildcard = null;
-    includeSubfolders = false;
+    includeSubFolders = false;
     specifyWildcard = false;
   }
 
@@ -78,38 +81,17 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     this("");
   }
 
+  public ActionFolderIsEmpty(ActionFolderIsEmpty meta) {
+    this("");
+    this.folderName = meta.folderName;
+    this.includeSubFolders = meta.includeSubFolders;
+    this.specifyWildcard = meta.specifyWildcard;
+    this.wildcard = meta.wildcard;
+  }
+
   @Override
   public Object clone() {
-    ActionFolderIsEmpty je = (ActionFolderIsEmpty) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
-    retval.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      folderName = XmlHandler.getTagValue(entrynode, "foldername");
-      includeSubfolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-      specifyWildcard = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "specify_wildcard"));
-      wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'create folder' from XML node", xe);
-    }
+    return new ActionFolderIsEmpty(this);
   }
 
   public void setSpecifyWildcard(boolean specifyWildcard) {
@@ -120,16 +102,16 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     return specifyWildcard;
   }
 
-  public void setFoldername(String folderName) {
+  public void setFolderName(String folderName) {
     this.folderName = folderName;
   }
 
-  public String getFoldername() {
+  public String getFolderName() {
     return folderName;
   }
 
-  public String getRealFoldername() {
-    return resolve(getFoldername());
+  public String getRealFolderName() {
+    return resolve(getFolderName());
   }
 
   public String getWildcard() {
@@ -145,11 +127,11 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public boolean isIncludeSubFolders() {
-    return includeSubfolders;
+    return includeSubFolders;
   }
 
   public void setIncludeSubFolders(boolean includeSubfolders) {
-    this.includeSubfolders = includeSubfolders;
+    this.includeSubFolders = includeSubfolders;
   }
 
   @Override
@@ -167,7 +149,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     }
 
     if (folderName != null) {
-      String realFoldername = getRealFoldername();
+      String realFoldername = getRealFolderName();
       FileObject folderObject = null;
       try {
         folderObject = HopVfs.getFileObject(realFoldername);

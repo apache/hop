@@ -369,18 +369,4 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
         IHopFileType.CAPABILITY_DISTRIBUTE_VERTICAL,
         selectedTransform);
   }
-
-  public void mouseScrolled(MouseEvent mouseEvent) {
-    // Zoom in or out every time we get an event.
-    //
-    // In the future we do want to take the location of the mouse into account.
-    // That way we can adjust the offset accordingly to keep the screen centered on the mouse while
-    // zooming in or out.
-    //
-    if (mouseEvent.count > 0) {
-      zoomIn();
-    } else {
-      zoomOut();
-    }
-  }
 }

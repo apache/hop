@@ -82,7 +82,7 @@ public class WorkflowActionFolderIsEmptyTest {
 
   @Test
   public void testSetNrErrorsSuccess() throws Exception {
-    action.setFoldername(emptyDir);
+    action.setFolderName(emptyDir);
 
     Result result = action.execute(new Result(), 0);
 
@@ -92,7 +92,7 @@ public class WorkflowActionFolderIsEmptyTest {
 
   @Test
   public void testSetNrErrorsFail() throws Exception {
-    action.setFoldername(nonEmptyDir);
+    action.setFolderName(nonEmptyDir);
 
     Result result = action.execute(new Result(), 0);
 
