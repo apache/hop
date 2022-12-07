@@ -58,7 +58,7 @@ image::integration-tests-004.png[]
 . create a unit test
 +
 Now you can add your own workflow to the project folder.
-Make sure you have a Jira ticket you can refer to when creating a pull request.
+Make sure you have a GitHub Issue number you can refer to when creating a pull request.
 
 == Adding a new project
 

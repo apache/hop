@@ -39,7 +39,7 @@ The Beam link:https://aws.amazon.com/kinesis/[Kinesis] Produce transform sends d
 
 == Limitations
 
-The main limitation of the Kinesis produce transform is that it currently only supports sending String data.  Please create a request in JIRA if you want to see support for Avro messages and other formats.
+The main limitation of the Kinesis produce transform is that it currently only supports sending String data.  Please create a request in GitHub if you want to see support for Avro messages and other formats.
 
 == Options
 
