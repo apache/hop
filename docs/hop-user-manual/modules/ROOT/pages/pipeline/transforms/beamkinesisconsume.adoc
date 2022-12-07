@@ -39,7 +39,7 @@ The Beam link:https://aws.amazon.com/kinesis/[Kinesis] Consume transform consume
 
 == Limitations
 
-The main limitation of the Kinesis consumer is that it currently only supports reading String messages.  Please create a request in JIRA if you want to see support for Avro messages and other formats.
+The main limitation of the Kinesis consumer is that it currently only supports reading String messages.  Please create a request in GitHub if you want to see support for Avro messages and other formats.
 
 == Options
 

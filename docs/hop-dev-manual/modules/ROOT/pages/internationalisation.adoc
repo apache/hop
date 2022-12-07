@@ -190,7 +190,7 @@ image::hop-translator-save-files-dialog.png[Hop Translator: the save files dialo
 Once the files are saved you re-build Hop and test them by using the translated keys.
 Finally, don't forget to commit and push changes as described here:  xref:setup-dev-environment.adoc[Setting up your development environment]
 
-Please reference a JIRA case and see if there aren't any already for the locale you're covering.
+Please reference a Github Issue and see if there aren't any already for the locale you're covering.
 
 === Highlighting codes
 

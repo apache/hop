@@ -223,7 +223,7 @@ Release artifacts are signed with the following key:
 <ADD URL TO YOUR KEY ON A PUBLIC KEYSERVER>
 
 For more information about the contents of this release, see:
-<ADD URL TO RELEASE IN JIRA>
+<ADD URL TO RELEASE IN GITHUB>
 
 Please vote on releasing this package as Apache Hop X.XX!
 

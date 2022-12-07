@@ -146,4 +146,4 @@ To allow encrypted (TLS) network connections to, for example, Kafka and Neo4j Au
 This is done by setting security property `jdk.tls.disabledAlgorithms` to value: `Lv3, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL`.
 
 Please let us know if you have a need to make this configurable and we'll look for a way to not hardcode this.
-Just create a JIRA case to let us know.
+Just create a Github Issue to let us know.

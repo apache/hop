@@ -65,8 +65,8 @@
     </mailingLists>
 
     <issueManagement>
-        <system>JIRA</system>
-        <url>https://issues.apache.org/jira/browse/HOP</url>
+        <system>GitHub Issues</system>
+        <url>https://github.com/apache/hop/issues</url>
     </issueManagement>
     <ciManagement>
         <system>Jenkins</system>

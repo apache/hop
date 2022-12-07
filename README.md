@@ -35,7 +35,7 @@ Your help is invaluable.
 
 There are various things you can do to help Hop continue moving forward quickly:
 
-- Log bugs, request features in the [Hop JIRA](https://issues.apache.org/jira/projects/HOP)
+- Log bugs, request features in [GitHub](https://github.com/apache/hop/issues)
 - Ask questions in the [mailing lists](https://hop.apache.org/community/mailing-list/)
   or [mattermost](https://chat.project-hop.org/hop/channels/dev)
 - Help us write or fix documentation (lot of opportunities)
@@ -110,7 +110,7 @@ After a successful build, the Hop UI can be started.
 
 On Windows, run `hop-gui.bat`, on Mac and Linux, run `hop-gui.sh`
 
-Help us to improve Hop by logging issues in the [Hop JIRA](https://issues.apache.org/jira/projects/HOP)
+Help us to improve Hop by logging issues in [GitHub Issues](https://github.com/apache/hop/issues)
 
 This distribution includes cryptographic software. The country in which you currently reside may have restrictions on
 the import, possession, use, and/or re-export to another country, of encryption software. BEFORE using any encryption

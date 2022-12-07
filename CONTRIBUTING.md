@@ -23,7 +23,7 @@ Apache Hop is developed by an open and friendly community. Everybody is cordiall
 ## What do you want to do?
 Contributing to Hop goes beyond writing code for the project. Below, we list different opportunities to help the project:
 
-* To report a problem with Hop, open a Hop's [jira](https://issues.apache.org/jira/projects/HOP/issues), log in if necessary, and click on the "+" in the left side bar (Shortcut "c").
+* To report a problem with Hop, open a Hop's [GitHub Issue](https://github.com/apache/hop/issues), log in if necessary, and click on the "+" in the left side bar (Shortcut "c").
 Please give detailed information about the problem you encountered and, if possible, add a description that helps to reproduce the problem. For more information go to our [info](https://hop.apache.org/community/contribution-guides/jira-guide/) page. 
 * Read the [Code Contribution Guide](https://hop.apache.org/community/contribution-guides/code-contribution-guide/)
 * Help With Code Reviews [Code Review Guide](https://hop.apache.org/community/contribution-guides/code-review-guide/)
@@ -33,7 +33,7 @@ Please give detailed information about the problem you encountered and, if possi
 * Support Hop Users
   * Join us on our [Mattermost](https://chat.project-hop.org/) server and answer questions
   * Reply to Hop related questions on Stack Overflow with the hop tag or the Hop forums
-  * Check the latest issues in Jira for tickets which are actually user questions
+  * Check the latest issues in GtiHub Issues for tickets which are actually user questions
 * Improve the Website [Website Contribution Guide](https://hop.apache.org/community/contribution-guides/website-contribution-guide/)
 * Spread the Word about Hop
   * Organize or attend a Hop Meetup

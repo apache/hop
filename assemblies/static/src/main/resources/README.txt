@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-When finding issues please log a bug in our public Jira https://issues.apache.org/jira/projects/HOP
+When finding issues please log a bug in GitHub https://github.com/apache/hop/issues
 When you have a question you can use our mailing list (http://hop.apache.org/community/mailing-list/) or Mattermost Chat (https://chat.project-hop.org/hop/channels/dev)
 
 

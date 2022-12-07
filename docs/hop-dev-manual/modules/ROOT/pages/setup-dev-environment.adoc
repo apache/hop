@@ -178,16 +178,16 @@ You can now set breakpoints in your code and see what's going on.
 == Committing work
 
 Updating your fork can be done simply by committing locally and then pushing those changes to "origin".
-Make sure to always reference a HOP-xxxxx JIRA case!
+Make sure to always reference a #12345 GitHub issue!
 For example:
 
 [source]
-git commit -m "HOP-98765 : My work description" .
+git commit -m "#12345 : My work description" .
 
 == Updating your fork
 
 After a while it's likely your "origin" fork will be lagging behind with the main "upstream" Hop codebase.
-You can develop against the ```master``` branch of the codebase or you can create different branches for the features you're building or the JIRA cases you're fixing.
+You can develop against the ```master``` branch of the codebase or you can create different branches for the features you're building or the GitHub issue you're fixing.
 In the commands below we assume you want to update your ```master``` branch.
 If this is not the case, replace ```master``` with the branch you're interested in and later want to generate a pull request for.
 
@@ -227,7 +227,7 @@ If all goes well you should see something like the following:
 image::github-create-pull-request.png[]
 
 After you hit the green "Create pull request" button you will be presented with the opportunity to describe the changes.
-Make sure to reference the right JIRA cases and leave useful tips for the reviewers of the changes.
+Make sure to reference the right GitHub Issue and leave useful tips for the reviewers of the changes.
 Again: as mentioned above *please make sure your project builds and all tests succeed.*
 
 Once you created the pull request we will run all sorts of tests and this will take some time.
