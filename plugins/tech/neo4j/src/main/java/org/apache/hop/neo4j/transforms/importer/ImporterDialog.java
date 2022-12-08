@@ -95,7 +95,7 @@ public class ImporterDialog extends BaseTransformDialog implements ITransformDia
 
     FormLayout shellLayout = new FormLayout();
     shell.setLayout(shellLayout);
-    shell.setText("Neo4j Importer");
+    shell.setText(BaseMessages.getString(PKG, "ImporterMeta.name"));
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();

@@ -43,8 +43,8 @@ import java.util.List;
 
 @Transform(
     id = "GetLoggingInfo",
-    name = "Get Neo4j Logging Info",
-    description = "Queries the Neo4j logging graph and gets information back",
+    name = "i18n::GetLoggingInfoDialog.DialogTitle",
+    description = "i18n::GetLoggingInfoDialog.Description",
     categoryDescription = "Neo4j",
     image = "systeminfo.svg",
     keywords = "i18n::GetLoggingInfoMeta.keyword",

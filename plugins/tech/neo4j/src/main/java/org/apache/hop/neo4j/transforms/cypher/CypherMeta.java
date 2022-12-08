@@ -38,9 +38,8 @@ import java.util.List;
 
 @Transform(
     id = "Neo4jCypherOutput",
-    name = "Neo4j Cypher",
-    description =
-        "Reads from or writes to Neo4j using Cypher with parameter data from input fields",
+    name = "i18n::Cypher.Transform.Name",
+    description = "i18n::Cypher.Transform.Description",
     image = "neo4j_cypher.svg",
     categoryDescription = "Neo4j",
     keywords = "i18n::CypherMeta.keyword",

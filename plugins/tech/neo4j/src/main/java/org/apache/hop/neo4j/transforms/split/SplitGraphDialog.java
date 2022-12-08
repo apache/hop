@@ -78,7 +78,7 @@ public class SplitGraphDialog extends BaseTransformDialog implements ITransformD
 
     FormLayout shellLayout = new FormLayout();
     shell.setLayout(shellLayout);
-    shell.setText("Neo4j SplitGraph");
+    shell.setText(BaseMessages.getString(PKG, "SplitGraphMeta.name"));
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();

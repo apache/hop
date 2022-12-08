@@ -23,10 +23,32 @@ Add XML
 Analytic query
 Apache Tika
 Append streams
+Avro Decode
+Avro Encode
+Avro File Input
+Avro File Output
+Azure Event Hubs Listener
+Azure Event Hubs Writer
+Beam BigQuery Input
+Beam BigQuery Output
+Beam Bigtable Input
+Beam Bigtable Output
+Beam File Input
+Beam File Output
+Beam GCP Pub/Sub : Publish
+Beam GCP Pub/Sub : Subscribe
+Beam Kafka Consume
+Beam Kafka Produce
+Beam Kinesis Consume
+Beam Kinesis Produce
+Beam Timestamp
+Beam Window
 Block until transforms finish
 Blocking transform
 Calculator
 Call DB procedure
+Cassandra input
+Cassandra output
 Change file encoding
 Check if file is locked
 Check if webservice is available
@@ -48,6 +70,7 @@ Delete
 Detect empty stream
 Dimension lookup/update
 Doris bulk loader
+Dummy (do nothing)
 Dynamic SQL row
 EDI to XML
 Email messages input
@@ -56,6 +79,8 @@ ETL metadata injection
 Execute a process
 Execute row SQL script
 Execute SQL script
+Execute Unit Tests
+Execution Information
 Fake data
 File exists
 File Metadata
@@ -68,7 +93,7 @@ Get data from XML
 Get file names
 Get files from result
 Get files rows count
-Get ID from hop server
+Get Neo4j Logging Info
 Get records from stream
 Get rows from result
 Get Server Status
@@ -81,6 +106,7 @@ HTTP client
 HTTP post
 Identify last row in a stream
 If Null
+Injector
 Insert / update
 Java filter
 JavaScript
@@ -100,6 +126,7 @@ Merge join
 Merge rows (diff)
 Metadata Input
 Metadata structure of stream
+Microsoft Access output
 Microsoft Excel input
 Microsoft Excel writer
 MonetDB bulk loader
@@ -107,11 +134,22 @@ MongoDB Delete
 MongoDB input
 MongoDB output
 Multiway merge join
+Neo4j Cypher
+Neo4j Cypher Builder
+Neo4j Generate CSVs
+Neo4j Graph Output
+Neo4j Import
+Neo4J Output
+Neo4j Split Graph
 Null if
 Number range
+Parquet File Input
+Parquet File Output
 PGP decrypt stream
 PGP encrypt stream
 Pipeline executor
+Pipeline Logging
+Pipeline Probe
 PostgreSQL Bulk Loader
 Process files
 Properties input
@@ -133,6 +171,7 @@ Salesforce update
 Salesforce upsert
 Sample rows
 SAS Input
+Select values
 Serialize to file
 Set field value
 Set field value to a constant
@@ -144,7 +183,9 @@ Sort rows
 Sorted merge
 Split field to rows
 Split fields
+Splunk Input
 SQL file output
+SSTable output
 Standardize phone number
 Stream lookup
 Stream Schema Merge
@@ -158,7 +199,7 @@ Table input
 Table output
 Teradata Fastload bulk loader
 Text file input
-Text file input
+Text file input (deprecated)
 Text file output
 Token Replacement
 Unique rows
@@ -169,6 +210,7 @@ User defined Java expression
 Value mapper
 Web services lookup
 Workflow executor
+Workflow Logging
 Write to log
 XML input stream (StAX)
 XML join

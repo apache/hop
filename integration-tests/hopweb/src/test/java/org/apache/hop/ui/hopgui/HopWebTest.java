@@ -41,7 +41,6 @@ import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.utility.DockerImageName;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,15 +60,14 @@ public class HopWebTest {
     private static int MARGIN_TOP = 35;
     private static int MARGIN_LEFT = 10;
     private static int WAIT_SHORT = 2000;
-    private static int WAIT_MEDIUM = 1000;
+    private static int WAIT_MEDIUM = 3000;
     private static int WAIT_LONG = 5000;
-    private static int WAIT_VERY_LONG = 5000;
+    private static int WAIT_VERY_LONG = 10000;
     private static WebDriver driver;
     private static Actions actions;
     private static WebDriverWait wait;
     private WebElement contextCanvas, pipelineCanvas;
     private Dimension canvasDimension;
-    private static File driverFile;
     private static boolean isHeadless;
     private static String baseUrl, transformName;
     private static String transformsFile;
@@ -78,7 +76,6 @@ public class HopWebTest {
 
     @BeforeAll
     public static void setUp() throws Exception {
-        //network = Network.builder().driver("bridge").build();
         hopWebContainer = new GenericContainer<>(DockerImageName.parse("apache/hop-web:Development")).withExposedPorts(8080)
                 .waitingFor(Wait.forHttp("/ui"));
         hopWebContainer.start();
@@ -88,7 +85,6 @@ public class HopWebTest {
         InputStream input = new FileInputStream(HopWebTest.class.getClassLoader().getResource("hopwebtest.properties").getFile());
         Properties properties = new Properties();
         properties.load(input);
-        driverFile = new File(properties.getProperty("driverfile"));
         baseUrl = "http://" + hopWebContainer.getHost() + ":" + hopWebContainer.getFirstMappedPort() + "/ui";
         System.out.println("Connection URL used: " + baseUrl);
         isHeadless = Boolean.valueOf(properties.getProperty("headless"));
@@ -160,6 +156,9 @@ public class HopWebTest {
     @CsvFileSource(files = "src/test/resources/transforms.csv")
     @Order(2)
     public void testAddTransform(String transformName) throws InterruptedException, IOException {
+        System.out.println("#############################################################");
+        System.out.println(transformName + " - Starting test");
+        System.out.println("#############################################################");
         createNewTransform(transformName);
     }
 
@@ -201,8 +200,6 @@ public class HopWebTest {
 
         sendInput(transformName);
 
-        Thread.sleep(WAIT_SHORT);
-
         clickFirstCanvasElement(contextCanvas);
 
         Thread.sleep(WAIT_SHORT);
@@ -216,10 +213,10 @@ public class HopWebTest {
 
         clickFirstCanvasElement(contextCanvas);
 
-        Thread.sleep(WAIT_SHORT);
 
         // can we pick up the transform's dialog?
         try {
+            System.out.println(transformName + " - Check if Dialog is open");
             assertTrue(isElementPresent(transformName));
         } catch (AssertionFailedError e) {
             restartOnFailure(e);
@@ -228,12 +225,13 @@ public class HopWebTest {
         try {
 
             // close the dialog
+            System.out.println(transformName + " - Closing dialog (Esc)");
             driver.findElement(By.xpath("//body")).sendKeys(Keys.ESCAPE);
-
             Thread.sleep(WAIT_SHORT);
 
             // for some transforms (e.g. Append Streams), the dialog is closed correctly, but the dialog element keeps floating around, causing this assertion to fail.
             // check that we can't get the transform's dialog anymore
+            System.out.println(transformName + " - Check if Dialog is gone");
             assertFalse(isElementPresent(transformName));
         } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-could-not-get-dialog.png");
@@ -243,8 +241,6 @@ public class HopWebTest {
         // open the context dialog again to delete this transform.
         try {
 
-            Thread.sleep(WAIT_SHORT);
-
             // pick up the pipeline canvas again before we remove the transform
             pipelineCanvas = getCanvas(0);
             assertNotNull(pipelineCanvas);
@@ -252,29 +248,22 @@ public class HopWebTest {
             // now open the context dialog to remove the transform
             new Actions(driver).moveToElement(pipelineCanvas, 10, 10).click().pause(Duration.ofMillis(WAIT_SHORT)).perform();
 
-            Thread.sleep(WAIT_SHORT);
-
-            // the context dialog should have popped up, so we have 2 canvas elements available.
-//            int nbCanvasElements = driver.findElements(By.xpath("//canvas")).size();
-//            assertEquals(2, nbCanvasElements);
         } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-could-not-get-delete-dialog.png");
             restartOnFailure(e);
         }
 
         try {
-            Thread.sleep(WAIT_SHORT);
 
+            System.out.println(transformName + " - Delete Transform");
             contextCanvas = getLastCanvas();
 
             sendInput("delete");
 
             clickFirstCanvasElement(contextCanvas);
 
-            Thread.sleep(WAIT_SHORT);
-
             // check if the context dialog was closed correctly.
-//            assertEquals(1, driver.findElements(By.xpath("//canvas")).size());
+            // TODO: check if element is gone
 
         } catch (AssertionFailedError e) {
             screenshotUtil.takeScreenshot(driver, transformName + "-delete-dialog-not-closed.png");
@@ -300,15 +289,25 @@ public class HopWebTest {
 
     private boolean isElementPresent(String transformName) {
         try {
+            String checkTransformNameTest = driver.findElement(By.xpath("//body/div[5]/div[1]")).getText();
+
+            if (!checkTransformNameTest.equals(transformName)) {
+                System.out.println(transformName + " - Dialog name does not match is : " + checkTransformNameTest);
+                return false;
+            }
+
             WebElement transformNameElement = driver.findElement(By.xpath("//div[text()='" + transformName + "']"));
             String transformHtml = transformNameElement.getAttribute("innerHTML");
 
             if (transformNameElement != null) {
+                System.out.println(transformName + " - Element found");
                 return true;
             } else {
+                System.out.println(transformName + " - Element not found");
                 return false;
             }
         } catch (NoSuchElementException e) {
+            System.out.println(transformName + " - Element not found");
             return false;
         }
     }
