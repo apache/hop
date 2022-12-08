@@ -41,8 +41,8 @@ import java.util.Map;
 
 @Transform(
     id = "BeamPublish",
-    name = "Beam GCP Pub/Sub : Publish",
-    description = "Publish to a Pub/Sub topic",
+    name = "i18n::BeamPublishDialog.DialogTitle",
+    description = "i18n::BeamPublishDialog.Description",
     image = "beam-gcp-pubsub-publish.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamPublishMeta.keyword",

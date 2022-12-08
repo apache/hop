@@ -80,7 +80,7 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
 
     FormLayout shellLayout = new FormLayout();
     shell.setLayout(shellLayout);
-    shell.setText("Neo4j Generate CSVs");
+    shell.setText(BaseMessages.getString(PKG, "GenerateCsvMeta.name"));
 
     ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();

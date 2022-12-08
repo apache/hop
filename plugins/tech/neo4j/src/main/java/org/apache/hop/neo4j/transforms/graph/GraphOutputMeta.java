@@ -33,8 +33,8 @@ import java.util.List;
 
 @Transform(
     id = "Neo4jGraphOutput",
-    name = "Neo4j Graph Output",
-    description = "Write to a Neo4j graph using an input field mapping",
+    name = "i18n::GraphOutput.Name",
+    description = "i18n::GraphOutput.Description",
     image = "neo4j_graph_output.svg",
     categoryDescription = "Neo4j",
     keywords = "i18n::GraphOutputMeta.keyword",

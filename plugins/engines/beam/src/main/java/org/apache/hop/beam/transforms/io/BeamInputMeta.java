@@ -44,8 +44,8 @@ import java.util.Map;
 
 @Transform(
     id = "BeamInput",
-    name = "Beam File Input",
-    description = "Reads one or more file using the Beam execution framework",
+    name = "i18n::BeamInputDialog.DialogTitle",
+    description = "i18n::BeamInputDialog.Description",
     image = "beam-input.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamInputMeta.keyword",

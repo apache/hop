@@ -45,8 +45,8 @@ import java.util.Map;
 
 @Transform(
     id = "BeamSubscribe",
-    name = "Beam GCP Pub/Sub : Subscribe",
-    description = "Subscribe to data from a Pub/Sub topic",
+    name = "i18n::BeamSubscribeDialog.DialogTitle",
+    description = "i18n::BeamSubscribeDialog.Description",
     image = "beam-gcp-pubsub-subscribe.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamSubscribeMeta.keyword",

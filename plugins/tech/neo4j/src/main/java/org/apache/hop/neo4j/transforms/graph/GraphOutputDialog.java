@@ -123,7 +123,7 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
     formLayout.marginHeight = PropsUi.getFormMargin();
 
     shell.setLayout(formLayout);
-    shell.setText("Neo4j GraphOutput");
+    shell.setText(BaseMessages.getString(PKG, "GraphOutput.Name"));
 
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();

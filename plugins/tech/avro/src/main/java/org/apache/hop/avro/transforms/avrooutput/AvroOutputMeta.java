@@ -42,8 +42,8 @@ import java.util.List;
 
 @Transform(
     id = "AvroOutput",
-    name = "Avro File Output",
-    description = "Writes file serialized in the Apache Avro file format",
+    name = "i18n::AvroOutputDialog.DialogTitle",
+    description = "i18n::AvroOutputDialog.Description",
     image = "avro_output.svg",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/avro-file-output.html",
