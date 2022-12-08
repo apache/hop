@@ -158,6 +158,7 @@ public class PropsUi extends Props {
     //
     if (OsHelper.isWindows() && isDarkMode()) {
       display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", Boolean.TRUE);
       display.setData(
           "org.eclipse.swt.internal.win32.menuBarForegroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
