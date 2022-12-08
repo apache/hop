@@ -36,7 +36,7 @@ import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
 @ConfigPlugin(id = "WelcomeDialogOption", description = "Enable or disable the welcome dialog")
-@GuiPlugin(description = "Welcome Dialog")
+@GuiPlugin(description = "i18n::WelcomeDialog.Description")
 public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
   protected static Class<?> PKG = WelcomeDialogOptions.class; // For Translator
   @CommandLine.Option(
