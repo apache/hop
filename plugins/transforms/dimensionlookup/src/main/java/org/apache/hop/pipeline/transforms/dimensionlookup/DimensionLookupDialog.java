@@ -56,10 +56,6 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -178,16 +174,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    FocusListener lsConnectionFocus =
-        new FocusAdapter() {
-          @Override
-          public void focusLost(FocusEvent event) {
-            setTableFieldCombo();
-          }
-        };
-
-    ModifyListener lsTableMod = e -> setTableFieldCombo();
-
     databaseMeta = input.getDatabaseMeta();
 
     shell.setLayout(props.createFormLayout());
@@ -247,9 +233,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     // Connection line
     wConnection = addConnectionLine(mainComposite, wUpdate, input.getDatabaseMeta(), null);
-    wConnection.addFocusListener(lsConnectionFocus);
-    wConnection.addModifyListener(
-        e -> {
+    wConnection.addListener(SWT.FocusOut, e -> setTableFieldCombo());
+    wConnection.addListener(SWT.Modify, e -> {
           // We have new content: change ci connection:
           databaseMeta = wConnection.loadSelectedElement();
           setFlags();
@@ -272,16 +257,17 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdbSchema.top = new FormAttachment(wConnection, margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
     wSchema = new TextVar(variables, mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
-    wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
     fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
-
+    wSchema.addListener(SWT.Modify, e -> setTableFieldCombo());
+        
     // Table line...
     Label wlTable = new Label(mainComposite, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.TargetTable.Label"));
@@ -299,16 +285,17 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdbTable.right = new FormAttachment(100, 0);
     fdbTable.top = new FormAttachment(wbSchema, margin);
     wbTable.setLayoutData(fdbTable);
-
+    wbTable.addListener(SWT.Selection, e -> getTableName());
+    
     wTable = new TextVar(variables, mainComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTable);
-    wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(middle, 0);
     fdTable.top = new FormAttachment(wbSchema, margin);
-    fdTable.right = new FormAttachment(wbTable, 0);
+    fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
-
+    wTable.addListener(SWT.Modify, e -> setTableFieldCombo());
+    
     // Commit size ...
     wlCommit = new Label(mainComposite, SWT.RIGHT);
     wlCommit.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Commit.Label"));
@@ -422,9 +409,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     setSequence();
     setAutoIncrementUse();
 
-    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
-    wbTable.addListener(SWT.Selection, e -> getTableName());
-
     wTabFolder.setSelection(0);
 
     getData();
@@ -483,7 +467,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             nrKeyRows,
             null,
             props);
-
+    tableFieldColumns.add(keyColumns[0]);
+    
     FormData fdKey = new FormData();
     fdKey.left = new FormAttachment(0, 0);
     fdKey.top = new FormAttachment(wlKey, margin);
@@ -752,7 +737,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wVersion = new Combo(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wVersion);
     FormData fdVersion = new FormData();
-    fdVersion.left = new FormAttachment(middle, margin);
+    fdVersion.left = new FormAttachment(middle, 0);
     fdVersion.top = new FormAttachment(wlVersion, 0, SWT.CENTER);
     fdVersion.right = new FormAttachment(100, 0);
     wVersion.setLayoutData(fdVersion);
@@ -779,7 +764,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wDateField = new Combo(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wDateField);
     FormData fdDateField = new FormData();
-    fdDateField.left = new FormAttachment(middle, margin);
+    fdDateField.left = new FormAttachment(middle, 0);
     fdDateField.top = new FormAttachment(wlDateField, 0, SWT.CENTER);
     fdDateField.right = new FormAttachment(100, 0);
     wDateField.setLayoutData(fdDateField);
@@ -810,7 +795,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wFromDate = new Combo(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wFromDate);
     FormData fdFromDate = new FormData();
-    fdFromDate.left = new FormAttachment(middle, margin);
+    fdFromDate.left = new FormAttachment(middle, 0);
     fdFromDate.right = new FormAttachment(middle + (100 - middle) / 3, -margin);
     fdFromDate.top = new FormAttachment(wlFromDate, 0, SWT.CENTER);
     wFromDate.setLayoutData(fdFromDate);
@@ -823,7 +808,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
           shell.setCursor(null);
           busy.dispose();
         });
-
+    
     // MinYear line
     wlMinYear = new Label(wVersioningComp, SWT.RIGHT);
     wlMinYear.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.MinYear.Label"));
@@ -851,7 +836,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     PropsUi.setLook(wlUseAltStartDate);
     FormData fdlUseAltStartDate = new FormData();
     fdlUseAltStartDate.left = new FormAttachment(0, 0);
-    fdlUseAltStartDate.right = new FormAttachment(middle, 0);
+    fdlUseAltStartDate.right = new FormAttachment(middle, -margin);
     fdlUseAltStartDate.top = new FormAttachment(lastControl, margin);
     wlUseAltStartDate.setLayoutData(fdlUseAltStartDate);
 
@@ -880,7 +865,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         BaseMessages.getString(
             PKG, "DimensionLookupDialog.AlternativeStartDate.Tooltip", Const.CR));
     FormData fdAltStartDate = new FormData();
-    fdAltStartDate.left = new FormAttachment(wUseAltStartDate, 2 * margin);
+    fdAltStartDate.left = new FormAttachment(wUseAltStartDate, margin);
     fdAltStartDate.right =
         new FormAttachment(wUseAltStartDate, (int) (200 * props.getZoomFactor()));
     fdAltStartDate.top = new FormAttachment(wlUseAltStartDate, 0, SWT.CENTER);
@@ -921,7 +906,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wToDate = new Combo(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wToDate);
     FormData fdToDate = new FormData();
-    fdToDate.left = new FormAttachment(middle, margin);
+    fdToDate.left = new FormAttachment(middle, 0);
     fdToDate.right = new FormAttachment(middle + (100 - middle) / 3, -margin);
     fdToDate.top = new FormAttachment(wlToDate, 0, SWT.CENTER);
     wToDate.setLayoutData(fdToDate);
@@ -942,7 +927,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     FormData fdlMaxYear = new FormData();
     fdlMaxYear.left = new FormAttachment(wToDate, margin);
     fdlMaxYear.right = new FormAttachment(middle + 2 * (100 - middle) / 3, -margin);
-    fdlMaxYear.top = new FormAttachment(lastControl, 0, SWT.CENTER);
+    fdlMaxYear.top = new FormAttachment(wToDate, 0, SWT.CENTER);
     wlMaxYear.setLayoutData(fdlMaxYear);
     wMaxYear = new Text(wVersioningComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wMaxYear);
@@ -1069,8 +1054,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     Set<String> keySet = fields.keySet();
     List<String> entries = new ArrayList<>(keySet);
 
-    String[] fieldNames = entries.toArray(new String[0]);
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = Const.sortStrings(entries.toArray(new String[0]));
     keyColumns[1].setComboValues(fieldNames);
     fieldColumns[1].setComboValues(fieldNames);
   }
@@ -1359,7 +1343,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     }
   }
 
-  // Set table "dimension field" and "technical key" drop downs
+  // Set table "key field", "dimension field" and "technical key" drop downs
   private void setTableFieldCombo() {
 
     Runnable fieldLoader =
@@ -1388,16 +1372,19 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
           try (Database db = new Database(loggingObject, variables, dbMeta)) {
             db.connect();
 
-            IRowMeta r =
-                db.getTableFieldsMeta(variables.resolve(schemaName), variables.resolve(tableName));
-            if (r == null) {
+            IRowMeta rowMeta =
+                db.getTableFieldsMeta(schemaName, tableName);
+            if (rowMeta == null) {
               return;
             }
-            String[] fieldNames = r.getFieldNames();
+            String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());           
             for (ColumnInfo colInfo : tableFieldColumns) {
               colInfo.setComboValues(fieldNames);
             }
+            
+            String tk = wTk.getText();
             wTk.setItems(fieldNames);
+            wTk.setText(Const.NVL(tk, ""));
           } catch (Exception e) {
             for (ColumnInfo colInfo : tableFieldColumns) {
               colInfo.setComboValues(new String[] {});
@@ -1415,14 +1402,17 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
    * version, fromdate, todate.
    */
   private void getLookup() {
+    final String tableName = variables.resolve(wTable.getText());
+    final String schemaName = variables.resolve(wSchema.getText());
     DatabaseMeta dbMeta = wConnection.loadSelectedElement();
-    if (dbMeta != null) {
+    if (dbMeta != null  && StringUtils.isNotEmpty(tableName)) {
       try (Database db = new Database(loggingObject, variables, dbMeta)) {
         db.connect();
-        IRowMeta r = db.getTableFieldsMeta(wSchema.getText(), wTable.getText());
-        if (r != null && !r.isEmpty()) {
+
+        IRowMeta rowMeta = db.getTableFieldsMeta(schemaName, tableName);
+        if (rowMeta != null && !rowMeta.isEmpty()) {
           BaseTransformDialog.getFieldsFromPrevious(
-              r,
+              rowMeta,
               wUpIns,
               2,
               new int[] {1, 2},
@@ -1454,9 +1444,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     if (!gotPreviousFields) {
       try {
         String field = wDateField.getText();
-        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        if (r != null) {
-          wDateField.setItems(r.getFieldNames());
+        IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (rowMeta != null) {
+          String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+          wDateField.setItems(fieldNames);
         }
         if (field != null) {
           wDateField.setText(field);
@@ -1476,20 +1467,21 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     if (gotTableFields) {
       return;
     }
+    final String schemaName = variables.resolve(wSchema.getText());
     final String tableName = variables.resolve(wTable.getText());
     final DatabaseMeta dbMeta = wConnection.loadSelectedElement();
+    
+    // Without a database or a table name we can't do very much
     if (dbMeta == null || StringUtils.isEmpty(tableName)) {
       return;
     }
 
     try (Database db = new Database(loggingObject, variables, dbMeta)) {
       db.connect();
-      IRowMeta r =
-          db.getTableFieldsMeta(
-              variables.resolve(wSchema.getText()), variables.resolve(wTable.getText()));
-      if (null != r) {
-        String[] fieldNames = r.getFieldNames();
-
+      IRowMeta rowMeta = db.getTableFieldsMeta(schemaName, tableName);
+      if (null != rowMeta) {
+        String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+        
         // Version
         String version = wVersion.getText();
         wVersion.setItems(fieldNames);
