@@ -29,7 +29,9 @@ public class ExcelInputMetaTest {
     ExcelInputMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/excel-input-transform.xml", ExcelInputMeta.class);
-    assertEquals(1, meta.getFiles().size());
+    assertEquals(2, meta.getFiles().size());
+    assertEquals("file1.xls", meta.getFiles().get(0).getName());
+    assertEquals("file2.xls", meta.getFiles().get(1).getName());
     assertEquals(1, meta.getSheets().size());
     assertEquals(4, meta.getFields().size());
   }
