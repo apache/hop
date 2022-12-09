@@ -21,12 +21,11 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -39,7 +38,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.FileExistsValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,8 +56,10 @@ import java.util.List;
     documentationUrl = "/workflow/actions/deletefile.html")
 public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFile.class; // For Translator
-
+  
+  @HopMetadataProperty(key = "filename")
   private String filename;
+  @HopMetadataProperty(key = "fail_if_file_not_exists")
   private boolean failIfFileNotExists;
 
   public ActionDeleteFile(String n) {
@@ -72,39 +72,15 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  public ActionDeleteFile(ActionDeleteFile meta) {
+    this("");
+    this.filename = meta.filename;
+    this.failIfFileNotExists = meta.failIfFileNotExists;
+  }
+  
   @Override
   public Object clone() {
-    ActionDeleteFile je = (ActionDeleteFile) super.clone();
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(50);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("fail_if_file_not_exists", failIfFileNotExists));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-      failIfFileNotExists =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "fail_if_file_not_exists"));
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "ActionDeleteFile.Error_0001_Unable_To_Load_Job_From_Xml_Node"),
-          xe);
-    }
+    return new ActionDeleteFile(this);
   }
 
   public void setFilename(String filename) {
