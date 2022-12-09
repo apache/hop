@@ -692,11 +692,11 @@ public class KettleImportDialog extends Dialog {
 
       // Show some statistics after the import...
       //
-      MessageBox box = new MessageBox(HopGui.getInstance().getShell(), SWT.ICON_INFORMATION);
+      MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION|SWT.OK);
       box.setText("Import summary");
       box.setMessage(kettleImport.getImportReport());
       box.open();
-    } catch (Throwable e) {
+    } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error importing", e);
     }
   }
