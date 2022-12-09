@@ -28,7 +28,7 @@
 
     <artifactId>hop-action-as400command</artifactId>
     <packaging>jar</packaging>
-    <name>Hop Plugins AS/400 Command</name>
+    <name>Hop Plugins Actions AS/400 Command</name>
 
     <dependencies>
         <dependency>
