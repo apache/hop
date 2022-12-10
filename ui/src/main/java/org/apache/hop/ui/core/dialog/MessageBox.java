@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -32,9 +34,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A replacement of the system message box dialog to make sure the correct font and colors are used.
@@ -127,12 +126,6 @@ public class MessageBox extends Dialog {
     // Buttons at the bottom
     //
     List<Button> buttons = new ArrayList<>();
-    if ((style & SWT.OK) != 0) {
-      Button wOk = new Button(shell, SWT.PUSH);
-      wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-      wOk.addListener(SWT.Selection, e -> ok());
-      buttons.add(wOk);
-    }
     if ((style & SWT.YES) != 0) {
       Button wYes = new Button(shell, SWT.PUSH);
       wYes.setText(BaseMessages.getString(PKG, "System.Button.Yes"));
@@ -150,6 +143,12 @@ public class MessageBox extends Dialog {
       wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
       wCancel.addListener(SWT.Selection, e -> cancel());
       buttons.add(wCancel);
+    }
+    if ((style & SWT.OK) != 0 || buttons.isEmpty()) {
+      Button wOk = new Button(shell, SWT.PUSH);
+      wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+      wOk.addListener(SWT.Selection, e -> ok());
+      buttons.add(0, wOk);
     }
 
     BaseTransformDialog.positionBottomButtons(
