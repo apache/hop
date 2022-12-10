@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.nullif;
 
 import static org.junit.Assert.assertEquals;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -45,29 +44,5 @@ public class NullIfMetaTest {
     assertEquals(2, meta.getFields().size());
     assertEquals("fieldName", meta.getFields().get(0).getName());
     assertEquals("two", meta.getFields().get(0).getValue());    
-  }
-
-  @Test
-  public void setFieldValueTest() {
-    NullIfField field = new NullIfField();
-    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
-    field.setValue("theValue");
-    assertEquals("theValue", field.getValue());
-  }
-
-  @Test
-  public void setFieldValueNullTest() {
-    NullIfField field = new NullIfField();
-    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N");
-    field.setValue(null);
-    assertEquals(null, field.getValue());
-  }
-
-  @Test
-  public void setFieldValueNullWithEmptyStringsDiffersFromNullTest() {
-    NullIfField field = new NullIfField();
-    System.setProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y");
-    field.setValue(null);
-    assertEquals("", field.getValue());
   }
 }
