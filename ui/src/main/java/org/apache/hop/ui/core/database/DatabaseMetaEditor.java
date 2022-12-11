@@ -157,7 +157,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     //
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());
@@ -259,7 +259,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     FormData fdlConnectionType = new FormData();
     fdlConnectionType.top = new FormAttachment(0, margin);
     fdlConnectionType.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlConnectionType.right = new FormAttachment(middle, 0);
+    fdlConnectionType.right = new FormAttachment(middle, -margin);
     wlConnectionType.setLayoutData(fdlConnectionType);
 
     ToolBar wToolBar = new ToolBar(wGeneralComp, SWT.FLAT | SWT.HORIZONTAL);
@@ -279,7 +279,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wConnectionType);
     FormData fdConnectionType = new FormData();
     fdConnectionType.top = new FormAttachment(wlConnectionType, 0, SWT.CENTER);
-    fdConnectionType.left = new FormAttachment(middle, margin); // To the right of the label
+    fdConnectionType.left = new FormAttachment(middle, 0); // To the right of the label
     fdConnectionType.right = new FormAttachment(wToolBar, -margin);
     wConnectionType.setLayoutData(fdConnectionType);
     Control lastControl = wConnectionType;
@@ -292,14 +292,14 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     FormData fdlUsername = new FormData();
     fdlUsername.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
     fdlUsername.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlUsername.right = new FormAttachment(middle, 0);
+    fdlUsername.right = new FormAttachment(middle, -margin);
     wlUsername.setLayoutData(fdlUsername);
     wUsername =
         new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wUsername);
     FormData fdUsername = new FormData();
     fdUsername.top = new FormAttachment(wlUsername, 0, SWT.CENTER);
-    fdUsername.left = new FormAttachment(middle, margin); // To the right of the label
+    fdUsername.left = new FormAttachment(middle, 0); // To the right of the label
     fdUsername.right = new FormAttachment(100, 0);
     wUsername.setLayoutData(fdUsername);
     lastControl = wUsername;
@@ -312,7 +312,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     FormData fdlPassword = new FormData();
     fdlPassword.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
     fdlPassword.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlPassword.right = new FormAttachment(middle, 0);
+    fdlPassword.right = new FormAttachment(middle, -margin);
     wlPassword.setLayoutData(fdlPassword);
     wPassword =
         new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -320,7 +320,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     PropsUi.setLook(wPassword);
     FormData fdPassword = new FormData();
     fdPassword.top = new FormAttachment(wlPassword, 0, SWT.CENTER);
-    fdPassword.left = new FormAttachment(middle, margin); // To the right of the label
+    fdPassword.left = new FormAttachment(middle, 0); // To the right of the label
     fdPassword.right = new FormAttachment(100, 0);
     wPassword.setLayoutData(fdPassword);
     lastControl = wPassword;
@@ -367,14 +367,14 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     FormData fdlManualUrl = new FormData();
     fdlManualUrl.top = new FormAttachment(lastControl, margin * 2); // At the bottom of this tab
     fdlManualUrl.left = new FormAttachment(0, 0); // First one in the left top corner
-    fdlManualUrl.right = new FormAttachment(middle, 0);
+    fdlManualUrl.right = new FormAttachment(middle, -margin);
     wlManualUrl.setLayoutData(fdlManualUrl);
     wManualUrl =
         new TextVar(manager.getVariables(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wManualUrl);
     FormData fdManualUrl = new FormData();
     fdManualUrl.top = new FormAttachment(wlManualUrl, 0, SWT.CENTER);
-    fdManualUrl.left = new FormAttachment(middle, margin); // To the right of the label
+    fdManualUrl.left = new FormAttachment(middle, 0); // To the right of the label
     fdManualUrl.right = new FormAttachment(100, 0);
     wManualUrl.setLayoutData(fdManualUrl);
     wManualUrl.addListener(SWT.Modify, e -> enableFields());

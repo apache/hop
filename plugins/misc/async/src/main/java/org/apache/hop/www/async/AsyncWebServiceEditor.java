@@ -88,13 +88,13 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     FormData fdlName = new FormData();
     fdlName.top = new FormAttachment(wIcon, margin);
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
-    fdName.left = new FormAttachment(middle, margin);
+    fdName.left = new FormAttachment(middle, 0);
     fdName.right = new FormAttachment(100, 0);
     wName.setLayoutData(fdName);
 
@@ -113,13 +113,13 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wlEnabled.setText("Enabled?");
     FormData fdlEnabled = new FormData();
     fdlEnabled.left = new FormAttachment(0, 0);
-    fdlEnabled.right = new FormAttachment(middle, 0);
+    fdlEnabled.right = new FormAttachment(middle, -margin);
     fdlEnabled.top = new FormAttachment(lastControl, margin);
     wlEnabled.setLayoutData(fdlEnabled);
     wEnabled = new Button(parent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wEnabled);
     FormData fdEnabled = new FormData();
-    fdEnabled.left = new FormAttachment(middle, margin);
+    fdEnabled.left = new FormAttachment(middle, 0);
     fdEnabled.right = new FormAttachment(100, 0);
     fdEnabled.top = new FormAttachment(wlEnabled, 0, SWT.CENTER);
     wEnabled.setLayoutData(fdEnabled);
@@ -130,7 +130,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wlFilename.setText("Filename");
     FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment(0, 0);
-    fdlFilename.right = new FormAttachment(middle, 0);
+    fdlFilename.right = new FormAttachment(middle, -margin);
     fdlFilename.top = new FormAttachment(lastControl, 2 * margin);
     wlFilename.setLayoutData(fdlFilename);
 
@@ -164,7 +164,7 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wFilename = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
     PropsUi.setLook(wFilename);
     FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment(middle, margin);
+    fdFilename.left = new FormAttachment(middle, 0);
     fdFilename.right = new FormAttachment(wboFilename, -margin);
     fdFilename.top = new FormAttachment(wlFilename, 0, SWT.CENTER);
     wFilename.setLayoutData(fdFilename);
@@ -194,13 +194,13 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wlStatusVars.setText("Status variables (, separated)");
     FormData fdlStatusVars = new FormData();
     fdlStatusVars.left = new FormAttachment(0, 0);
-    fdlStatusVars.right = new FormAttachment(middle, 0);
+    fdlStatusVars.right = new FormAttachment(middle, -margin);
     fdlStatusVars.top = new FormAttachment(lastControl, 2 * margin);
     wlStatusVars.setLayoutData(fdlStatusVars);
-    wStatusVars = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
+    wStatusVars = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wStatusVars);
     FormData fdStatusVars = new FormData();
-    fdStatusVars.left = new FormAttachment(middle, margin);
+    fdStatusVars.left = new FormAttachment(middle, 0);
     fdStatusVars.right = new FormAttachment(100, 0);
     fdStatusVars.top = new FormAttachment(wlStatusVars, 0, SWT.CENTER);
     wStatusVars.setLayoutData(fdStatusVars);
@@ -213,13 +213,13 @@ public class AsyncWebServiceEditor extends MetadataEditor<AsyncWebService> {
     wlContentVar.setText("Content variable");
     FormData fdlContentVar = new FormData();
     fdlContentVar.left = new FormAttachment(0, 0);
-    fdlContentVar.right = new FormAttachment(middle, 0);
+    fdlContentVar.right = new FormAttachment(middle, -margin);
     fdlContentVar.top = new FormAttachment(lastControl, 2 * margin);
     wlContentVar.setLayoutData(fdlContentVar);
-    wContentVar = new TextVar(manager.getVariables(), parent, SWT.CHECK | SWT.LEFT);
+    wContentVar = new TextVar(manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wContentVar);
     FormData fdContentVar = new FormData();
-    fdContentVar.left = new FormAttachment(middle, margin);
+    fdContentVar.left = new FormAttachment(middle, 0);
     fdContentVar.right = new FormAttachment(100, 0);
     fdContentVar.top = new FormAttachment(wlContentVar, 0, SWT.CENTER);
     wContentVar.setLayoutData(fdContentVar);
