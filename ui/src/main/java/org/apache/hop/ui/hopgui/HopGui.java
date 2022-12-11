@@ -1132,7 +1132,7 @@ public class HopGui
       label = "i18n::HopGui.Menu.Tools.DatabaseClearCache",
       parentId = ID_MAIN_MENU_TOOLS_PARENT_ID,
       separator = true,
-      image = "ui/images/database.svg")
+      image = "ui/images/clear.svg")
   public void menuToolsDatabaseClearCache() {
     DbCache.getInstance().clear(null);
   }
