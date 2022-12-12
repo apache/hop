@@ -111,9 +111,79 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 
 == Examples
 
+The example below runs the `switch-case-basic.hpl` pipeline from the samples project through `hop-run`. +
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
+Open a command (CMD) window, change to the directory where you unzipped Apache Hop and run:
+
+[code, shell]
 ----
-./hop-run.sh -j=transforms -r=local -f=/path/to/worklow/file.hwf
+hop-run.bat -j samples -r local -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
 ----
+
+Your output will be similar to what is shown below:
+
+[code, shell]
+----
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam "-Xmx2048m" -DHOP_AUDIT_FOLDER=.\audit
+-DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Run -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.run.HopRun
+-j samples -r local -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
+===[Starting HopRun]=========================================================
+2022/12/12 14:09:58 - HopRun - Enabling project 'samples'
+2022/12/12 14:09:58 - HopRun - Starting pipeline: config/projects/samples/transforms/switch-case-basic.hpl
+2022/12/12 14:09:58 - switch-case-basic - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2022/12/12 14:09:58 - switch-case-basic - Execution started for pipeline [switch-case-basic]
+2022/12/12 14:09:58 - Test Data.0 - Finished processing (I=0, O=0, R=0, W=5, U=0, E=0)
+2022/12/12 14:09:58 - Switch id.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
+2022/12/12 14:09:58 - Output 2.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:09:58 - Output default.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:09:58 - Output 1.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:09:58 - Output 4.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:09:58 - Output 3.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:09:58 - switch-case-basic - Pipeline duration : 0.542 seconds [  0.542" ]
+----
+
+--
+
+Linux, macOS::
++
+--
+
+Open a terminal, change to the directory where you unzipped Apache Hop and run:
+
+[code, shell]
+----
+./hop-run.sh -j samples -r local -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
+----
+
+Your output will be similar to what is shown below:
+
+[code, shell]
+----
+2022/12/12 14:06:39 - HopRun - Enabling project 'samples'
+2022/12/12 14:06:39 - HopRun - Relative path filename specified: config/projects/samples//transforms/switch-case-basic.hpl
+2022/12/12 14:06:39 - HopRun - Starting pipeline: config/projects/samples//transforms/switch-case-basic.hpl
+2022/12/12 14:06:39 - switch-case-basic - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2022/12/12 14:06:39 - switch-case-basic - Execution started for pipeline [switch-case-basic]
+2022/12/12 14:06:39 - Test Data.0 - Finished processing (I=0, O=0, R=0, W=5, U=0, E=0)
+2022/12/12 14:06:39 - Switch id.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
+2022/12/12 14:06:39 - Output 2.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:06:39 - Output default.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:06:39 - Output 4.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:06:39 - Output 3.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:06:39 - Output 1.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/12 14:06:39 - switch-case-basic - Pipeline duration : 0.499 seconds [  0.499" ]
+----
+
+
+--
+====
 
 === Parameter Examples
 This is a list of examples on how the parameters on this command are parsed
