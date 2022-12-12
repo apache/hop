@@ -44,8 +44,13 @@
         </date>
         <field>
             <name>value</name>
-            <lookup>value</lookup>
+            <lookup>valueLookup</lookup>
             <update>Insert</update>
+        </field>
+        <field>
+            <name>lastVersion</name>
+            <lookup>lastVersionLookup</lookup>
+            <update>LastVersion</update>
         </field>
         <return>
             <name>dimension_id</name>
