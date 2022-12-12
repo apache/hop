@@ -490,7 +490,7 @@ public class PropsUi extends Props {
     } else if (OS.contains("mac") && (widget instanceof Group)) {
       style = WIDGET_STYLE_OSX_GROUP;
     } else if (widget instanceof Button) {
-      if (Const.isWindows() && ((widget.getStyle() & SWT.CHECK) != 0)) {
+      if (Const.isWindows() && ((widget.getStyle() & (SWT.CHECK | SWT.RADIO)) != 0)) {
         style = WIDGET_STYLE_DEFAULT;
       } else {
         style = WIDGET_STYLE_PUSH_BUTTON;
