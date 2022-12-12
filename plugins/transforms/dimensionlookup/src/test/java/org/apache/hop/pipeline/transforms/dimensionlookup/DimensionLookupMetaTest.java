@@ -52,6 +52,16 @@ public class DimensionLookupMetaTest {
     assertEquals(100, meta.getCommitSize());
     assertEquals(5000, meta.getCacheSize());
     assertEquals(1, meta.getFields().getKeys().size());
-    assertEquals(1, meta.getFields().getFields().size());
+    assertEquals(2, meta.getFields().getFields().size());
+
+    assertEquals("value", meta.getFields().getFields().get(0).getName());
+    assertEquals("valueLookup", meta.getFields().getFields().get(0).getLookup());
+    assertEquals("Insert", meta.getFields().getFields().get(0).getUpdate());
+    assertEquals(DimensionLookupMeta.DimensionUpdateType.INSERT, meta.getFields().getFields().get(0).getUpdateType());
+
+    assertEquals("lastVersion", meta.getFields().getFields().get(1).getName());
+    assertEquals("lastVersionLookup", meta.getFields().getFields().get(1).getLookup());
+    assertEquals("LastVersion", meta.getFields().getFields().get(1).getUpdate());
+    assertEquals(DimensionLookupMeta.DimensionUpdateType.LAST_VERSION, meta.getFields().getFields().get(1).getUpdateType());
   }
 }
