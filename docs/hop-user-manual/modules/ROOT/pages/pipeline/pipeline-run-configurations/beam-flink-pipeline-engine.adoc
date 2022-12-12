@@ -93,7 +93,7 @@ There is a main class you can use with the `--class` option of the run command:
 org.apache.hop.beam.run.MainBeam
 ----
 
-It accepts 3 arguments:
+It accepts 3 or 4 arguments:
 
 |===
 |Argument|Description
@@ -107,6 +107,9 @@ You can export metadata in the Hop GUI under the tools menu (part of the Beam pl
 
 |3
 |The name of the pipeline run configuration to use
+
+|4 (optional)
+|The name of the environment file (JSON) containing the variables you want to set in the pipeline.  The format is identical to what is used in hop-config.json or an environment configuration file.
 |===
 
 The Flink run command also needs a fat jar as an argument.
