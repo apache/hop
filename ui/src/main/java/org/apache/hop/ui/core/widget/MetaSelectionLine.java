@@ -192,8 +192,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
     wToolBar.setLayoutData(fdToolBar);
-    wToolBar.setBackground(GuiResource.getInstance().getColorBackground());
-    wToolBar.setForeground(GuiResource.getInstance().getColorBackground());
+    //wToolBar.setBackgroundMode(SWT.INHERIT_DEFAULT);
+    wToolBar.setBackground(GuiResource.getInstance().getColorGreen());
+    //wToolBar.setForeground(GuiResource.getInstance().getColorBackground());
 
     // Add more toolbar items from plugins.
     //
@@ -211,7 +212,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     if (leftAlignedLabel) {
       fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
     } else {
-      fdCombo.left = new FormAttachment(middle, leftAlignedLabel ? 0 : margin);
+      fdCombo.left = new FormAttachment(middle, 0);
     }
     fdCombo.right = new FormAttachment(wToolBar, -margin);
     fdCombo.top = new FormAttachment(wLabel, 0, SWT.CENTER);
