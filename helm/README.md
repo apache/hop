@@ -30,6 +30,7 @@ server.replicaCount | Yes | Number of replicas
 server.image.name | Yes | Hop server Image
 server.image.tag | Yes | Hop release
 server.image.env | No | Extra environnement variables, e.g. `HOP_SERVER_METADATA_FOLDER`
+server.resources | No | Specify resources (CPU, Memory) available for the pod
 server.service.type | Yes | Expose via Nodeport, Loadbalancer or ClusterIP
 server.service.port | Yes | Port of the service
 server.service.targetPort | Yes | Port of the pod(s)
