@@ -58,6 +58,9 @@ limitations under the License.
           <name>0057-filter-rows-basic UNIT</name>
         </test_name>
         <test_name>
+          <name>0057-filter-rows-basic-old UNIT</name>
+        </test_name>
+        <test_name>
           <name>0057-filter-rows-targets UNIT</name>
         </test_name>
       </test_names>

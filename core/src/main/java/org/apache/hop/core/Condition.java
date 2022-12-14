@@ -398,10 +398,8 @@ public class Condition implements Cloneable {
         IValueMeta fieldMeta2 = rightValue != null ? rightValue.createValueMeta() : null;
         // Old metadata contains a right value block without name, type and so on.  This means: no
         // value
-        Object field2 =
-            rightValue != null && rightValue.getName() != null
-                ? rightValue.createValueData()
-                : null;
+        // Removed the name check, old fixed values do not contain a name element causing regression
+        Object field2 = rightValue != null && rightFieldIndex == -2 ? rightValue.createValueData() : null;
         if (field2 == null && rightFieldIndex >= 0) {
           fieldMeta2 = rowMeta.getValueMeta(rightFieldIndex);
           field2 = r[rightFieldIndex];
