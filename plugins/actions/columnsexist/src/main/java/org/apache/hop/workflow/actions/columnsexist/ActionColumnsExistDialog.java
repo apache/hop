@@ -41,6 +41,7 @@ import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.columnsexist.ActionColumnsExist.ColumnExist;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -55,6 +56,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This dialog allows you to edit the Column Exists action settings. (select the connection and the
@@ -115,13 +118,13 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     wCancel.addListener(SWT.Selection, (Event e) -> cancel());
     BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
-    // Filename line
+    // Action name line
     Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText(BaseMessages.getString(PKG, "ActionColumnsExist.Name.Label"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -134,7 +137,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
+    wConnection = addConnectionLine(shell, wName, action.getDatabaseMeta(), lsMod);
 
     // Schema name line
     // Schema name
@@ -228,23 +231,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdbGetColumns.top = new FormAttachment(wlFields, margin);
     wbGetColumns.setLayoutData(fdbGetColumns);
 
-    // Buttons to the right of the screen...
-    // Delete
-    Button wbdFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbdFilename);
-    wbdFilename.setText(BaseMessages.getString(PKG, "ActionColumnsExist.FilenameDelete.Button"));
-    wbdFilename.setToolTipText(
-        BaseMessages.getString(PKG, "ActionColumnsExist.FilenameDelete.Tooltip"));
-    FormData fdbdFilename = new FormData();
-    fdbdFilename.right = new FormAttachment(100, 0);
-    fdbdFilename.left = new FormAttachment(wbGetColumns, 0, SWT.LEFT);
-    fdbdFilename.top = new FormAttachment(wbGetColumns, margin);
-    wbdFilename.setLayoutData(fdbdFilename);
-
-    int rows =
-        action.getArguments() == null
-            ? 1
-            : (action.getArguments().length == 0 ? 0 : action.getArguments().length);
+    int rows = action.getColumns().size();
 
     final int FieldsRows = rows;
 
@@ -276,17 +263,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
-    // Delete files from the list of files...
-    wbdFilename.addListener(
-        SWT.Selection,
-        e -> {
-          int[] idx = wFields.getSelectionIndices();
-          wFields.remove(idx);
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-        });
-
-    // Delete files from the list of files...
+    // Get list of columns name from the table...
     wbGetColumns.addListener(SWT.Selection, e -> getListColumns());
 
     getData();
@@ -299,7 +276,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = this.getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(
@@ -324,24 +301,23 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if (action.getName() != null) {
       wName.setText(action.getName());
     }
-    if (action.getTablename() != null) {
-      wTablename.setText(action.getTablename());
+    if (action.getTableName() != null) {
+      wTablename.setText(action.getTableName());
     }
 
-    if (action.getSchemaname() != null) {
-      wSchemaname.setText(action.getSchemaname());
+    if (action.getSchemaName() != null) {
+      wSchemaname.setText(action.getSchemaName());
     }
 
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
+    if (action.getDatabaseMeta() != null) {
+      wConnection.setText(action.getDatabaseMeta().getName());
     }
 
-    if (action.getArguments() != null) {
-      for (int i = 0; i < action.getArguments().length; i++) {
+    if (action.getColumns() != null) {
+      for (int i = 0; i < action.getColumns().size(); i++) {
+        ColumnExist column  = action.getColumns().get(i);
         TableItem ti = wFields.table.getItem(i);
-        if (action.getArguments()[i] != null) {
-          ti.setText(1, action.getArguments()[i]);
-        }
+        ti.setText(1, column.getName());
       }
       wFields.setRowNums();
       wFields.optWidth(true);
@@ -365,29 +341,22 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       mb.open();
       return;
     }
+    
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
-    action.setTablename(wTablename.getText());
-    action.setSchemaname(wSchemaname.getText());
+    action.setDatabaseMeta(wConnection.loadSelectedElement());
+    action.setTableName(wTablename.getText());
+    action.setSchemaName(wSchemaname.getText());
 
+    List<ColumnExist> columns = new ArrayList<>();
+    
     int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
     for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        nr++;
+      String name = wFields.getNonEmpty(i).getText(1);
+      if (name != null && name.length() != 0) {
+        columns.add(new ColumnExist(name));
       }
     }
-    String[] args = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        args[nr] = arg;
-        nr++;
-      }
-    }
-    action.setArguments(args);
+    action.setColumns(columns);
 
     dispose();
   }
@@ -395,10 +364,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   /** Get a list of columns */
   private void getListColumns() {
     if (!Utils.isEmpty(wTablename.getText())) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+      DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, variables, databaseMeta);
-        try {
+        try (Database database = new Database(loggingObject, variables, databaseMeta)) {
           database.connect();
           IRowMeta row =
               database.getTableFieldsMeta(
@@ -427,8 +395,6 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
               BaseMessages.getString(
                   PKG, "ActionColumnsExist.ConnectionError2.DialogMessage", wTablename.getText()),
               e);
-        } finally {
-          database.disconnect();
         }
       }
     }
@@ -438,10 +404,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
-    if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+    DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
+    if (databaseMeta != null) {      
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
@@ -472,11 +437,6 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
-      } finally {
-        if (database != null) {
-          database.disconnect();
-          database = null;
-        }
       }
     }
   }
