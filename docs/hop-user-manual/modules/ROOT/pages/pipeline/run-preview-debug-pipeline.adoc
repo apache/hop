@@ -109,7 +109,7 @@ Preview the result off a pipeline to see how it performs can be done by completi
 * Using the preview image:getting-started/icons/view.svg[Run,25px,align="bottom"] icon
 * Select Run and Preview from the top menu
 * Select Preview from the transform action Menu
-* Click on the tiny bottom right icon after running the transformation
+* Click on the tiny bottom right icon after running the pipeline
 
 image::hop-gui/pipeline/preview-menu-pipeline.png[Preview Menu pipeline,75%,align="left"]
 

@@ -43,7 +43,7 @@ It is similar to the Workflow Executor transform, but works with pipelines.
 
 == Usage
 
-Depending on your data transformation needs, the Pipeline Executor transform can be set up to function in any of the following ways:
+Depending on your requirements, the Pipeline Executor transform can be configured to function in any of the following ways:
 
 - By default, the specified pipeline will be executed once for each input row.
 You can use the input row to set parameters and variables.

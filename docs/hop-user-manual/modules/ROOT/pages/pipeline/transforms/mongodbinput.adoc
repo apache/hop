@@ -136,15 +136,19 @@ Enter the following information in the table if you want to output distinct fiel
 
 |Name
 |The name of the field based on the value in the Path field.
-The name that appears here maps the name of the field as it appears in the PDI transformation with the field that appears in the MongoDB database.
+The name that appears here maps the name of the field as it appears in the pipeline with the field that appears in the MongoDB database.
 You can edit the name.
 
 |Path
-|Indicates the JSON path of the field in MongoDB.
+a|Indicates the JSON path of the field in MongoDB.
+
 If the path shown is an array, you can specify a specific element of the array by passing it the key value in the bracketed part of the array.
-For example, $.emails[0] indicates that you want the result to display the first value in the array.
-To display all array values, use the asterisk as the key, like this $.email[*].
-If the array contains records, and not just strings, you can specify that you want to display the record like this: $.emails[].sender.
+
+For example:
+
+* `$.emails[0]` indicates that you want the result to display the first value in the array.
+* To display all array values, use the asterisk as the key, like this `$.email[*]`.
+* If the array contains records, and not just strings, you can specify that you want to display the record like this: `$.emails[].sender`.
 
 |Type
 |Indicates the data type.
