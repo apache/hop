@@ -55,7 +55,7 @@ For example, you can use a "Get file names" transform to drive the content of th
 
 |The selected fields from the files
 |If you use the "Get Fields" button you can populate this data grid.
-Please note that even though the sas7bdat file format only contains certain formats, that you can specify any desired data type and that PDI will convert for you.
+Please note that even though the sas7bdat file format only contains certain formats, that you can specify any desired data type and that Apache Hop will convert for you.
 Also note that not all fields need to be specified and that you can re-order fields and give them new names.
 The selection of the fields will be based on the name column.
 

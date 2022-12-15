@@ -24,6 +24,8 @@ under the License.
 
 The local run configuration runs workflows on your local environment.
 
+This page describes the options that are specific to the local workflow engine. These options extend the general  xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[workflow run configuration options].
+
 === Options
 
 [options="header"]

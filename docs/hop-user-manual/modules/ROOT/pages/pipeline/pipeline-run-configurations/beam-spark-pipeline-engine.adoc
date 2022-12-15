@@ -62,7 +62,7 @@ For durability, a reliable filesystem such as HDFS/S3/GS is necessary.|local dir
 
 == Running from GUI or Hop Server
 
-You can start Apache Spark pipelines when Hop is running directly on the master node. This means that you can run spark jobs directly from hop when a cluster is available on localhost. This also means you can deploy a Hop Server on your spark master node and use this as a jumphost to start jobs on a Apache Spark cluster.
+You can start Apache Spark pipelines when Hop is running directly on the master node. This means that you can run spark jobs directly from hop when a cluster is available on localhost. This also means you can deploy a Hop Server on your spark master node and use this as a jumphost to start Spark jobs on an Apache Spark cluster.
 
 == Running remotely
 
