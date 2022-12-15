@@ -1,0 +1,31 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+Some transforms share a common field information panel. That panel allows a user to modify metadata about the way information is stored or handled by the particular
+transform on canvas, but it will also set the expectation for how it is presented or output by other transforms.
+
+New Field  - What an output name should be for a field sent out from the step.
+Type - What type (String, Integer, Numeric, etc.) for the field being sent out from the step.
+Length - Usually for Strings, but if you specify a length for an integer it will have a padding effect of prepending 0s until the int is long enough.
+Precision - Usually for Numerics in steps that care about significant digits after a decimal point.
+Format - Used frequently to give dates, or numerics, even currency a format. It obeys, https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html and
+supports common number formats. (find link for that standard).
+Group - is used to specify which character is used for separating thousands in the output - i.e commas in the US (1,000) and periods in Germany (1.000)
+Decimal - is the character that should be used as a dividing marker between whole numbers on the left and fractioal parts on the right i.e. 1,000.10 in the US
+and 1.000,10 in Germany.
+Currency - Hanging around, but not used by many transforms. Need to know which one as an example.
+Nullif - What value should be written in for a field if it came back as <null>
+Default - What value should be given the field in case it was empty.
