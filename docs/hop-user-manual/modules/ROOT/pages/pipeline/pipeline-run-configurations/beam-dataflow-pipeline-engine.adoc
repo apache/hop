@@ -28,7 +28,7 @@ As a managed Google Cloud service, it provisions worker nodes and out of the box
 The Cloud Dataflow Runner and service are suitable for large scale continuous jobs and provide:
 
 * A fully managed service
-* Autoscaling of the number of workers throughout the lifetime of the job
+* Autoscaling of the number of workers throughout the lifetime of the Dataflow job
 * Dynamic work re-balancing
 
 Check the https://cloud.google.com/dataflow/docs/guides/specifying-exec-params[Google DataFlow docs] and https://beam.apache.org/documentation/runners/dataflow/[Apache Beam DataFlow runner docs] for more information.
