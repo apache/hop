@@ -34,6 +34,14 @@
       "field_precision": -1,
       "field_format": "",
       "field_name": "boolD"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "strE"
     }
   ],
   "folder_name": ""

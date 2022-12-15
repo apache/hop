@@ -41,13 +41,18 @@ limitations under the License.
   </notepads>
   <order>
     <hop>
-      <from>Sample data</from>
-      <to>Null if</to>
+      <from>Null if</from>
+      <to>Preview</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Null if</from>
-      <to>Preview</to>
+      <from>Sample data</from>
+      <to>Null if 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Null if 2</from>
+      <to>Null if</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -79,10 +84,14 @@ limitations under the License.
         <name>boolD</name>
         <value>false</value>
       </field>
+      <field>
+        <name>strE</name>
+        <value/>
+      </field>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>256</xloc>
+      <xloc>496</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
@@ -99,7 +108,7 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>656</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
@@ -116,48 +125,59 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
         <name>strA</name>
+        <precision>-1</precision>
         <type>String</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
       </field>
       <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
         <name>intB</name>
+        <precision>-1</precision>
         <type>Integer</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
       </field>
       <field>
+        <currency/>
+        <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
         <name>numC</name>
-        <type>Number</type>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
-        <length>-1</length>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>Number</type>
       </field>
       <field>
-        <name>boolD</name>
-        <type>Boolean</type>
-        <format/>
         <currency/>
         <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
         <group/>
         <length>-1</length>
+        <name>boolD</name>
         <precision>-1</precision>
+        <type>Boolean</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
         <set_empty_string>N</set_empty_string>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>strE</name>
+        <precision>-1</precision>
+        <type>String</type>
       </field>
     </fields>
     <data>
@@ -166,29 +186,56 @@ limitations under the License.
         <item>11</item>
         <item>111.11</item>
         <item>true</item>
+        <item/>
       </line>
       <line>
         <item>a2</item>
         <item>22</item>
         <item>222.22</item>
         <item>false</item>
+        <item>sadsa</item>
       </line>
       <line>
         <item>a3</item>
         <item>33</item>
         <item>333.33</item>
         <item>true</item>
+        <item>null</item>
       </line>
       <line>
         <item>a4</item>
         <item>44</item>
         <item>444.44</item>
         <item>false</item>
+        <item/>
       </line>
     </data>
     <attributes/>
     <GUI>
       <xloc>96</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Null if 2</name>
+    <type>NullIf</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>strE</name>
+        <value>null</value>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>240</xloc>
       <yloc>128</yloc>
     </GUI>
   </transform>
