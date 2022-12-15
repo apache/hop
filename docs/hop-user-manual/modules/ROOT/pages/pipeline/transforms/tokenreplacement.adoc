@@ -81,9 +81,9 @@ Either field or file.
 ** Output filename field - The name of the field the output filename is in.
 ** Append output file?
 - If the output file already exists should it be appended to.
-If not checked, Pentaho will overwrite the file if it exists.
+If not checked, Apache Hop will overwrite the file if it exists.
 ** Create parent folder?
-- Should Pentaho create the parent folder?
+- Should Apache Hop create the parent folder?
 ** Output format - The format of the new line delimiter for the output file.
 ** Output encoding - The character encoding to use when writing the file.
 ** Split every - Split the output file into a new file every n rows.
