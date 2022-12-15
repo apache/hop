@@ -52,12 +52,7 @@ public class NullIfField implements Cloneable {
     }
 
     public void setValue(String value) {
-      Boolean isEmptyAndNullDiffer =
-          ValueMetaBase.convertStringToBoolean(
-              Const.NVL(System.getProperty(Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N"), "N"));
-
-      this.value =
-          value == null && isEmptyAndNullDiffer ? Const.EMPTY_STRING : value;
+      this.value = value;
     }
     
     @Override
