@@ -25,7 +25,7 @@ In xref:getting-started/hop-concepts.adoc[Concepts], we walked through workflows
 Let’s remember:
 
 * A _workflow_ is by default a sequential process that has a starting point and one or more endpoints.
-* An _action_ is a step that executes pipelines already implemented or any other element that allows orchestrating the execution of the data integration processes.
+* An _action_ is an item of workflow functionality that executes pipelines already implemented or any other element that allows orchestrating the execution of the data integration processes.
 * A _hop_ in a _workflow_ can conditionally connect _actions_ and determine which _action_ the _workflow_ needs to execute next.
 
 == Create a Workflow

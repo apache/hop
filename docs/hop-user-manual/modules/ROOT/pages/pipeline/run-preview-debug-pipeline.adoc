@@ -85,7 +85,7 @@ Following metrics are displayed:
 |Copy|
 |Input| Number of rows read from
 |Read| Number of rows coming from previous transform
-|Written| Number of rows leaving this step toward next transform
+|Written| Number of rows leaving this transform toward next transform
 |Output| Number of rows written to a file or table
 |Updated|Number of rows updated by the transform
 |Rejected|
@@ -95,7 +95,7 @@ The whole row is marked red if an error occurs
 |Buffers Output|
 |Duration|The duration of the execution of the transform
 |Speed|
-|Status|The step status; Running, Stopped, Finished,
+|Status|The transform status; Running, Stopped, Finished,
 |===
 
 The loggign tab displays the log of the pipeline according to the log level choosen on execution.

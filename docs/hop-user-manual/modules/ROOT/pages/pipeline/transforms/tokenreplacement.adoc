@@ -87,8 +87,8 @@ If not checked, Pentaho will overwrite the file if it exists.
 ** Output format - The format of the new line delimiter for the output file.
 ** Output encoding - The character encoding to use when writing the file.
 ** Split every - Split the output file into a new file every n rows.
-** Include stepnr in filename?
-- Should the step number be included in the output filename?
+** Include copynr in filename?
+- Should the transform's copy number be included in the output filename?
 ** Include partition nr in filename?
 - Should the partition number be included in the output filename?
 ** Include date in filename?
