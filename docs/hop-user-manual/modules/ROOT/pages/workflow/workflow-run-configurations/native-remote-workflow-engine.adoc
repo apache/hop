@@ -29,6 +29,9 @@ This run configuration requires little configuration, but has two prerequisites:
 . a running xref:hop-server/index.adoc[Hop Server]
 . a xref:metadata-types/hop-server.adoc[Hop Server metadata definition] in your project, pointing to your running Hop Server.
 
+This page describes the options that are specific to the remote workflow engine. These options extend the general  xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[workflow run configuration options].
+
+
 === Options
 
 [options="header",cols="1,3"]
