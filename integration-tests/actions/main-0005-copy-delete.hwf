@@ -35,14 +35,14 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>48</xloc>
       <yloc>112</yloc>
@@ -63,7 +63,7 @@ limitations under the License.
       <create_destination_folder>Y</create_destination_folder>
       <fields>
         <field>
-          <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}/files/sample-file1.txt</source_filefolder>
+          <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}/files-0005/sample-file1.txt</source_filefolder>
           <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
           <destination_filefolder>EMPTY_DEST_URL-0-${PROJECT_HOME}/workfiles/</destination_filefolder>
           <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>
@@ -115,8 +115,8 @@ fi</script>
       <description/>
       <type>DELETE_FILE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/workfiles/sample-file1.txt</filename>
       <fail_if_file_not_exists>Y</fail_if_file_not_exists>
+      <filename>${PROJECT_HOME}/workfiles/sample-file1.txt</filename>
       <parallel>N</parallel>
       <xloc>480</xloc>
       <yloc>112</yloc>
@@ -163,7 +163,7 @@ fi</script>
       <type>SUCCESS</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>800</xloc>
+      <xloc>1024</xloc>
       <yloc>112</yloc>
       <attributes_hac/>
     </action>
@@ -176,6 +176,24 @@ fi</script>
       <parallel>N</parallel>
       <xloc>640</xloc>
       <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete folders</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <success_condition>success_if_no_errors</success_condition>
+      <limit_folders>10</limit_folders>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/workfiles</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>832</xloc>
+      <yloc>112</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -210,14 +228,21 @@ fi</script>
     </hop>
     <hop>
       <from>file should be gone</from>
-      <to>Success</to>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>file should be gone</from>
+      <to>Delete folders</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>file should be gone</from>
-      <to>Abort workflow</to>
+      <from>Delete folders</from>
+      <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -225,24 +250,24 @@ fi</script>
   </hops>
   <notepads>
     <notepad>
-      <note>Only works under linux/docker</note>
-      <xloc>32</xloc>
-      <yloc>48</yloc>
-      <width>193</width>
-      <heigth>26</heigth>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
       <fontname>.AppleSystemUIFont</fontname>
       <fontsize>13</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>14</fontcolorred>
-      <fontcolorgreen>58</fontcolorgreen>
-      <fontcolorblue>90</fontcolorblue>
-      <backgroundcolorred>201</backgroundcolorred>
-      <backgroundcolorgreen>232</backgroundcolorgreen>
-      <backgroundcolorblue>251</backgroundcolorblue>
-      <bordercolorred>14</bordercolorred>
-      <bordercolorgreen>58</bordercolorgreen>
-      <bordercolorblue>90</bordercolorblue>
+      <height>26</height>
+      <xloc>32</xloc>
+      <yloc>48</yloc>
+      <note>Only works under linux/docker</note>
+      <width>193</width>
     </notepad>
   </notepads>
   <attributes/>
