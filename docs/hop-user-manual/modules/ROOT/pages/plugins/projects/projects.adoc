@@ -257,8 +257,8 @@ The easiest example is shown by executing the "complex" pipeline from the Apache
 ----
 $ sh hop-run.sh --project samples --file 'beam/pipelines/complex.hpl' --runconfig Direct
 2022/12/15 14:40:51 - HopRun - Enabling project 'hop-samples'
-2022/12/15 14:40:51 - HopRun - Relative path filename specified: /home/bart/git-hop/hop/assemblies/client/target/hop/config/projects/samples/beam/pipelines/complex.hpl
-2022/12/15 14:40:51 - HopRun - Starting pipeline: /home/bart/git-hop/hop/assemblies/client/target/hop/config/projects/samples/beam/pipelines/complex.hpl
+2022/12/15 14:40:51 - HopRun - Relative path filename specified: <YOUR_PATH>/hop/config/projects/samples/beam/pipelines/complex.hpl
+2022/12/15 14:40:51 - HopRun - Starting pipeline: <YOUR_PATH>/hop/config/projects/samples/beam/pipelines/complex.hpl
 2022/12/15 14:40:54 - General - Created Apache Beam pipeline with name 'complex'
 2022/12/15 14:40:54 - General - Handled transform (INPUT) : Customer data
 2022/12/15 14:40:54 - General - Handled transform (INPUT) : State data

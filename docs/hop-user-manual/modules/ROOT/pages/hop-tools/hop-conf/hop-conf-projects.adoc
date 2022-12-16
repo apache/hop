@@ -25,6 +25,49 @@ The ```hop-conf``` script offers many options to edit environment definitions.
 
 ==== Creating an environment
 
+[tabs]
+====
+Windows::
++
+--
+[source,bash]
+----
+hop-conf.bat --environment-create \
+             --environment hop2 \
+             --environment-project hop2
+             --environment-purpose=Development \
+             --environment-config-files="C:\<YOUR_ENV_FILE_PATH>\env-variables.json"
+----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-conf.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf
+-DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig  --environment-create
+--environment hop2 --environment-project hop2 --environment-purpose Development
+--environment-config-files "C:\<YOUR_ENV_FILE_PATH\env-variables.json"
+===[Starting HopConfig]=========================================================
+Creating environment 'hop2'
+Environment 'hop2' was created in Hop configuration file C:\<YOUR_PATH>\hop\config\hop-config.json
+Warning: referenced project 'hop2' doesn\'t exist
+Found existing environment configuration file: C:\<YOUR_ENV_FILE_PATH>\variables.json
+Purpose: Development
+Project name: hop2
+Config file: C:\<YOUR_ENV_FILE_PATH>\env-variables.json
+----
+--
+
+Linux, macOS::
++
+--
 [source,bash]
 ----
 $ sh hop-conf.sh \
@@ -32,18 +75,24 @@ $ sh hop-conf.sh \
      --environment hop2 \
      --environment-project hop2 \
      --environment-purpose=Development \
-     --environment-config-files=/home/user/projects/hop2-conf.json
+     --environment-config-files=<YOUR_ENV_FILE_PATH>/env-variables.json
+----
+
+Expected output:
+
+[source,shell]
+----
 Creating environment 'hop2'
-Environment 'hop2' was created in Hop configuration file <path-to-hop>/config/hop-config.json
-2021/02/01 16:37:02 - General - ERROR: Configuration file '/home/user/projects/hop2-conf.json' does not exist to read variables from.
-Created empty environment configuration file : /home/user/projects/hop2-conf.json
+Environment 'hop2' was created in Hop configuration file <YOUR_PATH>/hop/config/hop-config.json
+Warning: referenced project 'hop2' doesn't exist
+Found existing environment configuration file: <YOUR_ENV_FILE_PATH>/env-variables.json
   hop2
     Purpose: Development
-    Configuration files:
     Project name: hop2
-      Config file: /home/user/projects/hop2-conf.json
-
+      Config file: <YOUR_ENV_FILE_PATH>/env-variables.json
 ----
+--
+====
 
 As you can see from the log, an empty file was created to set variables in:
 
@@ -56,13 +105,54 @@ As you can see from the log, an empty file was created to set variables in:
 
 This command adds a variable to the environment configuration file:
 
-[source,bash]
+[tabs]
+====
+Windows::
++
+--
+[source, shell]
 ----
-$ sh hop-conf.sh --config-file /home/user/projects/hop2-conf.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
-Configuration file '/home/user/projects/hop2-conf.json' was modified.
+hop-conf.bat --config-file "C:\<YOUR_ENV_FILE_PATH>\env-variables.json" --config-file-set-variables "DB_HOSTNAME=localhost,DB_PASSWORD=abcd"
 ----
 
-If we look at the file ```hop2-conf.json``` we'll see that the variables were added:
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH\hop>echo off
+===[Environment Settings - hop-conf.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig
+--config-file "C:\<YOUR_ENV_FILE_PATH>\env-variables.json"
+--config-file-set-variables "DB_HOSTNAME=localhost,DB_PASSWORD=abcd"
+===[Starting HopConfig]=========================================================
+Configuration file 'C:\<YOUR_ENV_FILE_PATH>/env-variables.json' was modified.
+----
+--
+
+Linux, macOS::
++
+--
+[source,bash]
+----
+./hop-conf.sh --config-file <YOUR_ENV_FILE_PATH>/env-variables.json --config-file-set-variables DB_HOSTNAME=localhost,DB_PASSWORD=abcd
+----
+
+Expected output:
+
+[source,shell]
+----
+Configuration file '<YOUR_ENV_FILE_PATH>/env-variables.json' was modified.
+----
+--
+====
+
+
+If you look at the file `env-variables.json`, you'll see that the variables were added:
 
 [source,json]
 ----
@@ -79,18 +169,57 @@ If we look at the file ```hop2-conf.json``` we'll see that the variables were ad
 }
 ----
 
-Please note that you can add descriptions for the variables as well with the ```--describe-variable``` option.
+Please note that you can add descriptions for the variables as well with the `--describe-variable` option.
 Please run hop-conf without options to see all the possibilities.
 
 ==== Deleting an environment
 
-The following deletes an environment from the Hop configuration file:
+The following example deletes an environment from the Hop configuration file:
 
-[source,bash]
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
 ----
-$ sh hop-conf.sh --environment-delete --environment hop2
-Lifecycle environment 'hop2' was deleted from Hop configuration file <path-to-hop>/config/hop-config.json
+hop-conf.bat -ed --environment hop2
 ----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-conf.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\* -Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig  -ed --environment hop2
+===[Starting HopConfig]=========================================================
+Lifecycle environment 'hop2' was deleted from Hop configuration file C:\<YOUR_PATH>\hop\config\hop-config.json
+----
+
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-conf.sh -ed --environment hop2
+----
+
+Expected output:
+
+[source,shell]
+----
+Lifecycle environment 'hop2' was deleted from Hop configuration file <YOUR_PATH>/hop/config/hop-config.json
+----
+
+--
+====
+
 
 === Projects Plugin configuration
 

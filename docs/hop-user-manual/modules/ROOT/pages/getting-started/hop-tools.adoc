@@ -27,60 +27,228 @@ Hop contains a number of tools that are optimized for the various tasks Hop deve
 
 include::../snippets/hop-tools/hop-gui.adoc[]
 
-TIP: Hop Gui is designed to be platform independent.
-Hop Web is a version of Hop Gui that works on browsers and mobile devices, and will be available in the very near future.
+TIP: Hop Gui is designed to be platform independent. +
+xref:../hop-gui/hop-web.adoc[Hop Web] is a version of Hop Gui that works on browsers and mobile devices.
 
-Windows
+The command below starts Hop GUI for your operating system.
 
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
 [source,bash]
+----
 hop-gui.bat
+----
+--
 
-MacOS, Linux
-
+Linux, macOS::
++
+--
 [source,bash]
- ./hop-gui.sh
+----
+./hop-gui.sh
+----
+--
+====
+
+Expected output: Hop Gui starts.
 
 == Hop Conf
 
 include::../snippets/hop-tools/hop-conf.adoc[]
 
-Windows
+The example `hop-conf` command below lists your available projects.
+
+&nbsp; +
+
+[tabs]
+====
+
+Windows::
++
+--
+[source,bash]
+----
+hop-conf.bat -pl
+----
+
+Expected output:
+[source,shell]
+----
+C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\* -Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Conf -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig  -pl
+===[Starting HopConfig]=========================================================
+Projects:
+  default : config/projects/default
+    Configuration file: file:\C:\<YOUR_PATH>\hop\config\projects\default\project-config.json
+  samples : config/projects/samples
+    Parent project: default
+    Configuration file: file:\C:\<YOUR_PATH>\hop\config\projects\samples\project-config.json
+----
+
+--
+
+Linux, macOS::
++
+--
+[source,bash]
+----
+./hop-conf.sh -pl
+----
+
+Expected output:
 
 [source,bash]
-hop-conf.bat
+----
+Projects:
+  default : config/projects/default
+    Configuration file: file:<YOUR_PATH>/hop/config/projects/default/project-config.json
+  samples : config/projects/samples
+    Parent project: default
+    Configuration file: file:<YOUR_PATH>/hop/config/projects/samples/project-config.json
 
-MacOS, Linux
+----
+--
 
-[source,bash]
- ./hop-conf.sh
+
+====
 
 == Hop Encrypt
 
 include::../snippets/hop-tools/hop-encrypt.adoc[]
 
-Windows
+&nbsp; +
 
+The example below prints the encrypted Hop password `mypassword`.
+
+&nbsp; +
+
+[tabs]
+====
+
+Windows::
++
+--
 [source,bash]
-hop-encrypt.bat
+----
+hop-encrypt.bat -hop mypassword
+----
 
-MacOS, Linux
+Expected output:
 
+[source,shell]
+----
+===[Environment Settings - hop-encrypt.bat]====================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx64m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\* -Djava.library.path=lib\core;lib\beam -Xmx64m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI org.apache.hop.core.encryption.Encr  -hop mypassword
+===[Starting HopEncrypt]=========================================================
+Encrypted 2be98afc86aa79f9dbb18bd63c99dbdde
+----
+--
+
+Linux, macOS::
++
+--
 [source,bash]
- ./hop-encrypt.sh
+----
+./hop-encrypt.sh -hop mypassword
+----
+
+Expected output:
+[source, shell]
+----
+Encrypted 2be98afc86aa79f9dbb18bd63c99dbdde
+----
+
+--
+
+====
 
 == Hop Run
 
 include::../snippets/hop-tools/hop-run.adoc[]
 
-Windows
+The example below runs the `switch-case-basic.hpl` pipeline in the samples project (`-j`) with the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[local native pipeline run configuration] (`-r`).
 
-[source,bash]
-hop-run.bat
+&nbsp; +
 
-MacOS, Linux
+[tabs]
+====
 
-[source,bash]
- ./hop-run.sh
+Windows::
++
+--
+[source,shell]
+----
+hop-run.bat -r local -j samples -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
+----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-run.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS="-Xmx2048m" -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Run -DHOP_AUTO_CREATE_CONFIG=Y
+Consolidated parameters to pass to HopRun are
+-r local -j samples -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
+Command to start HopRun will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam "-Xmx2048m" -DHOP_AUDIT_FOLDER=.\audit
+-DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Run -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.run.HopRun
+-r local -j samples -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
+===[Starting HopRun]=========================================================
+2022/12/16 07:07:47 - HopRun - Enabling project 'samples'
+2022/12/16 07:07:47 - HopRun - Starting pipeline: config/projects/samples/transforms/switch-case-basic.hpl
+2022/12/16 07:07:47 - switch-case-basic - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2022/12/16 07:07:47 - switch-case-basic - Execution started for pipeline [switch-case-basic]
+2022/12/16 07:07:47 - Test Data.0 - Finished processing (I=0, O=0, R=0, W=5, U=0, E=0)
+2022/12/16 07:07:47 - Switch id.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
+2022/12/16 07:07:47 - Output 2.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 07:07:47 - Output 1.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 07:07:47 - Output 4.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 07:07:47 - Output default.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 07:07:47 - Output 3.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 07:07:47 - switch-case-basic - Pipeline duration : 0.435 seconds [  0.435" ]
+----
+
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-run.sh -r local -j samples -f ${PROJECT_HOME}/transforms/switch-case-basic.hpl
+----
+
+Expected output:
+
+[source,shell]
+----
+2022/12/16 06:59:03 - HopRun - Enabling project 'samples'
+2022/12/16 06:59:03 - HopRun - Relative path filename specified: config/projects/samples//transforms/switch-case-basic.hpl
+2022/12/16 06:59:03 - HopRun - Starting pipeline: config/projects/samples//transforms/switch-case-basic.hpl
+2022/12/16 06:59:03 - switch-case-basic - Executing this pipeline using the Local Pipeline Engine with run configuration 'local'
+2022/12/16 06:59:03 - switch-case-basic - Execution started for pipeline [switch-case-basic]
+2022/12/16 06:59:04 - Test Data.0 - Finished processing (I=0, O=0, R=0, W=5, U=0, E=0)
+2022/12/16 06:59:04 - Switch id.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
+2022/12/16 06:59:04 - Output default.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 06:59:04 - Output 1.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 06:59:04 - Output 4.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 06:59:04 - Output 3.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 06:59:04 - Output 2.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+2022/12/16 06:59:04 - switch-case-basic - Pipeline duration : 0.668 seconds [  0.668" ]
+----
+--
+
+====
 
 xref::../hop-run/index.adoc[Read more]
 
@@ -88,21 +256,170 @@ xref::../hop-run/index.adoc[Read more]
 
 include::../snippets/hop-tools/hop-search.adoc[]
 
+The example below searches in the samples project `-j` for `switch-case`.
+
+&nbsp; +
+
+[tabs]
+====
+
+Windows::
++
+--
+[source, shell]
+----
+hop-search.bat -j samples -x switch-case
+----
+
+Expected output:
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-search.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Search
+-DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=Search -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig  -j samples -x switch-case
+===[Starting HopConfig]=========================================================
+Enabling project 'samples'
+Searching in project : samples
+Searching for [switch-case]  Case sensitive? true  Regular expression? true
+Searching in location : Project samples
+-----------------------------------------------------------------------------------
+file:///C:/<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : null(switch-case) : matching property value: switch-case    file:///C:/<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : matching property value: switch-case
+file:///C:/<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : pipeline transform property : filePrefix
+----
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-search.sh -j samples -x switch-case
+----
+
+Expected output:
+[source,shell]
+----
+Enabling project 'samples'
+Searching in project : samples
+Searching for [switch-case]  Case sensitive? true  Regular expression? true
+Searching in location : Project samples
+-----------------------------------------------------------------------------------
+file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : null(switch-case) : matching property value: switch-case
+file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : matching property value: switch-case
+file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : pipeline transform property : filePrefix
+----
+--
+
+====
+
 == Hop Server
 
 include::../snippets/hop-tools/hop-server.adoc[]
 
-Windows
+The example command below starts the most basic server on your machine `localhost` on port `8081`.
 
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
 [source,bash]
-hop-server.bat
+----
+hop-server.bat localhost 8081
+----
 
-MacOS, Linux
+Expected output:
+[source, shell]
+----
+C:\<YOUR_PATH\hop>echo off
+===[Environment Settings - hop-server.bat]====================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI -DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=GUI -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.www.HopServer  localhost 8081
+===[Starting HopServer]=========================================================
+2022/12/16 07:33:44 - HopServer - Enabling project 'default'
+2022/12/16 07:33:44 - HopServer - Installing timer to purge stale objects after 1440 minutes.
+2022/12/16 07:33:44 - HopServer - Created listener for webserver @ address : localhost:8081
+----
 
+Your Hop Server is available at \http://localhost:8081, log on with the default username `cluster`, password `cluster`.
+
+Hit `CTRL-C` to stop the server.
+
+--
+
+Linux, macOS::
++
+--
 [source,bash]
- ./hop-server.sh
+----
+./hop-server.sh localhost 8081
+----
+
+Expected output:
+
+[source,shell]
+----
+2022/12/16 07:20:19 - HopServer - Enabling project 'default'
+2022/12/16 07:20:19 - HopServer - Installing timer to purge stale objects after 1440 minutes.
+2022/12/16 07:20:19 - HopServer - Created listener for webserver @ address : localhost:8081
+----
+
+Your Hop Server is available at \http://localhost:8081, log on with the default username `cluster`, password `cluster`.
+
+Hit `CTRL-C` to stop the server.
+
+--
+
+====
 
 xref::../hop-server/index.adoc[Read more]
+
+== Hop Import
+
+include::../snippets/hop-tools/hop-import.adoc[]
+
+&nbsp; +
+
+The example command below prints the `hop-import` help. Check the xref:tech-manual::hop-vs-kettle/import-kettle-projects.adoc[] docs for more information.
+
+&nbsp; +
+
+[tabs]
+====
+
+Windows::
++
+--
+[code, shell]
+----
+hop-import.bat
+----
+--
+
+Linux, macOS::
++
+--
+[code,shell]
+----
+./hop-import.sh
+----
+--
+
+====
+
+xref:tech-manual::hop-vs-kettle/import-kettle-projects.adoc[Read more]
 
 == Hop Translator
 
@@ -110,14 +427,35 @@ include::../snippets/hop-tools/hop-translator.adoc[]
 
 TIP: check the https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation Contribution Guide] if you want to find out more about translating Hop.
 
-Windows
+&nbsp; +
 
+The example below starts the Hop Translator tool with the provided `translator.xml` file. The second parameter is the path to your local version of the https://www.github.com/apache/hop[Apache Hop source code].
+
+[tabs]
+====
+
+Windows::
++
+--
 [source,bash]
-hop-translator.bat
+----
+hop-translator.bat translator.xml <YOUR_PATH_TO_THE_HOP_CODE>
+----
 
-MacOS, Linux
+Expected output: the Hop Translator tool starts.
+--
 
+Linux, macOS::
++
+--
 [source,bash]
- ./hop-translator.sh
+----
+./hop-translator.sh translator.xml <YOUR_PATH_TO_THE_HOP_CODE>
+----
+
+Expected output: the Hop Translator tool starts.
+
+--
+====
 
 https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Read more]

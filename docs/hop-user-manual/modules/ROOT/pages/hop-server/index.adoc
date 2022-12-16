@@ -67,11 +67,6 @@ Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
                         List the status of the workflow with this name (also specify
                           the -id option)
 
-Example: hop-server.sh 0.0.0.0 8080
-Example: hop-server.sh 192.168.1.221 8081
-
-Example: hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml
-Example: hop-server.sh 127.0.0.1 8080 --kill --userName cluster --password cluster
 ----
 
 The available Hop Server options are:
@@ -136,11 +131,37 @@ This is provided for by the 'projects' plugin.
 
 Hop Server can be started with hostname or ip address and port number as unnamed arguments:
 
+Example: `hop-server.sh 0.0.0.0 8080`
+
+Example: `hop-server.bat 192.168.1.221 8081`
+
+Example: `hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml`
+
+Example: `hop-server.bat 127.0.0.1 8080 --kill --userName cluster --password cluster`
+
 [source,shell]
 hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
 
 Example startup commands are:
 
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+hop-server.bat 127.0.0.1 8080
+
+[source,shell]
+hop-server.bat 192.168.1.221 8081
+
+--
+
+Linux, macOS::
++
+--
 [source,shell]
 hop-server.sh 127.0.0.1 8080
 
@@ -150,7 +171,9 @@ hop-server.sh 192.168.1.221 8081
 Listen to all interfaces on the server:
 
 [source,shell]
-hop-server.sh 0.0.0.0 8080
+hop-server.sh 0.0.0.0 8080--
+====
+
 
 === Start Hop Server with a configuration file
 
@@ -201,18 +224,50 @@ The syntax of this configuration file is fairly simple:
 
 Example startup commands with a configuration file are:
 
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
 [source,shell]
-hop-server.sh /foo/bar/hop-server-config.xml
+hop-server.bat C:\<YOUR_PATH>\hop-server-config.xml
 
 Or with a remote configuration file:
 
 [source,shell]
+hop-server.bat http://www.example.com/hop-server-config.xml
+
+You can also enable a project lifecyfle environment for the Hop server:
+
+[source,shell]
+hop-server.bat -e graph-aws hop-server.xml
+
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+hop-server.sh /foo/bar/hop-server-config.xml
+----
+
+Or with a remote configuration file:
+
+[source,shell]
+----
 hop-server.sh http://www.example.com/hop-server-config.xml
+----
 
 You can also enable a project lifecyfle environment for the Hop server:
 
 [source,shell]
 hop-server.sh -e graph-aws hop-server.xml
+
+--
+====
 
 In the sample above the environment contains configuration files with variables which are loaded.
 With the environment the server also knows the project home folder.
@@ -336,8 +391,22 @@ In a testing setup where Hop Server was started from a terminal, the process can
 
 In headless environments, the same hop-server command used to start the server can be used to stop it:
 
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+hop-server.bat 127.0.0.1 8080 -s -u cluster -p cluster
+--
+
+Linux, macOS::
++
+--
 [source,shell]
 hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
+--
+====
 
 == Verify startup
 
@@ -353,13 +422,58 @@ The console output will look similar to what is listed below:
 
 You can query the new server with another hop-server command:
 
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
 [source,shell]
 ----
-sh hop-server.sh -gs -u cluster -p cluster 127.0.0.1 8080
+hop-server.bat -gs -u cluster -p cluster 127.0.0.1 8080
+----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off                                                          ===[Environment Settings - hop-server.bat]====================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI
+-DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=GUI -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.www.HopServer  -gs -u cluster -p cluster localhost 8181
+===[Starting HopServer]=========================================================
+2022/12/16 14:02:13 - HopServer - Enabling project 'default'
 Pipelines: 0 found.
 
 Workflows: 0 found.
 ----
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-server.sh -gs -u cluster -p cluster 127.0.0.1 8080
+----
+
+Expected output:
+
+[source,shell]
+----
+Pipelines: 0 found.
+
+Workflows: 0 found.
+----
+--
+====
+
+
 
 == Query a pipeline from the command line
 

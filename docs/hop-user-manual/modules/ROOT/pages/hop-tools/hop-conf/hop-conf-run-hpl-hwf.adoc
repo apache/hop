@@ -22,37 +22,108 @@ By doing so you are automatically configuring metadata, variables without too mu
 
 The easiest example is shown by executing the "complex" pipeline from the Apache Beam examples:
 
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
+
+[source,shell]
+----
+hop-run.bat --project samples --file 'beam/pipelines/complex.hpl' --runconfig Direct
+----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-run.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS="-Xmx2048m" -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=Run -DHOP_AUTO_CREATE_CONFIG=Y
+Consolidated parameters to pass to HopRun are
+--project samples --file beam/pipelines/complex.hpl --runconfig Direct
+Command to start HopRun will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam "-Xmx2048m" -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=Run -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.run.HopRun  --project samples
+--file beam/pipelines/complex.hpl --runconfig Direct
+===[Starting HopRun]=========================================================
+2022/12/16 14:23:10 - HopRun - Enabling project 'samples'
+2022/12/16 14:23:10 - HopRun - Relative path filename specified: config/projects/samples/beam/pipelines/complex.hpl
+2022/12/16 14:23:10 - HopRun - Starting pipeline: config/projects/samples/beam/pipelines/complex.hpl
+2022/12/16 14:23:21 - General - Created Apache Beam pipeline with name 'complex'
+2022/12/16 14:23:21 - General - Handled transform (INPUT) : Customer data
+2022/12/16 14:23:21 - General - Handled transform (INPUT) : State data
+2022/12/16 14:23:21 - General - Handled Group By (TRANSFORM) : countPerState, gets data from 1 previous transform(s)
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : uppercase state, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Handled Merge Join (TRANSFORM) : Merge join
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : Lookup count per state, gets data from 1 previous transform(s), targets=0, infos=1
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : name<n, gets data from 1 previous transform(s), targets=2, infos=0
+2022/12/16 14:23:21 - General - Transform Label: N-Z reading from previous transform targeting this one using : name<n - TARGET - Label: N-Z
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : Label: N-Z, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Transform Label: A-M reading from previous transform targeting this one using : name<n - TARGET - Label: A-M
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : Label: A-M, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : Switch / case, gets data from 2 previous transform(s), targets=4, infos=0
+2022/12/16 14:23:21 - General - Transform CA reading from previous transform targeting this one using : Switch / case - TARGET - CA
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : CA, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Transform NY reading from previous transform targeting this one using : Switch / case - TARGET - NY
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : NY, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Transform FL reading from previous transform targeting this one using : Switch / case - TARGET - FL
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : FL, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Transform Default reading from previous transform targeting this one using : Switch / case - TARGET - Default
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : Default, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Handled generic transform (TRANSFORM) : Collect, gets data from 4 previous transform(s), targets=0, infos=0
+2022/12/16 14:23:21 - General - Handled transform (OUTPUT) : complex, gets data from Collect
+2022/12/16 14:23:21 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'Direct'  ----
+----
+--
+
+Linux, macOS::
++
+--
 [source,bash]
 ----
-$ sh hop-run.sh --project samples --file 'beam/pipelines/complex.hpl' --runconfig Direct
-2022/12/15 14:40:51 - HopRun - Enabling project 'hop-samples'
-2022/12/15 14:40:51 - HopRun - Relative path filename specified: /home/bart/git-hop/hop/assemblies/client/target/hop/config/projects/samples/beam/pipelines/complex.hpl
-2022/12/15 14:40:51 - HopRun - Starting pipeline: /home/bart/git-hop/hop/assemblies/client/target/hop/config/projects/samples/beam/pipelines/complex.hpl
-2022/12/15 14:40:54 - General - Created Apache Beam pipeline with name 'complex'
-2022/12/15 14:40:54 - General - Handled transform (INPUT) : Customer data
-2022/12/15 14:40:54 - General - Handled transform (INPUT) : State data
-2022/12/15 14:40:54 - General - Handled Group By (TRANSFORM) : countPerState, gets data from 1 previous transform(s)
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : uppercase state, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:54 - General - Handled Merge Join (TRANSFORM) : Merge join
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : Lookup count per state, gets data from 1 previous transform(s), targets=0, infos=1
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : name<n, gets data from 1 previous transform(s), targets=2, infos=0
-2022/12/15 14:40:54 - General - Transform Label: N-Z reading from previous transform targeting this one using : name<n - TARGET - Label: N-Z
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : Label: N-Z, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:54 - General - Transform Label: A-M reading from previous transform targeting this one using : name<n - TARGET - Label: A-M
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : Label: A-M, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : Switch / case, gets data from 2 previous transform(s), targets=4, infos=0
-2022/12/15 14:40:54 - General - Transform CA reading from previous transform targeting this one using : Switch / case - TARGET - CA
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : CA, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:54 - General - Transform NY reading from previous transform targeting this one using : Switch / case - TARGET - NY
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : NY, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:54 - General - Transform FL reading from previous transform targeting this one using : Switch / case - TARGET - FL
-2022/12/15 14:40:54 - General - Handled generic transform (TRANSFORM) : FL, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:54 - General - Transform Default reading from previous transform targeting this one using : Switch / case - TARGET - Default
-2022/12/15 14:40:55 - General - Handled generic transform (TRANSFORM) : Default, gets data from 1 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:55 - General - Handled generic transform (TRANSFORM) : Collect, gets data from 4 previous transform(s), targets=0, infos=0
-2022/12/15 14:40:55 - General - Handled transform (OUTPUT) : complex, gets data from Collect
-2022/12/15 14:40:55 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'Direct'
+./sh hop-run.sh --project samples --file 'beam/pipelines/complex.hpl' --runconfig Direct
 ----
+
+Expected output:
+
+[source,shell]
+----
+2022/12/16 14:27:37 - HopRun - Enabling project 'samples'
+2022/12/16 14:27:37 - HopRun - Relative path filename specified: config/projects/samples/beam/pipelines/complex.hpl
+2022/12/16 14:27:37 - HopRun - Starting pipeline: config/projects/samples/beam/pipelines/complex.hpl
+2022/12/16 14:27:41 - General - Created Apache Beam pipeline with name 'complex'
+2022/12/16 14:27:41 - General - Handled transform (INPUT) : Customer data
+2022/12/16 14:27:41 - General - Handled transform (INPUT) : State data
+2022/12/16 14:27:41 - General - Handled Group By (TRANSFORM) : countPerState, gets data from 1 previous transform(s)
+2022/12/16 14:27:41 - General - Handled generic transform (TRANSFORM) : uppercase state, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:41 - General - Handled Merge Join (TRANSFORM) : Merge join
+2022/12/16 14:27:41 - General - Handled generic transform (TRANSFORM) : Lookup count per state, gets data from 1 previous transform(s), targets=0, infos=1
+2022/12/16 14:27:41 - General - Handled generic transform (TRANSFORM) : name<n, gets data from 1 previous transform(s), targets=2, infos=0
+2022/12/16 14:27:41 - General - Transform Label: N-Z reading from previous transform targeting this one using : name<n - TARGET - Label: N-Z
+2022/12/16 14:27:41 - General - Handled generic transform (TRANSFORM) : Label: N-Z, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:41 - General - Transform Label: A-M reading from previous transform targeting this one using : name<n - TARGET - Label: A-M
+2022/12/16 14:27:41 - General - Handled generic transform (TRANSFORM) : Label: A-M, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:41 - General - Handled generic transform (TRANSFORM) : Switch / case, gets data from 2 previous transform(s), targets=4, infos=0
+2022/12/16 14:27:41 - General - Transform CA reading from previous transform targeting this one using : Switch / case - TARGET - CA
+2022/12/16 14:27:42 - General - Handled generic transform (TRANSFORM) : CA, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:42 - General - Transform NY reading from previous transform targeting this one using : Switch / case - TARGET - NY
+2022/12/16 14:27:42 - General - Handled generic transform (TRANSFORM) : NY, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:42 - General - Transform FL reading from previous transform targeting this one using : Switch / case - TARGET - FL
+2022/12/16 14:27:42 - General - Handled generic transform (TRANSFORM) : FL, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:42 - General - Transform Default reading from previous transform targeting this one using : Switch / case - TARGET - Default
+2022/12/16 14:27:42 - General - Handled generic transform (TRANSFORM) : Default, gets data from 1 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:42 - General - Handled generic transform (TRANSFORM) : Collect, gets data from 4 previous transform(s), targets=0, infos=0
+2022/12/16 14:27:42 - General - Handled transform (OUTPUT) : complex, gets data from Collect
+2022/12/16 14:27:42 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'Direct'
+----
+--
+====
 
 To execute an Apache Beam pipeline a lot of information and metadata is needed.
 Let's dive into a few fun information tidbits:
