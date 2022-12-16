@@ -263,7 +263,7 @@ Result:
 
 include::hop-conf-projects.adoc[]
 
-== Running Projects and Pipelines
+== Running Workflows and Pipelines
 
 include::hop-conf-run-hpl-hwf.adoc[]
 

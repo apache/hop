@@ -30,7 +30,7 @@ Except for the laucher script, all options are platform agnostic; there is no di
 
 You can display Hop Run's options by running the command without any options.
 
-If you're on Windows (tough luck), run `hop-run.bat`, on Mac and Linux, run `hop-run.sh`.
+On Windows, run `hop-run.bat`. The command on Mac and Linux is `hop-run.sh`.
 
 You'll see the option listed in a similar output to the one below:
 

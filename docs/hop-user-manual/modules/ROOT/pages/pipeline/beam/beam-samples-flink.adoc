@@ -101,11 +101,11 @@ With your Hop and Flink set up correctly, your output will look similar to what'
 
 [source, shell]
 ----
-Argument 1 : Pipeline filename (.hpl)   : /home/bart/git-hop/hop/assemblies/client/target/hop/config/projects/samples/beam/pipelines/generate-synthetic-data.hpl
+Argument 1 : Pipeline filename (.hpl)   : <YOUR_PATH>/hop/config/projects/samples/beam/pipelines/generate-synthetic-data.hpl
 Argument 2 : Metadata filename (.json)  : /opt/flink/hop-metadata.json
 Argument 3 : Pipeline run configuration : Flink
 >>>>>> Initializing Hop...
-Hop configuration file not found, not serializing: /home/bart/Projects/flink/flink-1.13.5/config/hop-config.json
+Hop configuration file not found, not serializing: <YOUR_FLINK_PATH>/flink/flink-1.13.5/config/hop-config.json
 
 >>>>>> Loading pipeline metadata
 >>>>>> Building Apache Beam Pipeline...

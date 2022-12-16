@@ -56,26 +56,68 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
 
 Example command: search for the string 'json' (case insensitive) in the 'hop-samples' project.
 
-Command: `./hop-search.sh -j hop-samples -i json `
-
-Output:
-
-[source,bash]
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
 ----
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : null : matching property value: Enhanced JSON - Generate complex nested structure from table
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : matching property value: EnhancedJsonOutput
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : matching property value: Enhanced JSON Output
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : pipeline transform property : jsonBloc
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : pipeline transform property : jsonPrittified (Boolean)
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : pipeline transform property : isJSONFragment (Boolean)
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : pipeline transform property : isJSONFragment (Boolean)
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Final Complex Data structure : pipeline transform property : isJSONFragment (Boolean)
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Intermediate Structures : matching property value: EnhancedJsonOutput
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Intermediate Structures : matching property value: Enhanced JSON Output
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Intermediate Structures : pipeline transform property : jsonPrittified (Boolean)
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : Intermediate Structures : pipeline transform property : isJSONFragment (Boolean)
-<PROJECT_PATH>/samples/transforms/Enhanced JSON - Generate complex nested structure from table.hpl : null : matching property value: This sample gets a table of values and generate a complex nested structure as output
-by looping over a predefined key. Second Enhanced JSON Transform als gets a JSON fragment produced
-by furst Enhanced JSON Transform and use it as value of an attribute of the resulting final 
-JSON stream.
+hop-search.bat -j samples -i switch-case
 ----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-search.bat]===================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=Search
+-DHOP_AUTO_CREATE_CONFIG=Y
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx2048m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=Search -DHOP_AUTO_CREATE_CONFIG=Y org.apache.hop.config.HopConfig -j samples -i switch-case
+===[Starting HopConfig]=========================================================
+Enabling project 'samples'
+Searching in project : samples
+Searching for [switch-case]
+Case sensitive? false
+Regular expression? false
+Searching in location : Project samples
+-----------------------------------------------------------------------------------
+file:///C:/<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : null(switch-case) : matching property value: switch-case
+file:///C:/<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : matching property value: switch-case
+file:///C:/<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : pipeline transform property : filePrefix
+file:///C:/<YOUR_PATH>/hop/config/projects/samples/transforms/switch-case-basic.hpl : null(switch-case-basic) : matching property value: switch-case-basic
+----
+
+--
+
+Linux, macOS::
++
+--
+[source, shell]
+----
+./hop-search.sh -j samples -i switch-case
+----
+
+Expected output:
+
+[source,shell]
+----
+Enabling project 'samples'
+Searching in project : samples
+Searching for [switch-case]
+Case sensitive? false
+Regular expression? false
+Searching in location : Project samples
+-----------------------------------------------------------------------------------
+file://<YOUR_PATH>/hop/config/projects/samples/transforms/switch-case-basic.hpl : null(switch-case-basic) : matching property value: switch-case-basic
+file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : null(switch-case) : matching property value: switch-case
+file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : matching property value: switch-case
+file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : switch-case(switch-case) : pipeline transform property : filePrefix
+----
+--
+====

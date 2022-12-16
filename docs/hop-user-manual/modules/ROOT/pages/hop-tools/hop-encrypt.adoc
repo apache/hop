@@ -49,16 +49,110 @@ Hop will then be able to make the distinction between regular plain text passwor
 
 === Hop Example
 
-Encrypt (obfuscate) the password 'abcd' for use in Hop workflows, pipelines and other metadata files.
+Encrypt (obfuscate) the password `abcd` for use in Hop workflows, pipelines and other metadata files.
 
-`./hop-encrypt.sh -hop abcd`
+&nbsp; +
 
-Output: `Encrypted 2be98afc86aa7f2e4cb79ce10df90acde`
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+hop-encrypt.bat -hop abcd
+----
+
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-encrypt.bat]====================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx64m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx64m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=GUI org.apache.hop.core.encryption.Encr -hop abcd
+===[Starting HopEncrypt]=========================================================
+Encrypted 2be98afc86aa7f2e4cb79ce10df90acde
+----
+
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-encrypt.sh -hop abcd
+----
+
+Expected output:
+
+[source,shell]
+----
+Encrypted 2be98afc86aa7f2e4cb79ce10df90acde
+----
+
+--
+
+====
+
+
+
 
 === Hop Server Example
 
 Encrypt (obfuscate) the password 'abcd' for use in Hop server.
 
-``./hop-encrypt.sh -server abcd`
+&nbsp; +
 
-Output: `OBF:1s3g1s3i1s3k1s3m`
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+hop-encrypt.bat -server abcd
+----
+
+Expected output:
+
+[source,shell]
+----
+C:\<YOUR_PATH>\hop>echo off
+===[Environment Settings - hop-encrypt.bat]====================================
+Java identified as "C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java"
+HOP_OPTIONS=-Xmx64m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows -DHOP_PLATFORM_RUNTIME=GUI
+Command to start Hop will be:
+"C:\Program Files\Microsoft\jdk-11.0.17.8-hotspot\\bin\java" -classpath lib\core\*;lib\beam\*;lib\swt\win64\*
+-Djava.library.path=lib\core;lib\beam -Xmx64m -DHOP_AUDIT_FOLDER=.\audit -DHOP_PLATFORM_OS=Windows
+-DHOP_PLATFORM_RUNTIME=GUI org.apache.hop.core.encryption.Encr -server abcd
+===[Starting HopEncrypt]=========================================================
+OBF:1s3g1s3i1s3k1s3m
+----
+
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+----
+./hop-encrypt.sh -server abcd
+----
+
+Expected output:
+
+[source,shell]
+----
+OBF:1s3g1s3i1s3k1s3m
+----
+
+--
+====
+
