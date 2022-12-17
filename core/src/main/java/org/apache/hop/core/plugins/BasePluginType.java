@@ -32,7 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.GlobalMessageUtil;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -134,16 +133,15 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   protected void registerNatives() throws HopPluginException {
     try {
-      JarCache cache = JarCache.getInstance();
-      DotName pluginName = DotName.createSimple(pluginClass.getName());
+      JarCache cache = JarCache.getInstance();     
       for (File jarFile : cache.getNativeJars()) {
         IndexView index = cache.getIndex(jarFile);
 
         // find annotations annotated with this meta-annotation
-        for (AnnotationInstance instance : index.getAnnotations(pluginName)) {
+        for (AnnotationInstance instance : index.getAnnotations(pluginClass)) {
           if (instance.target() instanceof ClassInfo) {
 
-            ClassInfo classInfo = (ClassInfo) instance.target();
+            ClassInfo classInfo = instance.target().asClass();
             String className = classInfo.name().toString();
 
             Class<?> clazz = this.getClass().getClassLoader().loadClass(className);
@@ -303,11 +301,10 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
         //
         IndexView index = cache.getIndex(jarFile);
         // find annotations annotated with this meta-annotation
-        for (AnnotationInstance instance :
-            index.getAnnotations(DotName.createSimple(pluginClass.getName()))) {
+        for (AnnotationInstance instance : index.getAnnotations(pluginClass)) {
           if (instance.target() instanceof ClassInfo) {
             try {
-              ClassInfo classInfo = (ClassInfo) instance.target();
+              ClassInfo classInfo = instance.target().asClass();
               String className = classInfo.name().toString();
 
               File folder = jarFile.getParentFile();

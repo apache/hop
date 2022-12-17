@@ -51,7 +51,6 @@
         <xmlunit.version>1.5</xmlunit.version>
         <javassist.version>3.28.0-GA</javassist.version>
         <json-simple.version>1.1.1</json-simple.version>
-        <jandex.version>2.4.2.Final</jandex.version>
     </properties>
 
     <dependencies>
@@ -404,7 +403,7 @@
             <artifactId>commons-compress</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jboss</groupId>
+            <groupId>io.smallrye</groupId>
             <artifactId>jandex</artifactId>
             <version>${jandex.version}</version>
         </dependency>
