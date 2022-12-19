@@ -21,6 +21,8 @@ name: Feature Request
 description: File a feature request
 title: "[Feature Request]: "
 labels: ["new feature", "awaiting triage"]
+assignees:
+  - octocat
 body:
   - type: markdown
     attributes:
