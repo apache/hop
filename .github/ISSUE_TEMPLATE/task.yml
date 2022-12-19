@@ -21,6 +21,8 @@ name: Task
 description: File a task
 title: "[Task]: "
 labels: ["task", "awaiting triage"]
+assignees:
+  - octocat
 body:
   - type: markdown
     attributes:
