@@ -61,7 +61,6 @@ import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.uniquerows.UniqueRowsMeta;
 import org.jboss.jandex.AnnotationInstance;
 import org.jboss.jandex.ClassInfo;
-import org.jboss.jandex.DotName;
 import org.jboss.jandex.IndexView;
 
 import java.io.File;
@@ -236,10 +235,9 @@ public class HopPipelineMetaToBeamPipelineConverter {
           IndexView index = jarCache.getIndex(file);
 
           // find annotations annotated with this meta-annotation
-          for (AnnotationInstance instance :
-              index.getAnnotations(DotName.createSimple(annotationClassName))) {
+          for (AnnotationInstance instance : index.getAnnotations(annotationClassName)) {
             if (instance.target() instanceof ClassInfo) {
-              ClassInfo classInfo = (ClassInfo) instance.target();
+              ClassInfo classInfo = instance.target().asClass();
               classNames.add(classInfo.name().toString());
             }
           }
