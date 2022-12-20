@@ -163,6 +163,7 @@
     <module>uniquerowsbyhashset</module>
     <module>update</module>
     <module>valuemapper</module>
+    <module>verticabulkloader</module>
     <module>webserviceavailable</module>
     <module>webservices</module>
     <module>workflowexecutor</module>

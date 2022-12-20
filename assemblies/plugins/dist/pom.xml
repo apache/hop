@@ -2493,7 +2493,20 @@
       </exclusions>
     </dependency>
 
-    <dependency>
+      <dependency>
+          <groupId>org.apache.hop</groupId>
+          <artifactId>hop-assemblies-plugins-transforms-verticabulkloader</artifactId>
+          <version>${project.version}</version>
+          <type>zip</type>
+          <exclusions>
+              <exclusion>
+                  <groupId>*</groupId>
+                  <artifactId>*</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+
+      <dependency>
       <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-webserviceavailable</artifactId>
       <version>${project.version}</version>
