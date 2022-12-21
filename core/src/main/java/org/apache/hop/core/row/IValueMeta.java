@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -144,7 +146,7 @@ import org.w3c.dom.Node;
 @JsonDeserialize(using = ValueMetaDeserializer.class)
 @HopMetadataObject(objectFactory = IValueMeta.ValueMetaHopMetadataObjectFactory.class)
 public interface IValueMeta extends Cloneable {
-  public static final Class<?> PKG = IValueMeta.class; // For Translator
+  public static final Class<?> PKG = Const.class; // For Translator
 
   /** Value type indicating that the value has no type set */
   int TYPE_NONE = 0;
