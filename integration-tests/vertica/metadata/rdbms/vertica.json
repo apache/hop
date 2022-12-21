@@ -1,0 +1,26 @@
+{
+  "rdbms": {
+    "VERTICA5": {
+      "databaseName": "${VERTICA_DBNM}",
+      "pluginId": "VERTICA5",
+      "accessType": 0,
+      "hostname": "${VERTICA_HOST}",
+      "password": "${VERTICA_PASS}",
+      "pluginName": "Vertica 5",
+      "port": "${VERTICA_PORT}",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "N",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "${VERTICA_USER}"
+    }
+  },
+  "name": "vertica"
+}
