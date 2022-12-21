@@ -26,6 +26,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.HttpClientManager;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -41,11 +42,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -53,8 +52,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -200,6 +197,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       // Set request entity?
       if (data.indexOfRequestEntity >= 0) {
         String tmp = data.inputRowMeta.getString(rowData, data.indexOfRequestEntity);
+        HttpEntity entity = null;
         // Request content will be retrieved directly
         // from the input stream
         // Per default, the request content needs to be buffered
@@ -208,7 +206,13 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         // content length is explicitly specified
 
         if (meta.isPostAFile()) {
-          post.setEntity(new FileEntity(new File(tmp)));
+          if (!tmp.isEmpty()) {
+            entity =
+                MultipartEntityBuilder.create()
+                    .addBinaryBody("file", HopVfs.getFileObject(tmp).getPath().toFile())
+                    .build();
+          }
+          post.setEntity(entity);
         } else {
           byte[] bytes;
           if ((data.realEncoding != null) && (data.realEncoding.length() > 0)) {
@@ -216,7 +220,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           } else {
             bytes = tmp.getBytes();
           }
-          post.setEntity(new ByteArrayEntity(bytes));
+          entity = MultipartEntityBuilder.create().addBinaryBody("file", bytes).build();
+          post.setEntity(entity);
         }
       }
 
@@ -337,7 +342,6 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(PKG, "HTTPPOST.Error.CanNotReadURL", data.realUrl), e);
-
     }
   }
 
