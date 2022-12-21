@@ -43,7 +43,6 @@ import org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary.Stream
 import javax.sql.PooledConnection;
 import java.io.*;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -112,15 +111,15 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
       } else {
 
-        int numberOfInsertFields = meta.getFieldDatabase().length;
+        int numberOfInsertFields = meta.getFields().size();
         data.insertRowMeta = new RowMeta();
         data.colSpecs = new ArrayList<>(numberOfInsertFields);
 
         // Cache the position of the selected fields in the row array
         data.selectedRowFieldIndices = new int[numberOfInsertFields];
         for (int insertFieldIdx = 0; insertFieldIdx < numberOfInsertFields; insertFieldIdx++) {
-
-          String inputFieldName = meta.getFieldStream()[insertFieldIdx];
+          VerticaBulkLoaderField vbf = meta.getFields().get(insertFieldIdx);
+          String inputFieldName = vbf.getFieldStream();
           int inputFieldIdx = getInputRowMeta().indexOfValue(inputFieldName);
           if (inputFieldIdx < 0) {
             throw new HopTransformException(
@@ -131,14 +130,14 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
           }
           data.selectedRowFieldIndices[insertFieldIdx] = inputFieldIdx;
 
-          String insertFieldName = meta.getFieldDatabase()[insertFieldIdx];
+          String insertFieldName = vbf.getFieldDatabase();
           IValueMeta inputValueMeta = getInputRowMeta().getValueMeta(inputFieldIdx);
           if (inputValueMeta == null) {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG,
                     "VerticaBulkLoader.Exception.FailedToFindField",
-                    meta.getFieldStream()[insertFieldIdx])); // $NON-NLS-1$
+                    vbf.getFieldStream())); // $NON-NLS-1$
           }
           IValueMeta insertValueMeta = inputValueMeta.clone();
           insertValueMeta.setName(insertFieldName);
@@ -539,7 +538,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
   protected void verifyDatabaseConnection() throws HopException {
     // Confirming Database Connection is defined.
-    if (meta.getDatabaseMeta() == null) {
+    if (meta.getConnection() == null) {
       throw new HopException(
           BaseMessages.getString(PKG, "VerticaBulkLoaderMeta.Error.NoConnection"));
     }
@@ -552,10 +551,10 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
       try {
         // Validating that the connection has been defined.
         verifyDatabaseConnection();
-        data.databaseMeta = meta.getDatabaseMeta();
+        data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
         initializeLogFiles();
 
-        data.db = new Database(this, this, meta.getDatabaseMeta());
+        data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
 
         if (log.isBasic()) {

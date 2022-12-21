@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -180,6 +181,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
+    DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
     wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), null);
     if (input.getDatabaseMeta() == null && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
@@ -458,7 +460,8 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlFields.setLayoutData(fdlUpIns);
 
     int tableCols = 2;
-    int UpInsRows = (input.getFieldStream() != null ? input.getFieldStream().length : 1);
+    int UpInsRows = (input.getFields() != null && !input.getFields().equals(Collections.emptyList())
+            ? input.getFields().size() : 1 );
 
     ciFields = new ColumnInfo[tableCols];
     ciFields[0] =
@@ -613,7 +616,6 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     }
 
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
     input.setTablename(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -805,8 +807,8 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     if (input.getTableName() != null) {
       wTable.setText(input.getTableName());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
 
     if (input.getExceptionsFileName() != null) {
@@ -824,13 +826,14 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     wSpecifyFields.setSelection(input.specifyFields());
 
-    for (int i = 0; i < input.getFieldDatabase().length; i++) {
+    for (int i = 0; i < input.getFields().size(); i++) {
+      VerticaBulkLoaderField vbf = input.getFields().get(i);
       TableItem item = wFields.table.getItem(i);
-      if (input.getFieldDatabase()[i] != null) {
-        item.setText(1, input.getFieldDatabase()[i]);
+      if (vbf.getFieldDatabase() != null) {
+        item.setText(1, vbf.getFieldDatabase());
       }
-      if (input.getFieldStream()[i] != null) {
-        item.setText(2, input.getFieldStream()[i]);
+      if (vbf.getFieldStream() != null) {
+        item.setText(2, vbf.getFieldStream());
       }
     }
 
@@ -848,7 +851,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
   private void getInfo(VerticaBulkLoaderMeta info) {
     info.setSchemaName(wSchema.getText());
     info.setTablename(wTable.getText());
-    info.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    info.setConnection(wConnection.getText());
 
     info.setExceptionsFileName(wExceptionsLogFile.getText());
     info.setRejectedDataFileName(wRejectedDataLogFile.getText());
@@ -860,11 +863,15 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     info.setSpecifyFields(wSpecifyFields.getSelection());
 
     int nrRows = wFields.nrNonEmpty();
-    info.allocate(nrRows);
+    info.getFields().clear();
+
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      (info.getFieldDatabase())[i] = Const.NVL(item.getText(1), "");
-      (info.getFieldStream())[i] = Const.NVL(item.getText(2), "");
+      VerticaBulkLoaderField vbf = new VerticaBulkLoaderField(
+              Const.NVL(item.getText(1), ""),
+              Const.NVL(item.getText(2), "")
+      );
+      info.getFields().add(vbf);
     }
   }
 
@@ -877,20 +884,20 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (Utils.isEmpty(input.getConnection())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.ConnectionError.DialogMessage"));
       mb.setText(BaseMessages.getString("System.Dialog.Error.Title"));
       mb.open();
+      return;
     }
 
     dispose();
   }
 
   private void getTableName() {
-    // New class: SelectTableDialog
-    //        int connr = wConnection.getSelectionIndex();
+
     String connectionName = wConnection.getText();
     if (StringUtil.isEmpty(connectionName)) {
       return;
@@ -943,6 +950,8 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
   private void sql() {
     try {
       VerticaBulkLoaderMeta info = new VerticaBulkLoaderMeta();
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+
       getInfo(info);
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
       TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
@@ -951,18 +960,19 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
         // Only use the fields that were specified.
         IRowMeta prevNew = new RowMeta();
 
-        for (int i = 0; i < info.getFieldDatabase().length; i++) {
-          IValueMeta insValue = prev.searchValueMeta(info.getFieldStream()[i]);
+        for (int i = 0; i < info.getFields().size(); i++) {
+          VerticaBulkLoaderField vbf = info.getFields().get(i);
+          IValueMeta insValue = prev.searchValueMeta(vbf.getFieldStream());
           if (insValue != null) {
             IValueMeta insertValue = insValue.clone();
-            insertValue.setName(info.getFieldDatabase()[i]);
+            insertValue.setName(vbf.getFieldDatabase());
             prevNew.addValueMeta(insertValue);
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG,
                     "VerticaBulkLoaderDialog.FailedToFindField.Message",
-                    info.getFieldStream()[i])); // $NON-NLS-1$
+                    vbf.getFieldStream())); // $NON-NLS-1$
           }
         }
         prev = prevNew;
@@ -977,7 +987,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
                   shell,
                   SWT.NONE,
                   variables,
-                  info.getDatabaseMeta(),
+                  databaseMeta,
                   DbCache.getInstance(),
                   sql.getSql());
           sqledit.open();

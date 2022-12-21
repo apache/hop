@@ -32,16 +32,37 @@
       <fontitalic>N</fontitalic>
       <fontname>Noto Sans</fontname>
       <fontsize>10</fontsize>
-      <height>112</height>
-      <xloc>720</xloc>
+      <height>469</height>
+      <xloc>688</xloc>
       <yloc>48</yloc>
-      <note>CREATE TABLE books (
+      <note>Run this sample in a Vertica Docker container:  
+
+1) pull the docker image: "docker pull vertica/vertica-ce"
+
+2) start the Vertica container: 
+docker run -p 5433:5433 -p 5444:5444 \
+           --mount type=volume,source=vertica-data,target=/data \
+           --name vertica_ce \
+           vertica/vertica-ce
+
+3) create a Vertica connection: 
+- connection name: vertica 
+- host: localhost
+- username: dbadmin 
+- port: 5433
+- username: leave blank 
+
+4) create the "books" table
+CREATE TABLE books (
   author VARCHAR(150)
 , genre VARCHAR(150)
 , publisher VARCHAR(150)
 , title VARCHAR(150)
-);</note>
-      <width>151</width>
+)
+
+5) run the pipeline 
+;</note>
+      <width>357</width>
     </notepad>
   </notepads>
   <order>
@@ -51,18 +72,18 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>set length</from>
-      <to>bulk load Vertica </to>
+      <from>generate book data</from>
+      <to>string length 150</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>generate book data</from>
-      <to>set length</to>
+      <from>string length 150</from>
+      <to>Vertica bulk loader</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>bulk load Vertica </name>
+    <name>Vertica bulk loader</name>
     <type>VerticaBulkLoader</type>
     <description/>
     <distribute>Y</distribute>
@@ -72,10 +93,10 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <abort_on_error>Y</abort_on_error>
     <connection>vertica</connection>
-    <schema/>
-    <table>books</table>
-    <specify_fields>Y</specify_fields>
+    <direct>Y</direct>
+    <exceptions_filename/>
     <fields>
       <field>
         <column_name>author</column_name>
@@ -94,14 +115,14 @@
         <stream_name>title</stream_name>
       </field>
     </fields>
-    <exceptions_filename/>
     <rejected_data_filename/>
-    <abort_on_error>Y</abort_on_error>
-    <direct>Y</direct>
+    <schema/>
+    <specify_fields>Y</specify_fields>
     <stream_name/>
+    <table>books</table>
     <attributes/>
     <GUI>
-      <xloc>608</xloc>
+      <xloc>559</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
@@ -135,7 +156,7 @@
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
-    <copies>8</copies>
+    <copies>4</copies>
     <partitioning>
       <method>none</method>
       <schema_name/>
@@ -165,12 +186,12 @@
     <locale>en</locale>
     <attributes/>
     <GUI>
-      <xloc>256</xloc>
+      <xloc>229</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>set length</name>
+    <name>string length 150</name>
     <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
@@ -183,21 +204,25 @@
     <fields>
       <field>
         <name>publisher</name>
+        <rename/>
       </field>
       <field>
         <name>genre</name>
+        <rename/>
       </field>
       <field>
         <name>author</name>
+        <rename/>
       </field>
       <field>
         <name>title</name>
+        <rename/>
       </field>
       <select_unspecified>N</select_unspecified>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>432</xloc>
+      <xloc>394</xloc>
       <yloc>80</yloc>
     </GUI>
   </transform>
