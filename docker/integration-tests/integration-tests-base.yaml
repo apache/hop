@@ -27,7 +27,7 @@ services:
         - JENKINS_UID=1000
         - JENKINS_GROUP=jenkins
         - JENKINS_GID=1000
-        - GCP_KEY_FILE=./test
+        - GCP_KEY_FILE=./docker/integration-tests/resources/dummyfile
     volumes:
       - ../../integration-tests/:/files
     environment:
