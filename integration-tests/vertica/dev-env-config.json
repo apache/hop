@@ -1,0 +1,23 @@
+{
+  "variables" : [ {
+    "name" : "VERTICA_HOST",
+    "value" : "vertica",
+    "description" : ""
+  }, {
+    "name" : "VERTICA_USER",
+    "value" : "dbadmin",
+    "description" : ""
+  }, {
+    "name" : "VERTICA_PORT",
+    "value" : "5433",
+    "description" : ""
+  }, {
+    "name" : "VERTICA_DBNM",
+    "value" : "vmart",
+    "description" : ""
+  }, {
+    "name" : "VERTICA_PASS",
+    "value" : "",
+    "description" : ""
+  } ]
+}
