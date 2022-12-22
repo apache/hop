@@ -14,7 +14,8 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-= Hop Gui Perspectives
+
+== Hop Gui Perspectives
 :imagesdir: ../assets/images
 :description: Hop Gui provides a number of perspectives for a variety of tasks. You'll spend most of your time in the data orchestration perspective, building workflows and pipelines, but other perspectives for metadata management, file management, search etc offer tons of functionality.
 

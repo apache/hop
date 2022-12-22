@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 
-= Hop Translator - Translate the Apache Hop GUI and CLI tools
+== Hop Translator - Translate the Apache Hop GUI and CLI tools
 
 include::../snippets/hop-tools/hop-translator.adoc[]
 

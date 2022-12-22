@@ -105,6 +105,8 @@ As you can see from the log, an empty file was created to set variables in:
 
 This command adds a variable to the environment configuration file:
 
+&nbsp; +
+
 [tabs]
 ====
 Windows::
@@ -175,6 +177,8 @@ Please run hop-conf without options to see all the possibilities.
 ==== Deleting an environment
 
 The following example deletes an environment from the Hop configuration file:
+
+&nbsp; +
 
 [tabs]
 ====

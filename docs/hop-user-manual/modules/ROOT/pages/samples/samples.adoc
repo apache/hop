@@ -16,7 +16,7 @@ under the License.
 ////
 :description: Hop comes with a set of samples for workflows, pipelines, actions, transforms and other metadata objects. These samples are included in your default Hop installation as the Samples project.
 [[Samples]]
-= Samples
+== Samples
 
 Hop comes with a set of samples for workflows, pipelines, actions, transforms and other metadata objects.
 

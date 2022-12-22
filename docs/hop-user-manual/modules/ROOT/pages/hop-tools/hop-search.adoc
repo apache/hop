@@ -20,6 +20,12 @@ under the License.
 
 Hop Search is a command line tool to search for metadata in Hop or a Hop project.
 
+&nbsp; +
+
+.Usage
+[%collapsible]
+=====
+
 == Usage
 
 [source,bash]
@@ -51,6 +57,10 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
 |-l|Print which locations are being looked at
 |-x|The specified search string is a regular expression
 |===
+
+=====
+
+&nbsp; +
 
 == Examples
 

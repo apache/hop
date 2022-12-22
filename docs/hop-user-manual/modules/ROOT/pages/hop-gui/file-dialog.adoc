@@ -17,7 +17,7 @@ under the License.
 :imagesdir: ../assets/images
 :description: Hop Gui's file dialog is a powerful tool that not only lets you browse for files and folders, but also shows a lot of metadata about files, allows you to create bookmarks etc.
 
-= Hop File Dialog
+== Hop File Dialog
 
 The Hop File Dialog is a versatile tool you'll use often while working in Hop Gui.
 

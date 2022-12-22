@@ -33,6 +33,12 @@ Hop Server is available as a script in your Hop installation directory.
 Run Hop Server without any parameters to display its usage options.
 On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
 
+&nbsp; +
+
+.Usage
+[%collapsible]
+=====
+
 [source,bash]
 ----
 Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
@@ -126,6 +132,10 @@ This is provided for by the 'projects' plugin.
 |Specify the ID of the pipeline or workflow to query
 
 |===
+
+=====
+
+&nbsp; +
 
 === Start Hop Server with command line parameters
 

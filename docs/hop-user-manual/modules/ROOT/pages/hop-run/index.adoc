@@ -34,6 +34,12 @@ On Windows, run `hop-run.bat`. The command on Mac and Linux is `hop-run.sh`.
 
 You'll see the option listed in a similar output to the one below:
 
+&nbsp; +
+
+.Usage
+[%collapsible]
+=====
+
 .Output of help
 [source,bash]
 ----
@@ -108,6 +114,10 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 |```--system-properties```
 |A comma separated list of KEY=VALUE pairs
 |===
+
+=====
+
+&nbsp; +
 
 == Examples
 
