@@ -28,6 +28,12 @@ See also these plugins:
 
 Usage help can be obtained by running hop-import with the `-h` option, even when other options are specified:
 
+&nbsp; +
+
+.Usage
+[%collapsible]
+=====
+
 [source]
 ----
 Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
@@ -53,6 +59,10 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
                         The shared.xml file to read from
   -t, --type=<type>     The type of import plugin to use (e.g. kettle)
 ----
+
+=====
+
+&nbsp; +
 
 == Examples
 

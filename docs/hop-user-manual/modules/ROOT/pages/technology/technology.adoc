@@ -17,7 +17,7 @@ under the License.
 ////
 :description: Hop integrates with tens if not hundreds of different technologies. The Azure, Apache Cassandra, Google and Neo4j platforms are supported at various points in Hop and are covered in their own section.
 
-= Technology
+== Technology
 
 This section contains technology-stack specific information.
 The goal is to inform you about how Apache Hop offers support for the technology in question.

@@ -20,7 +20,7 @@ under the License.
 :page-pagination-no-back:
 :description: The Apache Hop Getting Started guide walks new Hop users through the Hop concepts and the bare necessities to get started building workflows and pipelines.
 
-= Getting Started
+== Getting Started
 
 This guide walks you through the Hop basics.
 
