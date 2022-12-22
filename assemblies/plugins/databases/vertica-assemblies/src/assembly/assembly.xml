@@ -30,6 +30,11 @@
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/PUT_JDBC_HERE</source>
+            <outputDirectory>lib</outputDirectory>
+            <filtered>true</filtered>
+        </file>
     </files>
     <fileSets>
         <fileSet>
@@ -44,13 +49,6 @@
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
                 <include>org.apache.hop:hop-databases-vertica:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>com.vertica.jdbc:vertica-jdbc:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
