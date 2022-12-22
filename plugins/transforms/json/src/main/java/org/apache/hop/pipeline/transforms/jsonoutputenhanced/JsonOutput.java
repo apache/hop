@@ -106,11 +106,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     Object[] r = getRow(); // This also waits for a row to be finished.
     if (r == null) {
       // no more input to be expected...
-      if (!data.rowsAreSafe) {
-        // Let's output the remaining unsafe data
-        outPutRow(prevRow);
-        if (data.isWriteToFile) writeJsonFile();
-      }
+      // Let's output the remaining unsafe data
+      outPutRow(prevRow);
+      if (data.isWriteToFile) writeJsonFile();
       setOutputDone();
       return false;
     }
