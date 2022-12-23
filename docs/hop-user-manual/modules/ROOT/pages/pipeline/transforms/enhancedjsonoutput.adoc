@@ -89,7 +89,7 @@ Default value is 'js'
 |Encoding|Output file encoding
 |Include date in filename?|If checked - output file name will contains File name value + current date.
 This may help to generate unique output files.
-|Include time in filename|If checked - output file name will contains file creation time.
+|Include time in filename|If checked - output file name will contain file creation time.
 Same as for 'Include date in filename' option
 |Show filename(s) button|Can be useful to test full output file path
 |Add file to result filenames?|If checked - created output file path will be accessible form transform result
@@ -120,6 +120,7 @@ Use 'Get Fields' button to discover available input fields
 |Element name|Json element name as a key.
 For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
 |JSON Fragment|If the value is set to Y the value contained in the filed is a JSON chunk and will be treated accordingly
+|Remove Element name|If the value is set to Y it will ignore the Element name and insert the JSON Fragment without wrapping it. Only works with JSON Fragment = Y
 |Remove if Blank|If the value is set to Y and value in incoming field is null the related attribute will be omitted from JSON output
 
 |===
