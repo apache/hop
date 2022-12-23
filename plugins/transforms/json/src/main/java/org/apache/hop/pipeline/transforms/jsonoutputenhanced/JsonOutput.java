@@ -183,10 +183,13 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
             if (outputField.isJSONFragment()) {
               try {
                 JsonNode jsonNode = mapper.readTree(value);
-                itemNode.put(getJsonAttributeName(outputField), jsonNode);
+                if (outputField.isWithoutEnclosing()) {
+                  itemNode.setAll((ObjectNode) jsonNode);
+                } else {
+                  itemNode.put(getJsonAttributeName(outputField), jsonNode);
+                }
               } catch (IOException e) {
-                // TBD Exception must be properly managed
-                e.printStackTrace();
+                throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Casting"), e);
               }
             } else {
               itemNode.put(getJsonAttributeName(outputField), value);
