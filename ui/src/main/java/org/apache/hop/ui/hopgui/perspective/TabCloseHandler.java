@@ -40,6 +40,7 @@ public class TabCloseHandler {
         Menu menu = new Menu(tabFolder);
         tabFolder.setMenu(menu);
         tabFolder.addListener(SWT.MenuDetect, event -> handleTabMenuDetectEvent(event));
+        tabFolder.addListener(SWT.MouseUp, event -> handleMouseUp(event, tabClosablePerspective));
 
         // Create menu item
         MenuItem miClose = new MenuItem(menu, SWT.NONE);
@@ -84,6 +85,20 @@ public class TabCloseHandler {
                 tabClosablePerspective.closeTab(null, tabItem)));
     }
 
+    private void handleMouseUp(Event event, TabClosable tabClosablePerspective) {
+      
+      // Middle button close tab
+      if (event.button == 2) {
+        Point point = new Point(event.x, event.y); 
+        CTabItem item = tabFolder.getItem(point);
+        if (item != null) {
+          tabClosablePerspective.closeTab(null, item);
+        }
+      }
+
+      event.doit = false;
+    }
+    
     private void handleTabMenuDetectEvent(Event event) {
         Point point = tabFolder.toControl(tabFolder.getDisplay().getCursorLocation());
         selectedItem = tabFolder.getItem(new Point(point.x, point.y));
