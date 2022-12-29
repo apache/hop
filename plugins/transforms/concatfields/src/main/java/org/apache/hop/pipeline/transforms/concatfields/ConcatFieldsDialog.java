@@ -125,7 +125,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     wCancel.addListener(SWT.Selection, e -> cancel());
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
-    // transformName line
+    // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     PropsUi.setLook(wlTransformName);
@@ -135,11 +135,10 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdlTransformName.right = new FormAttachment(middle, -margin);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTransformName.setText(transformName);
     PropsUi.setLook(wTransformName);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
     Control lastControl = wTransformName;
@@ -157,11 +156,10 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdlTargetFieldName.right = new FormAttachment(middle, -margin);
     wlTargetFieldName.setLayoutData(fdlTargetFieldName);
     wTargetFieldName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wTargetFieldName.setText("");
     PropsUi.setLook(wTargetFieldName);
     FormData fdTargetFieldName = new FormData();
     fdTargetFieldName.left = new FormAttachment(middle, 0);
-    fdTargetFieldName.top = new FormAttachment(wlTransformName, 0, SWT.CENTER);
+    fdTargetFieldName.top = new FormAttachment(wlTargetFieldName, 0, SWT.CENTER);
     fdTargetFieldName.right = new FormAttachment(100, 0);
     wTargetFieldName.setLayoutData(fdTargetFieldName);
     lastControl = wTargetFieldName;
@@ -175,7 +173,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     PropsUi.setLook(wlTargetFieldLength);
     FormData fdlTargetFieldLength = new FormData();
     fdlTargetFieldLength.left = new FormAttachment(0, 0);
-    fdlTargetFieldLength.top = new FormAttachment(lastControl, margin);
+    fdlTargetFieldLength.top = new FormAttachment(wTargetFieldName, margin);
     fdlTargetFieldLength.right = new FormAttachment(middle, -margin);
     wlTargetFieldLength.setLayoutData(fdlTargetFieldLength);
     wTargetFieldLength = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -196,7 +194,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdlSeparator.top = new FormAttachment(lastControl, margin);
     fdlSeparator.right = new FormAttachment(middle, -margin);
     wlSeparator.setLayoutData(fdlSeparator);
-
+    
     Button wbSeparator = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSeparator);
     wbSeparator.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Separator.Button"));
@@ -210,7 +208,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     PropsUi.setLook(wSeparator);
     FormData fdSeparator = new FormData();
     fdSeparator.left = new FormAttachment(middle, 0);
-    fdSeparator.top = new FormAttachment(wTargetFieldLength, margin);
+    fdSeparator.top = new FormAttachment(wlSeparator, 0, SWT.CENTER);
     fdSeparator.right = new FormAttachment(wbSeparator, -margin);
     wSeparator.setLayoutData(fdSeparator);
     lastControl = wbSeparator;
@@ -444,6 +442,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     // New concat fields
+    wTransformName.setText(transformName);
     wTargetFieldName.setText(Const.NVL(input.getExtraFields().getTargetFieldName(), ""));
     wTargetFieldLength.setText("" + input.getExtraFields().getTargetFieldLength());
     wSeparator.setText(Const.NVL(input.getSeparator(), ""));
