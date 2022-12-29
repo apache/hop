@@ -40,17 +40,10 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
@@ -153,7 +146,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     fdlFields.top = new FormAttachment(wFormat, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getFieldName().length;
+    final int FieldsRows = input.getVariables().size();
     colinf = new ColumnInfo[4];
     colinf[0] =
         new ColumnInfo(
@@ -170,7 +163,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
         new ColumnInfo(
             BaseMessages.getString(PKG, "SetVariableDialog.Fields.Column.VariableType"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            SetVariableMeta.getVariableTypeDescriptions(),
+            VariableItem.getVariableTypeDescriptionsList(),
             false);
     colinf[3] =
         new ColumnInfo(
@@ -249,12 +242,13 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
   public void getData() {
     wTransformName.setText(transformName);
 
-    for (int i = 0; i < input.getFieldName().length; i++) {
+    for (int i = 0; i < input.getVariables().size(); i++) {
       TableItem item = wFields.table.getItem(i);
-      String src = input.getFieldName()[i];
-      String tgt = input.getVariableName()[i];
-      String typ = SetVariableMeta.getVariableTypeDescription(input.getVariableType()[i]);
-      String tvv = input.getDefaultValue()[i];
+      VariableItem vi = input.getVariables().get(i);
+      String src = vi.getFieldName();
+      String tgt = vi.getVariableName();
+      String typ = VariableItem.getVariableTypeDescription(vi.getVariableType());
+      String tvv = vi.getDefaultValue();
 
       if (src != null) {
         item.setText(1, src);
@@ -293,15 +287,17 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     transformName = wTransformName.getText(); // return value
 
     int count = wFields.nrNonEmpty();
-    input.allocate(count);
 
     // CHECKSTYLE:Indentation:OFF
+    input.getVariables().clear();
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      input.getFieldName()[i] = item.getText(1);
-      input.getVariableName()[i] = item.getText(2);
-      input.getVariableType()[i] = SetVariableMeta.getVariableType(item.getText(3));
-      input.getDefaultValue()[i] = item.getText(4);
+
+      input.getVariables().add(new VariableItem(item.getText(1)
+              , item.getText(2)
+              , VariableItem.getVariableTypeFromDesc(item.getText(3))
+              , item.getText(4)));
+
     }
 
     input.setUsingFormatting(wFormat.getSelection());
@@ -342,8 +338,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
               tableItem.setText(2, v.getName().toUpperCase());
               tableItem.setText(
                   3,
-                  SetVariableMeta.getVariableTypeDescription(
-                      SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW));
+                      VariableItem.getVariableTypeDescription(VariableItem.VARIABLE_TYPE_ROOT_WORKFLOW));
               return true;
             });
       }

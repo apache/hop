@@ -22,8 +22,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 public class SetVariableData extends BaseTransformData implements ITransformData {
-  public int keynr;
-
   public IRowMeta outputMeta;
 
   /** Default constructor. */
