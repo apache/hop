@@ -1,0 +1,32 @@
+{
+  "base_filename": "golden-replace-in-string-with-backslash.csv",
+  "name": "golden-replace-in-string-with-backslash",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "value_variable",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "value_field",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "replaceBy",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

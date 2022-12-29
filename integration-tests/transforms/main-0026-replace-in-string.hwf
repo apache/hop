@@ -35,14 +35,14 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>128</xloc>
       <yloc>80</yloc>
@@ -56,6 +56,9 @@ limitations under the License.
       <test_names>
         <test_name>
           <name>0026-replace-in-string UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0026-replace-in-string-with-backslash UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
