@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0012-dimension-lookup-update</name>
+    <name>0012-dimension-lookup-update-update</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -60,22 +60,14 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
         <set_empty_string>N</set_empty_string>
-        <format/>
-        <group/>
         <length>-1</length>
         <name>key</name>
         <precision>-1</precision>
         <type>String</type>
       </field>
       <field>
-        <currency/>
-        <decimal/>
         <set_empty_string>N</set_empty_string>
-        <format/>
-        <group/>
         <length>-1</length>
         <name>value</name>
         <precision>-1</precision>
@@ -86,26 +78,6 @@ limitations under the License.
       <line>
         <item>1</item>
         <item>a</item>
-      </line>
-      <line>
-        <item>2</item>
-        <item>b</item>
-      </line>
-      <line>
-        <item>3</item>
-        <item>c</item>
-      </line>
-      <line>
-        <item>4</item>
-        <item>d</item>
-      </line>
-      <line>
-        <item>5</item>
-        <item>e</item>
-      </line>
-      <line>
-        <item>1</item>
-        <item>f</item>
       </line>
     </data>
     <attributes/>
@@ -143,7 +115,7 @@ limitations under the License.
       <field>
         <name>value</name>
         <lookup>value</lookup>
-        <update>Insert</update>
+        <update>Update</update>
       </field>
       <return>
         <name>dimension_id</name>
