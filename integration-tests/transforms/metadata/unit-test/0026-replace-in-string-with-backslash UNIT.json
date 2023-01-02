@@ -1,0 +1,38 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "value_variable",
+          "data_set_field": "value_variable"
+        },
+        {
+          "transform_field": "value_field",
+          "data_set_field": "value_field"
+        },
+        {
+          "transform_field": "replaceBy",
+          "data_set_field": "replaceBy"
+        }
+      ],
+      "field_order": [
+        "value_variable",
+        "value_field",
+        "replaceBy"
+      ],
+      "data_set_name": "golden-replace-in-string-with-backslash",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0026-replace-in-string-with-backslash UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0026-replace-in-string-with-backslash.hpl",
+  "test_type": "UNIT_TEST"
+}

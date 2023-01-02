@@ -115,7 +115,13 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
       return data.replaceByString[index];
     }
 
-    return getInputRowMeta().getString(row, data.replaceFieldIndex[index]);
+    String str = getInputRowMeta().getString(row, data.replaceFieldIndex[index]);
+    
+    // Escape the regex pattern backslash  
+    if ( str!=null ) {
+      str = str.replace("\\","\\\\");      
+    }
+    return str;
   }
 
   synchronized Object[] handleOneRow(IRowMeta rowMeta, Object[] row) throws HopException {
@@ -209,7 +215,8 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
           }
         } else {
           data.replaceFieldIndex[i] = -1;
-          data.replaceByString[i] = Const.NVL(resolve(field.getReplaceByString()), "");
+          // Escape the regex pattern backslash  
+          data.replaceByString[i] = Const.NVL(resolve(field.getReplaceByString()), "").replace("\\","\\\\");
         }
         data.setEmptyString[i] = field.isSettingEmptyString();
       }
