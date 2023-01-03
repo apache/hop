@@ -52,3 +52,5 @@ Linux, macOS::
 ----
 
 Expected output: the Hop Translator tool starts.
+--
+====

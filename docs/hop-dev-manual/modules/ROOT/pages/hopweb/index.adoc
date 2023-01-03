@@ -15,6 +15,8 @@ specific language governing permissions and limitations
 under the License.
 ////
 :description: Building and setting up your own Hop Web environment is straightforward. The steps to set up the default Docker image are included in a helper script docker/create_hop_web_container.sh in the Hop code base. This should get you started to make modifications or create your own version entirely.
+:openvar: ${
+:closevar: }
 
 = Hop Web Development Guide
 
@@ -82,11 +84,11 @@ export CATALINA_OPTS='${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KE
 
 ----
 
-If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `${HOP_CONFIG_FOLDER}.
+If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `{openvar}HOP_CONFIG_FOLDER{closevar}.
 
 On Linux or Mac, use the following sed command to fix this in one line:
 
-`sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' webapps/hop/config/hop-config.json`
+`sed -i 's/config\/projects/{openvar}HOP_CONFIG_FOLDER{closevar}\/projects/g' webapps/hop/config/hop-config.json`
 
 On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the one below:
 

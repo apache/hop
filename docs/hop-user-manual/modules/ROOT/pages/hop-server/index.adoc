@@ -182,6 +182,7 @@ Listen to all interfaces on the server:
 
 [source,shell]
 hop-server.sh 0.0.0.0 8080--
+--
 ====
 
 
@@ -232,9 +233,7 @@ The syntax of this configuration file is fairly simple:
 </hop-server-config>
 ----
 
-Example startup commands with a configuration file are:
-
-&nbsp; +
+Example startup commands with a configuration file are: +
 
 [tabs]
 ====
@@ -260,16 +259,12 @@ Linux, macOS::
 +
 --
 [source,shell]
-----
 hop-server.sh /foo/bar/hop-server-config.xml
-----
 
 Or with a remote configuration file:
 
 [source,shell]
-----
 hop-server.sh http://www.example.com/hop-server-config.xml
-----
 
 You can also enable a project lifecyfle environment for the Hop server:
 

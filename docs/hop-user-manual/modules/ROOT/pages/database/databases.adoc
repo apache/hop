@@ -16,6 +16,8 @@ under the License.
 ////
 [[database-plugins]]
 :imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
 :description: Hop supports tens of databases out of the box. If your preferred database has no specific support, you can probably still connect through a generic database connection.
 = Database Plugins
 
@@ -23,7 +25,7 @@ Creating a database connection in HOP is done using one of the many database typ
 To create a database connection go to file -> New and select Database connection.
 
 The connection is saved in a central location and can then be used by all pipelines and workflows.
-If you have set your project to work with Hop, the database information will be in the `${PROJECT_HOME}/metadata/rdbms` folder.
+If you have set your project to work with Hop, the database information will be in the `{openvar}PROJECT_HOME{closevar}/metadata/rdbms` folder.
 Each connection created will generate a .json file in this folder with the name of the connection, containing the connection information.
 
 If the license allowed it, a jdbc driver is included in the distribution, in a folder specific for each driver, in the general path: `Installation directory/plugins/databases/Database type/lib`.

@@ -16,6 +16,8 @@ under the License.
 ////
 [[RemotePipelineEngine]]
 :imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
 :description: The remote run configuration runs Hop pipelines on a remote Hop Server. This run configuration requires little configuration, but requires a Hop server and a Hop Server metadata definition.
 
 = Remote Pipeline Engine
@@ -55,7 +57,7 @@ If you don't specify a value this defaults to 2000ms (2 seconds)
 See below for detailed information
 
 |Named resources reference source folder
-|This is the reference source folder for the named resources that are being used (e.g. `${PROJECT_HOME}`).
+|This is the reference source folder for the named resources that are being used (e.g. `{openvar}PROJECT_HOME{closevar}`).
 See below for detailed information.
 
 |Named resources reference target folder
@@ -71,16 +73,16 @@ For example if you have mapping pipelines or workflows referenced they will be s
 All the used pipelines and workflows together with the XML presentation of the pipeline execution configuration will be sent over to the server in the form of a ZIP archive.
 The server receives this archive and without unzipping runs the pipeline.
 To make this function correctly, Hop changes the references as well as references to filenames.
-For example `${PROJECT_HOME}/mapping.hpl` will be changed to `${Internal.Entry.Current.Folder}/mapping.hpl`.
+For example `{openvar}PROJECT_HOME{closevar}/mapping.hpl` will be changed to `{openvar}Internal.Entry.Current.Folder{closevar}/mapping.hpl`.
 This means that it will try to use a relative path to the parent file.
 
 If you have are using data files then those file names will be renamed as well.
-For example, you might be reading a file called `${PROJECT_HOME}/files/bigfile.csv` in a `CSV File Input` transform.
-During the export the referenced filename will be changed to `${DATA_PATH_1}/bigfile.csv`.
+For example, you might be reading a file called `{openvar}PROJECT_HOME{closevar}/files/bigfile.csv` in a `CSV File Input` transform.
+During the export the referenced filename will be changed to `{openvar}DATA_PATH_1{closevar}/bigfile.csv`.
 For every folder that is referenced a new variable will be defined and set in the execution configuration.
 By default, the path set for this variable will be the same as on the executing (local) machine.
 On the server this might not make a lot of sense.
-For this reason you can specify a reference source folder like `${PROJECT_HOME}` in combination with a target folder like `/server/`.
+For this reason you can specify a reference source folder like `{openvar}PROJECT_HOME{closevar}` in combination with a target folder like `/server/`.
 In that example variable `DATA_PATH_1` will get value `/server/files/`.
 This in turn allows you to transfer required files in advance or map a folder into a docker container and so on.
 It gives you flexibility when executing remotely while having ease of development on your client.
