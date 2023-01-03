@@ -144,7 +144,7 @@ System property `HOP_CONFIG_FOLDER` can also be used to point to a different fol
 
 =====
 
-&nbps; +
+&nbsp; +
 
 == Command Line Project Configuration
 
