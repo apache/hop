@@ -16,6 +16,8 @@ under the License.
 ////
 [[BeamSparkPipelineEngine]]
 :imagesdir: ../assets/images
+:openvar: ${
+:closevar: }
 :description: Apache Hop supports running pipelines on Apache Spark over Apache Beam. The Apache Spark Runner can be used to execute Beam pipelines using Apache Spark.
 
 = Apache Beam Spark Pipeline Engine
@@ -118,7 +120,7 @@ In the meantime pass variables to the JVM with the option:
 --driver-java-options '-DPROJECT_HOME=/path/to/project-home'
 ----
 
-In general, it is better not to use relative paths like `${Internal.Entry.Current.Folder}` when specifying filenames when executing pipelines remotely.
+In general, it is better not to use relative paths like `{openvar}Internal.Entry.Current.Folder{closevar}` when specifying filenames when executing pipelines remotely.
 It's usually better to pick a few root folders as variables.
 PROJECT_HOME is as good as any variable to use.
 

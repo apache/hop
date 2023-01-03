@@ -16,6 +16,8 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
+:openvar: ${
+:closevar: }
 :description: This tutorial explains how to run Apache Hop web services from a Docker container
 
 = Web Services in Apache Hop
@@ -72,7 +74,7 @@ In Apache Hop it is possible to set up runtime environments for different enviro
 
 Connection details (e.g. DB server URL) for database connections, etc. can be stored as variables in configuration files.
 
-For example, to set up a new database connection whose connection details may differ depending on the environment, enter the name of the environment variable (e.g. `${DB_HOST}`) instead of a concrete server URL. +
+For example, to set up a new database connection whose connection details may differ depending on the environment, enter the name of the environment variable (e.g. `{openvar}DB_HOST{closevar}`) instead of a concrete server URL. +
 
 As soon as you select an environment and the variable is contained in its configuration file, the variable in the DB configuration is replaced by the value from the environment configuration.
 
@@ -80,7 +82,7 @@ This functionality is very helpful, for example, to test the pipeline against di
 
 This functionality is also essential for multi-container applications (see above: full-stack architecture), whose service results from the interaction of different and externally isolated containers.
 
-A separate environment configuration is therefore necessary if you want to start your application with Docker Compose in addition to your development environment (in this example, the `${DB_HOST}` variable would have the service name of the DB Container instead of the IP address of the DB Server).
+A separate environment configuration is therefore necessary if you want to start your application with Docker Compose in addition to your development environment (in this example, the `{openvar}DB_HOST{closevar}` variable would have the service name of the DB Container instead of the IP address of the DB Server).
 
 === Step 4: Set up and start Docker Container
 

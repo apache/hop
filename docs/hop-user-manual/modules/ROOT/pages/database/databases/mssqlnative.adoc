@@ -32,7 +32,7 @@ under the License.
 |Driver folder | Hop Installation/plugins/databases/mssqlnative/lib
 |===
 
-= Integrated Authentication / Windows Based Authentication
+== Integrated Authentication / Windows Based Authentication
 
 The native Microsoft SQL JDBC driver ships with extra files that enables authentication using your current MS Windows credentials.
 When you download the JDBC drivers from Microsoft's site and unzip them, there will be a directory structure like the following:

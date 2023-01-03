@@ -16,6 +16,8 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:openvar: ${
+:closevar: }
 :description: The Token Replacement transform replaces tokens in an input string or file.
 
 = image:transforms/icons/token.svg[Token Replacement transform Icon, role="image-doc-icon"] Token Replacement
@@ -31,7 +33,7 @@ The transform can then output this data either to a file or a field on the strea
 
 A token contains a start string, a name, and an end string.
 
-For example ${my_token} could be a token.
+For example {openvar}my_token{closevar} could be a token.
 
 The start string, and end string are configurable and can be any series of characters.
 
