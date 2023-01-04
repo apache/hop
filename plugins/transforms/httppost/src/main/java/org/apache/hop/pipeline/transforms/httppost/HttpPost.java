@@ -117,11 +117,13 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
       URIBuilder uriBuilder = new URIBuilder(data.realUrl);
       org.apache.http.client.methods.HttpPost post =
           new org.apache.http.client.methods.HttpPost(uriBuilder.build());
+      String bodyParams = null;
 
       // Specify content type and encoding
       // If content encoding is not explicitly specified
       // ISO-8859-1 is assumed by the POSTMethod
-      if (!data.contentTypeHeaderOverwrite) { // can be overwritten now
+      if (!data.contentTypeHeaderOverwrite && !meta.isPostAFile()) {
+        // can be overwritten now
         if (Utils.isEmpty(data.realEncoding)) {
           post.setHeader(CONTENT_TYPE, CONTENT_TYPE_TEXT_XML);
           if (isDebug()) {
@@ -173,7 +175,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
                     PKG, "HTTPPOST.Log.BodyValue", bodyParameterName, bodyParameterValue));
           }
         }
-        String bodyParams = getRequestBodyParamsAsStr(data.bodyParameters, data.realEncoding);
+        bodyParams = getRequestBodyParamsAsStr(data.bodyParameters, data.realEncoding);
         post.setEntity(
             (new StringEntity(bodyParams, ContentType.TEXT_XML.withCharset("US-ASCII"))));
       }
@@ -196,6 +198,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
       // Set request entity?
       if (data.indexOfRequestEntity >= 0) {
+        MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
         String tmp = data.inputRowMeta.getString(rowData, data.indexOfRequestEntity);
         HttpEntity entity = null;
         // Request content will be retrieved directly
@@ -207,12 +210,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
 
         if (meta.isPostAFile()) {
           if (!tmp.isEmpty()) {
-            entity =
-                MultipartEntityBuilder.create()
-                    .addBinaryBody("file", HopVfs.getFileObject(tmp).getPath().toFile())
-                    .build();
+            multipartEntityBuilder.addBinaryBody(
+                "file", HopVfs.getFileObject(resolve(tmp)).getPath().toFile());
           }
-          post.setEntity(entity);
         } else {
           byte[] bytes;
           if ((data.realEncoding != null) && (data.realEncoding.length() > 0)) {
@@ -220,9 +220,10 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           } else {
             bytes = tmp.getBytes();
           }
-          entity = MultipartEntityBuilder.create().addBinaryBody("file", bytes).build();
-          post.setEntity(entity);
+          multipartEntityBuilder.addBinaryBody("file", bytes);
         }
+        entity = multipartEntityBuilder.build();
+        post.setEntity(entity);
       }
 
       // Execute request

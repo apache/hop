@@ -57,15 +57,31 @@ limitations under the License.
     </partitioning>
     <data>
       <line>
-        <item>/Users/hans/git/hop/docker/integration-tests/integration-tests-http.yaml</item>
+        <item>${PROJECT_HOME}/files/exel-part-001.xlsx</item>
+        <item>this is some data</item>
       </line>
     </data>
     <fields>
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>file</name>
+        <format/>
+        <group/>
+        <decimal/>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <currency/>
+        <set_empty_string>N</set_empty_string>
+        <name>data_test</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>String</type>
       </field>
     </fields>
@@ -89,24 +105,23 @@ limitations under the License.
     <closeIdleConnectionsTime>-1</closeIdleConnectionsTime>
     <connectionTimeout>10000</connectionTimeout>
     <encoding>UTF-8</encoding>
-    <httpLogin/>
     <httpPassword>Encrypted </httpPassword>
     <ignoreSsl>Y</ignoreSsl>
     <lookup>
-</lookup>
+      <arg>
+        <header>N</header>
+        <name>data_test</name>
+        <parameter>data_test</parameter>
+      </arg>
+    </lookup>
     <postafile>Y</postafile>
-    <proxyHost/>
-    <proxyPort/>
     <requestEntity>file</requestEntity>
     <result>
       <code>result</code>
       <name>result</name>
-      <response_header/>
-      <response_time/>
     </result>
     <socketTimeout>10000</socketTimeout>
     <url>http://${HOSTNAME}/anything</url>
-    <urlField/>
     <urlInField>N</urlInField>
     <attributes/>
     <GUI>
