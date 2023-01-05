@@ -40,10 +40,18 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.TableItem;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.List;
-import java.util.*;
+import java.util.ArrayList;
+
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
@@ -63,7 +71,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
   private ColumnInfo[] colinf;
 
   public SetVariableDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+          Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (SetVariableMeta) in;
     inputFields = new HashMap<>();
