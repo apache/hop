@@ -39,7 +39,7 @@ The configuration perspective groups configuration options in the following tabs
 
 === General
 
-The General configuration tab allows you to configure some of the core Apache Hop options.
+The General configuration tab allows you to configure the core Apache Hop options.
 
 [%header, width=90%, cols="2,5,1"]
 |===
@@ -53,7 +53,7 @@ TIP: set the environment variable `HOP_CONFIG_FOLDER` to set this location dynam
 |Preview data batch size
 a|number of rows that will be shown when previewing through the Pipeline run toolbar or from transform preview dialogs.
 
-INFO: this setting complements the preview option that is used in the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[native local pipeline run configuration], which can be accessed through the image:transforms/icons/datagrid.svg[data grid]  `preview data` icon in the bottom right corner of transforms after a successful run.
+INFO: this setting complements the preview option that is used in the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[native local pipeline run configuration], which can be accessed through the image:transforms/icons/datagrid.svg[data grid, width="16px"]  `preview data` icon in the bottom right corner of transforms after a successful run.
 |1000
 
 |Use database cache|enable caching for relational databases|yes
@@ -133,6 +133,6 @@ The following plugins are available by default:
 
 === System Variables
 
-The `System Variables` tab contains the available system variables in Hop GUI.
+The System Variables tab contains the available system variables in Hop GUI.
 
 Check the xref:variables.adoc[Variables documentation] for more information about the available variables and their default values.
