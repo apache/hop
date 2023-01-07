@@ -1,0 +1,138 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../assets/images
+
+= Configuration Perspective
+
+Icon: image:icons/gear.svg[width="24px"]
+
+Keyboard shortcut: `CTRL-Shift-C`
+
+== Description
+
+The configuration perspective offers a central location for all Apache Hop configuration options.
+
+== Usage
+
+The configuration perspective groups configuration options in the following tabs:
+
+* **General** options control the behavior of Apache Hop and Hop Gui.
+* **Look &amp; Feel** control how Hop Gui looks like on your desktop or in your browser.
+* **Plugin** options provide configuration options to control the behavior of your available Apache Hop plugins.
+* **System variables** allows you to set and configure Apache Hop global variables.
+
+== Detailed configuration tabs overview
+
+=== General
+
+The General configuration tab allows you to configure some of the core Apache Hop options.
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+|Hop configuration filename
+a|the location where Apache Hop will store the configuration file. This configuration file will contain your project and environment information and global variables.
+
+TIP: set the environment variable `HOP_CONFIG_FOLDER` to set this location dynamically to allow easy switching between different Apache Hop versions and installations. xref:protips/index.adoc[read more]
+|`<INSTALLATION_PATH>/config/hop-config.json`
+
+|Preview data batch size
+a|number of rows that will be shown when previewing through the Pipeline run toolbar or from transform preview dialogs.
+
+INFO: this setting complements the preview option that is used in the xref:pipeline/pipeline-run-configurations/native-local-pipeline-engine.adoc[native local pipeline run configuration], which can be accessed through the image:transforms/icons/datagrid.svg[data grid]  `preview data` icon in the bottom right corner of transforms after a successful run.
+|1000
+
+|Use database cache|enable caching for relational databases|yes
+
+|Open last file at startup|reopen the last used files and select the last used file when Hop GUI starts|yes
+
+|Autosave changed files|Automatically save changed workflow and pipelines files|yes
+
+|Automatically split hops
+a|Automatically split hops when a new transform or action is dropped on a hop.
+
+TIP: Hops will be shown in bold when a transform or action can be dropped on it
+|yes
+
+|Show Copy or Distribute Dialog|Show a pop-up dialog to ask the user to confirm whether data should be copied or distributed (round-robin) to subsequent transforms in a pipeline|yes
+
+|Ask user when exiting|Show a pop-up dialog to let the user confirm before exiting Hop GUI|yes
+
+|Clear customer parameters (transforms/plugins|Deletes all custom flags and parameters in the dialogs of the transforms and plugins|on click
+
+|Auto collapse palette tree|Collapse or expand the categories in the context dialog|no (expanded)
+
+|Display tooltips|Show tooltips where available in Hop GUI|yes
+
+|Show help tooltips|Show help tooltips where available in Hop GUI|yes
+
+|Use double click on canvas
+a|double-click instead of single click on e.g. transform and action dialogs.
+
+enabled: double-click on a transform or action icon to open its properties. A single click on the icon opens the context dialog.
+disabled (default): (single) click on a transform or action icon to open the context dialog. (single) click on a transform or action name to open its properties
+|no
+
+|Use global bookmarks in the file dialog|Bookmarks in the file dialog are global (across projects) by default. Enable to make them project-specific|yes
+
+|===
+
+=== Look & Feel
+
+The `Look & Feel` configuration options allow you to configure various aspects of Hop GUI's behavior.
+
+[%header, width=90%, cols="2,5,1"]
+|===
+|Option|Description|Default
+|Default font|the default font to use in Hop GUI|Noto Sans - 10
+|Fixed width font|the default fixed width font to use in Hop GUI|Monospace - 10
+|Font on workspace|the font to use in the workspace|Noto Sans - 10
+|Font for notes|the font to use for workflow and pipeline notes|Noto Sans - 10
+|Icon size in workspace|the default size for action and transform icons in workflows and pipelines|32
+|Line width on workspace|line width to use for hops in workflows and actions|1
+|Dialog middle percentage|percentage to use to determine a dialog's position|35
+|UI zoom level|default zoom level to use for workflows and pipelines in Hop GUI|100%
+|Canvas Grid Size|default grid size to use for workflows and pipelines in the Hop GUI editor |16
+|Show Canvas Grid|show the grid (dotted) for workflows and pipelines in Hop GUI |no
+|Hide the menu bar|Do not show the menu bar. If enabled (default), the menu options are available from the Apache Hop icon in Hop GUI's upper left corner. |yes
+|Show a toolbar above tables|Show a toolbar with options to cut/copy/paste, move lines up/down etc in table views (e.g. in preview dialogs, transform configuration options)|yes
+|Dark mode|use dark mode. This options is read only (can't be changed). Your operating system's theme settings are used by default. |N/A
+|Preferred Language
+a|the default language to use in Hop GUI.
+
+TIP: Check the https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Translation Contribution Guide] to translate Apache Hop to your native language.|English (US)
+|===
+
+=== Plugins
+
+The plugins tab contains configuration options that are provided by the various plugins in Apache Hop.
+
+The following plugins are available by default:
+
+* xref:vfs/azure-blob-storage-vfs.adoc#_configuration[Azure Blob Storage] VFS configuration options.
+* xref:vfs/dropbox-vfs.adoc#_configuration[Dropbox] VFS configuration options.
+* xref:hop-gui/perspective-file-explorer.adoc[Explorer perspective] configuration options.
+* xref:technology/google/index.adoc[Google Cloud] configuration options (service account JSON key file).
+* xref:vfs/google-drive-vfs.adoc#_configuration[Google Drive] VFS configuration options.
+* xref:projects/index.adoc[Project] configuration options
+* Welcome Dialog: specify whether to show or hide the welcome dialog when Hop GUI starts.
+
+=== System Variables
+
+The `System Variables` tab contains the available system variables in Hop GUI.
+
+Check the xref:variables.adoc[Variables documentation] for more information about the available variables and their default values.
