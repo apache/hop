@@ -72,7 +72,16 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   /** Filter indicating file filter */
   private FileInputList.FileTypeFilter fileTypeFilter;
 
-  @HopMetadataProperty(key = "file", injectionKeyDescription = "GetFileNames.Injection.File.Label")
+  @HopMetadataProperty(
+          key = "file",
+          injectionKeyDescription = "GetFileNames.Injection.File.Label",
+          inlineListTags = {
+          "name",
+          "filemask",
+          "exclude_filemask",
+          "file_required",
+          "include_subfolders"
+  })
   private List<FileItem> filesList;
 
   @HopMetadataProperty(
