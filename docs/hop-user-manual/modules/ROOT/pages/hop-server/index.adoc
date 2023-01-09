@@ -402,14 +402,14 @@ Windows::
 +
 --
 [source,shell]
-hop-server.bat 127.0.0.1 8080 -s -u cluster -p cluster
+hop-server.bat 127.0.0.1 8080 -k -u cluster -p cluster
 --
 
 Linux, macOS::
 +
 --
 [source,shell]
-hop-server.sh 127.0.0.1 8080 -s -u cluster -p cluster
+hop-server.sh 127.0.0.1 8080 -k -u cluster -p cluster
 --
 ====
 
