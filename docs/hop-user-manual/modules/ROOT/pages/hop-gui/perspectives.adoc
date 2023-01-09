@@ -15,7 +15,7 @@ specific language governing permissions and limitations
 under the License.
 ////
 
-== Hop Gui Perspectives
+= Hop Gui Perspectives
 :imagesdir: ../assets/images
 :description: Hop Gui provides a number of perspectives for a variety of tasks. You'll spend most of your time in the data orchestration perspective, building workflows and pipelines, but other perspectives for metadata management, file management, search etc offer tons of functionality.
 
@@ -29,6 +29,8 @@ Here are the available perspectives:
 * image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
 
 * image:icons/location.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
+
+* image:icons/gear.svg[width="24px"] xref:hop-gui/perspective-configuration.adoc[Configuration]
 
 * image:icons/metadata.svg[width="24px"] xref:hop-gui/perspective-metadata.adoc[Metadata]
 
