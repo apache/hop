@@ -17,12 +17,6 @@
 
 package org.apache.hop.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -41,10 +35,10 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.w3c.dom.Node;
 
-import static org.apache.hop.core.Condition.Function.EQUAL;
-import static org.apache.hop.core.Condition.Function.NOT_NULL;
-import static org.apache.hop.core.Condition.Function.NULL;
-import static org.apache.hop.core.Condition.Function.TRUE;
+import java.util.*;
+import java.util.regex.Pattern;
+
+import static org.apache.hop.core.Condition.Function.*;
 import static org.apache.hop.core.Condition.Operator.AND;
 import static org.apache.hop.core.Condition.Operator.NONE;
 
@@ -163,6 +157,7 @@ public class Condition implements Cloneable {
     this.operator = NONE;
     this.negated = false;
     this.rightValue = null;
+    this.function = EQUAL;
 
     leftFieldIndex = -2;
     rightFieldIndex = -2;
