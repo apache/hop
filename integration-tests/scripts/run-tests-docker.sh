@@ -64,7 +64,7 @@ if [ -z "${SUREFIRE_REPORT}" ]; then
 fi
 
 if [ -z "${GCP_KEY_FILE}" ]; then
-  GCP_KEY_FILE=""
+  GCP_KEY_FILE="./docker/integration-tests/resource/dummyfile"
 fi
 
 if [ -z "${KEEP_IMAGES}" ]; then

@@ -80,4 +80,5 @@ Delete based on document paths and stream fields (`use JSON query` disabled):
 |===
 
 Delete based on JSON query (`use JSON query` enabled):
+[source]
 `{$or: [{"name": "${NAME1}"},{"name": "${NAME2}"}, {"name": "${NAME3}"} ]}`

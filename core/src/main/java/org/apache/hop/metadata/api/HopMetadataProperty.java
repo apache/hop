@@ -17,13 +17,12 @@
 
 package org.apache.hop.metadata.api;
 
-import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
-import org.apache.hop.core.injection.InjectionTypeConverter;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
+import org.apache.hop.core.injection.InjectionTypeConverter;
 
 /** A field which is painted with this annotation is picked up by the Hop Metadata serializers */
 @Retention(RetentionPolicy.RUNTIME)
@@ -119,13 +118,28 @@ public @interface HopMetadataProperty {
   boolean inline() default false;
 
   /**
+   * Reads old format XML where a list of values is stored inline. XML like the following needs to
+   * be turned into 3 KeyValue pairs:
+   *
+   * <p>{@code <parent> <key>k1</key><value>v1</value> <key>k2</key><value>v2</value>
+   * <key>k3</key><value>v3</value> </parent> }
+   *
+   * <p>In this scenario we would specify the tags "key" and "value" to populate the list correctly.
+   *
+   * @return
+   */
+  String[] inlineListTags() default {};
+
+  /**
    * For metadata injection: if you want to convert an integer to a code (and vice-versa)
+   *
    * @return The integer-to-string converter
    */
   Class<? extends IIntCodeConverter> intCodeConverter() default IIntCodeConverter.None.class;
 
   /**
    * For metadata injection: if you want to convert a String (XML, JSON, ...) to an object
+   *
    * @return The string-to-object converter
    */
   Class<? extends IStringObjectConverter> injectionStringObjectConverter() default

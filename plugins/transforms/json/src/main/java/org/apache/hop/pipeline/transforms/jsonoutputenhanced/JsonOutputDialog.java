@@ -354,6 +354,14 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
               },
               true),
           new ColumnInfo(
+              BaseMessages.getString(PKG, "JsonOutputDialog.NoEnclosure.Column"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              new String[] {
+                BaseMessages.getString(PKG, "System.Combo.Yes"),
+                BaseMessages.getString(PKG, "System.Combo.No")
+              },
+              false),
+          new ColumnInfo(
               BaseMessages.getString(PKG, "JsonOutputDialog.RemoveIfBlank.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
@@ -1027,12 +1035,19 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       if (jsonFragment != null) {
         item.setText(3, jsonFragment);
       }
+      String withoutEnclosing =
+          field.isWithoutEnclosing()
+              ? BaseMessages.getString(PKG, "System.Combo.Yes")
+              : BaseMessages.getString(PKG, "System.Combo.No");
+      if (withoutEnclosing != null) {
+        item.setText(4, withoutEnclosing);
+      }
       String removeIfBlank =
           field.isRemoveIfBlank()
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
               : BaseMessages.getString(PKG, "System.Combo.No");
       if (removeIfBlank != null) {
-        item.setText(4, removeIfBlank);
+        item.setText(5, removeIfBlank);
       }
     }
 
@@ -1098,8 +1113,10 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       field.setElementName(item.getText(2));
       field.setJSONFragment(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(3)));
-      field.setRemoveIfBlank(
+      field.setWithoutEnclosing(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(4)));
+      field.setRemoveIfBlank(
+          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(5)));
       // CHECKSTYLE:Indentation:OFF
       jsometa.getOutputFields()[i] = field;
     }

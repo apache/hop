@@ -17,6 +17,12 @@
 
 package org.apache.hop.metadata.serializer.xml;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -35,14 +41,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 public class XmlMetadataUtil {
   /**
@@ -299,7 +297,7 @@ public class XmlMetadataUtil {
       try {
         // Do not create a new object if the node is null
         //
-        if (node==null) {
+        if (node == null) {
           return null;
         }
 
@@ -366,6 +364,7 @@ public class XmlMetadataUtil {
         boolean storeWithName = property.storeWithName();
         boolean password = property.password();
         boolean storeWithCode = property.storeWithCode();
+        String[] inlineListTags = property.inlineListTags();
 
         Node tagNode;
         if (property.inline()) {
@@ -392,7 +391,8 @@ public class XmlMetadataUtil {
                 metadataProvider,
                 password,
                 storeWithCode,
-                property.intCodeConverter());
+                property.intCodeConverter(),
+                inlineListTags);
 
         try {
           // Only set a value if we have something to set.
@@ -428,7 +428,8 @@ public class XmlMetadataUtil {
       IHopMetadataProvider metadataProvider,
       boolean password,
       boolean storeWithCode,
-      Class<? extends IIntCodeConverter> intCodeConverterClass)
+      Class<? extends IIntCodeConverter> intCodeConverterClass,
+      String[] inlineListTags)
       throws HopXmlException {
     String elementString = XmlHandler.getNodeValue(elementNode);
 
@@ -546,6 +547,26 @@ public class XmlMetadataUtil {
       //
       List<Object> list = new ArrayList<>();
       List<Node> itemNodes = XmlHandler.getNodes(groupNode, tag);
+      if (inlineListTags.length > 0) {
+        // Old XML serialization format where everything is just dumped into the same tag.
+        // See also HopMetadataProperty.inlineListTags
+        //
+        Node parentNode = itemNodes.get(0);
+        int listSize = XmlHandler.countNodes(parentNode, inlineListTags[0]);
+        if (listSize > 1) {
+          itemNodes.clear();
+          for (int i = 0; i < listSize; i++) {
+            Node node = parentNode.getOwnerDocument().createElement(tag);
+            for (String inlineTag : inlineListTags) {
+              Node n = XmlHandler.getSubNodeByNr(parentNode, inlineTag, i);
+              if (n != null) {
+                node.appendChild(n);
+              }
+            }
+            itemNodes.add(node);
+          }
+        }
+      }
       for (Node itemNode : itemNodes) {
         // We assume that the constructor of the parent class created the List object
         // so that we can simply add items to the list here.
@@ -566,7 +587,8 @@ public class XmlMetadataUtil {
                   metadataProvider,
                   password,
                   storeWithCode,
-                  intCodeConverterClass);
+                  intCodeConverterClass,
+                  inlineListTags);
 
           // Add it to the list
           //

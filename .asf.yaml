@@ -39,6 +39,8 @@ github:
     projects: true
     # Enable wiki for documentation
     wiki: false
+  collaborators:
+    - karta020500
 
   enabled_merge_buttons:
     squash: true

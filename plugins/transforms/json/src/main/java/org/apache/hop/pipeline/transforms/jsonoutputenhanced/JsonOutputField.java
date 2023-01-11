@@ -30,6 +30,9 @@ public class JsonOutputField implements Cloneable {
   @Injection(name = "JSON_ISJSONFRAGMENT", group = "FIELDS")
   private boolean isJSONFragment;
 
+  @Injection(name = "JSON_NOENCLOSURE", group = "FIELDS")
+  private boolean isWithoutEnclosing;
+
   @Injection(name = "JSON_REMOVEIFBLANK", group = "FIELDS")
   private boolean removeIfBlank;
 
@@ -47,6 +50,14 @@ public class JsonOutputField implements Cloneable {
 
   public void setRemoveIfBlank(boolean removeIfBlank) {
     this.removeIfBlank = removeIfBlank;
+  }
+
+  public boolean isWithoutEnclosing() {
+    return isWithoutEnclosing;
+  }
+
+  public void setWithoutEnclosing(boolean withoutEnclosing) {
+    isWithoutEnclosing = withoutEnclosing;
   }
 
   public JsonOutputField(

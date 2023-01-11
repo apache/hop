@@ -55,7 +55,7 @@ To add the index you simply need to add the plugin to your maven pom.xml:
 ----
 ...
 <properties>
-  <jandex-maven-plugin.version>1.0.8</jandex-maven-plugin.version>
+  <jandex.version>3.0.5</jandex.version>
 </properties>
 ...
 <build>
@@ -64,16 +64,16 @@ To add the index you simply need to add the plugin to your maven pom.xml:
     <plugins>
       ...
       <plugin>
-        <groupId>org.jboss.jandex</groupId>
+        <groupId>io.smallrye</groupId>
         <artifactId>jandex-maven-plugin</artifactId>
-        <version>${jandex-maven-plugin.version}</version>
+        <version>${jandex.version}</version>
       </plugin>
     </plugins>
   </pluginManagement>
 
   <plugins>
     ...
-    <groupId>org.jboss.jandex</groupId>
+    <groupId>io.smallrye</groupId>
     <artifactId>jandex-maven-plugin</artifactId>
     <executions>
       <execution>

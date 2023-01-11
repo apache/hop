@@ -31,7 +31,7 @@ This sub-pipeline must start with an Injector transform.
 
 You can define the number of messages to accept for processing, as well as the specific data formats to stream activity data and system metrics.
 
-You can set up this step to collect monitored events, track user consumption of data streams, and monitor alerts.
+You can set up this transform to collect monitored events, track user consumption of data streams, and monitor alerts.
 
 Kafka records are stored within topics, and consist of a category to which the records are published.
 Topics are divided into a set of logs known as partitions.

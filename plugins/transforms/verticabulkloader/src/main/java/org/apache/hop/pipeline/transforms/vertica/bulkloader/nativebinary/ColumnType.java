@@ -15,26 +15,21 @@
  * limitations under the License.
  */
 
-package org.apache.hop.workflow.actions.columnsexist;
+package org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.List;
-
-public class WorkflowActionColumnsExistLoadSaveTest
-    extends WorkflowActionLoadSaveTestSupport<ActionColumnsExist> {
-  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Override
-  protected Class<ActionColumnsExist> getActionClass() {
-    return ActionColumnsExist.class;
-  }
-
-  @Override
-  protected List<String> listAttributes() {
-    return Arrays.asList(new String[] {"database", "tablename", "schemaname", "arguments"});
-  }
+public enum ColumnType {
+  INTEGER,
+  BOOLEAN,
+  FLOAT,
+  CHAR,
+  VARCHAR,
+  DATE,
+  TIME,
+  TIMETZ,
+  TIMESTAMP,
+  TIMESTAMPTZ,
+  INTERVAL,
+  BINARY,
+  VARBINARY,
+  NUMERIC
 }

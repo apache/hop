@@ -83,6 +83,8 @@ bin/spark-submit \
   Spark
 ----
 
+Tip: Optionally you can provide a 4th argument after the run configuration name: the name of the environment configuration file to use.
+
 In this case, the fat jar and metadata export files were saved to `/opt/spark`. The last argument, `Spark`, is the name of the Spark pipeline run configuration in the samples project. Replace with the necessary arguments for your environment and run.
 
 You should see verbose logging output similar to the output below:

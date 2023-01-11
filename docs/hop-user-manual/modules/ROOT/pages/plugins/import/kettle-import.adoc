@@ -47,7 +47,7 @@ During this process the XML metadata is converted to the appropriate Hop format.
 During this process the XML metadata is converted to the appropriate Hop format.
 
 |kettle.properties
-|The Kettle properties file in your .kettle folder (typically found in the home directory or `${KETTLE_HOME}`) often contains variables and values regarding your environment.
+|The Kettle properties file in your .kettle folder (typically found in the home directory or `{openvar}KETTLE_HOME{closevar}`) often contains variables and values regarding your environment.
 These variables and values are converted into an environment configuration file if you specified the `-c` or `--target-config-file` option.
 When you create an environment in Hop you can simply add this file to it to make everything work.
 If the configuration file already exists it will be updated, not overwritten.
@@ -55,7 +55,7 @@ The description of the newly imported variables is set to `Imported from Kettle`
 Values of existing variables are overwritten and the existing description is kept.
 
 |shared.xml
-|The shared.xml file in your .kettle folder (typically found in the home directory or `${KETTLE_HOME}`) often contains connections which are shared across many transformations and jobs.
+|The shared.xml file in your .kettle folder (typically found in the home directory or `{openvar}KETTLE_HOME{closevar}`) often contains connections which are shared across many transformations and jobs.
 These connections are imported as Relational Database Connection metadata stored in the target folder `metadata/rdbms` folder.
 
 |jdbc.properties

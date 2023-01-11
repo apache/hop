@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0005-copy-delete</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2022/12/14 14:25:57.200</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2022/12/14 14:25:57.200</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>48</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Copy testfile</name>
+      <description/>
+      <type>COPY_FILES</type>
+      <attributes/>
+      <copy_empty_folders>Y</copy_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <overwrite_files>N</overwrite_files>
+      <include_subfolders>N</include_subfolders>
+      <remove_source_files>N</remove_source_files>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>Y</create_destination_folder>
+      <fields>
+        <field>
+          <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}/files-0005/sample-file1.txt</source_filefolder>
+          <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
+          <destination_filefolder>EMPTY_DEST_URL-0-${PROJECT_HOME}/workfiles/</destination_filefolder>
+          <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>
+          <wildcard/>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>192</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>check if file present</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+
+# Basic if statement
+
+echo searching file: "${PROJECT_HOME}/workfiles/sample-file1.txt"
+
+if [ -f "${PROJECT_HOME}/workfiles/sample-file1.txt" ]; then
+echo "file found"
+exit 0
+else
+echo "file not found"
+exit 1
+fi</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete file</name>
+      <description/>
+      <type>DELETE_FILE</type>
+      <attributes/>
+      <fail_if_file_not_exists>Y</fail_if_file_not_exists>
+      <filename>${PROJECT_HOME}/workfiles/sample-file1.txt</filename>
+      <parallel>N</parallel>
+      <xloc>480</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>file should be gone</name>
+      <description/>
+      <type>SHELL</type>
+      <attributes/>
+      <filename/>
+      <work_directory/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <set_append_logfile>N</set_append_logfile>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <insertScript>Y</insertScript>
+      <script>#!/bin/bash
+
+# Basic if statement
+
+echo searching file: "${PROJECT_HOME}/workfiles/sample-file1.txt"
+
+if [ -f "${PROJECT_HOME}/workfiles/sample-file1.txt" ]; then
+echo "file found"
+exit 0
+else
+echo "file not found"
+exit 1
+fi</script>
+      <loglevel>Basic</loglevel>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>1024</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Abort workflow</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>N</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>640</xloc>
+      <yloc>224</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete folders</name>
+      <description/>
+      <type>DELETE_FOLDERS</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <success_condition>success_if_no_errors</success_condition>
+      <limit_folders>10</limit_folders>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/workfiles</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>832</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Copy testfile</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Copy testfile</from>
+      <to>check if file present</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>check if file present</from>
+      <to>Delete file</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete file</from>
+      <to>file should be gone</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>file should be gone</from>
+      <to>Abort workflow</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>file should be gone</from>
+      <to>Delete folders</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete folders</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>.AppleSystemUIFont</fontname>
+      <fontsize>13</fontsize>
+      <height>26</height>
+      <xloc>32</xloc>
+      <yloc>48</yloc>
+      <note>Only works under linux/docker</note>
+      <width>193</width>
+    </notepad>
+  </notepads>
+  <attributes/>
+</workflow>

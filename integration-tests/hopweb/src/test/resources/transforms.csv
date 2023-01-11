@@ -60,13 +60,10 @@ Combination lookup/update
 Concat Fields
 Copy rows to result
 Credit card validator
-CSV file input
 Data grid
 Database join
 Database lookup
-De-serialize from file
 Delay row
-Delete
 Detect empty stream
 Dimension lookup/update
 Doris bulk loader
@@ -78,9 +75,7 @@ Enhanced JSON Output
 ETL metadata injection
 Execute a process
 Execute row SQL script
-Execute SQL script
 Execute Unit Tests
-Execution Information
 Fake data
 File exists
 File Metadata
@@ -93,7 +88,7 @@ Get data from XML
 Get file names
 Get files from result
 Get files rows count
-Get Neo4j Logging Info
+Get Neo4j logging info
 Get records from stream
 Get rows from result
 Get Server Status
@@ -109,16 +104,12 @@ If Null
 Injector
 Insert / update
 Java filter
-JavaScript
 Join rows (cartesian product)
 JSON input
-JSON output
-Kafka Consumer
 Kafka Producer
 LDAP input
 LDAP output
 Load file content in memory
-Mail
 Mapping Input
 Mapping Output
 Memory group by
@@ -130,12 +121,10 @@ Microsoft Access output
 Microsoft Excel input
 Microsoft Excel writer
 MonetDB bulk loader
-MongoDB Delete
 MongoDB input
 MongoDB output
 Multiway merge join
 Neo4j Cypher
-Neo4j Cypher Builder
 Neo4j Generate CSVs
 Neo4j Graph Output
 Neo4j Import
@@ -144,7 +133,6 @@ Neo4j Split Graph
 Null if
 Number range
 Parquet File Input
-Parquet File Output
 PGP decrypt stream
 PGP encrypt stream
 Pipeline executor
@@ -152,7 +140,6 @@ Pipeline Logging
 Pipeline Probe
 PostgreSQL Bulk Loader
 Process files
-Properties input
 Properties output
 Regex evaluation
 Replace in string
@@ -177,7 +164,7 @@ Set field value
 Set field value to a constant
 Set files in result
 Set variables
-Simple Mapping
+Simple Mapping (sub-pipeline)
 Snowflake Bulk Loader
 Sort rows
 Sorted merge
@@ -195,8 +182,6 @@ Switch / case
 Synchronize after merge
 Table compare
 Table exists
-Table input
-Table output
 Teradata Fastload bulk loader
 Text file input
 Text file input (deprecated)
@@ -204,15 +189,12 @@ Text file output
 Token Replacement
 Unique rows
 Unique rows (HashSet)
-Update
-User defined Java class
 User defined Java expression
 Value mapper
 Web services lookup
 Workflow executor
 Workflow Logging
 Write to log
-XML input stream (StAX)
 XML join
 XML output
 XSD validator

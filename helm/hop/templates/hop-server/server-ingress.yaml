@@ -34,6 +34,19 @@ metadata:
     {{- end }}
   {{- end }}
 spec:
+{{- if .Values.server.ingress.className }}
+  ingressClassName: {{ .Values.server.ingress.className }}
+{{- end }}
+{{- if .Values.server.ingress.tls }}
+  tls:
+  {{- range .Values.server.ingress.tls }}
+    - hosts:
+      {{- range .hosts }}
+        - {{ . | quote }}
+      {{- end }}
+      secretName: {{ .secretName }}
+  {{- end }}
+{{- end }}
   rules:
   {{- if .Values.server.ingress.hosts  }}
   {{- range .Values.server.ingress.hosts }}

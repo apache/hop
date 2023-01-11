@@ -18,14 +18,19 @@
 
 package org.apache.hop.beam.run;
 
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -36,13 +41,11 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 public class MainBeam {
 
   public static void main(String[] args) {
     try {
+      System.out.println(">>>>>> Initializing Hop");
       HopEnvironment.init();
 
       // Read the pipeline XML and metadata JSON (optionally from Hadoop FS)
@@ -50,6 +53,7 @@ public class MainBeam {
       String pipelineMetaXml = "";
       String metadataJson = "";
       String runConfigName = "";
+      String environmentFile = "";
 
       if (args[0].startsWith("--")) {
         for (String arg : args) {
@@ -59,16 +63,20 @@ public class MainBeam {
           if (key != null) {
             switch (key) {
               case ("--HopPipelinePath"):
-                System.out.println("Argument 1 : Pipeline filename (.hpl)   : " + value);
+                System.out.println("Pipeline filename (.hpl): " + value);
                 pipelineMetaXml = readFileIntoString(value, "UTF-8");
                 break;
               case ("--HopMetadataPath"):
-                System.out.println("Argument 2 : Environment state filename (.json)  : " + value);
+                System.out.println("Metadata filename (.json): " + value);
                 metadataJson = readFileIntoString(value, "UTF-8");
                 break;
               case ("--HopRunConfigurationName"):
-                System.out.println("Argument 3 : Pipeline run configuration : " + value);
+                System.out.println("Pipeline run configuration name: " + value);
                 runConfigName = value;
+                break;
+              case ("--HopConfigFile"):
+                System.out.println("Environnment configuration file: " + value);
+                environmentFile = value;
                 break;
             }
           }
@@ -80,8 +88,10 @@ public class MainBeam {
         metadataJson = readFileIntoString(args[1], "UTF-8");
         System.out.println("Argument 3 : Pipeline run configuration : " + args[2]);
         runConfigName = args[2];
-
-        System.out.println(">>>>>> Initializing Hop...");
+        if (args.length > 3) {
+          System.out.println("Argument 4 : Environment configuration file: " + args[3]);
+          environmentFile = args[3];
+        }
       }
 
       // Inflate the metadata:
@@ -117,6 +127,19 @@ public class MainBeam {
       }
 
       IVariables variables = Variables.getADefaultVariableSpace();
+
+      // Apply the variables in the configuration file, if any is specified
+      //
+      if (StringUtils.isNotEmpty(environmentFile)) {
+        DescribedVariablesConfigFile configFile =
+            new DescribedVariablesConfigFile(variables.resolve(environmentFile));
+        configFile.readFromFile();
+        for (DescribedVariable variable : configFile.getDescribedVariables()) {
+          variables.setVariable(variable.getName(), variable.getValue());
+        }
+        System.out.println(
+            ">>>>>> Applied number of variables: " + configFile.getDescribedVariables().size());
+      }
 
       // Execute it...
       //

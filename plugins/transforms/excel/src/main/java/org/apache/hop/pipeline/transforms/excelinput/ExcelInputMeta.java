@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -49,10 +52,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /** Meta data for the Excel transform. */
 @Transform(
     id = "ExcelInput",
@@ -75,7 +74,14 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
   @HopMetadataProperty(
       key = "file",
       injectionGroupKey = "FILENAME_LINES",
-      injectionGroupDescription = "ExcelInput.Injection.FILENAME_LINES")
+      injectionGroupDescription = "ExcelInput.Injection.FILENAME_LINES",
+      inlineListTags = {
+        "name",
+        "filemask",
+        "exclude_filemask",
+        "file_required",
+        "include_subfolders"
+      })
   private List<EIFile> files;
 
   /** The fieldname that holds the name of the file */
@@ -753,8 +759,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
    * @return true if all sheets are read.
    */
   public boolean readAllSheets() {
-    return sheets.isEmpty()
-        || (sheets.size() == 1 && StringUtils.isEmpty(sheets.get(0).getName()));
+    return sheets.isEmpty() || (sheets.size() == 1 && StringUtils.isEmpty(sheets.get(0).getName()));
   }
 
   /**

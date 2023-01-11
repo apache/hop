@@ -29,7 +29,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -38,6 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -64,9 +64,6 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::DimensionLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/dimensionlookup.html")
-@InjectionSupported(
-    localizationPrefix = "DimensionLookup.Injection.",
-    groups = {"KEYS", "FIELDS"})
 public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData>
     implements IProvidesModelerMeta {
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
@@ -370,7 +367,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       db.connect();
 
       IRowMeta tableRowMeta =
-          checkTableFields(transformMeta, db, realSchema, realTable, newRemarks);
+          checkTableFields(transformMeta, db, realSchema, realTable, remarks);
       if (tableRowMeta != null) {
         checkKeys(
             transformMeta,
@@ -379,7 +376,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
             realTable,
             tableRowMeta,
             previousRowMeta,
-            newRemarks);
+            remarks);
         checkReturns(transformMeta, tableRowMeta, remarks);
         checkDateFields(transformMeta, tableRowMeta, remarks);
       }
@@ -453,16 +450,16 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
     boolean allOk = true;
     for (DLField field : fields.fields) {
-      IValueMeta valueMeta = previousFields.searchValueMeta(field.getName());
-      if (valueMeta == null) {
-        allOk = false;
-        remarks.add(
-            new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,
-                BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.MissingFields")
-                    + " "
-                    + field.getName(),
-                transformMeta));
+      DimensionUpdateType updateType = field.getUpdateType();      
+      if ( updateType!=null && updateType.isWithArgument() ) {
+        IValueMeta valueMeta = previousFields.searchValueMeta(field.getName());
+        if (valueMeta == null) {
+          allOk = false;
+          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.MissingFields") + " "
+                  + field.getName(),
+              transformMeta));
+        }
       }
     }
     if (allOk) {
@@ -651,6 +648,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
                       + field.getUpdate()
                       + "'",
                   transformMeta));
+          allOk = false;
         }
       } else {
         // Check the type of the dimension field to look up
@@ -665,6 +663,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
                       + field.getUpdate()
                       + "'",
                   transformMeta));
+          allOk = false;
         }
       }
     }
@@ -947,19 +946,6 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     // Then the fields to update...
     //
     for (DLField field : fields.fields) {
-      IValueMeta prevValueMeta = prev.searchValueMeta(field.getName());
-      if (prevValueMeta == null) {
-        errorFields.add(field.getName());
-        continue;
-      }
-      IValueMeta valueMeta = prevValueMeta.clone();
-      valueMeta.setName(field.getLookup());
-      tableRowMeta.addValueMeta(valueMeta);
-    }
-
-    // Finally, the special update fields...
-    //
-    for (DLField field : fields.fields) {
       IValueMeta valueMeta = null;
       DimensionUpdateType updateType = field.getUpdateType();
       if (updateType == null) {
@@ -968,15 +954,24 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         break;
       }
       switch (updateType) {
-        case INSERT_UPDATE:
-        case INSERT:
-        case UPDATE:
+        case DATE_UPDATED:
+        case DATE_INSERTED:
+        case DATE_INSERTED_UPDATED:
           valueMeta = new ValueMetaDate(field.getLookup());
           break;
         case LAST_VERSION:
           valueMeta = new ValueMetaBoolean(field.getLookup());
           break;
-        default:
+        case INSERT:
+        case UPDATE:
+        case PUNCH_THROUGH:
+          IValueMeta prevValueMeta = prev.searchValueMeta(field.getName());
+          if (prevValueMeta == null) {
+            errorFields.add(field.getName());
+            continue;
+          }
+          valueMeta = prevValueMeta.clone();
+          valueMeta.setName(field.getLookup());
           break;
       }
       if (valueMeta != null) {
@@ -1161,25 +1156,27 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   public enum DimensionUpdateType implements IEnumHasCodeAndDescription {
-    INSERT("Insert", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Insert")),
-    UPDATE("Update", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Update")),
+    INSERT("Insert", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Insert"), true),
+    UPDATE("Update", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Update"), true),
     PUNCH_THROUGH(
-        "Punch through", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.PunchThrough")),
-    INSERT_UPDATE(
+        "Punch through", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.PunchThrough"), true),
+    DATE_INSERTED_UPDATED(
         "DateInsertedOrUpdated",
-        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInsertedOrUpdated")),
+        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInsertedOrUpdated"), false),
     DATE_INSERTED(
-        "DateInserted", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInserted")),
+        "DateInserted", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInserted"), false),
     DATE_UPDATED(
-        "DateUpdated", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateUpdated")),
+        "DateUpdated", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateUpdated"), false),
     LAST_VERSION(
-        "LastVersion", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.LastVersion"));
+        "LastVersion", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.LastVersion"), false);
     private final String code;
     private final String description;
+    private final boolean isWithArgument;
 
-    DimensionUpdateType(String code, String description) {
+    DimensionUpdateType(String code, String description, boolean isWithArgument) {
       this.code = code;
       this.description = description;
+      this.isWithArgument = isWithArgument;
     }
 
     public static String[] getDescriptions() {
@@ -1209,20 +1206,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     public String getDescription() {
       return description;
     }
-  }
 
-  public static boolean isUpdateTypeWithArgument(boolean update, DimensionUpdateType type) {
-    if (!update) {
-      return true; // doesn't apply
+    public boolean isWithArgument() {
+      return isWithArgument;
     }
-    switch (type) {
-      case INSERT_UPDATE:
-      case INSERT:
-      case UPDATE:
-      case LAST_VERSION:
-        return false;
-      default:
-        return true;
+    
+    public static DimensionUpdateType lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(DimensionUpdateType.class, description, null);
     }
   }
 

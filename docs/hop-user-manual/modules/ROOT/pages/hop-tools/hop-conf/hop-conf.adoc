@@ -25,6 +25,11 @@ under the License.
 Hop Conf is a command line tool to manage environments.
 The *hop-conf.sh* script can be run with the *-h* flag (`./hop-conf.sh -h`) to display available options.
 
+&nbsp; +
+
+.Usage
+[%collapsible]
+=====
 [source,bash]
 ----
 Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
@@ -212,6 +217,10 @@ TIP: `-sv` can be used to unset a variable by specifying a variable without a va
 |-pv|--project-variables=<projectVariables>[,<projectVariables>...]| A list of variable=value combinations separated by a comma
 |===
 
+=====
+
+&nbsp; +
+
 === project variables Examples
 This is a list of examples on how the parameters on this command are parsed
 
@@ -263,7 +272,7 @@ Result:
 
 include::hop-conf-projects.adoc[]
 
-== Running Projects and Pipelines
+== Running Workflows and Pipelines
 
 include::hop-conf-run-hpl-hwf.adoc[]
 

@@ -60,26 +60,26 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <name>key</name>
-        <type>String</type>
-        <format/>
         <currency/>
         <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
         <group/>
         <length>-1</length>
+        <name>key</name>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
       </field>
       <field>
-        <name>value</name>
-        <type>String</type>
-        <format/>
         <currency/>
         <decimal/>
+        <set_empty_string>N</set_empty_string>
+        <format/>
         <group/>
         <length>-1</length>
+        <name>value</name>
         <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
+        <type>String</type>
       </field>
     </fields>
     <data>
@@ -102,6 +102,10 @@ limitations under the License.
       <line>
         <item>5</item>
         <item>e</item>
+      </line>
+      <line>
+        <item>1</item>
+        <item>f</item>
       </line>
     </data>
     <attributes/>

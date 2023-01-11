@@ -16,6 +16,8 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
+:openvar: ${
+:closevar: }
 :description: The Token Replacement transform replaces tokens in an input string or file.
 
 = image:transforms/icons/token.svg[Token Replacement transform Icon, role="image-doc-icon"] Token Replacement
@@ -31,7 +33,7 @@ The transform can then output this data either to a file or a field on the strea
 
 A token contains a start string, a name, and an end string.
 
-For example ${my_token} could be a token.
+For example {openvar}my_token{closevar} could be a token.
 
 The start string, and end string are configurable and can be any series of characters.
 
@@ -81,14 +83,14 @@ Either field or file.
 ** Output filename field - The name of the field the output filename is in.
 ** Append output file?
 - If the output file already exists should it be appended to.
-If not checked, Pentaho will overwrite the file if it exists.
+If not checked, Apache Hop will overwrite the file if it exists.
 ** Create parent folder?
-- Should Pentaho create the parent folder?
+- Should Apache Hop create the parent folder?
 ** Output format - The format of the new line delimiter for the output file.
 ** Output encoding - The character encoding to use when writing the file.
 ** Split every - Split the output file into a new file every n rows.
-** Include stepnr in filename?
-- Should the step number be included in the output filename?
+** Include copynr in filename?
+- Should the transform's copy number be included in the output filename?
 ** Include partition nr in filename?
 - Should the partition number be included in the output filename?
 ** Include date in filename?

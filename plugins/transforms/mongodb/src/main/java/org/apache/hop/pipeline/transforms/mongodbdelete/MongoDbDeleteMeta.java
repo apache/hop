@@ -30,7 +30,7 @@ import java.util.List;
     name = "i18n::MongoDbDelete.Name",
     description = "i18n::MongoDbDelete.Description",
     documentationUrl = "/pipeline/transforms/mongodbdelete.html",
-    keywords = "i18n::MongoDbDeleteMeta.keyword",
+    keywords = "i18n::MongoDbDelete.keyword",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output")
 public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteData> {
 

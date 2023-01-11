@@ -405,6 +405,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
         outputFields[i].setElementName(XmlHandler.getTagValue(fnode, "element"));
         outputFields[i].setJSONFragment(
             !"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "json_fragment")));
+        outputFields[i].setWithoutEnclosing(
+            "Y".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "is_without_enclosing")));
         outputFields[i].setRemoveIfBlank(
             !"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "remove_if_blank")));
       }
@@ -546,6 +548,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
         retval
             .append("        ")
             .append(XmlHandler.addTagValue("json_fragment", field.isJSONFragment()));
+        retval
+            .append("        ")
+            .append(XmlHandler.addTagValue("is_without_enclosing", field.isWithoutEnclosing()));
         retval
             .append("        ")
             .append(XmlHandler.addTagValue("remove_if_blank", field.isRemoveIfBlank()));

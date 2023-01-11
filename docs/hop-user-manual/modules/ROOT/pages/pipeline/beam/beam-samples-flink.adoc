@@ -80,6 +80,7 @@ Set your Flink master to `[auto]` and export your Hop metadata again (see xref:p
 image:beam/beam-flink-run-config-host.png[Apache Beam - Flink run configuration - master, width="40%"]
 
 Unlike Spark you can not pass java options at runtime to the TaskManager. So we also want to set the `PROJECT_HOME` variable in the run configuration. This variable is used during execution to know where the source files are. (Metadata perspective -> Pipeline Run Configuration -> Flink -> Variables)
+Alternatively, you can provide a 4th argument after the run configuration name: the name of the environment configuration file to use.
 
 image:beam/beam-flink-run-config-variables.png[Apache Beam - Flink run configuration - master, width="40%"]
 
@@ -100,11 +101,11 @@ With your Hop and Flink set up correctly, your output will look similar to what'
 
 [source, shell]
 ----
-Argument 1 : Pipeline filename (.hpl)   : /home/bart/git-hop/hop/assemblies/client/target/hop/config/projects/samples/beam/pipelines/generate-synthetic-data.hpl
+Argument 1 : Pipeline filename (.hpl)   : <YOUR_PATH>/hop/config/projects/samples/beam/pipelines/generate-synthetic-data.hpl
 Argument 2 : Metadata filename (.json)  : /opt/flink/hop-metadata.json
 Argument 3 : Pipeline run configuration : Flink
 >>>>>> Initializing Hop...
-Hop configuration file not found, not serializing: /home/bart/Projects/flink/flink-1.13.5/config/hop-config.json
+Hop configuration file not found, not serializing: <YOUR_FLINK_PATH>/flink/flink-1.13.5/config/hop-config.json
 
 >>>>>> Loading pipeline metadata
 >>>>>> Building Apache Beam Pipeline...

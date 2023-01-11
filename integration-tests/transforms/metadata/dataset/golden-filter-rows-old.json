@@ -1,0 +1,16 @@
+{
+  "base_filename": "golden-filter-rows-old.csv",
+  "name": "golden-filter-rows-old",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "value"
+    }
+  ],
+  "folder_name": ""
+}

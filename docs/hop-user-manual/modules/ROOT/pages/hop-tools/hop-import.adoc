@@ -28,6 +28,12 @@ See also these plugins:
 
 Usage help can be obtained by running hop-import with the `-h` option, even when other options are specified:
 
+&nbsp; +
+
+.Usage
+[%collapsible]
+=====
+
 [source]
 ----
 Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
@@ -54,11 +60,37 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
   -t, --type=<type>     The type of import plugin to use (e.g. kettle)
 ----
 
+=====
+
+&nbsp; +
+
 == Examples
 
 Import a set of Kettle files and folders into a project stored on Amazon AWS S3:
 
-[source]
+&nbsp; +
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+----
+hop-import.bat \
+  --type kettle \
+  --input /projects/kettle/inventory \
+  --output s3:///apache-hop/s3project \
+  --target-config-file imported-env-conf.json \
+  --kettle-properties /home/etl/.kettle/kettle.properties \
+  --shared-xml /home/matt/.kettle/shared.xml
+----
+--
+
+Linux, macOS::
++
+--
+[source,shell]
 ----
 sh hop-import.sh \
   --type kettle \
@@ -68,10 +100,13 @@ sh hop-import.sh \
   --kettle-properties /home/etl/.kettle/kettle.properties \
   --shared-xml /home/matt/.kettle/shared.xml
 ----
+--
+====
+
 
 The logging will show what is going on and will print a report at the end:
 
-[source]
+[source, shell]
 ----
 2021/06/22 16:39:29 - HopImport - Import is skipping existing target files
 2021/06/22 16:39:29 - HopImport - Import is skipping hidden files and folders

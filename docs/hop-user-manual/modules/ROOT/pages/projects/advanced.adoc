@@ -34,6 +34,12 @@ Projects and environments as such are defined in the central Hop configuration f
 By default this file lives in the `config/` folder of your Hop client distribution.
 You can change that folder by setting the `HOP_CONFIG_FOLDER` environment variable on your system.
 
+&nbsp; +
+
+.projectsConfig
+[%collapsible]
+=====
+
 In `hop-config.json`, you'll find a `"projectsConfig"` section.
 By default it contains the following:
 
@@ -65,9 +71,20 @@ By default it contains the following:
 
 As you can see the standard Hop client distribution defines 2 projects: default and samples.
 
+=====
+
+&nbsp; +
+
 === Project Configuration
 
 Every project has extra metadata and settings stored in a project configuration file called ```project-config.json```.  For the samples project this would be ```config/projects/samples/project-config.json```.
+
+&nbsp; +
+
+.project-config.json
+[%collapsible]
+=====
+
 Let's take a look at it:
 
 [source,json]
@@ -84,6 +101,10 @@ Let's take a look at it:
 }
 ----
 
+=====
+
+&nbsp; +
+
 ==== Variables
 
 You can define variables on a project level as well.
@@ -98,6 +119,12 @@ As you can see from the project configuration file (`parentProjectName`), a proj
 Hop enviroments and their home folders are stored in the hop configuration file 'hop-config.json'.
 That file lives by default in the *config* folder of the Hop installation.
 System property `HOP_CONFIG_FOLDER` can also be used to point to a different folder
+
+&nbsp; +
+
+.environmentConfig
+[%collapsible]
+=====
 
 [source,json]
 {
@@ -114,6 +141,10 @@ System property `HOP_CONFIG_FOLDER` can also be used to point to a different fol
    "Project 2 - PRD" : "/projects/two/prd/",
   }
 }
+
+=====
+
+&nbsp; +
 
 == Command Line Project Configuration
 

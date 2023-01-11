@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -73,9 +74,12 @@ public class NullIf extends BaseTransform<NullIfMeta, NullIfData> {
         data.nullValueMeta[i] = data.outputRowMeta.getValueMeta(data.keynr[i]);
         // convert from input string entered by the user
         ValueMetaString vms = new ValueMetaString();
+
+        // look for an empty string to replace with null                            
+        String value = (field.getValue() == null) ? Const.EMPTY_STRING : field.getValue();        
         vms.setConversionMask(data.nullValueMeta[i].getConversionMask());
         data.nullValue[i] =
-            data.nullValueMeta[i].convertData(vms, field.getValue());
+            data.nullValueMeta[i].convertData(vms, value);
       }
     }
 

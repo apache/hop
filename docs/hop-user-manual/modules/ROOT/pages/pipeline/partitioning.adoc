@@ -92,7 +92,7 @@ Step Two: select the partitioning method:
 
 * Establish the partitioning method for the transform, which defines the rule for row distribution across the copies.
 The Remainder of division rule allows rows with the same state value to be sent to the same transform copy and the distribution of similar rows among the transforms.
-If the modulo is calculated on a non-integer value, the PDI client calculates the modulo on a checksum created from the String, Date, and Number value.
+If the modulo is calculated on a non-integer value, the Apache Hop client calculates the modulo on a checksum created from the String, Date, and Number value.
 
 NOTE: When you run the pipeline, there are no guarantees as to which page name goes to which transform copy, only that any page name encountered is consistently forwarded to the same transform copy.
 

@@ -144,6 +144,7 @@
         <jackcess.version>4.0.4</jackcess.version>
         <jackson.version>2.14.1</jackson.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
+        <jandex.version>3.0.5</jandex.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
         <joda-time.version>2.12.1</joda-time.version>
@@ -215,7 +216,6 @@
         <sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
-        <jandex-maven-plugin.version>1.0.8</jandex-maven-plugin.version>
         <wagon-plugin.version>2.0.0</wagon-plugin.version>
 
         <!-- spring-security version -->
@@ -671,9 +671,9 @@
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
                 <plugin>
-                    <groupId>org.jboss.jandex</groupId>
+                    <groupId>io.smallrye</groupId>
                     <artifactId>jandex-maven-plugin</artifactId>
-                    <version>${jandex-maven-plugin.version}</version>
+                    <version>${jandex.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -711,7 +711,7 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.jboss.jandex</groupId>
+                <groupId>io.smallrye</groupId>
                 <artifactId>jandex-maven-plugin</artifactId>
                 <executions>
                     <execution>

@@ -49,67 +49,83 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>SQL</name>
+      <name>0012-1-dimension-lookup-update-insert.hwf</name>
       <description/>
-      <type>SQL</type>
+      <type>WORKFLOW</type>
       <attributes/>
-      <sql/>
-      <useVariableSubstitution>F</useVariableSubstitution>
-      <sqlfromfile>T</sqlfromfile>
-      <sqlfilename>${PROJECT_HOME}/scripts/script4.sql</sqlfilename>
-      <sendOneStatement>F</sendOneStatement>
-      <connection>unit-test-db</connection>
-      <parallel>N</parallel>
-      <xloc>208</xloc>
-      <yloc>48</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>0012-dimension-lookup-update.hpl</name>
-      <description/>
-      <type>PIPELINE</type>
-      <attributes/>
-      <filename>${PROJECT_HOME}/0012-dimension-lookup-update.hpl</filename>
+      <run_configuration>local</run_configuration>
+      <filename>${PROJECT_HOME}/0012-1-dimension-lookup-update-insert.hwf</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
       <set_logfile>N</set_logfile>
       <logfile/>
       <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
+      <loglevel>Nothing</loglevel>
       <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
-      <xloc>368</xloc>
+      <xloc>320</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Evaluate rows number in a table</name>
+      <name>0012-2-dimension-lookup-update-punch-through.hwf</name>
       <description/>
-      <type>EVAL_TABLE_CONTENT</type>
+      <type>WORKFLOW</type>
       <attributes/>
-      <connection>unit-test-db</connection>
-      <schemaname>public</schemaname>
-      <tablename>dimension</tablename>
-      <success_condition>rows_count_equal</success_condition>
-      <limit>6</limit>
-      <is_custom_sql>N</is_custom_sql>
-      <is_usevars>N</is_usevars>
-      <custom_sql/>
-      <add_rows_result>N</add_rows_result>
-      <clear_result_rows>Y</clear_result_rows>
+      <run_configuration>local</run_configuration>
+      <filename>${PROJECT_HOME}/0012-2-dimension-lookup-update-punch-through.hwf</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
       <parallel>N</parallel>
-      <xloc>640</xloc>
+      <xloc>656</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0012-3-dimension-lookup-update-update.hwf</name>
+      <description/>
+      <type>WORKFLOW</type>
+      <attributes/>
+      <run_configuration>local</run_configuration>
+      <filename>${PROJECT_HOME}/0012-3-dimension-lookup-update-update.hwf</filename>
+      <params_from_previous>N</params_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <wait_until_finished>Y</wait_until_finished>
+      <create_parent_folder>N</create_parent_folder>
+      <run_configuration>local</run_configuration>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <set_append_logfile>N</set_append_logfile>
+      <parallel>N</parallel>
+      <xloc>1008</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -117,21 +133,21 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>SQL</to>
+      <to>0012-1-dimension-lookup-update-insert.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>SQL</from>
-      <to>0012-dimension-lookup-update.hpl</to>
+      <from>0012-1-dimension-lookup-update-insert.hwf</from>
+      <to>0012-2-dimension-lookup-update-punch-through.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0012-dimension-lookup-update.hpl</from>
-      <to>Evaluate rows number in a table</to>
+      <from>0012-2-dimension-lookup-update-punch-through.hwf</from>
+      <to>0012-3-dimension-lookup-update-update.hwf</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

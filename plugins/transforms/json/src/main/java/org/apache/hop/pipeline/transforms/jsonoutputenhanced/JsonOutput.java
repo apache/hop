@@ -106,11 +106,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     Object[] r = getRow(); // This also waits for a row to be finished.
     if (r == null) {
       // no more input to be expected...
-      if (!data.rowsAreSafe) {
-        // Let's output the remaining unsafe data
-        outPutRow(prevRow);
-        if (data.isWriteToFile) writeJsonFile();
-      }
+      // Let's output the remaining unsafe data
+      outPutRow(prevRow);
+      if (data.isWriteToFile) writeJsonFile();
       setOutputDone();
       return false;
     }
@@ -185,10 +183,13 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
             if (outputField.isJSONFragment()) {
               try {
                 JsonNode jsonNode = mapper.readTree(value);
-                itemNode.put(getJsonAttributeName(outputField), jsonNode);
+                if (outputField.isWithoutEnclosing()) {
+                  itemNode.setAll((ObjectNode) jsonNode);
+                } else {
+                  itemNode.put(getJsonAttributeName(outputField), jsonNode);
+                }
               } catch (IOException e) {
-                // TBD Exception must be properly managed
-                e.printStackTrace();
+                throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Casting"), e);
               }
             } else {
               itemNode.put(getJsonAttributeName(outputField), value);

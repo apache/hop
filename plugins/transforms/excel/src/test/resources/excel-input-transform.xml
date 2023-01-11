@@ -43,11 +43,16 @@
     <accept_field/>
     <accept_transform_name/>
     <file>
-        <name>${PROJECT_HOME}/files/excel/basic.xls</name>
-        <filemask/>
-        <exclude_filemask/>
-        <file_required>N</file_required>
-        <include_subfolders>N</include_subfolders>
+        <name>file1.xls</name>
+        <filemask>mask1</filemask>
+        <exclude_filemask>exclude1</exclude_filemask>
+        <file_required>Y</file_required>
+        <include_subfolders>Y</include_subfolders>
+        <name>file2.xls</name>
+        <filemask>mask2</filemask>
+        <exclude_filemask>exclude2</exclude_filemask>
+        <file_required>Y</file_required>
+        <include_subfolders>Y</include_subfolders>
     </file>
     <fields>
         <field>

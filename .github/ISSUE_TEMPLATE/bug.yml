@@ -21,6 +21,8 @@ name: Bug Report
 description: File a bug report
 title: "[Bug]: "
 labels: ["bug", "awaiting triage"]
+assignees:
+  - octocat
 body:
   - type: markdown
     attributes:
@@ -84,48 +86,40 @@ body:
     attributes:
       label: Issue Component
       options:
-      - "Component: Actions"
-      - "Component: Api"
-      - "Component: Architecture"
-      - "Component: Beam"
-      - "Component: Bigquery"
-      - "Component: Bigtable"
-      - "Component: Build"
-      - "Component: Cli"
-      - "Component: Containers"
-      - "Component: Database"
-      - "Component: Dataflow"
-      - "Component: Docker"
-      - "Component: Documentation"
-      - "Component: Execution Information"
-      - "Component: Flink"
-      - "Component: Git"
-      - "Component: Graph"
-      - "Component: Gui"
-      - "Component: Hop Config"
-      - "Component: Hop Gui"
-      - "Component: Hop Run"
-      - "Component: Hop Search"
-      - "Component: Hop Server"
-      - "Component: Hop Web"
-      - "Component: Import"
-      - "Component: Infrastructure"
-      - "Component: Integration Testing"
-      - "Component: Kafka"
-      - "Component: Metadata"
-      - "Component: Pipelines"
-      - "Component: Plugins"
-      - "Component: Projects"
-      - "Component: Samples"
-      - "Component: Snowflake"
-      - "Component: Spark"
-      - "Component: Technology"
-      - "Component: Transforms"
-      - "Component: Translations"
-      - "Component: Unit Test"
-      - "Component: Vfs"
-      - "Component: Website"
-      - "Component: Workflows"
-      - "Component: Other"
+        - "Component: Actions"
+        - "Component: Beam"
+        - "Component: CLI"
+        - "Component: Containers"
+        - "Component: Database"
+        - "Component: Documentation"
+        - "Component: Hop Config"
+        - "Component: Hop Gui"
+        - "Component: Hop Run"
+        - "Component: Hop Server"
+        - "Component: Hop Web"
+        - "Component: Import"
+        - "Component: Infrastructure"
+        - "Component: Integration Testing"
+        - "Component: Metadata"
+        - "Component: Neo4j"
+        - "Component: Pipelines"
+        - "Component: Samples"
+        - "Component: Transforms"
+        - "Component: Translations"
+        - "Component: VFS"
+        - "Component: Website"
+        - "Component: Workflows"
+        - "Component: Other"
     validations:
       required: true
+  - type: markdown
+    attributes:
+      value: |
+        You can manipulate these issues by making a comment containing one of the following commands. \
+        Command List: \
+        .take-issue self-assign the issue to you \
+        .close-issue Close this issue \
+        .reopen-issue Reopen a closed issue \
+        .add-labels label1,label2,'label 3 with spaces' \
+        .remove-labels label1,label2,'label 3 with spaces' \
+        .set-labels label1,label2,'label 3 with spaces' (which removes any labels not in that set)

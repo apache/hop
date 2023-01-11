@@ -25,7 +25,6 @@ import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.DotName;
 import org.jboss.jandex.FieldInfo;
 import org.jboss.jandex.IndexView;
 import org.w3c.dom.Document;
@@ -77,12 +76,11 @@ public class VariableRegistry {
     // Search variable with the <code>@Variable<code> annotations    
     try {
       JarCache cache = JarCache.getInstance();
-      DotName annotationName = DotName.createSimple(Variable.class.getName());
-      
+
       // Search annotation in native jar
       for (File jarFile : cache.getNativeJars()) {
         IndexView index = cache.getIndex(jarFile);
-        for (AnnotationInstance info : index.getAnnotations(annotationName)) {
+        for (AnnotationInstance info : index.getAnnotations(Variable.class)) {
           register(jarFile, info.target().asField());
         }
       }
@@ -90,7 +88,7 @@ public class VariableRegistry {
       // Search annotation in plugins
       for (File jarFile : cache.getPluginJars()) {
         IndexView index = cache.getIndex(jarFile);
-        for (AnnotationInstance info : index.getAnnotations(annotationName)) {
+        for (AnnotationInstance info : index.getAnnotations(Variable.class)) {
             register(jarFile, info.target().asField());
         }
       }
