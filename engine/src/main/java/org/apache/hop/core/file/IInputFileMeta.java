@@ -20,13 +20,15 @@ package org.apache.hop.core.file;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
+import java.util.List;
+
 /**
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated(since="2.0")
 public interface IInputFileMeta extends ITransformMeta {
 
-  TextFileInputField[] getInputFields();
+  List<TextFileInputField> getInputFields();
 
   int getFileFormatTypeNr();
 

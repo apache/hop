@@ -99,12 +99,12 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       //
       data.filenameFieldIndex = -1;
       if (!Utils.isEmpty(meta.getFilenameField()) && meta.isIncludingFilename()) {
-        data.filenameFieldIndex = meta.getInputFields().length;
+        data.filenameFieldIndex = meta.getInputFields().size();
       }
 
       data.rownumFieldIndex = -1;
       if (!Utils.isEmpty(meta.getRowNumField())) {
-        data.rownumFieldIndex = meta.getInputFields().length;
+        data.rownumFieldIndex = meta.getInputFields().size();
         if (data.filenameFieldIndex >= 0) {
           data.rownumFieldIndex++;
         }
@@ -390,7 +390,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       }
 
       // Add filename to result filenames ?
-      if (meta.isAddResultFile()) {
+      if (meta.isIsaddresult()) {
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL, fileObject, getPipelineMeta().getName(), toString());
@@ -457,7 +457,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       mapping = NamedFieldsMapping.mapping(fieldNames, fieldNames(csvInputMeta));
     } else {
       int fieldsCount =
-          csvInputMeta.getInputFields() == null ? 0 : csvInputMeta.getInputFields().length;
+          csvInputMeta.getInputFields() == null ? 0 : csvInputMeta.getInputFields().size();
       mapping = UnnamedFieldsMapping.mapping(fieldsCount);
     }
     return mapping;
@@ -504,12 +504,12 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
   }
 
   static String[] fieldNames(CsvInputMeta csvInputMeta) {
-    TextFileInputField[] fields = csvInputMeta.getInputFields();
-    String[] fieldNames = new String[fields.length];
-    for (int i = 0; i < fields.length; i++) {
+    List<TextFileInputField> fields = csvInputMeta.getInputFields();
+    String[] fieldNames = new String[fields.size()];
+    for (int i = 0; i < fields.size(); i++) {
       // TODO: We need to sanitize field names because existing ktr files may contain field names
       // with leading BOM
-      fieldNames[i] = fields[i].getName();
+      fieldNames[i] = fields.get(i).getName();
     }
     return fieldNames;
   }
@@ -610,7 +610,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       //
       // Let's start by looking where we left off reading.
       //
-      while (!newLineFound && outputIndex < meta.getInputFields().length) {
+      while (!newLineFound && outputIndex < meta.getInputFields().size()) {
 
         if (data.resizeBufferIfNeeded()) {
           // Last row was being discarded if the last item is null and
@@ -797,7 +797,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
         // do-while loop below) and possibly skipping a newline character. This can occur if there
         // is an
         // empty column at the end of the row (see the Jira case for details)
-        if ((!newLineFound && outputIndex < meta.getInputFields().length)
+        if ((!newLineFound && outputIndex < meta.getInputFields().size())
             || (newLineFound && doubleLineEnd)) {
 
           int i = 0;

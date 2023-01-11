@@ -28,6 +28,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
@@ -710,15 +711,14 @@ public class CsvInputDialog extends BaseTransformDialog
     wRunningInParallel.setSelection(inputMeta.isRunningInParallel());
     wNewlinePossible.setSelection(inputMeta.isNewlinePossibleInFields());
     wRowNumField.setText(Const.NVL(inputMeta.getRowNumField(), ""));
-    wAddResult.setSelection(inputMeta.isAddResultFile());
+    wAddResult.setSelection(inputMeta.isIsaddresult());
     wEncoding.setText(Const.NVL(inputMeta.getEncoding(), ""));
 
     final List<String> fieldName =
         newFieldNames == null
             ? new ArrayList()
             : newFieldNames;
-    for (int i = 0; i < inputMeta.getInputFields().length; i++) {
-      TextFileInputField field = inputMeta.getInputFields()[i];
+    for (TextFileInputField field : inputMeta.getInputFields()) {
       final TableItem item = getTableItem(field.getName(), true);
       // update the item only if we are reloading all fields, or the field is new
       if (!reloadAllFields && !fieldName.contains(field.getName())) {
@@ -734,7 +734,7 @@ public class CsvInputDialog extends BaseTransformDialog
       item.setText(colnr++, Const.NVL(field.getCurrencySymbol(), ""));
       item.setText(colnr++, Const.NVL(field.getDecimalSymbol(), ""));
       item.setText(colnr++, Const.NVL(field.getGroupSymbol(), ""));
-      item.setText(colnr++, Const.NVL(field.getTrimTypeDesc(), ""));
+      item.setText(colnr++, Const.NVL(ValueMetaBase.getTrimTypeDesc(field.getTrimType()), ""));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -767,31 +767,31 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setLazyConversionActive(wLazyConversion.getSelection());
     inputMeta.setHeaderPresent(wHeaderPresent.getSelection());
     inputMeta.setRowNumField(wRowNumField.getText());
-    inputMeta.setAddResultFile(wAddResult.getSelection());
+    inputMeta.setIsaddresult(wAddResult.getSelection());
     inputMeta.setRunningInParallel(wRunningInParallel.getSelection());
     inputMeta.setNewlinePossibleInFields(wNewlinePossible.getSelection());
     inputMeta.setEncoding(wEncoding.getText());
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
-    inputMeta.allocate(nrNonEmptyFields);
+    inputMeta.allocate();
 
     for (int i = 0; i < nrNonEmptyFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       // CHECKSTYLE:Indentation:OFF
-      inputMeta.getInputFields()[i] = new TextFileInputField();
+      TextFileInputField textFileInputField = new TextFileInputField();
+      inputMeta.getInputFields().add(textFileInputField);
 
       int colnr = 1;
-      inputMeta.getInputFields()[i].setName(item.getText(colnr++));
-      inputMeta.getInputFields()[i].setType(
+      textFileInputField.setName(item.getText(colnr++));
+      textFileInputField.setType(
           ValueMetaFactory.getIdForValueMeta(item.getText(colnr++)));
-      inputMeta.getInputFields()[i].setFormat(item.getText(colnr++));
-      inputMeta.getInputFields()[i].setLength(Const.toInt(item.getText(colnr++), -1));
-      inputMeta.getInputFields()[i].setPrecision(Const.toInt(item.getText(colnr++), -1));
-      inputMeta.getInputFields()[i].setCurrencySymbol(item.getText(colnr++));
-      inputMeta.getInputFields()[i].setDecimalSymbol(item.getText(colnr++));
-      inputMeta.getInputFields()[i].setGroupSymbol(item.getText(colnr++));
-      inputMeta.getInputFields()[i].setTrimType(
-          ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
+      textFileInputField.setFormat(item.getText(colnr++));
+      textFileInputField.setLength(Const.toInt(item.getText(colnr++), -1));
+      textFileInputField.setPrecision(Const.toInt(item.getText(colnr++), -1));
+      textFileInputField.setCurrencySymbol(item.getText(colnr++));
+      textFileInputField.setDecimalSymbol(item.getText(colnr++));
+      textFileInputField.setGroupSymbol(item.getText(colnr++));
+      textFileInputField.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
     }
     wFields.removeEmptyRows();
     wFields.setRowNums();

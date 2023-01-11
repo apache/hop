@@ -30,6 +30,8 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
@@ -133,7 +135,7 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
     return meta;
   }
 
-  private TextFileInputField[] getInputFileFields() {
+  private List<TextFileInputField> getInputFileFields() {
     return createInputFileFields("Header1", "Header2");
   }
 }

@@ -26,6 +26,8 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.Matchers.anyString;
@@ -64,35 +66,35 @@ public class TextFileInputMetaTest {
   @Test
   public void testGetXmlWorksIfWeUpdateOnlyPartOfInputFilesInformation() throws Exception {
     inputMeta.inputFiles = new BaseFileInputFiles();
-    inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
+    inputMeta.inputFiles.fileName = List.of(FILE_NAME_VALID_PATH);
 
     inputMeta.getXml();
 
-    assertEquals(inputMeta.inputFiles.fileName.length, inputMeta.inputFiles.fileMask.length);
-    assertEquals(inputMeta.inputFiles.fileName.length, inputMeta.inputFiles.excludeFileMask.length);
-    assertEquals(inputMeta.inputFiles.fileName.length, inputMeta.inputFiles.fileRequired.length);
+    assertEquals(inputMeta.inputFiles.fileName.size(), inputMeta.inputFiles.fileMask.size());
+    assertEquals(inputMeta.inputFiles.fileName.size(), inputMeta.inputFiles.excludeFileMask.size());
+    assertEquals(inputMeta.inputFiles.fileName.size(), inputMeta.inputFiles.fileRequired.size());
     assertEquals(
-        inputMeta.inputFiles.fileName.length, inputMeta.inputFiles.includeSubFolders.length);
+        inputMeta.inputFiles.fileName.size(), inputMeta.inputFiles.includeSubFolders.size());
   }
 
   @Test
   public void testClonelWorksIfWeUpdateOnlyPartOfInputFilesInformation() throws Exception {
     inputMeta.inputFiles = new BaseFileInputFiles();
-    inputMeta.inputFiles.fileName = new String[] {FILE_NAME_VALID_PATH};
+    inputMeta.inputFiles.fileName = List.of(FILE_NAME_VALID_PATH);
 
     TextFileInputMeta cloned = (TextFileInputMeta) inputMeta.clone();
 
     // since the equals was not override it should be other object
     assertNotEquals(inputMeta, cloned);
-    assertEquals(cloned.inputFiles.fileName.length, inputMeta.inputFiles.fileName.length);
-    assertEquals(cloned.inputFiles.fileMask.length, inputMeta.inputFiles.fileMask.length);
+    assertEquals(cloned.inputFiles.fileName.size(), inputMeta.inputFiles.fileName.size());
+    assertEquals(cloned.inputFiles.fileMask.size(), inputMeta.inputFiles.fileMask.size());
     assertEquals(
-        cloned.inputFiles.excludeFileMask.length, inputMeta.inputFiles.excludeFileMask.length);
-    assertEquals(cloned.inputFiles.fileRequired.length, inputMeta.inputFiles.fileRequired.length);
+        cloned.inputFiles.excludeFileMask.size(), inputMeta.inputFiles.excludeFileMask.size());
+    assertEquals(cloned.inputFiles.fileRequired.size(), inputMeta.inputFiles.fileRequired.size());
     assertEquals(
-        cloned.inputFiles.includeSubFolders.length, inputMeta.inputFiles.includeSubFolders.length);
+        cloned.inputFiles.includeSubFolders.size(), inputMeta.inputFiles.includeSubFolders.size());
 
     assertEquals(cloned.inputFields.length, inputMeta.inputFields.length);
-    assertEquals(cloned.getFilter().length, inputMeta.getFilter().length);
+    assertEquals(cloned.getFilter().size(), inputMeta.getFilter().size());
   }
 }

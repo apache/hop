@@ -26,7 +26,9 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -58,10 +60,10 @@ public class PDI_2875_Test {
 
   private TextFileInputMeta getMeta() {
     TextFileInputMeta meta = new TextFileInputMeta();
-    meta.allocateFiles(2);
-    meta.setFileName(new String[] {"file1.txt", "file2.txt"});
-    meta.inputFiles.includeSubFolders = new String[] {"n", "n"};
-    meta.setFilter(new TextFileFilter[0]);
+    meta.allocateFiles();
+    meta.setFileName(List.of("file1.txt", "file2.txt"));
+    meta.inputFiles.includeSubFolders = List.of("n", "n");
+    meta.setFilter(new ArrayList<>());
     meta.content.fileFormat = "unix";
     meta.content.fileType = "CSV";
     meta.errorHandling.lineNumberFilesDestinationDirectory = EXPRESSION;

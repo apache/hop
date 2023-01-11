@@ -19,10 +19,11 @@ package org.apache.hop.pipeline.transforms.file;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.ITextFileInputField;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -33,44 +34,78 @@ import java.util.Date;
 
 /** Describes a single field in a text file */
 public class BaseFileField implements Cloneable, ITextFileInputField {
-  @Injection(name = "FIELD_NAME", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "FIELD_NAME",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_NAME")
   private String name;
 
-  @Injection(name = "FIELD_POSITION", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "position",
+      injectionKey = "FIELD_POSITION",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_POSITION")
   private int position = -1;
 
-  @Injection(name = "FIELD_LENGTH", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "FIELD_LENGTH",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_LENGTH")
   private int length = -1;
 
+  @HopMetadataProperty(
+      key = "type",
+      injectionKey = "FIELD_TYPE",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_TYPE",
+      intCodeConverter = ValueMetaBase.ValueTypeCodeConverter.class)
   private int type;
 
-  @Injection(name = "FIELD_IGNORE", group = "FIELDS")
   private boolean ignore;
 
-  @Injection(name = "FIELD_FORMAT", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "FIELD_FORMAT",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_FORMAT")
   private String format;
 
+  @HopMetadataProperty(
+      key = "trim_type",
+      injectionKey = "FIELD_TRIM_TYPE",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_TRIM_TYPE",
+      intCodeConverter = ValueMetaBase.TrimTypeCodeConverter.class)
   private int trimtype;
 
-  @Injection(name = "FIELD_PRECISION", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "FIELD_PRECISION",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_PRECISION")
   private int precision = -1;
 
-  @Injection(name = "FIELD_CURRENCY", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "FIELD_CURRENCY",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_CURRENCY")
   private String currencySymbol;
 
-  @Injection(name = "FIELD_DECIMAL", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "FIELD_DECIMAL",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_DECIMAL")
   private String decimalSymbol;
 
-  @Injection(name = "FIELD_GROUP", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "FIELD_GROUP",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_GROUP")
   private String groupSymbol;
 
-  @Injection(name = "FIELD_REPEAT", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "repeat",
+      injectionKey = "FIELD_REPEAT",
+      injectionKeyDescription = "TextFileInput.Injection.FIELD_REPEAT")
   private boolean repeat;
 
-  @Injection(name = "FIELD_NULL_STRING", group = "FIELDS")
   private String nullString;
 
-  @Injection(name = "FIELD_IF_NULL", group = "FIELDS")
   private String ifNullValue;
 
   private String[] samples;
@@ -190,11 +225,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     this.type = type;
   }
 
-  @Injection(name = "FIELD_TYPE", group = "FIELDS")
-  public void setType(String value) {
-    this.type = ValueMetaFactory.getIdForValueMeta(value);
-  }
-
   public boolean isIgnored() {
     return ignore;
   }
@@ -235,7 +265,6 @@ public class BaseFileField implements Cloneable, ITextFileInputField {
     this.trimtype = trimtype;
   }
 
-  @Injection(name = "FIELD_TRIM_TYPE", group = "FIELDS")
   public void setTrimType(String value) {
     this.trimtype = ValueMetaString.getTrimTypeByCode(value);
   }

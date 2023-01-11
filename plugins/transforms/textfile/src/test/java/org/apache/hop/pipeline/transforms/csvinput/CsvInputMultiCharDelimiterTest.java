@@ -118,11 +118,4 @@ public class CsvInputMultiCharDelimiterTest extends CsvInputUnitTestBase {
 
     assertNull(output.getRowImmediate());
   }
-
-  @Override
-  CsvInputMeta createMeta(File file, TextFileInputField[] fields) {
-    CsvInputMeta meta = super.createMeta(file, fields);
-    meta.setDelimiter("delimiter");
-    return meta;
-  }
 }

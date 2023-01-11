@@ -19,18 +19,13 @@ package org.apache.hop.pipeline.transforms.csvinput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IInputFileMeta;
 import org.apache.hop.core.file.TextFileInputField;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -39,8 +34,8 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -52,15 +47,11 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@InjectionSupported(
-    localizationPrefix = "CsvInputMeta.Injection.",
-    groups = {"INPUT_FIELDS"})
 @Transform(
     id = "CSVInput",
     image = "textfileinput.svg",
@@ -75,64 +66,101 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
 
   private static final Class<?> PKG = CsvInput.class; // For Translator
 
-  @Injection(name = "FILENAME")
+  @HopMetadataProperty(
+      key = "filename",
+      injectionKey = "FILENAME",
+      injectionKeyDescription = "CsvInputMeta.Injection.FILENAME")
   private String filename;
 
-  @Injection(name = "FILENAME_FIELD")
+  @HopMetadataProperty(
+      key = "filename_field",
+      injectionKey = "FILENAME_FIELD",
+      injectionKeyDescription = "CsvInputMeta.Injection.FILENAME_FIELD")
   private String filenameField;
 
-  @Injection(name = "INCLUDE_FILENAME")
+  @HopMetadataProperty(
+      key = "include_filename",
+      injectionKey = "INCLUDE_FILENAME",
+      injectionKeyDescription = "CsvInputMeta.Injection.INCLUDE_FILENAME")
   private boolean includingFilename;
 
-  @Injection(name = "ROW_NUMBER_FIELDNAME")
+  @HopMetadataProperty(
+      key = "rownum_field",
+      injectionKey = "ROW_NUMBER_FIELDNAME",
+      injectionKeyDescription = "CsvInputMeta.Injection.ROW_NUMBER_FIELDNAME")
   private String rowNumField;
 
-  @Injection(name = "HEADER_PRESENT")
+  @HopMetadataProperty(
+      key = "header",
+      injectionKey = "HEADER_PRESENT",
+      injectionKeyDescription = "CsvInputMeta.Injection.HEADER_PRESENT")
   private boolean headerPresent;
 
-  @Injection(name = "DELIMITER")
+  @HopMetadataProperty(
+      key = "separator",
+      injectionKey = "DELIMITER",
+      injectionKeyDescription = "CsvInputMeta.Injection.DELIMITER")
   private String delimiter;
 
-  @Injection(name = "ENCLOSURE")
+  @HopMetadataProperty(
+      key = "enclosure",
+      injectionKey = "ENCLOSURE",
+      injectionKeyDescription = "CsvInputMeta.Injection.ENCLOSURE")
   private String enclosure;
 
-  @Injection(name = "BUFFER_SIZE")
+  @HopMetadataProperty(
+      key = "buffer_size",
+      injectionKey = "BUFFER_SIZE",
+      injectionKeyDescription = "CsvInputMeta.Injection.BUFFER_SIZE")
   private String bufferSize;
 
-  @Injection(name = "LAZY_CONVERSION")
+  @HopMetadataProperty(
+      key = "lazy_conversion",
+      injectionKey = "LAZY_CONVERSION",
+      injectionKeyDescription = "CsvInputMeta.Injection.LAZY_CONVERSION")
   private boolean lazyConversionActive;
 
-  @InjectionDeep private TextFileInputField[] inputFields;
+  @HopMetadataProperty(
+      key = "fields",
+      injectionKey = "INPUT_FIELDS",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_FIELDS")
+  private List<TextFileInputField> inputFields;
 
-  @Injection(name = "ADD_RESULT")
+  @HopMetadataProperty(
+      key = "add_filename_result",
+      injectionKey = "ADD_RESULT",
+      injectionKeyDescription = "CsvInputMeta.Injection.ADD_RESULT")
   private boolean isaddresult;
 
-  @Injection(name = "RUNNING_IN_PARALLEL")
+  @HopMetadataProperty(
+      key = "parallel",
+      injectionKey = "RUNNING_IN_PARALLEL",
+      injectionKeyDescription = "CsvInputMeta.Injection.RUNNING_IN_PARALLEL")
   private boolean runningInParallel;
 
-  @Injection(name = "FILE_ENCODING")
+  @HopMetadataProperty(
+      key = "encoding",
+      injectionKey = "FILE_ENCODING",
+      injectionKeyDescription = "CsvInputMeta.Injection.FILE_ENCODING")
   private String encoding;
 
-  @Injection(name = "NEWLINES_IN_FIELDS")
+  @HopMetadataProperty(
+      key = "newline_possible",
+      injectionKey = "NEWLINES_IN_FIELDS",
+      injectionKeyDescription = "CsvInputMeta.Injection.NEWLINES_IN_FIELDS")
   private boolean newlinePossibleInFields;
 
   public CsvInputMeta() {
     super();
-    allocate(0);
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+    this.inputFields = new ArrayList<>();
   }
 
   @Override
   public Object clone() {
     final CsvInputMeta retval = (CsvInputMeta) super.clone();
-    retval.inputFields = new TextFileInputField[inputFields.length];
-    for (int i = 0; i < inputFields.length; i++) {
-      retval.inputFields[i] = (TextFileInputField) inputFields[i].clone();
+    retval.inputFields = new ArrayList<>();
+    for (TextFileInputField textFileInputField : inputFields) {
+      retval.inputFields.add((TextFileInputField) textFileInputField.clone());
     }
     return retval;
   }
@@ -147,113 +175,8 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     bufferSize = "50000";
   }
 
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      filename = XmlHandler.getTagValue(transformNode, "filename");
-      filenameField = XmlHandler.getTagValue(transformNode, "filename_field");
-      rowNumField = XmlHandler.getTagValue(transformNode, "rownum_field");
-      includingFilename =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include_filename"));
-      delimiter = XmlHandler.getTagValue(transformNode, "separator");
-      enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
-      bufferSize = XmlHandler.getTagValue(transformNode, "buffer_size");
-      headerPresent = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
-      lazyConversionActive =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "lazy_conversion"));
-      isaddresult =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "add_filename_result"));
-      runningInParallel = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "parallel"));
-      String nlp = XmlHandler.getTagValue(transformNode, "newline_possible");
-      if (Utils.isEmpty(nlp)) {
-        if (runningInParallel) {
-          newlinePossibleInFields = false;
-        } else {
-          newlinePossibleInFields = true;
-        }
-      } else {
-        newlinePossibleInFields = "Y".equalsIgnoreCase(nlp);
-      }
-      encoding = XmlHandler.getTagValue(transformNode, "encoding");
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-
-      for (int i = 0; i < nrFields; i++) {
-        inputFields[i] = new TextFileInputField();
-
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        inputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
-        inputFields[i].setType(
-            ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        inputFields[i].setFormat(XmlHandler.getTagValue(fnode, "format"));
-        inputFields[i].setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-        inputFields[i].setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-        inputFields[i].setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-        inputFields[i].setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-        inputFields[i].setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-        inputFields[i].setTrimType(
-            ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
-  }
-
-  public void allocate(int nrFields) {
-    inputFields = new TextFileInputField[nrFields];
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append("    ").append(XmlHandler.addTagValue("filename", filename));
-    retval.append("    ").append(XmlHandler.addTagValue("filename_field", filenameField));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumField));
-    retval.append("    ").append(XmlHandler.addTagValue("include_filename", includingFilename));
-    retval.append("    ").append(XmlHandler.addTagValue("separator", delimiter));
-    retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));
-    retval.append("    ").append(XmlHandler.addTagValue("header", headerPresent));
-    retval.append("    ").append(XmlHandler.addTagValue("buffer_size", bufferSize));
-    retval.append("    ").append(XmlHandler.addTagValue("lazy_conversion", lazyConversionActive));
-    retval.append("    ").append(XmlHandler.addTagValue("add_filename_result", isaddresult));
-    retval.append("    ").append(XmlHandler.addTagValue("parallel", runningInParallel));
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("newline_possible", newlinePossibleInFields));
-    retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
-
-    retval.append("    ").append(XmlHandler.openTag("fields")).append(Const.CR);
-    for (int i = 0; i < inputFields.length; i++) {
-      TextFileInputField field = inputFields[i];
-
-      retval.append("      ").append(XmlHandler.openTag("field")).append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-      retval
-          .append("        ")
-          .append(
-              XmlHandler.addTagValue("type", ValueMetaFactory.getValueMetaName(field.getType())));
-      retval.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
-      retval.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-      retval.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
-      retval
-          .append("        ")
-          .append(
-              XmlHandler.addTagValue(
-                  "trim_type", ValueMetaString.getTrimTypeCode(field.getTrimType())));
-      retval.append("      ").append(XmlHandler.closeTag("field")).append(Const.CR);
-    }
-    retval.append("    ").append(XmlHandler.closeTag("fields")).append(Const.CR);
-
-    return retval.toString();
+  public void allocate() {
+    inputFields = new ArrayList<>();
   }
 
   @Override
@@ -268,9 +191,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
 
-      for (int i = 0; i < inputFields.length; i++) {
-        TextFileInputField field = inputFields[i];
-
+      for (TextFileInputField field : inputFields) {
         IValueMeta valueMeta = ValueMetaFactory.createValueMeta(field.getName(), field.getType());
         valueMeta.setConversionMask(field.getFormat());
         valueMeta.setLength(field.getLength());
@@ -459,12 +380,12 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
 
   /** @return the inputFields */
   @Override
-  public TextFileInputField[] getInputFields() {
+  public List<TextFileInputField> getInputFields() {
     return inputFields;
   }
 
   /** @param inputFields the inputFields to set */
-  public void setInputFields(TextFileInputField[] inputFields) {
+  public void setInputFields(List<TextFileInputField> inputFields) {
     this.inputFields = inputFields;
   }
 
@@ -571,12 +492,12 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
   }
 
   /** @param isaddresult The isaddresult to set. */
-  public void setAddResultFile(boolean isaddresult) {
+  public void setIsaddresult(boolean isaddresult) {
     this.isaddresult = isaddresult;
   }
 
   /** @return Returns isaddresult. */
-  public boolean isAddResultFile() {
+  public boolean isIsaddresult() {
     return isaddresult;
   }
 

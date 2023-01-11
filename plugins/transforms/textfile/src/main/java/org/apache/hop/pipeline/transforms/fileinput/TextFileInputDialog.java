@@ -30,6 +30,7 @@ import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
@@ -1910,7 +1911,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
         });
     setButtonPositions(new Button[] {wGet, wMinWidth}, margin, null);
 
-    final int FieldsRows = input.getInputFields().length;
+    final int FieldsRows = input.getInputFields().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -2270,8 +2271,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void getFieldsData(TextFileInputMeta in, boolean insertAtTop) {
-    for (int i = 0; i < in.getInputFields().length; i++) {
-      TextFileInputField field = in.getInputFields()[i];
+    for (int i = 0; i < in.getInputFields().size(); i++) {
+      TextFileInputField field = in.getInputFields().get(i);
 
       TableItem item;
 
@@ -2296,7 +2297,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       String decim = field.getDecimalSymbol();
       String def = field.getNullString();
       String ifNull = field.getIfNullValue();
-      String trim = field.getTrimTypeDesc();
+      String trim = ValueMetaBase.getTrimTypeDesc(field.getTrimType());
       String rep =
           field.isRepeated()
               ? BaseMessages.getString(PKG, "System.Combo.Yes")
@@ -2416,7 +2417,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     int nrfiles = wFilenameList.getItemCount();
     int nrFields = wFields.nrNonEmpty();
     int nrfilters = wFilter.nrNonEmpty();
-    meta.allocate(nrfiles, nrFields, nrfilters);
+    meta.allocate(nrfiles, nrfilters);
 
     meta.setFileName(wFilenameList.getItems(0));
     meta.setFileMask(wFilenameList.getItems(1));
@@ -2444,7 +2445,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
 
       // CHECKSTYLE:Indentation:OFF
-      meta.getInputFields()[i] = field;
+      meta.getInputFields().add(field);
     }
 
     for (int i = 0; i < nrfilters; i++) {
@@ -2518,7 +2519,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
 
     if (textFileList.nrOfFiles() > 0) {
       int clearFields = meta.hasHeader() ? SWT.YES : SWT.NO;
-      int nrInputFields = meta.getInputFields().length;
+      int nrInputFields = meta.getInputFields().size();
 
       if (meta.hasHeader() && nrInputFields > 0) {
         MessageBox mb = new MessageBox(shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION);
@@ -2556,7 +2557,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
           // Scan the header-line, determine fields...
           String line;
 
-          if (meta.hasHeader() || meta.getInputFields().length == 0) {
+          if (meta.hasHeader() || meta.getInputFields().size() == 0) {
             line =
                 TextFileInput.getLine(log, reader, encodingType, fileFormatType, lineStringBuilder);
             if (line != null) {
@@ -2619,7 +2620,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
               if (clearFields == SWT.NO) {
                 getFieldsData(previousMeta, true);
                 wFields.table.setSelection(
-                    previousMeta.getInputFields().length, wFields.table.getItemCount() - 1);
+                    previousMeta.getInputFields().size(), wFields.table.getItemCount() - 1);
               }
 
               wFields.removeEmptyRows();
@@ -2939,8 +2940,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     int prevEnd = 0;
     int dummynr = 1;
 
-    for (int i = 0; i < info.getInputFields().length; i++) {
-      TextFileInputField f = info.getInputFields()[i];
+    for (TextFileInputField f : info.getInputFields()) {
 
       // See if positions are skipped, if this is the case, add dummy fields...
       if (f.getPosition() != prevEnd) { // gap
@@ -2970,12 +2970,12 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       prevEnd = field.getPosition() + field.getLength();
     }
 
-    if (info.getInputFields().length == 0) {
+    if (info.getInputFields().size() == 0) {
       TextFileInputField field = new TextFileInputField("Field1", 0, maxsize);
       fields.add(field);
     } else {
       // Take the last field and see if it reached until the maximum...
-      TextFileInputField f = info.getInputFields()[info.getInputFields().length - 1];
+      TextFileInputField f = info.getInputFields().get(info.getInputFields().size() - 1);
 
       int pos = f.getPosition();
       int len = f.getLength();
@@ -3021,8 +3021,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       }
     }
 
-    for (int i = 0; i < input.getInputFields().length; i++) {
-      input.getInputFields()[i].setTrimType(IValueMeta.TRIM_TYPE_BOTH);
+    for (TextFileInputField field : input.getInputFields()) {
+      field.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
     }
 
     wFields.optWidth(true);

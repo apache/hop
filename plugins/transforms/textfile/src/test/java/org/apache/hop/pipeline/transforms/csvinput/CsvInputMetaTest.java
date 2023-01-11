@@ -33,12 +33,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   TransformLoadSaveTester<CsvInputMeta> transformLoadSaveTester;
@@ -128,7 +123,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   @Override
   public void modify(ITransformMeta someMeta) {
     if (someMeta instanceof CsvInputMeta) {
-      ((CsvInputMeta) someMeta).allocate(5);
+      ((CsvInputMeta) someMeta).allocate();
     }
   }
 
@@ -142,10 +137,10 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
     final CsvInputMeta original = new CsvInputMeta();
     original.setDelimiter(";");
     original.setEnclosure("'");
-    final TextFileInputField[] originalFields = new TextFileInputField[1];
+    final List<TextFileInputField> originalFields = new ArrayList<>();
     final TextFileInputField originalField = new TextFileInputField();
     originalField.setName("field");
-    originalFields[0] = originalField;
+    originalFields.add(originalField);
     original.setInputFields(originalFields);
 
     final CsvInputMeta clone = (CsvInputMeta) original.clone();
@@ -156,8 +151,8 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
     Assert.assertEquals(original.getEnclosure(), clone.getEnclosure());
 
     Assert.assertNotSame(original.getInputFields(), clone.getInputFields());
-    Assert.assertNotSame(original.getInputFields()[0], clone.getInputFields()[0]);
+    Assert.assertNotSame(original.getInputFields().get(0), clone.getInputFields().get(0));
     Assert.assertEquals(
-        original.getInputFields()[0].getName(), clone.getInputFields()[0].getName());
+        original.getInputFields().get(0).getName(), clone.getInputFields().get(0).getName());
   }
 }

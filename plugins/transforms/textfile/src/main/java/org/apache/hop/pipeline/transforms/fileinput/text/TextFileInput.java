@@ -57,7 +57,7 @@ public class TextFileInput extends BaseFileInputTransform<TextFileInputMeta, Tex
     }
     data.filePlayList = FilePlayListAll.INSTANCE;
 
-    data.filterProcessor = new TextFileFilterProcessor(meta.getFilter(), this);
+    data.filterProcessor = new TextFileFilterProcessor(meta.getFilter().toArray(new TextFileFilter[0]), this);
 
     // calculate the file format type in advance so we can use a switch
     data.fileFormatType = meta.getFileFormatTypeNr();

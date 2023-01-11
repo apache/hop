@@ -180,7 +180,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
     DecimalFormatSymbols dfs = new DecimalFormatSymbols();
 
-    int nrFields = meta.getInputFields().length;
+    int nrFields = meta.getInputFields().size();
 
     IRowMeta outputRowMeta = new RowMeta();
     meta.getFields(outputRowMeta, null, null, null, variables, null);
@@ -224,7 +224,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
         new int[nrFields][Const.getNumberFormats().length]; // remember the length?
 
     for (int i = 0; i < nrFields; i++) {
-      TextFileInputField field = meta.getInputFields()[i];
+      TextFileInputField field = meta.getInputFields().get(i);
 
       if (log.isDebug()) {
         debug = "init field #" + i;
@@ -232,8 +232,8 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
       if (replaceMeta) { // Clear previous info...
 
-        field.setName(meta.getInputFields()[i].getName());
-        field.setType(meta.getInputFields()[i].getType());
+        field.setName(meta.getInputFields().get(i).getName());
+        field.setType(meta.getInputFields().get(i).getType());
         field.setFormat("");
         field.setLength(-1);
         field.setPrecision(-1);
@@ -272,7 +272,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
     IInputFileMeta strinfo = (IInputFileMeta) meta.clone();
     for (int i = 0; i < nrFields; i++) {
-      strinfo.getInputFields()[i].setType(IValueMeta.TYPE_STRING);
+      strinfo.getInputFields().get(i).setType(IValueMeta.TYPE_STRING);
     }
 
     // Sample <samples> rows...
@@ -410,7 +410,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
         BaseMessages.getString(PKG, "TextFileCSVImportProgressDialog.Info.HorizontalLine"));
 
     for (int i = 0; i < nrFields; i++) {
-      TextFileInputField field = meta.getInputFields()[i];
+      TextFileInputField field = meta.getInputFields().get(i);
       StringEvaluator evaluator = evaluators.get(i);
       List<StringEvaluationResult> evaluationResults = evaluator.getStringEvaluationResults();
 

@@ -19,15 +19,11 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -38,6 +34,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -49,7 +46,7 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -62,30 +59,6 @@ import java.util.Map;
     description = "i18n::JsonInput.description",
     keywords = "i18n::JsonInputMeta.keyword",
     categoryDescription = "i18n::JsonInput.category")
-@InjectionSupported(
-    localizationPrefix = "JsonInput.Injection.",
-    groups = {"FILENAME_LINES", "FIELDS"},
-    hide = {
-      "ACCEPT_FILE_NAMES",
-      "ACCEPT_FILE_TRANSFORM",
-      "PASS_THROUGH_FIELDS",
-      "ACCEPT_FILE_FIELD",
-      "ADD_FILES_TO_RESULT",
-      "IGNORE_ERRORS",
-      "FILE_ERROR_FIELD",
-      "FILE_ERROR_MESSAGE_FIELD",
-      "SKIP_BAD_FILES",
-      "WARNING_FILES_TARGET_DIR",
-      "WARNING_FILES_EXTENTION",
-      "ERROR_FILES_TARGET_DIR",
-      "ERROR_FILES_EXTENTION",
-      "LINE_NR_FILES_TARGET_DIR",
-      "LINE_NR_FILES_EXTENTION",
-      "FIELD_NULL_STRING",
-      "FIELD_POSITION",
-      "FIELD_IGNORE",
-      "FIELD_IF_NULL"
-    })
 public class JsonInputMeta
     extends BaseFileInputMeta<
         JsonInput,
@@ -103,54 +76,63 @@ public class JsonInputMeta
 
   // TextFileInputMeta.Content.includeFilename
   /** Flag indicating that we should include the filename in the output */
-  @Injection(name = "FILE_NAME_OUTPUT")
+  @HopMetadataProperty(
+      key = "include",
+      injectionKey = "FILE_NAME_OUTPUT",
+      injectionKeyDescription = "JsonInput.Injection.FILE_NAME_OUTPUT")
   private boolean includeFilename; // InputFiles.isaddresult?..
 
   // TextFileInputMeta.Content.filenameField
   /** The name of the field in the output containing the filename */
-  @Injection(name = "FILE_NAME_FIELDNAME")
+  @HopMetadataProperty(
+      key = "include_field",
+      injectionKey = "FILE_NAME_FIELDNAME",
+      injectionKeyDescription = "JsonInput.Injection.FILE_NAME_FIELDNAME")
   private String filenameField;
 
   /** Flag indicating that a row number field should be included in the output */
-  @Injection(name = "ROW_NUMBER_OUTPUT")
+  @HopMetadataProperty(
+      key = "rownum",
+      injectionKey = "ROW_NUMBER_OUTPUT",
+      injectionKeyDescription = "JsonInput.Injection.ROW_NUMBER_OUTPUT")
   private boolean includeRowNumber;
 
   // TextFileInputMeta.Content.rowNumberField
   /** The name of the field in the output containing the row number */
-  @Injection(name = "ROW_NUMBER_FIELDNAME")
+  @HopMetadataProperty(
+      key = "rownum_field",
+      injectionKey = "ROW_NUMBER_FIELDNAME",
+      injectionKeyDescription = "JsonInput.Injection.ROW_NUMBER_FIELDNAME")
   private String rowNumberField;
 
   // TextFileInputMeta.Content.rowLimit
   /** The maximum number or lines to read */
-  @Injection(name = "ROW_LIMIT")
+  @HopMetadataProperty(
+      key = "limit",
+      injectionKey = "ROW_LIMIT",
+      injectionKeyDescription = "JsonInput.Injection.ROW_LIMIT")
   private long rowLimit;
-
-  protected void setInputFiles(InputFiles inputFiles) {
-    this.inputFiles = inputFiles;
-  }
-
-  protected InputFiles getInputFiles() {
-    return this.inputFiles;
-  }
 
   public static class InputFiles extends BaseFileInputFiles {
     public void allocate(int nrFiles) {
-      fileName = new String[nrFiles];
-      fileMask = new String[nrFiles];
-      excludeFileMask = new String[nrFiles];
-      fileRequired = new String[nrFiles];
-      includeSubFolders = new String[nrFiles];
-      Arrays.fill(fileName, "");
-      Arrays.fill(fileMask, "");
-      Arrays.fill(excludeFileMask, "");
-      Arrays.fill(fileRequired, NO);
-      Arrays.fill(includeSubFolders, NO);
+      fileName = new ArrayList<>();
+      fileMask = new ArrayList<>();
+      excludeFileMask = new ArrayList<>();
+      fileRequired = new ArrayList<>();
+      includeSubFolders = new ArrayList<>();
+      for (int i = 0; i < nrFiles; i++) {
+        fileName.add("");
+        fileMask.add("");
+        excludeFileMask.add("");
+        fileRequired.add(NO);
+        includeSubFolders.add(NO);
+      }
     }
 
     @Override
     public InputFiles clone() {
       InputFiles clone = (InputFiles) super.clone();
-      clone.allocate(this.fileName.length);
+      clone.allocate(this.fileName.size());
       return clone;
     }
   }
@@ -217,39 +199,70 @@ public class JsonInputMeta
   }
 
   /** Is In fields */
-  @Injection(name = "SOURCE_FIELD_NAME")
+  @HopMetadataProperty(
+      key = "valueField",
+      injectionKey = "SOURCE_FIELD_NAME",
+      injectionKeyDescription = "JsonInput.Injection.SOURCE_FIELD_NAME")
   private String valueField;
 
   /** Is In fields */
-  @Injection(name = "SOURCE_IN_FIELD")
+  @HopMetadataProperty(
+      key = "IsInFields",
+      injectionKey = "SOURCE_IN_FIELD",
+      injectionKeyDescription = "JsonInput.Injection.SOURCE_IN_FIELD")
   private boolean inFields;
 
   /** Is a File */
-  @Injection(name = "SOURCE_FIELD_IS_FILENAME")
+  @HopMetadataProperty(
+      key = "IsAFile",
+      injectionKey = "SOURCE_FIELD_IS_FILENAME",
+      injectionKeyDescription = "JsonInput.Injection.SOURCE_FIELD_IS_FILENAME")
   private boolean isAFile;
 
   /** Flag: add result filename */
-  @Injection(name = "ADD_RESULT_FILE")
+  @HopMetadataProperty(
+      key = "addresultfile",
+      injectionKey = "ADD_RESULT_FILE",
+      injectionKeyDescription = "JsonInput.Injection.ADD_RESULT_FILE")
   private boolean addResultFile;
 
   /** Flag : do we ignore empty files */
-  @Injection(name = "IGNORE_EMPTY_FILE")
+  @HopMetadataProperty(
+      key = "IsIgnoreEmptyFile",
+      injectionKey = "IGNORE_EMPTY_FILE",
+      injectionKeyDescription = "JsonInput.Injection.IGNORE_EMPTY_FILE")
   private boolean isIgnoreEmptyFile;
 
   /** Flag : do not fail if no file */
-  @Injection(name = "DO_NOT_FAIL_IF_NO_FILE")
+  @HopMetadataProperty(
+      key = "doNotFailIfNoFile",
+      injectionKey = "DO_NOT_FAIL_IF_NO_FILE",
+      injectionKeyDescription = "JsonInput.Injection.DO_NOT_FAIL_IF_NO_FILE")
   private boolean doNotFailIfNoFile;
 
-  @Injection(name = "IGNORE_MISSING_PATH")
+  @HopMetadataProperty(
+      key = "ignoreMissingPath",
+      injectionKey = "IGNORE_MISSING_PATH",
+      injectionKeyDescription = "JsonInput.Injection.IGNORE_MISSING_PATH")
   private boolean ignoreMissingPath;
 
   /** Flag : read url as source */
-  @Injection(name = "READ_SOURCE_AS_URL")
+  @HopMetadataProperty(
+      key = "readurl",
+      injectionKey = "READ_SOURCE_AS_URL",
+      injectionKeyDescription = "JsonInput.Injection.READ_SOURCE_AS_URL")
   private boolean readurl;
 
-  @Injection(name = "REMOVE_SOURCE_FIELDS")
+  @HopMetadataProperty(
+      key = "removeSourceField",
+      injectionKey = "REMOVE_SOURCE_FIELDS",
+      injectionKeyDescription = "JsonInput.Injection.REMOVE_SOURCE_FIELDS")
   private boolean removeSourceField;
 
+  @HopMetadataProperty(
+      key = "defaultPathLeafToNull",
+      injectionKey = "ROW_LIMIT",
+      injectionKeyDescription = "JsonInput.Injection.ROW_LIMIT")
   private boolean defaultPathLeafToNull;
 
   public JsonInputMeta() {
@@ -427,11 +440,11 @@ public class JsonInputMeta
     this.inputFields = inputFields;
   }
 
-  public String[] getExcludeFileMask() {
+  public List<String> getExcludeFileMask() {
     return inputFiles.excludeFileMask;
   }
 
-  public void setExcludeFileMask(String[] excludeFileMask) {
+  public void setExcludeFileMask(List<String> excludeFileMask) {
     inputFiles.excludeFileMask = excludeFileMask;
   }
 
@@ -454,35 +467,35 @@ public class JsonInputMeta
     inputFiles.acceptingFilenames = inFields;
   }
 
-  public String[] getFileMask() {
+  public List<String> getFileMask() {
     return inputFiles.fileMask;
   }
 
-  public void setFileMask(String[] fileMask) {
+  public void setFileMask(List<String> fileMask) {
     inputFiles.fileMask = fileMask;
   }
 
-  public String[] getFileRequired() {
+  public List<String> getFileRequired() {
     return inputFiles.fileRequired;
   }
 
-  public void setFileRequired(String[] fileRequiredin) {
-    for (int i = 0; i < fileRequiredin.length; i++) {
-      this.inputFiles.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
+  public void setFileRequired(List<String> fileRequiredin) {
+    for (String fileRequired : fileRequiredin) {
+      this.inputFiles.fileRequired.add(getRequiredFilesCode(fileRequired));
     }
   }
 
   public void setIncludeSubFolders(String[] includeSubFoldersin) {
     for (int i = 0; i < includeSubFoldersin.length; i++) {
-      this.inputFiles.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
+      this.inputFiles.includeSubFolders.add(getRequiredFilesCode(includeSubFoldersin[i]));
     }
   }
 
-  public String[] getFileName() {
+  public List<String> getFileName() {
     return inputFiles.fileName;
   }
 
-  public void setFileName(String[] fileName) {
+  public void setFileName(List<String> fileName) {
     this.inputFiles.fileName = fileName;
   }
 
@@ -576,14 +589,8 @@ public class JsonInputMeta
     this.isAFile = isAFile;
   }
 
-  public String[] getIncludeSubFolders() {
+  public List<String> getIncludeSubFolders() {
     return inputFiles.includeSubFolders;
-  }
-
-  @Override
-  public void loadXml(Node transformnode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformnode, metadataProvider);
   }
 
   @Override
@@ -598,69 +605,6 @@ public class JsonInputMeta
     return clone;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(400);
-
-    retval.append("    ").append(XmlHandler.addTagValue("include", includeFilename));
-    retval.append("    ").append(XmlHandler.addTagValue("include_field", filenameField));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum", includeRowNumber));
-    retval.append("    ").append(XmlHandler.addTagValue("addresultfile", addResultFile));
-
-    retval.append("    ").append(XmlHandler.addTagValue("readurl", readurl));
-
-    retval.append("    ").append(XmlHandler.addTagValue("removeSourceField", removeSourceField));
-
-    retval.append("    " + XmlHandler.addTagValue("IsIgnoreEmptyFile", isIgnoreEmptyFile));
-    retval.append("    " + XmlHandler.addTagValue("doNotFailIfNoFile", doNotFailIfNoFile));
-    retval.append("    " + XmlHandler.addTagValue("ignoreMissingPath", ignoreMissingPath));
-    retval.append("    " + XmlHandler.addTagValue("defaultPathLeafToNull", defaultPathLeafToNull));
-    retval.append("    ").append(XmlHandler.addTagValue("rownum_field", rowNumberField));
-
-    retval.append("    <file>").append(Const.CR);
-    for (int i = 0; i < getFileName().length; i++) {
-      retval.append("      ").append(XmlHandler.addTagValue("name", getFileName()[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("filemask", getFileMask()[i]));
-      retval
-          .append("      ")
-          .append(XmlHandler.addTagValue("exclude_filemask", getExcludeFileMask()[i]));
-      retval.append("      ").append(XmlHandler.addTagValue("file_required", getFileRequired()[i]));
-      retval
-          .append("      ")
-          .append(XmlHandler.addTagValue("include_subfolders", getIncludeSubFolders()[i]));
-    }
-    retval.append("    </file>").append(Const.CR);
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < getInputFields().length; i++) {
-      JsonInputField field = getInputFields()[i];
-      retval.append(field.getXml());
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    retval.append("    ").append(XmlHandler.addTagValue("limit", rowLimit));
-
-    retval.append("    ").append(XmlHandler.addTagValue("IsInFields", inFields));
-    retval.append("    ").append(XmlHandler.addTagValue("IsAFile", isAFile));
-    retval.append("    ").append(XmlHandler.addTagValue("valueField", valueField));
-
-    retval
-        .append("    ")
-        .append(XmlHandler.addTagValue("shortFileFieldName", getShortFileNameField()));
-    retval.append("    ").append(XmlHandler.addTagValue("pathFieldName", getPathField()));
-    retval.append("    ").append(XmlHandler.addTagValue("hiddenFieldName", isHiddenField()));
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "lastModificationTimeFieldName", getLastModificationDateField()));
-    retval.append("    ").append(XmlHandler.addTagValue("uriNameFieldName", getUriField()));
-    retval.append("    ").append(XmlHandler.addTagValue("rootUriNameFieldName", getUriField()));
-    retval.append("    ").append(XmlHandler.addTagValue("extensionFieldName", getExtensionField()));
-    retval.append("    ").append(XmlHandler.addTagValue("sizeFieldName", getSizeField()));
-    return retval.toString();
-  }
-
   public String getRequiredFilesDesc(String tt) {
     if (Utils.isEmpty(tt)) {
       return RequiredFilesDesc[0];
@@ -669,72 +613,6 @@ public class JsonInputMeta
       return RequiredFilesDesc[1];
     } else {
       return RequiredFilesDesc[0];
-    }
-  }
-
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      includeFilename = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "include"));
-      filenameField = XmlHandler.getTagValue(transformNode, "include_field");
-      addResultFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "addresultfile"));
-      readurl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "readurl"));
-      removeSourceField =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "removeSourceField"));
-      isIgnoreEmptyFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsIgnoreEmptyFile"));
-      ignoreMissingPath =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "ignoreMissingPath"));
-      defaultPathLeafToNull = getDefaultPathLeafToNull(transformNode);
-      doNotFailIfNoFile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "doNotFailIfNoFile"));
-      includeRowNumber = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "rownum"));
-      rowNumberField = XmlHandler.getTagValue(transformNode, "rownum_field");
-
-      Node filenode = XmlHandler.getSubNode(transformNode, "file");
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFiles = XmlHandler.countNodes(filenode, "name");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      initArrayFields(nrFiles, nrFields);
-
-      for (int i = 0; i < nrFiles; i++) {
-        Node filenamenode = XmlHandler.getSubNodeByNr(filenode, "name", i);
-        Node filemasknode = XmlHandler.getSubNodeByNr(filenode, "filemask", i);
-        Node excludefilemasknode = XmlHandler.getSubNodeByNr(filenode, "exclude_filemask", i);
-        Node fileRequirednode = XmlHandler.getSubNodeByNr(filenode, "file_required", i);
-        Node includeSubFoldersnode = XmlHandler.getSubNodeByNr(filenode, "include_subfolders", i);
-        getFileName()[i] = XmlHandler.getNodeValue(filenamenode);
-        getFileMask()[i] = XmlHandler.getNodeValue(filemasknode);
-        getExcludeFileMask()[i] = XmlHandler.getNodeValue(excludefilemasknode);
-        getFileRequired()[i] = XmlHandler.getNodeValue(fileRequirednode);
-        getIncludeSubFolders()[i] = XmlHandler.getNodeValue(includeSubFoldersnode);
-      }
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        JsonInputField field = new JsonInputField(fnode);
-        getInputFields()[i] = field;
-      }
-
-      // Is there a limit on the number of rows we process?
-      rowLimit = Const.toLong(XmlHandler.getTagValue(transformNode, "limit"), 0L);
-
-      setInFields("Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsInFields")));
-      isAFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "IsAFile"));
-      setFieldValue(XmlHandler.getTagValue(transformNode, "valueField"));
-      setShortFileNameField(XmlHandler.getTagValue(transformNode, "shortFileFieldName"));
-      setPathField(XmlHandler.getTagValue(transformNode, "pathFieldName"));
-      setIsHiddenField(XmlHandler.getTagValue(transformNode, "hiddenFieldName"));
-      setLastModificationDateField(
-          XmlHandler.getTagValue(transformNode, "lastModificationTimeFieldName"));
-      setUriField(XmlHandler.getTagValue(transformNode, "uriNameFieldName"));
-      setRootUriField(XmlHandler.getTagValue(transformNode, "rootUriNameFieldName"));
-      setExtensionField(XmlHandler.getTagValue(transformNode, "extensionFieldName"));
-      setSizeField(XmlHandler.getTagValue(transformNode, "sizeFieldName"));
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "JsonInputMeta.Exception.ErrorLoadingXml", e.toString()));
     }
   }
 
@@ -847,10 +725,10 @@ public class JsonInputMeta
   public FileInputList getFiles(IVariables variables) {
     return FileInputList.createFileList(
         variables,
-        getFileName(),
-        getFileMask(),
-        getExcludeFileMask(),
-        getFileRequired(),
+        getFileName().toArray(new String[0]),
+        getFileMask().toArray(new String[0]),
+        getExcludeFileMask().toArray(new String[0]),
+        getFileRequired().toArray(new String[0]),
         inputFiles.includeSubFolderBoolean());
   }
 
@@ -981,11 +859,9 @@ public class JsonInputMeta
 
           // Still here: set a new list of absolute filenames!
           //
-          setFileName(newFilenames.toArray(new String[newFilenames.size()]));
-          setFileMask(
-              new String[newFilenames.size()]); // all null since converted to absolute path.
-          setFileRequired(new String[newFilenames.size()]); // all null, turn to "Y" :
-          Arrays.fill(getFileRequired(), YES);
+          setFileName(newFilenames);
+          setFileMask(new ArrayList<>(Collections.nCopies(newFilenames.size(), null))); // all null since converted to absolute path.
+          setFileRequired(new ArrayList<>(Collections.nCopies(newFilenames.size(), YES))); // all null, turn to "Y" :
         }
       }
       return null;

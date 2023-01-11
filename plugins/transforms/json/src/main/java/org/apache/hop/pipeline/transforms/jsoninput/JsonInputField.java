@@ -19,20 +19,20 @@ package org.apache.hop.pipeline.transforms.jsoninput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
-import org.w3c.dom.Node;
 
 /** Describes a JsonPath field. */
 public class JsonInputField extends BaseFileField implements Cloneable {
 
-  @Injection(name = "FIELD_PATH", group = "FIELDS")
+  @HopMetadataProperty(
+      key = "path",
+      injectionKey = "FIELD_PATH",
+      injectionKeyDescription = "JsonInput.Injection.FIELD_PATH")
   private String path;
 
   public JsonInputField(String fieldname) {
@@ -63,20 +63,6 @@ public class JsonInputField extends BaseFileField implements Cloneable {
     retval.append("      </field>").append(Const.CR);
 
     return retval.toString();
-  }
-
-  public JsonInputField(Node fnode) throws HopValueException {
-    setName(XmlHandler.getTagValue(fnode, "name"));
-    setPath(XmlHandler.getTagValue(fnode, "path"));
-    setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-    setFormat(XmlHandler.getTagValue(fnode, "format"));
-    setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-    setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-    setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-    setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-    setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-    setTrimType(ValueMetaBase.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-    setRepeated(!"N".equalsIgnoreCase(XmlHandler.getTagValue(fnode, "repeat")));
   }
 
   public IValueMeta toValueMeta(String fieldOriginTransformName, IVariables vspace)

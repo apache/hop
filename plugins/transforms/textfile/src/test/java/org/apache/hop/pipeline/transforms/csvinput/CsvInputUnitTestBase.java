@@ -25,6 +25,8 @@ import org.junit.BeforeClass;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class CsvInputUnitTestBase {
 
@@ -49,10 +51,10 @@ public abstract class CsvInputUnitTestBase {
     return tempFile;
   }
 
-  TextFileInputField[] createInputFileFields(String... names) {
-    TextFileInputField[] fields = new TextFileInputField[names.length];
+  List<TextFileInputField> createInputFileFields(String... names) {
+    List<TextFileInputField> fields = new ArrayList<>();
     for (int i = 0; i < names.length; i++) {
-      fields[i] = createField(names[i]);
+      fields.add(createField(names[i]));
     }
     return fields;
   }
@@ -64,7 +66,7 @@ public abstract class CsvInputUnitTestBase {
     return field;
   }
 
-  CsvInputMeta createMeta(File file, TextFileInputField[] fields) {
+  CsvInputMeta createMeta(File file, List<TextFileInputField> fields) {
     CsvInputMeta meta = new CsvInputMeta();
     meta.setFilename(file.getAbsolutePath());
     meta.setBufferSize(BUFFER_SIZE);

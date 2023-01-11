@@ -34,6 +34,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Tests for unicode support in CsvInput transform
@@ -230,7 +231,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
     return meta;
   }
 
-  private TextFileInputField[] getInputFileFields() {
+  private List<TextFileInputField> getInputFileFields() {
     return createInputFileFields("Header1", "Header2");
   }
 }

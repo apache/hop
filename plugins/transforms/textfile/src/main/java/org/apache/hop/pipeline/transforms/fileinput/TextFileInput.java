@@ -385,8 +385,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
       } else {
         // Fixed file format: Simply get the strings at the required positions...
-        for (int i = 0; i < inf.getInputFields().length; i++) {
-          TextFileInputField field = inf.getInputFields()[i];
+        for (TextFileInputField field : inf.getInputFields()) {
 
           int length = line.length();
 
@@ -419,7 +418,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       String enclosure,
       String escapeCharacters)
       throws HopException {
-    String[] strings = new String[inf.getInputFields().length];
+    String[] strings = new String[inf.getInputFields().size()];
     int fieldnr;
 
     String pol; // piece of line
@@ -628,8 +627,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         }
       } else {
         // Fixed file format: Simply get the strings at the required positions...
-        for (int i = 0; i < inf.getInputFields().length; i++) {
-          TextFileInputField field = inf.getInputFields()[i];
+        for (int i = 0; i < inf.getInputFields().size(); i++) {
+          TextFileInputField field = inf.getInputFields().get(i);
 
           int length = line.length();
 
@@ -825,7 +824,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
             outputRowMeta.size()); // over-allocate a bit in the row producing
     // transforms...
 
-    int nrFields = info.getInputFields().length;
+    int nrFields = info.getInputFields().size();
     int fieldnr;
 
     Long errorCount = null;
@@ -852,7 +851,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           convertLineToStrings(log, textFileLine.line, info, delimiter, enclosure, escapeCharacter);
       int shiftFields = (passThruFields == null ? 0 : nrPassThruFields);
       for (fieldnr = 0; fieldnr < nrFields; fieldnr++) {
-        TextFileInputField f = info.getInputFields()[fieldnr];
+        TextFileInputField f = info.getInputFields().get(fieldnr);
         int valuenr = shiftFields + fieldnr;
         IValueMeta valueMeta = outputRowMeta.getValueMeta(valuenr);
         IValueMeta convertMeta = convertRowMeta.getValueMeta(valuenr);
@@ -946,7 +945,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
         // Support for trailing nullcols!
         // Should be OK at allocation time, but it doesn't hurt :-)
         if (fieldnr < nrFields) {
-          for (int i = fieldnr; i < info.getInputFields().length; i++) {
+          for (int i = fieldnr; i < info.getInputFields().size(); i++) {
             r[shiftFields + i] = null;
           }
         }
@@ -1123,8 +1122,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       }
 
       // Count the number of repeat fields...
-      for (int i = 0; i < meta.getInputFields().length; i++) {
-        if (meta.getInputFields()[i].isRepeated()) {
+      for (TextFileInputField field : meta.getInputFields()) {
+        if (field.isRepeated()) {
           data.nr_repeats++;
         }
       }
@@ -1375,8 +1374,8 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
           data.previousRow = data.outputRowMeta.cloneRow(r);
         } else {
-          for (int i = 0; i < meta.getInputFields().length; i++) {
-            if (meta.getInputFields()[i].isRepeated()) {
+          for (int i = 0; i < meta.getInputFields().size(); i++) {
+            if (meta.getInputFields().get(i).isRepeated()) {
               if (r[i] == null) {
                 // if it is empty: take the previous value!
 

@@ -19,9 +19,9 @@ package org.apache.hop.pipeline.transforms.file;
 
 import com.google.common.base.Preconditions;
 import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -53,18 +53,18 @@ public abstract class BaseFileInputMeta<
         BaseMessages.getString(PKG, "System.Combo.Yes")
       };
 
-  @InjectionDeep public I inputFiles;
+  @HopMetadataProperty(key = "file")
+  public I inputFiles;
 
   /** The fields to import... */
-  @InjectionDeep public F[] inputFields;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  public F[] inputFields;
 
-  /** @return the input fields. */
-  public F[] getInputFields() {
-    return inputFields;
-  }
+  @HopMetadataProperty(inline = true)
+  public BaseFileErrorHandling errorHandling = new BaseFileErrorHandling();
 
-  @InjectionDeep public BaseFileErrorHandling errorHandling = new BaseFileErrorHandling();
-  @InjectionDeep public A additionalOutputFields;
+  @HopMetadataProperty(inline = true)
+  public A additionalOutputFields;
 
   @Override
   public Object clone() {
@@ -90,20 +90,22 @@ public abstract class BaseFileInputMeta<
     return retval;
   }
 
-  /** @param fileRequiredin The fileRequired to set. */
-  public void inputFiles_fileRequired(String[] fileRequiredin) {
-    for (int i = 0; i < fileRequiredin.length; i++) {
-      inputFiles.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);
+  /**
+   * @param fileRequiredin The fileRequired to set.
+   */
+  public void inputFiles_fileRequired(List<String> fileRequiredin) {
+    for (int i = 0; i < fileRequiredin.size(); i++) {
+      inputFiles.fileRequired.add(getRequiredFilesCode(fileRequiredin.get(i)));
     }
   }
 
-  public String[] inputFiles_includeSubFolders() {
+  public List<String> inputFiles_includeSubFolders() {
     return inputFiles.includeSubFolders;
   }
 
-  public void inputFiles_includeSubFolders(String[] includeSubFoldersin) {
-    for (int i = 0; i < includeSubFoldersin.length; i++) {
-      inputFiles.includeSubFolders[i] = getRequiredFilesCode(includeSubFoldersin[i]);
+  public void inputFiles_includeSubFolders(List<String> includeSubFoldersin) {
+    for (int i = 0; i < includeSubFoldersin.size(); i++) {
+      inputFiles.includeSubFolders.add(getRequiredFilesCode(includeSubFoldersin.get(i)));
     }
   }
 
@@ -119,13 +121,13 @@ public abstract class BaseFileInputMeta<
   }
 
   public FileInputList getFileInputList(IVariables variables) {
-    inputFiles.normalizeAllocation(inputFiles.fileName.length);
+    inputFiles.normalizeAllocation(inputFiles.fileName);
     return FileInputList.createFileList(
         variables,
-        inputFiles.fileName,
-        inputFiles.fileMask,
-        inputFiles.excludeFileMask,
-        inputFiles.fileRequired,
+        inputFiles.fileName.toArray(new String[0]),
+        inputFiles.fileMask.toArray(new String[0]),
+        inputFiles.excludeFileMask.toArray(new String[0]),
+        inputFiles.fileRequired.toArray(new String[0]),
         inputFiles.includeSubFolderBoolean());
   }
 
@@ -162,5 +164,37 @@ public abstract class BaseFileInputMeta<
       }
     }
     return new String[] {};
+  }
+
+  public I getInputFiles() {
+    return inputFiles;
+  }
+
+  public void setInputFiles(I inputFiles) {
+    this.inputFiles = inputFiles;
+  }
+
+  public F[] getInputFields() {
+    return inputFields;
+  }
+
+  public void setInputFields(F[] inputFields) {
+    this.inputFields = inputFields;
+  }
+
+  public BaseFileErrorHandling getErrorHandling() {
+    return errorHandling;
+  }
+
+  public void setErrorHandling(BaseFileErrorHandling errorHandling) {
+    this.errorHandling = errorHandling;
+  }
+
+  public A getAdditionalOutputFields() {
+    return additionalOutputFields;
+  }
+
+  public void setAdditionalOutputFields(A additionalOutputFields) {
+    this.additionalOutputFields = additionalOutputFields;
   }
 }

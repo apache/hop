@@ -26,6 +26,8 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
 
+import java.util.List;
+
 /** Base class for all CSV input transform tests. */
 @Ignore("No tests in abstract base class")
 public abstract class BaseCsvParsingTest
@@ -60,7 +62,7 @@ public abstract class BaseCsvParsingTest
 
   /** Declare fields for test. */
   protected void setFields(TextFileInputField... fields) throws Exception {
-    meta.setInputFields(fields);
+    meta.setInputFields(List.of(fields));
     meta.getFields(data.outputRowMeta, meta.getName(), null, null, new Variables(), null);
     data.convertRowMeta = data.outputRowMeta.cloneToType(IValueMeta.TYPE_STRING);
   }
@@ -87,7 +89,7 @@ public abstract class BaseCsvParsingTest
           }
         }
       } else {
-        expected[r] = new Object[meta.getInputFields().length];
+        expected[r] = new Object[meta.getInputFields().size()];
         expected[r][0] = StringUtils.EMPTY.getBytes("UTF-8");
       }
     }

@@ -168,7 +168,7 @@ public class TextFileInputTest {
     TextFileInputMeta meta = new TextFileInputMeta();
     meta.setLineWrapped(true);
     meta.setNrWraps(1);
-    meta.setInputFields(new TextFileInputField[] {field("col1"), field("col2")});
+    meta.setInputFields(List.of(field("col1"), field("col2")));
     meta.setFileCompression("None");
     meta.setFileType("CSV");
     meta.setHeader(false);
@@ -212,7 +212,7 @@ public class TextFileInputTest {
     TextFileInputMeta meta = new TextFileInputMeta();
     TextFileInputField field2 = field("col2");
     field2.setRepeated(true);
-    meta.setInputFields(new TextFileInputField[] {field("col1"), field2, field("col3")});
+    meta.setInputFields(List.of(field("col1"), field2, field("col3")));
     meta.setFileCompression("None");
     meta.setFileType("CSV");
     meta.setHeader(false);
@@ -257,7 +257,7 @@ public class TextFileInputTest {
     TextFileInputMeta meta = new TextFileInputMeta();
     TextFileInputField field2 = field("col2");
     field2.setIfNullValue("DEFAULT");
-    meta.setInputFields(new TextFileInputField[] {field("col1"), field2});
+    meta.setInputFields(List.of(field("col1"), field2));
     meta.setFileCompression("None");
     meta.setFileType("CSV");
     meta.setHeader(false);

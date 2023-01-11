@@ -522,10 +522,10 @@ public class TextFileInputDialog extends BaseTransformDialog
     String[] files =
         FileInputList.createFilePathList(
             variables,
-            tfii.inputFiles.fileName,
-            tfii.inputFiles.fileMask,
-            tfii.inputFiles.excludeFileMask,
-            tfii.inputFiles.fileRequired,
+            tfii.inputFiles.fileName.toArray(new String[0]),
+            tfii.inputFiles.fileMask.toArray(new String[0]),
+            tfii.inputFiles.excludeFileMask.toArray(new String[0]),
+            tfii.inputFiles.fileRequired.toArray(new String[0]),
             tfii.inputFiles.includeSubFolderBoolean());
 
     if (files != null && files.length > 0) {
@@ -1865,7 +1865,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFilterComp.setLayout(filterLayout);
     PropsUi.setLook(wFilterComp);
 
-    final int FilterRows = input.getFilter().length;
+    final int FilterRows = input.getFilter().size();
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -2158,13 +2158,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     if (meta.getFileName() != null) {
       wFilenameList.removeAll();
 
-      for (int i = 0; i < meta.getFileName().length; i++) {
+      for (int i = 0; i < meta.getFileName().size(); i++) {
         wFilenameList.add(
-            meta.getFileName()[i],
-            meta.inputFiles.fileMask[i],
-            meta.inputFiles.excludeFileMask[i],
-            meta.getRequiredFilesDesc(meta.inputFiles.fileRequired[i]),
-            meta.getRequiredFilesDesc(meta.inputFiles.includeSubFolders[i]));
+            meta.getFileName().get(i),
+            meta.inputFiles.fileMask.get(i),
+            meta.inputFiles.excludeFileMask.get(i),
+            meta.getRequiredFilesDesc(meta.inputFiles.fileRequired.get(i)),
+            meta.getRequiredFilesDesc(meta.inputFiles.includeSubFolders.get(i)));
       }
       wFilenameList.removeEmptyRows();
       wFilenameList.setRowNums();
@@ -2267,10 +2267,10 @@ public class TextFileInputDialog extends BaseTransformDialog
       wLineNrExt.setText(meta.errorHandling.lineNumberFilesExtension);
     }
 
-    for (int i = 0; i < meta.getFilter().length; i++) {
+    for (int i = 0; i < meta.getFilter().size(); i++) {
       TableItem item = wFilter.table.getItem(i);
 
-      TextFileFilter filter = meta.getFilter()[i];
+      TextFileFilter filter = meta.getFilter().get(i);
       if (filter.getFilterString() != null) {
         item.setText(1, filter.getFilterString());
       }
@@ -2290,7 +2290,9 @@ public class TextFileInputDialog extends BaseTransformDialog
     }
 
     // Date locale
-    wDateLocale.setText(meta.content.dateFormatLocale.toString());
+    if (meta.content.dateFormatLocale != null) {
+      wDateLocale.setText(meta.content.dateFormatLocale.toString());
+    }
 
     wFields.removeEmptyRows();
     wFields.setRowNums();
@@ -2498,13 +2500,13 @@ public class TextFileInputDialog extends BaseTransformDialog
     int nrfiles = wFilenameList.getItemCount();
     int nrFields = wFields.nrNonEmpty();
     int nrfilters = wFilter.nrNonEmpty();
-    meta.allocate(nrfiles, nrFields, nrfilters);
+    meta.allocate(nrfiles, nrFields);
 
-    meta.setFileName(wFilenameList.getItems(0));
-    meta.inputFiles.fileMask = wFilenameList.getItems(1);
-    meta.inputFiles.excludeFileMask = wFilenameList.getItems(2);
-    meta.inputFiles_fileRequired(wFilenameList.getItems(3));
-    meta.inputFiles_includeSubFolders(wFilenameList.getItems(4));
+    meta.setFileName(List.of(wFilenameList.getItems(0)));
+    meta.inputFiles.fileMask = List.of(wFilenameList.getItems(1));
+    meta.inputFiles.excludeFileMask = List.of(wFilenameList.getItems(2));
+    meta.inputFiles_fileRequired(List.of(wFilenameList.getItems(3)));
+    meta.inputFiles_includeSubFolders(List.of(wFilenameList.getItems(4)));
 
     for (int i = 0; i < nrFields; i++) {
       BaseFileField field = new BaseFileField();
@@ -2533,7 +2535,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       TableItem item = wFilter.getNonEmpty(i);
       TextFileFilter filter = new TextFileFilter();
       // CHECKSTYLE:Indentation:OFF
-      meta.getFilter()[i] = filter;
+      meta.getFilter().add(filter);
 
       filter.setFilterString(item.getText(1));
       filter.setFilterPosition(Const.toInt(item.getText(2), -1));

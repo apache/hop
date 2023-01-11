@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -71,7 +72,7 @@ public class CsvInputTest extends CsvInputUnitTestBase {
   @Test
   public void testFileIsReleasedAfterProcessing() throws Exception {
     // Create a file with some content to be processed
-    TextFileInputField[] inputFileFields = createInputFileFields("f1", "f2", "f3");
+    List<TextFileInputField> inputFileFields = createInputFileFields("f1", "f2", "f3");
     String fileContents = "Something" + DELIMITER + "" + DELIMITER + "The former was empty!";
     File tmpFile = createTestFile(ENCODING, fileContents);
 

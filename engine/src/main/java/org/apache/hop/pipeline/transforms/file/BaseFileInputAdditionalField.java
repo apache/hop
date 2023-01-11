@@ -18,34 +18,58 @@
 package org.apache.hop.pipeline.transforms.file;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.injection.Injection;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Additional fields settings. */
 public class BaseFileInputAdditionalField implements Cloneable {
 
   /** Additional fields */
-  @Injection(name = "FILE_SHORT_FILE_FIELDNAME")
+  @HopMetadataProperty(
+      key = "shortFileFieldName",
+      injectionKey = "FILE_SHORT_FILE_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_SHORT_FILE_FIELDNAME")
   public String shortFilenameField;
 
-  @Injection(name = "FILE_EXTENSION_FIELDNAME")
+  @HopMetadataProperty(
+      key = "extensionFieldName",
+      injectionKey = "FILE_EXTENSION_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_EXTENSION_FIELDNAME")
   public String extensionField;
 
-  @Injection(name = "FILE_PATH_FIELDNAME")
+  @HopMetadataProperty(
+      key = "pathFieldName",
+      injectionKey = "FILE_PATH_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_PATH_FIELDNAME")
   public String pathField;
 
-  @Injection(name = "FILE_SIZE_FIELDNAME")
+  @HopMetadataProperty(
+      key = "sizeFieldName",
+      injectionKey = "FILE_SIZE_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_SIZE_FIELDNAME")
   public String sizeField;
 
-  @Injection(name = "FILE_HIDDEN_FIELDNAME")
+  @HopMetadataProperty(
+      key = "hiddenFieldName",
+      injectionKey = "FILE_HIDDEN_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_HIDDEN_FIELDNAME")
   public String hiddenField;
 
-  @Injection(name = "FILE_LAST_MODIFICATION_FIELDNAME")
+  @HopMetadataProperty(
+      key = "lastModificationTimeFieldName",
+      injectionKey = "FILE_LAST_MODIFICATION_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_LAST_MODIFICATION_FIELDNAME")
   public String lastModificationField;
 
-  @Injection(name = "FILE_URI_FIELDNAME")
+  @HopMetadataProperty(
+      key = "uriNameFieldName",
+      injectionKey = "FILE_URI_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_URI_FIELDNAME")
   public String uriField;
 
-  @Injection(name = "FILE_ROOT_URI_FIELDNAME")
+  @HopMetadataProperty(
+      key = "rootUriNameFieldName",
+      injectionKey = "FILE_ROOT_URI_FIELDNAME",
+      injectionKeyDescription = "TextFileInput.Injection.FILE_ROOT_URI_FIELDNAME")
   public String rootUriField;
 
   @Override
@@ -86,5 +110,69 @@ public class BaseFileInputAdditionalField implements Cloneable {
     if (StringUtils.isBlank(rootUriField)) {
       rootUriField = null;
     }
+  }
+
+  public String getShortFilenameField() {
+    return shortFilenameField;
+  }
+
+  public void setShortFilenameField(String shortFilenameField) {
+    this.shortFilenameField = shortFilenameField;
+  }
+
+  public String getExtensionField() {
+    return extensionField;
+  }
+
+  public void setExtensionField(String extensionField) {
+    this.extensionField = extensionField;
+  }
+
+  public String getPathField() {
+    return pathField;
+  }
+
+  public void setPathField(String pathField) {
+    this.pathField = pathField;
+  }
+
+  public String getSizeField() {
+    return sizeField;
+  }
+
+  public void setSizeField(String sizeField) {
+    this.sizeField = sizeField;
+  }
+
+  public String getHiddenField() {
+    return hiddenField;
+  }
+
+  public void setHiddenField(String hiddenField) {
+    this.hiddenField = hiddenField;
+  }
+
+  public String getLastModificationField() {
+    return lastModificationField;
+  }
+
+  public void setLastModificationField(String lastModificationField) {
+    this.lastModificationField = lastModificationField;
+  }
+
+  public String getUriField() {
+    return uriField;
+  }
+
+  public void setUriField(String uriField) {
+    this.uriField = uriField;
+  }
+
+  public String getRootUriField() {
+    return rootUriField;
+  }
+
+  public void setRootUriField(String rootUriField) {
+    this.rootUriField = rootUriField;
   }
 }

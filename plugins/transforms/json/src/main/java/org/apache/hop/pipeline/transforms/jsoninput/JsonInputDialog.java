@@ -1242,14 +1242,14 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     if (in.getFileName() != null) {
       wFilenameList.removeAll();
 
-      for (int i = 0; i < in.getFileName().length; i++) {
+      for (int i = 0; i < in.getFileName().size(); i++) {
         wFilenameList.add(
             new String[] {
-              in.getFileName()[i],
-              in.getFileMask()[i],
-              in.getExcludeFileMask()[i],
-              in.getRequiredFilesDesc(in.getFileRequired()[i]),
-              in.getRequiredFilesDesc(in.getIncludeSubFolders()[i])
+              in.getFileName().get(i),
+              in.getFileMask().get(i),
+              in.getExcludeFileMask().get(i),
+              in.getRequiredFilesDesc(in.getFileRequired().get(i)),
+              in.getRequiredFilesDesc(in.getIncludeSubFolders().get(i))
             });
       }
 
@@ -1417,10 +1417,10 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     int nrFields = wFields.nrNonEmpty();
 
     in.allocate(nrFiles, nrFields);
-    in.setFileName(wFilenameList.getItems(0));
-    in.setFileMask(wFilenameList.getItems(1));
-    in.setExcludeFileMask(wFilenameList.getItems(2));
-    in.setFileRequired(wFilenameList.getItems(3));
+    in.setFileName(List.of(wFilenameList.getItems(0)));
+    in.setFileMask(List.of(wFilenameList.getItems(1)));
+    in.setExcludeFileMask(List.of(wFilenameList.getItems(2)));
+    in.setFileRequired(List.of(wFilenameList.getItems(3)));
     in.setIncludeSubFolders(wFilenameList.getItems(4));
 
     for (int i = 0; i < nrFields; i++) {

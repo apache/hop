@@ -93,24 +93,24 @@ public class TextFileInputMetaNewInjectionTest
     check("DATE_FORMAT_LOCALE", () -> meta.content.dateFormatLocale.toString(), "en", "en_us");
 
     ///////////////////////////////
-    check("FILTER_POSITION", () -> meta.getFilter()[0].getFilterPosition());
+    check("FILTER_POSITION", () -> meta.getFilter().get(0).getFilterPosition());
 
-    check("FILTER_STRING", () -> meta.getFilter()[0].getFilterString());
+    check("FILTER_STRING", () -> meta.getFilter().get(0).getFilterString());
 
-    check("FILTER_LAST_LINE", () -> meta.getFilter()[0].isFilterLastLine());
+    check("FILTER_LAST_LINE", () -> meta.getFilter().get(0).isFilterLastLine());
 
-    check("FILTER_POSITIVE", () -> meta.getFilter()[0].isFilterPositive());
+    check("FILTER_POSITIVE", () -> meta.getFilter().get(0).isFilterPositive());
 
     ///////////////////////////////
-    check("FILENAME", () -> meta.inputFiles.fileName[0]);
+    check("FILENAME", () -> meta.inputFiles.fileName.get(0));
 
-    check("FILEMASK", () -> meta.inputFiles.fileMask[0]);
+    check("FILEMASK", () -> meta.inputFiles.fileMask.get(0));
 
-    check("EXCLUDE_FILEMASK", () -> meta.inputFiles.excludeFileMask[0]);
+    check("EXCLUDE_FILEMASK", () -> meta.inputFiles.excludeFileMask.get(0));
 
-    check("FILE_REQUIRED", () -> meta.inputFiles.fileRequired[0]);
+    check("FILE_REQUIRED", () -> meta.inputFiles.fileRequired.get(0));
 
-    check("INCLUDE_SUBFOLDERS", () -> meta.inputFiles.includeSubFolders[0]);
+    check("INCLUDE_SUBFOLDERS", () -> meta.inputFiles.includeSubFolders.get(0));
 
     check("ACCEPT_FILE_NAMES", () -> meta.inputFiles.acceptingFilenames);
 

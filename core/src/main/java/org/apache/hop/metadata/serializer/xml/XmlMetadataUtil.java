@@ -22,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -41,6 +42,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class XmlMetadataUtil {
   /**
@@ -169,6 +171,8 @@ public class XmlMetadataUtil {
         xml += XmlHandler.addTagValue(tag, (Long) value);
       } else if (value instanceof Date) {
         xml += XmlHandler.addTagValue(tag, (Date) value);
+      } else if (value instanceof Locale) {
+        xml += XmlHandler.addTagValue(tag, ((Locale) value).toString());
       } else if (value.getClass().isEnum()) {
         if (storeWithCode) {
           xml += XmlHandler.addTagValue(tag, ((IEnumHasCode) value).getCode());
@@ -483,6 +487,12 @@ public class XmlMetadataUtil {
     } else if (fieldType.equals(Date.class)) {
       if (elementNode != null) {
         return XmlHandler.stringToDate(elementString);
+      }
+    } else if (fieldType.equals(Locale.class)) {
+      if (elementNode != null) {
+        return EnvUtil.createLocale(elementString);
+      } else {
+        return Locale.getDefault();
       }
     } else if (fieldType.equals(Boolean.class) || fieldType.equals(boolean.class)) {
       if (elementNode != null) {

@@ -30,6 +30,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -321,7 +322,7 @@ public class CsvProcessRowInParallelTest extends CsvInputUnitTestBase {
   }
 
   private CsvInputMeta createMeta(
-      File file, TextFileInputField[] fields, boolean headerPresent, String delimiter) {
+      File file, List<TextFileInputField> fields, boolean headerPresent, String delimiter) {
     CsvInputMeta meta = createMeta(file, fields);
 
     meta.setDelimiter(delimiter);

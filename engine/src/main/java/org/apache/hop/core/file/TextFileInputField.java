@@ -19,60 +19,76 @@ package org.apache.hop.core.file;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.ITextFileInputField;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
 public class TextFileInputField implements Cloneable, ITextFileInputField {
 
-  @Injection(name = "INPUT_NAME", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "INPUT_NAME",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_NAME")
   private String name;
 
-  @Injection(name = "INPUT_POSITION", group = "INPUT_FIELDS")
-  private int position;
-
-  @Injection(name = "INPUT_LENGTH", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "length",
+      injectionKey = "INPUT_LENGTH",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_LENGTH")
   private int length;
 
+  @HopMetadataProperty(
+      key = "type",
+      injectionKey = "FIELD_TYPE",
+      injectionKeyDescription = "CsvInputMeta.Injection.FIELD_TYPE")
   private int type;
 
-  @Injection(name = "INPUT_IGNORE", group = "INPUT_FIELDS")
-  private boolean ignore;
-
-  @Injection(name = "INPUT_FORMAT", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "format",
+      injectionKey = "INPUT_FORMAT",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_FORMAT")
   private String format;
 
+  @HopMetadataProperty(
+      key = "trim_type",
+      injectionKey = "FIELD_TRIM_TYPE",
+      injectionKeyDescription = "CsvInputMeta.Injection.FIELD_TRIM_TYPE")
   private int trimtype;
 
-  @Injection(name = "INPUT_PRECISION", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "precision",
+      injectionKey = "INPUT_PRECISION",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_PRECISION")
   private int precision;
 
-  @Injection(name = "INPUT_CURRENCY", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "currency",
+      injectionKey = "INPUT_CURRENCY",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_CURRENCY")
   private String currencySymbol;
 
-  @Injection(name = "INPUT_DECIMAL", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "decimal",
+      injectionKey = "INPUT_DECIMAL",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_DECIMAL")
   private String decimalSymbol;
 
-  @Injection(name = "INPUT_GROUP", group = "INPUT_FIELDS")
+  @HopMetadataProperty(
+      key = "group",
+      injectionKey = "INPUT_GROUP",
+      injectionKeyDescription = "CsvInputMeta.Injection.INPUT_GROUP")
   private String groupSymbol;
 
-  @Injection(name = "INPUT_REPEAT", group = "INPUT_FIELDS")
+  private boolean ignore;
+
+  private int position;
+
   private boolean repeat;
 
-  @Injection(name = "INPUT_NULL_STRING", group = "INPUT_FIELDS")
   private String nullString;
 
-  @Injection(name = "INPUT_IF_NULL", group = "INPUT_FIELDS")
   private String ifNullValue;
 
   private String[] samples;
@@ -184,7 +200,6 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     this.type = type;
   }
 
-  @Injection(name = "FIELD_TYPE", group = "INPUT_FIELDS")
   public void setType(String value) {
     this.type = ValueMetaFactory.getIdForValueMeta(value);
   }
@@ -221,19 +236,10 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     return trimtype;
   }
 
-  public String getTrimTypeCode() {
-    return ValueMetaBase.getTrimTypeCode(trimtype);
-  }
-
-  public String getTrimTypeDesc() {
-    return ValueMetaBase.getTrimTypeDesc(trimtype);
-  }
-
   public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
-  @Injection(name = "FIELD_TRIM_TYPE", group = "INPUT_FIELDS")
   public void setTrimType(String value) {
     this.trimtype = ValueMetaString.getTrimTypeByCode(value);
   }
@@ -301,321 +307,6 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
   @Override
   public String toString() {
     return name + "@" + position + ":" + length;
-  }
-
-  public void guess() {
-    guessTrimType();
-    guessType();
-    guessIgnore();
-  }
-
-  public void guessTrimType() {
-    boolean spacesBefore = false;
-    boolean spacesAfter = false;
-
-    for (int i = 0; i < samples.length; i++) {
-      spacesBefore |= Const.nrSpacesBefore(samples[i]) > 0;
-      spacesAfter |= Const.nrSpacesAfter(samples[i]) > 0;
-      samples[i] = Const.trim(samples[i]);
-    }
-
-    trimtype = IValueMeta.TRIM_TYPE_NONE;
-
-    if (spacesBefore) {
-      trimtype |= IValueMeta.TRIM_TYPE_LEFT;
-    }
-    if (spacesAfter) {
-      trimtype |= IValueMeta.TRIM_TYPE_RIGHT;
-    }
-  }
-
-  public void guessType() {
-    // Guess fields...
-    NumberFormat nf = NumberFormat.getInstance();
-    DecimalFormat df = (DecimalFormat) nf;
-    DecimalFormatSymbols dfs = new DecimalFormatSymbols();
-    SimpleDateFormat daf = new SimpleDateFormat();
-
-    daf.setLenient(false);
-
-    // Start with a string...
-    type = IValueMeta.TYPE_STRING;
-
-    // If we have no samples, we assume a String...
-    if (samples == null) {
-      return;
-    }
-
-    // ////////////////////////////
-    // DATES
-    // ////////////////////////////
-
-    // See if all samples can be transformed into a date...
-    int datefmtCnt = dateFormats.length;
-    boolean[] datefmt = new boolean[dateFormats.length];
-    for (int i = 0; i < dateFormats.length; i++) {
-      datefmt[i] = true;
-    }
-    int datenul = 0;
-
-    for (int i = 0; i < samples.length; i++) {
-      if (samples[i].length() > 0 && samples[i].equalsIgnoreCase(nullString)) {
-        datenul++;
-      } else {
-        for (int x = 0; x < dateFormats.length; x++) {
-          if (samples[i] == null || Const.onlySpaces(samples[i]) || samples[i].length() == 0) {
-            datefmt[x] = false;
-            datefmtCnt--;
-          }
-
-          if (datefmt[x]) {
-            try {
-              daf.applyPattern(dateFormats[x]);
-              Date date = daf.parse(samples[i]);
-
-              Calendar cal = Calendar.getInstance();
-              cal.setTime(date);
-              int year = cal.get(Calendar.YEAR);
-
-              if (year < 1800 || year > 2200) {
-                datefmt[x] = false; // Don't try it again in the future.
-                datefmtCnt--; // One less that works..
-              }
-            } catch (Exception e) {
-              datefmt[x] = false; // Don't try it again in the future.
-              datefmtCnt--; // One less that works..
-            }
-          }
-        }
-      }
-    }
-
-    // If it is a date, copy info over to the format etc. Then return with the info.
-    // If all samples where NULL values, we can't really decide what the type is.
-    // So we're certainly not going to take a date, just take a string in that case.
-    if (datefmtCnt > 0 && datenul != samples.length) {
-      int first = -1;
-      for (int i = 0; i < dateFormats.length && first < 0; i++) {
-        if (datefmt[i]) {
-          first = i;
-        }
-      }
-
-      type = IValueMeta.TYPE_DATE;
-      format = dateFormats[first];
-
-      return;
-    }
-
-    // ////////////////////////////
-    // NUMBERS
-    // ////////////////////////////
-
-    boolean isnumber = true;
-
-    // Set decimal symbols to default
-    decimalSymbol = "" + dfs.getDecimalSeparator();
-    groupSymbol = "" + dfs.getGroupingSeparator();
-
-    boolean[] numfmt = new boolean[numberFormats.length];
-    int[] maxprecision = new int[numberFormats.length];
-    for (int i = 0; i < numfmt.length; i++) {
-      numfmt[i] = true;
-      maxprecision[i] = -1;
-    }
-    int numfmtCnt = numberFormats.length;
-    int numnul = 0;
-
-    for (int i = 0; i < samples.length && isnumber; i++) {
-      boolean containsDot = false;
-      boolean containsComma = false;
-
-      String field = samples[i];
-
-      if (field.length() > 0 && field.equalsIgnoreCase(nullString)) {
-        numnul++;
-      } else {
-        for (int x = 0; x < field.length() && isnumber; x++) {
-          char ch = field.charAt(x);
-          if (!Character.isDigit(ch)
-              && ch != '.'
-              && ch != ','
-              && (ch != '-' || x > 0)
-              && ch != 'E'
-              && ch != 'e' // exponential
-          ) {
-            isnumber = false;
-            numfmtCnt = 0;
-          } else {
-            if (ch == '.') {
-              containsDot = true;
-            }
-            if (ch == ',') {
-              containsComma = true;
-            }
-          }
-        }
-        // If it's still a number, try to parse it as a double
-        if (isnumber) {
-          if (containsDot && !containsComma) { // American style 174.5
-
-            dfs.setDecimalSeparator('.');
-            decimalSymbol = ".";
-            dfs.setGroupingSeparator(',');
-            groupSymbol = ",";
-          } else if (!containsDot && containsComma) { // European style 174,5
-
-            dfs.setDecimalSeparator(',');
-            decimalSymbol = ",";
-            dfs.setGroupingSeparator('.');
-            groupSymbol = ".";
-          } else if (containsDot && containsComma) { // Both appear!
-
-            // What's the last occurance: decimal point!
-            int idxDot = field.indexOf('.');
-            int idxCom = field.indexOf(',');
-            if (idxDot > idxCom) {
-              dfs.setDecimalSeparator('.');
-              decimalSymbol = ".";
-              dfs.setGroupingSeparator(',');
-              groupSymbol = ",";
-            } else {
-              dfs.setDecimalSeparator(',');
-              decimalSymbol = ",";
-              dfs.setGroupingSeparator('.');
-              groupSymbol = ".";
-            }
-          }
-
-          // Try the remaining possible number formats!
-          for (int x = 0; x < numberFormats.length; x++) {
-            if (numfmt[x]) {
-              boolean islong = true;
-
-              try {
-                int prec = -1;
-                // Try long integers first....
-                if (!containsDot && !containsComma) {
-                  try {
-                    Long.parseLong(field);
-                    prec = 0;
-                  } catch (Exception e) {
-                    islong = false;
-                  }
-                }
-
-                if (!islong) { // Try the double
-
-                  df.setDecimalFormatSymbols(dfs);
-                  df.applyPattern(numberFormats[x]);
-
-                  double d = df.parse(field).doubleValue();
-                  prec = guessPrecision(d);
-                }
-                if (prec > maxprecision[x]) {
-                  maxprecision[x] = prec;
-                }
-              } catch (Exception e) {
-                numfmt[x] = false; // Don't try it again in the future.
-                numfmtCnt--; // One less that works..
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Still a number? Grab the result and return.
-    // If all sample strings are empty or represent NULL values we can't take a number as type.
-    if (numfmtCnt > 0 && numnul != samples.length) {
-      int first = -1;
-      for (int i = 0; i < numberFormats.length && first < 0; i++) {
-        if (numfmt[i]) {
-          first = i;
-        }
-      }
-
-      type = IValueMeta.TYPE_NUMBER;
-      format = numberFormats[first];
-      precision = maxprecision[first];
-
-      return;
-    }
-
-    //
-    // Assume it's a string...
-    //
-    type = IValueMeta.TYPE_STRING;
-    format = "";
-    precision = -1;
-    decimalSymbol = "";
-    groupSymbol = "";
-    currencySymbol = "";
-  }
-
-  public static final int guessPrecision(double d) {
-    int maxprec = 4;
-    double maxdiff = 0.00005;
-
-    // Make sure that 7.99995 == 8.00000
-    // This is usually a rounding error!
-    double diff = Math.abs(Math.floor(d) - d);
-    if (diff < maxdiff) {
-      return 0; // nothing behind decimal point...
-    }
-
-    // remainder: 12.345678 --> 0.345678
-    for (int i = 1; i < maxprec; i++) { // cap off precision at a reasonable maximum
-      double factor = Math.pow(10.0, i);
-      diff = Math.abs(Math.floor(d * factor) - (d * factor));
-      if (diff < maxdiff) {
-        return i;
-      }
-
-      factor *= 10;
-    }
-
-    // Unknown length!
-    return -1;
-  }
-
-  // Should a field be ignored?
-  public void guessIgnore() {
-    // If the string contains only spaces?
-    boolean stop = false;
-    for (int i = 0; i < samples.length && !stop; i++) {
-      if (!Const.onlySpaces(samples[i])) {
-        stop = true;
-      }
-    }
-    if (!stop) {
-      ignore = true;
-      return;
-    }
-
-    // If all the strings are empty
-    stop = false;
-    for (int i = 0; i < samples.length && !stop; i++) {
-      if (samples[i].length() > 0) {
-        stop = true;
-      }
-    }
-    if (!stop) {
-      ignore = true;
-      return;
-    }
-
-    // If all the strings are equivalent to NULL
-    stop = false;
-    for (int i = 0; i < samples.length && !stop; i++) {
-      if (!samples[i].equalsIgnoreCase(nullString)) {
-        stop = true;
-      }
-    }
-    if (!stop) {
-      ignore = true;
-      return;
-    }
   }
 
   @Override

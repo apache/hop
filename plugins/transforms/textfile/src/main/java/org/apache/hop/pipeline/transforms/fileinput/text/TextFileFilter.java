@@ -17,23 +17,42 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import org.apache.hop.core.injection.Injection;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 
 public class TextFileFilter implements Cloneable {
+
+  private static final String STRING_BASE64_PREFIX = "Base64: ";
+
   /** The position of the occurrence of the filter string to check at */
-  @Injection(name = "FILTER_POSITION", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_position",
+      injectionKey = "FILTER_POSITION",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_POSITION")
   private int filterPosition;
 
   /** The string to filter on */
-  @Injection(name = "FILTER_STRING", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_string",
+      injectionKey = "FILTER_STRING",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_STRING",
+      injectionStringObjectConverter = FilterStringConverter.class)
   private String filterString;
 
   /** True if we want to stop when we reach a filter line */
-  @Injection(name = "FILTER_LAST_LINE", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_is_last_line",
+      injectionKey = "FILTER_LAST_LINE",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_LAST_LINE")
   private boolean filterLastLine;
 
   /** True if we want to match only this lines */
-  @Injection(name = "FILTER_POSITIVE", group = "FILTERS")
+  @HopMetadataProperty(
+      key = "filter_is_positive",
+      injectionKey = "FILTER_POSITIVE",
+      injectionKeyDescription = "TextFileInput.Injection.FILTER_POSITIVE")
   private boolean filterPositive;
 
   /**
@@ -101,5 +120,33 @@ public class TextFileFilter implements Cloneable {
   /** @param filterString The filterString to set. */
   public void setFilterString(String filterString) {
     this.filterString = filterString;
+  }
+
+  public static final class FilterStringConverter implements IStringObjectConverter {
+    @Override
+    public String getString(Object object) throws HopException {
+      if (!(object instanceof String)) {
+        throw new HopException("We only support XML serialization of String objects here");
+      }
+      try {
+        return STRING_BASE64_PREFIX + new String(Base64.encodeBase64(((String) object).getBytes()));
+      } catch (Exception e) {
+        throw new HopException("Error serializing filterString to XML", e);
+      }
+    }
+
+    @Override
+    public Object getObject(String s) throws HopException {
+      try {
+        if (s != null && s.startsWith(STRING_BASE64_PREFIX)) {
+          return new String(
+              Base64.decodeBase64(s.substring(STRING_BASE64_PREFIX.length()).getBytes()));
+        } else {
+          return s;
+        }
+      } catch (Exception e) {
+        throw new HopException("Error serializing filterString from XML", e);
+      }
+    }
   }
 }

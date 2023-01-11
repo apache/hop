@@ -24,6 +24,8 @@ import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
 
+import java.util.List;
+
 /** Base class for all TextFileInput transform tests. */
 @Ignore("No tests in abstract base class")
 public abstract class BaseTextParsingTest
@@ -46,11 +48,11 @@ public abstract class BaseTextParsingTest
 
   /** Initialize for processing specified file by URL. */
   protected void initByURL(String url) throws Exception {
-    meta.inputFiles.fileName = new String[] {url};
-    meta.inputFiles.fileMask = new String[] {null};
-    meta.inputFiles.excludeFileMask = new String[] {null};
-    meta.inputFiles.fileRequired = new String[] {"Y"};
-    meta.inputFiles.includeSubFolders = new String[] {"N"};
+    meta.inputFiles.fileName = List.of(url);
+    meta.inputFiles.fileMask = List.of(null);
+    meta.inputFiles.excludeFileMask = List.of(null);
+    meta.inputFiles.fileRequired = List.of("Y");
+    meta.inputFiles.includeSubFolders = List.of("N");
 
     transform = new TextFileInput(transformMeta, meta, data, 1, pipelineMeta, pipeline);
     transform.init();

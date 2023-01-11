@@ -28,6 +28,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -145,7 +146,7 @@ public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
     assertNull(output.getRowImmediate());
   }
 
-  private CsvInputMeta createMeta(File file, TextFileInputField[] fields, String enclosure) {
+  private CsvInputMeta createMeta(File file, List<TextFileInputField> fields, String enclosure) {
     CsvInputMeta meta = createMeta(file, fields);
     meta.setDelimiter(SEMICOLON);
     meta.setEnclosure(enclosure);

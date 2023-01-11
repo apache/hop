@@ -84,7 +84,7 @@ public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   }
 
   @Override
-  CsvInputMeta createMeta(File file, TextFileInputField[] fields) {
+  CsvInputMeta createMeta(File file, List<TextFileInputField> fields) {
     CsvInputMeta meta = super.createMeta(file, fields);
     meta.setRowNumField("rownum");
     return meta;
