@@ -349,7 +349,7 @@ public class ExcelWriterTransformMeta
 
     // Replace possible environment variables...
     String retval = variables.resolve(file.getFileName());
-    String realextension = variables.resolve(file.getExtension());
+    String realextension = variables.resolve(file.getExtention());
 
     Date now = new Date();
 
@@ -389,7 +389,7 @@ public class ExcelWriterTransformMeta
   public String buildFilename(IRowMeta rowMeta, Object[] row, IVariables variables) {
     int filenameFieldIdx = rowMeta.indexOfValue(variables.resolve(getFile().getFileNameField()));
     String retval = variables.resolve((String) row[filenameFieldIdx]);
-    String realextension = variables.resolve(file.getExtension());
+    String realextension = variables.resolve(file.getExtention());
 
     if (realextension != null && realextension.length() != 0) {
       retval += "." + realextension;

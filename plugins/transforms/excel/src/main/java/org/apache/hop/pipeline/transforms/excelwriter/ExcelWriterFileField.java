@@ -32,7 +32,7 @@ public class ExcelWriterFileField {
 
   /** The file extension in case of a generated filename */
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.Extension.Field")
-  private String extension;
+  private String extention;
 
   @HopMetadataProperty(
       key = "filename_in_field",
@@ -224,13 +224,13 @@ public class ExcelWriterFileField {
   }
 
   /** @return Returns the extension. */
-  public String getExtension() {
-    return extension;
+  public String getExtention() {
+    return extention;
   }
 
-  /** @param extension The extension to set. */
-  public void setExtension(String extension) {
-    this.extension = extension;
+  /** @param extention The extension to set. */
+  public void setExtention(String extention) {
+    this.extention = extention;
   }
 
   /** @return Returns the dateInFilename. */
@@ -325,7 +325,7 @@ public class ExcelWriterFileField {
 
   public ExcelWriterFileField(String fileName, String extension, String sheetname) {
     this.fileName = fileName;
-    this.extension = extension;
+    this.extention = extension;
     this.sheetname = sheetname;
 
     setDefault();
@@ -337,7 +337,7 @@ public class ExcelWriterFileField {
     ifSheetExists = ExcelWriterTransformMeta.IF_SHEET_EXISTS_CREATE_NEW;
     autosizecolums = false;
     streamingData = false;
-    extension = "xls";
+    extention = "xls";
     doNotOpenNewFileInit = true;
     transformNrInFilename = false;
     dateInFilename = false;

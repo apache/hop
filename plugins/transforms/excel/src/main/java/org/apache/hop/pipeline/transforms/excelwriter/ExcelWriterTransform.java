@@ -818,12 +818,12 @@ public class ExcelWriterTransform
           // ensure extensions match
           String templateExt =
               HopVfs.getFileObject(data.realTemplateFileName).getName().getExtension();
-          if (!meta.getFile().getExtension().equalsIgnoreCase(templateExt)) {
+          if (!meta.getFile().getExtention().equalsIgnoreCase(templateExt)) {
             throw new HopException(
                 "Template Format Mismatch: Template has extension: "
                     + templateExt
                     + ", but output file has extension: "
-                    + meta.getFile().getExtension()
+                    + meta.getFile().getExtention()
                     + ". Template and output file must share the same format!");
           }
 
@@ -843,7 +843,7 @@ public class ExcelWriterTransform
         } else {
           // handle fresh file case, just create a fresh workbook
           try (Workbook wb =
-              meta.getFile().getExtension().equalsIgnoreCase("xlsx")
+              meta.getFile().getExtention().equalsIgnoreCase("xlsx")
                   ? new XSSFWorkbook()
                   : new HSSFWorkbook()) {
             wb.createSheet(data.realSheetname);
@@ -859,7 +859,7 @@ public class ExcelWriterTransform
       Workbook wb;
       Sheet sheet;
       // file is guaranteed to be in place now
-      if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")) {
+      if (meta.getFile().getExtention().equalsIgnoreCase("xlsx")) {
         try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file))) {
           XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
           if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {

@@ -1677,9 +1677,9 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wFilename.setText(file.getFileName());
     }
     wDoNotOpenNewFileInit.setSelection(file.isDoNotOpenNewFileInit());
-    if (file.getExtension() != null) {
+    if (file.getExtention() != null) {
 
-      if (file.getExtension().equals("xlsx")) {
+      if (file.getExtention().equals("xlsx")) {
         wExtension.select(1);
       } else {
         wExtension.select(0);
@@ -1844,7 +1844,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     file.setFileNameInField(wFileNameInField.getSelection());
     file.setFileNameField(wFileNameField.getText());
     tfoi.setAppendOmitHeader(wOmitHeader.getSelection());
-    file.setExtension((String) wExtension.getData(wExtension.getText()));
+    file.setExtention((String) wExtension.getData(wExtension.getText()));
     file.setSplitEvery(Const.toInt(wSplitEvery.getText(), 0));
     tfoi.setAppendOffset(Const.toInt(wSkipRows.getText(), 0));
     tfoi.setAppendEmpty(Const.toInt(wEmptyRows.getText(), 0));

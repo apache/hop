@@ -99,7 +99,7 @@ public class ExcelWriterTransformMetaTest {
       }
       ExcelWriterFileField actualObject = (ExcelWriterFileField) actual;
       return testObject.getFileName().equals(actualObject.getFileName())
-          && testObject.getExtension().equals(actualObject.getExtension())
+          && testObject.getExtention().equals(actualObject.getExtention())
           && testObject.getSheetname().equals(actualObject.getSheetname());
     }
   }

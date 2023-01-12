@@ -173,7 +173,7 @@ public class ExcelWriterTransform_StyleFormatTest {
     meta.setDefault();
 
     meta.getFile().setFileName("testExcel");
-    meta.getFile().setExtension(fileType);
+    meta.getFile().setExtention(fileType);
     meta.getFile().setSheetname("Sheet1");
     meta.setHeaderEnabled(true);
     meta.setStartingCell("A2");
@@ -236,7 +236,7 @@ public class ExcelWriterTransform_StyleFormatTest {
     // get executed
     // create Excel workbook object
     data.currentWorkbookDefinition.setWorkbook(
-        meta.getFile().getExtension().equalsIgnoreCase("xlsx")
+        meta.getFile().getExtention().equalsIgnoreCase("xlsx")
             ? new XSSFWorkbook()
             : new HSSFWorkbook());
     data.currentWorkbookDefinition.setSheet(

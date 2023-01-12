@@ -172,7 +172,7 @@ public class ExcelWriterTransformTest {
     when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
     when(metaMock.getFile().isStreamingData()).thenReturn(true);
     when(metaMock.isHeaderEnabled()).thenReturn(true);
-    when(metaMock.getFile().getExtension()).thenReturn(XLSX);
+    when(metaMock.getFile().getExtention()).thenReturn(XLSX);
     dataMock.createNewFile = true;
     dataMock.realTemplateFileName = getClass().getResource("template_test.xlsx").getFile();
     dataMock.realSheetname = SHEET_NAME;
@@ -205,7 +205,7 @@ public class ExcelWriterTransformTest {
     when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
     when(metaMock.getFile().isStreamingData()).thenReturn(true);
     when(metaMock.isHeaderEnabled()).thenReturn(false);
-    when(metaMock.getFile().getExtension()).thenReturn(XLSX);
+    when(metaMock.getFile().getExtention()).thenReturn(XLSX);
     when(metaMock.getOutputFields()).thenReturn(fields);
 
     when(dataMock.inputRowMeta.size()).thenReturn(10);
@@ -470,7 +470,7 @@ public class ExcelWriterTransformTest {
     when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(isTemplateEnabled);
     when(metaMock.getFile().isStreamingData()).thenReturn(isStreaming);
     when(metaMock.isHeaderEnabled()).thenReturn(false);
-    when(metaMock.getFile().getExtension()).thenReturn(extension);
+    when(metaMock.getFile().getExtention()).thenReturn(extension);
     List<ExcelWriterOutputField> fields = new ArrayList<>();
     fields.add(new ExcelWriterOutputField());
     doReturn(fields).when(metaMock).getOutputFields();
