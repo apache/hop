@@ -171,7 +171,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     }
     fdLabel.top = new FormAttachment(0, margin + (EnvironmentUtils.getInstance().isWeb() ? 3 : 0));
     wLabel.setLayoutData(fdLabel);
-    wLabel.setText(labelText);
+    if ( labelText!=null ) {
+      wLabel.setText(labelText);
+    }
     wLabel.setToolTipText(toolTipText);
     wLabel.requestLayout(); // Avoid GTK error in log
 
@@ -210,7 +212,12 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wCombo = new ComboVar(this.variables, this, textFlags, toolTipText);
     FormData fdCombo = new FormData();
     if (leftAlignedLabel) {
-      fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
+      if ( labelText==null ) {
+        fdCombo.left = new FormAttachment(0, 0);
+      } 
+      else {
+        fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
+      }
     } else {
       fdCombo.left = new FormAttachment(middle, 0);
     }
