@@ -42,8 +42,9 @@ The metadata is injected into the template pipeline through any transform that s
 
 == Supported Transforms
 
-The goal is to add Metadata Injection support to all transforms, The current (15-October 2022) status is:
+The goal is to add Metadata Injection support to all transforms, The current status is:
 
+[%header, width="50%", cols="5,1"]
 |===
 |Transform|Supports MDI
 |Abort|Y

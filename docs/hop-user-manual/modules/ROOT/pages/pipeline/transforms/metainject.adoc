@@ -28,6 +28,12 @@ under the License.
 |
 == Description
 
+Metadata injection allows Apache Hop users to provide the required metadata for a pipeline at runtime. This can significantly reduce the need to develop slightly different versions of what is basically the same pipeline.
+
+A typical example is the onboarding of large amounts of text file data in a variety of formats. Even though you may have a number of different file layouts to load, the process is always the same: read the file, clean or enrich the data, and finally write the data to a target platform or some other file format. The only difference is the actual layout of the data, the steps to follow are always the same.
+
+Metadata injection
+
 The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
 
 |

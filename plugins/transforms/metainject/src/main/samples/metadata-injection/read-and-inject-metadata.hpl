@@ -74,7 +74,7 @@ limitations under the License.
     <run_configuration>local</run_configuration>
     <source_transform/>
     <source_output_fields>    </source_output_fields>
-    <target_file>/tmp/injected.hpl</target_file>
+    <target_file></target_file>
     <create_parent_folder>Y</create_parent_folder>
     <no_execution>N</no_execution>
     <stream_source_transform/>
