@@ -43,14 +43,7 @@
             <outputDirectory>lib</outputDirectory>
             <includes>
                 <include>org.apache.hive:hive-jdbc:jar</include>
-                <include>org.apache.thrift:libthrift:jar</include>
-                <include>org.apache.hive:hive-common:jar</include>
-                <include>org.apache.hive:hive-service:jar</include>
-                <include>org.apache.hive:hive-service-rpc:jar</include>
-                <include>org.apache.hive:hive-serde:jar</include>
-                <include>org.apache.hadoop:hadoop-client-api:jar</include>
                 <include>org.apache.hadoop:hadoop-client:jar</include>
-                <include>org.apache.curator:curator-client:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

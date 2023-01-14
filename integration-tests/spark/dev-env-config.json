@@ -1,3 +1,23 @@
 {
-  "variables" : [ ]
+  "variables" : [ {
+    "name" : "HIVE_HOST",
+    "value" : "spark",
+    "description" : ""
+  }, {
+    "name" : "HIVE_USER",
+    "value" : "root",
+    "description" : ""
+  }, {
+    "name" : "HIVE_PASS",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "HIVE_PORT",
+    "value" : "10000",
+    "description" : ""
+  }, {
+    "name" : "HIVE_DBNM",
+    "value" : "default",
+    "description" : ""
+  } ]
 }
