@@ -10,5 +10,5 @@ Thank you for your contribution! Follow this checklist to help us incorporate yo
 To make clear that you license your contribution under the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0)
 you have to acknowledge this by using the following check-box.
 
-- [ ] I hereby declare this contribution to be licenced under the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0)
+- [ ] I hereby declare this contribution to be licensed under the [Apache License Version 2.0, January 2004](http://www.apache.org/licenses/LICENSE-2.0)
 - [ ] In any other case, please file an [Apache Individual Contributor License Agreement](https://www.apache.org/licenses/icla.pdf).
