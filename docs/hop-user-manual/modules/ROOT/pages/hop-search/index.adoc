@@ -60,4 +60,8 @@ The search will match names, keys, values, descriptions and so on.
 |false
 |
 
+|`-v` or `--version`
+|Print version information
+|false
+|
 |===

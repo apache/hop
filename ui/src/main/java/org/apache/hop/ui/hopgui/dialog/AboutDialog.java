@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
 import org.apache.hop.core.variables.VariableScope;
@@ -73,8 +74,6 @@ public class AboutDialog extends Dialog {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    PropsUi props = PropsUi.getInstance();
-
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.SHEET | SWT.RESIZE);
     shell.setText(BaseMessages.getString(PKG, "AboutDialog.Title"));
     shell.setImage(GuiResource.getInstance().getImageHopUi());
@@ -114,8 +113,8 @@ public class AboutDialog extends Dialog {
     PropsUi.setLook(wName);
 
     // Widget application version
-    Label wVersion = new Label(composite, SWT.CENTER);
-    wVersion.setText(HopGui.class.getPackage().getImplementationVersion());
+    Text wVersion = new Text(composite, SWT.READ_ONLY | SWT.CENTER);
+    wVersion.setText(this.getVersion());
     wVersion.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
     PropsUi.setLook(wVersion);
 
@@ -167,6 +166,11 @@ public class AboutDialog extends Dialog {
     }
   }
 
+  protected String getVersion() {
+    HopVersionProvider versionProvider = new HopVersionProvider();    
+    return versionProvider.getVersion()[0];
+  }
+  
   private String getProperties() {
     Set<String> names = VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);
     for (String name : JAVA_PROPERTIES) {

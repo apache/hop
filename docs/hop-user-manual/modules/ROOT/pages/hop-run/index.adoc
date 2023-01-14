@@ -51,7 +51,7 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
   -e, --environment=<environmentOption>
                           The name of the lifecycle environment to use
   -f, --file=<filename>   The filename of the workflow or pipeline to run
-  -h, --help              Displays this help message and quits.
+  -h, --help              Displays this help message and quits
   -j, --project=<projectOption>
                           The name of the project to use
   -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
@@ -64,6 +64,7 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                           The name of the Run Configuration to use
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
                           A comma separated list of KEY=VALUE pairs
+  -v, --version           Print version information and exit                          
 ----
 
 The available options are listed in more detail in the table below:

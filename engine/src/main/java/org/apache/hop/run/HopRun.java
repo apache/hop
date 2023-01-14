@@ -22,6 +22,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -59,6 +60,7 @@ import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -68,8 +70,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+@Command(versionProvider = HopVersionProvider.class)
 public class HopRun implements Runnable, IHasHopMetadataProvider {
-
+  
   @Option(
       names = {"-f", "--file"},
       description = "The filename of the workflow or pipeline to run")
@@ -86,6 +89,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       description = "Displays this help message and quits.")
   private boolean helpRequested;
 
+  @Option(names = {"-v", "--version"},
+      versionHelp = true,
+      description = "Print version information and exit")
+  private boolean versionRequested;
+  
   @Option(
       names = {"-p", "--parameters"},
       description = "A comma separated list of PARAMETER=VALUE pairs",

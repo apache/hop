@@ -44,7 +44,7 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
                         The target config file to write variable to
   -e, --skip-existing   Skip existing files in the target folders
   -f, --skip-folders    Skip import of sub-folders
-  -h, --help            Displays this help message and quits.
+  -h, --help            Displays this help message and quits
   -i, --input=<inputFolderName>
                         The input folder to read from
   -j, --jdbc-properties=<jdbcPropertiesFilename>
@@ -58,6 +58,7 @@ Usage: <main class> [-efhlp] [-c=<targetConfigFilename>] [-i=<inputFolderName>]
   -s, --shared-xml=<sharedXmlFilename>
                         The shared.xml file to read from
   -t, --type=<type>     The type of import plugin to use (e.g. kettle)
+  -v, --version         Print version information and exit   
 ----
 
 =====

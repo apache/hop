@@ -20,6 +20,7 @@ package org.apache.hop.imp;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.LogProgressMonitor;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
@@ -37,6 +38,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import picocli.CommandLine;
+import picocli.CommandLine.Command;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
@@ -45,6 +47,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+@Command(versionProvider = HopVersionProvider.class)
 public class HopImport implements Runnable, IHasHopMetadataProvider {
 
   @Option(
@@ -112,6 +115,11 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
       description = "Displays this help message and quits.")
   private boolean helpRequested;
 
+  @Option(names = {"-v", "--version"},
+      versionHelp = true,
+      description = "Print version information and exit")
+  private boolean versionRequested;  
+  
   private IVariables variables;
   private CommandLine cmd;
   private ILogChannel log;

@@ -35,13 +35,13 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
       <searchString>         The string to search for
   -e, --environment=<environmentOption>
                              The name of the lifecycle environment to use
-  -h, --help                 Displays this help message and quits.
+  -h, --help                 Displays this help message and quits
   -i, --case-insensitive     Perform a case insensitive search
   -j, --project=<projectOption>
                              The name of the project to use
   -l, --print-locations      Print which locations are being looked at
+  -v, --version              Print version information and exit 
   -x, --regular-expression   The specified search string is a regular expression
-./hop-search.sh  9.08s user 0.44s system 338% cpu 2.808 total
 ----
 
 == Options
@@ -51,10 +51,11 @@ Usage: <main class> [-hilx] [-e=<environmentOption>] [-j=<projectOption>]
 |Option|Description
 |<searchString>|The string to search for
 |-e|The name of the lifecycle environment to use
-|-h|Displays this help message and quits.
+|-h|Displays this help message and quits
 |-i|Perform a case insensitive search
 |-j|The name of the project to use
 |-l|Print which locations are being looked at
+|-v|Print version information and exit 
 |-x|The specified search string is a regular expression
 |===
 
