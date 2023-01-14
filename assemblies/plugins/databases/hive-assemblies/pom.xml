@@ -35,10 +35,32 @@
     <description />
 
     <properties>
-        <hive-jdbc.version>4.0.0-alpha-1</hive-jdbc.version>
+        <hive-jdbc.version>3.1.3</hive-jdbc.version>
     </properties>
 
     <dependencies>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.hadoop</groupId>-->
+<!--            <artifactId>hadoop-client-api</artifactId>-->
+<!--            <version>${hadoop.version}</version>-->
+<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-jdbc</artifactId>
+            <version>${hive-jdbc.version}</version>
+            <classifier>standalone</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-hive</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+<!--
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
@@ -55,15 +77,11 @@
             <version>${hadoop.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-databases-hive</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
             <version>${hive-jdbc.version}</version>
         </dependency>
+-->
     </dependencies>
 
 </project>

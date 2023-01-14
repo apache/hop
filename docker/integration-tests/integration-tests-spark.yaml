@@ -33,6 +33,9 @@ services:
       dockerfile: Dockerfile.master
     environment:
       - INIT_DAEMON_STEP=setup_spark
+    ports:
+      - "10000"
+      - "10001"
   spark-worker:
     build:
       context: ../../docker/integration-tests/spark/.
