@@ -26,7 +26,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
@@ -167,7 +166,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdlLogMessage.top = new FormAttachment(wLogSubject, margin);
     fdlLogMessage.right = new FormAttachment(middle, -margin);
     wlLogMessage.setLayoutData(fdlLogMessage);
-
+  
     wLogMessage =
         new TextVar(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -180,7 +179,6 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdLogMessage.right = new FormAttachment(100, 0);
     fdLogMessage.bottom = new FormAttachment(wOk, -margin);
     wLogMessage.setLayoutData(fdLogMessage);
-    wLogMessage.addKeyListener(new ControlSpaceKeyAdapter(variables, wLogMessage));
 
     getData();
 
