@@ -28,7 +28,8 @@ under the License.
 |
 == Description
 
-The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
+Metadata injection allows Apache Hop users to provide the required metadata for a pipeline at runtime. This can significantly reduce the need to develop slightly different versions of what is basically the same pipeline.
+
 
 |
 == Supported Engines
@@ -43,28 +44,12 @@ The Metadata Injection transform inserts data from various sources into a pipeli
 
 == Usage
 
-The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
+The Metadata Injection transform inserts data from various sources into a pipeline at runtime. This is typically used to automate repetitive ETL tasks.
 
-This is typically used to automate repetitive ETL tasks.
+A typical example is the onboarding of large amounts of text file data in a variety of formats. Even though you may have a number of different file layouts to load, the process is always the same: read the file, clean or enrich the data, and finally write the data to a target platform or some other file format. The only difference is the actual layout of the data, the steps to follow are always the same.
 
-For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file.
-If you have more than one supplier, you would need to run this simple pipeline for each supplier.
-Yet, with metadata injection, you can expand this simple repetitive pipeline by inserting metadata from another pipeline that contains the ETL Metadata Injection transform.
-This transform coordinates the data values from the various inputs through the metadata you define.
-This process reduces the need for you to adjust and run the repetitive pipeline for each specific input.
+xref:pipeline/metadata-injection.adoc[Read more]
 
-The repetitive pipeline is known as the template pipeline.
-The template pipeline is called by the ETL Metadata Injection transform.
-You will create a pipeline to prepare what common values you want to use as metadata and inject these specific values through the ETL Metadata Injection transform.
-
-We recommend the following basic procedure for using this transform to inject metadata:
-
-1. Optimize your data for injection, such as preparing folder structures and inputs.
-
-2. Develop pipelines for the repetitive process (the template pipeline), for metadata injection through the ETL Metadata Injection transform, and for handling multiple inputs.
-
-
-The metadata is injected into the template pipeline through any transform that supports metadata injection.
 
 == Options
 

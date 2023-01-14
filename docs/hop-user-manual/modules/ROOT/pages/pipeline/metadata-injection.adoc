@@ -14,23 +14,69 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
+
 [[MetadataInjection]]
-:imagesdir: ../assets/images
+:imagesdir: ../../assets/images
 :description: Metadata injection inserts data from various sources into a template pipeline at runtime to reduce repetitive tasks.
 
 = Metadata Injection
 
-Metadata injection inserts data from various sources into a template pipeline at runtime to reduce repetitive tasks.
+== What is metadata injection? 
 
-For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file.
-If you have more than one supplier, you would need to run this simple pipeline for each supplier.
-Yet, with metadata injection, you can expand this simple repetitive pipeline by inserting metadata from another pipeline that contains the ETL Metadata Injection transform.
-This transform coordinates the data values from the various inputs through the metadata you define.
-This process reduces the need for you to adjust and run the repetitive pipeline for each specific input.
+Metadata is at the very core of everything in Apache Hop. When you develop a pipeline, the transforms with all of the configuration options, the hops between those transforms and the pipeline run configuration you use to run the pipeline are all metadata items. 
 
-The repetitive pipeline is known as the template pipeline.
-The template pipeline is called by the ETL Metadata Injection transform.
-You will create a pipeline to prepare what common values you want to use as metadata and inject these specific values through the ETL Metadata Injection transform.
+There are use cases where you'll find yourself creating different variations of what is basically the same pipeline. 
+
+Consider this simple pipeline as an example: you need to load transaction data values from a supplier, filter out some specific values, and output everything to a file.
+
+The process is always the same, the only difference is the different file layouts, maybe different values to filter out, and the output file. 
+
+Metadata injection can make this process a lot easier by taking the metadata for this pipeline from various sources and inject it into a _template pipeline_ at runtime. 
+
+After injection, Apache Hop has an in-memory pipeline that is configured for the exact metadata you need for this run. 
+
+Instead of one pipeline per supplier, you'll only need one template pipeline and one injecting pipeline. This significantly reduces the number of files to maintain, the number of repetitive tasks and thus increases stability maintainability of your project. 
+
+== How metadata injection works
+
+TIP: the sample below is available from the `metadata-injection` folder in the `samples` project.
+
+The _template pipeline_ is an empty pipeline that contains all the necessary transforms and hops for the flow of the pipeline, but none of the configuration. 
+
+image::hop-gui/metadata-injection-template-pipeline.svg[Metadata Injection - template pipeline, width="70%"]
+
+The _injecting pipeline_ is a standard pipeline that gathers and prepares all of the required metadata to run the template pipeline through the xref:./transforms/metainject.adoc[ETL Metadata Injection] transform. 
+
+The Metadata Injection transform reads the template pipeline and lets you map fields from the injecting pipeline to target fields in the transforms in the template pipelines. 
+
+image::hop-gui/metadata-injection-injecting-pipeline.svg[Metadata Injection - injecting pipeline, width="70%"]
+
+Here's what happens in the example below:
+
+* **read customer metadata** parses a sample file and reads its file layout. The various items of the detected file layout are injected in the fields for `read customer data` in the template pipeline. 
+* **static filename, format** provides the file name and file format from a data grid. 
+* **rename fields** provides the original names and new names for fields that will be injected into the `cast dates` xref:./transforms/selectvalues.adoc[Select Values] transform in the template pipeline. 
+* **zips per state** provides all of the required information to configure `nb zip codes per state` the xref:./transforms/memgroupby.adoc[Memory Group By] transform in the template pipeline 
+
+In addition to the injection explained above, the `sort state` xref:./transforms/sort.adoc[Sort Rows] transform etc are configured by information (metadata) that was already provided to the metadata injection transform. Additionally, the metadata injection can be configured to provide static (hard-coded) values to the template pipeline. 
+
+TIP: The xref:./transforms/metainject.adoc[ETL Metadata Injection] transform overrules the default behavior for pipelines: not all incoming streams need to have the same layout. It is perfectly ok to provide input to the metadata injection transform from different streams with different layouts. 
+
+== Metadata Injection Debugging and Troubleshooting
+
+The xref:./transforms/metainject.adoc[ETL Metadata Injection] transform generates and executes a generated pipeline with the injected metadata by default. 
+
+This may be one too many levels of abstraction when you're debugging or troubleshooting pipelines that use metadata injection.  
+
+This default behavior can be overruled from the `Options` tab: 
+
+* Optional target file (hpl after injection) 
+* Run resulting pipeline
+
+Disabling the `run resulting pipeline` and providing a filename for the injected pipelines to be written to lets you open and troubleshoot the generated pipelines as you would with any other pipeline. This can make troubelshooting metadata injection significantly more productive. 
+
+
+== Metadata Injection recommendations 
 
 We recommend the following basic procedure for using this transform to inject metadata:
 
@@ -42,8 +88,14 @@ The metadata is injected into the template pipeline through any transform that s
 
 == Supported Transforms
 
-The goal is to add Metadata Injection support to all transforms, The current (15-October 2022) status is:
+The goal is to add Metadata Injection support to all transforms, The current status is:
 
+&nbsp; +
+
+[%collapsible]
+=====
+
+[%header, width="50%", cols="5,1"]
 |===
 |Transform|Supports MDI
 |Abort|Y
@@ -252,3 +304,5 @@ The goal is to add Metadata Injection support to all transforms, The current (15
 |YAML input |N
 |Zip file|Y
 |===
+
+=====
