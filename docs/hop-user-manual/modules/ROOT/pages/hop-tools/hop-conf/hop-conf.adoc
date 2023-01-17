@@ -167,6 +167,7 @@ Usage: <main class> [-h] [-ec] [-ed] [-el] [-em] [-ey] [-pc] [-pd] [-pl] [-pm]
                             Export project metadata to a single JSON file which you
                               can specify with this option. Also specify the -p
                               option.
+      -v,  --version        Print version information and exit                               
 ----
 
 The available options are listed below:
@@ -175,8 +176,9 @@ The available options are listed below:
 [id="hop-conf",cols="10%, 40%,50%",options="header"]
 |===
 |Short Option|Extended Option|Description
-|-h|--help|Displays this help message and quits.
-|-ec|--environment-create|Create an environment.
+|-h|--help|Displays this help message and quits
+|-v|--version|Print version information and exit 
+|-ec|--environment-create|Create an environment
 Also specify the name and its home
 |-ed|--environment-delete|Delete an environment
 |-el|--environment-list|List the defined environments
