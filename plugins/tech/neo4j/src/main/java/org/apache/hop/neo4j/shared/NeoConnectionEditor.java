@@ -160,6 +160,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
       wBrowserPort,
       wPolicy,
       wUsername,
+      wPassword,
       wRouting,
       wEncryption,
       wTrustAllCertificates,
@@ -168,7 +169,7 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
       wMaxConnectionPoolSize,
       wConnectionAcquisitionTimeout,
       wConnectionTimeout,
-      wMaxTransactionRetryTime,
+      wMaxTransactionRetryTime
     };
     for (Control control : controls) {
       control.addListener(SWT.Modify, e -> setChanged());
@@ -505,14 +506,8 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
                   ColumnInfo.COLUMN_TYPE_TEXT)
             },
             getMetadata().getManualUrls().size(),
-            e -> setChanged(),
+            e -> { setChanged(); enableFields(); },
             props);
-    wUrls.table.addListener(SWT.Selection, e -> enableFields());
-    wUrls.table.addListener(SWT.MouseDown, e -> enableFields());
-    wUrls.table.addListener(SWT.MouseUp, e -> enableFields());
-    wUrls.table.addListener(SWT.FocusIn, e -> enableFields());
-    wUrls.table.addListener(SWT.FocusOut, e -> enableFields());
-    wUrls.addModifyListener(e -> enableFields());
 
     FormData fdUrls = new FormData();
     fdUrls.top = new FormAttachment(0, 0);
