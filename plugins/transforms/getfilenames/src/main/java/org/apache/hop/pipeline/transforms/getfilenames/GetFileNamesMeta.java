@@ -73,15 +73,15 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   private FileInputList.FileTypeFilter fileTypeFilter;
 
   @HopMetadataProperty(
-          key = "file",
-          injectionKeyDescription = "GetFileNames.Injection.File.Label",
-          inlineListTags = {
-          "name",
-          "filemask",
-          "exclude_filemask",
-          "file_required",
-          "include_subfolders"
-  })
+      key = "file",
+      injectionKeyDescription = "GetFileNames.Injection.File.Label",
+      inlineListTags = {
+        "name",
+        "filemask",
+        "exclude_filemask",
+        "file_required",
+        "include_subfolders"
+      })
   private List<FileItem> filesList;
 
   @HopMetadataProperty(
@@ -169,52 +169,72 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     this.filterItemList = filterItemList;
   }
 
-  /** @return the doNotFailIfNoFile flag */
+  /**
+   * @return the doNotFailIfNoFile flag
+   */
   public boolean isDoNotFailIfNoFile() {
     return doNotFailIfNoFile;
   }
 
-  /** @param doNotFailIfNoFile the doNotFailIfNoFile to set */
+  /**
+   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
+   */
   public void setDoNotFailIfNoFile(boolean doNotFailIfNoFile) {
     this.doNotFailIfNoFile = doNotFailIfNoFile;
   }
 
-  /** @return the raiseAnExceptionIfNoFile flag */
+  /**
+   * @return the raiseAnExceptionIfNoFile flag
+   */
   public boolean isRaiseAnExceptionIfNoFile() {
     return raiseAnExceptionIfNoFile;
   }
 
-  /** @param raiseAnExceptionIfNoFile the raiseAnExceptionIfNoFile to set */
+  /**
+   * @param raiseAnExceptionIfNoFile the raiseAnExceptionIfNoFile to set
+   */
   public void setRaiseAnExceptionIfNoFile(boolean raiseAnExceptionIfNoFile) {
     this.raiseAnExceptionIfNoFile = raiseAnExceptionIfNoFile;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @param dynamicFilenameField The dynamic filename field to set. */
+  /**
+   * @param dynamicFilenameField The dynamic filename field to set.
+   */
   public void setDynamicFilenameField(String dynamicFilenameField) {
     this.dynamicFilenameField = dynamicFilenameField;
   }
 
-  /** @param dynamicWildcardField The dynamic wildcard field to set. */
+  /**
+   * @param dynamicWildcardField The dynamic wildcard field to set.
+   */
   public void setDynamicWildcardField(String dynamicWildcardField) {
     this.dynamicWildcardField = dynamicWildcardField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }
 
-  /** @return Returns the dynamic filename field (from previous transforms) */
+  /**
+   * @return Returns the dynamic filename field (from previous transforms)
+   */
   public String getDynamicFilenameField() {
     return dynamicFilenameField;
   }
 
-  /** @return Returns the dynamic wildcard field (from previous transforms) */
+  /**
+   * @return Returns the dynamic wildcard field (from previous transforms)
+   */
   public String getDynamicWildcardField() {
     return dynamicWildcardField;
   }
@@ -223,22 +243,30 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     return this.dynamicExcludeWildcardField;
   }
 
-  /** @param dynamicExcludeWildcardField The dynamic excludeWildcard field to set. */
+  /**
+   * @param dynamicExcludeWildcardField The dynamic excludeWildcard field to set.
+   */
   public void setDynamicExcludeWildcardField(String dynamicExcludeWildcardField) {
     this.dynamicExcludeWildcardField = dynamicExcludeWildcardField;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   public boolean isIncludeRowNumber() {
     return includeRowNumber;
   }
 
-  /** @return Returns the File field. */
+  /**
+   * @return Returns the File field.
+   */
   public boolean isFileField() {
     return fileField;
   }
 
-  /** @param filefield The filefield to set. */
+  /**
+   * @param filefield The filefield to set.
+   */
   public void setFileField(boolean fileField) {
     this.fileField = fileField;
   }
@@ -251,17 +279,23 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     this.dynamicIncludeSubFolders = dynamicIncludeSubFolders;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
 
-  /** @param isaddresult The isaddresult to set. */
+  /**
+   * @param isaddresult The isaddresult to set.
+   */
   public void setAddResultFile(boolean addResultFile) {
     this.addResultFile = addResultFile;
   }
 
-  /** @return Returns isaddresult. */
+  /**
+   * @return Returns isaddresult.
+   */
   public boolean isAddResultFile() {
     return addResultFile;
   }
@@ -277,12 +311,16 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
     }
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public long getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(long rowLimit) {
     this.rowLimit = rowLimit;
   }
