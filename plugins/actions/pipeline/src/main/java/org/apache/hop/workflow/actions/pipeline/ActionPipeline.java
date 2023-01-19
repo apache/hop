@@ -26,7 +26,6 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
@@ -38,8 +37,8 @@ import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -56,7 +55,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -76,80 +74,144 @@ import java.util.Map;
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
 
+  public static final class ParameterDefinition {
+    @HopMetadataProperty(key = "pass_all_parameters")
+    private boolean passingAllParameters = true;
+    
+    @HopMetadataProperty(groupKey = "parameters", key = "parameter")
+    private List<Parameter> parameters;
+
+    public ParameterDefinition() {
+      this.parameters = new ArrayList<>();
+    }
+
+    public boolean isPassingAllParameters() {
+      return passingAllParameters;
+    }
+
+    public void setPassingAllParameters(boolean passingAllParameters) {
+      this.passingAllParameters = passingAllParameters;
+    }
+    
+    public List<Parameter> getParameters() {
+      return parameters;
+    }
+
+    public void setParameters(List<Parameter> parameters) {
+      this.parameters = parameters;
+    }
+    
+    public String[] getNames() {
+      List<String> list = new ArrayList<>();
+      for (Parameter parameter:parameters) {
+        list.add(parameter.getName());
+      }
+      return list.toArray(new String[0]);
+    }
+    
+    public String[] getValues() {
+      List<String> list = new ArrayList<>();
+      for (Parameter parameter:parameters) {
+        list.add(parameter.getValue());
+      }
+      return list.toArray(new String[0]);
+    }
+  }
+  
+  public static final class Parameter {
+    @HopMetadataProperty
+    public String name;
+    @HopMetadataProperty
+    public String value;
+    @HopMetadataProperty(key="stream_name")
+    public String field;   
+    
+    public String getName() {
+      return name;
+    }
+    public String getValue() {
+      return value;
+    }
+    public String getField() {
+      return field;
+    }
+    public void setName(String name) {
+      this.name = name;
+    }
+    public void setValue(String value) {
+      this.value = value;
+    }
+    public void setField(String field) {
+      this.field = field;
+    }
+  }
+  
+  @HopMetadataProperty(key = "filename")
   private String filename;
 
-  public String[] arguments;
+  @HopMetadataProperty(key = "params_from_previous")
+  private boolean paramsFromPrevious;
 
-  public boolean paramsFromPrevious;
+  @HopMetadataProperty(key = "exec_per_row")
+  private boolean execPerRow;
 
-  public boolean execPerRow;
+  @HopMetadataProperty(key = "clear_rows")
+  private boolean clearResultRows;
 
-  public String[] parameters;
+  @HopMetadataProperty(key = "clear_files")
+  private boolean clearResultFiles;
 
-  public String[] parameterFieldNames;
+  @HopMetadataProperty(key = "create_parent_folder")
+  private boolean createParentFolder;
 
-  public String[] parameterValues;
+  @HopMetadataProperty(key = "set_logfile")
+  private boolean setLogfile;
 
-  public boolean clearResultRows;
+  @HopMetadataProperty(key = "set_append_logfile")
+  private boolean setAppendLogfile;
 
-  public boolean clearResultFiles;
+  @HopMetadataProperty(key = "logfile")
+  private String logfile;
 
-  public boolean createParentFolder;
+  @HopMetadataProperty(key = "logext")  
+  private String logext;
 
-  public boolean setLogfile;
+  @HopMetadataProperty(key = "add_date")
+  private boolean addDate;
 
-  public boolean setAppendLogfile;
+  @HopMetadataProperty(key = "add_time")
+  private boolean addTime;
+ 
+  @HopMetadataProperty(key = "loglevel", storeWithCode = true)
+  private LogLevel logFileLevel;
 
-  public String logfile;
-  public String logext;
-  public boolean addDate;
-  public boolean addTime;
+  @HopMetadataProperty(key = "wait_until_finished")
+  private boolean waitingToFinish = true;
 
-  public LogLevel logFileLevel;
-
-  public boolean waitingToFinish = true;
-
-  private boolean passingAllParameters = true;
-
+  @HopMetadataProperty(key = "parameters")
+  private ParameterDefinition parameterDefinition;
+  
+  @HopMetadataProperty(key = "run_configuration")
   private String runConfiguration;
 
   private IPipelineEngine<PipelineMeta> pipeline;
 
   public ActionPipeline(String name) {
     super(name, "");
+    this.parameterDefinition = new ParameterDefinition();
   }
 
   public ActionPipeline() {
     this("");
     clear();
   }
-
-  private void allocateArgs(int nrArgs) {
-    arguments = new String[nrArgs];
+  
+  public ParameterDefinition getParameterDefinition() {
+    return parameterDefinition;
   }
 
-  private void allocateParams(int nrParameters) {
-    parameters = new String[nrParameters];
-    parameterFieldNames = new String[nrParameters];
-    parameterValues = new String[nrParameters];
-  }
-
-  @Override
-  public Object clone() {
-    ActionPipeline je = (ActionPipeline) super.clone();
-    if (arguments != null) {
-      int nrArgs = arguments.length;
-      je.allocateArgs(nrArgs);
-      System.arraycopy(arguments, 0, je.arguments, 0, nrArgs);
-    }
-    if (parameters != null) {
-      int nrParameters = parameters.length;
-      je.allocateParams(nrParameters);
-      System.arraycopy(parameters, 0, je.parameters, 0, nrParameters);
-      System.arraycopy(parameterFieldNames, 0, je.parameterFieldNames, 0, nrParameters);
-      System.arraycopy(parameterValues, 0, je.parameterValues, 0, nrParameters);
-    }
-    return je;
+  public void setParameterDefinition(ParameterDefinition parameterDefinition) {
+    this.parameterDefinition = parameterDefinition;
   }
 
   public void setFileName(String n) {
@@ -187,138 +249,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-
-    retval.append(super.getXml());
-
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("params_from_previous", paramsFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("exec_per_row", execPerRow));
-    retval.append("      ").append(XmlHandler.addTagValue("clear_rows", clearResultRows));
-    retval.append("      ").append(XmlHandler.addTagValue("clear_files", clearResultFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("set_logfile", setLogfile));
-    retval.append("      ").append(XmlHandler.addTagValue("logfile", logfile));
-    retval.append("      ").append(XmlHandler.addTagValue("logext", logext));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "loglevel", logFileLevel != null ? logFileLevel.getCode() : null));
-    retval.append("      ").append(XmlHandler.addTagValue("set_append_logfile", setAppendLogfile));
-    retval.append("      ").append(XmlHandler.addTagValue("wait_until_finished", waitingToFinish));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("create_parent_folder", createParentFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("run_configuration", runConfiguration));
-
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        // This is a very very bad way of making an XML file, don't use it (or
-        // copy it). Sven Boden
-        retval.append("      ").append(XmlHandler.addTagValue("argument" + i, arguments[i]));
-      }
-    }
-
-    if (parameters != null) {
-      retval.append("      ").append(XmlHandler.openTag("parameters")).append(Const.CR);
-
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("pass_all_parameters", passingAllParameters));
-
-      for (int i = 0; i < parameters.length; i++) {
-        // This is a better way of making the XML file than the arguments.
-        retval.append("        ").append(XmlHandler.openTag("parameter")).append(Const.CR);
-
-        retval.append("          ").append(XmlHandler.addTagValue("name", parameters[i]));
-        retval
-            .append("          ")
-            .append(XmlHandler.addTagValue("stream_name", parameterFieldNames[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("value", parameterValues[i]));
-
-        retval.append("        ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
-      }
-      retval.append("      ").append(XmlHandler.closeTag("parameters")).append(Const.CR);
-    }
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-
-      paramsFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "params_from_previous"));
-      execPerRow = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "exec_per_row"));
-      clearResultRows = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "clear_rows"));
-      clearResultFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "clear_files"));
-      setLogfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_logfile"));
-      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_date"));
-      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_time"));
-      logfile = XmlHandler.getTagValue(entrynode, "logfile");
-      logext = XmlHandler.getTagValue(entrynode, "logext");
-      logFileLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
-      createParentFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_parent_folder"));
-      runConfiguration = XmlHandler.getTagValue(entrynode, "run_configuration");
-
-      setAppendLogfile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_append_logfile"));
-      String wait = XmlHandler.getTagValue(entrynode, "wait_until_finished");
-      if (Utils.isEmpty(wait)) {
-        waitingToFinish = true;
-      } else {
-        waitingToFinish = "Y".equalsIgnoreCase(wait);
-      }
-
-      // How many arguments?
-      int argnr = 0;
-      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
-        argnr++;
-      }
-      allocateArgs(argnr);
-
-      // Read them all...
-      for (int a = 0; a < argnr; a++) {
-        arguments[a] = XmlHandler.getTagValue(entrynode, "argument" + a);
-      }
-
-      Node parametersNode = XmlHandler.getSubNode(entrynode, "parameters");
-
-      String passAll = XmlHandler.getTagValue(parametersNode, "pass_all_parameters");
-      passingAllParameters = Utils.isEmpty(passAll) || "Y".equalsIgnoreCase(passAll);
-
-      int nrParameters = XmlHandler.countNodes(parametersNode, "parameter");
-      allocateParams(nrParameters);
-
-      for (int i = 0; i < nrParameters; i++) {
-        Node knode = XmlHandler.getSubNodeByNr(parametersNode, "parameter", i);
-
-        parameters[i] = XmlHandler.getTagValue(knode, "name");
-        parameterFieldNames[i] = XmlHandler.getTagValue(knode, "stream_name");
-        parameterValues[i] = XmlHandler.getTagValue(knode, "value");
-      }
-    } catch (HopException e) {
-      throw new HopXmlException("Unable to load action of type 'pipeline' from XML node", e);
-    }
-  }
-
-  @Override
   public void clear() {
     super.clear();
 
     filename = null;
-    arguments = null;
     execPerRow = false;
     addDate = false;
     addTime = false;
@@ -434,26 +368,24 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       }
 
       INamedParameters namedParam = new NamedParameters();
-      if (parameters != null) {
-        for (int idx = 0; idx < parameters.length; idx++) {
-          if (!Utils.isEmpty(parameters[idx])) {
-            // We have a parameter
+      for (Parameter parameter : parameterDefinition.getParameters()) {
+        if (!Utils.isEmpty(parameter.getName())) {
+          // We have a parameter
+          //
+          namedParam.addParameterDefinition(parameter.getName(), "", "Action runtime");
+          if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+            // There is no field name specified.
             //
-            namedParam.addParameterDefinition(parameters[idx], "", "Action runtime");
-            if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
-              // There is no field name specified.
-              //
-              String value = Const.NVL(resolve(parameterValues[idx]), "");
-              namedParam.setParameterValue(parameters[idx], value);
-            } else {
-              // something filled in, in the field column...
-              //
-              String value = "";
-              if (resultRow != null) {
-                value = resultRow.getString(parameterFieldNames[idx], "");
-              }
-              namedParam.setParameterValue(parameters[idx], value);
+            String value = Const.NVL(resolve(parameter.getValue()), "");
+            namedParam.setParameterValue(parameter.getName(), value);
+          } else {
+            // something filled in, in the field column...
+            //
+            String value = "";
+            if (resultRow != null) {
+              value = resultRow.getString(parameter.getField(), "");
             }
+            namedParam.setParameterValue(parameter.getName(), value);
           }
         }
       }
@@ -501,58 +433,55 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
           if (paramsFromPrevious) { // Copy the input the parameters
 
-            if (parameters != null) {
-              for (int idx = 0; idx < parameters.length; idx++) {
-                if (!Utils.isEmpty(parameters[idx])) {
+              for (Parameter parameter : parameterDefinition.getParameters()) {
+                if (!Utils.isEmpty(parameter.getName())) {
                   // We have a parameter
-                  if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
+                  if (Utils.isEmpty(Const.trim(parameter.getField()))) {
                     namedParam.setParameterValue(
-                        parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
+                        parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
                   } else {
                     String fieldValue = "";
 
                     if (resultRow != null) {
-                      fieldValue = resultRow.getString(parameterFieldNames[idx], "");
+                      fieldValue = resultRow.getString(parameter.getField(), "");
                     }
                     // Get the value from the input stream
-                    namedParam.setParameterValue(parameters[idx], Const.NVL(fieldValue, ""));
+                    namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
                   }
                 }
               }
-            }
+
           }
         } else {
 
           if (paramsFromPrevious) {
             // Copy the input the parameters
-            if (parameters != null) {
-              for (int idx = 0; idx < parameters.length; idx++) {
-                if (!Utils.isEmpty(parameters[idx])) {
+            for (Parameter parameter : parameterDefinition.getParameters()) {
+                if (!Utils.isEmpty(parameter.getName())) {
                   // We have a parameter
-                  if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
+                  if (Utils.isEmpty(Const.trim(parameter.getField()))) {
                     namedParam.setParameterValue(
-                        parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
+                        parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
                   } else {
                     String fieldValue = "";
 
                     if (resultRow != null) {
-                      fieldValue = resultRow.getString(parameterFieldNames[idx], "");
+                      fieldValue = resultRow.getString(parameter.getField(), "");
                     }
                     // Get the value from the input stream
-                    namedParam.setParameterValue(parameters[idx], Const.NVL(fieldValue, ""));
+                    namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
                   }
                 }
               }
             }
-          }
+
         }
 
         // Handle the parameters...
         //
         String[] parameterNames = pipelineMeta.listParameters();
 
-        prepareFieldNamesParameters(
-            parameters, parameterFieldNames, parameterValues, namedParam, this);
+        prepareFieldNamesParameters(parameterDefinition.getParameters(), namedParam, this);
 
         if (StringUtils.isEmpty(runConfiguration)) {
           throw new HopException(
@@ -592,9 +521,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
             pipeline,
             this,
             parameterNames,
-            parameters,
-            parameterValues,
-            isPassingAllParameters());
+            parameterDefinition.getNames(),
+            parameterDefinition.getValues(),
+            parameterDefinition.isPassingAllParameters());
 
         // First get the root workflow
         //
@@ -841,7 +770,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     return proposedNewFilename;
   }
 
-  protected String getLogfile() {
+  public String getLogfile() {
     return logfile;
   }
 
@@ -853,16 +782,6 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   /** @param waitingToFinish the waitingToFinish to set */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
-  }
-
-  /** @return the passingAllParameters */
-  public boolean isPassingAllParameters() {
-    return passingAllParameters;
-  }
-
-  /** @param passingAllParameters the passingAllParameters to set */
-  public void setPassingAllParameters(boolean passingAllParameters) {
-    this.passingAllParameters = passingAllParameters;
   }
 
   public String getRunConfiguration() {
@@ -919,38 +838,123 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     super.setParentWorkflowMeta(parentWorkflowMeta);
   }
 
-  public void prepareFieldNamesParameters(
-      String[] parameters,
-      String[] parameterFieldNames,
-      String[] parameterValues,
-      INamedParameters namedParam,
-      ActionPipeline actionPipeline)
-      throws UnknownParamException {
-    for (int idx = 0; idx < parameters.length; idx++) {
+  public void prepareFieldNamesParameters(List<Parameter> parameters, INamedParameters namedParam,
+      ActionPipeline actionPipeline) throws UnknownParamException {
+    for (Parameter parameter : parameters) {
       // Grab the parameter value set in the Pipeline action
-      // Set fieldNameParameter only if exists and if it is not declared any staticValue(
-      // parameterValues array )
+      // Set parameter.getField() only if exists and if it is not declared any static parameter.getValue()
       //
-      String thisValue = namedParam.getParameterValue(parameters[idx]);
-      // Set value only if is not empty at namedParam and exists in parameterFieldNames
-      if (idx < parameterFieldNames.length) {
-        // If exists then ask if is not empty
-        if (!Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
-          // If is not empty then we have to ask if it exists too in parameterValues array, since
-          // the values in
-          // parameterValues prevail over parameterFieldNames
-          if (idx < parameterValues.length) {
-            // If is empty at parameterValues array, then we can finally add that variable with that
-            // value
-            if (Utils.isEmpty(Const.trim(parameterValues[idx]))) {
-              actionPipeline.setVariable(parameters[idx], Const.NVL(thisValue, ""));
-            }
-          } else {
-            // Or if not in parameterValues then we can add that variable with that value too
-            actionPipeline.setVariable(parameters[idx], Const.NVL(thisValue, ""));
-          }
+      String thisValue = namedParam.getParameterValue(parameter.getName());
+      // Set value only if is not empty at namedParam and exists in parameter.getField
+      if (!Utils.isEmpty(Const.trim(parameter.getField()))) {
+        // If is not empty then we have to ask if it exists too in parameter.getValue(), since
+        // the values in parameter.getValue() prevail over parameterFieldNames
+        // If is empty at parameter.getValue(), then we can finally add that variable with that
+        // value
+        if (Utils.isEmpty(Const.trim(parameter.getValue()))) {
+          actionPipeline.setVariable(parameter.getName(), Const.NVL(thisValue, ""));
         }
+      } else {
+        // Or if not in parameter.getValue() then we can add that variable with that value too
+        actionPipeline.setVariable(parameter.getName(), Const.NVL(thisValue, ""));
       }
+
     }
   }
+ 
+  public boolean isExecPerRow() {
+    return execPerRow;
+  }
+  
+  public void setExecPerRow(boolean runEveryResultRow) {
+    this.execPerRow = runEveryResultRow;
+  }
+  
+  public boolean isAddDate() {
+    return addDate;
+  }
+
+  public boolean isAddTime() {
+    return addTime;
+  }
+
+  public void setAddDate(boolean addDate) {
+    this.addDate = addDate;
+  }
+
+  public void setAddTime(boolean addTime) {
+    this.addTime = addTime;
+  }
+
+  public String getLogext() {
+    return logext;
+  }
+
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
+
+  public void setLogfile(String logfile) {
+    this.logfile = logfile;
+  }
+
+  public void setLogext(String logext) {
+    this.logext = logext;
+  }
+
+  public boolean isSetLogfile() {
+    return setLogfile;
+  }
+
+  public LogLevel getLogFileLevel() {
+    return logFileLevel;
+  }
+
+  public boolean isCreateParentFolder() {
+    return createParentFolder;
+  }
+
+  public void setSetLogfile(boolean setLogfile) {
+    this.setLogfile = setLogfile;
+  }
+
+  public void setLogFileLevel(LogLevel logFileLevel) {
+    this.logFileLevel = logFileLevel;
+  }
+
+  public void setCreateParentFolder(boolean createParentFolder) {
+    this.createParentFolder = createParentFolder;
+  }
+
+  public boolean isParamsFromPrevious() {
+    return paramsFromPrevious;
+  }
+
+  public boolean isSetAppendLogfile() {
+    return setAppendLogfile;
+  }
+
+  public void setParamsFromPrevious(boolean paramsFromPrevious) {
+    this.paramsFromPrevious = paramsFromPrevious;
+  }
+
+  public void setSetAppendLogfile(boolean setAppendLogfile) {
+    this.setAppendLogfile = setAppendLogfile;
+  }
+
+  public boolean isClearResultRows() {
+    return clearResultRows;
+  }
+
+  public boolean isClearResultFiles() {
+    return clearResultFiles;
+  }
+
+  public void setClearResultRows(boolean clearResultRows) {
+    this.clearResultRows = clearResultRows;
+  }
+
+  public void setClearResultFiles(boolean clearResultFiles) {
+    this.clearResultFiles = clearResultFiles;
+  }  
 }

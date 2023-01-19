@@ -18,61 +18,71 @@
 package org.apache.hop.core.logging;
 
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 
-public enum LogLevel {
-  NOTHING(0, "Nothing"),
-  ERROR(1, "Error"),
-  MINIMAL(2, "Minimal"),
-  BASIC(3, "Basic"),
-  DETAILED(4, "Detailed"),
-  DEBUG(5, "Debug"),
-  ROWLEVEL(6, "Rowlevel");
+public enum LogLevel implements IEnumHasCodeAndDescription {
+  NOTHING(0, "Nothing", "LogWriter.Level.Nothing.LongDesc"),
+  ERROR(1, "Error", "LogWriter.Level.Error.LongDesc"),
+  MINIMAL(2, "Minimal", "LogWriter.Level.Minimal.LongDesc"),
+  BASIC(3, "Basic", "LogWriter.Level.Basic.LongDesc"),
+  DETAILED(4, "Detailed", "LogWriter.Level.Detailed.LongDesc"),
+  DEBUG(5, "Debug", "LogWriter.Level.Debug.LongDesc"),
+  ROWLEVEL(6, "Rowlevel", "LogWriter.Level.Rowlevel.LongDesc");
 
-  private static final Class<?> PKG = LogLevel.class; // For Translator
+  private final int level;
+  private final String code;
+  private final String description;
 
-  public static final String[] logLevelDescriptions = {
-    BaseMessages.getString(PKG, "LogWriter.Level.Nothing.LongDesc"),
-    BaseMessages.getString(PKG, "LogWriter.Level.Error.LongDesc"),
-    BaseMessages.getString(PKG, "LogWriter.Level.Minimal.LongDesc"),
-    BaseMessages.getString(PKG, "LogWriter.Level.Basic.LongDesc"),
-    BaseMessages.getString(PKG, "LogWriter.Level.Detailed.LongDesc"),
-    BaseMessages.getString(PKG, "LogWriter.Level.Debug.LongDesc"),
-    BaseMessages.getString(PKG, "LogWriter.Level.Rowlevel.LongDesc"),
-  };
-
-  private int level;
-  private String code;
-
-  private LogLevel(int level, String code) {
+  private LogLevel(int level, String code, String description) {
     this.level = level;
     this.code = code;
+    this.description = BaseMessages.getString(LogLevel.class, description);
   }
 
   public int getLevel() {
     return level;
   }
 
+  @Override
   public String getCode() {
     return code;
   }
 
+  @Override
   public String getDescription() {
-    return logLevelDescriptions[level];
+    return description;
   }
-
+  
   /**
    * Return the log level for a certain log level code
    *
    * @param code the code to look for
    * @return the log level or BASIC if nothing matches.
    */
+  @Deprecated
   public static LogLevel getLogLevelForCode(String code) {
-    for (LogLevel logLevel : values()) {
-      if (logLevel.getCode().equalsIgnoreCase(code)) {
-        return logLevel;
-      }
-    }
-    return BASIC;
+    return IEnumHasCode.lookupCode(LogLevel.class, code, LogLevel.BASIC);
+  }
+  
+  /**
+   * Return the log level for a certain log level code
+   *
+   * @param code the code to look for
+   * @return the log level or BASIC if nothing matches.
+   */  
+  public static LogLevel lookupCode(final String code) {
+    return IEnumHasCode.lookupCode(LogLevel.class, code, LogLevel.BASIC);
+  }
+  
+  /**
+   * Return the log level for a certain log level description
+   *
+   * @param description the description to look for
+   * @return the log level or BASIC if nothing matches.
+   */  
+  public static LogLevel lookupDescription(final String description) {
+    return IEnumHasCodeAndDescription.lookupDescription(LogLevel.class, description, LogLevel.BASIC);
   }
 
   /**
@@ -118,17 +128,16 @@ public enum LogLevel {
     return this.level >= ROWLEVEL.level;
   }
 
-  /** @return An array of log level descriptions, sorted by level (0==Nothing, 6=Row Level) */
+  /** 
+   * Return an array of log level descriptions, sorted by level (0==Nothing, 6=Row Level)
+   * @return An array of log level descriptions
+   */
   public static String[] getLogLevelDescriptions() {
-    return logLevelDescriptions;
+    return IEnumHasCodeAndDescription.getDescriptions(LogLevel.class);
   }
 
   /** @return An array of log level codes, sorted by level (0==Nothing, 6=Row Level) */
   public static String[] logLogLevelCodes() {
-    String[] codes = new String[values().length];
-    for (int i = 0; i < codes.length; i++) {
-      codes[i] = values()[i].getCode();
-    }
-    return codes;
+    return IEnumHasCode.getCodes(LogLevel.class);
   }
 }
