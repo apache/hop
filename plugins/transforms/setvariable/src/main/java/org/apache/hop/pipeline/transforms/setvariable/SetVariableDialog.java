@@ -43,15 +43,14 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.List;
-import java.util.ArrayList;
-
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
@@ -71,7 +70,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
   private ColumnInfo[] colinf;
 
   public SetVariableDialog(
-          Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (SetVariableMeta) in;
     inputFields = new HashMap<>();
@@ -301,11 +300,14 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
 
-      input.getVariables().add(new VariableItem(item.getText(1)
-              , item.getText(2)
-              , VariableItem.getVariableTypeFromDesc(item.getText(3))
-              , item.getText(4)));
-
+      input
+          .getVariables()
+          .add(
+              new VariableItem(
+                  item.getText(1),
+                  item.getText(2),
+                  VariableItem.getVariableTypeFromDesc(item.getText(3)),
+                  item.getText(4)));
     }
 
     input.setUsingFormatting(wFormat.getSelection());
@@ -346,7 +348,8 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
               tableItem.setText(2, v.getName().toUpperCase());
               tableItem.setText(
                   3,
-                      VariableItem.getVariableTypeDescription(VariableItem.VARIABLE_TYPE_ROOT_WORKFLOW));
+                  VariableItem.getVariableTypeDescription(
+                      VariableItem.VARIABLE_TYPE_ROOT_WORKFLOW));
               return true;
             });
       }

@@ -42,12 +42,12 @@ import java.util.List;
     keywords = "i18n::SetVariableMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvariable.html")
 public class SetVariableMeta extends BaseTransformMeta<SetVariable, SetVariableData> {
-    private static final Class<?> PKG = SetVariableMeta.class;
+  private static final Class<?> PKG = SetVariableMeta.class;
 
- @HopMetadataProperty(groupKey = "fields", key = "field")
- List<VariableItem> variables;
+  @HopMetadataProperty(groupKey = "fields", key = "field")
+  List<VariableItem> variables;
 
- @HopMetadataProperty(key="use_formatting")
+  @HopMetadataProperty(key = "use_formatting")
   private boolean usingFormatting;
 
   public SetVariableMeta() {
@@ -68,7 +68,6 @@ public class SetVariableMeta extends BaseTransformMeta<SetVariable, SetVariableD
 
     usingFormatting = true;
   }
-
 
   @Override
   public void check(
@@ -122,12 +121,16 @@ public class SetVariableMeta extends BaseTransformMeta<SetVariable, SetVariableD
     }
   }
 
-  /** @return the usingFormatting */
+  /**
+   * @return the usingFormatting
+   */
   public boolean isUsingFormatting() {
     return usingFormatting;
   }
 
-  /** @param usingFormatting the usingFormatting to set */
+  /**
+   * @param usingFormatting the usingFormatting to set
+   */
   public void setUsingFormatting(boolean usingFormatting) {
     this.usingFormatting = usingFormatting;
   }
