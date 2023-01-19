@@ -63,10 +63,12 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
 
   @HopMetadataProperty(key = "filename1")
   private String filename1;
+
   @HopMetadataProperty(key = "filename2")
   private String filename2;
+
   @HopMetadataProperty(key = "add_filename_result")
-  private boolean addFilenameToResult; 
+  private boolean addFilenameToResult;
 
   public ActionFileCompare(String n) {
     super(n, "");
@@ -80,12 +82,12 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
   }
 
   public ActionFileCompare(ActionFileCompare meta) {
-    this("");
+    super(meta.getName(), meta.getDescription(), meta.getPluginId());
     this.filename1 = meta.filename1;
     this.filename2 = meta.filename2;
-    this.addFilenameToResult = meta.addFilenameToResult;    
+    this.addFilenameToResult = meta.addFilenameToResult;
   }
-  
+
   @Override
   public Object clone() {
     return new ActionFileCompare(this);

@@ -65,10 +65,14 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
     this("");
   }
 
+  public ActionCheckDbConnections(ActionCheckDbConnections other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.connections = other.getConnections();
+  }
+
   @Override
   public Object clone() {
-    ActionCheckDbConnections je = (ActionCheckDbConnections) super.clone();
-    return je;
+    return new ActionCheckDbConnections(this);
   }
 
   @Override

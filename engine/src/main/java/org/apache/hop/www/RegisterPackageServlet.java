@@ -104,7 +104,8 @@ public class RegisterPackageServlet extends BaseWorkflowServlet {
         WorkflowExecutionConfiguration workflowExecutionConfiguration =
             new WorkflowExecutionConfiguration(node);
 
-        WorkflowMeta workflowMeta = new WorkflowMeta(fileUrl);
+        WorkflowMeta workflowMeta =
+            new WorkflowMeta(Variables.getADefaultVariableSpace(), fileUrl, metadataProvider);
         WorkflowConfiguration workflowConfiguration =
             new WorkflowConfiguration(
                 workflowMeta, workflowExecutionConfiguration, metadataProvider);

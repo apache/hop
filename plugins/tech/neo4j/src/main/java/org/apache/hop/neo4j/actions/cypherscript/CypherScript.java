@@ -61,7 +61,7 @@ public class CypherScript extends ActionBase implements IAction {
   }
 
   public CypherScript(CypherScript s) {
-    super(s.getName(), s.getDescription());
+    super(s.getName(), s.getDescription(), s.getPluginId());
     this.connectionName = s.connectionName;
     this.script = s.script;
     this.replacingVariables = s.replacingVariables;

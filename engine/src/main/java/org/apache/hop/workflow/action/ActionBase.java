@@ -141,6 +141,22 @@ public abstract class ActionBase
   }
 
   /**
+   *
+   * @param name the name of the action
+   * @param description the description of the action
+   * @param pluginId the pluginId of the action
+   */
+  protected ActionBase(String name, String description, String pluginId) {
+    setName(name);
+    setDescription(description);
+    setPluginId(pluginId);
+    log = new LogChannel(this);
+    this.setVariable(Const.INTERNAL_VARIABLE_ACTION_ID, log.getLogChannelId());
+    attributesMap = new HashMap<>();
+    extensionDataMap = new HashMap<>();
+  }
+
+  /**
    * Copy constructor variant
    * @param b The action base to copy
    */

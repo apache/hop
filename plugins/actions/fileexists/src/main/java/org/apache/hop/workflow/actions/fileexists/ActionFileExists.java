@@ -42,7 +42,10 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import java.util.List;
 import java.util.Map;
 
-/** The File Exists action verifies that a specified file exists on the server on which Hop is running. */
+/**
+ * The File Exists action verifies that a specified file exists on the server on which Hop is
+ * running.
+ */
 @Action(
     id = "FILE_EXISTS",
     name = "i18n::ActionFileExists.Name",
@@ -53,7 +56,7 @@ import java.util.Map;
     documentationUrl = "/workflow/actions/fileexists.html")
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileExists.class; // For Translator
-  
+
   @HopMetadataProperty(key = "filename")
   private String filename;
 
@@ -67,13 +70,13 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionFileExists(ActionFileExists meta) {
-    this("");
+    super(meta.getName(), meta.getDescription(), meta.getPluginId());
     this.filename = meta.filename;
   }
-  
+
   @Override
   public Object clone() {
-    return new ActionFileExists(this);    
+    return new ActionFileExists(this);
   }
 
   public void setFilename(String filename) {

@@ -68,7 +68,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
   }
 
   public ActionCreateFolder(ActionCreateFolder f) {
-    super(f);
+    super(f.getName(), f.getDescription(), f.getPluginId());
     this.folderName = f.folderName;
     this.failIfFolderExists = f.failIfFolderExists;
   }

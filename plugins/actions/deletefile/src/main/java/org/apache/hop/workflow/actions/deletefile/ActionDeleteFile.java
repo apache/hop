@@ -56,9 +56,10 @@ import java.util.List;
     documentationUrl = "/workflow/actions/deletefile.html")
 public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFile.class; // For Translator
-  
+
   @HopMetadataProperty(key = "filename")
   private String filename;
+
   @HopMetadataProperty(key = "fail_if_file_not_exists")
   private boolean failIfFileNotExists;
 
@@ -73,11 +74,11 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionDeleteFile(ActionDeleteFile meta) {
-    this("");
+    super(meta.getName(), meta.getDescription(), meta.getPluginId());
     this.filename = meta.filename;
     this.failIfFileNotExists = meta.failIfFileNotExists;
   }
-  
+
   @Override
   public Object clone() {
     return new ActionDeleteFile(this);
