@@ -49,7 +49,7 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
 
   // Maximum timeout in seconds
   @HopMetadataProperty(key = "maximumTimeout")
-  private String maximumTimeout; 
+  private String maximumTimeout;
 
   @HopMetadataProperty(key = "scaletime")
   public int scaleTime;
@@ -62,10 +62,15 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
     this("");
   }
 
+  public ActionDelay(ActionDelay other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.maximumTimeout = other.maximumTimeout;
+    this.scaleTime = other.scaleTime;
+  }
+
   @Override
   public Object clone() {
-    ActionDelay je = (ActionDelay) super.clone();
-    return je;
+    return new ActionDelay(this);
   }
 
   /**

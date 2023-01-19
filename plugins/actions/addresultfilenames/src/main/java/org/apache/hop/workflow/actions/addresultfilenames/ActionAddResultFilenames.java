@@ -85,10 +85,17 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     this("");
   }
 
+  public ActionAddResultFilenames(ActionAddResultFilenames other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.argFromPrevious = other.argFromPrevious;
+    this.arguments = other.arguments;
+    this.deleteAllBefore = other.deleteAllBefore;
+    this.includeSubFolders = other.includeSubFolders;
+  }
+
   @Override
   public Object clone() {
-    ActionAddResultFilenames je = (ActionAddResultFilenames) super.clone();
-    return je;
+    return new ActionAddResultFilenames(this);
   }
 
   @Override
@@ -377,7 +384,9 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     return argFromPrevious;
   }
 
-  /** @param argFromPrevious The argFromPrevious to set */
+  /**
+   * @param argFromPrevious The argFromPrevious to set
+   */
   public void setArgFromPrevious(boolean argFromPrevious) {
     this.argFromPrevious = argFromPrevious;
   }
@@ -409,7 +418,9 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     return arguments;
   }
 
-  /** @param arguments The arguments to set */
+  /**
+   * @param arguments The arguments to set
+   */
   public void setArguments(List<Argument> arguments) {
     this.arguments = arguments;
   }

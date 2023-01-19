@@ -57,18 +57,21 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   private static final Class<?> PKG = ActionFolderIsEmpty.class; // For Translator
 
   @HopMetadataProperty(key = "foldername")
-  private String folderName;  
+  private String folderName;
+
   @HopMetadataProperty(key = "include_subfolders")
   private boolean includeSubFolders;
+
   @HopMetadataProperty(key = "specify_wildcard")
   private boolean specifyWildcard;
+
   @HopMetadataProperty(key = "wildcard")
   private String wildcard;
- 
+
   private int filescount;
   private int folderscount;
   private Pattern pattern;
-  
+
   public ActionFolderIsEmpty(String n) {
     super(n, "");
     folderName = null;
@@ -82,7 +85,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public ActionFolderIsEmpty(ActionFolderIsEmpty meta) {
-    this("");
+    super(meta.getName(), meta.getDescription(), meta.getPluginId());
     this.folderName = meta.folderName;
     this.includeSubFolders = meta.includeSubFolders;
     this.specifyWildcard = meta.specifyWildcard;

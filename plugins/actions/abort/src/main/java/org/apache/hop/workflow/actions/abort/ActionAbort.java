@@ -59,7 +59,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   }
 
   public ActionAbort(ActionAbort other) {
-    this(other.getName(), other.getDescription());
+    super(other.getName(), other.getDescription(), other.getPluginId());
     this.messageAbort = other.messageAbort;
     this.alwaysLogRows = other.alwaysLogRows;
   }

@@ -94,7 +94,7 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
   }
 
   public ActionAs400Command(ActionAs400Command other) {
-    this("", "");
+    super(other.getName(), other.getDescription(), other.getPluginId());
     this.server = other.server;
     this.user = other.user;
     this.password = other.password;
@@ -108,7 +108,9 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     return new ActionAs400Command(this);
   }
 
-  /** @return Returns the userName. */
+  /**
+   * @return Returns the userName.
+   */
   public String getUser() {
     return user;
   }
@@ -122,7 +124,9 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     this.user = userName;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
@@ -136,12 +140,16 @@ public class ActionAs400Command extends ActionBase implements Cloneable, IAction
     this.password = password;
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   public String getServer() {
     return server;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServer(String serverName) {
     this.server = serverName;
   }

@@ -36,6 +36,7 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +51,10 @@ import java.util.List;
     documentationUrl = "/workflow/actions/columnsexist.html")
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
-  
+
   public static final class ColumnExist {
-    public ColumnExist() {  
-    }
-    
+    public ColumnExist() {}
+
     public ColumnExist(String name) {
       this.name = name;
     }
@@ -68,15 +68,18 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
     public void setName(String name) {
       this.name = name;
-    }       
+    }
   }
-  
+
   @HopMetadataProperty(key = "schemaname")
   private String schemaName;
+
   @HopMetadataProperty(key = "tablename")
   private String tableName;
+
   @HopMetadataProperty(key = "connection", storeWithName = true)
   private DatabaseMeta databaseMeta;
+
   @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<ColumnExist> columns;
 
@@ -93,15 +96,15 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   public ActionColumnsExist(ActionColumnsExist meta) {
-    this("");
+    super(meta.getName(), meta.getDescription(), meta.getPluginId());
     this.schemaName = meta.schemaName;
     this.tableName = meta.tableName;
     this.databaseMeta = meta.databaseMeta;
-    for (ColumnExist column: meta.columns) {
+    for (ColumnExist column : meta.columns) {
       columns.add(new ColumnExist(column.getName()));
     }
   }
-  
+
   @Override
   public Object clone() {
     return new ActionColumnsExist(this);
@@ -179,11 +182,11 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
                 BaseMessages.getString(PKG, "ActionColumnsExist.Log.TableExists", realTablename));
           }
 
-          for (ColumnExist column: columns) {            
-            if ( parentWorkflow.isStopped() ) {
-                break;
+          for (ColumnExist column : columns) {
+            if (parentWorkflow.isStopped()) {
+              break;
             }
-            
+
             String realColumnname = resolve(column.getName());
 
             if (db.checkColumnExists(realSchemaname, realTablename, realColumnname)) {
@@ -239,7 +242,9 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     if (databaseMeta != null) {
       ResourceReference reference = new ResourceReference(this);
-      reference.getEntries().add(new ResourceEntry(databaseMeta.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(databaseMeta.getHostname(), ResourceType.SERVER));
       reference
           .getEntries()
           .add(new ResourceEntry(databaseMeta.getDatabaseName(), ResourceType.DATABASENAME));
