@@ -31,6 +31,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
+import java.util.List;
+
 /** Convert Values in a certain fields to other values */
 public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData> {
 
@@ -56,8 +58,9 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
       if (first) {
         // We do not received any row !!
         logBasic(BaseMessages.getString(PKG, "SetVariable.Log.NoInputRowSetDefault"));
-        for (int i = 0; i < meta.getFieldName().length; i++) {
-          if (!Utils.isEmpty(meta.getDefaultValue()[i])) {
+        List<VariableItem> vars = meta.getVariables();
+        for (int i = 0; i < vars.size(); i++) {
+          if (!Utils.isEmpty(vars.get(i).getDefaultValue())) {
             setValue(rowData, i, true);
           }
         }
@@ -70,12 +73,11 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
 
     if (first) {
       first = false;
-
       data.outputMeta = getInputRowMeta().clone();
 
       logBasic(BaseMessages.getString(PKG, "SetVariable.Log.SettingVar"));
 
-      for (int i = 0; i < meta.getFieldName().length; i++) {
+      for (int i = 0; i < meta.getVariables().size(); i++) {
         setValue(rowData, i, false);
       }
 
@@ -92,13 +94,15 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
     // Set the appropriate environment variable
     //
     String value = null;
+    List<VariableItem> vars = meta.getVariables();
+
     if (usedefault) {
-      value = resolve(meta.getDefaultValue()[i]);
+      value = resolve(vars.get(i).getDefaultValue());
     } else {
-      int index = data.outputMeta.indexOfValue(meta.getFieldName()[i]);
+      int index = data.outputMeta.indexOfValue(vars.get(i).getFieldName());
       if (index < 0) {
         throw new HopException(
-            "Unable to find field [" + meta.getFieldName()[i] + "] in input row");
+            "Unable to find field [" + vars.get(i).getFieldName() + "] in input row");
       }
       IValueMeta valueMeta = data.outputMeta.getValueMeta(index);
       Object valueData = rowData[index];
@@ -117,7 +121,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
     }
 
     // Get variable name
-    String varname = meta.getVariableName()[i];
+    String varname = vars.get(i).getVariableName();
 
     if (Utils.isEmpty(varname)) {
       if (Utils.isEmpty(value)) {
@@ -149,8 +153,8 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
     // It has one or more parent workflows.
     // Below we see where we need to this value as well...
     //
-    switch (meta.getVariableType()[i]) {
-      case SetVariableMeta.VARIABLE_TYPE_JVM:
+    switch (vars.get(i).getVariableType()) {
+      case VariableItem.VARIABLE_TYPE_JVM:
         System.setProperty(varname, value);
 
         parentWorkflow = pipeline.getParentWorkflow();
@@ -160,7 +164,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         }
 
         break;
-      case SetVariableMeta.VARIABLE_TYPE_ROOT_WORKFLOW:
+      case VariableItem.VARIABLE_TYPE_ROOT_WORKFLOW:
         parentWorkflow = pipeline.getParentWorkflow();
         while (parentWorkflow != null) {
           parentWorkflow.setVariable(varname, value);
@@ -168,7 +172,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         }
         break;
 
-      case SetVariableMeta.VARIABLE_TYPE_GRAND_PARENT_WORKFLOW:
+      case VariableItem.VARIABLE_TYPE_GRAND_PARENT_WORKFLOW:
         // Set the variable in the parent workflow
         //
         parentWorkflow = pipeline.getParentWorkflow();
@@ -194,7 +198,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
         }
         break;
 
-      case SetVariableMeta.VARIABLE_TYPE_PARENT_WORKFLOW:
+      case VariableItem.VARIABLE_TYPE_PARENT_WORKFLOW:
         // Set the variable in the parent workflow
         //
         parentWorkflow = pipeline.getParentWorkflow();
@@ -214,6 +218,6 @@ public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData>
 
     logBasic(
         BaseMessages.getString(
-            PKG, "SetVariable.Log.SetVariableToValue", meta.getVariableName()[i], value));
+            PKG, "SetVariable.Log.SetVariableToValue", vars.get(i).getVariableName(), value));
   }
 }
