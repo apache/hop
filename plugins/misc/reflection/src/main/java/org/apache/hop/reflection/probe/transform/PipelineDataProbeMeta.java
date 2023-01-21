@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::PipelineDataProbe.Transform.Name",
     description = "i18n::PipelineDataProbe.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "/logging/logging-reflection.html",
+    documentationUrl = "/pipeline/transforms/pipeline-data-probe.html",
     image = "probe.svg",
     keywords = "i18n::PipelineDataProbeMeta.keyword")
 public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, PipelineDataProbeData> {
