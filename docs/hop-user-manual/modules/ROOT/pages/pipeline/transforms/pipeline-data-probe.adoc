@@ -25,7 +25,9 @@ under the License.
 |
 == Description
 
-The Pipeline Data Probe transform receives data probe data configured by a xref:metadata-types/pipeline-probe.adoc[Pipeline Probe].
+The Pipeline Data Probe transform receives data probe data configured by a xref:metadata-types/pipeline-probe.adoc[Pipeline Probe] metadata type.
+
+Check the xref:metadata-types/pipeline-probe.adoc[Pipeline Probe] metadata type for more information.
 
 |
 == Supported Engines
