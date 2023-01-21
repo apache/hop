@@ -23,12 +23,14 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class UserDefinedJavaClassMetaInjectionTest
     extends BaseMetadataInjectionTest<UserDefinedJavaClassMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

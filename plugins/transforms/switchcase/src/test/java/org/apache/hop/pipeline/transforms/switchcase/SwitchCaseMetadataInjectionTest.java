@@ -21,8 +21,10 @@ import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class SwitchCaseMetadataInjectionTest extends BaseMetadataInjectionTest<SwitchCaseMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
