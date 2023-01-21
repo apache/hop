@@ -32,6 +32,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
+import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -52,7 +53,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
@@ -70,11 +70,17 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Button wbBrowse;
 
+  protected Label wlRunConfiguration;
+  protected ComboVar wRunConfiguration;
+
   protected Group gLogFile;
 
   protected Composite wOptions;
 
+  protected Label wlName;
   protected Text wName;
+  protected FormData fdlName;
+  protected FormData fdName;
 
   protected Button wSetLogfile;
 
@@ -82,6 +88,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected TextVar wLogfile;
 
   protected Button wbLogFilename;
+  protected FormData fdbLogFilename;
 
   protected Button wCreateParentFolder;
 
@@ -126,6 +133,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected Display display;
 
+  protected FormData fdgExecution;
+
   protected LogChannel log;
 
   public ActionBaseDialog(
@@ -152,17 +161,17 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wicon.setLayoutData(fdlicon);
     PropsUi.setLook(wicon);
 
-    Label wlName = new Label(shell, SWT.LEFT);
+    wlName = new Label(shell, SWT.LEFT);
     PropsUi.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "ActionPipeline.ActionName.Label"));
-    FormData fdlName = new FormData();
+    fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
     fdlName.top = new FormAttachment(0, 0);
     wlName.setLayoutData(fdlName);
 
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wName);
-    FormData fdName = new FormData();
+    fdName = new FormData();
     fdName.right = new FormAttachment(wicon, -5);
     fdName.top = new FormAttachment(wlName, 5);
     fdName.left = new FormAttachment(0, 0);
@@ -199,7 +208,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdPath.right = new FormAttachment(wbBrowse, -5);
     wPath.setLayoutData(fdPath);
 
-    Label wlRunConfiguration = new Label(shell, SWT.LEFT);
+    wlRunConfiguration = new Label(shell, SWT.LEFT);
     wlRunConfiguration.setText(
         BaseMessages.getString(PKG, "ActionPipeline.RunConfiguration.Label"));
     PropsUi.setLook(wlRunConfiguration);
@@ -209,14 +218,14 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlRunConfiguration.right = new FormAttachment(50, 0);
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
-    Control wRunConfiguration = this.createRunConfigurationControl();
+    wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment(0, 0);
-    fdRunConfiguration.right = new FormAttachment(100, 0);
     fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, Const.isOSX() ? 0 : 5);
+    fdRunConfiguration.right = new FormAttachment(100, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
-    
+
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -241,7 +250,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     gExecutionLayout.marginHeight = 15;
     gExecution.setLayout(gExecutionLayout);
 
-    FormData fdgExecution = new FormData();
+    fdgExecution = new FormData();
     fdgExecution.top = new FormAttachment(0, 10);
     fdgExecution.left = new FormAttachment(0, 0);
     fdgExecution.right = new FormAttachment(100, 0);
@@ -285,7 +294,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdSpecifyLogFile.left = new FormAttachment(0, 0);
     fdSpecifyLogFile.top = new FormAttachment(0, 0);
     wSetLogfile.setLayoutData(fdSpecifyLogFile);
-    wSetLogfile.addListener(SWT.Selection, e -> setLogFileEnabled());
 
     gLogFile = new Group(wLogging, SWT.SHADOW_ETCHED_IN);
     PropsUi.setLook(gLogFile);
@@ -304,23 +312,23 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wlLogfile = new Label(gLogFile, SWT.LEFT);
     PropsUi.setLook(wlLogfile);
     wlLogfile.setText(BaseMessages.getString(PKG, "ActionPipeline.NameOfLogfile.Label"));
-    FormData fdlLogfile = new FormData();
-    fdlLogfile.left = new FormAttachment(0, 0);
-    fdlLogfile.top = new FormAttachment(0, 0);
-    wlLogfile.setLayoutData(fdlLogfile);
+    FormData fdlName = new FormData();
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.top = new FormAttachment(0, 0);
+    wlLogfile.setLayoutData(fdlName);
 
     wLogfile = new TextVar(variables, gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wLogfile);
-    FormData fdLogfile = new FormData();
-    fdLogfile.width = 250;
-    fdLogfile.left = new FormAttachment(0, 0);
-    fdLogfile.top = new FormAttachment(wlLogfile, 5);
-    wLogfile.setLayoutData(fdLogfile);
+    FormData fdName = new FormData();
+    fdName.width = 250;
+    fdName.left = new FormAttachment(0, 0);
+    fdName.top = new FormAttachment(wlLogfile, 5);
+    wLogfile.setLayoutData(fdName);
 
     wbLogFilename = new Button(gLogFile, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbLogFilename);
     wbLogFilename.setText(BaseMessages.getString(PKG, "ActionPipeline.Browse.Label"));
-    FormData fdbLogFilename = new FormData();
+    fdbLogFilename = new FormData();
     fdbLogFilename.top = new FormAttachment(wlLogfile, Const.isOSX() ? 0 : 5);
     fdbLogFilename.left = new FormAttachment(wLogfile, 5);
     wbLogFilename.setLayoutData(fdbLogFilename);
@@ -391,6 +399,14 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdIncludeTime.top = new FormAttachment(wAddDate, 10);
     wAddTime.setLayoutData(fdIncludeTime);
 
+    wSetLogfile.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent selectionEvent) {
+            setLogFileEnabled();
+          }
+        });
+
     wLoggingTab.setControl(wLogging);
 
     FormData fdLogging = new FormData();
@@ -442,7 +458,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdGetParams.right = new FormAttachment(100, 0);
     wbGetParams.setLayoutData(fdGetParams);
 
-    final int parameterRows = getParameterCount();
+    final int parameterRows = getParameters() != null ? getParameters().length : 0;
 
     ColumnInfo[] colinf =
         new ColumnInfo[] {
@@ -513,7 +529,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);    
+    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -598,7 +614,5 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected abstract Image getImage();
 
-  protected abstract int getParameterCount();
-  
-  protected abstract Control createRunConfigurationControl();
+  protected abstract String[] getParameters();
 }

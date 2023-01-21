@@ -32,7 +32,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -42,15 +41,16 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.actions.workflow.ActionWorkflow.Parameter;
-import org.apache.hop.workflow.actions.workflow.ActionWorkflow.ParameterDefinition;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -60,9 +60,8 @@ import java.util.List;
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
-  private ActionWorkflow action;
-  private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
-  
+  protected ActionWorkflow action;
+
   private static final String[] FILE_FILTERLOGNAMES =
       new String[] {
         BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.TXT"),
@@ -113,12 +112,39 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
 
-    // force reload from file specification
-    wbGetParams.addListener(SWT.Selection, e -> getParameters(null));
+    // End Server Section
 
-    wbBrowse.addListener(SWT.Selection, e -> pickFileVFS());
+    Composite cRunConfiguration = new Composite(wOptions, SWT.NONE);
+    cRunConfiguration.setLayout(new FormLayout());
+    PropsUi.setLook(cRunConfiguration);
+    FormData fdLocal = new FormData();
+    fdLocal.top = new FormAttachment(0);
+    fdLocal.right = new FormAttachment(100);
+    fdLocal.left = new FormAttachment(0);
 
-    wbLogFilename.addListener(SWT.Selection, e -> selectLogFile(FILE_FILTERLOGNAMES));
+    wbGetParams.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            getParameters(null); // force reload from file specification
+          }
+        });
+
+    wbBrowse.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            pickFileVFS();
+          }
+        });
+
+    wbLogFilename.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            selectLogFile(FILE_FILTERLOGNAMES);
+          }
+        });
   }
 
   @Override
@@ -137,8 +163,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   @Override
-  protected int getParameterCount() {
-    return action.getParameterDefinition().getParameters().size();
+  protected String[] getParameters() {
+    return action.parameters;
   }
 
   protected void getParameters(WorkflowMeta inputWorkflowMeta) {
@@ -169,22 +195,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
           e);
     }
   }
-  
-  @Override
-  protected Control createRunConfigurationControl() {
-  wRunConfiguration =
-        new MetaSelectionLine<>(
-            variables,            
-            metadataProvider,
-            WorkflowRunConfiguration.class,
-            shell,
-            SWT.BORDER,
-            null,
-            null,
-            true);
-
-    return wRunConfiguration;
-  }
 
   protected void pickFileVFS() {
     HopWorkflowFileType<WorkflowMeta> workflowFileType = new HopWorkflowFileType<>();
@@ -211,43 +221,41 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wPath.setText(Const.NVL(action.getFilename(), ""));
 
     // Parameters
-    ParameterDefinition parameterDefinition = action.getParameterDefinition();
-    if (action.getParameterDefinition() != null) {
-      for (int i = 0; i < parameterDefinition.getParameters().size(); i++) {
-        Parameter parameter = parameterDefinition.getParameters().get(i);
-        TableItem item = wParameters.getTable().getItem(i);
-        if (!Utils.isEmpty(parameter.getName())) {
-          item.setText(1, Const.NVL(parameter.getName(), ""));
-          item.setText(2, Const.NVL(parameter.getField(), ""));
-          item.setText(3, Const.NVL(parameter.getValue(), ""));
+    if (action.parameters != null) {
+      for (int i = 0; i < action.parameters.length; i++) {
+        TableItem ti = wParameters.table.getItem(i);
+        if (!Utils.isEmpty(action.parameters[i])) {
+          ti.setText(1, Const.NVL(action.parameters[i], ""));
+          ti.setText(2, Const.NVL(action.parameterFieldNames[i], ""));
+          ti.setText(3, Const.NVL(action.parameterValues[i], ""));
         }
       }
       wParameters.setRowNums();
       wParameters.optWidth(true);
     }
 
-    wPassParams.setSelection(parameterDefinition.isPassingAllParameters());
+    wPassParams.setSelection(action.isPassingAllParameters());
 
-    wPrevToParams.setSelection(action.isParamsFromPrevious());
-    wEveryRow.setSelection(action.isExecPerRow());
-    wSetLogfile.setSelection(action.isSetLogfile());
-    if (action.getLogfile() != null) {
-      wLogfile.setText(action.getLogfile());
+    wPrevToParams.setSelection(action.paramsFromPrevious);
+    wEveryRow.setSelection(action.execPerRow);
+    wSetLogfile.setSelection(action.setLogfile);
+    if (action.logfile != null) {
+      wLogfile.setText(action.logfile);
     }
-    if (action.getLogext() != null) {
-      wLogext.setText(action.getLogext());
+    if (action.logext != null) {
+      wLogext.setText(action.logext);
     }
-    wAddDate.setSelection(action.isAddDate());
-    wAddTime.setSelection(action.isAddTime());
+    wAddDate.setSelection(action.addDate);
+    wAddTime.setSelection(action.addTime);
 
-    if (action.getLogFileLevel() != null) {
-      wLoglevel.select(action.getLogFileLevel().getLevel());
+    if (action.logFileLevel != null) {
+      wLoglevel.select(action.logFileLevel.getLevel());
     } else {
       // Set the default log level
       wLoglevel.select(ActionWorkflow.DEFAULT_LOG_LEVEL.getLevel());
     }
-    wAppendLogfile.setSelection(action.isSetAppendLogfile());
-    wCreateParentFolder.setSelection(action.isCreateParentFolder());
+    wAppendLogfile.setSelection(action.setAppendLogfile);
+    wCreateParentFolder.setSelection(action.createParentFolder);
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
 
     try {
@@ -265,8 +273,10 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       } catch (HopException e) {
         // Ignore errors
       }
-     
+
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
+      wRunConfiguration.setText(Const.NVL(action.getRunConfiguration(), ""));
+
       if (Utils.isEmpty(action.getRunConfiguration())) {
         wRunConfiguration.select(0);
       } else {
@@ -276,8 +286,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       LogChannel.UI.logError("Error getting workflow run configurations", e);
     }
 
-    setLogFileEnabled();
-    
     wName.selectAll();
     wName.setFocus();
   }
@@ -291,52 +299,64 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   @VisibleForTesting
-  protected void getInfo(ActionWorkflow action) {
-    action.setName(wName.getText());
-    action.setFileName(wPath.getText());
-    action.setRunConfiguration(wRunConfiguration.getText());
+  protected void getInfo(ActionWorkflow aw) {
+    String jobPath = getPath();
+    aw.setName(getName());
+    aw.setFileName(jobPath);
+    aw.setRunConfiguration(wRunConfiguration.getText());
 
-    ParameterDefinition parameterDefinition = action.getParameterDefinition();
-    parameterDefinition.getParameters().clear();
-    
     // Do the parameters
     int nrItems = wParameters.nrNonEmpty();
+    int nr = 0;
     for (int i = 0; i < nrItems; i++) {
-      TableItem item = wParameters.getNonEmpty(i);
-      
-      Parameter parameter = new Parameter();
-      parameter.setName(item.getText(1));
-
-      String fieldName = Const.trim(item.getText(2));
-      if (!Utils.isEmpty(fieldName)) {
-        parameter.setField(fieldName);
-      } else {
-        parameter.setField("");
+      String param = wParameters.getNonEmpty(i).getText(1);
+      if (param != null && param.length() != 0) {
+        nr++;
       }
-
-      String value = Const.trim(item.getText(3));
-      if (!Utils.isEmpty(value)) {
-        parameter.setValue(value);
-      } else {
-        parameter.setValue("");
-      }
-      
-      parameterDefinition.getParameters().add(parameter);
     }
-    parameterDefinition.setPassingAllParameters(wPassParams.getSelection());
+    aw.parameters = new String[nr];
+    aw.parameterFieldNames = new String[nr];
+    aw.parameterValues = new String[nr];
+    nr = 0;
+    for (int i = 0; i < nrItems; i++) {
+      String param = wParameters.getNonEmpty(i).getText(1);
+      String fieldName = wParameters.getNonEmpty(i).getText(2);
+      String value = wParameters.getNonEmpty(i).getText(3);
 
-    action.setSetLogfile(wSetLogfile.getSelection());
-    action.setAddDate(wAddDate.getSelection());
-    action.setAddTime(wAddTime.getSelection());
-    action.setLogfile(wLogfile.getText());
-    action.setLogext(wLogext.getText());
-    action.setLogFileLevel(LogLevel.lookupDescription(wLoglevel.getText()));
-    action.setParamsFromPrevious(wPrevToParams.getSelection());
-    action.setExecPerRow(wEveryRow.getSelection());
-    action.setSetAppendLogfile(wAppendLogfile.getSelection());
-    action.setWaitingToFinish(wWaitingToFinish.getSelection());
-    action.setCreateParentFolder(wCreateParentFolder.getSelection());
-    action.setRunConfiguration(wRunConfiguration.getText());
+      aw.parameters[nr] = param;
+
+      if (!Utils.isEmpty(Const.trim(fieldName))) {
+        aw.parameterFieldNames[nr] = fieldName;
+      } else {
+        aw.parameterFieldNames[nr] = "";
+      }
+
+      if (!Utils.isEmpty(Const.trim(value))) {
+        aw.parameterValues[nr] = value;
+      } else {
+        aw.parameterValues[nr] = "";
+      }
+
+      nr++;
+    }
+    aw.setPassingAllParameters(wPassParams.getSelection());
+
+    aw.setLogfile = wSetLogfile.getSelection();
+    aw.addDate = wAddDate.getSelection();
+    aw.addTime = wAddTime.getSelection();
+    aw.logfile = wLogfile.getText();
+    aw.logext = wLogext.getText();
+    if (wLoglevel.getSelectionIndex() >= 0) {
+      aw.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
+    } else {
+      aw.logFileLevel = LogLevel.BASIC;
+    }
+    aw.paramsFromPrevious = wPrevToParams.getSelection();
+    aw.execPerRow = wEveryRow.getSelection();
+    aw.setAppendLogfile = wAppendLogfile.getSelection();
+    aw.setWaitingToFinish(wWaitingToFinish.getSelection());
+    aw.createParentFolder = wCreateParentFolder.getSelection();
+    aw.setRunConfiguration(wRunConfiguration.getText());
   }
 
   @Override
