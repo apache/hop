@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The PGP Encrypt Stream transform encrypts text using PGP.
+
+= image:icons/probe.svg[Pipeline Probe icon, role="image-doc-icon"] Pipeline Data Probe
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Pipeline Data Probe transform receives data probe data configured by a xref:metadata-types/pipeline-probe.adoc[Pipeline Probe] metadata type.
+
+Check the xref:metadata-types/pipeline-probe.adoc[Pipeline Probe] metadata type for more information.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+The pipeline data probe transform doesn't require any configuration except for the transform name.
+
+This transform receives data from the xref:metadata-types/pipeline-probe.adoc[Pipeline Probe] metadata type and produces the following output:
+
+[options="header"]
+|===
+|sourcePipelineName|the name of the pipeline passing data to this pipeline data probe transform.
+|sourceTransformLogChannelId|the id for the log channel passing data to this pipeline data probe transform.
+|sourceTransformName|the name of the transform in the source pipeline passing data to this pipeline data probe transform.
+|sourceTransformCopy|the copy number of the transform in the source pipeline passing data to this pipeline data probe transform.
+|rowNr|the row number in the source pipeline passing data to this pipeline data probe transform.
+|fieldName|the field name of the field in the source pipeline passing data to this pipeline data probe transform.
+|fieldType|the field type of the field in the source pipeline passing data to this pipeline data probe transform.
+|fieldFormat|the field format of the field in the source pipeline passing data to this pipeline data probe transform.
+|fieldLength|the field length of the field in the source pipeline passing data to this pipeline data probe transform.
+|fieldPrecision|the field precision of the field in the source pipeline passing data to this pipeline data probe transform.
+|value|the value of the transform in the source pipeline passing data to this pipeline data probe transform.
+|===

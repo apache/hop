@@ -17,6 +17,8 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Allows to stream output rows of a pipeline to another pipeline. A pipeline log streams data from a running pipeline to another pipeline. This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc
+:openvar: ${
+:closevar: }
 
 = Pipeline Probe
 
@@ -24,10 +26,13 @@ under the License.
 
 image:icons/probe.svg[]
 
-Allows to stream output rows of a pipeline to another pipeline.
+The Pipeline Probe metadata type allows to stream output rows of a pipeline to another pipeline.
 
-A pipeline log streams data from a running pipeline to another pipeline.
-This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc
+This receiving pipeline can then process this data for e.g. data quality, data profiling, data lineage etc.
+
+The Pipeline Probe metadata type works by specifying a receiving pipeline (`Pipeline executed to capture logging`). This receiving pipeline is "just another pipeline" that takes a xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe] as the input transform.
+
+The receiving pipeline can then continue to process the probe data with all the functionality Apache Hop pipelines have to offer.
 
 == Related Plugins
 
@@ -46,4 +51,16 @@ This receiving pipeline can then process this data for e.g. data quality, data p
 
 == Samples
 
-None
+The samples project comes with a preconfigured data probe metadata item, a probing (receiving) pipeline and a source pipeline.
+
+* pipeline probe: metadata perspective --> pipeline probes --> pipeline-probe-example
+* probing (receiving) pipeline: `{openvar}PROJECT_HOME{closevar}/pipeline-probe/pipeline-probe-example.hpl`
+* source pipeline: `{openvar}PROJECT_HOME{closevar}/pipeline-probe/pipeline-probe-generate-fake-books.hpl`
+
+To run this sample and see the pipeline probe in action, all it takes is to run the source pipeline `{openvar}PROJECT_HOME{closevar}/pipeline-probe/pipeline-probe-generate-fake-books.hpl`.
+
+This pipeline will generate 10.000 lines of fake books data. The pipeline probe will read the last transform in the pipeline (`dummy`) and pass the data that flows through this transform to the receiving (probing) transform.
+
+The receiving (probing) pipeline (`{openvar}PROJECT_HOME{closevar}/pipeline-probe/pipeline-probe-example.hpl`) has a xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe] as input. This pipeline will then denormalize the received data to field, count the number of books per genre, sort the results and writes the final data out to a file (`{openvar}PROJECT_HOME{closevar}/books-per-genre/probe-data.csv`).
+
+After `pipeline-probe-generate-fake-books.hpl` finished, check the `pipeline-probe/output` folder in your samples project for the csv file that contains these results. You'll find the data that was generated in `{openvar}PROJECT_HOME{closevar}/pipeline-probe/pipeline-probe-generate-fake-books.hpl`, aggregated by book genre.
