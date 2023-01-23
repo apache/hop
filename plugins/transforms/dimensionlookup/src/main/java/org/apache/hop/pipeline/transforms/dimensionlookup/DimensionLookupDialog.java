@@ -1095,7 +1095,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       DLKey key = input.getFields().getKeys().get(i);
       TableItem item = wKey.table.getItem(i);
       item.setText(1, Const.NVL(key.getLookup(), ""));
-      item.setText(2, Const.NVL(key.getLookup(), ""));
+      item.setText(2, Const.NVL(key.getName(), ""));
     }
 
     for (int i = 0; i < input.getFields().getFields().size(); i++) {
