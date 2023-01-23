@@ -100,9 +100,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     this.schemaName = meta.schemaName;
     this.tableName = meta.tableName;
     this.databaseMeta = meta.databaseMeta;
-    for (ColumnExist column : meta.columns) {
-      columns.add(new ColumnExist(column.getName()));
-    }
+    this.columns = meta.columns;
   }
 
   @Override
