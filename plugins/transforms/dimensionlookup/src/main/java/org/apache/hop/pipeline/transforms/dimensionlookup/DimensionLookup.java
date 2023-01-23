@@ -267,13 +267,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // Add the natural key field in the table.
       //
       for (DLKey key : f.getKeys()) {
-        sql += ", " + key.getLookup();
+        sql += ", " + databaseMeta.quoteField(key.getLookup());
       }
 
       // Add the extra fields to retrieve.
       //
       for (DLField field : f.getFields()) {
-        sql += ", " + field.getLookup();
+        sql += ", " + databaseMeta.quoteField(field.getLookup());
       }
 
       // Add the date range fields
