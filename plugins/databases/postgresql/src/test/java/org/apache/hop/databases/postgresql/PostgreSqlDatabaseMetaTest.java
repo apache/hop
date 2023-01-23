@@ -704,6 +704,8 @@ public class PostgreSqlDatabaseMetaTest {
     assertTrue(nativeMeta.isRequiresCastToVariousForIsNull());
     assertFalse(nativeMeta.isSupportsGetBlob());
     assertTrue(nativeMeta.isUseSafePoints());
+    assertTrue(nativeMeta.isSupportsBooleanDataType());
+    assertTrue(nativeMeta.isSupportsTimestampDataType());
   }
 
   @Test
@@ -730,7 +732,7 @@ public class PostgreSqlDatabaseMetaTest {
             "FOO", new ValueMetaTimestamp("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD COLUMN BAR CHAR(1)",
+        "ALTER TABLE FOO ADD COLUMN BAR BOOLEAN",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(
