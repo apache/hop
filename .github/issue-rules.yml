@@ -27,6 +27,9 @@ rules:
   contains: '3'
   addLabels: ['P3']
 - valueFor: 'Component'
+  contains: 'Actions'
+  addLabels: [ 'Actions' ]
+- valueFor: 'Component'
   contains: 'Beam'
   addLabels: ['Beam']
 - valueFor: 'Component'
