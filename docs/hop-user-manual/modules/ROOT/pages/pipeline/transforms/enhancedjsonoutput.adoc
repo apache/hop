@@ -64,7 +64,7 @@ Currently available 3 types of operation:
 Can be empty string that will affect output json structure, see detailed description below.
 |Output value|This value will be used as a transform output field.
 Will contain generated json output block depending on transform settings.
-|Force Arrays In JSON| If checked, JSON output will be forced as a single item array.
+|Force Arrays In JSON| If checked, JSON output will be forced as a single item whose content is an array.
 |Pritty Print JSON|If checked, JSON output will be pritty printed.
 |===
 
@@ -74,22 +74,22 @@ Will contain generated json output block depending on transform settings.
 |===
 |Option|Description
 |Filename|full path to output file
-|Append|If not checked new file will be created every time transform is running.
-If file with specified name already existed - it will be replaced by a new one.
-If checked - new json output will be appended at the end of existing file.
-Or if existing file is not exists - it will be created as in previous case.
+|Append|If not checked - new file will be created every time transform is running.
+If file with specified name exists already, it will be replaced by a new one.
+If checked - new json output will be appended to the end of existing file.
+Or if file does not exist, it will be created as in previous case.
 |Split JSON after n rows|If this number N is larger than zero, split the resulting JSON file into multiple parts of N rows.
 |Create Parent folder|Usually file name contains some path folder as a parent folder.
-If parent folder does not exists and this option is checked - parent folder will be created as a new folder.
+If parent folder does not exist and this option is checked, parent folder will be created as a new folder.
 Otherwise - file not be found and transform will fail.
 |Do not open create at start|If not checked - file (and in some cases parent folder) will be created/opened to write during pipeline initialization.
-If checked - file and parent folder will be created only after transform will get any first input data.
+If checked - file and parent folder will be created only after transform gets any first input data.
 |Extension|Output file extension.
 Default value is 'js'
 |Encoding|Output file encoding
-|Include date in filename?|If checked - output file name will contains File name value + current date.
+|Include date in filename?|If checked - output file name will contain File name value + current date.
 This may help to generate unique output files.
-|Include time in filename|If checked - output file name will contains file creation time.
+|Include time in filename|If checked - output file name will contain file creation time.
 Same as for 'Include date in filename' option
 |Show filename(s) button|Can be useful to test full output file path
 |Add file to result filenames?|If checked - created output file path will be accessible form transform result
@@ -119,8 +119,8 @@ This tab is used to map input transform fields to output json values
 Use 'Get Fields' button to discover available input fields
 |Element name|Json element name as a key.
 For example "A":"B" - A is a element name, B is actual input value mapped for this Element name.
-|JSON Fragment|If the value is set to Y the value contained in the filed is a JSON chunk and will be treated accordingly
-|Remove if Blank|If the value is set to Y and value in incoming field is null the related attribute will be omitted from JSON output
+|JSON Fragment|If the value is set to Y the value contained in the field is a JSON chunk and will be treated accordingly
+|Remove if Blank|If the value is set to Y and value in incoming field is null, the related attribute will be omitted from JSON output
 
 |===
 
@@ -147,7 +147,7 @@ As an example suppose we have, as input, a flow with the following fields and va
 |Option|Assigned Value
 |Operation|Write To File
 |JSON Block Name|result
-|Output Value|lvl1Detail
+|Output Value|lvl1Details
 |Pritty Print JSON|Checked
 |Filename|Set to a convenient filename for JSON output
 |===
@@ -159,12 +159,12 @@ As an example suppose we have, as input, a flow with the following fields and va
 |field1|recordKey
 |===
 
-=== Fields Group Key - Configuration
+=== Tab Fields - Configuration
 
 |===
 |Field Name|Element Name|JSON Fragment|Remove If Blank
-|field3||N|N
-|field3||N|N
+|field2|campo2|N|N
+|field3|campo3|N|N
 |===
 
 === Output file result
@@ -173,7 +173,7 @@ As an example suppose we have, as input, a flow with the following fields and va
 ----
 {
   "result" : [ {
-    "key2" : "C",
+    "recordKey" : "C",
     "lvl1Details" : {
       "result" : [ {
         "campo2" : "F",
@@ -190,7 +190,7 @@ As an example suppose we have, as input, a flow with the following fields and va
       } ]
     }
   }, {
-    "key2" : "B",
+    "recordKey" : "B",
     "lvl1Details" : {
       "result" : [ {
         "campo2" : "C",
@@ -204,7 +204,7 @@ As an example suppose we have, as input, a flow with the following fields and va
       } ]
     }
   }, {
-    "key2" : "A",
+    "recordKey" : "A",
     "lvl1Details" : {
       "result" : [ {
         "campo2" : "B",
