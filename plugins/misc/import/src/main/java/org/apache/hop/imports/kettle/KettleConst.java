@@ -67,6 +67,8 @@ public class KettleConst {
                 {"step_tag", "transform_tag"},
                 {"step_name", "transform_name"},
                 {"step_description", "transform_description"},
+                // ExcelWriter
+                {"extention", "extension"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
@@ -181,16 +183,12 @@ public class KettleConst {
                 {"INC_STEPNR_IN_FILENAME", "INC_TRANSFORMNR_IN_FILENAME"}, // jsonoutput & xmloutput
                 {"SOURCE_XML_STEP", "SOURCE_XML_TRANSFORM"}, // xmljoin
                 {"TARGET_XML_STEP", "TARGET_XML_TRANSFORM"}, // xmljoin
-                {
-                  "OUTPUT_INCLUDE_STEPNR", "OUTPUT_INCLUDE_TRANSFORMNR"
-                }, // webservice
+                {"OUTPUT_INCLUDE_STEPNR", "OUTPUT_INCLUDE_TRANSFORMNR"}, // webservice
                 {
                   "SWITCH_CASE_TARGET.CASE_TARGET_STEP_NAME",
                   "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME"
                 }, // switchcase
-                {
-                  "DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"
-                } // switchcase
+                {"DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"} // switchcase
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
