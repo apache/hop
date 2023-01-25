@@ -42,6 +42,13 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
   @HopMetadataProperty(key = "fileName")
   private String fileName;
 
+  @HopMetadataProperty(
+          key = "filenameInField")
+  private boolean filenameInField;
+
+  @HopMetadataProperty(key = "fileNameField")
+  private String filenameField;
+
   @HopMetadataProperty(key = "limitRows")
   private String limitRows;
 
@@ -85,6 +92,7 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
     fileName = "";
     limitRows = "10000";
     defaultCharset = "ISO-8859-1";
+    filenameInField = false;
 
     delimiterCandidates.clear();
     delimiterCandidates.add(new FMCandidate("\t"));
@@ -185,6 +193,22 @@ public class FileMetadataMeta extends BaseTransformMeta<FileMetadata, FileMetada
    */
   public void setFileName(String fileName) {
     this.fileName = fileName;
+  }
+
+  public boolean isFilenameInField() {
+    return filenameInField;
+  }
+
+  public void setFilenameInField(boolean filenameInField) {
+    this.filenameInField = filenameInField;
+  }
+
+  public String getFilenameField() {
+    return filenameField;
+  }
+
+  public void setFilenameField(String filenameField) {
+    this.filenameField = filenameField;
   }
 
   /**
