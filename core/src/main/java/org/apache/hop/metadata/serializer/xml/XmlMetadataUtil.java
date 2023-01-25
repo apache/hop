@@ -17,29 +17,22 @@
 
 package org.apache.hop.metadata.serializer.xml;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.HopMetadataObject;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.HopMetadataWrapper;
-import org.apache.hop.metadata.api.IEnumHasCode;
-import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
-import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IIntCodeConverter;
+import org.apache.hop.metadata.api.*;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class XmlMetadataUtil {
   /**
@@ -375,38 +368,40 @@ public class XmlMetadataUtil {
         } else {
           groupNode = XmlHandler.getSubNode(node, groupKey);
         }
-        Object value =
-            deSerializeFromXml(
-                object,
-                fieldType,
-                groupNode,
-                tagNode,
-                tag,
-                field,
-                defaultBoolean,
-                storeWithName,
-                metadataProvider,
-                password,
-                storeWithCode,
-                property.intCodeConverter(),
-                inlineListTags);
+        if (tagNode != null) {
+          Object value =
+              deSerializeFromXml(
+                  object,
+                  fieldType,
+                  groupNode,
+                  tagNode,
+                  tag,
+                  field,
+                  defaultBoolean,
+                  storeWithName,
+                  metadataProvider,
+                  password,
+                  storeWithCode,
+                  property.intCodeConverter(),
+                  inlineListTags);
 
-        try {
-          // Only set a value if we have something to set.
-          // Empty strings and such will still go through but not null values for int/long/...
-          //
-          if (value != null) {
-            ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
+          try {
+            // Only set a value if we have something to set.
+            // Empty strings and such will still go through but not null values for int/long/...
+            //
+            if (value != null) {
+              ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
+            }
+          } catch (HopException e) {
+            throw new HopXmlException(
+                "Unable to set value "
+                    + value
+                    + " on field "
+                    + field.getName()
+                    + " in class "
+                    + fieldType.getName(),
+                e);
           }
-        } catch (HopException e) {
-          throw new HopXmlException(
-              "Unable to set value "
-                  + value
-                  + " on field "
-                  + field.getName()
-                  + " in class "
-                  + fieldType.getName(),
-              e);
         }
       }
     }
