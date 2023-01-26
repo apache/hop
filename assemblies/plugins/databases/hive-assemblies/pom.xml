@@ -17,7 +17,8 @@
   ~
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,10 +33,12 @@
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases Apache Hive</name>
-    <description />
+    <description/>
 
     <properties>
-        <hive-jdbc.version>3.1.3</hive-jdbc.version>
+        <!--    Version information : https://github.com/apache/hive/blob/master/pom.xml-->
+        <hive.version>3.1.3</hive.version>
+        <libthrift.version>0.16.0</libthrift.version>
     </properties>
 
     <dependencies>
@@ -46,15 +49,43 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
+            <artifactId>hive-common</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
-            <version>${hive-jdbc.version}</version>
-            <classifier>standalone</classifier>
+            <version>${hive.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-hive</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-metastore</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-serde</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-service</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-service-rpc</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>${libthrift.version}</version>
+        </dependency>
     </dependencies>
-
 </project>
