@@ -23,7 +23,15 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.*;
+import org.apache.hop.metadata.api.HopMetadataObject;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataWrapper;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
 
@@ -368,40 +376,38 @@ public class XmlMetadataUtil {
         } else {
           groupNode = XmlHandler.getSubNode(node, groupKey);
         }
-        if (tagNode != null) {
-          Object value =
-              deSerializeFromXml(
-                  object,
-                  fieldType,
-                  groupNode,
-                  tagNode,
-                  tag,
-                  field,
-                  defaultBoolean,
-                  storeWithName,
-                  metadataProvider,
-                  password,
-                  storeWithCode,
-                  property.intCodeConverter(),
-                  inlineListTags);
+        Object value =
+            deSerializeFromXml(
+                object,
+                fieldType,
+                groupNode,
+                tagNode,
+                tag,
+                field,
+                defaultBoolean,
+                storeWithName,
+                metadataProvider,
+                password,
+                storeWithCode,
+                property.intCodeConverter(),
+                inlineListTags);
 
-          try {
-            // Only set a value if we have something to set.
-            // Empty strings and such will still go through but not null values for int/long/...
-            //
-            if (value != null) {
-              ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
-            }
-          } catch (HopException e) {
-            throw new HopXmlException(
-                "Unable to set value "
-                    + value
-                    + " on field "
-                    + field.getName()
-                    + " in class "
-                    + fieldType.getName(),
-                e);
+        try {
+          // Only set a value if we have something to set.
+          // Empty strings and such will still go through but not null values for int/long/...
+          //
+          if (value != null) {
+            ReflectionUtil.setFieldValue(object, field.getName(), fieldType, value);
           }
+        } catch (HopException e) {
+          throw new HopXmlException(
+              "Unable to set value "
+                  + value
+                  + " on field "
+                  + field.getName()
+                  + " in class "
+                  + fieldType.getName(),
+              e);
         }
       }
     }
@@ -533,7 +539,7 @@ public class XmlMetadataUtil {
       //
       List<Object> list = new ArrayList<>();
       List<Node> itemNodes = XmlHandler.getNodes(groupNode, tag);
-      if (inlineListTags.length > 0) {
+      if (inlineListTags.length > 0 && itemNodes.size() > 0) {
         // Old XML serialization format where everything is just dumped into the same tag.
         // See also HopMetadataProperty.inlineListTags
         //
