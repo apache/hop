@@ -18,7 +18,7 @@
 name: manual
 title: User manual
 version: 2.3.0
-prerelease: true
-display_version: 2.3.0 (pre-release)
+prerelease: false
+display_version: 2.3.0
 nav:
   - modules/ROOT/nav.adoc
