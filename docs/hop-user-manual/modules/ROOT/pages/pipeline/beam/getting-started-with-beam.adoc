@@ -82,6 +82,11 @@ Here is the documentation for the relevant plugins:
 |3.3.X (scala 2.12)
 |1.15.x
 
+|2.3.0
+|2.43.0
+|3.3.X (scala 2.12)
+|1.15.x
+
 |===
 
 == How are my pipelines executed?
