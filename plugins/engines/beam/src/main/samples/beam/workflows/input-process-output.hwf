@@ -57,7 +57,7 @@ limitations under the License.
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${ENVIRONMENT_HOME}/pipelines/input-process-output.hpl</filename>
+      <filename>${PROJECT_HOME}/beam/pipelines/input-process-output.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -72,7 +72,7 @@ limitations under the License.
       <wait_until_finished>Y</wait_until_finished>
       <follow_abort_remote>N</follow_abort_remote>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
+      <run_configuration>Direct</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
