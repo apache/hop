@@ -59,7 +59,7 @@ limitations under the License.
       <description/>
       <type>Repeat</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/repeat_child.hpl</filename>
+      <filename>${PROJECT_HOME}/actions/repeat_child.hpl</filename>
       <run_configuration>local</run_configuration>
       <variable_name>END_LOOP</variable_name>
       <variable_value/>
