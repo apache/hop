@@ -80,7 +80,7 @@ limitations under the License.
         <replace_field/>
         <value_length>-1</value_length>
         <value_precision>-1</value_precision>
-        <value_type>1</value_type>
+        <value_type>2</value_type>
       </formula>
     </formulas>
     <attributes/>
