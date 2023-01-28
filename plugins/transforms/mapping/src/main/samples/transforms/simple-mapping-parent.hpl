@@ -143,7 +143,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <filename>${PROJECT_HOME}/mapping/simple-mapping-child.hpl</filename>
+    <filename>${PROJECT_HOME}/transforms/simple-mapping-child.hpl</filename>
     <mappings>
       <input>
         <mapping>
