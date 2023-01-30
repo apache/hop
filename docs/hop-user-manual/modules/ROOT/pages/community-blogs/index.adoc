@@ -14,13 +14,13 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-[[community-blog^]^]
+[[community-blog]]
 :imagesdir: ../../assets/images
 :openvar: ${
 :closevar: }
 :description: This page bundles relevant community blog posts and articles about Apache Hop. 
 
-== Community Blog Posts 
+= Community Blog Posts 
 
 The Apache Hop community writes an increasing number of blog posts and articles about Apache Hop. 
 
@@ -29,7 +29,7 @@ This page provides an overview of the relevant known blog posts and articles. Th
 TIP: did you write or do you know of a blog post or article that is missing from this list? Use the `Edit this page` link in the top right corner of this page to add it yourself. 
 
 
-=== Apache Hop (General)
+= Apache Hop (General)
 
 * https://www.leanwithdata.com/blog/apache-hop-execution-information-logging[A new Execution Information Logging Platform in Apache Hop^], 2022-10-26 by https://www.linkedin.com/in/bmaertens/[Bart Maertens^] (https://www.know.bi[know.bi^], https://www.leanwithdata.com[Lean With Data^])
 
@@ -49,7 +49,7 @@ TIP: did you write or do you know of a blog post or article that is missing from
 
 * https://medium.com/codex/build-data-pipeline-with-apache-hop-62417ecee303[Build Data Pipeline with Apache Hop^], 2021-01-31 by https://medium.com/@tmarvadi[Tejas Marvadi^]
 
-=== Apache Hop Unit Testing 
+== Apache Hop Unit Testing 
 
 * https://www.know-bi.be/blog/5-minutes-to-execute-unit-tests-in-workflows-with-apache-hop[Orchestrate unit and integration tests with Apache Hop in 5 minutes^] (part 3/3), 2022-10-04 by https://www.linkedin.com/in/adalennis-buchillon-soris/[Adalennis Buchillón Soris^]
 
@@ -58,7 +58,7 @@ TIP: did you write or do you know of a blog post or article that is missing from
 * https://www.know-bi.be/blog/5-minutes-to-build-unit-tests-in-apache-hop[5 minutes to build unit tests in Apache Hop^] (part 1/3), 2022-09-27 by https://www.linkedin.com/in/adalennis-buchillon-soris/[Adalennis Buchillón Soris^]
 
 
-=== Apache Hop and Neo4j 
+== Apache Hop and Neo4j 
 
 * https://medium.com/@raibot/loading-data-from-hive-to-neo4j-by-using-apache-hop-8e32ce031b3b[Loading data from Hive to Neo4j by using Apache Hop(all inside docker containers)^], 2022-11-24 by https://medium.com/@raibot[Tarun Bali^]
 
@@ -72,7 +72,7 @@ TIP: did you write or do you know of a blog post or article that is missing from
 
 * https://medium.com/@samuel.second/apache-hop-connecting-to-neo4j-using-environments-e6839c279de0[Apache Hop, connecting to Neo4j, using Environments^], 2022-01-06 by https://www.linkedin.com/in/samuel-longley-b1a607/[Samuel Longley^] (https://www.neo4j.com[Neo4j^])
 
-=== Apache Hop and Apache Beam 
+== Apache Hop and Apache Beam 
 
 * https://www.leanwithdata.com/blog/scheduling-apache-hop-workflows-on-dataflow[Scheduling Apache Hop pipelines on Dataflow^], 2022-12-20 by https://www.linkedin.com/in/hansvanakelyen/[Hans Van Akelyen^] (https://www.know.bi[know.bi^], https://www.leanwithdata.com[Lean With Data^])
 
