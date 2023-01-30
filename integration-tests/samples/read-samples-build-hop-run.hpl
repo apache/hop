@@ -1,0 +1,815 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>read-samples-build-hop-run</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/01/22 10:45:57.535</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/01/22 10:45:57.535</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>execute-hop-run.hwf</from>
+      <to>errors?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>errors?</from>
+      <to>log errors</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>log errors</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>samples to ignore</from>
+      <to>ignore list LU</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>ignore list LU</from>
+      <to>skip ignored </to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>skip ignored </from>
+      <to>skip technology samples (for now)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>skip technology samples (for now)</from>
+      <to>build hop-run.sh</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>get hpl/hwf filenames</from>
+      <to>prio 1 list LU</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>prio 1 samples</from>
+      <to>prio 1 list LU</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>prio 1?</from>
+      <to>execute-hop-run.hwf prio 1</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>prio 1?</from>
+      <to>wait for prio1</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>prio 1 list LU</from>
+      <to>ignore list LU</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>build hop-run.sh</from>
+      <to>prio 1?</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>wait for prio1</from>
+      <to>execute-hop-run.hwf</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>execute-hop-run.hwf prio 1</from>
+      <to>errors?</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>abort</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>1392</xloc>
+      <yloc>848</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>build hop-run.sh</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>
+      <jsScript>
+        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>//Script here
+
+// var user_dir = getVariable('user.dir', '');
+// var project_home = getVariable('PROJECT_HOME', '');
+// var sample_filename = replace(user_dir, project_home, '');
+
+var run_config = 'local';
+ 
+if (filename.indexOf('/beam/') != -1 &amp;&amp; !filename.endsWith('.hwf') ){
+  run_config = 'Direct';
+}
+var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename;</jsScript_script>
+      </jsScript>
+      <jsScript>
+        <jsScript_type>-1</jsScript_type>
+        <jsScript_name>replace_Sample</jsScript_name>
+        <jsScript_script>// Replaces Strings inside the given Variable.
+            // It is possible to make more replacements inside
+            // one call. The given variables must be an odd number
+            //
+            // Usage:
+            // replace(var, var, var);
+            // 1: String - The Variable with the content to replace.
+            // 2: String - The Value to search for.
+            // 3: String - The Value to replace with.
+            //
+            // replace(var, var, var, var,var,...)
+            // 1: String - The Variable with the content to replace.
+            // 2: String - The First Value to search for.
+            // 3: String - The First Value to replace with.
+            // 4: String - The Second Value to search for.
+            // 5: String - The Second Value to replace with.
+            // ...
+            //
+            // 2006-11-15
+            //
+            var str1 = "Hello World, this is a nice function";
+            var str2 = replace(str1,"World", "Folk");
+            Alert(str2);
+            var str2 = replace(str1,"World", "Folk", "nice","beautifull");
+            Alert(str2);
+        </jsScript_script>
+      </jsScript>
+    </jsScripts>
+    <fields>
+      <field>
+        <name>hop_run_cmd</name>
+        <rename>hop_run_cmd</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1200</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>errors?</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>&gt;</function>
+        <leftvalue>ExecutionNrErrors</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <mask>####0;-####0</mask>
+          <name>constant</name>
+          <precision>0</precision>
+          <text>0</text>
+          <type>Integer</type>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>1392</xloc>
+      <yloc>656</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>execute-hop-run.hwf</name>
+    <type>WorkflowExecutor</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <run_configuration>local</run_configuration>
+    <filename>${PROJECT_HOME}/execute-hop-run.hwf</filename>
+    <group_size>1</group_size>
+    <group_field/>
+    <group_time/>
+    <parameters>
+      <variablemapping>
+        <variable>PRM_HOP_RUN</variable>
+        <field>hop_run_cmd</field>
+        <input/>
+      </variablemapping>
+      <variablemapping>
+        <variable>PRM_NAME</variable>
+        <field>short_filename</field>
+        <input/>
+      </variablemapping>
+      <inherit_all_vars>Y</inherit_all_vars>
+    </parameters>
+    <execution_result_target_transform>errors?</execution_result_target_transform>
+    <execution_time_field>ExecutionTime</execution_time_field>
+    <execution_result_field>ExecutionResult</execution_result_field>
+    <execution_errors_field>ExecutionNrErrors</execution_errors_field>
+    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
+    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
+    <execution_lines_input_field>ExecutionLinesInput</execution_lines_input_field>
+    <execution_lines_output_field>ExecutionLinesOutput</execution_lines_output_field>
+    <execution_lines_rejected_field>ExecutionLinesRejected</execution_lines_rejected_field>
+    <execution_lines_updated_field>ExecutionLinesUpdated</execution_lines_updated_field>
+    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
+    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
+    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
+    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
+    <result_rows_target_transform/>
+    <result_files_target_transform/>
+    <result_files_file_name_field>FileName</result_files_file_name_field>
+    <attributes/>
+    <GUI>
+      <xloc>1520</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>execute-hop-run.hwf prio 1</name>
+    <type>WorkflowExecutor</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <run_configuration>local</run_configuration>
+    <filename>${PROJECT_HOME}/execute-hop-run.hwf</filename>
+    <group_size>1</group_size>
+    <group_field/>
+    <group_time/>
+    <parameters>
+      <variablemapping>
+        <variable>PRM_HOP_RUN</variable>
+        <field>hop_run_cmd</field>
+        <input/>
+      </variablemapping>
+      <variablemapping>
+        <variable>PRM_NAME</variable>
+        <field>short_filename</field>
+        <input/>
+      </variablemapping>
+      <inherit_all_vars>Y</inherit_all_vars>
+    </parameters>
+    <execution_result_target_transform>errors?</execution_result_target_transform>
+    <execution_time_field>ExecutionTime</execution_time_field>
+    <execution_result_field>ExecutionResult</execution_result_field>
+    <execution_errors_field>ExecutionNrErrors</execution_errors_field>
+    <execution_lines_read_field>ExecutionLinesRead</execution_lines_read_field>
+    <execution_lines_written_field>ExecutionLinesWritten</execution_lines_written_field>
+    <execution_lines_input_field>ExecutionLinesInput</execution_lines_input_field>
+    <execution_lines_output_field>ExecutionLinesOutput</execution_lines_output_field>
+    <execution_lines_rejected_field>ExecutionLinesRejected</execution_lines_rejected_field>
+    <execution_lines_updated_field>ExecutionLinesUpdated</execution_lines_updated_field>
+    <execution_lines_deleted_field>ExecutionLinesDeleted</execution_lines_deleted_field>
+    <execution_files_retrieved_field>ExecutionFilesRetrieved</execution_files_retrieved_field>
+    <execution_exit_status_field>ExecutionExitStatus</execution_exit_status_field>
+    <execution_log_text_field>ExecutionLogText</execution_log_text_field>
+    <execution_log_channelid_field>ExecutionLogChannelId</execution_log_channelid_field>
+    <result_rows_target_transform/>
+    <result_files_target_transform/>
+    <result_files_file_name_field>FileName</result_files_file_name_field>
+    <attributes/>
+    <GUI>
+      <xloc>1200</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>get hpl/hwf filenames</name>
+    <type>GetFileNames</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <file>
+      <file_required>N</file_required>
+      <filemask>.*.hpl|.*.hwf</filemask>
+      <include_subfolders>Y</include_subfolders>
+      <name>${user.dir}/config/projects/samples/</name>
+    </file>
+    <filefield>N</filefield>
+    <filter>
+      <filterfiletype>all_files</filterfiletype>
+    </filter>
+    <isaddresult>Y</isaddresult>
+    <limit>0</limit>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
+    <attributes/>
+    <GUI>
+      <xloc>160</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>ignore list LU</name>
+    <type>StreamLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <from>samples to ignore</from>
+    <input_sorted>N</input_sorted>
+    <preserve_memory>Y</preserve_memory>
+    <sorted_list>N</sorted_list>
+    <integer_pair>N</integer_pair>
+    <lookup>
+      <key>
+        <name>short_filename</name>
+        <field>sample_name</field>
+      </key>
+      <value>
+        <name>sample_name</name>
+        <rename>ignore_sample_name</rename>
+        <default/>
+        <type>String</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>log errors</name>
+    <type>WriteToLog</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <loglevel>log_level_basic</loglevel>
+    <displayHeader>Y</displayHeader>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <logmessage>the following sample workflow or pipeline failed</logmessage>
+    <fields>
+      <field>
+        <name>ExecutionTime</name>
+      </field>
+      <field>
+        <name>ExecutionResult</name>
+      </field>
+      <field>
+        <name>ExecutionNrErrors</name>
+      </field>
+      <field>
+        <name>ExecutionLinesRead</name>
+      </field>
+      <field>
+        <name>ExecutionLinesWritten</name>
+      </field>
+      <field>
+        <name>ExecutionLinesInput</name>
+      </field>
+      <field>
+        <name>ExecutionLinesOutput</name>
+      </field>
+      <field>
+        <name>ExecutionLinesRejected</name>
+      </field>
+      <field>
+        <name>ExecutionLinesUpdated</name>
+      </field>
+      <field>
+        <name>ExecutionLinesDeleted</name>
+      </field>
+      <field>
+        <name>ExecutionFilesRetrieved</name>
+      </field>
+      <field>
+        <name>ExecutionExitStatus</name>
+      </field>
+      <field>
+        <name>ExecutionLogText</name>
+      </field>
+      <field>
+        <name>ExecutionLogChannelId</name>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1392</xloc>
+      <yloc>752</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>prio 1 list LU</name>
+    <type>StreamLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <from>prio 1 samples</from>
+    <input_sorted>N</input_sorted>
+    <preserve_memory>Y</preserve_memory>
+    <sorted_list>N</sorted_list>
+    <integer_pair>N</integer_pair>
+    <lookup>
+      <key>
+        <name>short_filename</name>
+        <field>sample_name</field>
+      </key>
+      <value>
+        <name>sample_name</name>
+        <rename>prio_1_sample_name</rename>
+        <default/>
+        <type>String</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>prio 1 samples</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>textfileoutput-tiny-file.hpl</item>
+        <item>generates the input file required by csvinput-basic.hpl</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>sample_name</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>reason</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>416</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>prio 1?</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IS NOT NULL</function>
+        <leftvalue>prio_1_sample_name</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <send_false_to>wait for prio1</send_false_to>
+    <send_true_to>execute-hop-run.hwf prio 1</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>1200</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>samples to ignore</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>repeat_child.hpl</item>
+        <item>intended to be called by repeat action workflow. requires a parameter from the action and isn't intended run standalone.</item>
+      </line>
+      <line>
+        <item>unbounded-synthetic-data.hpl</item>
+        <item>intended to never stop running </item>
+      </line>
+      <line>
+        <item>write-to-bigtable.hpl</item>
+        <item>requires Neo4j and BigTable connections</item>
+      </line>
+      <line>
+        <item>read-file-template.hpl</item>
+        <item>MDI template</item>
+      </line>
+      <line>
+        <item>abort-basic.hpl</item>
+        <item>Abort is intended to fail. </item>
+      </line>
+      <line>
+        <item>generate-synthetic-data.hpl</item>
+        <item>100M records requires too much memory</item>
+      </line>
+      <line>
+        <item>block-until-transforms-finish-basic.hpl</item>
+        <item>runs continuously</item>
+      </line>
+      <line>
+        <item>textfileoutput-huge-file.hpl</item>
+        <item>executed by workflows/write-read-huge-file.hwf</item>
+      </line>
+      <line>
+        <item>csvinput-huge-file.hpl</item>
+        <item>executed by workflows/write-read-huge-file.hwf</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>sample_name</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>reason</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>592</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>skip ignored </name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+          <condition>
+            <conditions>
+</conditions>
+            <function>IS NULL</function>
+            <leftvalue>ignore_sample_name</leftvalue>
+            <negated>N</negated>
+            <operator>-</operator>
+          </condition>
+        </conditions>
+        <function>IS NULL</function>
+        <leftvalue>sample_name</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>768</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>skip technology samples (for now)</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+          <condition>
+            <conditions>
+</conditions>
+            <function>CONTAINS</function>
+            <leftvalue>filename</leftvalue>
+            <negated>Y</negated>
+            <operator>-</operator>
+            <value>
+              <isnull>N</isnull>
+              <length>-1</length>
+              <name>constant</name>
+              <precision>-1</precision>
+              <text>/neo4j/</text>
+              <type>String</type>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>CONTAINS</function>
+            <leftvalue>filename</leftvalue>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <value>
+              <isnull>N</isnull>
+              <length>-1</length>
+              <name>constant</name>
+              <precision>-1</precision>
+              <text>/kafka-</text>
+              <type>String</type>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>CONTAINS</function>
+            <leftvalue>filename</leftvalue>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <value>
+              <isnull>N</isnull>
+              <length>-1</length>
+              <mask/>
+              <name>constant</name>
+              <precision>-1</precision>
+              <text>/mongodb-</text>
+              <type>String</type>
+            </value>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>CONTAINS</function>
+            <leftvalue>filename</leftvalue>
+            <negated>Y</negated>
+            <operator>AND</operator>
+            <value>
+              <isnull>N</isnull>
+              <length>-1</length>
+              <mask/>
+              <name>constant</name>
+              <precision>-1</precision>
+              <text>/vertica-</text>
+              <type>String</type>
+            </value>
+          </condition>
+        </conditions>
+        <function>IS NULL</function>
+        <leftvalue>sample_name</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>976</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>wait for prio1</name>
+    <type>BlockUntilTransformsFinish</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <transforms>
+      <transform>
+        <CopyNr>0</CopyNr>
+        <name>execute-hop-run.hwf prio 1</name>
+      </transform>
+    </transforms>
+    <attributes/>
+    <GUI>
+      <xloc>1520</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
