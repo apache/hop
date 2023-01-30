@@ -84,6 +84,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/execsqlrow.adoc[Execute row SQL script]
 * xref:pipeline/transforms/execsql.adoc[Execute SQL script]
 * xref:pipeline/transforms/exectests.adoc[Execute Unit Tests]
+* xref:pipeline/transforms/execinfo.adoc[Execution Information]
 * xref:pipeline/transforms/fake.adoc[Fake data]
 * xref:pipeline/transforms/fileexists.adoc[File exists]
 * xref:pipeline/transforms/filemetadata.adoc[File Metadata]
