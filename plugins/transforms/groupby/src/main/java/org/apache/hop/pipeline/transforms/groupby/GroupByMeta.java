@@ -21,7 +21,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -36,7 +35,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,30 +154,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
    */
   public void setPassAllRows(boolean passAllRows) {
     this.passAllRows = passAllRows;
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-
-    super.loadXml(transformNode, metadataProvider);
-
-    boolean hasNumberOfValues = false;
-    for (Aggregation item : aggregations) {
-
-      int aggType = item.getType();
-
-     if (aggType == Aggregation.TYPE_GROUP_COUNT_ALL
-              || aggType == Aggregation.TYPE_GROUP_COUNT_DISTINCT
-              || aggType == Aggregation.TYPE_GROUP_COUNT_ANY) {
-        hasNumberOfValues = true;
-      }
-
-    }
-
-    if (!alwaysGivingBackOneRow) {
-      alwaysGivingBackOneRow = hasNumberOfValues;
-    }
   }
 
   @Override
