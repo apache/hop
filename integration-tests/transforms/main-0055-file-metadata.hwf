@@ -57,6 +57,9 @@ limitations under the License.
         <test_name>
           <name>0055-file-metadata-verify UNIT</name>
         </test_name>
+        <test_name>
+          <name>0055-file-metadata-filename-fromfield-verify UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
       <xloc>336</xloc>
