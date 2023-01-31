@@ -29,7 +29,7 @@ This page provides an overview of the relevant known blog posts and articles. Th
 TIP: did you write or do you know of a blog post or article that is missing from this list? Use the `Edit this page` link in the top right corner of this page to add it yourself. 
 
 
-= Apache Hop (General)
+== Apache Hop (General)
 
 * https://www.leanwithdata.com/blog/apache-hop-execution-information-logging[A new Execution Information Logging Platform in Apache Hop^], 2022-10-26 by https://www.linkedin.com/in/bmaertens/[Bart Maertens^] (https://www.know.bi[know.bi^], https://www.leanwithdata.com[Lean With Data^])
 

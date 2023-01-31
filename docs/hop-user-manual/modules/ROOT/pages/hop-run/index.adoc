@@ -120,6 +120,22 @@ Check the xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.
 
 &nbsp; +
 
+== Possible exit codes 
+
+Hop Run currently finishes with one of four exit codes. 
+
+In all cases except `0`, check the error logs for more detailed information for your specific error. 
+
+[%header, width="90%", cols="1,3,5"]
+|===
+|Exit code|Error Message|Description
+|0|None|No error message. Everything worked flawlessly.
+|1|Error found during execution!|There was an error executing the workflow or pipeline.
+|2|General error found, something went horribly wrong!|There was a general error that caused Hop Run to fail completely. 
+|9|None|There was an error parsing the provided parameter information. Hop Run shows the syntax summary and exists.
+|===
+
+
 == Examples
 
 The example below runs the `switch-case-basic.hpl` pipeline from the samples project through `hop-run`. +
