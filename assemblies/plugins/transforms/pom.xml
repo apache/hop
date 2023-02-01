@@ -130,6 +130,7 @@
     <module>salesforce</module>
     <module>sasinput</module>
     <module>samplerows</module>
+    <module>script</module>
     <module>selectvalues</module>
     <module>serverstatus</module>
     <module>setvalueconstant</module>

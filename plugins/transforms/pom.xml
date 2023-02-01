@@ -161,6 +161,7 @@
                 <module>samplerows</module>
                 <module>salesforce</module>
                 <module>sasinput</module>
+                <module>script</module>
                 <module>selectvalues</module>
                 <module>serverstatus</module>
                 <module>setvalueconstant</module>

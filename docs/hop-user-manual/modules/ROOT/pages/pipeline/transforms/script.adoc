@@ -1,0 +1,253 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: Write scripts in JavaScript, Groovy, Python or with any other JSR-223 library
+
+= image:transforms/icons/script.svg[Script transform Icon, role="image-doc-icon"] Script
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Script transform allows you to write code in any language supported by the https://en.wikipedia.org/wiki/Scripting_for_the_Java_Platform[JSR-223] standard.
+
+By default, the Hop project ships with the following language support:
+
+* ECMAScript (JavaScript as part of the JVM)
+* https://groovy-lang.org/[Groovy]
+* https://www.python.org/[Python] (https://www.jython.org/[Jython])
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+
+|Transform name
+|Name of the transform this name has to be unique in a single pipeline.
+
+|Script engine
+|You can choose any of the discovered JSR-223 scripting engines from the drop-down list.
+
+|Script
+|You can add one or more scripts.  There are different types of scripts which you can change by right-clicking on the script tab.
+
+`Transform` : The script will be executed after every row that is read.
+`Start`: The script will be executed once at the start of the transform.
+`End`: The script will be executed after the last row was read
+
+|Fields
+|Here you can specify the fields to retrieve from the context of the transform script after every row.
+
+|===
+
+== Variable bindings
+
+To allow you to work with the input field values or the surrounding Java ecosystem Hop exposes a bunch of variable bindings.
+
+[options="header"]
+|===
+|Variable|Description
+
+|input
+|All the input fields under their own name.  Please note that certain scripting languages have restrictions on the allowed names of variables.  Make sure to rename inappropriate field names with a "Select Values" transform.
+
+|`transform`
+|This is a reference to the parent transform class https://github.com/apache/hop/blob/master/plugins/transforms/abort/src/main/java/org/apache/hop/pipeline/transforms/script/Script.java[Script].  You can use this to log certain important events or write extra output rows
+
+|`pipeline_status`
+|This special variable can be set to any of the following values:
+
+`CONTINUE_PIPELINE`: Process the current row and generate output (the default value)
+`SKIP_PIPELINE` : Do not write an output row
+`STOP_PIPELINE` : Cause the pipeline to stop processing rows
+`ERROR_PIPELINE`: Cause the pipeline to abort with an error
+
+|`rowNumber`
+|This is the current row number, starting from 1.
+
+|`rowMeta`
+|The input row metadata.  It's a list of value metadata.
+
+|`row`
+|An object array containing the current set of field values.  Make sure to address these values using `rowMeta` to make sure the appropriate data conversions take place.
+
+For example, use `rowMeta.getString(row, 0)` to get the first String value from the input row.
+
+|`previousRow`
+|The previous row or null if `row` is the first input row.
+
+|`transformName`
+|The name of the transform
+
+|`pipelineName`
+|The name of the pipeline
+
+|===
+
+== Generating rows
+
+Below are scripts that generate 10 output rows using a simple loop in 3 different scripting engines. This happens 3 times with identical output.  For the 3 examples you need to define 2 output fields:
+
+* `id` : an Integer
+* `name` : a String
+
+=== ECMAScript
+
+[source,javascript]
+----
+var Long = Packages.java.lang.Long;
+var RowDataUtil = Packages.org.apache.hop.core.row.RowDataUtil;
+
+var START=100000;
+var COUNT=10;
+var END=START+COUNT;
+var id=START;
+
+for (var id=START;id<END;id++) {
+  var outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+  outputRow[0] = new Long(id);
+  outputRow[1] = "Apache Hop "+id;
+  transform.putRow(outputRowMeta, outputRow);
+}
+
+pipeline_status=SKIP_PIPELINE;
+----
+
+=== Groovy
+
+[source,groovy]
+----
+def COUNT=10;
+
+id = 100000L;
+(1..COUNT).each {
+ outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+ outputRow[0] = id;
+ outputRow[1] = "Apache Hop "+id
+ transform.putRow(outputRowMeta, outputRow);
+
+ id++;
+}
+
+pipeline_status=SKIP_PIPELINE;
+----
+
+=== Python
+
+[source,python]
+----
+import java.lang.Long as Long
+
+START=100000
+COUNT=10
+END=START+COUNT
+id=START
+
+for id in range(START,END):
+	outputRow = RowDataUtil.allocateRowData(rowMeta.size())
+	outputRow[0] = Long(id)
+	outputRow[1] = "Apache Hop "+str(id)
+	transform.putRow(outputRowMeta, outputRow)
+
+pipeline_status=SKIP_PIPELINE
+----
+
+== Aggregating rows
+
+Below are scripts that aggregate rows over different groups.  The data is sorted by the field `group` and contains a `value` field which is summed up into field `sum`.
+In the start scripts we define variables `sum=0` and `previousGroup=""`.
+
+For the 3 examples you need to define 1 output field:
+
+* `sum` : an Integer
+
+=== ECMAScript
+
+[source,javascript]
+----
+if (group!==previousGroup) {
+  sum=value;
+  previousGroup=group;
+} else {
+  sum+=value;
+}
+
+if (nextGroup==null) {
+  pipeline_status=CONTINUE_PIPELINE;
+} else {
+  pipeline_status=SKIP_PIPELINE;
+}
+----
+
+=== Groovy
+
+[source,groovy]
+----
+if (!group.equalsIgnoreCase(previousGroup)) {
+  sum=value;
+  previousGroup=group;
+} else {
+  sum+=value;
+}
+
+if (nextGroup==null) {
+  pipeline_status=CONTINUE_PIPELINE;
+} else {
+  pipeline_status=SKIP_PIPELINE;
+}
+----
+
+=== Python
+
+[source,python]
+----
+if group!=previousGroup:
+  sum=value
+  previousGroup=group
+else:
+  sum=sum+value
+
+if nextGroup is None:
+  pipeline_status=CONTINUE_PIPELINE
+else:
+  pipeline_status=SKIP_PIPELINE;
+----
+
+== Adding scripting languages
+
+You can add additional scripting languages by adding the required libraries to the `plugins/transforms/script/lib` folder.
+
+For example, to add support for the Ruby scripting language you need to add the following https://mvnrepository.com/artifact/org.jruby[JRuby libraries]:
+
+* `jruby-stdlib-<version>.jar`
+* `jruby-core-<version>.jar`
+
+After restarting the Apache Hop GUI you'll notice that there's a `ruby` entry in the `Scripting Engine` dropdown box.
