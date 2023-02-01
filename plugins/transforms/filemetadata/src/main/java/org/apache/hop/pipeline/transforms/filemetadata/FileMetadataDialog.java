@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.filemetadata;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -25,23 +27,20 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -63,8 +62,13 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
   private final FileMetadataMeta meta;
-
+  private Label wlFilename;
   private TextVar wFilename;
+
+  private Button wFileInField;
+
+  private Label wlFilenameField;
+  private CCombo wFilenameField;
 
   private TableView wDelimiterCandidates;
   private TableView wEnclosureCandidates;
@@ -72,6 +76,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
   private ComboVar wDefaultCharset;
 
   private boolean gotEncodings = false;
+  private boolean getPreviousFields = false;
 
   /**
    * The constructor should simply invoke super() and save the incoming meta object to a local
@@ -131,6 +136,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
+    ModifyListener lsMod = e -> meta.setChanged();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "FileMetadata.Shell.Title"));
@@ -183,7 +189,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     // The field itself...
     //
-    Label wlFilename = new Label(shell, SWT.RIGHT);
+    wlFilename = new Label(shell, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "FileMetadata.Filename"));
     PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
@@ -199,9 +205,72 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdFilename.right = new FormAttachment(wbbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
+    // Is Filename defined in a Field
+    Label wlFileInField = new Label(shell, SWT.RIGHT);
+    wlFileInField.setText(BaseMessages.getString(PKG, "FileMetadata.FileInField.Label"));
+    PropsUi.setLook(wlFileInField);
+    FormData fdlFileInField = new FormData();
+    fdlFileInField.left = new FormAttachment(0, -margin);
+    fdlFileInField.top = new FormAttachment(wFilename, margin);
+    fdlFileInField.right = new FormAttachment(middle, -2 * margin);
+    wlFileInField.setLayoutData(fdlFileInField);
+
+    wFileInField = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wFileInField);
+    wFileInField.setToolTipText(BaseMessages.getString(PKG, "FileMetadata.FileInField.Tooltip"));
+    FormData fdFileField = new FormData();
+    fdFileField.left = new FormAttachment(middle, -margin);
+    fdFileField.top = new FormAttachment(wlFileInField, 0, SWT.CENTER);
+    wFileInField.setLayoutData(fdFileField);
+    SelectionAdapter lfilefield =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            activateFileField();
+
+            meta.setChanged();
+          }
+        };
+    wFileInField.addSelectionListener(lfilefield);
+
+    // Filename field
+    wlFilenameField = new Label(shell, SWT.RIGHT);
+    wlFilenameField.setText(BaseMessages.getString(PKG, "FileMetadata.FilenameField.Label"));
+    PropsUi.setLook(wlFilenameField);
+    FormData fdlFilenameField = new FormData();
+    fdlFilenameField.left = new FormAttachment(0, -margin);
+    fdlFilenameField.top = new FormAttachment(wFileInField, margin);
+    fdlFilenameField.right = new FormAttachment(middle, -2 * margin);
+    wlFilenameField.setLayoutData(fdlFilenameField);
+
+    wFilenameField = new CCombo(shell, SWT.BORDER | SWT.READ_ONLY);
+    wFilenameField.setEditable(true);
+    PropsUi.setLook(wFilenameField);
+    wFilenameField.addModifyListener(lsMod);
+    FormData fdFilenameField = new FormData();
+    fdFilenameField.left = new FormAttachment(middle, -margin);
+    fdFilenameField.top = new FormAttachment(wFileInField, margin);
+    fdFilenameField.right = new FormAttachment(100, -margin);
+    wFilenameField.setLayoutData(fdFilenameField);
+    wFilenameField.addFocusListener(
+            new FocusListener() {
+              @Override
+              public void focusLost(FocusEvent e) {}
+
+              @Override
+              public void focusGained(FocusEvent e) {
+                Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+                shell.setCursor(busy);
+                getFields();
+                shell.setCursor(null);
+                busy.dispose();
+              }
+            });
+
     // options panel for DELIMITED_LAYOUT
     Group gDelimitedLayout = new Group(shell, SWT.SHADOW_ETCHED_IN);
-    gDelimitedLayout.setText("Delimited Layout");
+    gDelimitedLayout.setText(
+        BaseMessages.getString(PKG, "FileMetadata.DelimitedLayout.Group.Label"));
     FormLayout gDelimitedLayoutLayout = new FormLayout();
     gDelimitedLayoutLayout.marginWidth = 3;
     gDelimitedLayoutLayout.marginHeight = 3;
@@ -317,7 +386,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     FormData fdQueryGroup = new FormData();
     fdQueryGroup.left = new FormAttachment(0, 0);
     fdQueryGroup.right = new FormAttachment(100, 0);
-    fdQueryGroup.top = new FormAttachment(wFilename, margin);
+    fdQueryGroup.top = new FormAttachment(wFilenameField, margin);
     fdQueryGroup.bottom = new FormAttachment(wOk, -2 * margin);
     gDelimitedLayout.setLayoutData(fdQueryGroup);
 
@@ -354,6 +423,42 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     return transformName;
   }
 
+  private void activateFileField() {
+
+    wlFilenameField.setEnabled(wFileInField.getSelection());
+    wFilenameField.setEnabled(wFileInField.getSelection());
+
+    wlFilename.setEnabled(!wFileInField.getSelection());
+    wFilename.setEnabled(!wFileInField.getSelection());
+
+    if (wFileInField.getSelection()) {
+      wFilename.setText("");
+    } else {
+      wFilenameField.setText("");
+    }
+  }
+
+  private void getFields() {
+    try {
+      if (!getPreviousFields) {
+        getPreviousFields = true;
+
+        wFilenameField.removeAll();
+
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (r != null) {
+          wFilenameField.setItems(r.getFieldNames());
+        }
+      }
+    } catch (HopException ke) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(PKG, "FileMetadata.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "FileMetadata.FailedToGetFields.DialogMessage"),
+          ke);
+    }
+  }
+
   /**
    * This helper method puts the transform configuration stored in the meta object and puts it into
    * the dialog controls.
@@ -362,6 +467,12 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     wTransformName.selectAll();
 
     wFilename.setText(Const.NVL(meta.getFileName(), ""));
+
+    wFileInField.setSelection(meta.isFilenameInField());
+
+    if (meta.getFilenameField() != null) {
+      wFilenameField.setText(meta.getFilenameField());
+    }
     wLimit.setText(Const.NVL(meta.getLimitRows(), ""));
     wDefaultCharset.setText(Const.NVL(meta.getDefaultCharset(), ""));
 
@@ -393,6 +504,8 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     transformName = wTransformName.getText();
 
     meta.setFileName(wFilename.getText());
+    meta.setFilenameInField(wFileInField.getSelection());
+    meta.setFilenameField(wFilenameField.getText());
     meta.setLimitRows(wLimit.getText());
     meta.setDefaultCharset(wDefaultCharset.getText());
 

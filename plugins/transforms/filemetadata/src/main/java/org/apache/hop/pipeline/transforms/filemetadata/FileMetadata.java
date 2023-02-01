@@ -30,6 +30,7 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringEvaluator;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -49,6 +50,7 @@ import java.util.ArrayList;
 
 public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataData> {
 
+  private static final Class<?> PKG = FileMetadata.class;
   private Object[] r;
   private Charset defaultCharset = StandardCharsets.ISO_8859_1;
   private long limitRows;
@@ -135,7 +137,33 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     }
   }
 
-  private void buildOutputRows() throws HopTransformException {
+  public String getOutputFileName(Object[] row) throws HopException {
+    String filename = null;
+    if (row == null) {
+        filename = variables.resolve(meta.getFileName());
+        if (filename == null) {
+          throw new HopFileException(
+                  BaseMessages.getString(PKG, "FileMetadata.Exception.FileNameNotSet"));
+        }
+    } else {
+      int fileNameFieldIndex = getInputRowMeta().indexOfValue(meta.getFilenameField());
+      if (fileNameFieldIndex < 0) {
+        throw new HopTransformException(
+                BaseMessages.getString(
+                        PKG, "FileMetadata.Exception.FileNameFieldNotFound", meta.getFilenameField()));
+      }
+      IValueMeta fileNameMeta = getInputRowMeta().getValueMeta(fileNameFieldIndex);
+      filename = variables.resolve(fileNameMeta.getString(row[fileNameFieldIndex]));
+
+      if (filename == null) {
+        throw new HopFileException(
+                BaseMessages.getString(PKG, "FileMetadata.Exception.FileNameNotSet"));
+      }
+    }
+
+    return filename;
+  }
+  private void buildOutputRows() throws HopException {
 
     // which index does the next field go to
     int idx = data.isReceivingInput ? getInputRowMeta().size() : 0;
@@ -147,7 +175,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
             : RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
     // get the configuration from the dialog
-    String fileName = resolve(meta.getFileName());
+    String fileName = getOutputFileName((data.isReceivingInput && meta.isFilenameInField() ? r : null));
 
     // if the file does not exist, just send an empty row
     try {
