@@ -227,7 +227,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EDIT,
-      toolTip = "Edit this metadata element",
+      toolTip = "i18n::MetadataElement.Edit.Tooltip",
       imageMethod = "getEditIcon")
   public void editMetadataElement() {
     if (Utils.isEmpty(wCombo.getText())) this.newMetadata();
@@ -242,7 +242,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_NEW,
-      toolTip = "Create a new metadata element",
+      toolTip = "i18n::MetadataElement.New.Tooltip",
       image = "ui/images/new.svg")
   public void newMetadataElement() {
     T element = newMetadata();
@@ -254,7 +254,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_META,
-      toolTip = "View the element in the metadata perspective",
+      toolTip = "i18n::MetadataElement.View.Tooltip",
       image = "ui/images/metadata.svg")
   public void viewInPerspective() {
     MetadataPerspective perspective = HopGui.getMetadataPerspective();
