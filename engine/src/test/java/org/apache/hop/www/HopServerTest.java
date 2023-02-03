@@ -61,6 +61,6 @@ public class HopServerTest {
     when(ClientBuilder.newClient(any(ClientConfig.class))).thenReturn(client);
 
     HopServer.callStopHopServerRestService(
-        "localhost", "8080", "admin", "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde");
+        "localhost", "8080", "8079", "admin", "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde");
   }
 }

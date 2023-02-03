@@ -63,7 +63,12 @@ import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.servlet.Servlet;
 import java.awt.GraphicsEnvironment;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,6 +80,7 @@ public class WebServer {
   private ILogChannel log;
   private IVariables variables;
   public static final int PORT = 80;
+  public static final int SHUTDOWN_PORT = 8079;
 
   private Server server;
 
@@ -83,6 +89,7 @@ public class WebServer {
 
   private String hostname;
   private int port;
+  private int shutdownPort;
 
   private String passwordFile;
   private WebServerShutdownHook webServerShutdownHook;
@@ -91,16 +98,36 @@ public class WebServer {
 
   private SslConfiguration sslConfig;
 
-  public WebServer(
-      ILogChannel log,
-      PipelineMap pipelineMap,
-      WorkflowMap workflowMap,
-      String hostname,
-      int port,
-      boolean join,
-      String passwordFile)
-      throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, join, passwordFile, null);
+  private static class MonitorThread extends Thread {
+
+    private ServerSocket socket;
+    private Server server;
+
+    public MonitorThread(Server server, String hostname, int shutdownPort) {
+      this.server = server;
+      setDaemon(true);
+      setName("StopMonitor");
+      try {
+        socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
+      } catch(Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public void run() {
+      Socket accept;
+      try {
+        accept = socket.accept();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
+        reader.readLine();
+        server.stop();
+        accept.close();
+        socket.close();
+      } catch(Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   public WebServer(
@@ -109,6 +136,20 @@ public class WebServer {
       WorkflowMap workflowMap,
       String hostname,
       int port,
+      int shutdownPort,
+      boolean join,
+      String passwordFile)
+      throws Exception {
+    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, join, passwordFile, null);
+  }
+
+  public WebServer(
+      ILogChannel log,
+      PipelineMap pipelineMap,
+      WorkflowMap workflowMap,
+      String hostname,
+      int port,
+      int shutdownPort,
       boolean join,
       String passwordFile,
       SslConfiguration sslConfig)
@@ -125,6 +166,7 @@ public class WebServer {
     }
     this.hostname = hostname;
     this.port = port;
+    this.shutdownPort = shutdownPort;
     this.passwordFile = passwordFile;
     this.sslConfig = sslConfig;
 
@@ -148,9 +190,9 @@ public class WebServer {
   }
 
   public WebServer(
-      ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap, String hostname, int port)
+      ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap, String hostname, int port, int shutdownPort)
       throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, true);
+    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, true);
   }
 
   public WebServer(
@@ -159,9 +201,10 @@ public class WebServer {
       WorkflowMap workflowMap,
       String hostname,
       int port,
+      int shutdownPort,
       boolean join)
       throws Exception {
-    this(log, pipelineMap, workflowMap, hostname, port, join, null, null);
+    this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, join, null, null);
   }
 
   public Server getServer() {
@@ -280,7 +323,8 @@ public class WebServer {
 
     // Start execution
     createListeners();
-
+    Thread monitor = new MonitorThread(server, hostname, shutdownPort);
+    monitor.start();
     server.start();
   }
 

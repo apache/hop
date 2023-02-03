@@ -50,6 +50,8 @@ public class WebServerTest {
 
   private static final int PORT = 8099;
 
+  private static final int SHUTDOEN_PORT = 8098;
+
   private static final String ACCEPTORS = "5";
 
   private static final int EXPECTED_ACCEPTORS = 5;
@@ -87,7 +89,7 @@ public class WebServerTest {
     when(trMapMock.getHopServerConfig()).thenReturn(sServerConfMock);
     when(sServer.getPassword()).thenReturn("cluster");
     when(sServer.getUsername()).thenReturn("cluster");
-    webServer = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT, SHOULD_JOIN, null);
+    webServer = new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT, SHUTDOEN_PORT, SHOULD_JOIN, null);
   }
 
   @After
@@ -132,7 +134,7 @@ public class WebServerTest {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, "TEST");
     try {
       webServerNg =
-          new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHOULD_JOIN, null);
+          new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHUTDOEN_PORT, SHOULD_JOIN, null);
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
@@ -150,7 +152,7 @@ public class WebServerTest {
     System.setProperty(Const.HOP_SERVER_JETTY_ACCEPTORS, EMPTY_STRING);
     try {
       webServerNg =
-          new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHOULD_JOIN, null);
+          new WebServer(logMock, trMapMock, jbMapMock, HOST_NAME, PORT + 1, SHUTDOEN_PORT, SHOULD_JOIN, null);
     } catch (NumberFormatException nmbfExc) {
       fail("Should not have thrown any NumberFormatException but it does: " + nmbfExc);
     }
