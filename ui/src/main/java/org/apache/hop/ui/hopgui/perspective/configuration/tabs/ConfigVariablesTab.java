@@ -68,7 +68,7 @@ public class ConfigVariablesTab {
 
     CTabItem wVarsTab = new CTabItem(wTabFolder, SWT.NONE);
     wVarsTab.setFont(GuiResource.getInstance().getFontDefault());
-    wVarsTab.setText("System variables");
+    wVarsTab.setText(BaseMessages.getString(PKG, "HopSystemVariablesDialog.Title"));
     wVarsTab.setImage(GuiResource.getInstance().getImageVariable());
 
     Composite wVarsTabComp = new Composite(wTabFolder, SWT.NONE);
