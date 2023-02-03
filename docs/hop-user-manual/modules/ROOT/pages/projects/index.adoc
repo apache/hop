@@ -45,7 +45,7 @@ To match standard development best practices you would check all these files int
 
 TIP: project variables should only be used when you need variables on the project level. All variables to connect to infrastructure, e.g. database connection parameters, mail servers etc that take different values in different environments should be created at the environment level.
 
-TIP: Project configurations are stored in hop-config.json, which is read from `hop/config` by default. Use the `{openvar}HOP_CONFIG_FOLDER{closevar}` operating system variable to store your Hop configuration in a folder outside your Hop folder. This will let you keep your project list if you switch Hop installations or upgrade to a newer Hop version.
+TIP: Project configurations are stored in hop-config.json, which is read from `hop/config` by default. Use the `HOP_CONFIG_FOLDER` operating system variable to store your Hop configuration in a folder outside your Hop folder. This will let you keep your project list if you switch Hop installations or upgrade to a newer Hop version.
 
 Projects can inherit metadata and variables from a parent project.
 
