@@ -3125,20 +3125,6 @@ System 2    The week containing the first Thursday of the year is the first week
   <!-- Date/Time : this list is complete -->
   <function>
     <category>%Category.DateTime</category>
-    <name>PARSEDATE</name>
-    <description>Parses a date using a SimpleDateFormat format string</description>
-    <syntax>PARSEDATE( Text date, Text format, Text locale, Text timezone )</syntax>
-    <returns>Date</returns>
-    <constraints>format must be a valid SimpleDateFormat</constraints>
-    <semantics>This computes the date based on the provided format, locale, and timezone.  If timezone is provided, assumes the date is in UTC and converts the date from UTC to the specified timezone.</semantics>
-    <examples>
-      <example><expression>PARSEDATE("2004/12/25 12:56:45.878","yyyy/MM/dd HH:mm:ss.SSS")</expression> <result>2004-12-25 12:56:45.878</result> <level>2</level> <comment>Simple parse.</comment></example>
-      <example><expression>PARSEDATE("2004-12-25", "yyyy-MM-dd", "en", "MDT" )</expression> <result>2004-12-24 17:00:00.000</result> <level>2</level> <comment>2004/12/25 00:00:00 UTC is 2004-12-24 17:00:00 MDT</comment></example>
-    </examples>
-  </function>
-
-  <function>
-    <category>%Category.DateTime</category>
     <name>DATETIMEVALUE</name>
     <description>Returns an internal number for a text having a datetime format.</description>
     <syntax>DATETIMEVALUE( Text D )</syntax>
