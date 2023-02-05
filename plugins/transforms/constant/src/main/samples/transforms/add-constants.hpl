@@ -151,7 +151,7 @@ limitations under the License.
     <name>generate 1 row</name>
     <type>RowGenerator</type>
     <description/>
-    <distribute>N</distribute>
+    <distribute>Y</distribute>
     <custom_distribution/>
     <copies>1</copies>
     <partitioning>
