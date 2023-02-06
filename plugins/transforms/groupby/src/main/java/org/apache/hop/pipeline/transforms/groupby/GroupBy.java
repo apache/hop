@@ -543,6 +543,15 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             sb.append(subjMeta.getString(subj));
           }
           break;
+        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
+          if (subj != null) {
+            StringBuilder sb = (StringBuilder) value;
+            if (sb.length() > 0) {
+              sb.append(Const.CR);
+            }
+            sb.append(subjMeta.getString(subj));
+          }
+          break;
         case Aggregation.TYPE_GROUP_CONCAT_STRING:
           if (subj != null) {
             String separator = "";
@@ -631,6 +640,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           vMeta.setName(fieldName);
           v = r == null ? null : r[data.subjectnrs[i]];
           break;
+        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
         case Aggregation.TYPE_GROUP_CONCAT_COMMA:
           vMeta = new ValueMetaString(fieldName);
           v = new StringBuilder();
@@ -782,6 +792,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           }
         case Aggregation.TYPE_GROUP_CONCAT_COMMA:
         case Aggregation.TYPE_GROUP_CONCAT_STRING:
+        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:          
           ag = ((StringBuilder) ag).toString();
           break;
         case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:

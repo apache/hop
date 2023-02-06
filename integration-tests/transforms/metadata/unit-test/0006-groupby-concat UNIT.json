@@ -25,6 +25,10 @@
         {
           "transform_field": "DISTINCT_NUMBERS",
           "data_set_field": "DISTINCT_NUMBERS"
+        },
+        {
+          "transform_field": "NUMBERS_CRLF",
+          "data_set_field": "NUMBERS_CRLF"
         }
       ],
       "field_order": [
@@ -32,17 +36,18 @@
         "COLORS",
         "DISTINCT_COLORS",
         "NUMBERS",
-        "DISTINCT_NUMBERS"
+        "DISTINCT_NUMBERS",
+        "NUMBERS_CRLF"
       ],
-      "transform_name": "Sort rows result",
-      "data_set_name": "golden-groupby-concat"
+      "data_set_name": "golden-groupby-concat",
+      "transform_name": "Sort rows result"
     }
   ],
   "input_data_sets": [],
   "name": "0006-groupby-concat UNIT",
   "description": "",
-  "trans_test_tweaks": [],
   "persist_filename": "",
+  "trans_test_tweaks": [],
   "pipeline_filename": "./0006-groupby-concat.hpl",
   "test_type": "UNIT_TEST"
 }
