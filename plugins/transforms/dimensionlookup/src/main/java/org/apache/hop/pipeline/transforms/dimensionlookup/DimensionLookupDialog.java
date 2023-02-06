@@ -1108,8 +1108,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         DimensionUpdateType updateType = field.getUpdateType();
         item.setText(3, updateType == null ? "" : updateType.getDescription());
       } else {
-        // String -> int -> String
-        item.setText(3, ValueMetaFactory.getValueMetaName(field.getReturnType()));
+        item.setText(3, Const.NVL(field.getReturnType(),""));
       }
     }
 
@@ -1227,10 +1226,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       DLField field = new DLField();
       field.setLookup(item.getText(1));
       field.setName(item.getText(2));
-      DimensionUpdateType updateType = DimensionUpdateType.lookupDescription(item.getText(3));       
-      if ( updateType!=null) {
-        field.setUpdate(updateType.getCode());
+      if (in.isUpdate()) {
+        DimensionUpdateType updateType = DimensionUpdateType.lookupDescription(item.getText(3));
+        if (updateType != null) {
+          field.setUpdate(updateType.getCode());
+        }
+      } else {
+        field.setReturnType(item.getText(3));
       }
+
       f.getFields().add(field);
     }
     if (log.isDebug()) {
