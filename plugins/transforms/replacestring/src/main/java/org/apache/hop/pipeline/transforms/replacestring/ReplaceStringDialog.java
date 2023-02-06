@@ -149,8 +149,8 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.useRegEx"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.YES"),
-            BaseMessages.getString(PKG, "System.Combo.NO"));
+            BaseMessages.getString(PKG, "System.Combo.Yes"),
+            BaseMessages.getString(PKG, "System.Combo.No"));
     ciKey[3] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.Replace"),
@@ -179,20 +179,20 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.WholeWord"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.YES"),
-            BaseMessages.getString(PKG, "System.Combo.NO"));
+            BaseMessages.getString(PKG, "System.Combo.Yes"),
+            BaseMessages.getString(PKG, "System.Combo.No"));
     ciKey[8] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.CaseSensitive"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.YES"),
-            BaseMessages.getString(PKG, "System.Combo.NO"));
+            BaseMessages.getString(PKG, "System.Combo.Yes"),
+            BaseMessages.getString(PKG, "System.Combo.No"));
     ciKey[9] =
         new ColumnInfo(
             BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.IsUnicode"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
-            BaseMessages.getString(PKG, "System.Combo.YES"),
-            BaseMessages.getString(PKG, "System.Combo.NO"));
+            BaseMessages.getString(PKG, "System.Combo.Yes"),
+            BaseMessages.getString(PKG, "System.Combo.No"));
 
     ciKey[1].setToolTip(
         BaseMessages.getString(PKG, "ReplaceStringDialog.ColumnInfo.OutStreamField.Tooltip"));
