@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
@@ -26,7 +25,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DimensionLookupMetaTest {
 
@@ -44,11 +45,12 @@ public class DimensionLookupMetaTest {
 
     DimensionLookupMeta meta =
         TransformSerializationTestUtil.testSerialization(
-            "/dimension-lookup-transform.xml", DimensionLookupMeta.class, metadataProvider);
+            "/dimension-update-transform.xml", DimensionLookupMeta.class, metadataProvider);
 
     assertNotNull(meta.getDatabaseMeta());
     assertNotNull(meta.getTableName());
     assertNotNull(meta.getSchemaName());
+    assertTrue(meta.isUpdate());
     assertEquals(100, meta.getCommitSize());
     assertEquals(5000, meta.getCacheSize());
     assertEquals(1, meta.getFields().getKeys().size());
@@ -63,5 +65,13 @@ public class DimensionLookupMetaTest {
     assertEquals("lastVersionLookup", meta.getFields().getFields().get(1).getLookup());
     assertEquals("LastVersion", meta.getFields().getFields().get(1).getUpdate());
     assertEquals(DimensionLookupMeta.DimensionUpdateType.LAST_VERSION, meta.getFields().getFields().get(1).getUpdateType());
+    
+    meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/dimension-lookup-transform.xml", DimensionLookupMeta.class, metadataProvider);
+
+    assertFalse(meta.isUpdate());
+    assertEquals("Number", meta.getFields().getFields().get(0).getReturnType());
+    assertEquals("String", meta.getFields().getFields().get(1).getReturnType());
   }
 }

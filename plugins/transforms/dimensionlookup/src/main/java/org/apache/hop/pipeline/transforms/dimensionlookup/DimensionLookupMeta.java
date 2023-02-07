@@ -37,7 +37,6 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -643,7 +642,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
                   "The update type specified is not valid for field '"
-                      + field.getName()
+                      + Const.NVL(field.getName(), field.getLookup())
                       + "' : '"
                       + field.getUpdate()
                       + "'",
@@ -653,14 +652,15 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       } else {
         // Check the type of the dimension field to look up
         //
-        if (field.getReturnType() <= 0) {
+        int type = ValueMetaFactory.getIdForValueMeta(field.getReturnType());
+        if (type == IValueMeta.TYPE_NONE) {
           remarks.add(
               new CheckResult(
                   ICheckResult.TYPE_RESULT_ERROR,
                   "The return type specified is not valid for field '"
-                      + field.getName()
+                      + Const.NVL(field.getName(), field.getLookup())
                       + "' : '"
-                      + field.getUpdate()
+                      + field.getReturnType()
                       + "'",
                   transformMeta));
           allOk = false;
@@ -1510,14 +1510,18 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         injectionKeyDescription = "DimensionLookup.Injection.UPDATE_TYPE")
     private String update;
 
+    @HopMetadataProperty(        
+        key = "type",
+        injectionKey = "TYPE_OF_RETURN_FIELD",
+        injectionKeyDescription = "DimensionLookup.Injection.TYPE_OF_RETURN_FIELD")
+    private String returnType;
+    
     /** Not serialized. This is used to cache the lookup of the dimension type */
     private DimensionUpdateType updateType;
-    /** Not serialized. This is used to cache the lookup of the Hop value return type */
-    private int returnType;
 
     public DLField() {
       this.updateType = null;
-      this.returnType = -1;
+      this.returnType = null;
     }
 
     public DLField(DLField f) {
@@ -1525,7 +1529,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       this.lookup = f.lookup;
       this.update = f.update;
       this.updateType = null;
-      this.returnType = -1;
+      this.returnType = f.returnType;
     }
 
     public DimensionUpdateType getUpdateType() {
@@ -1539,14 +1543,6 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         }
       }
       return null;
-    }
-
-    public int getReturnType() {
-      if (returnType >= 0) {
-        return returnType;
-      }
-      returnType = ValueMetaFactory.getIdForValueMeta(update);
-      return returnType;
     }
 
     /**
@@ -1586,7 +1582,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
 
     /**
-     * Gets update
+     * Gets update type code
      *
      * @return value of update
      */
@@ -1595,14 +1591,31 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
 
     /**
-     * Sets update
+     * Sets update type code
      *
      * @param update value of update
      */
     public void setUpdate(String update) {
       this.update = update;
       this.updateType = null;
-      this.returnType = -1;
+    }
+    
+    /**
+     * Gets return type for read only lookup
+     *
+     * @return type of 
+     */
+    public String getReturnType() {
+      return returnType;
+    }
+    
+    /**
+     * Sets return type for read only lookup
+     *
+     * @param type the return type
+     */
+    public void setReturnType(String type) {
+      this.returnType = type;
     }
   }
 
