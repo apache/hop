@@ -26,7 +26,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -55,10 +54,10 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
   private static final Class<?> PKG = DBProcMeta.class; // For Translator
 
   /** database connection */
-  @HopMetadataProperty(key = "connection", storeWithName = true)
-  private DatabaseMeta database;
-
-  /** proc.-name to be called */
+  @HopMetadataProperty(key = "connection")
+  private String connection;
+  
+  /** procedure name to be called */
   @HopMetadataProperty private String procedure;
 
   /** function arguments */
@@ -79,7 +78,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
 
   public DBProcMeta(DBProcMeta m) {
     this();
-    this.database = database == null ? null : new DatabaseMeta(m.database);
+    this.connection = m.connection;
     this.procedure = m.procedure;
     for (ProcArgument argument : m.arguments) {
       this.arguments.add(new ProcArgument(argument));
@@ -95,7 +94,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
 
   @Override
   public void setDefault() {
-    database = null;
+    connection = null;
     result.name = "result";
     result.type = "Number";
     autoCommit = true;
@@ -153,9 +152,25 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
     CheckResult cr;
     String errorMessage = "";
 
-    if (database != null) {
-      Database db = new Database(new LoggingObject(pipelineMeta), variables, database);
-      try {
+    DatabaseMeta databaseMeta = null;
+
+    try {
+      databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
+    } catch (HopException e) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "DBProcMeta.CheckResult.DatabaseMetaError",
+                  variables.resolve(connection)),
+              transformMeta);
+      remarks.add(cr);
+    }
+
+    if (databaseMeta != null) {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         // Look up fields in the input stream <prev>
@@ -209,13 +224,13 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
               BaseMessages.getString(PKG, "DBProcMeta.CheckResult.CouldNotReadFields") + Const.CR;
           cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
-        }
+        }        
       } catch (HopException e) {
         errorMessage =
             BaseMessages.getString(PKG, "DBProcMeta.CheckResult.ErrorOccurred") + e.getMessage();
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
-      }
+     }          
     } else {
       errorMessage = BaseMessages.getString(PKG, "DBProcMeta.CheckResult.InvalidConnection");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
@@ -393,21 +408,21 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
   }
 
   /**
-   * Gets database
+   * Gets database connection
    *
-   * @return value of database
+   * @return value of connection
    */
-  public DatabaseMeta getDatabase() {
-    return database;
+  public String getConnection() {
+    return connection;
   }
 
   /**
-   * Sets database
+   * Sets database connection
    *
-   * @param database value of database
+   * @param connection value of database connection
    */
-  public void setDatabase(DatabaseMeta database) {
-    this.database = database;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**

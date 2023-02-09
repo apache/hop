@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -207,7 +208,8 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {
         data.readsRows = true;
       }
 
-      data.db = new Database(this, this, meta.getDatabase());
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      data.db = new Database(this, this, databaseMeta);
       try {
         data.db.connect();
 
