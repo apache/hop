@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>avro-encode-decode-basic</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/02/06 19:42:29.345</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/02/06 19:42:29.345</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>data grid</from>
+      <to>Avro Encode</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Avro Encode</from>
+      <to>Avro Decode</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Avro Decode</name>
+    <type>AvroDecode</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <source_avro_type>Fixed</source_avro_type>
+        <source_field>bar_avro</source_field>
+        <target_field_name>bar_avro</target_field_name>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_avro_type>Union</source_avro_type>
+        <source_field>foo_avro</source_field>
+        <target_field_name>foo_avro</target_field_name>
+        <target_type>String</target_type>
+      </field>
+      <field>
+        <source_avro_type>Union</source_avro_type>
+        <source_field>id_avro</source_field>
+        <target_field_name>id_avro</target_field_name>
+        <target_type>Integer</target_type>
+      </field>
+    </fields>
+    <ignore_missing>Y</ignore_missing>
+    <remove_source_field>Y</remove_source_field>
+    <source_field>avro</source_field>
+    <attributes/>
+    <GUI>
+      <xloc>480</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Avro Encode</name>
+    <type>AvroEncode</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <source_field>id</source_field>
+        <target_field_name>id_avro</target_field_name>
+      </field>
+      <field>
+        <source_field>foo</source_field>
+        <target_field_name>foo_avro</target_field_name>
+      </field>
+      <field>
+        <source_field>bar</source_field>
+        <target_field_name>bar_avro</target_field_name>
+      </field>
+    </fields>
+    <namespace>apache-hop</namespace>
+    <output_field>avro</output_field>
+    <schema_name>hopschema</schema_name>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>1</item>
+        <item>foo</item>
+        <item>bar</item>
+      </line>
+      <line>
+        <item>2</item>
+        <item>hello</item>
+        <item>world</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>id</name>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>foo</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>bar</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
