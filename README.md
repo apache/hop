@@ -58,6 +58,10 @@ Recommended:
 
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
 
+Verify Maven Java version: (should be Java 11 to compile properly without skipping tests)
+
+    mvn -version
+
 Clone Hop to a local repository:
 
     $ git clone https://github.com/apache/hop.git
@@ -83,6 +87,10 @@ Required:
 - [OpenJDK](https://openjdk.java.net/) Java 11 compiler or higher. Make sure to get the latest updates to support recent
   features like dark mode on the various platforms.
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
+
+Verify Maven Java version: (should be Java 11 to compile properly without skipping tests)
+
+    mvn -version
 
 Unzip the archive
 
