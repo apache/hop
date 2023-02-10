@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.repeat;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -36,6 +37,9 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.resource.IResourceExport;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -567,6 +571,36 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       throw new HopException(
           "Can't tell if this workflow action is referencing a transformation or a workflow");
     }
+  }
+
+  @Override
+  public String exportResources(
+      IVariables variables,
+      Map<String, ResourceDefinition> definitions,
+      IResourceNaming namingInterface,
+      IHopMetadataProvider metadataProvider)
+      throws HopException {
+
+    copyFrom(variables);
+    String realFileName = resolve(filename);
+    AbstractMeta pipelineOrWorkflow;
+
+    if (isPipeline(realFileName)) {
+      pipelineOrWorkflow = loadPipeline(realFileName, metadataProvider, this);
+    } else if (isWorkflow(realFileName)) {
+      pipelineOrWorkflow = loadWorkflow(realFileName, metadataProvider, this);
+    } else {
+      throw new HopException(
+          "Can't tell if this workflow action is referencing a transformation or a workflow");
+    }
+
+    String proposedNewFilename =
+        ((IResourceExport) pipelineOrWorkflow).exportResources(variables, definitions, namingInterface, metadataProvider);
+    String newFilename =
+        "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + proposedNewFilename;
+    pipelineOrWorkflow.setFilename(newFilename);
+    filename = newFilename;
+    return proposedNewFilename;
   }
 
   public boolean isPipeline(String realFilename) throws HopException {
