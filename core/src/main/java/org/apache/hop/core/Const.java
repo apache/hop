@@ -1665,20 +1665,24 @@ public class Const {
    */
   public static String getBaseDocUrl() {
     String url = BaseMessages.getString(PKG, "Const.BaseDocUrl");
+        
+    // Get the implementation version:  
+    // Temporary build: 2.4.0-SNAPSHOT (2023-02-13 08.50.52)
+    // Release version: 2.4.0
     String version = Const.class.getPackage().getImplementationVersion();
-
-    if (version == null || version.endsWith("SNAPSHOT")) {
+    
+    // Check if implementation version is a SNAPHOT build or if version is not known.    
+    if (version == null || version.contains("SNAPSHOT")) {
       version = "next";
     }
-
+    
     return url + version + "/";
   }
 
   /**
    * Provides the documentation url with the configured base + the given URI.
    *
-   * @param uri the resource identifier for the documentation (eg.
-   *     Products/Data_Integration/Data_Integration_Perspective/050/000)
+   * @param uri the resource identifier for the documentation (eg. pipeline/transforms/abort.html)
    * @return the fully qualified documentation URL for the given URI
    */
   public static String getDocUrl(final String uri) {
