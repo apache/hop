@@ -50,6 +50,7 @@ write_server_config() {
   echo "    <name>Hop Server</name>" >>${HOP_SERVER_XML}
   echo "    <hostname>${HOP_SERVER_HOSTNAME}</hostname>" >>${HOP_SERVER_XML}
   echo "    <port>${HOP_SERVER_PORT}</port>" >>${HOP_SERVER_XML}
+  echo "    <shutdownPort>${HOP_SERVER_SHUTDOWNPORT}</shutdownPort>" >>${HOP_SERVER_XML}
   echo "    <username>${HOP_SERVER_USER}</username>" >>${HOP_SERVER_XML}
   echo "    <password>${HOP_SERVER_PASS}</password>" >>${HOP_SERVER_XML}
 

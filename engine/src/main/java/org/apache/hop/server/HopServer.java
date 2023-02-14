@@ -175,7 +175,13 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.changedDate = new Date();
   }
 
-  public HopServer(String name, String hostname, String port, String shutdownPort, String username, String password) {
+  public HopServer(
+      String name,
+      String hostname,
+      String port,
+      String shutdownPort,
+      String username,
+      String password) {
     this(name, hostname, port, shutdownPort, username, password, null, null, null, false);
   }
 
@@ -189,7 +195,17 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
       String proxyHostname,
       String proxyPort,
       String nonProxyHosts) {
-    this(name, hostname, port, shutdownPort, username, password, proxyHostname, proxyPort, nonProxyHosts, false);
+    this(
+        name,
+        hostname,
+        port,
+        shutdownPort,
+        username,
+        password,
+        proxyHostname,
+        proxyPort,
+        nonProxyHosts,
+        false);
   }
 
   public HopServer(
@@ -1113,7 +1129,8 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     String pPort = getPort();
     String shutdownPort = getShutdownPort();
     String name = MessageFormat.format("Dynamic server [{0}:{1}]", pHostName, pPort);
-    HopServer client = new HopServer(name, pHostName, pPort, shutdownPort, getUsername(), getPassword());
+    HopServer client =
+        new HopServer(name, pHostName, pPort, shutdownPort, getUsername(), getPassword());
     client.setSslMode(isSslMode());
     return client;
   }

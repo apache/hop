@@ -22,6 +22,7 @@
         <name>server-8181</name>
         <hostname>localhost</hostname>
         <port>8181</port>
+        <shutdownPort>8182</shutdownPort>
     </hop-server>
 
     <!-- Join the web server thread and wait until it's finished.

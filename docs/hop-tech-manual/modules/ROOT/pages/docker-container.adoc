@@ -153,6 +153,10 @@ Below are the variables you can use for a **long-lived** container, running Hop 
 | `8080`
 | The port the server will listen to.
 
+|```HOP_SERVER_SHUTDOWNPORT```
+| `8079`
+| The port the server shutdown listener will listen to.
+
 |```HOP_SERVER_USER```
 |`cluster`
 | The username to log into the Hop server.
@@ -259,8 +263,10 @@ docker run -it --rm \
   --env HOP_SERVER_USER=admin \
   --env HOP_SERVER_PASS=admin \
   --env HOP_SERVER_PORT=8181 \
+  --env HOP_SERVER_PORT=8180 \
   --env HOP_SERVER_HOSTNAME=0.0.0.0 \
   -p 8181:8181 \
+  -p 8180:8180 \
   --name my-hop-server-container \
  apache/hop:<tag>
 ----
