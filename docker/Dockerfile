@@ -66,6 +66,7 @@ ENV HOP_SERVER_PASSWORD=cluster
 # The server hostname
 ENV HOP_SERVER_HOSTNAME=0.0.0.0
 ENV HOP_SERVER_PORT=8080
+ENV HOP_SERVER_SHUTDOWNPORT=8079
 # Optional metadata folder to be included in the hop server XML
 ENV HOP_SERVER_METADATA_FOLDER=
 # Optional server SSL configuration variables
@@ -114,8 +115,8 @@ COPY --chown=hop:hop ./assemblies/client/target/hop/ ${DEPLOYMENT_PATH}/hop
 COPY --chown=hop:hop ./docker/resources/run.sh ${DEPLOYMENT_PATH}/run.sh
 COPY --chown=hop:hop ./docker/resources/load-and-execute.sh ${DEPLOYMENT_PATH}/load-and-execute.sh
 
-# expose 8080 for Hop Server
-EXPOSE 8080
+# expose 8080/8079 for Hop Server
+EXPOSE 8080 8079
 
 # make volume available so that hop pipeline and workflow files can be provided easily
 VOLUME ["/files"]

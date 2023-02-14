@@ -145,6 +145,8 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   @HopMetadataProperty private String port;
 
+  @HopMetadataProperty private String shutdownPort;
+
   @HopMetadataProperty private String webAppName;
 
   @HopMetadataProperty private String username;
@@ -173,26 +175,44 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.changedDate = new Date();
   }
 
-  public HopServer(String name, String hostname, String port, String username, String password) {
-    this(name, hostname, port, username, password, null, null, null, false);
+  public HopServer(
+      String name,
+      String hostname,
+      String port,
+      String shutdownPort,
+      String username,
+      String password) {
+    this(name, hostname, port, shutdownPort, username, password, null, null, null, false);
   }
 
   public HopServer(
       String name,
       String hostname,
       String port,
+      String shutdownPort,
       String username,
       String password,
       String proxyHostname,
       String proxyPort,
       String nonProxyHosts) {
-    this(name, hostname, port, username, password, proxyHostname, proxyPort, nonProxyHosts, false);
+    this(
+        name,
+        hostname,
+        port,
+        shutdownPort,
+        username,
+        password,
+        proxyHostname,
+        proxyPort,
+        nonProxyHosts,
+        false);
   }
 
   public HopServer(
       String name,
       String hostname,
       String port,
+      String shutdownPort,
       String username,
       String password,
       String proxyHostname,
@@ -203,6 +223,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.name = name;
     this.hostname = hostname;
     this.port = port;
+    this.shutdownPort = shutdownPort;
     this.username = username;
     this.password = password;
 
@@ -218,6 +239,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.name = XmlHandler.getTagValue(node, "name");
     this.hostname = XmlHandler.getTagValue(node, "hostname");
     this.port = XmlHandler.getTagValue(node, "port");
+    this.shutdownPort = XmlHandler.getTagValue(node, "shutdownPort");
     this.webAppName = XmlHandler.getTagValue(node, "webAppName");
     this.username = XmlHandler.getTagValue(node, "username");
     this.password =
@@ -251,6 +273,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     xml.append("        ").append(XmlHandler.addTagValue("name", name));
     xml.append("        ").append(XmlHandler.addTagValue("hostname", hostname));
     xml.append("        ").append(XmlHandler.addTagValue("port", port));
+    xml.append("        ").append(XmlHandler.addTagValue("shutdownPort", shutdownPort));
     xml.append("        ").append(XmlHandler.addTagValue("webAppName", webAppName));
     xml.append("        ").append(XmlHandler.addTagValue("username", username));
     xml.append(
@@ -434,6 +457,20 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   /**
    * @param port the port to set
+   */
+  public void setShutdownPort(String port) {
+    this.shutdownPort = port;
+  }
+
+  /**
+   * @return the shutdown port
+   */
+  public String getShutdownPort() {
+    return shutdownPort;
+  }
+
+  /**
+   * @param port the shutdown port to set
    */
   public void setPort(String port) {
     this.port = port;
@@ -1090,8 +1127,10 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   public HopServer getClient() {
     String pHostName = getHostname();
     String pPort = getPort();
+    String shutdownPort = getShutdownPort();
     String name = MessageFormat.format("Dynamic server [{0}:{1}]", pHostName, pPort);
-    HopServer client = new HopServer(name, pHostName, pPort, getUsername(), getPassword());
+    HopServer client =
+        new HopServer(name, pHostName, pPort, shutdownPort, getUsername(), getPassword());
     client.setSslMode(isSslMode());
     return client;
   }
