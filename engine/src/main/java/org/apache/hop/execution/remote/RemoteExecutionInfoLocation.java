@@ -19,7 +19,12 @@
 package org.apache.hop.execution.remote;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -42,11 +47,6 @@ import org.apache.hop.server.HopServer;
 import org.apache.hop.www.GetExecutionInfoServlet;
 import org.apache.hop.www.RegisterExecutionInfoServlet;
 import org.apache.http.client.utils.URIBuilder;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @GuiPlugin(description = "File execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
@@ -163,15 +163,18 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   public boolean deleteExecution(String executionId) throws HopException {
     try {
       URI uri =
-              new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH)
-                      .addParameter(
-                              RegisterExecutionInfoServlet.PARAMETER_TYPE,
-                              RegisterExecutionInfoServlet.TYPE_EXECUTION)
-                      .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
-                      .build();
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.DELETE.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .build();
 
       validateSettings();
-      return false;
+
+      String json = server.execService(variables, uri.toString());
+      return Const.toBoolean(json);
     } catch (Exception e) {
       throw new HopException("Error deleting execution at remote location", e);
     }

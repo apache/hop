@@ -1,0 +1,13 @@
+{
+  "executionInfoLocation": {
+    "local-folder": {
+      "pluginName": "File location",
+      "pluginId": "local-folder",
+      "rootFolder": "${java.io.tmpdir}/executions/"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "local",
+  "description": "",
+  "dataLoggingInterval": "5000"
+}

@@ -1,0 +1,14 @@
+{
+  "executionInfoLocation": {
+    "remote-location": {
+      "server": "testserver",
+      "pluginName": "Remote location",
+      "pluginId": "remote-location",
+      "location": "local"
+    }
+  },
+  "dataLoggingDelay": "2000",
+  "name": "remote",
+  "description": "",
+  "dataLoggingInterval": "5000"
+}
