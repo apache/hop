@@ -20,7 +20,7 @@
 notifications:
   commits: commits@hop.apache.org
   issues: issues@hop.apache.org
-  pullrequests_status: dev@hop.apache.org
+  pullrequests_status: issues@hop.apache.org
   pullrequests_comment: issues@hop.apache.org
 
 github:
