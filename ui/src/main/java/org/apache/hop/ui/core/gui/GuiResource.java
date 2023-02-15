@@ -80,11 +80,15 @@ public class GuiResource {
 
   private Color colorRed;
 
+  private Color colorDarkRed;
+  
   private Color colorSuccessGreen;
 
   private Color colorBlueCustomGrid;
 
   private Color colorGreen;
+  
+  private Color colorDarkGreen;
 
   private Color colorBlue;
 
@@ -380,7 +384,9 @@ public class GuiResource {
     colorTab = new Color(display, props.contrastColor(new RGB(128, 128, 128)));
     colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
     colorRed = new Color(display, props.contrastColor(255, 0, 0));
+    colorDarkRed = new Color(display, props.contrastColor(192, 57, 43));    
     colorGreen = new Color(display, props.contrastColor(0, 255, 0));
+    colorDarkGreen = new Color(display, props.contrastColor(16, 172, 132));    
     colorBlue = new Color(display, props.contrastColor(0, 0, 255));
     colorYellow = new Color(display, props.contrastColor(255, 255, 0));
     colorMagenta = new Color(display, props.contrastColor(255, 0, 255));
@@ -1003,7 +1009,14 @@ public class GuiResource {
   public Color getColorGreen() {
     return colorGreen;
   }
-
+  
+  /**
+   * @return Returns the color dark green.
+   */
+  public Color getColorDarkGreen() {
+    return colorDarkGreen;
+  }
+  
   /**
    * @return Returns the colorLightGray.
    */
@@ -1053,7 +1066,14 @@ public class GuiResource {
   public Color getColorRed() {
     return colorRed;
   }
-
+  
+  /**
+   *  @return Returns the color dark red.
+   */
+  public Color getColorDarkRed() {
+    return colorDarkRed;
+  }
+  
   /**
    * @return Returns the colorBlueCustomGrid.
    */
