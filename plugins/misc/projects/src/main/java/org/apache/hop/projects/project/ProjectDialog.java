@@ -517,7 +517,7 @@ public class ProjectDialog extends Dialog {
       // If the home folder doesn't exist and project is new aks if want it created
       if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists() && !this.editMode) {
         MessageBox box =
-            new MessageBox(HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+            new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText(BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Header"));
         box.setMessage(
             BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Message", homeFolder));
