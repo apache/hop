@@ -237,9 +237,9 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
             int index = baseIndex;
             outputRow[index++] = ++rowNr;
             JSONObject jsonRow = new JSONObject();
-            for (int v = 0; v < rowMeta.size(); v++) {
-              IValueMeta valueMeta = rowMeta.getValueMeta(v);
-              jsonRow.put(valueMeta.getName(), outputRow[v]);
+            for (int v = 0; v < rowBuffer.getRowMeta().size(); v++) {
+              IValueMeta valueMeta = rowBuffer.getRowMeta().getValueMeta(v);
+              jsonRow.put(valueMeta.getName(), bufferRow[v]);
             }
             outputRow[index] = jsonRow.toJSONString();
 
