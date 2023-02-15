@@ -1,24 +1,8 @@
 {
-  "base_filename": "0004-read-from-remote-location-golden.csv",
-  "name": "0004-read-from-remote-location-golden",
+  "base_filename": "0005-delete-from-remote-location-golden.csv",
+  "name": "0005-delete-from-remote-location-golden",
   "description": "",
   "dataset_fields": [
-    {
-      "field_comment": "",
-      "field_length": -1,
-      "field_type": 4,
-      "field_precision": -1,
-      "field_name": "finished",
-      "field_format": ""
-    },
-    {
-      "field_comment": "",
-      "field_length": -1,
-      "field_type": 2,
-      "field_precision": -1,
-      "field_name": "setKey",
-      "field_format": ""
-    },
     {
       "field_comment": "",
       "field_length": -1,
@@ -32,7 +16,7 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "copyNr",
+      "field_name": "executionType",
       "field_format": ""
     },
     {
@@ -40,7 +24,7 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "description",
+      "field_name": "runConfigurationName",
       "field_format": ""
     },
     {
@@ -48,23 +32,31 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "setRowMetaJson",
+      "field_name": "logLevel",
       "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
-      "field_type": 5,
-      "field_precision": 0,
-      "field_name": "setRowNr",
-      "field_format": "####0;-####0"
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "failed",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_name": "setRowDataJson",
+      "field_name": "statusDescription",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 4,
+      "field_precision": -1,
+      "field_name": "deleted",
       "field_format": ""
     }
   ],

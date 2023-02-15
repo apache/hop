@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0004-remote-execution-location</name>
+  <name>main-0005-remote-execution-location</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -49,11 +49,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0004-write-to-remote-location</name>
+      <name>0005-write-to-remote-location</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0004-write-to-remote-location.hpl</filename>
+      <filename>${PROJECT_HOME}/0005-write-to-remote-location.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -77,13 +77,13 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0004-read-from-remote-location</name>
+      <name>0005-read-from-remote-location</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
       <test_names>
         <test_name>
-          <name>0004-read-from-remote-location UNIT</name>
+          <name>0005-read-from-remote-location UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -92,11 +92,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0004-delete-from-remote-location</name>
+      <name>0005-delete-from-remote-location</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0004-delete-from-remote-location.hpl</filename>
+      <filename>${PROJECT_HOME}/0005-delete-from-remote-location.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -120,11 +120,11 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>0004-verify-deleted-on-remote-location</name>
+      <name>0005-verify-deleted-on-remote-location</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0004-verify-deleted-on-remote-location.hpl</filename>
+      <filename>${PROJECT_HOME}/0005-verify-deleted-on-remote-location.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -151,28 +151,28 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>0004-write-to-remote-location</to>
+      <to>0005-write-to-remote-location</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>0004-write-to-remote-location</from>
-      <to>0004-read-from-remote-location</to>
+      <from>0005-write-to-remote-location</from>
+      <to>0005-read-from-remote-location</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0004-read-from-remote-location</from>
-      <to>0004-delete-from-remote-location</to>
+      <from>0005-read-from-remote-location</from>
+      <to>0005-delete-from-remote-location</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0004-delete-from-remote-location</from>
-      <to>0004-verify-deleted-on-remote-location</to>
+      <from>0005-delete-from-remote-location</from>
+      <to>0005-verify-deleted-on-remote-location</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>

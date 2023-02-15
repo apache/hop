@@ -49,15 +49,15 @@
         "setRowNr",
         "setRowDataJson"
       ],
-      "data_set_name": "0004-read-from-remote-location-golden",
+      "data_set_name": "0005-read-from-remote-location-golden",
       "transform_name": "Validate"
     }
   ],
   "input_data_sets": [],
-  "name": "0004-read-from-remote-location UNIT",
+  "name": "0005-read-from-remote-location UNIT",
   "description": "",
   "persist_filename": "",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0004-read-from-remote-location.hpl",
+  "pipeline_filename": "./0005-read-from-remote-location.hpl",
   "test_type": "UNIT_TEST"
 }
