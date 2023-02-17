@@ -258,9 +258,11 @@ Run this command to start a Hop Server in a docker container:
 docker run -it --rm \
   --env HOP_SERVER_USER=admin \
   --env HOP_SERVER_PASS=admin \
-  --env HOP_SERVER_PORT=8080 \
+  --env HOP_SERVER_SHUTDOWNPORT=8080 \
+  --env HOP_SERVER_PORT=8181 \
   --env HOP_SERVER_HOSTNAME=0.0.0.0 \
-  -p 8181:8080 \
+  -p 8080:8080 \
+  -p 8181:8181 \
   --name my-hop-server-container \
  apache/hop:<tag>
 ----
