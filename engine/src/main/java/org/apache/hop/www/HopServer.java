@@ -336,7 +336,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     String hostname = variables.resolve(hopServer.getHostname());
     String port = variables.resolve(hopServer.getPort());
     String shudownPort = variables.resolve(hopServer.getShutdownPort());
-    parameters = List.of(hostname, port, shudownPort);
+    parameters = List.of(hostname, port);
+    if (StringUtils.isNotEmpty(shudownPort)) {
+      parameters.add(shudownPort);
+    }
   }
 
   private boolean handleQueryOptions() {
