@@ -532,7 +532,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     HttpEntity entity = new ByteArrayEntity(content);
 
     postMethod.setEntity(entity);
-    postMethod.addHeader(new BasicHeader("Content-Type", contentType + ";charset=" + encoding));
+    postMethod.addHeader(new BasicHeader("Accept", contentType + ";charset=" + encoding));
 
     return postMethod;
   }

@@ -17,6 +17,12 @@
 
 package org.apache.hop.www;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -29,13 +35,6 @@ import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
 public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -94,6 +93,8 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
       }
 
       // Look up the location in the metadata.
+      // No caching of the location state is done.
+      // initialize() is always followed by a close().
       //
       MultiMetadataProvider provider = pipelineMap.getHopServerConfig().getMetadataProvider();
       IHopMetadataSerializer<ExecutionInfoLocation> serializer =
@@ -102,51 +103,57 @@ public class RegisterExecutionInfoServlet extends BaseHttpServlet implements IHo
       if (location == null) {
         throw new HopException("Unable to find execution information location " + locationName);
       }
+      try {
+        location.getExecutionInfoLocation().initialize(variables, provider);
 
-      // First read the complete JSON document in memory from the request
-      //
-      StringBuilder json = new StringBuilder(request.getContentLength());
-      int c;
-      while ((c = in.read()) != -1) {
-        json.append((char) c);
+        // First read the complete JSON document in memory from the request
+        //
+        StringBuilder json = new StringBuilder(request.getContentLength());
+        int c;
+        while ((c = in.read()) != -1) {
+          json.append((char) c);
+        }
+
+        // What type of information are we receiving?
+        //
+        switch (type) {
+          case TYPE_EXECUTION:
+            Execution execution = HopJson.newMapper().readValue(json.toString(), Execution.class);
+            location.getExecutionInfoLocation().registerExecution(execution);
+            break;
+          case TYPE_STATE:
+            ExecutionState state =
+                HopJson.newMapper().readValue(json.toString(), ExecutionState.class);
+            location.getExecutionInfoLocation().updateExecutionState(state);
+            break;
+          case TYPE_DATA:
+            ExecutionData data =
+                HopJson.newMapper().readValue(json.toString(), ExecutionData.class);
+            location.getExecutionInfoLocation().registerData(data);
+            break;
+          default:
+            throw new HopException(
+                "Unknown update type: "
+                    + type
+                    + " allowed are: "
+                    + TYPE_EXECUTION
+                    + ", "
+                    + TYPE_STATE
+                    + ", "
+                    + TYPE_DATA);
+        }
+
+        // Log successful registration of execution, state or data
+        //
+        out.println(
+            new WebResult(
+                WebResult.STRING_OK, "Registration successful at location " + locationName));
+
+      } finally {
+        location.getExecutionInfoLocation().close();
       }
-
-      // What type of information are we receiving?
-      //
-      switch (type) {
-        case TYPE_EXECUTION:
-          Execution execution = HopJson.newMapper().readValue(json.toString(), Execution.class);
-          location.getExecutionInfoLocation().registerExecution(execution);
-          break;
-        case TYPE_STATE:
-          ExecutionState state =
-              HopJson.newMapper().readValue(json.toString(), ExecutionState.class);
-          location.getExecutionInfoLocation().updateExecutionState(state);
-          break;
-        case TYPE_DATA:
-          ExecutionData data = HopJson.newMapper().readValue(json.toString(), ExecutionData.class);
-          location.getExecutionInfoLocation().registerData(data);
-          break;
-        default:
-          throw new HopException(
-              "Unknown update type: "
-                  + type
-                  + " allowed are: "
-                  + TYPE_EXECUTION
-                  + ", "
-                  + TYPE_STATE
-                  + ", "
-                  + TYPE_DATA);
-      }
-
-      // Return the log channel id as well
-      //
-      out.println(
-          new WebResult(
-              WebResult.STRING_OK, "Registration successful at location " + locationName));
-
     } catch (Exception ex) {
-
+      response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       out.println(new WebResult(WebResult.STRING_ERROR, Const.getStackTracker(ex)));
     }
   }

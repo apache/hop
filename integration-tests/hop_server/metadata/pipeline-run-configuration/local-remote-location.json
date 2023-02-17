@@ -18,5 +18,5 @@
   "name": "local-remote-location",
   "description": "",
   "dataProfile": "first-last",
-  "executionInfoLocationName": "local"
+  "executionInfoLocationName": "remote"
 }
