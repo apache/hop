@@ -146,14 +146,14 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH)
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH+"/")
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_EXECUTION)
               .addParameter(RegisterExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .build();
 
-      server.sendJson(variables, uri.toString(), getJson(execution));
+      server.sendJson(variables, getJson(execution), uri.toString());
     } catch (Exception e) {
       throw new HopException("Error registering execution at remote location", e);
     }
@@ -185,7 +185,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH)
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_STATE)
@@ -203,7 +203,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH)
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH+"/")
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_DATA)

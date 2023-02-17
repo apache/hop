@@ -18,6 +18,16 @@
 package org.apache.hop.www;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -346,11 +356,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     }
     String hostname = variables.resolve(hopServer.getHostname());
     String port = variables.resolve(hopServer.getPort());
-    String shudownPort = variables.resolve(hopServer.getShutdownPort());
-    parameters = List.of(hostname, port);
-    if (StringUtils.isNotEmpty(shudownPort)) {
-      parameters.add(shudownPort);
-    }
+    String shutDownPort = variables.resolve(hopServer.getShutdownPort());
+    parameters = List.of(Const.NVL(hostname, ""), Const.NVL(port, ""), Const.NVL(shutDownPort, ""));
   }
 
   private boolean handleQueryOptions() {

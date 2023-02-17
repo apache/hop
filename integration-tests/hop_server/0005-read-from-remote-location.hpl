@@ -59,11 +59,6 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Execution IDs</from>
-      <to>Execution &amp; State</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Execution &amp; State</from>
       <to>executionType=Pipeline</to>
       <enabled>Y</enabled>
@@ -76,6 +71,11 @@ limitations under the License.
     <hop>
       <from>Remove XML and logging</from>
       <to>execution data</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Execution IDs</from>
+      <to>Execution &amp; State</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -95,7 +95,7 @@ limitations under the License.
     <operationType>GetExecutionAndState</operationType>
     <attributes/>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>384</xloc>
       <yloc>48</yloc>
     </GUI>
   </transform>
@@ -221,7 +221,7 @@ limitations under the License.
     </fields>
     <attributes/>
     <GUI>
-      <xloc>800</xloc>
+      <xloc>768</xloc>
       <yloc>48</yloc>
     </GUI>
   </transform>
@@ -349,7 +349,7 @@ limitations under the License.
     </compare>
     <attributes/>
     <GUI>
-      <xloc>592</xloc>
+      <xloc>560</xloc>
       <yloc>48</yloc>
     </GUI>
   </transform>
