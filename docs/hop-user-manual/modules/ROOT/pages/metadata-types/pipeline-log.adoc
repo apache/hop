@@ -16,6 +16,8 @@ under the License.
 ////
 :imagesdir: ../../assets/images/
 :page-pagination:
+:openvar: ${
+:closevar: }
 :description: Allows to log the activity of a pipeline with another pipeline. A pipeline log streams logging information from a running pipeline to another pipeline. This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
 
 = Pipeline Log
@@ -27,11 +29,21 @@ image:icons/pipeline-log.svg[]
 Allows to log the activity of a pipeline with another pipeline.
 
 A pipeline log streams logging information from a running pipeline to another pipeline.
-This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+
+The only requirement for the receiving pipeline is that it starts with a xref:pipeline/transforms/pipeline-logging.adoc[Pipeline Logging] transform. Other than that, the logging pipeline is "just another pipeline".
+In this logging pipeline, you can process the logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+
+== Samples
+
+The samples project comes with an example pipeline log.
+
+Check the metadata perspective for the pipeline log `pipeline-log-example`. This pipeline log is configured to send logging information for the pipeline `{openvar}PROJECT_HOME{closevar}/reflection/generate-fake-books.hpl` to the logging pipeline `{openvar}PROJECT_HOME{closevar}/reflection/pipeline-log-example.hpl`.
+
+image:metadata-types/pipeline-log.png[Pipeline Log, width="75%"]
 
 == Related Plugins
 
-* Pipeline Logging
+* xref:pipeline/transforms/pipeline-logging.adoc[Pipeline Logging]
 
 == Options
 

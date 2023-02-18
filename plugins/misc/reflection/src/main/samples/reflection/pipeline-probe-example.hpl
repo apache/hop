@@ -84,7 +84,7 @@ limitations under the License.
     <fileNameField/>
     <create_parent_folder>Y</create_parent_folder>
     <file>
-      <name>${PROJECT_HOME}/pipeline-probe/output/books-per-genre</name>
+      <name>${PROJECT_HOME}/reflection/output/books-per-genre</name>
       <servlet_output>N</servlet_output>
       <do_not_open_new_file_init>Y</do_not_open_new_file_init>
       <extention>csv</extention>

@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     image = "pipeline-log.svg",
     keywords = "i18n::PipelineLoggingMeta.keyword",
-    documentationUrl = "/logging/logging-reflection.html")
+    documentationUrl = "/pipeline/transforms/pipeline-logging.html")
 public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, PipelineLoggingData> {
 
   @HopMetadataProperty(key = "log_transforms")
