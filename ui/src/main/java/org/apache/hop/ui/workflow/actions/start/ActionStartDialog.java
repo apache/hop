@@ -137,6 +137,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     wRepeat.addListener(SWT.Selection, e -> enableDisableControls());
 
     Group gRepeat = new Group(shell, SWT.SHADOW_NONE);
+    PropsUi.setLook(gRepeat);
     gRepeat.setText(BaseMessages.getString(PKG, "ActionStart.Repeat.Label"));
     FormData fdgRepeat = new FormData();
     fdgRepeat.left = new FormAttachment(0, 0);
@@ -160,6 +161,7 @@ public class ActionStartDialog extends ActionDialog implements IActionDialog {
     wlType.setLayoutData(fdlType);
 
     wType = new CCombo(gRepeat, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wType);
     wType.addListener(SWT.Selection, arg0 -> enableDisableControls());
     wType.setItems(new String[] {NO_SCHEDULING, INTERVAL, DAILY, WEEKLY, MONTHLY});
     wType.setEditable(false);

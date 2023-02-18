@@ -242,7 +242,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
                 PKG, "PipelineRunConfigurationDialog.label.ExecutionInfoLocation"),
             BaseMessages.getString(
                 PKG, "PipelineRunConfigurationDialog.toolTip.ExecutionInfoLocation"));
-    PropsUi.setLook(wExecutionInfoLocation);
     FormData fdExecutionInfoLocation = new FormData();
     fdExecutionInfoLocation.top = new FormAttachment(lastControl, margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label

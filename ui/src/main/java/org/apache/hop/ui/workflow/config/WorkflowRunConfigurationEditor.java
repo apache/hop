@@ -207,7 +207,6 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
                             PKG, "WorkflowRunConfigurationDialog.label.ExecutionInfoLocation"),
                     BaseMessages.getString(
                             PKG, "WorkflowRunConfigurationDialog.toolTip.ExecutionInfoLocation"), false, true);
-    PropsUi.setLook(wExecutionInfoLocation);
     FormData fdExecutionInfoLocation = new FormData();
     fdExecutionInfoLocation.top = new FormAttachment(lastControl, margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label

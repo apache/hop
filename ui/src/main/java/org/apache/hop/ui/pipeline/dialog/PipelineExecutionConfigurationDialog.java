@@ -155,10 +155,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
             runConfigTooltip,
             true);
     wRunConfigurationControl = wRunConfiguration;
-    PropsUi.setLook(wRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.right = new FormAttachment(100, 0);
-    fdRunConfiguration.top = new FormAttachment(0, props.getMargin());
+    fdRunConfiguration.top = new FormAttachment(0, PropsUi.getMargin());
     fdRunConfiguration.left = new FormAttachment(0, 0);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
   }

@@ -202,7 +202,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         new Button[] {
           wOk, wGet, wCancel,
         },
-        props.getMargin(),
+        PropsUi.getMargin(),
         null);
 
     // Transform Name line
@@ -244,7 +244,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(wbBrowse);
     wbBrowse.setText(BaseMessages.getString(PKG, "MetaInjectDialog.Browse.Label"));
     FormData fdBrowse = new FormData();
-    fdBrowse.right = new FormAttachment(100, -props.getMargin());
+    fdBrowse.right = new FormAttachment(100, -PropsUi.getMargin());
     fdBrowse.top = new FormAttachment(wlPath, Const.isOSX() ? 0 : 5);
     wbBrowse.setLayoutData(fdBrowse);
 
@@ -253,7 +253,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment(0, 0);
     fdTransformation.top = new FormAttachment(wlPath, 5);
-    fdTransformation.right = new FormAttachment(wbBrowse, -props.getMargin());
+    fdTransformation.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
     wPath.setLayoutData(fdTransformation);
     wPath.addFocusListener(
         new FocusAdapter() {
@@ -387,7 +387,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     // START OF OPTIONS TAB ///
     // ////////////////////////
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     CTabItem wOptionsTab = new CTabItem(wTabFolder, SWT.NONE);
     wOptionsTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -614,9 +614,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wInjectComp.setLayout(fileLayout);
 
     // Add a search bar at the top...
-    ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
-    PropsUi.setLook(treeTb);
-
+    ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);    
+    PropsUi.setLook(treeTb, PropsUi.WIDGET_STYLE_DEFAULT);    
     ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
     wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     wSearchText.setData(BaseDialog.NO_DEFAULT_HANDLER, true);
@@ -669,7 +668,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdTree.right = new FormAttachment(100, 0);
     fdTree.bottom = new FormAttachment(100, 0);
     wTree.setLayoutData(fdTree);
-
+    PropsUi.setLook(wTree);
+    
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(

@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
 
 import java.util.HashMap;
@@ -153,43 +154,29 @@ public class PropsUi extends Props {
       }
     }
     
-    // The user manually selected Dark Mode
-    // We'll try to change settings to make this possible.
-    //
+    // Various tweaks to improve dark theme experience on Windows
     if (OsHelper.isWindows() && isDarkMode()) {
-      display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", Boolean.TRUE);
-      display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", Boolean.TRUE);
-      display.setData(
-          "org.eclipse.swt.internal.win32.menuBarForegroundColor",
+      display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", true);
+      display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", true);
+      display.setData("org.eclipse.swt.internal.win32.menuBarForegroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
-      display.setData(
-          "org.eclipse.swt.internal.win32.menuBarBackgroundColor",
+      display.setData("org.eclipse.swt.internal.win32.menuBarBackgroundColor",
           new Color(display, 0x30, 0x30, 0x30));
-      display.setData(
-          "org.eclipse.swt.internal.win32.menuBarBorderColor",
+      display.setData("org.eclipse.swt.internal.win32.menuBarBorderColor",
           new Color(display, 0x50, 0x50, 0x50));
-      display.setData("org.eclipse.swt.internal.win32.Canvas.use_WS_BORDER", Boolean.TRUE);
-      display.setData("org.eclipse.swt.internal.win32.List.use_WS_BORDER", Boolean.TRUE);
-      display.setData("org.eclipse.swt.internal.win32.Table.use_WS_BORDER", Boolean.TRUE);
-      display.setData("org.eclipse.swt.internal.win32.Combo.use_WS_BORDER", Boolean.TRUE);
-      display.setData("org.eclipse.swt.internal.win32.Text.use_WS_BORDER", Boolean.TRUE);
-      display.setData("org.eclipse.swt.internal.win32.Tree.use_WS_BORDER", Boolean.TRUE);
-      display.setData(
-          "org.eclipse.swt.internal.win32.Table.headerLineColor",
+      display.setData("org.eclipse.swt.internal.win32.all.use_WS_BORDER", true);
+      display.setData("org.eclipse.swt.internal.win32.Table.headerLineColor",
           new Color(display, 0x50, 0x50, 0x50));
-      display.setData(
-          "org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
+      display.setData("org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
           new Color(display, 0x80, 0x80, 0x80));
-      display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", Boolean.TRUE);
-      display.setData(
-          "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
+      display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", true);
+      display.setData("org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
-      display.setData(
-          "org.eclipse.swt.internal.win32.Combo.backgroundColor",
+      display.setData("org.eclipse.swt.internal.win32.Combo.backgroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
-      display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", Boolean.TRUE);
+      display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", true);
     }
-
+    
     if (display != null) {
       FontData fontData = getDefaultFont();
       setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
@@ -481,8 +468,10 @@ public class PropsUi extends Props {
 
   public static void setLook(Widget widget) {
     int style = WIDGET_STYLE_DEFAULT;
-    if (widget instanceof Table) {
+    if (widget instanceof Table ) {
       style = WIDGET_STYLE_TABLE;
+    } else if (widget instanceof Tree) {
+      style = WIDGET_STYLE_TREE;
     } else if (widget instanceof ToolBar) {
       style = WIDGET_STYLE_TOOLBAR;
     } else if (widget instanceof CTabFolder) {
@@ -498,15 +487,109 @@ public class PropsUi extends Props {
     }
 
     setLook(widget, style);
-
+     
     if (widget instanceof Composite) {
-      for (Control child : ((Composite) widget).getChildren()) {
+      Composite composite = (Composite) widget;
+      for (Control child : composite.getChildren()) {
         setLook(child);
       }
     }
   }
 
   public static void setLook(final Widget widget, int style) {
+    if (OsHelper.isWindows()) {
+      setLookOnWindows(widget, style);
+    } else if (OsHelper.isMac()) {
+      setLookOnMac(widget, style);
+    } else {
+      setLookOnLinux(widget, style);
+    }
+  }
+  
+  protected static void setLookOnWindows(final Widget widget, int style) {
+    final GuiResource gui = GuiResource.getInstance();
+    Font font = gui.getFontDefault();
+    Color background = null;
+    Color foreground = null; 
+    
+    if ( widget instanceof Shell ) {
+      background = gui.getColorWhite();
+      foreground = gui.getColorBlack();
+      Shell shell = (Shell) widget;
+      shell.setBackgroundMode(SWT.INHERIT_FORCE);
+      shell.setForeground(gui.getColorBlack());
+      shell.setBackground(gui.getColorWhite());
+      return;
+    }
+    
+    switch (style) {
+      case WIDGET_STYLE_DEFAULT:
+        background = gui.getColorWhite();
+        foreground = gui.getColorBlack();
+        break;
+      case WIDGET_STYLE_FIXED:
+        font = gui.getFontFixed();
+        background = gui.getColorWhite();
+        foreground = gui.getColorBlack();
+        break;
+      case WIDGET_STYLE_TABLE: 
+        if (PropsUi.getInstance().isDarkMode()) {
+          background = gui.getColorWhite();
+          foreground = gui.getColorBlack();       
+          Table table = (Table) widget;  
+          table.setHeaderBackground(gui.getColorLightGray());
+          table.setHeaderForeground(gui.getColorDarkGray());       
+        }
+        break;
+      case WIDGET_STYLE_TREE: 
+        if (PropsUi.getInstance().isDarkMode()) {
+          background = gui.getColorWhite();
+          foreground = gui.getColorBlack();
+          Tree tree = (Tree) widget;
+          tree.setHeaderBackground(gui.getColorLightGray());
+          tree.setHeaderForeground(gui.getColorDarkGray());
+        }
+        break;
+      case WIDGET_STYLE_TOOLBAR:
+        if (PropsUi.getInstance().isDarkMode() ) {
+          background = gui.getColorLightGray();
+          foreground = gui.getColorBlack();
+        }
+        break;
+      case WIDGET_STYLE_TAB:
+        CTabFolder tabFolder = (CTabFolder) widget;
+        tabFolder.setBorderVisible(true);
+        tabFolder.setTabHeight(28);        
+        if (PropsUi.getInstance().isDarkMode()) {
+          tabFolder.setBackground(gui.getColorWhite());
+          tabFolder.setForeground(gui.getColorBlack());
+          tabFolder.setSelectionBackground(gui.getColorWhite());
+          tabFolder.setSelectionForeground(gui.getColorBlack());
+        }
+        break;
+      case WIDGET_STYLE_PUSH_BUTTON:   
+        break;
+      default:
+        background = gui.getColorGray();
+        font = null;
+        break;
+    }
+
+    if (font != null && !font.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setFont(font);
+    }
+
+    if (background != null && !background.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setBackground(background);
+    }
+
+    if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setForeground(foreground);
+    }    
+  }
+  
+  
+  protected static void setLookOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = gui.getColorWhite();
@@ -534,10 +617,12 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TABLE:
         background = gui.getColorLightGray();
         foreground = gui.getColorDarkGray();
-
-        Table table = (Table) widget;
+        Table table = (Table) widget;  
         table.setHeaderBackground(gui.getColorLightGray());
         table.setHeaderForeground(gui.getColorDarkGray());
+        break;
+      case WIDGET_STYLE_TREE:
+        // TODO: Adjust for Linux
         break;
       case WIDGET_STYLE_TOOLBAR:
         if (PropsUi.getInstance().isDarkMode()) {
@@ -576,7 +661,70 @@ public class PropsUi extends Props {
       ((Control) widget).setForeground(foreground);
     }
   }
+  
+  protected static void setLookOnLinux(final Widget widget, int style) {
+    final GuiResource gui = GuiResource.getInstance();
+    Font font = gui.getFontDefault();
+    Color background = gui.getColorWhite();
+    Color foreground = gui.getColorBlack();
 
+    switch (style) {
+      case WIDGET_STYLE_DEFAULT:
+        break;
+      case WIDGET_STYLE_OSX_GROUP:
+        // TODO: Adjust for Linux
+        break;
+      case WIDGET_STYLE_FIXED:
+        font = gui.getFontFixed();
+        break;
+      case WIDGET_STYLE_TABLE:
+        background = gui.getColorLightGray();
+        foreground = gui.getColorDarkGray();
+        Table table = (Table) widget;  
+        table.setHeaderBackground(gui.getColorLightGray());
+        table.setHeaderForeground(gui.getColorDarkGray());
+        break;
+      case WIDGET_STYLE_TREE:
+        // TODO: Adjust for Linux
+        break;
+      case WIDGET_STYLE_TOOLBAR:
+        if (PropsUi.getInstance().isDarkMode()) {
+          background = gui.getColorLightGray();
+        } else {
+          background = gui.getColorDemoGray();
+        }
+        break;
+      case WIDGET_STYLE_TAB:
+        CTabFolder tabFolder = (CTabFolder) widget;
+        tabFolder.setBorderVisible(true);
+        tabFolder.setBackground(gui.getColorGray());
+        tabFolder.setForeground(gui.getColorBlack());
+        tabFolder.setSelectionBackground(gui.getColorWhite());
+        tabFolder.setSelectionForeground(gui.getColorBlack());
+        break;
+      case WIDGET_STYLE_PUSH_BUTTON:
+        background = null;
+        foreground = null;
+        break;
+      default:
+        background = gui.getColorBackground();
+        font = null;
+        break;
+    }
+
+    if (font != null && !font.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setFont(font);
+    }
+
+    if (background != null && !background.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setBackground(background);
+    }
+
+    if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
+      ((Control) widget).setForeground(foreground);
+    }
+  }
+  
   /**
    * @return Returns the display.
    */

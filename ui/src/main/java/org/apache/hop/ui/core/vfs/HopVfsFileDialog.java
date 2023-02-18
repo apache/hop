@@ -296,7 +296,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+        shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // On top there are the navigation
@@ -316,9 +316,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     // A toolbar above the browser, below the filename
     //
-    ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
+    ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);    
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-    PropsUi.setLook(navigateToolBar);
+    PropsUi.setLook(navigateToolBar, PropsUi.WIDGET_STYLE_DEFAULT);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
@@ -344,9 +344,9 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     SashForm sashForm = new SashForm(shell, SWT.HORIZONTAL);
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment(0, 0);
-    fdSashForm.top = new FormAttachment(navigateComposite, props.getMargin());
+    fdSashForm.top = new FormAttachment(navigateComposite, PropsUi.getMargin());
     fdSashForm.right = new FormAttachment(100, 0);
-    fdSashForm.bottom = new FormAttachment(wOk, (int) (-props.getMargin() * props.getZoomFactor()));
+    fdSashForm.bottom = new FormAttachment(wOk, (int) (-PropsUi.getMargin() * props.getZoomFactor()));
     sashForm.setLayoutData(fdSashForm);
 
     PropsUi.setLook(sashForm);

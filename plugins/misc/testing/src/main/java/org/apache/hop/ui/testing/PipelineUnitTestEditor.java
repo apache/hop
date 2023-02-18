@@ -132,6 +132,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlTestType.right = new FormAttachment(middle, -margin);
     wlTestType.setLayoutData(fdlTestType);
     wTestType = new Combo(parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTestType);
     FormData fdTestType = new FormData();
     fdTestType.top = new FormAttachment(wlTestType, 0, SWT.CENTER);
     fdTestType.left = new FormAttachment(middle, 0);
