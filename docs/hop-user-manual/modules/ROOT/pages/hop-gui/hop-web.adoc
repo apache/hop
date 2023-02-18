@@ -50,3 +50,49 @@ You'll feel right at home!
 
 image:hop-web.png[Hop Web,width="90%"]
 
+== Starting Hop Web with a project and environment
+
+Hop Web accepts the same variables as the default Apache Hop container image to allow Hop Web users to specify their project and environment when starting a Hop Web container:
+
+|===
+|Environment Variable|Description
+
+|```HOP_PROJECT_NAME```
+| Name of the Hop project to create in the container.
+You also need to specify the ```HOP_PROJECT_FOLDER``` variable.
+If you do not set this variable, no project or environment will be created.
+
+|```HOP_PROJECT_FOLDER```
+| Path to the home of the Hop project.
+
+|```HOP_ENVIRONMENT_NAME```
+| The name of the Hop environment to create in the container.
+If you do not set this variable, no environment will be created.
+When using an environment a project has to be created too
+
+|```HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS```
+| This is a comma separated list of paths to environment config files (including filename and file extension).
+
+|===
+
+Example `docker run` command to start Hop Web with a project and environment:
+
+[source, bash]
+----
+docker run -it --rm \
+  --env HOP_PROJECT_FOLDER=/project \
+  --env HOP_PROJECT_NAME=web-samples \
+  --env HOP_ENVIRONMENT_NAME=web-samples-test \
+  --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/config/web-samples-test.json \
+  --name hop-web-test-container \
+  -p 8080:8080 \
+  -v <PATH_TO_YOUR_PROJECT>:/project \
+  -v <PATH_TO_YOUR_ENVIRONMENT>:/config \
+  hop-web
+----
+
+== Using the Hop CLI tools in Hop Web.
+
+Hop Web contains the default xref:hop-tools/index.adoc[Hop tools] like xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], xref:hop-run/index.adoc[hop-run] etc.
+
+The tools are available in `/usr/local/tomcat/webapps/ROOT` in a running Hop Web container.
