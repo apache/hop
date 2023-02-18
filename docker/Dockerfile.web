@@ -18,6 +18,8 @@
 
 FROM tomcat:9-jdk11-openjdk
 LABEL maintainer="Apache Hop Team"
+# path to where the artifacts should be deployed to
+ENV DEPLOYMENT_PATH=/usr/local/tomcat/webapps/ROOT
 ENV HOP_AES_ENCODER_KEY=""
 ENV HOP_AUDIT_FOLDER="${CATALINA_HOME}/webapps/ROOT/audit"
 ENV HOP_CONFIG_FOLDER="${CATALINA_HOME}/webapps/ROOT/config"
@@ -33,6 +35,16 @@ ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
 ENV HOP_SHARED_JDBC_FOLDER=""
 ENV HOP_WEB_THEME="light"
 ENV HOP_GUI_ZOOM_FACTOR=1.0
+
+ENV HOP_PROJECT_FOLDER=
+# name of the project config file including file extension
+ENV HOP_PROJECT_CONFIG_FILE_NAME=project-config.json
+# environment to use with hop run
+ENV HOP_ENVIRONMENT_NAME=environment1
+# comma separated list of paths to environment config files (including filename and file extension).
+ENV HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=
+# hop run configuration to use
+
 
 # Set TOMCAT start variables
 ENV CATALINA_OPTS='${HOP_OPTIONS} \
@@ -60,5 +72,19 @@ COPY ./docker/resources/run-web.sh /tmp/
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json
 
 RUN mkdir -p "$CATALINA_HOME"/lib/swt/linux/x86_64
+
+# set the correct classpath for hop-conf and hop-run
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-run.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-conf.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-search.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-encrypt.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-import.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-search.sh
+
+RUN chmod +x ${CATALINA_HOME}/webapps/ROOT/*.sh
+
+# point to the plugins folder
+ENV HOP_PLUGIN_BASE_FOLDERS=$CATALINA_HOME/plugins
+
 
 CMD ["/bin/bash", "/tmp/run-web.sh"]
