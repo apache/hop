@@ -2090,7 +2090,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.TransformAction.DetachTransform.Name",
       tooltip = "i18n::HopGuiPipelineGraph.TransformAction.DetachTransform.Tooltip",
-      image = "ui/images/HOP_delete.svg",
+      image = "ui/images/hop-delete.svg",
       category = "Basic",
       categoryOrder = "1")
   public void detachTransform(HopGuiPipelineTransformContext context) {
@@ -2441,7 +2441,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.HopAction.DisableHop.Name",
       tooltip = "i18n::HopGuiPipelineGraph.HopAction.DisableHop.Tooltip",
-      image = "ui/images/HOP_disable.svg",
+      image = "ui/images/hop-disable.svg",
       category = "Basic",
       categoryOrder = "1")
   public void disableHop(HopGuiPipelineHopContext context) {
@@ -2467,7 +2467,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Delete,
       name = "i18n::HopGuiPipelineGraph.HopAction.DeleteHop.Name",
       tooltip = "i18n::HopGuiPipelineGraph.HopAction.DeleteHop.Tooltip",
-      image = "ui/images/HOP_delete.svg",
+      image = "ui/images/hop-delete.svg",
       category = "Basic",
       categoryOrder = "1")
   public void deleteHop(HopGuiPipelineHopContext context) {
@@ -2483,13 +2483,29 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  // TODO
-  public void enableHopsBetweenSelectedTransforms() {
+  @GuiContextAction(
+      id = "pipeline-graph-hop-10065-hop-enable-between-selected-transforms",
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.EnableBetweenSelectedTransforms.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.EnableBetweenSelectedTransforms.Tooltip",
+      image = "ui/images/hop-enable-between-selected.svg",
+      category = "Bulk",
+      categoryOrder = "2")
+  public void enableHopsBetweenSelectedTransforms(final HopGuiPipelineHopContext context) {
     enableHopsBetweenSelectedTransforms(true);
   }
 
-  // TODO
-  public void disableHopsBetweenSelectedTransforms() {
+  @GuiContextAction(
+      id = "pipeline-graph-hop-10075-hop-disable-between-selected-transforms",
+      parentId = HopGuiPipelineHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiPipelineGraph.HopAction.DisableBetweenSelectedTransforms.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.HopAction.DisableBetweenSelectedTransforms.Tooltip",
+      image = "ui/images/hop-disable-between-selected.svg",
+      category = "Bulk",
+      categoryOrder = "2")
+  public void disableHopsBetweenSelectedTransforms(final HopGuiPipelineHopContext context) {
     enableHopsBetweenSelectedTransforms(false);
   }
 
@@ -2535,10 +2551,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.HopAction.EnableDownstreamHop.Name",
       tooltip = "i18n::HopGuiPipelineGraph.HopAction.EnableDownstreamHop.Tooltip",
-      image = "ui/images/HOP_enable_downstream.svg",
+      image = "ui/images/hop-enable-downstream.svg",
       category = "Bulk",
       categoryOrder = "2")
-  public void enableHopsDownstream(HopGuiPipelineHopContext context) {
+  public void enableHopsDownstream(final HopGuiPipelineHopContext context) {
     enableDisableHopsDownstream(context.getHopMeta(), true);
   }
 
@@ -2548,10 +2564,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.HopAction.DisableDownstreamHop.Name",
       tooltip = "i18n::HopGuiPipelineGraph.HopAction.DisableDownstreamHop.Tooltip",
-      image = "ui/images/HOP_disable_downstream.svg",
+      image = "ui/images/hop-disable-downstream.svg",
       category = "Bulk",
       categoryOrder = "2")
-  public void disableHopsDownstream(HopGuiPipelineHopContext context) {
+  public void disableHopsDownstream(final HopGuiPipelineHopContext context) {
     enableDisableHopsDownstream(context.getHopMeta(), false);
   }
 
@@ -3968,7 +3984,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   /** Add an extra view to the main composite SashForm */
   public void addExtraView() {
-    PropsUi props = PropsUi.getInstance();
 
     // Add a tab folder ...
     //
