@@ -69,6 +69,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(400, 190);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -87,11 +88,12 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionDelay.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
-    fdlName.left = new FormAttachment(0, -margin);
-    fdlName.right = new FormAttachment(middle, 0);
+    fdlName.left = new FormAttachment(0, 0);
+    fdlName.right = new FormAttachment(middle, -margin);
     fdlName.top = new FormAttachment(0, margin);
     wlName.setLayoutData(fdlName);
     wName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -113,7 +115,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     PropsUi.setLook(wMaximumTimeout);
     wMaximumTimeout.addModifyListener(lsMod);
     FormData fdMaximumTimeout = new FormData();
-    fdMaximumTimeout.left = new FormAttachment(0, -margin);
+    fdMaximumTimeout.left = new FormAttachment(0, 0);
     fdMaximumTimeout.top = new FormAttachment(wName, margin);
     fdMaximumTimeout.right = new FormAttachment(100, 0);
     wMaximumTimeout.setLayoutData(fdMaximumTimeout);
@@ -132,7 +134,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
 
     PropsUi.setLook(wScaleTime);
     FormData fdScaleTime = new FormData();
-    fdScaleTime.left = new FormAttachment(middle, 0);
+    fdScaleTime.left = new FormAttachment(middle, margin);
     fdScaleTime.top = new FormAttachment(wMaximumTimeout, margin);
     fdScaleTime.right = new FormAttachment(100, 0);
     wScaleTime.setLayoutData(fdScaleTime);
@@ -145,7 +147,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wScaleTime);
+        shell, new Button[] {wOk, wCancel}, margin, null);
 
     getData();
 

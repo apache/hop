@@ -74,6 +74,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(400, 230);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -92,7 +93,8 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
 
     // Name line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionFileCompare.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -214,7 +216,7 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wAddFilenameResult);
+        shell, new Button[] {wOk, wCancel}, margin, null);
 
     getData();
 

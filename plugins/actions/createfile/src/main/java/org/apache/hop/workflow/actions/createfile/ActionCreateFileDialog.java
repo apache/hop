@@ -75,6 +75,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(400, 210);    
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -93,7 +94,8 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionCreateFile.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -199,7 +201,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, wAddFilenameToResult);
+        shell, new Button[] {wOk, wCancel}, margin, null);
 
     getData();
 
