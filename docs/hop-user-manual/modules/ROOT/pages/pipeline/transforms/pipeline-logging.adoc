@@ -1,0 +1,79 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: The pipeline logging transform gives you detailed logging information about a pipeline and its transforms.
+
+= Pipeline Logging
+
+== Description
+
+the Pipeline Logging transform receives its input from a xref:metadata-types/pipeline-log.adoc[Pipeline Log] metadata item.
+
+The transform requires very little configuration, but provides a lot of information.
+
+== Related Plugins
+
+* xref:metadata-types/pipeline-log.adoc[Pipeline Log]
+
+== Options
+
+[%header, width="90%", cols="1,5"]
+|===
+|Option|Description
+|Transform name|Name of this transform
+|Also log transform details a|
+
+* checked: the transform outputs both pipeline and transform logging and metrics. In this case, the logging will contain one line per transform. For each transform, the pipeline logging and metrics information is repeated.
+* unchecked: the transform only outputs pipeline logging and metrics.
+|===
+
+== Output Fields
+
+[%header, width="90%", cols="1,1,5"]
+|===
+|Fieldname|Type|Description
+3+|**Pipeline Logging Fields**
+|loggingDate|Date|the date and time this pipeline was executed
+|loggingPhase|String|the phase this pipeline is in at the time of logging (e.g. 'end')
+|pipelineName|String|the logged pipeline name
+|pipelineFilename|String|the logged pipeline file name
+|pipelineStart|Date|execution start date for the logged pipeline
+|pipelineEnd|Date|execution end date for the logged pipeline
+|pipelineLogChannelId|String|logging channel id for the logged pipeline
+|parentLogChannelId|String|parent logging channel id for the logged pipeline (e.g. the channel id of the parent workflow)
+|pipelineLogging|String|full logging text for the logged pipeline
+|pipelineErrorCount|Integer|number of errors that occurred in the logged pipeline execution
+|pipelineStatusDescription|String|status description for the logged pipeline (e.g. 'Finished')
+3+|**Transform Logging Fields**
+|transformName|String|the name of the transform in the logged pipeline
+|transformCopyNr|Integer|the copy number of the current transform
+|transformStatusDescription|String|status of the current transform (e.g. 'Finished')
+|transformLogChannelId|String|log channel id for the current transform
+|transformLoggingText|String|logging text for the current transform
+|transformLinesRead|Integer|lines read for the current transform
+|transformLinesWritten|Integer|lines read for the current transform
+|transformLinesInput|Integer|input lines for the current transform
+|transformLinesOutput|Integer|output lines for the current transform
+|transformLinesUpdated|Integer|updated lines for the current transform
+|transformLinesRejected|Integer|rejected lines for the current transform
+|transformErrors|Integer|number of errors for the current transform
+|transformStart|Date|start date and time for the current transform
+|transformEnd|Date|end date and time for the current transform
+|transformDuration|Integer|total duration for the current transform
+|===
+

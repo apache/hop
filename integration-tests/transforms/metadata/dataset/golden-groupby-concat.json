@@ -8,40 +8,48 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "KEY1"
+      "field_name": "KEY1",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "COLORS"
+      "field_name": "COLORS",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "DISTINCT_COLORS"
+      "field_name": "DISTINCT_COLORS",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "NUMBERS"
+      "field_name": "NUMBERS",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "DISTINCT_NUMBERS"
+      "field_name": "DISTINCT_NUMBERS",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "NUMBERS_CRLF",
+      "field_format": ""
     }
   ],
   "folder_name": ""

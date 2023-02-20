@@ -31,7 +31,7 @@
     <table>dimension</table>
     <connection>unit-test-db</connection>
     <commit>100</commit>
-    <update>Y</update>
+    <update>N</update>
     <fields>
         <key>
             <name>key</name>
@@ -43,14 +43,14 @@
             <to>date_to</to>
         </date>
         <field>
-            <name>value</name>
-            <lookup>valueLookup</lookup>
-            <update>Insert</update>
+            <name>valueNumber</name>
+            <lookup>fieldNumber</lookup>
+            <type>Number</type>
         </field>
         <field>
-            <name>lastVersion</name>
-            <lookup>lastVersionLookup</lookup>
-            <update>LastVersion</update>
+            <name>valueString</name>
+            <lookup>fieldString</lookup>
+            <type>String</type>
         </field>
         <return>
             <name>dimension_id</name>

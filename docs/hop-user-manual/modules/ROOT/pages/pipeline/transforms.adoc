@@ -148,6 +148,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/parquet-file-input.adoc[Parquet File Input]
 * xref:pipeline/transforms/parquet-file-output.adoc[Parquet File Output]
 * xref:pipeline/transforms/pipeline-data-probe.adoc[Pipeline Data Probe]
+* xref:pipeline/transforms/pipeline-logging.adoc[Pipeline Logging]
 * xref:pipeline/transforms/pgpdecryptstream.adoc[PGP decrypt stream]
 * xref:pipeline/transforms/pgpencryptstream.adoc[PGP encrypt stream]
 * xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor]

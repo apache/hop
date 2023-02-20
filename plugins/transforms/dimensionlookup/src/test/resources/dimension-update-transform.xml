@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<transform>
+    <name>Dimension lookup/update</name>
+    <type>DimensionLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+        <method>none</method>
+        <schema_name/>
+    </partitioning>
+    <schema>public</schema>
+    <table>dimension</table>
+    <connection>unit-test-db</connection>
+    <commit>100</commit>
+    <update>Y</update>
+    <fields>
+        <key>
+            <name>key</name>
+            <lookup>key</lookup>
+        </key>
+        <date>
+            <name/>
+            <from>date_from</from>
+            <to>date_to</to>
+        </date>
+        <field>
+            <name>value</name>
+            <lookup>valueLookup</lookup>
+            <update>Insert</update>
+        </field>
+        <field>
+            <name>lastVersion</name>
+            <lookup>lastVersionLookup</lookup>
+            <update>LastVersion</update>
+        </field>
+        <return>
+            <name>dimension_id</name>
+            <rename/>
+            <creation_method>tablemax</creation_method>
+            <use_autoinc>N</use_autoinc>
+            <version>version</version>
+        </return>
+    </fields>
+    <sequence/>
+    <min_year>1900</min_year>
+    <max_year>2199</max_year>
+    <cache_size>5000</cache_size>
+    <preload_cache>N</preload_cache>
+    <use_start_date_alternative>N</use_start_date_alternative>
+    <start_date_alternative>none</start_date_alternative>
+    <start_date_field_name/>
+    <useBatch>N</useBatch>
+    <attributes></attributes>
+    <GUI>
+        <xloc>364</xloc>
+        <yloc>94</yloc>
+    </GUI>
+</transform>
+

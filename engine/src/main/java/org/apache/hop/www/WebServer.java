@@ -109,7 +109,7 @@ public class WebServer {
       setName("StopMonitor");
       try {
         socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
-      } catch(Exception e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     }
@@ -124,7 +124,7 @@ public class WebServer {
         server.stop();
         accept.close();
         socket.close();
-      } catch(Exception e) {
+      } catch (Exception e) {
         throw new RuntimeException(e);
       }
     }
@@ -190,7 +190,12 @@ public class WebServer {
   }
 
   public WebServer(
-      ILogChannel log, PipelineMap pipelineMap, WorkflowMap workflowMap, String hostname, int port, int shutdownPort)
+      ILogChannel log,
+      PipelineMap pipelineMap,
+      WorkflowMap workflowMap,
+      String hostname,
+      int port,
+      int shutdownPort)
       throws Exception {
     this(log, pipelineMap, workflowMap, hostname, port, shutdownPort, true);
   }
@@ -340,7 +345,7 @@ public class WebServer {
   public void stopServer() {
 
     webServerShutdownHook.setShuttingDown(true);
-
+    log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.ShuttingDown"));
     try {
       ExtensionPointHandler.callExtensionPoint(
           log, variables, HopExtensionPoint.HopServerShutdown.id, this);
@@ -377,6 +382,9 @@ public class WebServer {
     connector.setHost(hostname);
     connector.setName(BaseMessages.getString(PKG, "WebServer.Log.HopHTTPListener", hostname));
     log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.CreateListener", hostname, "" + port));
+    log.logBasic(
+        BaseMessages.getString(
+            PKG, "WebServer.Log.CreateShutDownListener", hostname, "" + shutdownPort));
 
     server.setConnectors(new Connector[] {connector});
   }

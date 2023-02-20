@@ -18,6 +18,16 @@
 package org.apache.hop.www;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -125,8 +135,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   private String id;
 
   @CommandLine.Option(
-          names = {"-n", "--server-name"},
-          description = "The name of the server to start as defined in the metadata.")
+      names = {"-n", "--server-name"},
+      description = "The name of the server to start as defined in the metadata.")
   private String serverName;
 
   private WebServer webServer;
@@ -145,7 +155,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     this.joinOverride = null;
 
     org.apache.hop.server.HopServer defaultServer =
-        new org.apache.hop.server.HopServer("local8080", "localhost", "8080", "8079", "cluster", "cluster");
+        new org.apache.hop.server.HopServer(
+            "local8080", "localhost", "8080", "8079", "cluster", "cluster");
     this.config.setHopServer(defaultServer);
     this.config.setJoining(true);
   }
@@ -202,7 +213,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     } catch (Exception e) {
       log.logError(
           BaseMessages.getString(
-              PKG, "HopServer.Error.CanNotPartPort", hopServer.getHostname(), "" + hopServer.getPort()),
+              PKG,
+              "HopServer.Error.CanNotPartPort",
+              hopServer.getHostname(),
+              "" + hopServer.getPort()),
           e);
       allOK = false;
     }
@@ -259,7 +273,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       //
       if (CollectionUtils.size(parameters) == 1) {
         if (killServer) {
-          throw new HopServerCommandException(BaseMessages.getString(PKG, "HopServer.Error.illegalStop"));
+          throw new HopServerCommandException(
+              BaseMessages.getString(PKG, "HopServer.Error.illegalStop"));
         }
         setupByFileName();
       }
@@ -270,7 +285,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         String hostname = parameters.get(0);
         String port = parameters.get(1);
 
-        String shutdownPort = CollectionUtils.size(parameters) == 3 ? parameters.get(2) : Integer.toString(WebServer.SHUTDOWN_PORT);
+        String shutdownPort =
+            CollectionUtils.size(parameters) == 3
+                ? parameters.get(2)
+                : Integer.toString(WebServer.SHUTDOWN_PORT);
 
         if (killServer) {
           String user = variables.resolve(username);
@@ -308,7 +326,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
 
   private void setupByHostNameAndPort(String hostname, String port, String shutdownPort) {
     org.apache.hop.server.HopServer hopServer =
-        new org.apache.hop.server.HopServer(hostname + ":" + port, hostname, port, shutdownPort, null, null);
+        new org.apache.hop.server.HopServer(
+            hostname + ":" + port, hostname, port, shutdownPort, null, null);
 
     config = new HopServerConfig();
     config.setHopServer(hopServer);
@@ -327,19 +346,18 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
   }
 
   private void setupByServerName() throws HopException {
-    IHopMetadataSerializer<org.apache.hop.server.HopServer> serializer = metadataProvider.getSerializer(org.apache.hop.server.HopServer.class);
+    IHopMetadataSerializer<org.apache.hop.server.HopServer> serializer =
+        metadataProvider.getSerializer(org.apache.hop.server.HopServer.class);
     String name = variables.resolve(serverName);
     org.apache.hop.server.HopServer hopServer = serializer.load(name);
-    if (hopServer==null) {
-      throw new HopException("Unable to find Hop Server '"+name+"' couldn't be found in the server metadata");
+    if (hopServer == null) {
+      throw new HopException(
+          "Unable to find Hop Server '" + name + "' couldn't be found in the server metadata");
     }
     String hostname = variables.resolve(hopServer.getHostname());
     String port = variables.resolve(hopServer.getPort());
-    String shudownPort = variables.resolve(hopServer.getShutdownPort());
-    parameters = List.of(hostname, port);
-    if (StringUtils.isNotEmpty(shudownPort)) {
-      parameters.add(shudownPort);
-    }
+    String shutDownPort = variables.resolve(hopServer.getShutdownPort());
+    parameters = List.of(Const.NVL(hostname, ""), Const.NVL(port, ""), Const.NVL(shutDownPort, ""));
   }
 
   private boolean handleQueryOptions() {
@@ -604,7 +622,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         BaseMessages.getString(PKG, "HopServer.Usage.Example") + ": hop-server.sh 0.0.0.0 8080");
     System.err.println(
         BaseMessages.getString(PKG, "HopServer.Usage.Example")
-            + ": hop-server.sh 192.168.1.221 8081");
+            + ": hop-server.sh 192.168.1.221 8081 8082");
     System.err.println();
     System.err.println(
         BaseMessages.getString(PKG, "HopServer.Usage.Example")
@@ -642,7 +660,8 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     this.config = config;
   }
 
-  private static void shutdown(String hostname, String port, String shutdownPort, String username, String password) {
+  private static void shutdown(
+      String hostname, String port, String shutdownPort, String username, String password) {
     try {
       callStopHopServerRestService(hostname, port, shutdownPort, username, password);
     } catch (Exception e) {

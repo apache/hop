@@ -142,17 +142,11 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       data.fieldnrs = new int[f.getFields().size()];
       for (int i = 0; i < data.fieldnrs.length; i++) {
         DLField field = f.getFields().get(i);
-        DimensionUpdateType updateType = field.getUpdateType();
-        if (updateType == null) {
-          throw new HopTransformException(
-              "Please specify an update type for field nr " + (i + 1) + " : " + field.getName());
-        }
-        if (meta.isUpdate() && updateType.isWithArgument()) {
+        if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
           data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
           if (data.fieldnrs[i] < 0) {
-            throw new HopTransformException(
-                BaseMessages.getString(
-                    PKG, "DimensionLookup.Exception.KeyFieldNotFound", field.getName()));
+            throw new HopTransformException(BaseMessages.getString(PKG,
+                "DimensionLookup.Exception.KeyFieldNotFound", field.getName()));
           }
         } else {
           data.fieldnrs[i] = -1;
@@ -227,6 +221,21 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     return true;
   }
 
+  public boolean isLookupOrUpdateTypeWithArgument(final boolean update, final DLField field) throws HopTransformException {
+    // Lookup
+    if (!update) {
+      return true;
+    }
+
+    // Update type field
+    DimensionUpdateType updateType = field.getUpdateType();
+    if (updateType == null) {
+      throw new HopTransformException(BaseMessages.getString(
+          PKG, "DimensionLookup.Exception.MissingUpdateTypeField ", field.getName()));
+    }     
+    return updateType.isWithArgument();
+  }
+  
   private Date determineDimensionUpdatedDate(Object[] row) throws HopException {
     if (data.datefieldnr < 0) {
       return getPipeline().getExecutionStartDate(); // start of pipeline...
@@ -822,7 +831,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
    * table: dimension table keys[]: which dim-fields do we use to look up key? retval: name of the
    * key to return datefield: do we have a datefield? datefrom, dateto: date-range, if any.
    */
-  private void setDimLookup(IRowMeta rowMeta) throws HopDatabaseException {
+  private void setDimLookup(IRowMeta rowMeta) throws HopException {
     DLFields f = meta.getFields();
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
 
@@ -847,8 +856,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     for (DLField field : f.getFields()) {
       // Don't retrieve the fields without input
-      if (StringUtils.isNotEmpty(field.getLookup())
-          && meta.isUpdate() && field.getUpdateType().isWithArgument()) {
+      if (StringUtils.isNotEmpty(field.getLookup()) && isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
         sql += ", " + databaseMeta.quoteField(field.getLookup());
 
         if (StringUtils.isNotEmpty(field.getName()) && !field.getLookup().equals(field.getName())) {

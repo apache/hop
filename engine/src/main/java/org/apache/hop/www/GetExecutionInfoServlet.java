@@ -17,6 +17,13 @@
 
 package org.apache.hop.www;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.DataBindingException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -31,14 +38,6 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.DataBindingException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.List;
 
 @HopServerServlet(id = "getExecInfo", name = "Get execution information")
 public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -64,7 +63,8 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
     DATA,
     LAST_EXECUTION,
     CHILD_IDS,
-    PARENT_ID
+    PARENT_ID,
+    DELETE
   }
 
   public GetExecutionInfoServlet() {}
@@ -194,9 +194,6 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
                     "Please specify the parent execution ID with parameter 'parentId'");
               }
               String id = request.getParameter("id");
-              if (StringUtils.isEmpty(id)) {
-                throw new HopException("Please specify the execution ID with parameter 'id'");
-              }
               ExecutionData data =
                   location.getExecutionInfoLocation().getExecutionData(parentId, id);
               outputExecutionDataAsJson(out, data);
@@ -254,6 +251,17 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               outputIdAsJson(out, parentId);
             }
             break;
+          case DELETE:
+            {
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException(
+                    "Please specify the ID of the execution to delete with parameter 'id'");
+              }
+              boolean deleted = location.getExecutionInfoLocation().deleteExecution(id);
+              outputSuccessAsJson(out, deleted);
+            }
+            break;
           default:
             StringBuilder message =
                 new StringBuilder("Unknown update type: " + type + ". Allowed values are: ");
@@ -282,6 +290,15 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
       HopJson.newMapper().writeValue(out, parentId);
     } catch (IOException | DataBindingException e) {
       throw new HopException("Error writing execution ID as JSON to servlet output stream", e);
+    }
+  }
+
+  private void outputSuccessAsJson(PrintWriter out, boolean success) throws HopException {
+    try {
+      HopJson.newMapper().writeValue(out, success);
+    } catch (IOException | DataBindingException e) {
+      throw new HopException(
+          "Error writing success boolean value as JSON to servlet output stream", e);
     }
   }
 

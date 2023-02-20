@@ -143,7 +143,8 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabase(), null);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, null);
 
     // ProcName line...
     // add button to get list of procedures on selected connection...
@@ -314,10 +315,9 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void selectProcedure(Event event) {
-    DatabaseMeta dbInfo = pipelineMeta.findDatabase(wConnection.getText());
-    if (dbInfo != null) {
-      Database db = new Database(loggingObject, variables, dbInfo);
-      try {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {      
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
         String[] procs = db.getProcedures();
         if (procs != null && procs.length > 0) {
@@ -344,8 +344,6 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
             BaseMessages.getString(PKG, "DBProcDialog.ErrorGettingProceduresList.DialogTitle"),
             BaseMessages.getString(PKG, "DBProcDialog.ErrorGettingProceduresList.DialogMessage"),
             dbe);
-      } finally {
-        db.disconnect();
       }
     }
   }
@@ -381,8 +379,8 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
       item.setText(3, Const.NVL(argument.getType(), ""));
     }
 
-    if (input.getDatabase() != null) {
-      wConnection.setText(input.getDatabase().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     wProcName.setText(Const.NVL(input.getProcedure(), ""));
 
@@ -415,7 +413,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
       argument.setType(item.getText(3));
       input.getArguments().add(argument);
     }
-    input.setDatabase(wConnection.loadSelectedElement());
+    input.setConnection(wConnection.getText());
     input.setProcedure(wProcName.getText());
     input.getResult().setName(wResult.getText());
     input.getResult().setType(wResultType.getText());
@@ -423,7 +421,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
     transformName = wTransformName.getText(); // return value
 
-    if (input.getDatabase() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "DBProcDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "DBProcDialog.InvalidConnection.DialogTitle"));

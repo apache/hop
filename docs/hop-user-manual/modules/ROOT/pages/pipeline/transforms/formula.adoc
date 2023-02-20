@@ -537,22 +537,6 @@ Hour=INT(DayFraction*24)
 |NPER([FIELD1]/12, [FIELD2], [FIELD3], [FIELD4], 1) |59.673865|Periods for the investment with the above terms
 |===
 
-==== PARSEDATE
-
-|===
-|*description*|Parses a date using a SimpleDateFormat format string
-|*syntax*|PARSEDATE( Text date; Text format; Text locale; Text timezone )
-|*returns*|Date
-|*semantics*|This computes the date based on the provided format, locale, and timezone.  If timezone is provided, assumes the date is in UTC and converts the date from UTC to the specified timezone.
-|*constraints*|format must be a valid SimpleDateFormat
-|===
-
-*Examples*
-|===
-|expression|result|comment
-|PARSEDATE("2004/12/25 12:56:45.878";"yyyy/MM/dd HH:mm:ss.SSS") |2004-12-25 12:56:45.878|Simple parse.
-|PARSEDATE("2004-12-25"; "yyyy-MM-dd"; "en"; "MDT" ) |2004-12-24 17:00:00.000|2004/12/25 00:00:00 UTC is 2004-12-24 17:00:00 MDT
-|===
 
 ==== PREVWEEKDAY
 

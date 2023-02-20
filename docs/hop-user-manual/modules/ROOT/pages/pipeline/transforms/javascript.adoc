@@ -189,3 +189,16 @@ if (/* your condition here */) pipeline_Status = SKIP_PIPELINE
 ----
 
 All rows matching the specified condition are removed from the output.
+
+=== Use field names with spaces
+
+Javascript does not allow you to create variables with spaces in the variable name. However, you _can_ work with field names that contain spaces.
+
+For example, to replace all spaces with underscores in a field `field name with spaces`, use the syntax `this["field name with spaces"]`.
+
+The `this` keyword is required. Without it, Javascript will use `field name with spaces` as a character array.
+
+[source, javascript]
+----
+var new_field = replace(this["field name with spaces"], " ", "_");
+----

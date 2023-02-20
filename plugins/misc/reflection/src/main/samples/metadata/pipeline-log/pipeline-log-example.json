@@ -1,0 +1,15 @@
+{
+  "pipelinesToLog": [
+    {
+      "pipelineToLogFilename": "${PROJECT_HOME}/reflection/generate-fake-books.hpl"
+    }
+  ],
+  "loggingParentsOnly": true,
+  "name": "pipeline-log-example",
+  "intervalInSeconds": "30",
+  "executingPeriodically": false,
+  "pipelineFilename": "${PROJECT_HOME}/reflection/pipeline-log-example.hpl",
+  "executingAtEnd": true,
+  "enabled": true,
+  "executingAtStart": true
+}

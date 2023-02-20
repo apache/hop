@@ -1,0 +1,63 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "finished",
+          "data_set_field": "finished"
+        },
+        {
+          "transform_field": "setKey",
+          "data_set_field": "setKey"
+        },
+        {
+          "transform_field": "name",
+          "data_set_field": "name"
+        },
+        {
+          "transform_field": "copyNr",
+          "data_set_field": "copyNr"
+        },
+        {
+          "transform_field": "description",
+          "data_set_field": "description"
+        },
+        {
+          "transform_field": "setRowMetaJson",
+          "data_set_field": "setRowMetaJson"
+        },
+        {
+          "transform_field": "setRowNr",
+          "data_set_field": "setRowNr"
+        },
+        {
+          "transform_field": "setRowDataJson",
+          "data_set_field": "setRowDataJson"
+        }
+      ],
+      "field_order": [
+        "finished",
+        "setKey",
+        "name",
+        "copyNr",
+        "description",
+        "setRowMetaJson",
+        "setRowNr",
+        "setRowDataJson"
+      ],
+      "data_set_name": "0005-read-from-remote-location-golden",
+      "transform_name": "Validate"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0005-read-from-remote-location UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0005-read-from-remote-location.hpl",
+  "test_type": "UNIT_TEST"
+}

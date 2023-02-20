@@ -42,37 +42,40 @@ On Windows, this is `hop-server.bat`, on Mac and Linux, run `hop-server.sh`.
 [source,bash]
 ----
 Usage: <main class> [-k] [-gs] [-e=<environmentOption>] [-id=<id>]
-                    [-j=<projectOption>] [-l=<level>] [-p=<password>]
-                    [-ps=<pipelineName>] [-u=<username>] [-ws=<workflowName>]
-                    [-s=<systemProperties>[,<systemProperties>...]]...
-                    <parameters>...
-      <parameters>...   One XML configuration file or a hostname and port
+                    [-j=<projectOption>] [-l=<level>] [-n=<serverName>]
+                    [-p=<password>] [-ps=<pipelineName>] [-u=<username>]
+                    [-ws=<workflowName>] [-s=<systemProperties>[,
+                    <systemProperties>...]]... [<parameters>...]
+      [<parameters>...]   One XML configuration file or a hostname and port
   -e, --environment=<environmentOption>
-                        The name of the lifecycle environment to use
-      -gs, --general-status
-                        List the general status of the server
-      -id=<id>          Specify the ID of the pipeline or workflow to query
+                          The name of the lifecycle environment to use
+  -gs, --general-status
+                          List the general status of the server
+      -id=<id>            Specify the ID of the pipeline or workflow to query
   -j, --project=<projectOption>
-                        The name of the project to use
-  -k, --kill            Stop the running hopServer server.  This is only allowed
-                          when using the hostname/port form of the command. Use the
-                          -s and -u options to authenticate
-  -l, --level=<level>   The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+                          The name of the project to use
+  -k, --kill              Stop the running hopServer server.  This is only
+                            allowed when using the hostname/port form of the
+                            command. Use the -s and -u options to authenticate
+  -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL,
+                            BASIC, DETAILED, DEBUG, ROWLEVEL
+  -n, --server-name=<serverName>
+                          The name of the server to start as defined in the
+                            metadata.
   -p, --password=<password>
-                        The server password.  Required for administrative operations
-                          only, not for starting the server.
-      -ps, --pipeline-status=<pipelineName>
-                        List the status of the pipeline with this name (also specify
-                          the -id option)
+                          The server password.  Required for administrative
+                            operations only, not for starting the server.
+  -ps, --pipeline-status=<pipelineName>
+                          List the status of the pipeline with this name (also
+                            specify the -id option)
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
-                        A comma separated list of KEY=VALUE pairs
+                          A comma separated list of KEY=VALUE pairs
   -u, --userName=<username>
-                        The server user name.  Required for administrative
-                          operations only, not for starting the server.
-      -ws, --workflow-status=<workflowName>
-                        List the status of the workflow with this name (also specify
-                          the -id option)
-
+                          The server user name.  Required for administrative
+                            operations only, not for starting the server.
+  -ws, --workflow-status=<workflowName>
+                          List the status of the workflow with this name (also
+                            specify the -id option)
 ----
 
 The available Hop Server options are:
@@ -109,6 +112,10 @@ Specify a comma separated list of KEY=VALUE pairs.
 |--environment
 |The name of the project lifecycle environment to enable before startup.
 This is provided for by the 'projects' plugin.
+
+|-n
+|--server-name
+|Name of the server metadata object to start, has to be used in combination with -e to know which environment to load it from
 
 |-j
 |--project
@@ -150,7 +157,7 @@ Example: `hop-server.sh -e aura-gcp gs://apachehop/hop-server-config.xml`
 Example: `hop-server.bat 127.0.0.1 8080 --kill --userName cluster --password cluster`
 
 [source,shell]
-hop-server <Interface address> <Port> [-h] [-p <arg>] [-s] [-u <arg>]
+hop-server <Interface address> <Port> [ShutdownPort] [-h] [-p <arg>] [-s] [-u <arg>]
 
 Example startup commands are:
 
@@ -203,6 +210,7 @@ The syntax of this configuration file is fairly simple:
     <name>server-8181</name>
     <hostname>localhost</hostname>
     <port>8181</port>
+    <shutdownPort>8182</shutdownPort>
   </hop-server>
 
   <!-- Join the web server thread and wait until it's finished.
@@ -384,7 +392,9 @@ Here is an example of how you would start a "long-lived" docker container:
 ----
 docker run \
   -p 8080:8080 \
+  -p 8079:8079 \
   -e HOP_SERVER_PORT=8080 \
+  -e HOP_SERVER_SHUTDOWNPORT=8079 \
   -e HOP_SERVER_USER=username \
   -e HOP_SERVER_USER=password \
   apache/hop
@@ -395,6 +405,7 @@ docker run \
 In a testing setup where Hop Server was started from a terminal, the process can be terminated through `CTRL-C`.
 
 In headless environments, the same hop-server command used to start the server can be used to stop it:
+A default listener on shutdown port is configured on port number `8079` when not specifying this in the command it will be used.
 
 [tabs]
 ====
@@ -410,6 +421,25 @@ Linux, macOS::
 --
 [source,shell]
 hop-server.sh 127.0.0.1 8080 -k -u cluster -p cluster
+--
+====
+
+You can also trigger the command on a specific shutdown port
+
+[tabs]
+====
+Windows::
++
+--
+[source,shell]
+hop-server.bat 127.0.0.1 8080 8079 -k -u cluster -p cluster
+--
+
+Linux, macOS::
++
+--
+[source,shell]
+hop-server.sh 127.0.0.1 8080 8079 -k -u cluster -p cluster
 --
 ====
 
