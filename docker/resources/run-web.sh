@@ -103,6 +103,18 @@ else
 fi
 
 
+# if we have a /config/tomcat-users.xml file, copy it to the conf folder.
+if [ -f "/config/tomcat-users.xml" ]; then
+    log "copying users file to /usr/local/tomcat/conf/"
+    cp /config/tomcat-users.xml /usr/local/tomcat/conf/
+fi
+
+# if we have a /config/web.xml file, copy it to the WEB-INF folder.
+if [ -f "/config/web.xml" ]; then
+    log "copying web.xml file to /usr/local/tomcat/conf/"
+    cp /config/web.xml /usr/local/tomcat/webapps/ROOT/WEB-INF/
+fi
+
 #
 # Stopping a running hop web container with 'docker stop' is obviously possible.
 # Doing it with CTRL-C is just more convenient.
