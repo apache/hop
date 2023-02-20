@@ -87,6 +87,14 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     }
   }
 
+  public boolean isFileEmpty(String filename) throws HopException {
+    try {
+      return getFileObject(filename, this).getContent().getSize() == 0;
+    } catch (Exception e) {
+      throw new HopException("Error opening new file : " + e.toString());
+    }
+  }
+
   private ICompressionProvider getCompressionProvider() throws HopException {
     String compressionType = meta.getFileCompression();
     if (Utils.isEmpty(compressionType)) {
@@ -316,7 +324,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     isWriteHeader &=
         writingToFileForFirstTime
             && (!meta.isFileAppended()
-                || (!isFileExists(filename)));
+                || (!isFileExists(filename)) || isFileEmpty(filename));
     return isWriteHeader;
   }
 
