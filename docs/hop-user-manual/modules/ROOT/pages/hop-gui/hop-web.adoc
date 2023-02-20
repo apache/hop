@@ -96,3 +96,143 @@ docker run -it --rm \
 Hop Web contains the default xref:hop-tools/index.adoc[Hop tools] like xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf], xref:hop-run/index.adoc[hop-run] etc.
 
 The tools are available in `/usr/local/tomcat/webapps/ROOT` in a running Hop Web container.
+
+== Authentication
+
+Hop Web runs on a Tomcat server by default. You can extend Hop Web's tomcat configuration to add authentication.
+
+The default Hop Web docker image picks up `tomcat-users.xml` and `web.xml` files and moves them to the correct location before Hop Web starts.
+
+A minimal sample `tomcat-users.xml` file:
+
+[source,xml]
+----
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+<tomcat-users>
+  <role rolename="apachehop"/>
+  <user username="apachehop" password="password" roles="apachehop" />
+</tomcat-users>
+----
+
+The following sample `web.xml` extends Hop Web's default `web.xml` with the `<security-constraint />` and `<login-config />` elements required for basic authentication.
+
+[source, xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Licensed to the Apache Software Foundation (ASF) under one or more
+  ~ contributor license agreements.  See the NOTICE file distributed with
+  ~ this work for additional information regarding copyright ownership.
+  ~ The ASF licenses this file to You under the Apache License, Version 2.0
+  ~ (the "License"); you may not use this file except in compliance with
+  ~ the License.  You may obtain a copy of the License at
+  ~
+  ~       http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  ~
+  -->
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <context-param>
+        <param-name>org.eclipse.rap.applicationConfiguration</param-name>
+        <param-value>org.apache.hop.ui.hopgui.HopWeb</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.apache.hop.ui.hopgui.HopWebServletContextListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>HopGui</servlet-name>
+        <servlet-class>org.eclipse.rap.rwt.engine.RWTServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>HopGui</servlet-name>
+        <url-pattern>/ui</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>welcome</servlet-name>
+        <jsp-file>/docs/English/welcome/index.html</jsp-file>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>welcome</servlet-name>
+        <url-pattern>/docs/English/welcome/index.html</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>Server</servlet-name>
+        <servlet-class>org.apache.hop.www.HopServerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Server</servlet-name>
+        <url-pattern>/hop/*</url-pattern>
+    </servlet-mapping>
+
+    <security-constraint>
+      <web-resource-collection>
+        <web-resource-name>Wildcard means whole app requires authentication</web-resource-name>
+          <url-pattern>/*</url-pattern>
+          <http-method>GET</http-method>
+          <http-method>POST</http-method>
+        </web-resource-collection>
+      <auth-constraint>
+        <role-name>apachehop</role-name>
+      </auth-constraint>
+
+      <user-data-constraint>
+        <!-- transport-guarantee can be CONFIDENTIAL, INTEGRAL, or NONE -->
+        <transport-guarantee>NONE</transport-guarantee>
+      </user-data-constraint>
+    </security-constraint>
+
+    <login-config>
+      <auth-method>BASIC</auth-method>
+    </login-config>
+
+</web-app>
+----
+
+Check the https://tomcat.apache.org/tomcat-9.0-doc/realm-howto.html[Apache Tomcat documentation^] on REALM configuration for more advanced configurations.
+
+Mount your local configuration folder with these two files to a `/config` folder in the Apache Hop Web container to do so:
+
+[source,bash]
+----
+docker run -it --rm \
+    -p 8080:8080 \
+    -v <PATH_TO_YOUR_LOCAL_CONFIG_DIRECTORY>:/config/ \
+    apache/hop-web`
+----
+
+Hop Web will now ask for your username and password:
+
+image:hop-gui/hop-web-basic-authentication.png[Hop Web with basic authentication, width="90%"]
+
