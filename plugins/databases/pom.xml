@@ -104,6 +104,7 @@
                 <module>clickhouse</module>
                 <module>cockroachdb</module>
                 <module>hive</module>
+                <module>duckdb</module>
             </modules>
         </profile>
 

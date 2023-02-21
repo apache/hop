@@ -49,6 +49,7 @@
     <module>infobright-assemblies</module>
     <module>infinidb-assemblies</module>
     <module>derby-assemblies</module>
+    <module>duckdb-assemblies</module>
     <module>monetdb-assemblies</module>
     <module>cache-assemblies</module>
     <module>exasol4-assemblies</module>
