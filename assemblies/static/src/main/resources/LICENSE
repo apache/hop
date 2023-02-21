@@ -1402,7 +1402,7 @@ This product bundles monetdb-jdbc 3.1, which is available under a
 This product bundles mongo-java-driver 3.12.8, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles mssql-jdbc 7.4.1.jre8, which is available under a
+This product bundles mssql-jdbc 11.2.3.jre11, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
 This product bundles mvel2 2.4.14.Final, which is available under a

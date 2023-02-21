@@ -35,7 +35,7 @@
     <description />
 
     <properties>
-        <mssqlnative.version>7.4.1.jre8</mssqlnative.version>
+        <mssqlnative.version>11.2.3.jre11</mssqlnative.version>
     </properties>
 
 

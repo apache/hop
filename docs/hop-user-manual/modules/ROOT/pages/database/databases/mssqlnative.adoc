@@ -25,7 +25,7 @@ under the License.
 | Option | Info
 |Type | Relational
 |Driver | https://docs.microsoft.com/en-us/sql/connect/jdbc/download-microsoft-jdbc-driver-for-sql-server?view=sql-server-ver15[Driver Link]
-|Version Included | None
+|Version Included | 11.2.3
 |Hop Dependencies | None
 |Documentation | https://docs.microsoft.com/en-us/sql/connect/jdbc/setting-the-connection-properties?view=sql-server-ver15[Documentation Link]
 |JDBC Url | jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
@@ -37,20 +37,20 @@ under the License.
 The native Microsoft SQL JDBC driver ships with extra files that enables authentication using your current MS Windows credentials.
 When you download the JDBC drivers from Microsoft's site and unzip them, there will be a directory structure like the following:
 
-*sqljdbc_10.2.1.0_enu\sqljdbc_10.2_enu\auth\x64*  <- 64bit authentication support files.
+*sqljdbc_11.2.3.0_enu\sqljdbc_11.2_enu\auth\x64*  <- 64bit authentication support files.
 
-*sqljdbc_10.2.1.0_enu\sqljdbc_10.2_enu\auth\x86*  <- 32bit authentication support files.
+*sqljdbc_11.2.3.0_enu\sqljdbc_11.2_enu\auth\x86*  <- 32bit authentication support files.
 
 You would copy the file:
 
-*sqljdbc_10.2.1.0_enu\sqljdbc_10.2_enu\auth\x64\mssql-jdbc_auth-10.2.1.x64.dll*
+*sqljdbc_11.2.3.0_enu\sqljdbc_11.2_enu\auth\x64\mssql-jdbc_auth-11.2.3.x64.dll*
 
 to
 
-*hop\lib\mssql-jdbc_auth-10.2.1.x64.dll*
+*hop\lib\mssql-jdbc_auth-11.2.3.x64.dll*
 
-The JDBC driver itself *sqljdbc_10.2_enu\mssql-jdbc-10.2.1.jre11.jar* should be copied into
-*\hop\plugins\databases\mssqlnative\lib*
+The JDBC driver itself *sqljdbc_11.2_enu\mssql-jdbc-11.2.3.jre11.jar* should be copied into
+*\hop\plugins\databases\mssqlnative\lib*, replacing the version already provided.
 
 
 There is no need to rename the DLL to sqljdbc_auth.dll or place it in other locations.
