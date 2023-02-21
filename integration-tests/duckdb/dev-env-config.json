@@ -1,0 +1,7 @@
+{
+  "variables" : [ {
+    "name" : "DUCKDB_DIR",
+    "value" : "/tmp/duckdb",
+    "description" : ""
+  } ]
+}
