@@ -17,6 +17,7 @@
 
 package org.apache.hop.reflection.pipeline.xp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -30,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
@@ -126,13 +128,18 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
       logPipeline(pipelineLog, pipeline, loggingPipelineFilename, variables);
     } else {
       for (PipelineToLogLocation pipelineToLogLocation : pipelineLog.getPipelinesToLog()) {
-        String pipelineUri = HopVfs.getFileObject(pipeline.getFilename()).getPublicURIString();
-        String pipelineToLogUri =
-            HopVfs.getFileObject(
-                    variables.resolve(pipelineToLogLocation.getPipelineToLogFilename()))
-                .getPublicURIString();
-        if (pipelineUri.equals(pipelineToLogUri)) {
-          logPipeline(pipelineLog, pipeline, loggingPipelineFilename, variables);
+
+        // Check if ok to start logging.
+        if(logLocationExists(variables, pipelineToLogLocation, pipeline)){
+          String pipelineUri = HopVfs.getFileObject(pipeline.getFilename()).getPublicURIString();
+          String pipelineToLogUri =
+                  HopVfs.getFileObject(
+                                  variables.resolve(pipelineToLogLocation.getPipelineToLogFilename()))
+                          .getPublicURIString();
+          if (pipelineUri.equals(pipelineToLogUri)) {
+            logPipeline(pipelineLog, pipeline, loggingPipelineFilename, variables);
+          }
+
         }
       }
     }
@@ -248,4 +255,32 @@ public class PipelineStartLoggingXp implements IExtensionPoint<Pipeline> {
     loggingPipeline.startThreads();
     loggingPipeline.waitUntilFinished();
   }
+
+  private boolean logLocationExists(
+          IVariables variables,
+          PipelineToLogLocation pipelineToLogLocation,
+          IPipelineEngine<PipelineMeta> pipeline)
+    throws HopException {
+
+    // Not saved to a file, let's not probe
+    if(StringUtils.isEmpty(pipeline.getFilename())){
+      return false;
+    }
+
+    // Match filenames
+    //
+    FileObject parentFileObject = HopVfs.getFileObject(pipeline.getFilename());
+    String parentFilename = parentFileObject.getName().getPath();
+
+    FileObject locationFileObject =
+            HopVfs.getFileObject(variables.resolve(pipelineToLogLocation.getPipelineToLogFilename()));
+    String locationFilename = locationFileObject.getName().getPath();
+    if(!parentFilename.equals(locationFilename)){
+      // No match
+      return false;
+    }
+
+    return true;
+  }
+
 }
