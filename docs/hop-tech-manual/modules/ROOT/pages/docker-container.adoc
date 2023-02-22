@@ -32,7 +32,7 @@ A long-lived setup starts a Hop server and waits for work.
 == Operating system
 
 The docker container runs a minimal Linux system called https://hub.docker.com/_/alpine[Alpine].
-OpenJDK version 8 is then used to execute Apache Hop.
+OpenJDK version 11 is then used to execute Apache Hop.
 The Linux user used to execute in the container is `hop` and the group is `hop` as well.
 
 == Container Folder Structure
@@ -262,9 +262,11 @@ Run this command to start a Hop Server in a docker container:
 docker run -it --rm \
   --env HOP_SERVER_USER=admin \
   --env HOP_SERVER_PASS=admin \
+  --env HOP_SERVER_SHUTDOWNPORT=8080 \
   --env HOP_SERVER_PORT=8181 \
   --env HOP_SERVER_PORT=8180 \
   --env HOP_SERVER_HOSTNAME=0.0.0.0 \
+  -p 8080:8080 \
   -p 8181:8181 \
   -p 8180:8180 \
   --name my-hop-server-container \
