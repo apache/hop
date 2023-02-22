@@ -36,41 +36,47 @@ limitations under the License.
     <modified_date>2023/02/14 20:20:51.940</modified_date>
   </info>
   <notepads>
+    <notepad>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>Noto Sans</fontname>
+      <fontsize>10</fontsize>
+      <height>44</height>
+      <xloc>384</xloc>
+      <yloc>128</yloc>
+      <note>get a list of ID columns from the all the tables in the PUBLIC schema. 
+build a query to list of of the available IDs per table</note>
+      <width>393</width>
+    </notepad>
   </notepads>
   <order>
     <hop>
-      <from>get initial row_count</from>
-      <to>add 4 rows</to>
+      <from>get ID columns</from>
+      <to>build query</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>add 4 rows</from>
-      <to>add counter</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>add counter</from>
-      <to>get sydate</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>get sydate</from>
-      <to>sysdate to string</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>sysdate to string</from>
-      <to>build sql</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>build sql</from>
+      <from>build query</from>
       <to>Dynamic SQL row</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Dynamic SQL row</from>
-      <to>get final row_count</to>
+      <to>keep TABLE_NAME. ID_COL</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep TABLE_NAME. ID_COL</from>
+      <to>log table_name, id</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -90,17 +96,17 @@ limitations under the License.
     <query_only_on_change>N</query_only_on_change>
     <replace_vars>N</replace_vars>
     <rowlimit>0</rowlimit>
-    <sql>insert into PUBLIC.TABLEINPUT values (10, 'N', 'Value 10', '2023-02-14 20:34:26');</sql>
-    <sql_fieldname>sql</sql_fieldname>
+    <sql>select cast(ID as INT) as id_col, 'DIM_SAMPLE' as table_name from DIM_SAMPLE;</sql>
+    <sql_fieldname>query</sql_fieldname>
     <attributes/>
     <GUI>
-      <xloc>848</xloc>
-      <yloc>224</yloc>
+      <xloc>272</xloc>
+      <yloc>240</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>add 4 rows</name>
-    <type>CloneRow</type>
+    <name>log table_name, id</name>
+    <type>WriteToLog</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -109,44 +115,27 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <addcloneflag>N</addcloneflag>
-    <addclonenum>N</addclonenum>
-    <nrclonefield>ROW_COUNT</nrclonefield>
-    <nrcloneinfield>N</nrcloneinfield>
-    <nrclones>4</nrclones>
+    <loglevel>log_level_basic</loglevel>
+    <displayHeader>Y</displayHeader>
+    <limitRows>N</limitRows>
+    <limitRowsNumber>0</limitRowsNumber>
+    <logmessage/>
+    <fields>
+      <field>
+        <name>TABLE_NAME</name>
+      </field>
+      <field>
+        <name>ID_COL</name>
+      </field>
+    </fields>
     <attributes/>
     <GUI>
-      <xloc>256</xloc>
-      <yloc>112</yloc>
+      <xloc>672</xloc>
+      <yloc>240</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>add counter</name>
-    <type>Sequence</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <connection>hop-samples</connection>
-    <increment_by>1</increment_by>
-    <max_value>999999999</max_value>
-    <seqname>SEQ_</seqname>
-    <start_at>1</start_at>
-    <use_counter>Y</use_counter>
-    <use_database>N</use_database>
-    <valuename>counter</valuename>
-    <attributes/>
-    <GUI>
-      <xloc>400</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>build sql</name>
+    <name>build query</name>
     <type>ScriptValueMod</type>
     <description/>
     <distribute>Y</distribute>
@@ -163,14 +152,13 @@ limitations under the License.
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>//Script here
 
-var id = ROW_COUNT + counter; 
-var sql = "insert into PUBLIC.TABLEINPUT values (" + id + ", 'N', 'Value " + id +  "', '" + sysdate +  "');"; </jsScript_script>
+var query = "select cast(" + COLUMN_NAME + " as INT) as id_col, '" + TABLE_NAME + "' as table_name from " + TABLE_NAME + ";" </jsScript_script>
       </jsScript>
     </jsScripts>
     <fields>
       <field>
-        <name>sql</name>
-        <rename>sql</rename>
+        <name>query</name>
+        <rename>query</rename>
         <type>String</type>
         <length>-1</length>
         <precision>-1</precision>
@@ -179,12 +167,12 @@ var sql = "insert into PUBLIC.TABLEINPUT values (" + id + ", 'N', 'Value " + id 
     </fields>
     <attributes/>
     <GUI>
-      <xloc>848</xloc>
+      <xloc>272</xloc>
       <yloc>112</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>get final row_count</name>
+    <name>get ID columns</name>
     <type>TableInput</type>
     <description/>
     <distribute>Y</distribute>
@@ -197,32 +185,10 @@ var sql = "insert into PUBLIC.TABLEINPUT values (" + id + ", 'N', 'Value " + id 
     <connection>hop-samples</connection>
     <execute_each_row>N</execute_each_row>
     <limit>0</limit>
-    <sql>SELECT count(*) as row_count
-FROM PUBLIC.TABLEINPUT
-</sql>
-    <variables_active>N</variables_active>
-    <attributes/>
-    <GUI>
-      <xloc>1040</xloc>
-      <yloc>224</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>get initial row_count</name>
-    <type>TableInput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <connection>hop-samples</connection>
-    <execute_each_row>N</execute_each_row>
-    <limit>0</limit>
-    <sql>SELECT count(*) as row_count
-FROM PUBLIC.TABLEINPUT
+    <sql>SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_SCHEMA  = 'PUBLIC'
+  AND COLUMN_NAME = 'ID'
 </sql>
     <variables_active>N</variables_active>
     <attributes/>
@@ -232,30 +198,7 @@ FROM PUBLIC.TABLEINPUT
     </GUI>
   </transform>
   <transform>
-    <name>get sydate</name>
-    <type>SystemInfo</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <name>sysdate</name>
-        <type>system date (variable)</type>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>560</xloc>
-      <yloc>112</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>sysdate to string</name>
+    <name>keep TABLE_NAME. ID_COL</name>
     <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>
@@ -266,29 +209,18 @@ FROM PUBLIC.TABLEINPUT
       <schema_name/>
     </partitioning>
     <fields>
+      <field>
+        <name>TABLE_NAME</name>
+      </field>
+      <field>
+        <name>ID_COL</name>
+      </field>
       <select_unspecified>N</select_unspecified>
-      <meta>
-        <name>sysdate</name>
-        <rename>sysdate</rename>
-        <type>String</type>
-        <length>-2</length>
-        <precision>-2</precision>
-        <conversion_mask>yyyy-MM-dd HH:mm:ss</conversion_mask>
-        <date_format_lenient>false</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone/>
-        <lenient_string_to_number>false</lenient_string_to_number>
-        <encoding/>
-        <decimal_symbol/>
-        <grouping_symbol/>
-        <currency_symbol/>
-        <storage_type/>
-      </meta>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>704</xloc>
-      <yloc>112</yloc>
+      <xloc>480</xloc>
+      <yloc>240</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
