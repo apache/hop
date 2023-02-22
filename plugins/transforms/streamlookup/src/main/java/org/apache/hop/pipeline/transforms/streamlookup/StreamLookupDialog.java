@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.streamlookup;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -37,30 +39,25 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
 
-  private CCombo wTransform;
+  private Combo wTransform;
 
   private TableView wKey;
 
@@ -93,14 +90,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
-    SelectionListener lsSelection =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-            setComboBoxesLookup();
-          }
-        };
+
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -111,7 +101,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     shell.setText(BaseMessages.getString(PKG, "StreamLookupDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS at the bottom
     //
@@ -158,7 +148,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     fdlTransform.right = new FormAttachment(middle, -margin);
     fdlTransform.top = new FormAttachment(wTransformName, margin * 2);
     wlTransform.setLayoutData(fdlTransform);
-    wTransform = new CCombo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransform = new Combo(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wTransform);
 
     List<TransformMeta> previousTransforms =
@@ -166,10 +156,12 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     for (TransformMeta previousTransform : previousTransforms) {
       wTransform.add(previousTransform.getName());
     }
-    // pipelineMeta.getInfoTransform()
 
     wTransform.addModifyListener(lsMod);
-    wTransform.addSelectionListener(lsSelection);
+    wTransform.addListener(SWT.Selection, e -> {
+        input.setChanged();
+        updateComboFields();    
+    });
 
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment(middle, 0);
@@ -235,13 +227,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     fdSortedList.top = new FormAttachment(wlSortedList, 0, SWT.CENTER);
     fdSortedList.right = new FormAttachment(100, 0);
     wSortedList.setLayoutData(fdSortedList);
-    wSortedList.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
+    wSortedList.addListener(SWT.Selection, e -> input.setChanged());
 
     Label wlIntegerPair = new Label(shell, SWT.RIGHT);
     wlIntegerPair.setText(BaseMessages.getString(PKG, "StreamLookupDialog.IntegerPair.Label"));
@@ -259,13 +245,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     fdIntegerPair.top = new FormAttachment(wlIntegerPair, 0, SWT.CENTER);
     fdIntegerPair.right = new FormAttachment(100, 0);
     wIntegerPair.setLayoutData(fdIntegerPair);
-    wIntegerPair.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
+    wIntegerPair.addListener(SWT.Selection, e -> input.setChanged());
 
     Label wlPreserveMemory = new Label(shell, SWT.RIGHT);
     wlPreserveMemory.setText(
@@ -283,13 +263,8 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     fdPreserveMemory.top = new FormAttachment(wlPreserveMemory, 0, SWT.CENTER);
     fdPreserveMemory.right = new FormAttachment(100, 0);
     wPreserveMemory.setLayoutData(fdPreserveMemory);
-    wPreserveMemory.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
+    wPreserveMemory.addListener(SWT.Selection, e -> input.setChanged());
+    
     // preserve memory should be enabled to have this options on.
     wPreserveMemory.addListener(
         SWT.Selection,
@@ -353,8 +328,8 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
     getData();
 
-    setComboBoxes();
-    setComboBoxesLookup();
+    
+    updateComboFields();
     input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -362,70 +337,54 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     return transformName;
   }
 
-  protected void setComboBoxes() {
-    //
-    // Search the fields in the background
-    //
+  /**
+  /* Search the input and lookup fields in the background
+   **/
+  protected void updateComboFields() {
 
     final Runnable runnable =
         () -> {
+          
+          String lookupTransformName = wTransform.getText();
+          
+          // Input fields
+          //
           TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
           if (transformMeta != null) {
             try {
-              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-              Map<String, Integer> prevFields = new HashMap<>();
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                prevFields.put(row.getValueMeta(i).getName(), i);
+              IRowMeta rowMeta = new RowMeta();              
+              for (String prevTransformName: pipelineMeta.getPrevTransformNames(transformName)) {
+                  if ( !prevTransformName.equalsIgnoreCase(lookupTransformName) ) {                  
+                  IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta, prevTransformName, null);
+
+                  // See if the add fields are not already in the row
+                  for (int i = 0; i < row.size(); i++) {
+                    IValueMeta valueMeta = row.getValueMeta(i);                  
+                    if (rowMeta.searchValueMeta(valueMeta.getName()) == null) {
+                      rowMeta.addValueMeta(valueMeta);
+                    }
+                  }
+                }
               }
 
-              // Something was changed in the row.
-              //
-              final Map<String, Integer> fields = new HashMap<>();
+              String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
 
-              // Add the currentMeta fields...
-              fields.putAll(prevFields);
-
-              Set<String> keySet = fields.keySet();
-              List<String> entries = new ArrayList<>(keySet);
-
-              String[] fieldNames = entries.toArray(new String[entries.size()]);
-              Const.sortStrings(fieldNames);
               // return fields
               ciKey[0].setComboValues(fieldNames);
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
           }
-        };
-    new Thread(runnable).start();
-  }
-
-  protected void setComboBoxesLookup() {
-    Runnable fieldLoader =
-        () -> {
-          TransformMeta lookupTransformMeta = pipelineMeta.findTransform(wTransform.getText());
+          
+          // Lookup fields
+          //
+          TransformMeta lookupTransformMeta = pipelineMeta.findTransform(lookupTransformName);
           if (lookupTransformMeta != null) {
             try {
-              IRowMeta row = pipelineMeta.getTransformFields(variables, lookupTransformMeta);
-              Map<String, Integer> lookupFields = new HashMap<>();
-              // Remember these fields...
-              for (int i = 0; i < row.size(); i++) {
-                lookupFields.put(row.getValueMeta(i).getName(), i);
-              }
+              IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, lookupTransformMeta);
 
-              // Something was changed in the row.
-              //
-              final Map<String, Integer> fields = new HashMap<>();
+              String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
 
-              // Add the currentMeta fields...
-              fields.putAll(lookupFields);
-
-              Set<String> keySet = fields.keySet();
-              List<String> entries = new ArrayList<>(keySet);
-
-              String[] fieldNames = entries.toArray(new String[entries.size()]);
-              Const.sortStrings(fieldNames);
               // return fields
               ciReturn[0].setComboValues(fieldNames);
               ciKey[1].setComboValues(fieldNames);
@@ -436,8 +395,9 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
                       + "]!");
             }
           }
+          
         };
-    shell.getDisplay().asyncExec(fieldLoader);
+        shell.getDisplay().asyncExec(runnable);
   }
 
   /** Copy information from the meta-data input to the dialog fields. */

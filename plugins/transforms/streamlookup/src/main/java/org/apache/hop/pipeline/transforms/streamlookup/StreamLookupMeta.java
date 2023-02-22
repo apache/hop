@@ -229,12 +229,12 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
       throws HopTransformException {
     if (info != null && info.length == 1 && info[0] != null) {
       for (int i = 0; i < getValueName().length; i++) {
-        IValueMeta v = info[0].searchValueMeta(getValue()[i]);
-        if (v != null) {
+        IValueMeta valueMeta = info[0].searchValueMeta(getValue()[i]);
+        if (valueMeta != null) {
           // Configuration error/missing resources...
-          v.setName(getValueName()[i]);
-          v.setOrigin(origin);
-          row.addValueMeta(v);
+          valueMeta.setName(getValueName()[i]);
+          valueMeta.setOrigin(origin);
+          row.addValueMeta(valueMeta);
         } else {
           throw new HopTransformException(
               BaseMessages.getString(
