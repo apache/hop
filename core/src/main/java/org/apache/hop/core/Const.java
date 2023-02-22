@@ -1674,6 +1674,9 @@ public class Const {
     // Check if implementation version is a SNAPHOT build or if version is not known.    
     if (version == null || version.contains("SNAPSHOT")) {
       version = "next";
+    } else {
+      //Only keep until first space to remove the build date
+      version = version.split(" ")[0];
     }
     
     return url + version + "/";
