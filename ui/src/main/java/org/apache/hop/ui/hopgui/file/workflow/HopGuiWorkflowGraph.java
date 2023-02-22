@@ -2124,7 +2124,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableHop.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableHop.Tooltip",
-      image = "ui/images/HOP_disable.svg",
+      image = "ui/images/hop-disable.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void disableHop(HopGuiWorkflowHopContext context) {
@@ -2163,7 +2163,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Delete,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteHop.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteHop.Tooltip",
-      image = "ui/images/HOP_delete.svg",
+      image = "ui/images/hop-delete.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void deleteHop(HopGuiWorkflowHopContext context) {
@@ -2266,13 +2266,29 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return true;
   }
 
-  // TODO
-  public void enableHopsBetweenSelectedActions() {
+  @GuiContextAction(
+      id = "workflow-graph-hop-10065-hop-enable-between-selected-actions",
+      parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableBetweenSelectedActions.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableBetweenSelectedActions.Tooltip",
+      image = "ui/images/hop-enable-between-selected.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Bulk.Text",
+      categoryOrder = "3")
+  public void enableHopsBetweenSelectedActions(final HopGuiWorkflowHopContext context) {
     enableHopsBetweenSelectedActions(true);
   }
 
-  // TODO
-  public void disableHopsBetweenSelectedActions() {
+  @GuiContextAction(
+      id = "workflow-graph-hop-10075-hop-disable-between-selected-actions",
+      parentId = HopGuiWorkflowHopContext.CONTEXT_ID,
+      type = GuiActionType.Modify,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableBetweenSelectedActions.Text",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableBetweenSelectedActions.Tooltip",
+      image = "ui/images/hop-disable-between-selected.svg",
+      category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Bulk.Text",
+      categoryOrder = "3")
+  public void disableHopsBetweenSelectedActions(final HopGuiWorkflowHopContext context) {
     enableHopsBetweenSelectedActions(false);
   }
 
@@ -2317,7 +2333,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableDownstream.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.EnableDownstream.Tooltip",
-      image = "ui/images/HOP_enable_downstream.svg",
+      image = "ui/images/hop-enable-downstream.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Bulk.Text",
       categoryOrder = "3")
   public void enableHopsDownstream(HopGuiWorkflowHopContext context) {
@@ -2330,7 +2346,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableDownstream.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DisableDownstream.Tooltip",
-      image = "ui/images/HOP_disable_downstream.svg",
+      image = "ui/images/hop-disable-downstream.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Bulk.Text",
       categoryOrder = "3")
   public void disableHopsDownstream(HopGuiWorkflowHopContext context) {
@@ -2967,7 +2983,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Modify,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DetachAction.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DetachAction.Tooltip",
-      image = "ui/images/HOP_delete.svg",
+      image = "ui/images/hop-delete.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void detachAction(HopGuiWorkflowActionContext context) {
