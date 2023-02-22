@@ -57,6 +57,7 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(400, 120);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -69,11 +70,12 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionDummyDialog.Title"));
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
 
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionDummyDialog.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);

@@ -63,6 +63,7 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(400, 130);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -77,7 +78,8 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
     int margin = PropsUi.getMargin();
 
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText("Action name");
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -100,7 +102,7 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wName);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     getData();
 

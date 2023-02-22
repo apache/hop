@@ -52,6 +52,7 @@ public class DummyDialog extends BaseTransformDialog implements ITransformDialog
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
+    shell.setMinimumSize(400, 120);
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
@@ -66,11 +67,12 @@ public class DummyDialog extends BaseTransformDialog implements ITransformDialog
     shell.setText(BaseMessages.getString(PKG, "DummyDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "DummyDialog.TransformName.Label"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.TransformName.Label"));
+    wlTransformName.setToolTipText(BaseMessages.getString(PKG, "System.TransformName.Tooltip"));
     PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -93,7 +95,7 @@ public class DummyDialog extends BaseTransformDialog implements ITransformDialog
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wTransformName);
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
     wCancel.addListener(SWT.Selection, e -> cancel());

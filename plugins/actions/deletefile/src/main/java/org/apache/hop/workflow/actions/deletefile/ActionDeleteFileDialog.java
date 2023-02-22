@@ -74,6 +74,7 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(400, 180);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -92,7 +93,8 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
 
     // Filename line
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText(BaseMessages.getString(PKG, "ActionDeleteFile.Name.Label"));
+    wlName.setText(BaseMessages.getString(PKG, "System.ActionName.Label"));
+    wlName.setToolTipText(BaseMessages.getString(PKG, "System.ActionName.Tooltip"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -176,7 +178,7 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, 2 * margin, wlAbortExists);
+        shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
     wCancel.addListener(SWT.Selection, e -> cancel());
