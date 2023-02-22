@@ -604,6 +604,7 @@
                                 <Source-Java-Version>${source.jdk.version}</Source-Java-Version>
                                 <Target-Java-Version>${target.jdk.version}</Target-Java-Version>
                                 <Implementation-ProductID>${project.artifactId}</Implementation-ProductID>
+                                <Implementation-Version>${project.version} (${maven.build.timestamp})</Implementation-Version>                                
                             </manifestEntries>
                         </archive>
                     </configuration>
