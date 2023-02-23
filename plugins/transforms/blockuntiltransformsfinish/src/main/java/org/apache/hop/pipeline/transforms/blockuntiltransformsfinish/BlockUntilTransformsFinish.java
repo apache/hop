@@ -17,17 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
+import java.util.Iterator;
+import java.util.Map.Entry;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.EngineComponent;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 /** Block all incoming rows until defined transforms finish processing rows. */
 public class BlockUntilTransformsFinish
@@ -102,10 +102,15 @@ public class BlockUntilTransformsFinish
       while (it.hasNext()) {
         Entry<Integer, IEngineComponent> e = it.next();
         IEngineComponent transform = e.getValue();
-        if (transform.isRunning()) {
+        if (transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_RUNNING
+            || transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_IDLE
+            || transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_INIT
+            || transform.getStatus() == EngineComponent.ComponentExecutionStatus.STATUS_PAUSED) {
           // This transform is still running...
           data.continueLoop = true;
         } else {
+          log.logBasic(
+              "Transform " + transform.getName() + " status: " + transform.getStatusDescription());
           // We have done with this transform.
           // remove it from the map
           data.componentMap.remove(e.getKey());
