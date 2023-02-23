@@ -85,6 +85,17 @@ public class VerticaBulkLoaderMeta
   private String tablename;
 
   @HopMetadataProperty(
+          key = "truncate",
+          injectionKey = "TRUNCATE_TABLE",
+          injectionKeyDescription = "VerticaBulkLoader.Injection.TruncateTable.Field")
+  private boolean truncateTable;
+
+  @HopMetadataProperty(
+          key = "only_when_have_rows",
+          injectionKey = "ONLY_WHEN_HAVE_ROWS",
+          injectionKeyDescription = "VerticaBulkLoader.Inject.OnlyWhenHaveRows.Field")
+  private boolean onlyWhenHaveRows;
+  @HopMetadataProperty(
     key = "direct",
     injectionKey = "DIRECT",
     injectionKeyDescription = "VerticaBulkLoader.Injection.DIRECT"
@@ -210,6 +221,35 @@ public class VerticaBulkLoaderMeta
   public void setTablename(String tablename) {
     this.tablename = tablename;
   }
+
+  /**
+   * @return Returns the truncate table flag.
+   */
+  public boolean isTruncateTable() {
+    return truncateTable;
+  }
+
+  /**
+   * @param truncateTable The truncate table flag to set.
+   */
+  public void setTruncateTable(boolean truncateTable) {
+    this.truncateTable = truncateTable;
+  }
+
+  /**
+   * @return Returns the onlyWhenHaveRows flag.
+   */
+  public boolean isOnlyWhenHaveRows() {
+    return onlyWhenHaveRows;
+  }
+
+  /**
+   * @param onlyWhenHaveRows The onlyWhenHaveRows to set.
+   */
+  public void setOnlyWhenHaveRows(boolean onlyWhenHaveRows) {
+    this.onlyWhenHaveRows = onlyWhenHaveRows;
+  }
+
 
   /**
    * @param specifyFields The specify fields flag to set.

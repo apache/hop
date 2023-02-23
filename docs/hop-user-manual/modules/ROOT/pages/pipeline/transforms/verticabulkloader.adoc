@@ -53,6 +53,8 @@ This is typically significantly faster than loading data through e.g. a Table Ou
 |Connection|Name of the database connection on which the target table resides.
 |Target schema|The name of the Schema for the table to write data to. This is important for data sources that allow for table names with dots '.' in it.
 |Target table|Name of the target table.
+|Truncate table|Truncate this table before loading data
+|Truncate on first row|Only truncate this table if there is data (when the first row is received)
 |Specify database fields|Enable this option to specify the fields in the Database fields tab. Otherwise all fields are taken into account by default.
 |===
 

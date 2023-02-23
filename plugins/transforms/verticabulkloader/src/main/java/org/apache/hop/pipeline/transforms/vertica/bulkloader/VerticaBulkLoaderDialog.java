@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -69,6 +70,10 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
+  private Label wlTruncate;
+  private Button wTruncate;
+
+  private Button wOnlyWhenHaveRows;
   private Label wlSchema;
   private TextVar wSchema;
   private FormData fdlSchema, fdSchema;
@@ -250,6 +255,60 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
           }
         };
 
+    // Truncate table
+    wlTruncate = new Label(shell, SWT.RIGHT);
+    wlTruncate.setText(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.TruncateTable.Label"));
+    PropsUi.setLook(wlTruncate);
+    FormData fdlTruncate = new FormData();
+    fdlTruncate.left = new FormAttachment(0, 0);
+    fdlTruncate.top = new FormAttachment(wTable, margin);
+    fdlTruncate.right = new FormAttachment(middle, -margin);
+    wlTruncate.setLayoutData(fdlTruncate);
+    wTruncate = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wTruncate);
+    FormData fdTruncate = new FormData();
+    fdTruncate.left = new FormAttachment(middle, 0);
+    fdTruncate.top = new FormAttachment(wlTruncate, 0, SWT.CENTER);
+    fdTruncate.right = new FormAttachment(100, 0);
+    wTruncate.setLayoutData(fdTruncate);
+    SelectionAdapter lsTruncMod =
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent arg0) {
+                input.setChanged();
+              }
+            };
+    wTruncate.addSelectionListener(lsTruncMod);
+    wTruncate.addSelectionListener(
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                setFlags();
+              }
+            });
+
+    // Truncate only when have rows
+    Label wlOnlyWhenHaveRows = new Label(shell, SWT.RIGHT);
+    wlOnlyWhenHaveRows.setText(
+            BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.OnlyWhenHaveRows.Label"));
+    PropsUi.setLook(wlOnlyWhenHaveRows);
+    FormData fdlOnlyWhenHaveRows = new FormData();
+    fdlOnlyWhenHaveRows.left = new FormAttachment(0, 0);
+    fdlOnlyWhenHaveRows.top = new FormAttachment(wTruncate, margin);
+    fdlOnlyWhenHaveRows.right = new FormAttachment(middle, -margin);
+    wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
+    wOnlyWhenHaveRows = new Button(shell, SWT.CHECK);
+    wOnlyWhenHaveRows.setToolTipText(
+            BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.OnlyWhenHaveRows.Tooltip"));
+    PropsUi.setLook(wOnlyWhenHaveRows);
+    FormData fdTruncateWhenHaveRows = new FormData();
+    fdTruncateWhenHaveRows.left = new FormAttachment(middle, 0);
+    fdTruncateWhenHaveRows.top = new FormAttachment(wlOnlyWhenHaveRows, 0, SWT.CENTER);
+    fdTruncateWhenHaveRows.right = new FormAttachment(100, 0);
+    wOnlyWhenHaveRows.setLayoutData(fdTruncateWhenHaveRows);
+    wOnlyWhenHaveRows.addSelectionListener(lsSelMod);
+
+
     // Specify fields
     wlSpecifyFields = new Label(shell, SWT.RIGHT);
     wlSpecifyFields.setText(
@@ -257,14 +316,14 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     props.setLook(wlSpecifyFields);
     fdlSpecifyFields = new FormData();
     fdlSpecifyFields.left = new FormAttachment(0, 0);
-    fdlSpecifyFields.top = new FormAttachment(wbTable, margin);
+    fdlSpecifyFields.top = new FormAttachment(wOnlyWhenHaveRows, margin);
     fdlSpecifyFields.right = new FormAttachment(middle, -margin);
     wlSpecifyFields.setLayoutData(fdlSpecifyFields);
     wSpecifyFields = new Button(shell, SWT.CHECK);
     props.setLook(wSpecifyFields);
     fdSpecifyFields = new FormData();
     fdSpecifyFields.left = new FormAttachment(middle, 0);
-    fdSpecifyFields.top = new FormAttachment(wbTable, margin);
+    fdSpecifyFields.top = new FormAttachment(wlSpecifyFields, 0, SWT.CENTER);
     fdSpecifyFields.right = new FormAttachment(100, 0);
     wSpecifyFields.setLayoutData(fdSpecifyFields);
     wSpecifyFields.addSelectionListener(lsSelMod);
@@ -797,6 +856,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wFields.setEnabled(specifyFields);
     wGetFields.setEnabled(specifyFields);
     wDoMapping.setEnabled(specifyFields);
+
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -820,6 +880,9 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     if (input.getStreamName() != null) {
       wStreamName.setText(input.getStreamName());
     }
+
+    wTruncate.setSelection(input.isTruncateTable());
+    wOnlyWhenHaveRows.setSelection(input.isOnlyWhenHaveRows());
 
     wDirect.setSelection(input.isDirect());
     wAbortOnError.setSelection(input.isAbortOnError());
@@ -852,6 +915,9 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     info.setSchemaName(wSchema.getText());
     info.setTablename(wTable.getText());
     info.setConnection(wConnection.getText());
+
+    info.setTruncateTable(wTruncate.getSelection());
+    info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
 
     info.setExceptionsFileName(wExceptionsLogFile.getText());
     info.setRejectedDataFileName(wRejectedDataLogFile.getText());
