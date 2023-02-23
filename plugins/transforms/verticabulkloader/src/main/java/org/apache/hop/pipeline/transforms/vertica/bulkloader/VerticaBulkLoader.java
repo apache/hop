@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -72,6 +73,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     Object[] r = getRow(); // this also waits for a previous transform to be
     // finished.
     if (r == null) { // no more input to be expected...
+      if (first && meta.isTruncateTable() && !meta.isOnlyWhenHaveRows()) {
+        truncateTable();
+      }
 
       try {
         data.close();
@@ -84,6 +88,10 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     if (first) {
 
       first = false;
+
+      if (meta.isTruncateTable()) {
+        truncateTable();
+      }
 
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
@@ -602,6 +610,13 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
 
     super.stopRunning();
   }
+
+  void truncateTable() throws HopDatabaseException {
+    if (meta.isTruncateTable() && ((getCopy() == 0) || !Utils.isEmpty(getPartitionId()))) {
+      data.db.truncateTable(resolve(meta.getSchemaName()), resolve(meta.getTableName()));
+    }
+  }
+
 
   @Override
   public void dispose() {
