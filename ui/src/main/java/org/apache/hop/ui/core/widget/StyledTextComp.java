@@ -163,6 +163,18 @@ public class StyledTextComp extends Composite {
   }
 
   @Override
+  public void setBackground(Color color) {    
+    super.setBackground(color);
+    textWidget.setBackground(color);
+  }
+
+  @Override
+  public void setForeground(Color color) {
+    super.setForeground(color);
+    textWidget.setForeground(color);
+  }
+  
+  @Override
   public void setFont(Font fnt) {
     textWidget.setFont(fnt);
   }

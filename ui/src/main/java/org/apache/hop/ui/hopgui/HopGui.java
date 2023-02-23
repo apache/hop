@@ -590,6 +590,11 @@ public class HopGui
     // Bootstrap Hop
     //
     Display display = new Display();
+    
+    // Initialize early for some tweaks (before shell creation)
+    //
+    PropsUi.getInstance();
+    
     return display;
   }
 

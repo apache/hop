@@ -389,6 +389,7 @@ public class ContextDialog extends Dialog {
             searchComposite,
             SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     wSearch.setLayoutData(new GridData(GridData.FILL_BOTH));
+    PropsUi.setLook(wSearch, Props.WIDGET_STYLE_TOOLBAR);
 
     // Create a toolbar at the right of the search bar...
     //
