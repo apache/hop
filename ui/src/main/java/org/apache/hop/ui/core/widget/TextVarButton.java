@@ -88,7 +88,7 @@ public class TextVarButton extends TextVar {
     // Add the variable $ image on the top right of the control
     //
     Label wlImage = new Label(this, SWT.NONE);
-    wlImage.setImage(GuiResource.getInstance().getImageVariable());
+    wlImage.setImage(GuiResource.getInstance().getImageVariableMini());
     wlImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
     fdlImage.top = new FormAttachment(0, 0);

@@ -122,11 +122,11 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wStartAction.setToolTipText(
         BaseMessages.getString(PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip"));
     PropsUi.setLook(wStartAction);
-    FormData fdStartJobCombo = new FormData();
-    fdStartJobCombo.top = new FormAttachment(wlStartAction, 0, SWT.CENTER);
-    fdStartJobCombo.left = new FormAttachment(wlStartAction, props.getMargin());
-    fdStartJobCombo.right = new FormAttachment(100, 0);
-    wStartAction.setLayoutData(fdStartJobCombo);
+    FormData fdStartActionAction = new FormData();
+    fdStartActionAction.top = new FormAttachment(wlStartAction, 0, SWT.CENTER);
+    fdStartActionAction.left = new FormAttachment(wlStartAction, PropsUi.getMargin());
+    fdStartActionAction.right = new FormAttachment(100, 0);
+    wStartAction.setLayoutData(fdStartActionAction);
 
     WorkflowMeta workflowMeta = (WorkflowMeta) super.abstractMeta;
 

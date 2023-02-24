@@ -88,10 +88,12 @@ public abstract class BaseDialog extends Dialog {
   public static final int MEDIUM_SMALL_FIELD = 150;
   public static final int SMALL_FIELD = 50;
   public static final int SHELL_WIDTH_OFFSET = 16;
+  @Deprecated
   public static final int VAR_ICON_WIDTH =
-      GuiResource.getInstance().getImageVariable().getBounds().width;
+      GuiResource.getInstance().getImageVariableMini().getBounds().width;
+  @Deprecated
   public static final int VAR_ICON_HEIGHT =
-      GuiResource.getInstance().getImageVariable().getBounds().height;
+      GuiResource.getInstance().getImageVariableMini().getBounds().height;
 
   protected Map<String, Listener> buttons = new HashMap<>();
 

@@ -1337,9 +1337,13 @@ public class GuiResource {
    * @return the imageVariable
    */
   public Image getImageVariable() {
-    return getZoomedImaged(imageVariable, display, 10, 10);
+    return getZoomedImaged(imageVariable, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
+  public Image getImageVariableMini() {
+    return getZoomedImaged(imageVariable, display, 10, 10);
+  }
+  
   public Image getImagePipeline() {
     return getZoomedImaged(
         imagePipeline, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
