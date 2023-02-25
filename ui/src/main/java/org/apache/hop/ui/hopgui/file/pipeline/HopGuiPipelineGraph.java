@@ -472,8 +472,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
     //
-    Composite mainComposite = new Composite(this, SWT.NONE);
-    mainComposite.setBackground(GuiResource.getInstance().getColorOrange());
+    Composite mainComposite = new Composite(this, SWT.NONE);    
     mainComposite.setLayout(new FormLayout());
     FormData fdMainComposite = new FormData();
     fdMainComposite.left = new FormAttachment(0, 0);
