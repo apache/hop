@@ -728,23 +728,6 @@ Applications shall support extracting the year from a date beginning in 1900. Th
 |YEARFRAC("1/1/2012","7/30/2012",3) |0.57808219|Fraction between same dates, using the Actual/365 basis argument. Uses a 365 day basis.
 |===
 
-==== YESTERDAY
-
-|===
-|*description*|Return the serial number of the previous day
-|*syntax*|YESTERDAY()
-|*returns*|Date
-|*semantics*|This returns the previous day's serial number, using current locale. This only returns the date, not the datetime value.
-|*constraints*|None
-|===
-
-*Examples*
-|===
-|expression|result|comment
-|TODAY()>YESTERDAY() |False|Every date YESTERDAY() changes, but we know it's less than today.
-|INT(YESTERDAY)=YESTERDAY() |True|YESTERDAY() returns an integer. WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; because YESTERDAY() is referenced twice, in some implementations this would result in a race condition) This is incredibly unlikely to occur in practice.
-|===
-
 === Financial
 
 ==== PMT
