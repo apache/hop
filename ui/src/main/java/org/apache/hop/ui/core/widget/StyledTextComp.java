@@ -82,7 +82,7 @@ public class StyledTextComp extends Composite {
     // Special layout for variables decorator
     if (varsSensitive) {
       textWidget.addKeyListener(new ControlSpaceKeyAdapter(variables, textWidget));
-      image = GuiResource.getInstance().getImageVariable();
+      image = GuiResource.getInstance().getImageVariableMini();
       if (variableIconOnTop) {
         final Label wIcon = new Label(this, SWT.RIGHT);
         PropsUi.setLook(wIcon);

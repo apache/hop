@@ -160,7 +160,7 @@ public class TextVar extends Composite {
     //
     Label wImage = new Label(this, SWT.NONE);
     PropsUi.setLook(wImage);
-    wImage.setImage(GuiResource.getInstance().getImageVariable());
+    wImage.setImage(GuiResource.getInstance().getImageVariableMini());
     wImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
     fdlImage.top = new FormAttachment(0, 0);

@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -62,7 +61,6 @@ public abstract class ConfigurationDialog extends Dialog {
   protected TableView wVariables;
   protected boolean retval;
   protected Shell shell;
-  protected PropsUi props;
   protected Label wlLogLevel;
   protected Group gDetails;
   protected CCombo wLogLevel;
@@ -72,7 +70,6 @@ public abstract class ConfigurationDialog extends Dialog {
   protected Control wRunConfigurationControl;
 
   private TableView wParams;
-  private Display display;
   private Shell parent;
   private Button wOk;
   protected FormData fdDetails;
@@ -99,8 +96,7 @@ public abstract class ConfigurationDialog extends Dialog {
       params.put(name, "");
     }
 
-    props = PropsUi.getInstance();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
   }
 
   protected void getInfoVariables() {
@@ -152,7 +148,7 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   private void dispose() {
-    props.setScreen(new WindowProperty(shell));
+    PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
@@ -202,7 +198,6 @@ public abstract class ConfigurationDialog extends Dialog {
   }
 
   protected void mainLayout(String shellTitle, Image img) {
-    display = parent.getDisplay();
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX);
     PropsUi.setLook(shell);
     shell.setImage(img);
@@ -289,7 +284,7 @@ public abstract class ConfigurationDialog extends Dialog {
             nrParams,
             false,
             null,
-            props,
+            PropsUi.getInstance(),
             false, null, false, false);
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment(0, 0);
@@ -304,6 +299,7 @@ public abstract class ConfigurationDialog extends Dialog {
     CTabItem tbtmVariables = new CTabItem(tabFolder, SWT.NONE);
     tbtmVariables.setFont(GuiResource.getInstance().getFontDefault());
     tbtmVariables.setText(BaseMessages.getString(PKG, prefix + ".Variables.Label"));
+    tbtmVariables.setImage(GuiResource.getInstance().getImageVariable());
 
     Composite variablesComposite = new Composite(tabFolder, SWT.NONE);
     PropsUi.setLook(variablesComposite);
@@ -334,7 +330,7 @@ public abstract class ConfigurationDialog extends Dialog {
             nrVariables,
             false,
             null,
-            props,
+            PropsUi.getInstance(),
             false, null, true, false);
 
     FormData fdVariables = new FormData();
