@@ -398,7 +398,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Add a canvas below it, use up all space
     //
-    canvas = new Canvas(sashForm, SWT.NO_BACKGROUND);
+    canvas = new Canvas(sashForm, SWT.NO_BACKGROUND | SWT.BORDER);
     Listener listener = CanvasListener.getInstance();
     canvas.addListener(SWT.MouseDown, listener);
     canvas.addListener(SWT.MouseMove, listener);
