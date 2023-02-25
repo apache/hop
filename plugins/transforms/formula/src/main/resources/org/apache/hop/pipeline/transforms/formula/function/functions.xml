@@ -3182,23 +3182,6 @@ System 2    The week containing the first Thursday of the year is the first week
 	</examples>
   </function>
 
-
-
-
-  <function>
-    <category>%Category.DateTime</category>
-    <name>YESTERDAY</name>
-    <description>Return the serial number of the previous day</description>
-    <syntax>YESTERDAY()</syntax>
-    <returns>Date</returns>
-    <constraints>None</constraints>
-    <semantics>This returns the previous day's serial number, using current locale. This only returns the date, not the datetime value.</semantics>
-    <examples>
-      <example><expression>TODAY()>YESTERDAY()</expression> <result>False</result> <level>1</level> <comment>Every date YESTERDAY() changes, but we know it's less than today.</comment></example>
-      <example><expression>INT(YESTERDAY)=YESTERDAY()</expression> <result>True</result> <level>1</level> <comment>YESTERDAY() returns an integer. WARNING: this test is allowed to fail if the locale transitions through midnight while computing this test; because YESTERDAY() is referenced twice, in some implementations this would result in a race condition) This is incredibly unlikely to occur in practice.</comment></example>
-    </examples>
-  </function>
-
   <function>
   	<category>%Category.DateTime</category>
   	<name>WEEKDAY</name>
