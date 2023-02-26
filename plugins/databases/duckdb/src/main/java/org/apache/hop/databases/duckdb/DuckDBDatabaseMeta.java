@@ -29,7 +29,7 @@ import org.apache.hop.core.row.IValueMeta;
 @DatabaseMetaPlugin(
         type="DuckDB",
         typeDescription = "DuckDB",
-        documentationUrl = "/database/databases/apache-hive.html"
+        documentationUrl = "/database/databases/duckdb.html"
 )
 @GuiPlugin(id = "GUI-DuckDBDatabaseMeta")
 public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
