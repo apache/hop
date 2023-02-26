@@ -159,4 +159,9 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         return true;
     }
 
+    @Override
+    public boolean isSupportsTimestampDataType() {
+        return true;
+    }
+
 }
