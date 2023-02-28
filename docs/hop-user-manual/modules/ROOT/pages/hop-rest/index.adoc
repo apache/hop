@@ -165,7 +165,7 @@ The plugins services are deployed under sub-path `plugins/`.
 |`GET`
 
 |Path
-|`metadata/list/{typeClassName}/`
+|`plugins/list/{typeClassName}/`
 
 |Arguments
 |`key` : the class name of the plugin type
