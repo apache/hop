@@ -8,4 +8,5 @@
 !/assemblies/web/target
 !/assemblies/plugins/dist/target
 !/docker
+!/rest
 !google-key-apache-hop-it.json
