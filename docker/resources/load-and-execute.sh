@@ -152,12 +152,12 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
   fi
 
   log "Registering project ${HOP_PROJECT_NAME} in the Hop container configuration"
-  log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_FOLDER}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
+  log "${DEPLOYMENT_PATH}/hop-conf.sh --project=${HOP_PROJECT_NAME} --project-create --project-home='${HOP_PROJECT_FOLDER}' --project-config-file='${HOP_PROJECT_CONFIG_FILE_NAME}'"
 
-  if $("${DEPLOYMENT_PATH}"/hop/hop-conf.sh -pl | grep -q -E "^  ${HOP_PROJECT_NAME} :"); then
+  if $("${DEPLOYMENT_PATH}"/hop-conf.sh -pl | grep -q -E "^  ${HOP_PROJECT_NAME} :"); then
     log "project ${HOP_PROJECT_NAME} already exists"
   else
-    "${DEPLOYMENT_PATH}"/hop/hop-conf.sh \
+    "${DEPLOYMENT_PATH}"/hop-conf.sh \
       --project="${HOP_PROJECT_NAME}" \
       --project-create \
       --project-home="${HOP_PROJECT_FOLDER}" \
@@ -176,12 +176,12 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
     fi
 
     log "Registering environment ${HOP_ENVIRONMENT_NAME} in the Hop container configuration"
-    log "${DEPLOYMENT_PATH}/hop/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
+    log "${DEPLOYMENT_PATH}/hop-conf.sh --environment-create --environment=${HOP_ENVIRONMENT_NAME} --environment-project=${HOP_PROJECT_NAME} --environment-config-files='${HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS}'"
 
-    if $("${DEPLOYMENT_PATH}"/hop/hop-conf.sh -el | grep -q -E -x "^  ${HOP_ENVIRONMENT_NAME}"); then
+    if $("${DEPLOYMENT_PATH}"/hop-conf.sh -el | grep -q -E -x "^  ${HOP_ENVIRONMENT_NAME}"); then
       log "environment ${HOP_ENVIRONMENT_NAME} already exists"
     else
-      "${DEPLOYMENT_PATH}"/hop/hop-conf.sh \
+      "${DEPLOYMENT_PATH}"/hop-conf.sh \
         --environment="${HOP_ENVIRONMENT_NAME}" \
         --environment-create \
         --environment-project="${HOP_PROJECT_NAME}" \
@@ -201,7 +201,7 @@ fi
 if [ -z "${HOP_FILE_PATH}" ]; then
   write_server_config
   log "Starting a hop-server on port "${HOP_SERVER_PORT}
-  "${DEPLOYMENT_PATH}"/hop/hop-server.sh \
+  "${DEPLOYMENT_PATH}"/hop-server.sh \
     "${HOP_EXEC_OPTIONS}" \
     /tmp/hop-server.xml \
     2>&1 | tee ${HOP_LOG_PATH}
@@ -223,7 +223,7 @@ else
   fi
 
   log "Running a single hop workflow / pipeline (${HOP_FILE_PATH})"
-  "${DEPLOYMENT_PATH}"/hop/hop-run.sh \
+  "${DEPLOYMENT_PATH}"/hop-run.sh \
     --file="${HOP_FILE_PATH}" \
     --runconfig="${HOP_RUN_CONFIG}" \
     --parameters="${HOP_RUN_PARAMETERS}" \
