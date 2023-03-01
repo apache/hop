@@ -976,26 +976,34 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
             boolean setValueMetaFormat = false;
             switch (valueMeta.getType()) {
               case IValueMeta.TYPE_DATE:
-                format = "yyyy/MM/dd HH:mm:ss";
-                setValueMetaFormat = true;
+                if (format == null) {
+                  format = "yyyy/MM/dd HH:mm:ss";
+                  setValueMetaFormat = true;
+                }
                 string = valueMeta.getString(new Date());
                 break;
               case IValueMeta.TYPE_STRING:
                 string = "test value test value";
                 break;
               case IValueMeta.TYPE_INTEGER:
-                format = "#";
-                setValueMetaFormat = true;
+                if (format == null) {
+                  format = "#";
+                  setValueMetaFormat = true;
+                }
                 string = valueMeta.getString(0L);
                 break;
               case IValueMeta.TYPE_NUMBER:
-                format = "#.#";
-                setValueMetaFormat = true;
+                if (format == null) {
+                  format = "#.#";
+                  setValueMetaFormat = true;
+                }
                 string = valueMeta.getString(0.0D);
                 break;
               case IValueMeta.TYPE_BIGNUMBER:
-                format = "#.#";
-                setValueMetaFormat = true;
+                if (format == null) {
+                  format = "#.#";
+                  setValueMetaFormat = true;
+                }
                 string = valueMeta.getString(BigDecimal.ZERO);
                 break;
               case IValueMeta.TYPE_BOOLEAN:
