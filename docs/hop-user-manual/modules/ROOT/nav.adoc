@@ -372,7 +372,6 @@ under the License.
 ** xref:database/databases/h2.adoc[H2]
 ** xref:database/databases/hypersonic.adoc[Hypersonic]
 ** xref:database/databases/universe.adoc[IBM Universe]
-** xref:database/databases/infinidb.adoc[InfiniDB]
 ** xref:database/databases/infobright.adoc[Infobright DB]
 ** xref:database/databases/informix.adoc[Informix]
 ** xref:database/databases/ingres.adoc[Ingres]

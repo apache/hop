@@ -78,7 +78,6 @@
                 <module>db2</module>
                 <module>mariadb</module>
                 <module>infobright</module>
-                <module>infinidb</module>
                 <module>derby</module>
                 <module>monetdb</module>
                 <module>cache</module>
