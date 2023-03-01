@@ -31,6 +31,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -89,6 +90,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
   private Composite wGeneralComp;
   private Text wName;
   private Combo wConnectionType;
+  private Label wDriverInfo;
   private TextVar wManualUrl;
   private Label wlUsername;
   private TextVar wUsername;
@@ -283,6 +285,27 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdConnectionType.right = new FormAttachment(wToolBar, -margin);
     wConnectionType.setLayoutData(fdConnectionType);
     Control lastControl = wConnectionType;
+    
+    // JDBC Driver information
+    //
+    Label wlDriverInfo = new Label(wGeneralComp, SWT.RIGHT);
+    PropsUi.setLook(wlDriverInfo);
+    wlDriverInfo.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.InstalledDriver"));    
+    FormData fdlDriverInfo = new FormData();
+    fdlDriverInfo.top = new FormAttachment(lastControl, margin * 2);
+    fdlDriverInfo.left = new FormAttachment(0, 0);
+    fdlDriverInfo.right = new FormAttachment(middle, -margin);
+    wlDriverInfo.setLayoutData(fdlDriverInfo);
+    
+    wDriverInfo = new Label(wGeneralComp, SWT.LEFT);
+    wDriverInfo.setEnabled(false);
+    PropsUi.setLook(wDriverInfo);
+    FormData fdDriverInfo = new FormData();
+    fdDriverInfo.top = new FormAttachment(wlDriverInfo, 0, SWT.CENTER);
+    fdDriverInfo.left = new FormAttachment(middle, 0);
+    fdDriverInfo.right = new FormAttachment(100, 0);
+    wDriverInfo.setLayoutData(fdDriverInfo);
+    lastControl = wDriverInfo;
 
     // Username field
     //
@@ -354,6 +377,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
             setChanged();
+            updateDriverInfo();
           }
         });
 
@@ -455,6 +479,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
           public void widgetModified(
               GuiCompositeWidgets compositeWidgets, Control changedWidget, String widgetId) {
             setChanged();
+            updateDriverInfo();
           }
         });
     addCompositeWidgetsUsernamePassword();
@@ -467,7 +492,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     busyChangingConnectionType.set(false);
   }
-
+  
   private void addAdvancedTab() {
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
@@ -779,7 +804,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     wName.setText(Const.NVL(databaseMeta.getName(), ""));
     wConnectionType.setText(Const.NVL(databaseMeta.getPluginName(), ""));
-
+    
     wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));
     wPassword.setText(Const.NVL(databaseMeta.getPassword(), ""));
 
@@ -812,6 +837,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     wOptions.setRowNums();
     wOptions.optWidth(true);
 
+    updateDriverInfo();
     enableFields();
   }
 
@@ -845,6 +871,31 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
       String option = item.getText(1);
       String value = item.getText(2);
       meta.addExtraOption(meta.getPluginId(), option, value);
+    }
+  }
+
+  /**
+   *  Update JDBC driver information and version
+   */
+  protected void updateDriverInfo() {
+    try {
+      DatabaseMeta databaseMeta = new DatabaseMeta();
+      this.getWidgetsContent(databaseMeta);
+      
+      wDriverInfo.setText("");
+      String driverName = databaseMeta.getDriverClass(getVariables());
+      if ( !Utils.isEmpty(driverName) ) {
+        ClassLoader classLoader = databaseMeta.getIDatabase().getClass().getClassLoader();
+        Class<?> driver = classLoader.loadClass(driverName);
+        
+        if ( driver.getPackage().getImplementationVersion()!=null ) {
+          driverName = driverName+" ("+driver.getPackage().getImplementationVersion()+")";
+        }
+        
+        wDriverInfo.setText(driverName);
+      }
+    } catch (Exception e) {
+      wDriverInfo.setText("No driver installed");          
     }
   }
 
