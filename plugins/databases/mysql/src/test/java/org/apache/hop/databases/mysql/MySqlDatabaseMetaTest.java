@@ -86,7 +86,7 @@ public class MySqlDatabaseMetaTest {
     assertTrue(nativeMeta.isSupportsAutoInc());
     assertEquals(1, nativeMeta.getNotFoundTK(true));
     assertEquals(0, nativeMeta.getNotFoundTK(false));
-    assertEquals("org.gjt.mm.mysql.Driver", nativeMeta.getDriverClass());
+    assertEquals("com.mysql.cj.jdbc.Driver", nativeMeta.getDriverClass());
     assertEquals("jdbc:mysql://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
     assertEquals("jdbc:mysql://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
@@ -347,7 +347,7 @@ public class MySqlDatabaseMetaTest {
             "FOO", new ValueMetaTimestamp("BAR"), "", false, "", false));
 
     assertEquals(
-        "ALTER TABLE FOO ADD BAR CHAR(1)",
+        "ALTER TABLE FOO ADD BAR BOOLEAN",
         nativeMeta.getAddColumnStatement("FOO", new ValueMetaBoolean("BAR"), "", false, "", false));
 
     assertEquals(

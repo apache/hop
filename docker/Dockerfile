@@ -111,7 +111,7 @@ RUN apk update \
 
 
 # copy the hop package from the local resources folder to the container image directory
-COPY --chown=hop:hop ./assemblies/client/target/hop/ ${DEPLOYMENT_PATH}/hop
+COPY --chown=hop:hop ./assemblies/client/target/hop/ ${DEPLOYMENT_PATH}
 COPY --chown=hop:hop ./docker/resources/run.sh ${DEPLOYMENT_PATH}/run.sh
 COPY --chown=hop:hop ./docker/resources/load-and-execute.sh ${DEPLOYMENT_PATH}/load-and-execute.sh
 

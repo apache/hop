@@ -47,7 +47,6 @@
     <module>db2-assemblies</module>
     <module>mariadb-assemblies</module>
     <module>infobright-assemblies</module>
-    <module>infinidb-assemblies</module>
     <module>derby-assemblies</module>
     <module>duckdb-assemblies</module>
     <module>monetdb-assemblies</module>

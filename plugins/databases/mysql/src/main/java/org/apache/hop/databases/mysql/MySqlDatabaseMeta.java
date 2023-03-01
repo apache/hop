@@ -40,10 +40,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Contains MySQL specific information through static final members
- */
-@DatabaseMetaPlugin(type = "MYSQL", typeDescription = "MySQL", documentationUrl = "/database/databases/mysql.html")
+/** Contains MySQL specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "MYSQL",
+    typeDescription = "MySQL",
+    documentationUrl = "/database/databases/mysql.html")
 @GuiPlugin(id = "GUI-MySQLDatabaseMeta")
 public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final Class<?> PKG = MySqlDatabaseMeta.class; // For Translator
@@ -55,17 +56,16 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       type = GuiElementType.CHECKBOX,
       label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.MySQLStreamResults")
   private boolean resultStreaming;
-
-  // TODO: add internationalization
   @GuiWidgetElement(
       id = "mySqlDriverClass",
       order = "20",
       parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.COMBO,
+      variables = false,
       comboValuesMethod = "getDriverClassNames",
-      label = "Select database type:")
+      label = "i18n::MySQLDatabaseMeta.label.MySQLDriverType")
   @HopMetadataProperty(key = "driverClassName")
-  private String driverClassName = "";
+  private String driverClassName = "Mysql 8+";
 
   /**
    * Gets resultStreaming
@@ -77,7 +77,9 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "Y".equalsIgnoreCase(streaming);
   }
 
-  /** @param resultStreaming The resultStreaming to set */
+  /**
+   * @param resultStreaming The resultStreaming to set
+   */
   public void setResultStreaming(boolean resultStreaming) {
     getAttributes().put(ATTRIBUTE_USE_RESULT_STREAMING, resultStreaming ? "Y" : "N");
   }
@@ -131,7 +133,9 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "SELECT " + columnname + " FROM " + tableName + " LIMIT 0";
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -149,7 +153,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case "Mysql 8+":
         return "com.mysql.cj.jdbc.Driver";
       default:
-        return "org.gjt.mm.mysql.Driver";
+        return "com.mysql.cj.jdbc.Driver";
     }
   }
 
@@ -180,34 +184,52 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "&";
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
   }
 
-  /** @return true if the database supports transactions. */
+  /**
+   * @return true if the database supports transactions.
+   */
   @Override
   public boolean isSupportsTransactions() {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports views */
+  /**
+   * @return true if the database supports views
+   */
   @Override
   public boolean isSupportsViews() {
     return true;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;
+  }
+
+  /**
+   * @return true if the database supports a boolean, bit, logical
+   */
+  @Override
+  public boolean isSupportsBooleanDataType() {
+    return true;
   }
 
   /**
@@ -628,7 +650,9 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "UNLOCK TABLES"; // This unlocks all tables
   }
 
-  /** @return extra help text on the supported options on the selected database platform. */
+  /**
+   * @return extra help text on the supported options on the selected database platform.
+   */
   @Override
   public String getExtraOptionsHelpText() {
     return "http://dev.mysql.com/doc/refman/5.0/en/connector-j-reference-configuration-properties.html";
@@ -706,7 +730,6 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     addExtraOption(getPluginId(), "defaultFetchSize", "500");
     addExtraOption(getPluginId(), "useCursorFetch", "true");
     addExtraOption(getPluginId(), "zeroDateTimeBehaviorValue", "CONVERT_TO_NULL");
-
   }
 
   @Override
@@ -769,8 +792,8 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    */
   public List<String> getDriverClassNames(ILogChannel log, IHopMetadataProvider metadataProvider) {
     List<String> names = new ArrayList<>();
-    names.add("Mysql");
     names.add("Mysql 8+");
+    names.add("Mysql");
     return names;
   }
 }
