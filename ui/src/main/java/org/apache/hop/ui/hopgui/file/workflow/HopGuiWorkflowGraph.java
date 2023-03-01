@@ -61,6 +61,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
@@ -3342,7 +3343,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         });
 
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
-    item.setToolTipText(BaseMessages.getString(PKG, "HopGui.Tooltip.ShowExecutionResults"));
+    item.setToolTipText(TranslateUtil.translate("i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults", PKG));
     item.setImage(GuiResource.getInstance().getImageShowResults());
   }
 
@@ -3403,7 +3404,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
-    toolItem.setToolTipText(BaseMessages.getString(PKG, "HopGui.Tooltip.HideExecutionResults"));
+    toolItem.setToolTipText(TranslateUtil.translate("i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.HideExecutionResults", PKG));
     toolItem.setImage(GuiResource.getInstance().getImageHideResults());
   }
 
