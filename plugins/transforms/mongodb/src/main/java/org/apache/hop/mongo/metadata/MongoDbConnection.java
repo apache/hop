@@ -71,8 +71,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_HOSTNAME,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Hostname",
-      toolTip = "Specify the hostname of your MongoDB server")
+      label = "i18n::MongoMetadata.Hostname.Label",
+      toolTip = "i18n::MongoMetadata.Hostname.ToolTip")
   private String hostname = "localhost";
 
   @HopMetadataProperty
@@ -80,8 +80,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_PORT,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Port",
-      toolTip = "The default port of a MongoDB server is 27017")
+      label = "i18n::MongoMetadata.Port.Label",
+      toolTip = "i18n::MongoMetadata.Port.ToolTip")
   private String port = "27017";
 
   @HopMetadataProperty
@@ -89,8 +89,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_DB_NAME,
       type = GuiElementType.COMBO,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Database name",
-      toolTip = "The MongoDB database name to use")
+      label = "i18n::MongoMetadata.DbName.Label",
+      toolTip = "i18n::MongoMetadata.DbName.ToolTip")
   private String dbName;
 
   @HopMetadataProperty
@@ -98,8 +98,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_AUTH_DB_NAME,
       type = GuiElementType.COMBO,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Authentication database",
-      toolTip = "The MongoDB database to authenticate against")
+      label = "i18n::MongoMetadata.AuthDatabaseName.Label",
+      toolTip = "i18n::MongoMetadata.AuthDatabaseName.ToolTip")
   private String authenticationDatabaseName;
 
   @HopMetadataProperty
@@ -107,8 +107,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_AUTH_USER,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Username",
-      toolTip = "The username to authenticate with")
+      label = "i18n::MongoMetadata.Username.Label",
+      toolTip = "i18n::MongoMetadata.Username.ToolTip")
   private String authenticationUser;
 
   @HopMetadataProperty(password = true)
@@ -117,8 +117,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       type = GuiElementType.TEXT,
       password = true,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Password",
-      toolTip = "The password to authenticate with")
+      label = "i18n::MongoMetadata.Password.Label",
+      toolTip = "i18n::MongoMetadata.Password.ToolTip")
   private String authenticationPassword;
 
   @HopMetadataProperty
@@ -126,8 +126,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_AUTH_MECHANISM,
       type = GuiElementType.COMBO,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Authentication mechanism",
-      toolTip = "The authentication mechanism to use",
+      label = "i18n::MongoMetadata.AuthenticationMechanism.Label",
+      toolTip = "i18n::MongoMetadata.AuthenticationMechanism.ToolTip",
       variables = false)
   private MongoDbAuthenticationMechanism authenticationMechanism =
       MongoDbAuthenticationMechanism.PLAIN;
@@ -137,8 +137,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_USE_KERBEROS,
       type = GuiElementType.CHECKBOX,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Use Kerberos?",
-      toolTip = "Check this option if you want to use Kerberos to authenticate")
+      label = "i18n::MongoMetadata.useKerberos.Label",
+      toolTip = "i18n::MongoMetadata.useKerberos.ToolTip")
   private boolean usingKerberos;
 
   @HopMetadataProperty
@@ -146,8 +146,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_CONNECTION_TIMEOUT_MS,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Connection timeout (ms)",
-      toolTip = "Specify the connection timeout in milliseconds. Leave blank for the default.")
+      label = "i18n::MongoMetadata.ConnectionTimeoutMs.Label",
+      toolTip = "i18n::MongoMetadata.ConnectionTimeoutMs.ToolTip")
   private String connectTimeoutMs = ""; // default - never time out
 
   @HopMetadataProperty
@@ -155,8 +155,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_SOCKET_TIMEOUT_MS,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Socket timeout (ms)",
-      toolTip = "Specify the socket timeout in milliseconds. Leave blank for the default.")
+      label = "i18n::MongoMetadata.SocketTimeoutMs.Label",
+      toolTip = "i18n::MongoMetadata.SocketTimeoutMs.ToolTip")
   private String socketTimeoutMs = ""; // default - never time out
 
   @HopMetadataProperty
@@ -164,9 +164,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_READ_PREFERENCE,
       type = GuiElementType.COMBO,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Read preference",
-      toolTip =
-          "Select the read preference: primary, primaryPreferred, secondary, secondaryPreferred, nearest",
+      label = "i18n::MongoMetadata.ReadPreference.Label",
+      toolTip = "i18n::MongoMetadata.ReadPreference.ToolTip",
       variables = false)
   private NamedReadPreference readPreference = NamedReadPreference.PRIMARY;
 
@@ -175,10 +174,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_USE_ALL_REPLICA_SET_MEMBERS,
       type = GuiElementType.CHECKBOX,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Use all replica set members?",
-      toolTip =
-          "Select this option to discover and use all replica set members "
-              + "(if not already specified in the hosts field")
+      label = "i18n::MongoMetadata.UseAllReplicaSetMembers.Label",
+      toolTip = "i18n::MongoMetadata.UseAllReplicaSetMembers.ToolTip")
   private boolean usingAllReplicaSetMembers;
 
   @HopMetadataProperty
@@ -186,9 +183,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_READ_PREF_TAG_SETS,
       type = GuiElementType.COMBO,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Specify the read preference tag sets",
-      toolTip =
-          "optional tag sets to use with read preference settings (JSON String).  See the MongoDB documentation on 'Replica Set Tag Sets'")
+      label = "i18n::MongoMetadata.ReadPrefTagSets.Label",
+      toolTip = "i18n::MongoMetadata.ReadPrefTagSets.ToolTip")
   private String readPrefTagSets;
 
   @HopMetadataProperty
@@ -196,8 +192,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_USE_SSL_SOCKET_FACTORY,
       type = GuiElementType.CHECKBOX,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Use an SSL socket factory?",
-      toolTip = "Check this option if you want to use use an SSL socket factory")
+      label = "i18n::MongoMetadata.UseSslSocketFactory.Label",
+      toolTip = "i18n::MongoMetadata.UseSslSocketFactory.ToolTip")
   private boolean usingSslSocketFactory;
 
   @HopMetadataProperty
@@ -205,13 +201,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_WRITE_CONCERN,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Write concern",
-      toolTip =
-          "default = 1 (standalone or primary acknowledges writes; -1 no acknowledgement and all errors "
-              + "suppressed; 0 no acknowledgement, but socket/network errors passed to client; \"majority\" "
-              + "returns after a majority of the replica set members have acknowledged; n (>1) returns after n "
-              + "replica set members have acknowledged; tags (string) specific replica set members with the tags "
-              + "need to acknowledge")
+      label = "i18n::MongoMetadata.WriteConcern.Label",
+      toolTip = "i18n::MongoMetadata.WriteConcern.ToolTip")
   private String writeConcern = "";
 
   @HopMetadataProperty
@@ -219,10 +210,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_TIMEOUT_MS,
       type = GuiElementType.TEXT,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Replication Timeout (ms)",
-      toolTip =
-          "The time in milliseconds to wait for replication to succeed, as specified in the w option, "
-              + "before timing out")
+      label = "i18n::MongoMetadata.ReplicaTimeoutMs.Label",
+      toolTip = "i18n::MongoMetadata.ReplicaTimeoutMs.ToolTip")
   private String replicationTimeoutMs = "";
 
   @HopMetadataProperty
@@ -230,10 +219,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       id = WIDGET_ID_JOURNALED,
       type = GuiElementType.CHECKBOX,
       parentId = MongoDbConnectionEditor.PARENT_WIDGET_ID,
-      label = "Journaled?",
-      toolTip =
-          "Select for write operations to wait until MongoDB acknowledges the write operations and "
-              + "commits the data to the journal on disk")
+      label = "i18n::MongoMetadata.Journaled.Label",
+      toolTip = "i18n::MongoMetadata.Journaled.ToolTip")
   private boolean journaled = true;
 
   public MongoDbConnection() {}
@@ -334,7 +321,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return hostname;
   }
 
-  /** @param hostname The hostname to set */
+  /**
+   * @param hostname The hostname to set
+   */
   public void setHostname(String hostname) {
     this.hostname = hostname;
   }
@@ -348,7 +337,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return port;
   }
 
-  /** @param port The port to set */
+  /**
+   * @param port The port to set
+   */
   public void setPort(String port) {
     this.port = port;
   }
@@ -362,7 +353,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return dbName;
   }
 
-  /** @param dbName The dbName to set */
+  /**
+   * @param dbName The dbName to set
+   */
   public void setDbName(String dbName) {
     this.dbName = dbName;
   }
@@ -376,7 +369,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return authenticationDatabaseName;
   }
 
-  /** @param authenticationDatabaseName The authenticationDatabaseName to set */
+  /**
+   * @param authenticationDatabaseName The authenticationDatabaseName to set
+   */
   public void setAuthenticationDatabaseName(String authenticationDatabaseName) {
     this.authenticationDatabaseName = authenticationDatabaseName;
   }
@@ -390,7 +385,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return authenticationUser;
   }
 
-  /** @param authenticationUser The authenticationUser to set */
+  /**
+   * @param authenticationUser The authenticationUser to set
+   */
   public void setAuthenticationUser(String authenticationUser) {
     this.authenticationUser = authenticationUser;
   }
@@ -404,7 +401,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return authenticationPassword;
   }
 
-  /** @param authenticationPassword The authenticationPassword to set */
+  /**
+   * @param authenticationPassword The authenticationPassword to set
+   */
   public void setAuthenticationPassword(String authenticationPassword) {
     this.authenticationPassword = authenticationPassword;
   }
@@ -418,7 +417,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return authenticationMechanism;
   }
 
-  /** @param authenticationMechanism The authenticationMechanism to set */
+  /**
+   * @param authenticationMechanism The authenticationMechanism to set
+   */
   public void setAuthenticationMechanism(MongoDbAuthenticationMechanism authenticationMechanism) {
     this.authenticationMechanism = authenticationMechanism;
   }
@@ -432,7 +433,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return usingKerberos;
   }
 
-  /** @param usingKerberos The usingKerberos to set */
+  /**
+   * @param usingKerberos The usingKerberos to set
+   */
   public void setUsingKerberos(boolean usingKerberos) {
     this.usingKerberos = usingKerberos;
   }
@@ -446,7 +449,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return connectTimeoutMs;
   }
 
-  /** @param connectTimeoutMs The connectTimeoutMs to set */
+  /**
+   * @param connectTimeoutMs The connectTimeoutMs to set
+   */
   public void setConnectTimeoutMs(String connectTimeoutMs) {
     this.connectTimeoutMs = connectTimeoutMs;
   }
@@ -460,7 +465,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return socketTimeoutMs;
   }
 
-  /** @param socketTimeoutMs The socketTimeoutMs to set */
+  /**
+   * @param socketTimeoutMs The socketTimeoutMs to set
+   */
   public void setSocketTimeoutMs(String socketTimeoutMs) {
     this.socketTimeoutMs = socketTimeoutMs;
   }
@@ -474,7 +481,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return readPreference;
   }
 
-  /** @param readPreference The readPreference to set */
+  /**
+   * @param readPreference The readPreference to set
+   */
   public void setReadPreference(NamedReadPreference readPreference) {
     this.readPreference = readPreference;
   }
@@ -488,7 +497,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return usingAllReplicaSetMembers;
   }
 
-  /** @param usingAllReplicaSetMembers The usingAllReplicaSetMembers to set */
+  /**
+   * @param usingAllReplicaSetMembers The usingAllReplicaSetMembers to set
+   */
   public void setUsingAllReplicaSetMembers(boolean usingAllReplicaSetMembers) {
     this.usingAllReplicaSetMembers = usingAllReplicaSetMembers;
   }
@@ -502,7 +513,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return readPrefTagSets;
   }
 
-  /** @param readPrefTagSets The readPrefTagSets to set */
+  /**
+   * @param readPrefTagSets The readPrefTagSets to set
+   */
   public void setReadPrefTagSets(String readPrefTagSets) {
     this.readPrefTagSets = readPrefTagSets;
   }
@@ -516,7 +529,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return usingSslSocketFactory;
   }
 
-  /** @param usingSslSocketFactory The usingSslSocketFactory to set */
+  /**
+   * @param usingSslSocketFactory The usingSslSocketFactory to set
+   */
   public void setUsingSslSocketFactory(boolean usingSslSocketFactory) {
     this.usingSslSocketFactory = usingSslSocketFactory;
   }
@@ -530,7 +545,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return writeConcern;
   }
 
-  /** @param writeConcern The writeConcern to set */
+  /**
+   * @param writeConcern The writeConcern to set
+   */
   public void setWriteConcern(String writeConcern) {
     this.writeConcern = writeConcern;
   }
@@ -544,7 +561,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return replicationTimeoutMs;
   }
 
-  /** @param replicationTimeoutMs The replicationTimeoutMs to set */
+  /**
+   * @param replicationTimeoutMs The replicationTimeoutMs to set
+   */
   public void setReplicationTimeoutMs(String replicationTimeoutMs) {
     this.replicationTimeoutMs = replicationTimeoutMs;
   }
@@ -558,7 +577,9 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     return journaled;
   }
 
-  /** @param journaled The journaled to set */
+  /**
+   * @param journaled The journaled to set
+   */
   public void setJournaled(boolean journaled) {
     this.journaled = journaled;
   }

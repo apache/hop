@@ -60,7 +60,7 @@ public class TableViewExportToExcelToolbarButton {
   @GuiToolbarElement(
       root = TableView.ID_TOOLBAR,
       id = ID_TOOLBAR_EXPORT_EXCEL,
-      toolTip = "Export this data to a new Excel spreadsheet",
+      toolTip = "i18n::ExcelWidget.ExportToolbarButton.ToolTip",
       separator = true,
       image = "excelwriter.svg")
   public static void copyToNewGoogleDocsSpreadsheet(TableView tableView) {

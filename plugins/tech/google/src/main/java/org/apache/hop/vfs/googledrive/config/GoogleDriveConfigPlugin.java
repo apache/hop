@@ -38,10 +38,10 @@ import picocli.CommandLine;
 
 @ConfigPlugin(
     id = "GoogleDriveConfigPlugin",
-    description = "Configuration options for the Google Drive VFS plugin",
+    description = "i18n::GoogleDriveConfig.ConfigPlugin.Description",
     category = ConfigPlugin.CATEGORY_CONFIG)
 @GuiPlugin(
-    description = "Google Drive VFS" // Tab label in options dialog
+    description = "i18n::GoogleDriveConfig.GuiPlugin.Description" // Tab label in options dialog
     )
 public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
@@ -55,9 +55,8 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FILENAME,
       variables = true,
-      label = "Path to a Google Drive credentials JSON file",
-      toolTip =
-          "Please note that this is a global configuration option and while you can specify variables that these will be not include project specific settings.")
+      label = "i18n::GoogleDriveConfig.CredentialsFile.Label",
+      toolTip = "i18n::GoogleDriveConfig.CredentialsFile.ToolTip")
   @CommandLine.Option(
       names = {"-gdc", "--google-drive-credentials-file"},
       description = "Configure the path to a Google Drive credentials JSON file")
@@ -68,8 +67,8 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FOLDER,
       variables = true,
-      label = "Path to a tokens folder for credential caching",
-      toolTip = "Pick a safe folder to store these tokens")
+      label = "i18n::GoogleDriveConfig.TokensFolder.Label",
+      toolTip = "i18n::GoogleDriveConfig.TokensFolder.ToolTip")
   @CommandLine.Option(
       names = {"-gdt", "--google-drive-tokens-folder"},
       description = "Configure the path to a Google Drive tokens folder")

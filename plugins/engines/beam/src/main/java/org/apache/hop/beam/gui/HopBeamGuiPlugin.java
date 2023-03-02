@@ -236,7 +236,7 @@ public class HopBeamGuiPlugin {
   @GuiToolbarElement(
       root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ID_VISIT_GCP_DATAFLOW,
-      toolTip = "Visit the pipeline execution in the GCP Dataflow console",
+      toolTip = "i18n::BeamGuiPlugin.VisitDataflow.ToolTip",
       image = "dataflow.svg",
       separator = true)
   public void pipelineGraphVisitGcpDataflow() {
@@ -259,7 +259,7 @@ public class HopBeamGuiPlugin {
   @GuiToolbarElement(
       root = PipelineExecutionViewer.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ID_PIPELINE_EXECUTION_VIEWER_VISIT_GCP_DATAFLOW,
-      toolTip = "Visit the pipeline execution in the GCP Dataflow console",
+      toolTip = "i18n::BeamGuiPlugin.VisitDataflow.ToolTip",
       image = "dataflow.svg",
       separator = true)
   public void executionViewerVisitGcpDataflow() {

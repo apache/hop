@@ -34,7 +34,7 @@ public class MetaSelectionLineClearDbCacheToolbarItem {
   @GuiToolbarElement(
       root = MetaSelectionLine.GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_CLEAR_CACHE,
-      toolTip = "Clear the database cache",
+      toolTip = "i18n::DatabaseToolbarItem.ClearDatabaseCache.ToolTip",
       image = "ui/images/clear.svg")
   public void clearDatabaseCache() {
     DbCache.getInstance().clear(null);

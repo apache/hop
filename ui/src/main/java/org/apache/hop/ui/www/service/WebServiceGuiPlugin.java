@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -42,13 +43,14 @@ import java.util.List;
 
 @GuiPlugin
 public class WebServiceGuiPlugin {
+  private static final Class<?> PKG = WebServiceGuiPlugin.class; // For Translator
 
   @GuiContextAction(
       id = "pipeline-graph-transform-9000-add-web-serviec",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Add web service",
-      tooltip = "Use the output of this transform as a web service with Hop Server",
+      name = "i18n::WebserviceGuiPlugin.GuiAction.Label",
+      tooltip = "i18n::WebserviceGuiPlugin.GuiAction.ToolTip",
       image = "ui/images/webservice.svg",
       category = "Data routing",
       categoryOrder = "2")
@@ -67,8 +69,9 @@ public class WebServiceGuiPlugin {
           new EnterSelectionDialog(
               hopGui.getShell(),
               fields.getFieldNames(),
-              "Select the output field",
-              "Please select the field to output when the service is called");
+              BaseMessages.getString(PKG, "WebserviceGuiPlugin.GuiAction.SelectOutputField.Label"),
+              BaseMessages.getString(
+                  PKG, "WebserviceGuiPlugin.GuiAction.SelectOutputField.Description"));
       String fieldName = fieldSelectionDialog.open();
       if (fieldName == null) {
         return;
@@ -80,14 +83,16 @@ public class WebServiceGuiPlugin {
       IHopMetadataSerializer<WebService> serializer =
           metadataProvider.getSerializer(WebService.class);
       MetadataManager<WebService> manager =
-          new MetadataManager<>(hopGui.getVariables(), metadataProvider, WebService.class, hopGui.getShell());
+          new MetadataManager<>(
+              hopGui.getVariables(), metadataProvider, WebService.class, hopGui.getShell());
 
       WebService webService = null;
       List<String> serviceNames = serializer.listObjectNames();
       if (serviceNames.isEmpty()) {
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText("No web services available");
-        box.setMessage("There are no web service objects defined yet.  Do you want to create one?");
+        box.setText(BaseMessages.getString(PKG, "WebserviceGuiPlugin.GuiAction.NoService.Label"));
+        box.setMessage(
+            BaseMessages.getString(PKG, "WebserviceGuiPlugin.GuiAction.NoService.Description"));
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
           // Create a new web service...
@@ -113,8 +118,9 @@ public class WebServiceGuiPlugin {
             new EnterSelectionDialog(
                 hopGui.getShell(),
                 serviceNames.toArray(new String[0]),
-                "Select a web service",
-                "Select the web service to update");
+                BaseMessages.getString(PKG, "WebserviceGuiPlugin.GuiAction.SelectService.Label"),
+                BaseMessages.getString(
+                    PKG, "WebserviceGuiPlugin.GuiAction.SelectService.Description"));
         String pipelineProbeName = dialog.open();
         if (pipelineProbeName != null) {
           webService = serializer.load(pipelineProbeName);
@@ -173,8 +179,11 @@ public class WebServiceGuiPlugin {
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
-          "Error",
-          "Error adding web service for transform '" + transformMeta.getName() + "'",
+          BaseMessages.getString(PKG, "WebserviceGuiPlugin.GuiAction.ErrorDialog.Label"),
+          BaseMessages.getString(PKG, "WebserviceGuiPlugin.GuiAction.ErrorDialog.Description")
+              + " '"
+              + transformMeta.getName()
+              + "'",
           e);
     }
   }
