@@ -45,11 +45,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20010-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "The Flink master",
-      toolTip =
-          "Address of the Flink Master where the Pipeline should be executed. Can"
-              + " either be of the form \"host:port\" or one of the special values [local], "
-              + "[collection] or [auto].")
+      label = "i18n::BeamEnginesFlink.OptionsMaster.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsMaster.ToolTip")
   @HopMetadataProperty
   private String flinkMaster;
 
@@ -57,10 +54,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20020-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Parallelism",
-      toolTip =
-          "The degree of parallelism to be used when distributing operations onto workers. "
-              + "If the parallelism is not set, the configured Flink default is used, or 1 if none can be found.")
+      label = "i18n::BeamEnginesFlink.OptionsParallelism.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsParallelism.ToolTip")
   @HopMetadataProperty
   private String flinkParallelism;
 
@@ -68,10 +63,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20030-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Checkpointing interval",
-      toolTip =
-          "The interval in milliseconds at which to trigger checkpoints of the running pipeline. "
-              + "Default: No checkpointing.")
+      label = "i18n::BeamEnginesFlink.OptionsCheckpointInterval.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsCheckpointInterval.ToolTip")
   @HopMetadataProperty
   private String flinkCheckpointingInterval;
 
@@ -79,8 +72,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20040-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Checkpointing mode",
-      toolTip = "The checkpointing mode that defines consistency guarantee.")
+      label = "i18n::BeamEnginesFlink.OptionsCheckpointMode.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsCheckpointMode.ToolTip")
   @HopMetadataProperty
   private String flinkCheckpointingMode;
 
@@ -88,9 +81,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20050-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Checkpointing timeout (ms)",
-      toolTip =
-          "The maximum time in milliseconds that a checkpoint may take before being discarded.")
+      label = "i18n::BeamEnginesFlink.OptionsCheckpointTimeout.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsCheckpointTimeout.ToolTip")
   @HopMetadataProperty
   private String flinkCheckpointTimeoutMillis;
 
@@ -98,8 +90,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20060-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Minimum pause between checkpoints",
-      toolTip = "The minimal pause in milliseconds before the next checkpoint is triggered.")
+      label = "i18n::BeamEnginesFlink.OptionsPauseBetweenCheckpoints.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsPauseBetweenCheckpoints.ToolTip")
   @HopMetadataProperty
   private String flinkMinPauseBetweenCheckpoints;
 
@@ -107,11 +99,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20070-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Fail on checkpointing errors?",
-      toolTip =
-          "Sets the expected behaviour for tasks in case that they encounter an error in their "
-              + "checkpointing procedure. If this is set to true, the task will fail on checkpointing error. "
-              + "If this is set to false, the task will only decline a the checkpoint and continue running. ")
+      label = "i18n::BeamEnginesFlink.OptionsFailOnCheckpointErrors.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsFailOnCheckpointErrors.ToolTip")
   @HopMetadataProperty
   private String flinkFailingOnCheckpointingErrors;
 
@@ -119,11 +108,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20080-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Number of execution retries",
-      toolTip =
-          "Sets the number of times that failed tasks are re-executed. "
-              + "A value of zero effectively disables fault tolerance. A value of -1 indicates "
-              + "that the system default value (as defined in the configuration) should be used.")
+      label = "i18n::BeamEnginesFlink.OptionsNumberOfRetries.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsNumberOfRetries.ToolTip")
   @HopMetadataProperty
   private String flinkNumberOfExecutionRetries;
 
@@ -131,10 +117,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20090-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Execution retry delay (ms)",
-      toolTip =
-          "Sets the delay in milliseconds between executions. A value of -1"
-              + "indicates that the default value should be used.")
+      label = "i18n::BeamEnginesFlink.OptionsRetryDelay.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsRetryDelay.ToolTip")
   @HopMetadataProperty
   private String flinkExecutionRetryDelay;
 
@@ -142,8 +126,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20100-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Object re-use",
-      toolTip = "Sets the behavior of reusing objects.")
+      label = "i18n::BeamEnginesFlink.OptionsObjectReuse.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsObjectReuse.ToolTip")
   @HopMetadataProperty
   private String flinkObjectReuse;
 
@@ -151,8 +135,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20110-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Disable metrics",
-      toolTip = "Disable Beam metrics in Flink Runner")
+      label = "i18n::BeamEnginesFlink.OptionsDisableMetrics.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsDisableMetrics.ToolTip")
   @HopMetadataProperty
   private String flinkDisableMetrics;
 
@@ -160,10 +144,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20120-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Disable externalized checkpoints",
-      toolTip =
-          "Enables or disables externalized checkpoints. "
-              + "Works in conjunction with CheckpointingInterval")
+      label = "i18n::BeamEnginesFlink.OptionsExternalizedCheckpointsEnabled.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsExternalizedCheckpointsEnabled.ToolTip")
   @HopMetadataProperty
   private String flinkExternalizedCheckpointsEnabled;
 
@@ -171,8 +153,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20130-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Retain externalized checkpoints on cancellation",
-      toolTip = "Sets the behavior of externalized checkpoints on cancellation.")
+      label = "i18n::BeamEnginesFlink.OptionsRetainExternalizedCheckpointsOnCancellation.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsRetainExternalizedCheckpointsOnCancellation.ToolTip")
   @HopMetadataProperty
   private String flinkRetainExternalizedCheckpointsOnCancellation;
 
@@ -180,8 +162,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20140-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Maximum bundle size",
-      toolTip = "The maximum number of elements in a bundle.")
+      label = "i18n::BeamEnginesFlink.OptionsMaxBundleSize.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsMaxBundleSize.ToolTip")
   @HopMetadataProperty
   private String flinkMaxBundleSize;
 
@@ -189,8 +171,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20150-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Maximum bundle time (ms)",
-      toolTip = "The maximum time to wait before finalising a bundle (in milliseconds).")
+      label = "i18n::BeamEnginesFlink.OptionsMaxBundleTimeMills.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsMaxBundleTimeMills.ToolTip")
   @HopMetadataProperty
   private String flinkMaxBundleTimeMills;
 
@@ -198,13 +180,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20160-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Shutdown sources on final watermark",
-      toolTip =
-          "Shuts down sources which have been idle for the configured time of milliseconds. Once a source has been "
-              + "shut down, checkpointing is not possible anymore. Shutting down the sources eventually leads to pipeline "
-              + "shutdown (=Flink job finishes) once all input has been processed. Unless explicitly set, this will "
-              + "default to Long.MAX_VALUE when checkpointing is enabled and to 0 when checkpointing is disabled. "
-              + "See https://issues.apache.org/jira/browse/FLINK-2491 for progress on this issue.")
+      label = "i18n::BeamEnginesFlink.OptionsShutdownSourcesAfterIdleMs.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsShutdownSourcesAfterIdleMs.ToolTip")
   @HopMetadataProperty
   private String flinkShutdownSourcesAfterIdleMs;
 
@@ -212,10 +189,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20170-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Latency tracking interval",
-      toolTip =
-          "Interval in milliseconds for sending latency tracking marks from the sources to the sinks. "
-              + "Interval value <= 0 disables the feature.")
+      label = "i18n::BeamEnginesFlink.OptionsLatencyTrackingInterval.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsLatencyTrackingInterval.ToolTip")
   @HopMetadataProperty
   private String flinkLatencyTrackingInterval;
 
@@ -223,8 +198,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20180-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Auto watermark interval",
-      toolTip = "The interval in milliseconds for automatic watermark emission.")
+      label = "i18n::BeamEnginesFlink.OptionsAutoWatermarkInterval.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsAutoWatermarkInterval.ToolTip")
   @HopMetadataProperty
   private String flinkAutoWatermarkInterval;
 
@@ -232,11 +207,8 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20190-flink-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Batch execution mode",
-      toolTip =
-          "Flink mode for data exchange of batch pipelines. "
-              + "Set this to BATCH_FORCED if pipelines get blocked, see "
-              + "https://issues.apache.org/jira/browse/FLINK-10672")
+      label = "i18n::BeamEnginesFlink.OptionsExecutionModeForBatch.Label",
+      toolTip = "i18n::BeamEnginesFlink.OptionsExecutionModeForBatch.ToolTip")
   @HopMetadataProperty
   private String flinkExecutionModeForBatch;
 
@@ -288,176 +260,178 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   @Override
   public PipelineOptions getPipelineOptions() throws HopException {
     try {
-    FlinkPipelineOptions options = PipelineOptionsFactory.as(FlinkPipelineOptions.class);
+      FlinkPipelineOptions options = PipelineOptionsFactory.as(FlinkPipelineOptions.class);
 
-    // Address of the Flink Master where the Pipeline should be executed. Can either be of the form
-    // \"host:port\" or one of the special values [local], [collection] or [auto].")
-    if (StringUtils.isNotEmpty(getFlinkMaster())) {
-      options.setFlinkMaster(resolve(getFlinkMaster()));
-    }
-
-    // The degree of parallelism to be used when distributing operations onto workers. If the
-    // parallelism is not set, the configured Flink default is used, or 1 if none can be found.")
-    if (StringUtils.isNotEmpty(getFlinkParallelism())) {
-      int value = Const.toInt(resolve(getFlinkParallelism()), -1);
-      if (value > 0) {
-        options.setParallelism(value);
+      // Address of the Flink Master where the Pipeline should be executed. Can either be of the
+      // form
+      // \"host:port\" or one of the special values [local], [collection] or [auto].")
+      if (StringUtils.isNotEmpty(getFlinkMaster())) {
+        options.setFlinkMaster(resolve(getFlinkMaster()));
       }
-    }
 
-    // The interval in milliseconds at which to trigger checkpoints of the running pipeline.
-    // Default: No checkpointing.")
-    if (StringUtils.isNotEmpty(getFlinkCheckpointingInterval())) {
-      long value = Const.toLong(resolve(getFlinkCheckpointingInterval()), -1L);
-      if (value > 0) {
-        options.setCheckpointingInterval(value);
+      // The degree of parallelism to be used when distributing operations onto workers. If the
+      // parallelism is not set, the configured Flink default is used, or 1 if none can be found.")
+      if (StringUtils.isNotEmpty(getFlinkParallelism())) {
+        int value = Const.toInt(resolve(getFlinkParallelism()), -1);
+        if (value > 0) {
+          options.setParallelism(value);
+        }
       }
-    }
 
-    // The checkpointing mode that defines consistency guarantee.")
-    if (StringUtils.isNotEmpty(getFlinkCheckpointingMode())) {
-      String modeString = resolve(getFlinkCheckpointingMode());
-      try {
-        CheckpointingMode mode = CheckpointingMode.valueOf(modeString);
-        options.setCheckpointingMode(modeString);
-      } catch (Exception e) {
-        throw new HopException("Unable to parse flink check pointing mode '" + modeString + "'", e);
+      // The interval in milliseconds at which to trigger checkpoints of the running pipeline.
+      // Default: No checkpointing.")
+      if (StringUtils.isNotEmpty(getFlinkCheckpointingInterval())) {
+        long value = Const.toLong(resolve(getFlinkCheckpointingInterval()), -1L);
+        if (value > 0) {
+          options.setCheckpointingInterval(value);
+        }
       }
-    }
 
-    // The maximum time in milliseconds that a checkpoint may take before being discarded.")
-    if (StringUtils.isNotEmpty(getFlinkCheckpointTimeoutMillis())) {
-      long value = Const.toLong(resolve(getFlinkCheckpointTimeoutMillis()), -1L);
-      if (value > 0) {
-        options.setCheckpointTimeoutMillis(value);
+      // The checkpointing mode that defines consistency guarantee.")
+      if (StringUtils.isNotEmpty(getFlinkCheckpointingMode())) {
+        String modeString = resolve(getFlinkCheckpointingMode());
+        try {
+          CheckpointingMode mode = CheckpointingMode.valueOf(modeString);
+          options.setCheckpointingMode(modeString);
+        } catch (Exception e) {
+          throw new HopException(
+              "Unable to parse flink check pointing mode '" + modeString + "'", e);
+        }
       }
-    }
 
-    // The minimal pause in milliseconds before the next checkpoint is triggered.")
-    if (StringUtils.isNotEmpty(getFlinkMinPauseBetweenCheckpoints())) {
-      long value = Const.toLong(resolve(getFlinkMinPauseBetweenCheckpoints()), -1L);
-      if (value > 0) {
-        options.setMinPauseBetweenCheckpoints(value);
+      // The maximum time in milliseconds that a checkpoint may take before being discarded.")
+      if (StringUtils.isNotEmpty(getFlinkCheckpointTimeoutMillis())) {
+        long value = Const.toLong(resolve(getFlinkCheckpointTimeoutMillis()), -1L);
+        if (value > 0) {
+          options.setCheckpointTimeoutMillis(value);
+        }
       }
-    }
 
-    // Sets the number of times that failed tasks are re-executed. A value of zero effectively
-    // disables fault tolerance. A value of -1 indicates that the system default value (as defined
-    // in the
-    // configuration) should be used.")
-    if (StringUtils.isNotEmpty(getFlinkNumberOfExecutionRetries())) {
-      int value = Const.toInt(resolve(getFlinkNumberOfExecutionRetries()), -1);
-      if (value >= 0) {
-        options.setNumberOfExecutionRetries(value);
+      // The minimal pause in milliseconds before the next checkpoint is triggered.")
+      if (StringUtils.isNotEmpty(getFlinkMinPauseBetweenCheckpoints())) {
+        long value = Const.toLong(resolve(getFlinkMinPauseBetweenCheckpoints()), -1L);
+        if (value > 0) {
+          options.setMinPauseBetweenCheckpoints(value);
+        }
       }
-    }
 
-    // Sets the delay in milliseconds between executions. A value of {@code -1} indicates that the
-    // default value should be used.")
-    if (StringUtils.isNotEmpty(getFlinkExecutionRetryDelay())) {
-      long value = Const.toLong(resolve(getFlinkExecutionRetryDelay()), -1L);
-      if (value > 0) {
-        options.setExecutionRetryDelay(value);
+      // Sets the number of times that failed tasks are re-executed. A value of zero effectively
+      // disables fault tolerance. A value of -1 indicates that the system default value (as defined
+      // in the
+      // configuration) should be used.")
+      if (StringUtils.isNotEmpty(getFlinkNumberOfExecutionRetries())) {
+        int value = Const.toInt(resolve(getFlinkNumberOfExecutionRetries()), -1);
+        if (value >= 0) {
+          options.setNumberOfExecutionRetries(value);
+        }
       }
-    }
 
-    // Sets the behavior of reusing objects.")
-    if (StringUtils.isNotEmpty(getFlinkObjectReuse())) {
-      String str = resolve(getFlinkObjectReuse());
-      boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
-      options.setObjectReuse(value);
-    }
-
-    // Enable/disable Beam metrics in Flink Runner")
-    if (StringUtils.isNotEmpty(getFlinkDisableMetrics())) {
-      String str = resolve(getFlinkDisableMetrics());
-      boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
-      options.setDisableMetrics(!value);
-    }
-
-    // Enables or disables externalized checkpoints. Works in conjunction with
-    // CheckpointingInterval")
-    if (StringUtils.isNotEmpty(getFlinkExternalizedCheckpointsEnabled())) {
-      String str = resolve(getFlinkExternalizedCheckpointsEnabled());
-      boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
-      options.setExternalizedCheckpointsEnabled(value);
-    }
-
-    // Sets the behavior of externalized checkpoints on cancellation.")
-    if (StringUtils.isNotEmpty(getFlinkRetainExternalizedCheckpointsOnCancellation())) {
-      String str = resolve(getFlinkRetainExternalizedCheckpointsOnCancellation());
-      boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
-      options.setRetainExternalizedCheckpointsOnCancellation(value);
-    }
-
-    // The maximum number of elements in a bundle.")
-    if (StringUtils.isNotEmpty(getFlinkMaxBundleSize())) {
-      long value = Const.toLong(resolve(getFlinkMaxBundleSize()), -1L);
-      if (value > 0) {
-        options.setMaxBundleSize(value);
+      // Sets the delay in milliseconds between executions. A value of {@code -1} indicates that the
+      // default value should be used.")
+      if (StringUtils.isNotEmpty(getFlinkExecutionRetryDelay())) {
+        long value = Const.toLong(resolve(getFlinkExecutionRetryDelay()), -1L);
+        if (value > 0) {
+          options.setExecutionRetryDelay(value);
+        }
       }
-    }
 
-    // The maximum time to wait before finalising a bundle (in milliseconds).")
-    if (StringUtils.isNotEmpty(getFlinkMaxBundleTimeMills())) {
-      long value = Const.toLong(resolve(getFlinkMaxBundleTimeMills()), -1L);
-      if (value > 0) {
-        options.setMaxBundleSize(value);
+      // Sets the behavior of reusing objects.")
+      if (StringUtils.isNotEmpty(getFlinkObjectReuse())) {
+        String str = resolve(getFlinkObjectReuse());
+        boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
+        options.setObjectReuse(value);
       }
-    }
 
-    // Fail on checkpointing errors?
-    if (StringUtils.isNotEmpty(getFlinkFailingOnCheckpointingErrors())) {
-      String str = resolve(getFlinkFailingOnCheckpointingErrors());
-      boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
-      options.setFailOnCheckpointingErrors(value);
-    }
-
-    // If set, shutdown sources when their watermark reaches +Inf.")
-    if (StringUtils.isNotEmpty(getFlinkShutdownSourcesAfterIdleMs())) {
-      String str = resolve(getFlinkShutdownSourcesAfterIdleMs());
-      long value = Const.toLong(str, -1L);
-      options.setShutdownSourcesAfterIdleMs(value);
-    }
-
-    // Interval in milliseconds for sending latency tracking marks from the sources to the sinks.
-    // Interval value <= 0 disables the feature.")
-    if (StringUtils.isNotEmpty(getFlinkLatencyTrackingInterval())) {
-      long value = Const.toLong(resolve(getFlinkLatencyTrackingInterval()), -1L);
-      if (value > 0) {
-        options.setLatencyTrackingInterval(value);
+      // Enable/disable Beam metrics in Flink Runner")
+      if (StringUtils.isNotEmpty(getFlinkDisableMetrics())) {
+        String str = resolve(getFlinkDisableMetrics());
+        boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
+        options.setDisableMetrics(!value);
       }
-    }
 
-    // The interval in milliseconds for automatic watermark emission.")
-    if (StringUtils.isNotEmpty(getFlinkAutoWatermarkInterval())) {
-      long value = Const.toLong(resolve(getFlinkAutoWatermarkInterval()), -1L);
-      if (value > 0) {
-        options.setAutoWatermarkInterval(value);
+      // Enables or disables externalized checkpoints. Works in conjunction with
+      // CheckpointingInterval")
+      if (StringUtils.isNotEmpty(getFlinkExternalizedCheckpointsEnabled())) {
+        String str = resolve(getFlinkExternalizedCheckpointsEnabled());
+        boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
+        options.setExternalizedCheckpointsEnabled(value);
       }
-    }
 
-    // Flink mode for data exchange of batch pipelines. Reference {@link
-    // org.apache.flink.api.common.ExecutionMode}.
-    // Set this to BATCH_FORCED if pipelines get blocked, see
-    // https://issues.apache.org/jira/browse/FLINK-10672")
-    if (StringUtils.isNotEmpty(getFlinkExecutionModeForBatch())) {
-      String modeString = resolve(getFlinkExecutionModeForBatch());
-      ExecutionMode mode = ExecutionMode.valueOf(modeString);
-      try {
-        options.setExecutionModeForBatch(modeString);
-      } catch (Exception e) {
-        throw new HopException(
-            "Unable to parse flink execution mode for batch '" + modeString + "'", e);
+      // Sets the behavior of externalized checkpoints on cancellation.")
+      if (StringUtils.isNotEmpty(getFlinkRetainExternalizedCheckpointsOnCancellation())) {
+        String str = resolve(getFlinkRetainExternalizedCheckpointsOnCancellation());
+        boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
+        options.setRetainExternalizedCheckpointsOnCancellation(value);
       }
-    }
 
-    if (StringUtils.isNotEmpty(getFatJar())) {
-      options.setFilesToStage(Arrays.asList(resolve(fatJar)));
-    }
+      // The maximum number of elements in a bundle.")
+      if (StringUtils.isNotEmpty(getFlinkMaxBundleSize())) {
+        long value = Const.toLong(resolve(getFlinkMaxBundleSize()), -1L);
+        if (value > 0) {
+          options.setMaxBundleSize(value);
+        }
+      }
 
-    return options;
-    } catch(Throwable e) {
+      // The maximum time to wait before finalising a bundle (in milliseconds).")
+      if (StringUtils.isNotEmpty(getFlinkMaxBundleTimeMills())) {
+        long value = Const.toLong(resolve(getFlinkMaxBundleTimeMills()), -1L);
+        if (value > 0) {
+          options.setMaxBundleSize(value);
+        }
+      }
+
+      // Fail on checkpointing errors?
+      if (StringUtils.isNotEmpty(getFlinkFailingOnCheckpointingErrors())) {
+        String str = resolve(getFlinkFailingOnCheckpointingErrors());
+        boolean value = "Y".equalsIgnoreCase(str) || "TRUE".equalsIgnoreCase(str);
+        options.setFailOnCheckpointingErrors(value);
+      }
+
+      // If set, shutdown sources when their watermark reaches +Inf.")
+      if (StringUtils.isNotEmpty(getFlinkShutdownSourcesAfterIdleMs())) {
+        String str = resolve(getFlinkShutdownSourcesAfterIdleMs());
+        long value = Const.toLong(str, -1L);
+        options.setShutdownSourcesAfterIdleMs(value);
+      }
+
+      // Interval in milliseconds for sending latency tracking marks from the sources to the sinks.
+      // Interval value <= 0 disables the feature.")
+      if (StringUtils.isNotEmpty(getFlinkLatencyTrackingInterval())) {
+        long value = Const.toLong(resolve(getFlinkLatencyTrackingInterval()), -1L);
+        if (value > 0) {
+          options.setLatencyTrackingInterval(value);
+        }
+      }
+
+      // The interval in milliseconds for automatic watermark emission.")
+      if (StringUtils.isNotEmpty(getFlinkAutoWatermarkInterval())) {
+        long value = Const.toLong(resolve(getFlinkAutoWatermarkInterval()), -1L);
+        if (value > 0) {
+          options.setAutoWatermarkInterval(value);
+        }
+      }
+
+      // Flink mode for data exchange of batch pipelines. Reference {@link
+      // org.apache.flink.api.common.ExecutionMode}.
+      // Set this to BATCH_FORCED if pipelines get blocked, see
+      // https://issues.apache.org/jira/browse/FLINK-10672")
+      if (StringUtils.isNotEmpty(getFlinkExecutionModeForBatch())) {
+        String modeString = resolve(getFlinkExecutionModeForBatch());
+        ExecutionMode mode = ExecutionMode.valueOf(modeString);
+        try {
+          options.setExecutionModeForBatch(modeString);
+        } catch (Exception e) {
+          throw new HopException(
+              "Unable to parse flink execution mode for batch '" + modeString + "'", e);
+        }
+      }
+
+      if (StringUtils.isNotEmpty(getFatJar())) {
+        options.setFilesToStage(Arrays.asList(resolve(fatJar)));
+      }
+
+      return options;
+    } catch (Throwable e) {
       throw new HopException("Error building Flink pipeline options", e);
     }
   }
@@ -476,7 +450,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkMaster;
   }
 
-  /** @param flinkMaster The flinkMaster to set */
+  /**
+   * @param flinkMaster The flinkMaster to set
+   */
   public void setFlinkMaster(String flinkMaster) {
     this.flinkMaster = flinkMaster;
   }
@@ -490,7 +466,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkParallelism;
   }
 
-  /** @param flinkParallelism The flinkParallelism to set */
+  /**
+   * @param flinkParallelism The flinkParallelism to set
+   */
   public void setFlinkParallelism(String flinkParallelism) {
     this.flinkParallelism = flinkParallelism;
   }
@@ -504,7 +482,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkCheckpointingInterval;
   }
 
-  /** @param flinkCheckpointingInterval The flinkCheckpointingInterval to set */
+  /**
+   * @param flinkCheckpointingInterval The flinkCheckpointingInterval to set
+   */
   public void setFlinkCheckpointingInterval(String flinkCheckpointingInterval) {
     this.flinkCheckpointingInterval = flinkCheckpointingInterval;
   }
@@ -518,7 +498,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkCheckpointingMode;
   }
 
-  /** @param flinkCheckpointingMode The flinkCheckpointingMode to set */
+  /**
+   * @param flinkCheckpointingMode The flinkCheckpointingMode to set
+   */
   public void setFlinkCheckpointingMode(String flinkCheckpointingMode) {
     this.flinkCheckpointingMode = flinkCheckpointingMode;
   }
@@ -532,7 +514,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkCheckpointTimeoutMillis;
   }
 
-  /** @param flinkCheckpointTimeoutMillis The flinkCheckpointTimeoutMillis to set */
+  /**
+   * @param flinkCheckpointTimeoutMillis The flinkCheckpointTimeoutMillis to set
+   */
   public void setFlinkCheckpointTimeoutMillis(String flinkCheckpointTimeoutMillis) {
     this.flinkCheckpointTimeoutMillis = flinkCheckpointTimeoutMillis;
   }
@@ -546,7 +530,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkMinPauseBetweenCheckpoints;
   }
 
-  /** @param flinkMinPauseBetweenCheckpoints The flinkMinPauseBetweenCheckpoints to set */
+  /**
+   * @param flinkMinPauseBetweenCheckpoints The flinkMinPauseBetweenCheckpoints to set
+   */
   public void setFlinkMinPauseBetweenCheckpoints(String flinkMinPauseBetweenCheckpoints) {
     this.flinkMinPauseBetweenCheckpoints = flinkMinPauseBetweenCheckpoints;
   }
@@ -560,7 +546,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkFailingOnCheckpointingErrors;
   }
 
-  /** @param flinkFailingOnCheckpointingErrors The flinkFailingOnCheckpointingErrors to set */
+  /**
+   * @param flinkFailingOnCheckpointingErrors The flinkFailingOnCheckpointingErrors to set
+   */
   public void setFlinkFailingOnCheckpointingErrors(String flinkFailingOnCheckpointingErrors) {
     this.flinkFailingOnCheckpointingErrors = flinkFailingOnCheckpointingErrors;
   }
@@ -574,7 +562,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkNumberOfExecutionRetries;
   }
 
-  /** @param flinkNumberOfExecutionRetries The flinkNumberOfExecutionRetries to set */
+  /**
+   * @param flinkNumberOfExecutionRetries The flinkNumberOfExecutionRetries to set
+   */
   public void setFlinkNumberOfExecutionRetries(String flinkNumberOfExecutionRetries) {
     this.flinkNumberOfExecutionRetries = flinkNumberOfExecutionRetries;
   }
@@ -588,7 +578,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkExecutionRetryDelay;
   }
 
-  /** @param flinkExecutionRetryDelay The flinkExecutionRetryDelay to set */
+  /**
+   * @param flinkExecutionRetryDelay The flinkExecutionRetryDelay to set
+   */
   public void setFlinkExecutionRetryDelay(String flinkExecutionRetryDelay) {
     this.flinkExecutionRetryDelay = flinkExecutionRetryDelay;
   }
@@ -602,7 +594,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkObjectReuse;
   }
 
-  /** @param flinkObjectReuse The flinkObjectReuse to set */
+  /**
+   * @param flinkObjectReuse The flinkObjectReuse to set
+   */
   public void setFlinkObjectReuse(String flinkObjectReuse) {
     this.flinkObjectReuse = flinkObjectReuse;
   }
@@ -616,7 +610,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkDisableMetrics;
   }
 
-  /** @param flinkDisableMetrics The flinkDisableMetrics to set */
+  /**
+   * @param flinkDisableMetrics The flinkDisableMetrics to set
+   */
   public void setFlinkDisableMetrics(String flinkDisableMetrics) {
     this.flinkDisableMetrics = flinkDisableMetrics;
   }
@@ -630,7 +626,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkExternalizedCheckpointsEnabled;
   }
 
-  /** @param flinkExternalizedCheckpointsEnabled The flinkExternalizedCheckpointsEnabled to set */
+  /**
+   * @param flinkExternalizedCheckpointsEnabled The flinkExternalizedCheckpointsEnabled to set
+   */
   public void setFlinkExternalizedCheckpointsEnabled(String flinkExternalizedCheckpointsEnabled) {
     this.flinkExternalizedCheckpointsEnabled = flinkExternalizedCheckpointsEnabled;
   }
@@ -663,7 +661,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkMaxBundleSize;
   }
 
-  /** @param flinkMaxBundleSize The flinkMaxBundleSize to set */
+  /**
+   * @param flinkMaxBundleSize The flinkMaxBundleSize to set
+   */
   public void setFlinkMaxBundleSize(String flinkMaxBundleSize) {
     this.flinkMaxBundleSize = flinkMaxBundleSize;
   }
@@ -677,7 +677,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkMaxBundleTimeMills;
   }
 
-  /** @param flinkMaxBundleTimeMills The flinkMaxBundleTimeMills to set */
+  /**
+   * @param flinkMaxBundleTimeMills The flinkMaxBundleTimeMills to set
+   */
   public void setFlinkMaxBundleTimeMills(String flinkMaxBundleTimeMills) {
     this.flinkMaxBundleTimeMills = flinkMaxBundleTimeMills;
   }
@@ -691,7 +693,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkShutdownSourcesAfterIdleMs;
   }
 
-  /** @param flinkShutdownSourcesAfterIdleMs The flinkShutdownSourcesAfterIdleMs to set */
+  /**
+   * @param flinkShutdownSourcesAfterIdleMs The flinkShutdownSourcesAfterIdleMs to set
+   */
   public void setFlinkShutdownSourcesAfterIdleMs(String flinkShutdownSourcesAfterIdleMs) {
     this.flinkShutdownSourcesAfterIdleMs = flinkShutdownSourcesAfterIdleMs;
   }
@@ -705,7 +709,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkLatencyTrackingInterval;
   }
 
-  /** @param flinkLatencyTrackingInterval The flinkLatencyTrackingInterval to set */
+  /**
+   * @param flinkLatencyTrackingInterval The flinkLatencyTrackingInterval to set
+   */
   public void setFlinkLatencyTrackingInterval(String flinkLatencyTrackingInterval) {
     this.flinkLatencyTrackingInterval = flinkLatencyTrackingInterval;
   }
@@ -719,7 +725,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkAutoWatermarkInterval;
   }
 
-  /** @param flinkAutoWatermarkInterval The flinkAutoWatermarkInterval to set */
+  /**
+   * @param flinkAutoWatermarkInterval The flinkAutoWatermarkInterval to set
+   */
   public void setFlinkAutoWatermarkInterval(String flinkAutoWatermarkInterval) {
     this.flinkAutoWatermarkInterval = flinkAutoWatermarkInterval;
   }
@@ -733,7 +741,9 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     return flinkExecutionModeForBatch;
   }
 
-  /** @param flinkExecutionModeForBatch The flinkExecutionModeForBatch to set */
+  /**
+   * @param flinkExecutionModeForBatch The flinkExecutionModeForBatch to set
+   */
   public void setFlinkExecutionModeForBatch(String flinkExecutionModeForBatch) {
     this.flinkExecutionModeForBatch = flinkExecutionModeForBatch;
   }

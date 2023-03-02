@@ -60,8 +60,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20000-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "The Spark master",
-      toolTip = "The url of the spark master to connect to, (e.g. spark://host:port, local[4]).")
+      label = "i18n::BeamEnginesSpark.OptionsMaster.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsMaster.ToolTip")
   @HopMetadataProperty
   private String sparkMaster;
 
@@ -69,8 +69,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20010-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Streaming: batch interval (ms)",
-      toolTip = "Batch interval for Spark streaming in milliseconds.")
+      label = "i18n::BeamEnginesSpark.OptionsBatchIntervalMillis.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsBatchIntervalMillis.ToolTip")
   @HopMetadataProperty
   private String sparkBatchIntervalMillis;
 
@@ -78,10 +78,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20020-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.FOLDER,
-      label = "Streaming: checkpoint directory",
-      toolTip =
-          "A checkpoint directory for streaming resilience, ignored in batch. "
-              + "For durability, a reliable filesystem such as HDFS/S3/GS is necessary.")
+      label = "i18n::BeamEnginesSpark.OptionsCheckpointDir.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsCheckpointDir.ToolTip")
   @HopMetadataProperty
   private String sparkCheckpointDir;
 
@@ -89,11 +87,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20030-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Streaming: checkpoint duration (ms)",
-      toolTip =
-          "The period to checkpoint (in Millis). If not set, Spark will default "
-              + "to Max(slideDuration, Seconds(10)). This PipelineOptions default (-1) will end-up "
-              + "with the described Spark default.")
+      label = "i18n::BeamEnginesSpark.OptionsCheckpointDurationMillis.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsCheckpointDurationMillis.ToolTip")
   @HopMetadataProperty
   private String sparkCheckpointDurationMillis;
 
@@ -101,8 +96,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20040-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.CHECKBOX,
-      label = "Enable Metrics sink",
-      toolTip = "Enable/disable sending aggregator values to Spark's metric sinks")
+      label = "i18n::BeamEnginesSpark.OptionsEnableSparkMetricSinks.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsEnableSparkMetricSinks.ToolTip")
   @HopMetadataProperty
   private boolean sparkEnableSparkMetricSinks;
 
@@ -110,8 +105,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20050-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Streaming: maximum records per batch",
-      toolTip = "Max records per micro-batch. For streaming sources only.")
+      label = "i18n::BeamEnginesSpark.OptionsMaxRecordsPerBatch.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsMaxRecordsPerBatch.ToolTip")
   @HopMetadataProperty
   private String sparkMaxRecordsPerBatch;
 
@@ -119,8 +114,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20060-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Streaming: Minimum read time (ms)",
-      toolTip = "Minimum time to spend on read, for each micro-batch.")
+      label = "i18n::BeamEnginesSpark.OptionsMinReadTimeMillis.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsMinReadTimeMillis.ToolTip")
   @HopMetadataProperty
   private String sparkMinReadTimeMillis;
 
@@ -128,10 +123,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20070-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Streaming: read time percentage",
-      toolTip =
-          "A value between 0-1 to describe the percentage of a micro-batch dedicated "
-              + "to reading from UnboundedSource.")
+      label = "i18n::BeamEnginesSpark.OptionsReadTimePercentage.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsReadTimePercentage.ToolTip")
   @HopMetadataProperty
   private String sparkReadTimePercentage;
 
@@ -139,11 +132,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20080-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Bundle size",
-      toolTip =
-          "If set bundleSize will be used for splitting BoundedSources, otherwise default to "
-              + "splitting BoundedSources on Spark defaultParallelism. Most effective when used with "
-              + "Spark dynamicAllocation.")
+      label = "i18n::BeamEnginesSpark.OptionsBundleSize.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsBundleSize.ToolTip")
   @HopMetadataProperty
   private String sparkBundleSize;
 
@@ -151,8 +141,8 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
       order = "20090-spark-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.TEXT,
-      label = "Application name",
-      toolTip = "Sets the Spark application name")
+      label = "i18n::BeamEnginesSpark.OptionsAppName.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsAppName.ToolTip")
   @HopMetadataProperty
   private String sparkAppName;
 

@@ -51,8 +51,8 @@ public class ActionPipelineGuiPlugin {
       id = "pipeline-graph-transform-10300-copy-pipeline-action",
       parentId = HopGuiPipelineContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Copy as pipeline action",
-      tooltip = "Copy this pipeline as an action so you can paste it in a workflow",
+      name = "i18n::ActionPipeline.Copy.Name",
+      tooltip = "i18n::ActionPipeline.Copy.Description",
       image = "ui/images/copy.svg",
       category = "Basic",
       categoryOrder = "1")

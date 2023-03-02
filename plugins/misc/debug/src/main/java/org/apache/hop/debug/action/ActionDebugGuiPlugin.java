@@ -38,8 +38,8 @@ public class ActionDebugGuiPlugin {
       id = "workflow-graph-action-11001-clear-logging",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Clear Custom Logging",
-      tooltip = "Clear custom log settings ",
+      name = "i18n::DebugAction.ClearCustomLogging.Label",
+      tooltip = "i18n::DebugAction.ClearCustomLogging.ToolTip",
       image = "ui/images/debug.svg",
       category = "Logging",
       categoryOrder = "7")
@@ -58,8 +58,8 @@ public class ActionDebugGuiPlugin {
       id = "workflow-graph-action-11000-clear-logging",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit Custom Logging",
-      tooltip = "Edit the custom log settings for this action",
+      name = "i18n::DebugAction.EditCustomLogging.Label",
+      tooltip = "i18n::DebugAction.EditCustomLogging.ToolTip",
       image = "ui/images/debug.svg",
       category = "Logging",
       categoryOrder = "7")

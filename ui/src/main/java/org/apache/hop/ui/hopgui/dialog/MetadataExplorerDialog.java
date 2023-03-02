@@ -305,7 +305,7 @@ public class MetadataExplorerDialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_NEW,
-      toolTip = "New",
+      toolTip = "i18n::MetadataExplorerDialog.ToolbarItem.New.ToolTip",
       image = "ui/images/new.svg")
   public void newMetadata() {
     MetadataManager<IHopMetadata> manager = getActiveMetadataManger();
@@ -317,7 +317,7 @@ public class MetadataExplorerDialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_EDIT,
-      toolTip = "Edit",
+      toolTip = "i18n::MetadataExplorerDialog.ToolbarItem.Edit.ToolTip",
       image = "ui/images/edit.svg")
   public void editMetadata() {
     MetadataManager<IHopMetadata> manager = getActiveMetadataManger();
@@ -329,7 +329,7 @@ public class MetadataExplorerDialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DELETE,
-      toolTip = "Delete",
+      toolTip = "i18n::MetadataExplorerDialog.ToolbarItem.Delete.ToolTip",
       image = "ui/images/delete.svg")
   public void deleteMetadata() {
     MetadataManager<IHopMetadata> manager = getActiveMetadataManger();
@@ -341,7 +341,7 @@ public class MetadataExplorerDialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_DUPLICATE,
-      toolTip = "Create a copy",
+      toolTip = "i18n::MetadataExplorerDialog.ToolbarItem.Copy.ToolTip",
       image = "ui/images/copy.svg")
   public void duplicateMetadata() {
     MetadataManager<IHopMetadata> manager = getActiveMetadataManger();
@@ -390,7 +390,7 @@ public class MetadataExplorerDialog {
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ITEM_REFRESH,
-      toolTip = "Refresh",
+      toolTip = "i18n::MetadataExplorerDialog.ToolbarItem.Refresh.ToolTip",
       image = "ui/images/refresh.svg")
   public void refreshTree() {
     try {

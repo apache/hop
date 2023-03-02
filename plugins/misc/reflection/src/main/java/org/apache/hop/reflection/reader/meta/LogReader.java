@@ -44,8 +44,8 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
       order = "10000-pipeline-filename",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.FILENAME,
-      label = "Pipeline filename",
-      toolTip = "This is the filename of a pipeline to read pipeline logging information",
+      label = "i18n::LogReaderEditor.PipelineFilename.Label",
+      toolTip = "i18n::LogReaderEditor.PipelineFilename.ToolTip",
       typeFilename = TypePipelineFile.class)
   @HopMetadataProperty
   private String pipelineFilename;
@@ -54,8 +54,8 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
       order = "10100-transform-filename",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.FILENAME,
-      label = "Transform filename",
-      toolTip = "This is the filename of a pipeline to read transform logging information",
+      label = "i18n::LogReaderEditor.TransformFilename.Label",
+      toolTip = "i18n::LogReaderEditor.TransformFilename.ToolTip",
       typeFilename = TypePipelineFile.class)
   @HopMetadataProperty
   private String transformFilename;
@@ -64,8 +64,8 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
       order = "10200-workflow-filename",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.FILENAME,
-      label = "Workflow filename",
-      toolTip = "This is the filename of a pipeline to read workflow logging information",
+      label = "i18n::LogReaderEditor.WorkflowFilename.Label",
+      toolTip = "i18n::LogReaderEditor.WorkflowFilename.ToolTip",
       typeFilename = TypePipelineFile.class)
   @HopMetadataProperty
   private String workflowFilename;
@@ -74,8 +74,8 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
       order = "10300-action-filename",
       parentId = GUI_PLUGIN_ELEMENT_PARENT_ID,
       type = GuiElementType.FILENAME,
-      label = "Action filename",
-      toolTip = "This is the filename of a pipeline to read action logging information",
+      label = "i18n::LogReaderEditor.ActionFilename.Label",
+      toolTip = "i18n::LogReaderEditor.ActionFilename.ToolTip",
       typeFilename = TypePipelineFile.class)
   @HopMetadataProperty
   private String actionFilename;

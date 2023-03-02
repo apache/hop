@@ -52,8 +52,8 @@ public class ActionWorkflowGuiPlugin {
       id = "workflow-graph-workflow-copy-action",
       parentId = HopGuiWorkflowContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Copy as workflow action",
-      tooltip = "Copy this workflow as an action so you can paste it in another workflow",
+      name = "i18n::ActionWorkflow.Copy.Name",
+      tooltip = "i18n::ActionWorkflow.Copy.Description",
       image = "ui/images/copy.svg",
       category = "Basic",
       categoryOrder = "1")

@@ -2060,7 +2060,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
       type = GuiActionType.Delete,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteNote.Text",
-      tooltip = "HopGuiWorkflowGraph.ContextualAction.DeleteNote.Tooltip",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.DeleteNote.Tooltip",
       image = "ui/images/delete.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
@@ -3343,7 +3343,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         });
 
     ToolItem item = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
-    item.setToolTipText(TranslateUtil.translate("i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults", PKG));
+    item.setToolTipText(
+        TranslateUtil.translate(
+            "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.ShowExecutionResults", PKG));
     item.setImage(GuiResource.getInstance().getImageShowResults());
   }
 
@@ -3404,7 +3406,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     ToolItem toolItem = toolBarWidgets.findToolItem(TOOLBAR_ITEM_SHOW_EXECUTION_RESULTS);
-    toolItem.setToolTipText(TranslateUtil.translate("i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.HideExecutionResults", PKG));
+    toolItem.setToolTipText(
+        TranslateUtil.translate(
+            "i18n:org.apache.hop.ui.hopgui:HopGui.Tooltip.HideExecutionResults", PKG));
     toolItem.setImage(GuiResource.getInstance().getImageHideResults());
   }
 

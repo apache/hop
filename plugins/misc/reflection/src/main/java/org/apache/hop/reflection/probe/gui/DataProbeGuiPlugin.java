@@ -25,6 +25,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
@@ -49,12 +50,14 @@ import java.util.List;
 @GuiPlugin
 public class DataProbeGuiPlugin {
 
+  private static final Class<?> PKG = DataProbeGuiPlugin.class; // For Translator
+
   @GuiContextAction(
       id = "pipeline-graph-transform-9000-add-probe",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Info,
-      name = "Add data probe",
-      tooltip = "Streams the rows to a pipeline defined in a selected pipeline probe",
+      name = "i18n::PipelineProbeGuiAction.AddDataProbe.Label",
+      tooltip = "i18n::PipelineProbeGuiAction.AddDataProbe.ToolTip",
       image = "probe.svg",
       category = "Preview",
       categoryOrder = "3")
@@ -81,9 +84,9 @@ public class DataProbeGuiPlugin {
       List<String> pipelineProbeNames = serializer.listObjectNames();
       if (pipelineProbeNames.isEmpty()) {
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText("No probes available");
+        box.setText(BaseMessages.getString(PKG, "PipelineProbeGuiAction.NoProbeMessagebox.Label"));
         box.setMessage(
-            "There are no pipeline probe objects defined yet.  Do you want to create one?");
+            BaseMessages.getString(PKG, "PipelineProbeGuiAction.NoProbeMessagebox.Description"));
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
           // Create a new pipeline probe...
@@ -101,8 +104,8 @@ public class DataProbeGuiPlugin {
             new EnterSelectionDialog(
                 hopGui.getShell(),
                 pipelineProbeNames.toArray(new String[0]),
-                "Select pipeline probe",
-                "Select the pipeline probe to add this pipeline transform to");
+                BaseMessages.getString(PKG, "PipelineProbeGuiAction.ProbeSelect.Label"),
+                BaseMessages.getString(PKG, "PipelineProbeGuiAction.ProbeSelect.Description"));
         String pipelineProbeName = dialog.open();
         if (pipelineProbeName != null) {
           pipelineProbe = serializer.load(pipelineProbeName);
@@ -159,8 +162,11 @@ public class DataProbeGuiPlugin {
     } catch (Exception e) {
       new ErrorDialog(
           hopGui.getShell(),
-          "Error",
-          "Error adding pipeline probe to transform '" + transformMeta.getName() + "'",
+          BaseMessages.getString(PKG, "PipelineProbeGuiAction.ErrorDialog.Label"),
+          BaseMessages.getString(PKG, "PipelineProbeGuiAction.ErrorDialog.Description")
+              + " '"
+              + transformMeta.getName()
+              + "'",
           e);
     }
   }

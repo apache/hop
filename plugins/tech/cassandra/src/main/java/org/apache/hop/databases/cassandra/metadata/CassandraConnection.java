@@ -61,8 +61,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_HOSTNAME,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Hostname",
-      toolTip = "Specify the hostname of your cassandra server")
+      label = "i18n::CassandraMetadata.Hostname.Label",
+      toolTip = "i18n::CassandraMetadata.Hostname.ToolTip")
   private String hostname;
 
   @HopMetadataProperty
@@ -70,8 +70,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_PORT,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Port",
-      toolTip = "The default port of a cassandra server is 9042")
+      label = "i18n::CassandraMetadata.Port.Label",
+      toolTip = "i18n::CassandraMetadata.Port.ToolTip")
   private String port = "9042";
 
   @HopMetadataProperty
@@ -79,9 +79,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_DATA_CENTER,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Local data center",
-      toolTip =
-          "The local data center needs to be specified when you connect to specific hostname(s), aka contact points")
+      label = "i18n::CassandraMetadata.LocalDataCenter.Label",
+      toolTip = "i18n::CassandraMetadata.LocalDataCenter.ToolTip")
   private String localDataCenter;
 
   @HopMetadataProperty
@@ -89,8 +88,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_USERNAME,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Username",
-      toolTip = "The user to log in with")
+      label = "i18n::CassandraMetadata.Username.Label",
+      toolTip = "i18n::CassandraMetadata.Username.ToolTip")
   private String username;
 
   @HopMetadataProperty
@@ -99,8 +98,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       type = GuiElementType.TEXT,
       password = true,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Password",
-      toolTip = "The password to log in with")
+      label = "i18n::CassandraMetadata.Password.Label",
+      toolTip = "i18n::CassandraMetadata.Password.ToolTip")
   private String password;
 
   @HopMetadataProperty
@@ -108,8 +107,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_SOCKET_TIMEOUT,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Socket timeout",
-      toolTip = "The socket timeout to use")
+      label = "i18n::CassandraMetadata.SocketTimeout.Label",
+      toolTip = "i18n::CassandraMetadata.SocketTimeout.ToolTip")
   private String socketTimeout;
 
   @HopMetadataProperty
@@ -117,8 +116,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_KEYSPACE,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Keyspace",
-      toolTip = "The keyspace to use")
+      label = "i18n::CassandraMetadata.Keyspace.Label",
+      toolTip = "i18n::CassandraMetadata.Keyspace.ToolTip")
   private String keyspace;
 
   @HopMetadataProperty
@@ -126,8 +125,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_SCHEMA_HOSTNAME,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Schema hostname",
-      toolTip = "The Cassandra node to put schema updates through")
+      label = "i18n::CassandraMetadata.SchemaHostname.Label",
+      toolTip = "i18n::CassandraMetadata.SchemaHostname.ToolTip")
   private String schemaHostname;
 
   @HopMetadataProperty
@@ -135,8 +134,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_SCHEMA_PORT,
       type = GuiElementType.TEXT,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Schema port",
-      toolTip = "The port of the Cassandra node to put schema updates through")
+      label = "i18n::CassandraMetadata.SchemaPort.Label",
+      toolTip = "i18n::CassandraMetadata.SchemaPort.ToolTip")
   private String schemaPort = "";
 
   @HopMetadataProperty
@@ -144,8 +143,8 @@ public class CassandraConnection extends HopMetadataBase implements IHopMetadata
       id = WIDGET_ID_USE_COMPRESSION,
       type = GuiElementType.CHECKBOX,
       parentId = CassandraConnectionEditor.PARENT_WIDGET_ID,
-      label = "Using compression?",
-      toolTip = "Check this option if you want to use compression over the connection")
+      label = "i18n::CassandraMetadata.UseCompression.Label",
+      toolTip = "i18n::CassandraMetadata.UseCompression.ToolTip")
   private boolean usingCompression;
 
   public CassandraConnection() {}

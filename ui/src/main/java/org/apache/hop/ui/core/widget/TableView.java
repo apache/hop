@@ -293,7 +293,7 @@ public class TableView extends Composite {
         pr,
         addIndexColumn,
         listener,
-            undoEnabled,
+        undoEnabled,
         true);
   }
 
@@ -475,7 +475,7 @@ public class TableView extends Composite {
 
     // See what is selected in the table.
     //
-    table.addListener(SWT.Selection, e->enableToolbarButtons());
+    table.addListener(SWT.Selection, e -> enableToolbarButtons());
 
     // Clean up the clipboard
     addDisposeListener(
@@ -507,13 +507,13 @@ public class TableView extends Composite {
   private void enableToolbarButtons(int nrRows) {
     // If we don't have a toolbar we don't need to go through all this.
     //
-    if (toolbar==null){
+    if (toolbar == null) {
       return;
     }
 
-    boolean linesSelected = table.getSelectionCount()>0;
-    boolean hasRows = nrRows>0;
-    boolean activeCell = activeTableItem!=null && activeTableColumn>0;
+    boolean linesSelected = table.getSelectionCount() > 0;
+    boolean hasRows = nrRows > 0;
+    boolean activeCell = activeTableItem != null && activeTableColumn > 0;
 
     toolbarWidgets.enableToolbarItem(ID_TOOLBAR_CLEAR_ALL, linesSelected && !readonly);
 
@@ -1823,7 +1823,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_INSERT_ROW_BEFORE,
       image = "ui/images/add-item-above.svg",
-      toolTip = "Add an empty row before the selected line")
+      toolTip = "i18n::TableView.ToolBarWidget.InsertRowBefore.ToolTip")
   public void insertRowBefore() {
     if (readonly) {
       return;
@@ -1850,7 +1850,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_INSERT_ROW_AFTER,
       image = "ui/images/add-item-below.svg",
-      toolTip = "Add an empty row after the selected line")
+      toolTip = "i18n::TableView.ToolBarWidget.InsertRowAfter.ToolTip")
   public void insertRowAfter() {
     if (readonly) {
       return;
@@ -1886,7 +1886,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_CLEAR_ALL,
       image = "ui/images/delete.svg",
-      toolTip = "Clear all rows (after confirmation)",
+      toolTip = "i18n::TableView.ToolBarWidget.ClearAllRows.ToolTip",
       separator = true)
   public void clearAllRows() {
     clearAll(true);
@@ -1919,7 +1919,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_MOVE_ROWS_UP,
       image = "ui/images/arrow-up.svg",
-      toolTip = "Move selected rows up",
+      toolTip = "i18n::TableView.ToolBarWidget.MoveRowsUp.ToolTip",
       separator = true)
   public void moveRowsUp() {
     moveRows(-1);
@@ -1929,7 +1929,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_MOVE_ROWS_DOWN,
       image = "ui/images/arrow-down.svg",
-      toolTip = "Move selected rows down")
+      toolTip = "i18n::TableView.ToolBarWidget.MoveRowsDown.ToolTip")
   public void moveRowsDown() {
     moveRows(1);
   }
@@ -2018,7 +2018,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_COPY_TO_ALL_ROWS,
       image = "ui/images/duplicate.svg",
-      toolTip = "Copy the last edited cell value to all rows.")
+      toolTip = "i18n::TableView.ToolBarWidget.CopyToAllRows.ToolTip")
   public void copyToAll() {
     TableItem row = activeTableItem;
     if (row == null || row.isDisposed()) {
@@ -2062,7 +2062,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_SELECT_ALL_ROWS,
       image = "ui/images/select-all.svg",
-      toolTip = "Select all rows",
+      toolTip = "i18n::TableView.ToolBarWidget.SelectAll.ToolTip",
       separator = true)
   public void selectAll() {
     table.selectAll();
@@ -2073,7 +2073,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_CLEAR_SELECTION,
       image = "ui/images/unselect-all.svg",
-      toolTip = "Clear selection")
+      toolTip = "i18n::TableView.ToolBarWidget.ClearSelection.ToolTip")
   public void unselectAll() {
     table.deselectAll();
     enableToolbarButtons();
@@ -2083,7 +2083,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_COPY_SELECTED,
       image = "ui/images/copy.svg",
-      toolTip = "Copy selected rows to clipboard",
+      toolTip = "i18n::TableView.ToolBarWidget.CopySelected.ToolTip",
       separator = true)
   public void clipSelected() {
     if (clipboard != null) {
@@ -2175,7 +2175,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_PASTE_TO_TABLE,
       image = "ui/images/paste.svg",
-      toolTip = "Paste clipboard to the table after the selected row")
+      toolTip = "i18n::TableView.ToolBarWidget.PasteSelected.ToolTip")
   public void pasteSelected() {
     int rowNr = getCurrentRownr();
 
@@ -2233,7 +2233,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_CUT_SELECTED,
       image = "ui/images/cut.svg",
-      toolTip = "Cut the selected rows to clipboard")
+      toolTip = "i18n::TableView.ToolBarWidget.CutSelected.ToolTip")
   public void cutSelected() {
     clipSelected(); // copy selected lines to clipboard
     delSelected();
@@ -2243,7 +2243,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_DELETE_SELECTED,
       image = "ui/images/delete.svg",
-      toolTip = "Delete the selected rows")
+      toolTip = "i18n::TableView.ToolBarWidget.DeleteSelected.ToolTip")
   public void delSelected() {
     if (nrNonEmpty() == 0) {
       return;
@@ -2306,7 +2306,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_KEEP_SELECTED,
       image = "ui/images/minimize-panel.svg",
-      toolTip = "Keep the selected rows, delete the rest")
+      toolTip = "i18n::TableView.ToolBarWidget.KeepSelected.ToolTip")
   public void keepSelected() {
     // Which items are selected?
     int[] selectionIndices = table.getSelectionIndices();
@@ -3136,7 +3136,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_UNDO,
       image = "ui/images/undo.svg",
-      toolTip = "Undo the last action",
+      toolTip = "i18n::TableView.ToolBarWidget.UndoAction.ToolTip",
       separator = true)
   public void undoAction() {
     ChangeAction ta = previousUndo();
@@ -3233,7 +3233,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_REDO,
       image = "ui/images/redo.svg",
-      toolTip = "Redo the last action")
+      toolTip = "i18n::TableView.ToolBarWidget.RedoAction.ToolTip")
   public void redoAction() {
     ChangeAction ta = nextUndo();
     if (ta == null) {
@@ -3450,7 +3450,7 @@ public class TableView extends Composite {
       root = ID_TOOLBAR,
       id = ID_TOOLBAR_FILTERED_SELECTION,
       image = "ui/images/filter.svg",
-      toolTip = "Select rows using a filter")
+      toolTip = "i18n::TableView.ToolBarWidget.SetFilter.ToolTip")
   public void setFilter() {
     if (condition == null) {
       condition = new Condition();

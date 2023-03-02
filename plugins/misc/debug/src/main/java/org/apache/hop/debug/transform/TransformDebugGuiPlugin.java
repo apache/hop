@@ -40,8 +40,8 @@ public class TransformDebugGuiPlugin {
       id = "pipeline-graph-transform-11001-clear-logging",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Delete,
-      name = "Clear Custom Logging",
-      tooltip = "Clear custom log settings ",
+      name = "i18n::DebugTransform.ClearCustomLogging.Label",
+      tooltip = "i18n::DebugTransform.ClearCustomLogging.ToolTip",
       image = "ui/images/debug.svg",
       category = "Logging",
       categoryOrder = "7")
@@ -60,8 +60,8 @@ public class TransformDebugGuiPlugin {
       id = "pipeline-graph-transform-11000-config-logging",
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
-      name = "Edit Custom Logging",
-      tooltip = "Edit the custom log settings for this transform",
+      name = "i18n::DebugTransform.EditCustomLogging.Label",
+      tooltip = "i18n::DebugTransform.EditCustomLogging.ToolTip",
       image = "ui/images/debug.svg",
       category = "Logging",
       categoryOrder = "7")
