@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0006-groupby-alwaysgiveback-result</name>
+    <name>0006-groupby-alwaysgiveback-result-false</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -54,17 +54,17 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Count = 0</from>
-      <to>Success</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Group by</from>
       <to>Detect empty stream</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Detect empty stream</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Count = 0</from>
       <to>Abort</to>
       <enabled>Y</enabled>
     </hop>
@@ -82,12 +82,12 @@ limitations under the License.
     </partitioning>
     <abort_option>ABORT_WITH_ERROR</abort_option>
     <always_log_rows>Y</always_log_rows>
-    <message>No rows in output even if the flag "always give back a result row" is set in groupby</message>
+    <message>There are rows in output even if the flag "always give back a result row" is not checked in groupby</message>
     <row_threshold>0</row_threshold>
     <attributes/>
     <GUI>
-      <xloc>880</xloc>
-      <yloc>400</yloc>
+      <xloc>1008</xloc>
+      <yloc>272</yloc>
     </GUI>
   </transform>
   <transform>
@@ -152,8 +152,12 @@ limitations under the License.
       <field>
         <length>-1</length>
         <precision>-1</precision>
+        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>ColA</name>
+        <format/>
+        <group/>
+        <decimal/>
         <type>Integer</type>
       </field>
     </fields>
@@ -238,7 +242,7 @@ limitations under the License.
         <valuefield/>
       </field>
     </fields>
-    <give_back_row>Y</give_back_row>
+    <give_back_row>N</give_back_row>
     <group>
 </group>
     <ignore_aggregate>N</ignore_aggregate>
@@ -263,8 +267,8 @@ limitations under the License.
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>976</xloc>
-      <yloc>272</yloc>
+      <xloc>880</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
