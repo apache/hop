@@ -236,6 +236,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     }
 
     config.addProjectConfig(projectConfig);
+    ProjectsConfigSingleton.saveConfig();
 
     String projectConfigFilename = projectConfig.getActualProjectConfigFilename(variables);
 
@@ -254,6 +255,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
       project.verifyProjectsChain(projectName, variables);
 
       project.saveToFile();
+
       log.logBasic(
           "Project settings for '"
               + projectName
