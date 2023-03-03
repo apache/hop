@@ -590,8 +590,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               }
             }
             // Close the ZipOutPutStream
-            out.close();
             buff.close();
+            out.close();
             dest.close();
 
             if (log.isBasic()) {
