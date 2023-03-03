@@ -36,7 +36,7 @@
 
 	<properties>
 		<ucanaccess.version>5.0.1</ucanaccess.version>
-		<hsqldb.version>2.5.0</hsqldb.version>
+		<hsqldb.version>2.7.1</hsqldb.version>
 	</properties>
 
 	<dependencies>

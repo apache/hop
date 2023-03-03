@@ -120,7 +120,7 @@
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-compress.version>1.21</commons-compress.version>
-        <commons-fileupload.version>1.4</commons-fileupload.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-logging.version>1.1.3</commons-logging.version>
         <curator.version>5.4.0</curator.version>
@@ -142,11 +142,11 @@
         <httpclient.version>4.5.13</httpclient.version>
         <httpccore.version>4.4.15</httpccore.version>
         <jackcess.version>4.0.4</jackcess.version>
-        <jackson.version>2.14.1</jackson.version>
+        <jackson.version>2.14.2</jackson.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <jandex.version>3.0.5</jandex.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <jetty.version>9.4.35.v20201120</jetty.version>
+        <jetty.version>9.4.51.v20230217</jetty.version>
         <joda-time.version>2.12.1</joda-time.version>
         <json4s.version>3.7.0-M11</json4s.version>
         <json-simple.version>1.1.1</json-simple.version>

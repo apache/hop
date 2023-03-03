@@ -50,7 +50,7 @@
     <properties>
 
         <json-simple.version>1.1.1</json-simple.version>
-        <bigtable-hbase-beam.version>2.6.1</bigtable-hbase-beam.version>
+        <bigtable-hbase-beam.version>2.7.2</bigtable-hbase-beam.version>
     </properties>
 
     <dependencies>
@@ -218,7 +218,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.32</version>
+            <version>2.0</version>
         </dependency>
 
         <!-- The Apache Beam dependencies -->

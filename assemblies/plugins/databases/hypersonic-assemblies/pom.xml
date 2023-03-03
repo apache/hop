@@ -35,7 +35,7 @@
     <description />
 
     <properties>
-        <hyersonic.version>2.5.0</hyersonic.version>
+        <hyersonic.version>2.7.1</hyersonic.version>
     </properties>
 
     <dependencies>

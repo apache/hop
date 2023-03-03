@@ -192,7 +192,7 @@
                 <include>org.apache.hadoop:hadoop-client-api</include>
                 <include>org.apache.hadoop:hadoop-client-runtime</include>
                 <include>org.apache.hadoop:hadoop-hdfs-client</include>
-                <include>org.apache.htrace:htrace-core</include>
+                <include>org.apache.htrace:htrace-core4</include>
                 <include>org.apache.ivy:ivy</include>
                 <include>org.apache.kafka:kafka-clients</include>
                 <include>org.apache.logging.log4j:log4j-slf4j-impl</include>
