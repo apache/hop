@@ -187,7 +187,12 @@ public class FatJarBuilder {
                     || jarFileBaseName.startsWith("guava")
                     || jarFileBaseName.startsWith("akka-")
                     || jarFileBaseName.startsWith("scala-")
-                    || jarFileBaseName.startsWith("flink-runtime")) {
+                    || jarFileBaseName.startsWith("flink-runtime")
+                    || jarFileBaseName.startsWith("beam-sdks-java-io")
+                    || jarFileBaseName.startsWith("beam-runners-spark")
+                    || jarFileBaseName.startsWith("beam-runners-direct")
+                    || jarFileBaseName.startsWith("beam-sdks-java-core")
+                    || jarFileBaseName.startsWith("beam-runners-core")) {
                   index = false;
                 }
 
