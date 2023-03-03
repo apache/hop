@@ -48,7 +48,7 @@
     </repositories>
 
     <properties>
-        <bigtable-hbase-beam.version>2.6.1</bigtable-hbase-beam.version>
+        <bigtable-hbase-beam.version>2.7.2</bigtable-hbase-beam.version>
     </properties>
 
     <dependencies>
