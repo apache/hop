@@ -1163,14 +1163,14 @@ Also in array context a logical AND of all arguments is computed, range or array
 *Examples*
 |===
 |expression|result|comment
-|AND(FALSE();FALSE()) |False|Simple AND.
-|AND(FALSE();TRUE()) |False|Simple AND.
-|AND(TRUE();FALSE()) |False|Simple AND.
-|AND(TRUE();TRUE()) |True|Simple AND.
-|AND(TRUE();NA()) |NA|Returns an error if given one.
-|AND(1;TRUE()) |True|Nonzero considered TRUE.
-|AND(0;TRUE()) |False|Zero considered FALSE.
-|AND(TRUE();TRUE();TRUE()) |True|More than two parameters okay.
+|AND(FALSE(),FALSE()) |False|Simple AND.
+|AND(FALSE(),TRUE()) |False|Simple AND.
+|AND(TRUE(),FALSE()) |False|Simple AND.
+|AND(TRUE(),TRUE()) |True|Simple AND.
+|AND(TRUE(),NA()) |NA|Returns an error if given one.
+|AND(1,TRUE()) |True|Nonzero considered TRUE.
+|AND(0,TRUE()) |False|Zero considered FALSE.
+|AND(TRUE(),TRUE(),TRUE()) |True|More than two parameters okay.
 |AND(TRUE()) |True|One parameter okay - simply returns it.
 |===
 
@@ -1189,7 +1189,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 |===
 |expression|result|comment
 |FALSE() |False|Constant.
-|IF(ISNUMBER(FALSE());FALSE()=0;FALSE()) |True|Applications that implement logical values as 0/1 must map FALSE() to 0
+|IF(ISNUMBER(FALSE()),FALSE()=0;FALSE()) |True|Applications that implement logical values as 0/1 must map FALSE() to 0
 |2+FALSE() |2|FALSE converts to 0 in Number context
 |===
 
@@ -1198,7 +1198,7 @@ Also in array context a logical AND of all arguments is computed, range or array
 
 |===
 |*description*|Return one of two values, depending on a condition
-|*syntax*|IF( Logical Condition [ ; [ Any IfTrue ] [ ; [ Any IfFalse ] ] ] )
+|*syntax*|IF( Logical Condition [ , [ Any IfTrue ] [ , [ Any IfFalse ] ] ] )
 |*returns*|Any
 |*semantics*|Computes Condition. If it is TRUE, it returns IfTrue, else it returns IfFalse. If there is only 1 parameter, IfTrue is considered to be TRUE(). If there are less than 3 parameters, IfFalse is considered to be FALSE(). Thus the 1 parameter version converts Condition into a Logical value. If there are 2 or 3 parameters but the second parameter is null (two consecutive ; semicolons), IfFalse is considered to be 0. If there are 3 parameters but the third parameter is null, IfFalse is considered to be 0. This function only evaluates IfTrue, or ifFalse, and never both; that is to say, it short-circuits.
 |*constraints*|None.
@@ -1207,23 +1207,23 @@ Also in array context a logical AND of all arguments is computed, range or array
 *Examples*
 |===
 |expression|result|comment
-|IF(FALSE();7;8) |8|Simple if.
-|IF(TRUE();7;8) |7|Simple if.
-|IF(TRUE();"HI";8) |"HI"|Can return strings, and the two sides need not have equal types
-|IF(1;7;8) |7|A non-zero is considered true.
-|IF(5;7;8) |7|A non-zero is considered true.
-|IF(0;7;8) |8|A zero is considered false.
-|IF(TRUE();[.B4];8) |2|The result can be a reference.
-|IF(TRUE();[.B4]+5;8) |7|The result can be a formula.
-|IF("x";7;8) |Error|Condition has to be convertible to Logical.
-|IF("1";7;8) |Error|Condition has to be convertible to Logical.
-|IF("";7;8) |Error|Condition has to be convertible to Logical; empty string is not the same as False
-|IF(FALSE();7) |FALSE|Default IfFalse is FALSE
+|IF(FALSE(),7,8) |8|Simple if.
+|IF(TRUE(),7,8) |7|Simple if.
+|IF(TRUE(),"HI",8) |"HI"|Can return strings, and the two sides need not have equal types
+|IF(1,7,8) |7|A non-zero is considered true.
+|IF(5,7,8) |7|A non-zero is considered true.
+|IF(0,7,8) |8|A zero is considered false.
+|IF(TRUE(),[.B4],8) |2|The result can be a reference.
+|IF(TRUE(),[.B4]+5,8) |7|The result can be a formula.
+|IF("x",7,8) |Error|Condition has to be convertible to Logical.
+|IF("1",7,8) |Error|Condition has to be convertible to Logical.
+|IF("",7,8) |Error|Condition has to be convertible to Logical; empty string is not the same as False
+|IF(FALSE(),7) |FALSE|Default IfFalse is FALSE
 |IF(3) |TRUE|Default IfTrue is TRUE
-|IF(FALSE();7;) |0|Empty parameter is considered 0
-|IF(TRUE();7) |0|Empty parameter is considered 0
-|IF(TRUE();4;1/0) |4|If condition is true, ifFalse is not considered – even if it would produce Error.
-|IF(FALSE();1/0;5) |5|If condition is false, ifTrue is not considered – even if it would produce Error.
+|IF(FALSE(),7,) |0|Empty parameter is considered 0
+|IF(TRUE(),7) |0|Empty parameter is considered 0
+|IF(TRUE(),4,1/0) |4|If condition is true, ifFalse is not considered – even if it would produce Error.
+|IF(FALSE(),1/0,5) |5|If condition is false, ifTrue is not considered – even if it would produce Error.
 |===
 
 ==== IFNA
@@ -1240,8 +1240,8 @@ Also in array context a logical AND of all arguments is computed, range or array
 *Examples*
 |===
 |expression|result|comment
-|IFNA(;"Null String") |Null String|
-|IFNA("ABC";"Null String") |ABC|
+|IFNA(,"Null String") |Null String|
+|IFNA("ABC","Null String") |ABC|
 |===
 
 ==== IFS
@@ -1295,12 +1295,12 @@ Also in array context a logical OR of all arguments is computed, range or array 
 *Examples*
 |===
 |expression|result|comment
-|OR(FALSE();FALSE()) |False|Simple OR.
-|OR(FALSE();TRUE()) |True|Simple OR.
-|OR(TRUE();FALSE()) |True|Simple OR.
-|OR(TRUE();TRUE()) |True|Simple OR.
-|OR(FALSE();NA()) |NA|Returns an error if given one.
-|OR(FALSE();FALSE();TRUE()) |True|More than two parameters okay.
+|OR(FALSE(),FALSE()) |False|Simple OR.
+|OR(FALSE(),TRUE()) |True|Simple OR.
+|OR(TRUE(),FALSE()) |True|Simple OR.
+|OR(TRUE(),TRUE()) |True|Simple OR.
+|OR(FALSE(),NA()) |NA|Returns an error if given one.
+|OR(FALSE(),FALSE(),TRUE()) |True|More than two parameters okay.
 |OR(TRUE()) |True|One parameter okay - simply returns it
 |===
 
@@ -1319,7 +1319,7 @@ Also in array context a logical OR of all arguments is computed, range or array 
 |===
 |expression|result|comment
 |TRUE() |True|Constant.
-|IF(ISNUMBER(TRUE());TRUE()=1;TRUE()) |True|Applications that implement logical values as 0/1 must map TRUE() to 1
+|IF(ISNUMBER(TRUE()),TRUE()=1,TRUE()) |True|Applications that implement logical values as 0/1 must map TRUE() to 1
 |2+TRUE() |3|TRUE converts to 1 in Number context
 |===
 
