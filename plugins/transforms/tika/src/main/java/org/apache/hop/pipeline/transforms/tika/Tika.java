@@ -450,18 +450,14 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
           logError(Const.getStackTracker(e));
           return false;
         }
-
-        try {
-          ClassLoader classLoader = meta.getClass().getClassLoader();
-
-          data.tikaOutput = new TikaOutput(classLoader, log, this);
-
-        } catch (Exception e) {
-          logError("Tika Error", e);
-        }
+      }
+      try {
+        ClassLoader classLoader = meta.getClass().getClassLoader();
+        data.tikaOutput = new TikaOutput(classLoader, log, this);
+      } catch (Exception e) {
+        logError("Tika Error", e);
       }
       data.rowNr = 1L;
-
       return true;
     }
     return false;
