@@ -18,6 +18,7 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -62,7 +63,7 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(merge);
 
     assertEquals(
-        "MERGE(n:Customer {id:{pId}} ) SET n.lastName={pLastName}, n.firstName={pFirstName} \n",
+        "MERGE(n:Customer {id:{pId}} ) SET n.lastName={pLastName}, n.firstName={pFirstName} " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -80,8 +81,8 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(merge);
 
     assertEquals(
-        "UNWIND $rows AS row \n"
-            + "MERGE(n:Customer {id:row.pId} ) SET n.lastName=row.pLastName, n.firstName=row.pFirstName \n",
+        "UNWIND $rows AS row " + Const.CR
+            + "MERGE(n:Customer {id:row.pId} ) SET n.lastName=row.pLastName, n.firstName=row.pFirstName " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -99,7 +100,7 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(create);
 
     assertEquals(
-        "CREATE(n:Customer {id:{pId}} ) SET n.firstName={pFirstName} \n",
+        "CREATE(n:Customer {id:{pId}} ) SET n.firstName={pFirstName} " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -117,8 +118,8 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(create);
 
     assertEquals(
-        "UNWIND $rows AS row \n"
-            + "CREATE(n:Customer {id:row.pId} ) SET n.firstName=row.pFirstName \n",
+        "UNWIND $rows AS row " + Const.CR
+            + "CREATE(n:Customer {id:row.pId} ) SET n.firstName=row.pFirstName " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -134,7 +135,7 @@ public class CypherBuilderMetaTest {
     match.setKeys(List.of(new Property("id", "pId")));
     meta.getOperations().add(match);
 
-    assertEquals("MATCH(c:Customer {id:{pId}} ) \n", meta.getCypher(variables));
+    assertEquals("MATCH(c:Customer {id:{pId}} ) " + Const.CR, meta.getCypher(variables));
     testSerialization(meta);
   }
 
@@ -151,7 +152,8 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(match);
 
     assertEquals(
-        "UNWIND $rows AS row \n" + "MATCH(c:Customer {id:row.pId} ) \n", meta.getCypher(variables));
+        "UNWIND $rows AS row " + Const.CR + "MATCH(c:Customer {id:row.pId} ) " + Const.CR,
+            meta.getCypher(variables));
     testSerialization(meta);
   }
 
@@ -174,8 +176,8 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(ret);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) \n"
-            + "RETURN c.firstName AS first_name, c.lastName AS last_name \n",
+        "MATCH(c:Customer {id:{pId}} ) " + Const.CR
+            + "RETURN c.firstName AS first_name, c.lastName AS last_name " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -201,9 +203,9 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(edgeCreate);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) \n"
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) \n"
-            + "MATCH(c)-[r:HAS_LOCATION]->(o) \n",
+        "MATCH(c:Customer {id:{pId}} ) " + Const.CR
+            + "MATCH(o:Location {zipCode:{pZipCode}} ) " + Const.CR
+            + "MATCH(c)-[r:HAS_LOCATION]->(o) " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -229,9 +231,9 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(edgeCreate);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) \n"
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) \n"
-            + "CREATE(c)-[r:HAS_LOCATION]->(o) \n",
+        "MATCH(c:Customer {id:{pId}} ) " + Const.CR
+            + "MATCH(o:Location {zipCode:{pZipCode}} ) " + Const.CR
+            + "CREATE(c)-[r:HAS_LOCATION]->(o) " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -257,9 +259,9 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(edgeCreate);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) \n"
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) \n"
-            + "MERGE(c)-[r:HAS_LOCATION]->(o) \n",
+        "MATCH(c:Customer {id:{pId}} ) " + Const.CR
+            + "MATCH(o:Location {zipCode:{pZipCode}} ) " + Const.CR
+            + "MERGE(c)-[r:HAS_LOCATION]->(o) " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
@@ -293,10 +295,10 @@ public class CypherBuilderMetaTest {
     meta.getOperations().add(ret);
 
     assertEquals(
-        "MATCH(c:Customer {id:{pId}} ) \n"
-            + "MATCH(o:Location {zipCode:{pZipCode}} ) \n"
-            + "MATCH(c)-[r:HAS_LOCATION]->(o) \n"
-            + "RETURN c.firstName AS first_name, c.lastName AS last_name, o.city \n",
+        "MATCH(c:Customer {id:{pId}} ) " + Const.CR
+            + "MATCH(o:Location {zipCode:{pZipCode}} ) " + Const.CR
+            + "MATCH(c)-[r:HAS_LOCATION]->(o) " + Const.CR
+            + "RETURN c.firstName AS first_name, c.lastName AS last_name, o.city " + Const.CR,
         meta.getCypher(variables));
     testSerialization(meta);
   }
