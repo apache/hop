@@ -206,6 +206,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/update.adoc[Update]
 * xref:pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class]
 * xref:pipeline/transforms/userdefinedjavaexpression.adoc[User Defined Java Expression]
+* xref:pipeline/transforms/validator.adoc[Data Validator]
 * xref:pipeline/transforms/valuemapper.adoc[Value Mapper]
 * xref:pipeline/transforms/webservices.adoc[Web services lookup]
 * xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor]

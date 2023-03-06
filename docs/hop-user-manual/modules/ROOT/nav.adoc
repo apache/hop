@@ -252,6 +252,7 @@ under the License.
 *** xref:pipeline/transforms/update.adoc[Update]
 *** xref:pipeline/transforms/userdefinedjavaclass.adoc[User Defined Java Class]
 *** xref:pipeline/transforms/userdefinedjavaexpression.adoc[User Defined Java Expression]
+*** xref:pipeline/transforms/validator.adoc[Data Validator]
 *** xref:pipeline/transforms/valuemapper.adoc[Value Mapper]
 *** xref:pipeline/transforms/verticabulkloader.adoc[Vertica Bulk Loader]
 *** xref:pipeline/transforms/webservices.adoc[Web services lookup]
