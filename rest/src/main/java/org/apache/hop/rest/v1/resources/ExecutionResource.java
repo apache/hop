@@ -43,16 +43,16 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.rest.Hop;
-import org.apache.hop.rest.v1.resources.service.SyncRequest;
+import org.apache.hop.rest.v1.resources.execute.SyncRequest;
 import org.apache.hop.www.service.WebService;
 
 /** The Synchronous and Asynchronous web services to execute a pipeline or a workflow. */
-@Path("/service")
-public class WebServiceResource extends BaseResource {
+@Path("/execute")
+public class ExecutionResource extends BaseResource {
   private final Hop hop = Hop.getInstance();
 
   /**
-   * Run a pipeline by referencing the Web Service metadata object name.
+   * Execute a pipeline synchronously, by referencing the Web Service metadata object name.
    *
    * @param request The JSON containing the request details.
    * @return The output of the web service.
@@ -61,7 +61,7 @@ public class WebServiceResource extends BaseResource {
   @Path("/sync")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response listPlugins(SyncRequest request) {
+  public Response executeSynchronously(SyncRequest request) {
     try {
       if (StringUtils.isEmpty(request.getService())) {
         throw new HopException(

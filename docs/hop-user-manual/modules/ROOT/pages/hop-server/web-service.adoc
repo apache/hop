@@ -106,7 +106,7 @@ http://<hop-server-url>/hop/webService
 |===
 |Parameter |Description
 
-|`service`
+|`execute`
 |The name of the service.
 This corresponds to the Web Service metadata object.
 

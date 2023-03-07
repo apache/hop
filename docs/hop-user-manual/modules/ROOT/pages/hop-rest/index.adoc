@@ -184,9 +184,9 @@ This call retrieves all the information about all the pipeline engine plugins.
 
 |===
 
-== Service services
+== Execution services
 
-The 'Service' services are deployed under sub-path `services/`.
+The 'Execution' services are deployed under sub-path `execution/`.
 
 === Execute a pipeline synchronously
 
@@ -196,13 +196,13 @@ The 'Service' services are deployed under sub-path `services/`.
 |`POST`
 
 |Path
-|`services/sync`
+|`execution/sync`
 
 |Produces
 |`application/json`
 
 |Example call
-|`curl -X POST  http://localhost:8080/hop/api/v1/service/sync/  -H 'Content-Type: application/json'  -d '{ "service" : "test", "runConfig" : "local", "variables" : { "VAR1" : "value1", "VAR2" : "value2" }, "bodyContent" : "This is body content" }'`
+|`curl -X POST  http://localhost:8080/hop/api/v1/execution/sync/  -H 'Content-Type: application/json'  -d '{ "service" : "test", "runConfig" : "local", "variables" : { "VAR1" : "value1", "VAR2" : "value2" }, "bodyContent" : "This is body content" }'`
 `
 |Example output
 |The executing pipeline can produce output like this:
@@ -221,8 +221,102 @@ The 'Service' services are deployed under sub-path `services/`.
 
 The body to post can contain the following options (see also: the example above)
 
-* `service`: the name of the Web Service metadata element to use
+* `execute`: the name of the Web Service metadata element to use
 * `runConfig`: the name of the pipeline run configuration to use
 * `variables`: a map with variables (or parameters) with their names and values
 * `bodyContent`: this will be set as a variable using the body content variable option in the Web Service metadata.
+
+
+
+== Execution Information Location services
+
+The execution information location services are deployed under sub-path `location/`.
+
+=== Get execution IDs
+
+[cols="1,2"]
+|===
+|Type
+|`POST`
+
+|Path
+|`location/executions/{locationName}`
+
+|Arguments
+|`locationName` : the name of the execution information location to query.
+
+|Consumes
+|`application/json`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET  http://localhost:8080/hop/api/v1/location/executions/local/  -H 'Content-Type: application/json'  -d '{ "includeChildren" : "true", "limit" : 100 }'`
+`
+|Example output
+|The list of execution IDs looks like this:
+
+`["af84cbc2-0166-4dea-956f-72b73cf66d0d", "bf84cbc2-0166-4dea-956f-72b73cf66d0e", "cf84cbc2-0166-4dea-956f-72b73cf66d0f"]`
+
+|===
+
+The body to post can contain the following options (see also: the example above)
+
+* `includeChildren`: Set this to true if you want to see child executions of workflows and pipelines
+* `limit`: the maximum number of IDs to retrieve or a value <=0 to get all IDs
+
+=== Get execution
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`location/executions/{locationName}/{executionId}`
+
+|Arguments
+|`locationName`: the name of the execution information location to query. `executionId`: the ID of the execution to retrieve.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET  http://localhost:8080/hop/api/v1/location/executions/local/df84cbc2-0166-4dea-956f-72b73cf66d0d/`
+`
+|Example output
+|The execution details look like this:
+
+`{"name":"pipeline-name","filename":"/path/filename.hpl","id":"df84cbc2-0166-4dea-956f-72b73cf66d0d","parentId":null,"executionType":"Pipeline", ... }`
+
+|===
+
+=== Get execution state
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`location/state/{locationName}/{executionId}`
+
+|Arguments
+|`locationName`: the name of the execution information location to query. `executionId`: the ID of the execution state to retrieve.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET  http://localhost:8080/hop/api/v1/location/state/local/df84cbc2-0166-4dea-956f-72b73cf66d0d/`
+`
+|Example output
+|The execution state looks like this:
+
+`{"executionType":"Pipeline","parentId":null,"id":"df84cbc2-0166-4dea-956f-72b73cf66d0d","name":"test-service","copyNr":null,"loggingText":"logging-text","lastLogLineNr":14,"metrics":[{"componentName":"id","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"uuid","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"Enhanced JSON Output","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":1,"Updated":0,"Output":1,"Rejected":0,"Buffers Input":0}},{"componentName":"OUTPUT","componentCopy":"0","metrics":{"Read":1,"Buffers Output":0,"Errors":0,"Input":0,"Written":1,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"5 rows","componentCopy":"0","metrics":{"Read":0,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"Get variables","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}}],"statusDescription":"Finished","updateTime":1678191016156,"childIds":["46690405-4b06-4353-973a-06aff689afe0","ec974060-e228-4438-8408-b049803eb316","f7344a76-06b0-4499-95a1-1b30bd987561","32837620-df15-4602-b32c-69111689767f","db2e3feb-3ab1-4491-a4dc-7036cc0c3a3f","4653fb73-ac94-4ac3-adef-a14e6129aa14"],"details":{},"failed":false,"containerId":"c7c90ed5-6684-408a-be11-d1fd1c65164a"}`
+
+|===
+
+
 

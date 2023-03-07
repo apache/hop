@@ -97,10 +97,6 @@
                     <groupId>org.glassfish.jersey.connectors</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.metro</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -116,10 +112,6 @@
                     <groupId>org.glassfish.jersey.connectors</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.metro</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -133,10 +125,6 @@
                 </exclusion>
                 <exclusion>
                     <groupId>org.glassfish.jersey.connectors</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.metro</groupId>
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>

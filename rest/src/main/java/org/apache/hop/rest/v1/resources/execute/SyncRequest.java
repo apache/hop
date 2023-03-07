@@ -16,7 +16,7 @@
  *
  */
 
-package org.apache.hop.rest.v1.resources.service;
+package org.apache.hop.rest.v1.resources.execute;
 
 import java.util.HashMap;
 import java.util.Map;
