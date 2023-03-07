@@ -18,14 +18,16 @@ under the License.
 :language: en_US
 :description: The Data Validator transform allows you to add various types of data validation for input data.
 
-= image:transforms/icons/validator.svg[Data Validator transform Icon, role="image-doc-icon"] Value Mapper
+= image:transforms/icons/validator.svg[Data Validator transform Icon, role="image-doc-icon"] Data Validator
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
 |
 == Description
 
-The Data Validator transform allows you to add data validations which can each validate the input data for the various fields in the input rows.
+The Data Validator transform allows you to add data validations which can each validate the input data for the various fields in the input rows.  The validator will throw an error (exception) if an input row is detected which fails one or more of the defined validations in this transform.
+
+To get a list of all the validation errors you can define an xref:pipeline/errorhandling.adoc[error handling] hop from this transform.
 
 |
 == Supported Engines
@@ -40,7 +42,8 @@ The Data Validator transform allows you to add data validations which can each v
 
 == Options
 
-The following properties are used to define the mappings:
+You can use the "New Validation" button to add a new validation and "Remove validation" to remove the selected validation.
+Once you select a validation on the left hand side of the dialog you can specify the following properties for each data validation:
 
 [options="header"]
 |===
@@ -49,8 +52,90 @@ The following properties are used to define the mappings:
 |Transform Name
 |Name of the transform this name has to be unique in a single pipeline.
 
-|TODO
-||
+|Report all errors, not only the first
+|Enabling this option will report back 0, 1 or more errors for every input row.
+
+|Output one row, concatenate errors with a separator
+|If this is enabled error codes and descriptions are concatenated with the specified separator string.
+
+|Validation description
+|Optionally you can describe what you're testing for here.
+
+|Name of the field to validate
+|Select the name of the input field to validate
+
+|Error code
+|Define a unique error code to recognize what is wrong in the error handling output.
+
+|Error description
+|Specify an error description to recognize what is wrong in the error handling output.
+
+|Verify data type
+|Enable this if you want to do data type validation
+
+|Data type
+|The data type that the input field needs to have
+
+|Conversion mask
+|The expected conversion mask
+
+|Decimal symbol
+|The expected decimal symbol
+
+|Grouping symbol
+|The expected decimal symbol
+
+|Null allows?
+|Disable this if null values are not allows
+
+|Only null values allows?
+|Enable this if you only expect null values
+
+|Only numeric data expected
+|Enable this if you need the input field to be numeric (Integer, Number, BigNumber) or a String containing digits only (0-9)
+
+|Max string length
+|The maximum length of the input field after conversion to a String
+
+|Min string length
+|The minimum length of the input field after conversion to a String
+
+|Maximum value
+|The maximum value allowed for the input
+
+|Minimum value
+|The minimum value allowed for the input
+
+|Expected start string
+|The input field is expected to start with this value after conversion to a String
+
+|Expected end string
+|The input field is expected to end with this value after conversion to a String
+
+|Not allowed start string
+|The input field is not expected to start with this value after conversion to a String
+
+|Not allowed end string
+|The input field is not expected to end with this value after conversion to a String
+
+|Regular expression expected to match
+|You can specify a regular expression that the input field value is expected to match with
+
+|Regular expression not allowed to match
+|You can specify a regular expression that the input field value is not allowed to match with
+
+|Allowed values
+|You can specify the list of possible values that this input field is allowed to have.
+Use the Add and Remove buttons on the right to edit this list.
+
+|Read allowed values from another transform
+|Enable this option if you want to read input data from another transform.
+
+|The transform to read from
+|The name of the transform to read the allowed values for this field from.
+
+|The field to read from
+|The name of the field to read the allowed values for this field from.
 
 |===
 
