@@ -35,14 +35,14 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>128</xloc>
       <yloc>112</yloc>
@@ -56,6 +56,9 @@ limitations under the License.
       <test_names>
         <test_name>
           <name>0037-apache-tika UNIT</name>
+        </test_name>
+        <test_name>
+          <name>0037-apache-tika-from-getfilenames UNIT</name>
         </test_name>
       </test_names>
       <parallel>N</parallel>
@@ -96,24 +99,24 @@ true;</script>
   </hops>
   <notepads>
     <notepad>
-      <note>Test data is saved in Central European Time</note>
-      <xloc>224</xloc>
-      <yloc>192</yloc>
-      <width>234</width>
-      <heigth>26</heigth>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorred>15</backgroundcolorred>
+      <bordercolorblue>250</bordercolorblue>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorred>200</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>250</fontcolorblue>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorred>200</fontcolorred>
+      <fontitalic>N</fontitalic>
       <fontname>Inter</fontname>
       <fontsize>11</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>200</fontcolorred>
-      <fontcolorgreen>231</fontcolorgreen>
-      <fontcolorblue>250</fontcolorblue>
-      <backgroundcolorred>15</backgroundcolorred>
-      <backgroundcolorgreen>136</backgroundcolorgreen>
-      <backgroundcolorblue>210</backgroundcolorblue>
-      <bordercolorred>200</bordercolorred>
-      <bordercolorgreen>231</bordercolorgreen>
-      <bordercolorblue>250</bordercolorblue>
+      <height>23</height>
+      <xloc>224</xloc>
+      <yloc>192</yloc>
+      <note>Test data is saved in Central European Time</note>
+      <width>240</width>
     </notepad>
   </notepads>
   <attributes/>
