@@ -1,0 +1,4 @@
+ref_schema,ref_table,cmp_schema,cmp_table,id_fields,excl_fields,key_description,ref_value,compare_value
+public,reference_table,,compare_table,id,,id = '4',,
+public,reference_table,,compare_table,id,,id = '3',,
+public,reference_table,,compare_table,id,,id = '2','Apache Beam','Apache Beam '

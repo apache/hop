@@ -1,0 +1,2 @@
+ref_schema,ref_table,cmp_schema,cmp_table,id_fields,excl_fields,key_description,ref_value,compare_value,nrErrors,nrRecordsReferenceTable,nrRecordsCompareTable,nrErrorsLeftJoin,nrErrorsInnerJoin,nrErrorsRightJoin
+public,reference_table,,compare_table,id,,,,,3,3,3,0,1,2

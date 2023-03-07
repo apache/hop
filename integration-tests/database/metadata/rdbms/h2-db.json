@@ -1,0 +1,26 @@
+{
+  "rdbms": {
+    "H2": {
+      "databaseName": "/tmp/table_compare",
+      "pluginId": "H2",
+      "accessType": 0,
+      "hostname": "",
+      "password": "Encrypted ",
+      "pluginName": "H2",
+      "port": "",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "N",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "N",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": ""
+    }
+  },
+  "name": "h2-db"
+}
