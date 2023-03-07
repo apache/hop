@@ -45,14 +45,7 @@ import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
 public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> implements ITransform {
-  private static Class<?> PKG = ValidatorMeta.class; // For Translator
-
-  public class FieldIndexes {
-    public int indexName;
-    public int indexA;
-    public int indexB;
-    public int indexC;
-  }
+  private static final Class<?> PKG = ValidatorMeta.class; // For Translator
 
   public Validator(
       TransformMeta transformMeta,
@@ -82,29 +75,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
         return false;
       }
 
-      data.fieldIndexes = new int[meta.getValidations().size()];
-
-      // Calculate the indexes of the values and arguments in the target data or temporary data
-      // We do this in advance to save time later on.
-      //
-      for (int i = 0; i < meta.getValidations().size(); i++) {
-        Validation field = meta.getValidations().get(i);
-
-        if (StringUtils.isNotEmpty(field.getFieldName())) {
-          data.fieldIndexes[i] = getInputRowMeta().indexOfValue(field.getFieldName());
-          if (data.fieldIndexes[i] < 0) {
-            // Nope: throw an exception
-            throw new HopTransformException(
-                "Unable to find the specified field name '"
-                    + field.getFieldName()
-                    + "' for validation number "
-                    + (i + 1));
-          }
-        } else {
-          throw new HopTransformException(
-              "There is no name specified for validator field #" + (i + 1));
-        }
-      }
+      calculateFieldIndexes();
     } else {
       // Read the row AFTER the info rows.
       // That way the info-rowsets are out of the way.
@@ -123,7 +94,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
     try {
       List<HopValidatorException> exceptions = validateFields(getInputRowMeta(), r);
-      if (exceptions.size() > 0) {
+      if (!exceptions.isEmpty()) {
         if (getTransformMeta().isDoingErrorHandling()) {
           if (meta.isConcatenatingErrors()) {
             StringBuilder messages = new StringBuilder();
@@ -177,6 +148,32 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     }
 
     return true;
+  }
+
+  private void calculateFieldIndexes() throws HopTransformException {
+    data.fieldIndexes = new int[meta.getValidations().size()];
+
+    // Calculate the indexes of the values and arguments in the target data or temporary data
+    // We do this in advance to save time later on.
+    //
+    for (int i = 0; i < meta.getValidations().size(); i++) {
+      Validation field = meta.getValidations().get(i);
+
+      if (StringUtils.isNotEmpty(field.getFieldName())) {
+        data.fieldIndexes[i] = getInputRowMeta().indexOfValue(field.getFieldName());
+        if (data.fieldIndexes[i] < 0) {
+          // Nope: throw an exception
+          throw new HopTransformException(
+              "Unable to find the specified field name '"
+                  + field.getFieldName()
+                  + "' for validation number "
+                  + (i + 1));
+        }
+      } else {
+        throw new HopTransformException(
+            "There is no name specified for validator field #" + (i + 1));
+      }
+    }
   }
 
   private void readSourceValuesFromInfoTransforms() throws HopTransformException {
@@ -307,28 +304,26 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
       int dataType = ValueMetaFactory.getIdForValueMeta(field.getDataType());
 
       // Check the data type!
+      // Same data type?
       //
-      if (field.isDataTypeVerified() && dataType != IValueMeta.TYPE_NONE) {
-
-        // Same data type?
-        //
-        if (dataType != valueMeta.getType()) {
-          HopValidatorException exception =
-              new HopValidatorException(
-                  this,
-                  field,
-                  HopValidatorException.ERROR_UNEXPECTED_DATA_TYPE,
-                  BaseMessages.getString(
-                      PKG,
-                      "Validator.Exception.UnexpectedDataType",
-                      field.getFieldName(),
-                      valueMeta.toStringMeta(),
-                      validatorMeta.toStringMeta()),
-                  field.getFieldName());
-          exceptions.add(exception);
-          if (!meta.isValidatingAll()) {
-            return exceptions;
-          }
+      if (field.isDataTypeVerified()
+          && dataType != IValueMeta.TYPE_NONE
+          && dataType != valueMeta.getType()) {
+        HopValidatorException exception =
+            new HopValidatorException(
+                this,
+                field,
+                HopValidatorException.ERROR_UNEXPECTED_DATA_TYPE,
+                BaseMessages.getString(
+                    PKG,
+                    "Validator.Exception.UnexpectedDataType",
+                    field.getFieldName(),
+                    valueMeta.toStringMeta(),
+                    validatorMeta.toStringMeta()),
+                field.getFieldName());
+        exceptions.add(exception);
+        if (!meta.isValidatingAll()) {
+          return exceptions;
         }
       }
 
@@ -654,6 +649,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     return true;
   }
 
+  @Override
   public boolean init() {
     if (!super.init()) {
       return false;
@@ -696,73 +692,16 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     data.patternDisallowed = new Pattern[meta.getValidations().size()];
 
     for (int i = 0; i < meta.getValidations().size(); i++) {
-
       Validation field = meta.getValidations().get(i);
       int dataType = ValueMetaFactory.getIdForValueMeta(field.getDataType());
 
       try {
-        data.constantsMeta[i] = createValueMeta(field.getFieldName(), field.getDataType());
-        data.constantsMeta[i].setConversionMask(field.getConversionMask());
-        data.constantsMeta[i].setDecimalSymbol(field.getDecimalSymbol());
-        data.constantsMeta[i].setGroupingSymbol(field.getGroupingSymbol());
-        data.errorCode[i] = resolve(Const.NVL(field.getErrorCode(), ""));
-        data.errorDescription[i] = resolve(Const.NVL(field.getErrorDescription(), ""));
-        data.conversionMask[i] = resolve(Const.NVL(field.getConversionMask(), ""));
-        data.decimalSymbol[i] = resolve(Const.NVL(field.getDecimalSymbol(), ""));
-        data.groupingSymbol[i] = resolve(Const.NVL(field.getGroupingSymbol(), ""));
-        data.maximumLength[i] = resolve(Const.NVL(field.getMaximumLength(), ""));
-        data.minimumLength[i] = resolve(Const.NVL(field.getMinimumLength(), ""));
-        data.maximumValueAsString[i] = resolve(Const.NVL(field.getMaximumValue(), ""));
-        data.minimumValueAsString[i] = resolve(Const.NVL(field.getMinimumValue(), ""));
-        data.startString[i] = resolve(Const.NVL(field.getStartString(), ""));
-        data.endString[i] = resolve(Const.NVL(field.getEndString(), ""));
-        data.startStringNotAllowed[i] = resolve(Const.NVL(field.getStartStringNotAllowed(), ""));
-        data.endStringNotAllowed[i] = resolve(Const.NVL(field.getEndStringNotAllowed(), ""));
-        data.regularExpression[i] = resolve(Const.NVL(field.getRegularExpression(), ""));
-        data.regularExpressionNotAllowed[i] =
-            resolve(Const.NVL(field.getRegularExpressionNotAllowed(), ""));
-
+        initBasics(i, field);
         IValueMeta stringMeta = cloneValueMeta(data.constantsMeta[i], IValueMeta.TYPE_STRING);
-        data.minimumValue[i] =
-            StringUtils.isEmpty(data.minimumValueAsString[i])
-                ? null
-                : data.constantsMeta[i].convertData(stringMeta, data.minimumValueAsString[i]);
-        data.maximumValue[i] =
-            StringUtils.isEmpty(data.maximumValueAsString[i])
-                ? null
-                : data.constantsMeta[i].convertData(stringMeta, data.maximumValueAsString[i]);
-
-        try {
-          data.fieldsMinimumLengthAsInt[i] =
-              Integer.parseInt(Const.NVL(data.minimumLength[i], "-1"));
-        } catch (NumberFormatException nfe) {
-          throw new HopValueException(
-              "Caught a number format exception converting minimum length with value "
-                  + data.minimumLength[i]
-                  + " to an int.",
-              nfe);
-        }
-
-        try {
-          data.fieldsMaximumLengthAsInt[i] =
-              Integer.parseInt(Const.NVL(data.maximumLength[i], "-1"));
-        } catch (NumberFormatException nfe) {
-          throw new HopValueException(
-              "Caught a number format exception converting minimum length with value "
-                  + data.maximumLength[i]
-                  + " to an int.",
-              nfe);
-        }
-
-        int listSize = field.getAllowedValues() != null ? field.getAllowedValues().size() : 0;
-        data.listValues[i] = new Object[listSize];
-        for (int s = 0; s < listSize; s++) {
-          data.listValues[i][s] =
-              StringUtils.isEmpty(field.getAllowedValues().get(s))
-                  ? null
-                  : data.constantsMeta[i].convertData(
-                      stringMeta, resolve(field.getAllowedValues().get(s)));
-        }
+        initMinMaxValues(i, stringMeta);
+        initMinStringLength(i);
+        initMaxStringLength(i);
+        initListValues(i, field, stringMeta);
       } catch (HopException e) {
         if (dataType == IValueMeta.TYPE_NONE) {
           logError(BaseMessages.getString(PKG, "Validator.Exception.SpecifyDataType"), e);
@@ -782,6 +721,78 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
     }
 
     return true;
+  }
+
+  private void initBasics(int i, Validation field) throws HopPluginException {
+    data.constantsMeta[i] = createValueMeta(field.getFieldName(), field.getDataType());
+    data.constantsMeta[i].setConversionMask(field.getConversionMask());
+    data.constantsMeta[i].setDecimalSymbol(field.getDecimalSymbol());
+    data.constantsMeta[i].setGroupingSymbol(field.getGroupingSymbol());
+    data.errorCode[i] = resolve(Const.NVL(field.getErrorCode(), ""));
+    data.errorDescription[i] = resolve(Const.NVL(field.getErrorDescription(), ""));
+    data.conversionMask[i] = resolve(Const.NVL(field.getConversionMask(), ""));
+    data.decimalSymbol[i] = resolve(Const.NVL(field.getDecimalSymbol(), ""));
+    data.groupingSymbol[i] = resolve(Const.NVL(field.getGroupingSymbol(), ""));
+    data.maximumLength[i] = resolve(Const.NVL(field.getMaximumLength(), ""));
+    data.minimumLength[i] = resolve(Const.NVL(field.getMinimumLength(), ""));
+    data.maximumValueAsString[i] = resolve(Const.NVL(field.getMaximumValue(), ""));
+    data.minimumValueAsString[i] = resolve(Const.NVL(field.getMinimumValue(), ""));
+    data.startString[i] = resolve(Const.NVL(field.getStartString(), ""));
+    data.endString[i] = resolve(Const.NVL(field.getEndString(), ""));
+    data.startStringNotAllowed[i] = resolve(Const.NVL(field.getStartStringNotAllowed(), ""));
+    data.endStringNotAllowed[i] = resolve(Const.NVL(field.getEndStringNotAllowed(), ""));
+    data.regularExpression[i] = resolve(Const.NVL(field.getRegularExpression(), ""));
+    data.regularExpressionNotAllowed[i] =
+        resolve(Const.NVL(field.getRegularExpressionNotAllowed(), ""));
+  }
+
+  private void initMinMaxValues(int i, IValueMeta stringMeta) throws HopValueException {
+    data.minimumValue[i] =
+        StringUtils.isEmpty(data.minimumValueAsString[i])
+            ? null
+            : data.constantsMeta[i].convertData(stringMeta, data.minimumValueAsString[i]);
+    data.maximumValue[i] =
+        StringUtils.isEmpty(data.maximumValueAsString[i])
+            ? null
+            : data.constantsMeta[i].convertData(stringMeta, data.maximumValueAsString[i]);
+  }
+
+  private void initListValues(int i, Validation field, IValueMeta stringMeta) throws HopValueException {
+    int listSize = field.getAllowedValues() != null ? field.getAllowedValues().size() : 0;
+    data.listValues[i] = new Object[listSize];
+    for (int s = 0; s < listSize; s++) {
+      data.listValues[i][s] =
+          StringUtils.isEmpty(field.getAllowedValues().get(s))
+              ? null
+              : data.constantsMeta[i].convertData(
+                  stringMeta, resolve(field.getAllowedValues().get(s)));
+    }
+  }
+
+  private void initMaxStringLength(int i) throws HopValueException {
+    try {
+      data.fieldsMaximumLengthAsInt[i] =
+          Integer.parseInt(Const.NVL(data.maximumLength[i], "-1"));
+    } catch (NumberFormatException nfe) {
+      throw new HopValueException(
+          "Caught a number format exception converting minimum length with value "
+              + data.maximumLength[i]
+              + " to an int.",
+          nfe);
+    }
+  }
+
+  private void initMinStringLength(int i) throws HopValueException {
+    try {
+      data.fieldsMinimumLengthAsInt[i] =
+          Integer.parseInt(Const.NVL(data.minimumLength[i], "-1"));
+    } catch (NumberFormatException nfe) {
+      throw new HopValueException(
+          "Caught a number format exception converting minimum length with value "
+              + data.minimumLength[i]
+              + " to an int.",
+          nfe);
+    }
   }
 
   protected IValueMeta createValueMeta(String name, String type) throws HopPluginException {
