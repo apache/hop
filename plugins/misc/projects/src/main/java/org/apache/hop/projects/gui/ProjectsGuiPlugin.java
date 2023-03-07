@@ -194,16 +194,30 @@ public class ProjectsGuiPlugin {
       toolTip = "i18n::HopGui.Toolbar.ProjectsList.Tooltip")
   public void selectProject() {
     HopGui hopGui = HopGui.getInstance();
-    Combo combo = getProjectsCombo();
-    if (combo == null) {
-      return;
-    }
-    String projectName = combo.getText();
-    if (StringUtils.isEmpty(projectName)) {
-      return;
-    }
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+
+    Combo projectsCombo = getProjectsCombo();
+    Combo environmentsCombo = getEnvironmentsCombo();
+
+    if (projectsCombo == null) {
+      return;
+    }
+    String projectName = projectsCombo.getText();
+
+    // list all environments and select the first one if we don't have a project selected
+    if (StringUtils.isEmpty(projectName)) {
+      List<String> allEnvironments = config.listEnvironmentNames();
+      environmentsCombo.setItems(allEnvironments.toArray(new String[allEnvironments.size()]));
+      selectEnvironmentInList(allEnvironments.get(0));
+      return;
+    }
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
+
+    // get the environments for the selected project.
+    if(environmentsCombo != null){
+      List<String> projectEnvironments = config.listEnvironmentNamesForProject(projectName);
+      environmentsCombo.setItems(projectEnvironments.toArray(new String[projectEnvironments.size()]));
+    }
 
     // What is the last used environment?
     //
@@ -919,11 +933,11 @@ public class ProjectsGuiPlugin {
 
   public static void selectProjectInList(String name) {
     GuiToolbarWidgets toolbarWidgets = HopGui.getInstance().getMainToolbarWidgets();
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     toolbarWidgets.selectComboItem(ID_TOOLBAR_PROJECT_COMBO, name);
     Combo combo = getProjectsCombo();
     if (combo != null) {
-      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       ProjectConfig projectConfig = config.findProjectConfig(name);
       if (projectConfig != null) {
         String projectHome = projectConfig.getProjectHome();

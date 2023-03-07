@@ -168,6 +168,18 @@ public class ProjectsConfig {
     return names;
   }
 
+  public List<String> listEnvironmentNamesForProject(String projectName){
+    List<String> names = new ArrayList<>();
+    lifecycleEnvironments.stream().forEach(env -> {
+      if(env.getProjectName().equals(projectName)){
+        names.add(env.getName());
+      }
+    });
+
+    Collections.sort(names);
+    return names;
+  }
+
   public int indexOfEnvironment(String environmentName) {
     return lifecycleEnvironments.indexOf(
         new LifecycleEnvironment(
