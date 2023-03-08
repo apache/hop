@@ -294,7 +294,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     try {
       IRowMeta refFields = data.referenceDb.getTableFieldsMeta(referenceSchema, referenceTable);
-      IRowMeta cmpFields = data.compareDb.getTableFieldsMeta(referenceSchema, referenceTable);
+      IRowMeta cmpFields = data.compareDb.getTableFieldsMeta(compareSchema, compareTable);
 
       // Remove the excluded fields from these fields...
       //

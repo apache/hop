@@ -1,0 +1,71 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "string1",
+          "data_set_field": "string1"
+        },
+        {
+          "transform_field": "string2",
+          "data_set_field": "string2"
+        }
+      ],
+      "field_order": [
+        "string1",
+        "string2"
+      ],
+      "data_set_name": "golden-data-validator-source-output",
+      "transform_name": "Output"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "string1",
+          "data_set_field": "string1"
+        },
+        {
+          "transform_field": "string2",
+          "data_set_field": "string2"
+        },
+        {
+          "transform_field": "errorCount",
+          "data_set_field": "errorCount"
+        },
+        {
+          "transform_field": "errorDescriptions",
+          "data_set_field": "errorDescriptions"
+        },
+        {
+          "transform_field": "errorFields",
+          "data_set_field": "errorFields"
+        },
+        {
+          "transform_field": "errorCodes",
+          "data_set_field": "errorCodes"
+        }
+      ],
+      "field_order": [
+        "string1",
+        "string2",
+        "errorCount",
+        "errorDescriptions",
+        "errorFields",
+        "errorCodes"
+      ],
+      "data_set_name": "golden-data-validator-source-errors",
+      "transform_name": "Errors"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0067-data-validator-source UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0067-data-validator-source.hpl",
+  "test_type": "UNIT_TEST"
+}

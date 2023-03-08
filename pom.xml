@@ -143,6 +143,7 @@
         <httpccore.version>4.4.15</httpccore.version>
         <jackcess.version>4.0.4</jackcess.version>
         <jackson.version>2.14.2</jackson.version>
+        <jakarta.version>3.1.0</jakarta.version>
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <jandex.version>3.0.5</jandex.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
@@ -867,6 +868,7 @@
                 <module>ui</module>
                 <module>rap</module>
                 <module>rcp</module>
+                <module>rest</module>
                 <module>plugins</module>
             </modules>
         </profile>

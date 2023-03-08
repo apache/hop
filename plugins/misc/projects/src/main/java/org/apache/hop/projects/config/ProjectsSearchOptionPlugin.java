@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.search.ProjectsSearchablesLocation;
 import org.apache.hop.search.HopSearch;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -47,6 +48,10 @@ public class ProjectsSearchOptionPlugin extends ProjectsOptionPlugin implements 
       if (StringUtils.isNotEmpty(projectName)) {
         log.logBasic("Searching in project : " + projectName);
 
+        // Re-load the project config
+        //
+        ProjectConfig projectConfig =
+            ProjectsConfigSingleton.getConfig().findProjectConfig(projectName);
         ProjectsSearchablesLocation projectsSearchablesLocation =
             new ProjectsSearchablesLocation(projectConfig);
         ((HopSearch) hasHopMetadataProvider)

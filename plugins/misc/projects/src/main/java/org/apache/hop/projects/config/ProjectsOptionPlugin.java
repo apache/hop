@@ -17,6 +17,8 @@
 
 package org.apache.hop.projects.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -28,9 +30,6 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ProjectsOptionPlugin implements IConfigOptions {
 
@@ -44,24 +43,30 @@ public class ProjectsOptionPlugin implements IConfigOptions {
       description = "The name of the project to use")
   private String projectOption = null;
 
-  protected ProjectsConfig config;
-  protected ProjectConfig projectConfig;
-  protected List<String> configurationFiles;
-  protected Project project;
   protected String projectName;
   protected String environmentName;
-  protected LifecycleEnvironment environment;
 
   @Override
   public boolean handleOption(
       ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables)
       throws HopException {
 
-    config = ProjectsConfigSingleton.getConfig();
-    projectConfig = null;
-    configurationFiles = new ArrayList<>();
     projectName = projectOption;
     environmentName = environmentOption;
+    return configure(log, variables, hasHopMetadataProvider, projectName, environmentName);
+  }
+
+  public static final boolean configure(
+      ILogChannel log,
+      IVariables variables,
+      IHasHopMetadataProvider hasHopMetadataProvider,
+      String projectName,
+      String environmentName)
+      throws HopException {
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig;
+    List<String> configurationFiles = new ArrayList<>();
+    LifecycleEnvironment environment;
 
     // You can specify the project using -p (project) or -e (lifecycle environment)
     // The main difference is that the environment provides extra configuration files to consider.
@@ -104,7 +109,7 @@ public class ProjectsOptionPlugin implements IConfigOptions {
 
       if (StringUtils.isEmpty(projectName)) {
         throw new HopException(
-            "Lifecycle environment '" + environmentOption + "' is not referencing a project.");
+            "Lifecycle environment '" + environmentName + "' is not referencing a project.");
       }
       projectConfig = config.findProjectConfig(projectName);
       if (projectConfig == null) {
@@ -118,7 +123,7 @@ public class ProjectsOptionPlugin implements IConfigOptions {
 
       log.logBasic(
           "Referencing environment '"
-              + environmentOption
+              + environmentName
               + "' for project "
               + projectName
               + "' in "
@@ -155,7 +160,6 @@ public class ProjectsOptionPlugin implements IConfigOptions {
           hasHopMetadataProvider);
 
       return true;
-
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "'", e);
     }

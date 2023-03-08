@@ -194,6 +194,7 @@
                 <module>uniquerows</module>
                 <module>uniquerowsbyhashset</module>
                 <module>update</module>
+                <module>validator</module>
                 <module>valuemapper</module>
                 <module>verticabulkloader</module>
                 <module>webserviceavailable</module>

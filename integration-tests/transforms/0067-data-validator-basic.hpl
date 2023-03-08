@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0067-data-validator-basic</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/03/08 14:23:12.586</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/03/08 14:23:12.586</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>sample data</from>
+      <to>Validate data</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Validate data</from>
+      <to>Errors</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Validate data</from>
+      <to>Output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Errors</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Output</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Validate data</name>
+    <type>Validator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <concat_errors>N</concat_errors>
+    <validate_all>Y</validate_all>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type>String</data_type>
+      <data_type_verified>Y</data_type_verified>
+      <error_code>STR1_NULL</error_code>
+      <error_description>Field string1 is null</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>N</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: not null</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_LEAD_SPACES</error_code>
+      <error_description>Field string1 contains leading space(s)</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <start_string_not_allowed> </start_string_not_allowed>
+      <validation_name>string1: no leading spaces</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <end_string_not_allowed> </end_string_not_allowed>
+      <error_code>STR1_TRAIL_SPACES</error_code>
+      <error_description>FIeld string1 has trailing spaces</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: no trailing spaces</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_TOO_LONG</error_code>
+      <error_description>Field string1 has more than 15 characters</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length>15</max_length>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: max length 15</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_COM</error_code>
+      <error_description>Field string1 starts with COM</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <start_string_not_allowed>COM</start_string_not_allowed>
+      <validation_name>string1: no COM start</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <end_string_not_allowed>END</end_string_not_allowed>
+      <error_code>STR1_END</error_code>
+      <error_description>Field string1 ends with END</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: no END end</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_MIN_LENGTH</error_code>
+      <error_description>Field string1 is shorter than 6 characters</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length>6</min_length>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: min length 6</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_REGEX_NON_ALPHA</error_code>
+      <error_description>Field string1 contains non-alphanumeric characters</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <regular_expression_not_allowed>.*[^a-zA-Z\d\s:].*</regular_expression_not_allowed>
+      <validation_name>string1: regex no non-alpha</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_ONLY_ALPHA</error_code>
+      <error_description>Field string1 can only contain alpha-numeric characters</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <regular_expression>^[a-zA-Z\d\s]*$</regular_expression>
+      <validation_name>string1: only alpha</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type>String</data_type>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_MIN_VALUE</error_code>
+      <error_description>Field string1 value is lower than minimum aaa</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <min_value>aaa</min_value>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: min value</validation_name>
+    </validator_field>
+    <validator_field>
+      <allowed_value>
+</allowed_value>
+      <data_type>String</data_type>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_MAX_VALUE</error_code>
+      <error_description>Field string1 value is higher than maximum zzz</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <max_value>zzz</max_value>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: max value</validation_name>
+    </validator_field>
+    <attributes/>
+    <GUI>
+      <xloc>304</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sample data</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>aaaaaa</item>
+      </line>
+      <line>
+        <item>cc ddd</item>
+      </line>
+      <line>
+        <item/>
+      </line>
+      <line>
+        <item>This string is too long</item>
+      </line>
+      <line>
+        <item>short</item>
+      </line>
+      <line>
+        <item>  not trimmed </item>
+      </line>
+      <line>
+        <item>gggggg</item>
+      </line>
+      <line>
+        <item>COM comment</item>
+      </line>
+      <line>
+        <item>special end END</item>
+      </line>
+      <line>
+        <item>non-alpha "</item>
+      </line>
+      <line>
+        <item>zzzzzzz</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>string1</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>Validate data</source_transform>
+      <target_transform>Errors</target_transform>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>errorCount</nr_valuename>
+      <descriptions_valuename>errorDescriptions</descriptions_valuename>
+      <fields_valuename>errorFields</fields_valuename>
+      <codes_valuename>errorCodes</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

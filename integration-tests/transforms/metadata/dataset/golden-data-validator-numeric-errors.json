@@ -1,0 +1,56 @@
+{
+  "base_filename": "golden-data-validator-numeric-errors.csv",
+  "name": "golden-data-validator-numeric-errors",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "int1",
+      "field_format": "###,###,##0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "int2",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": 3,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_name": "errorCount",
+      "field_format": "####0;-####0"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "errorDescriptions",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "errorFields",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "errorCodes",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

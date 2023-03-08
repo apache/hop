@@ -1,0 +1,151 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "ref_schema",
+          "data_set_field": "ref_schema"
+        },
+        {
+          "transform_field": "ref_table",
+          "data_set_field": "ref_table"
+        },
+        {
+          "transform_field": "cmp_schema",
+          "data_set_field": "cmp_schema"
+        },
+        {
+          "transform_field": "cmp_table",
+          "data_set_field": "cmp_table"
+        },
+        {
+          "transform_field": "id_fields",
+          "data_set_field": "id_fields"
+        },
+        {
+          "transform_field": "excl_fields",
+          "data_set_field": "excl_fields"
+        },
+        {
+          "transform_field": "key_description",
+          "data_set_field": "key_description"
+        },
+        {
+          "transform_field": "ref_value",
+          "data_set_field": "ref_value"
+        },
+        {
+          "transform_field": "compare_value",
+          "data_set_field": "compare_value"
+        },
+        {
+          "transform_field": "nrErrors",
+          "data_set_field": "nrErrors"
+        },
+        {
+          "transform_field": "nrRecordsReferenceTable",
+          "data_set_field": "nrRecordsReferenceTable"
+        },
+        {
+          "transform_field": "nrRecordsCompareTable",
+          "data_set_field": "nrRecordsCompareTable"
+        },
+        {
+          "transform_field": "nrErrorsLeftJoin",
+          "data_set_field": "nrErrorsLeftJoin"
+        },
+        {
+          "transform_field": "nrErrorsInnerJoin",
+          "data_set_field": "nrErrorsInnerJoin"
+        },
+        {
+          "transform_field": "nrErrorsRightJoin",
+          "data_set_field": "nrErrorsRightJoin"
+        }
+      ],
+      "field_order": [
+        "ref_schema",
+        "ref_table",
+        "cmp_schema",
+        "cmp_table",
+        "id_fields",
+        "excl_fields",
+        "key_description",
+        "ref_value",
+        "compare_value",
+        "nrErrors",
+        "nrRecordsReferenceTable",
+        "nrRecordsCompareTable",
+        "nrErrorsLeftJoin",
+        "nrErrorsInnerJoin",
+        "nrErrorsRightJoin"
+      ],
+      "data_set_name": "golden-table-compare-general",
+      "transform_name": "Table results"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "ref_schema",
+          "data_set_field": "ref_schema"
+        },
+        {
+          "transform_field": "ref_table",
+          "data_set_field": "ref_table"
+        },
+        {
+          "transform_field": "cmp_schema",
+          "data_set_field": "cmp_schema"
+        },
+        {
+          "transform_field": "cmp_table",
+          "data_set_field": "cmp_table"
+        },
+        {
+          "transform_field": "id_fields",
+          "data_set_field": "id_fields"
+        },
+        {
+          "transform_field": "excl_fields",
+          "data_set_field": "excl_fields"
+        },
+        {
+          "transform_field": "key_description",
+          "data_set_field": "key_description"
+        },
+        {
+          "transform_field": "ref_value",
+          "data_set_field": "ref_value"
+        },
+        {
+          "transform_field": "compare_value",
+          "data_set_field": "compare_value"
+        }
+      ],
+      "field_order": [
+        "ref_schema",
+        "ref_table",
+        "cmp_schema",
+        "cmp_table",
+        "id_fields",
+        "excl_fields",
+        "key_description",
+        "ref_value",
+        "compare_value"
+      ],
+      "data_set_name": "golden-table-compare-details",
+      "transform_name": "ERRORS"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0025-table-compare-validation UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0025-table-compare-validation.hpl",
+  "test_type": "UNIT_TEST"
+}
