@@ -44,12 +44,6 @@
             <artifactId>hop-databases-cache</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <!-- License Apache 2.0 -->
-            <groupId>com.intersystems</groupId>
-            <artifactId>intersystems-jdbc</artifactId>
-            <version>${cache.version}</version>
-        </dependency>
     </dependencies>
 
 </project>
