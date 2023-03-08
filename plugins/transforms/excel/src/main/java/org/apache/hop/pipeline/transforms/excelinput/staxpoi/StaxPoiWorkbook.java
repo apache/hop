@@ -24,6 +24,7 @@ import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 
 import javax.xml.stream.XMLInputFactory;
@@ -61,6 +62,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
 
   protected StaxPoiWorkbook() {
     openSheetsMap = new HashMap<>();
+    IOUtils.setByteArrayMaxOverride(Integer.MAX_VALUE);
     this.log = HopLogStore.getLogChannelFactory().create(this);
   }
 
