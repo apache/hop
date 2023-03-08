@@ -925,6 +925,7 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
 
       selectedField.setSourcingValues(wSourceValues.getSelection());
       selectedField.setSourcingField(wSourceField.getText());
+      selectedField.setSourcingTransformName(wSourceTransform.getText());
       selectedField.setSourcingTransform(pipelineMeta.findTransform(wSourceTransform.getText()));
 
       // Save the old info in the map
@@ -1123,6 +1124,8 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
     input.setConcatenationSeparator(wConcatSeparator.getText());
 
     input.setValidations(selectionList);
+
+    input.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
 
     dispose();
   }

@@ -19,6 +19,7 @@
 package org.apache.hop.pipeline.transforms.validator;
 
 import java.util.regex.Pattern;
+import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -53,6 +54,7 @@ public class ValidatorData extends BaseTransformData implements ITransformData {
   public String[] endStringNotAllowed;
   public String[] regularExpression;
   public String[] regularExpressionNotAllowed;
+  public IRowMeta inputRowMeta;
 
   public ValidatorData() {
     super();

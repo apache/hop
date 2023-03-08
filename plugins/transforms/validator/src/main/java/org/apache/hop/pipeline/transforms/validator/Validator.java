@@ -114,7 +114,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
               codes.append(e.getCodeDesc());
             }
             putError(
-                getInputRowMeta(),
+                data.inputRowMeta,
                 r,
                 exceptions.size(),
                 messages.toString(),
@@ -122,7 +122,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
                 codes.toString());
           } else {
             for (HopValidatorException e : exceptions) {
-              putError(getInputRowMeta(), r, 1, e.getMessage(), e.getFieldName(), e.getCodeDesc());
+              putError(data.inputRowMeta, r, 1, e.getMessage(), e.getFieldName(), e.getCodeDesc());
             }
           }
         } else {
@@ -134,7 +134,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
       }
     } catch (HopValidatorException e) {
       if (getTransformMeta().isDoingErrorHandling()) {
-        putError(getInputRowMeta(), r, 1, e.getMessage(), e.getFieldName(), e.getCodeDesc());
+        putError(data.inputRowMeta, r, 1, e.getMessage(), e.getFieldName(), e.getCodeDesc());
       } else {
         throw new HopException(e.getMessage(), e);
       }
@@ -177,6 +177,10 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
   }
 
   private void readSourceValuesFromInfoTransforms() throws HopTransformException {
+    // The input and the output are the same but without the "info" source transforms.
+    //
+    data.inputRowMeta = getPipelineMeta().getTransformFields(variables, getTransformName());
+
     Map<String, Integer> inputTransformWasProcessed = new HashMap<>();
     for (int i = 0; i < meta.getValidations().size(); i++) {
       Validation field = meta.getValidations().get(i);
@@ -757,7 +761,8 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
             : data.constantsMeta[i].convertData(stringMeta, data.maximumValueAsString[i]);
   }
 
-  private void initListValues(int i, Validation field, IValueMeta stringMeta) throws HopValueException {
+  private void initListValues(int i, Validation field, IValueMeta stringMeta)
+      throws HopValueException {
     int listSize = field.getAllowedValues() != null ? field.getAllowedValues().size() : 0;
     data.listValues[i] = new Object[listSize];
     for (int s = 0; s < listSize; s++) {
@@ -771,8 +776,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
   private void initMaxStringLength(int i) throws HopValueException {
     try {
-      data.fieldsMaximumLengthAsInt[i] =
-          Integer.parseInt(Const.NVL(data.maximumLength[i], "-1"));
+      data.fieldsMaximumLengthAsInt[i] = Integer.parseInt(Const.NVL(data.maximumLength[i], "-1"));
     } catch (NumberFormatException nfe) {
       throw new HopValueException(
           "Caught a number format exception converting minimum length with value "
@@ -784,8 +788,7 @@ public class Validator extends BaseTransform<ValidatorMeta, ValidatorData> imple
 
   private void initMinStringLength(int i) throws HopValueException {
     try {
-      data.fieldsMinimumLengthAsInt[i] =
-          Integer.parseInt(Const.NVL(data.minimumLength[i], "-1"));
+      data.fieldsMinimumLengthAsInt[i] = Integer.parseInt(Const.NVL(data.minimumLength[i], "-1"));
     } catch (NumberFormatException nfe) {
       throw new HopValueException(
           "Caught a number format exception converting minimum length with value "

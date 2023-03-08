@@ -127,8 +127,10 @@ public class Validation implements Cloneable {
           injectionKeyDescription = "Validator.Injection.ERROR_CODE_DESCRIPTION")
   private String errorDescription;
 
-  // These values are not serialized
+  @HopMetadataProperty(groupKey="allowed_value", key="value")
   private List<String> allowedValues;
+
+  // Non-serialized
   private TransformMeta sourcingTransform;
 
   public Validation() {

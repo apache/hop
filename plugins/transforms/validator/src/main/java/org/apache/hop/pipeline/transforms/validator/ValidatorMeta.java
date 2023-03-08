@@ -146,7 +146,7 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
 
   @Override
   public ITransformIOMeta getTransformIOMeta() {
-    ITransformIOMeta ioMeta = super.getTransformIOMeta(true);
+    ITransformIOMeta ioMeta = super.getTransformIOMeta(false);
     if (ioMeta != null) {
       return ioMeta;
     }
@@ -170,15 +170,10 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
 
   @Override
   public void searchInfoAndTargetTransforms(List transforms) {
-    List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
-    for (IStream stream : infoStreams) {
-      String validationName = stream.getSubject();
-      Validation validation = Validation.findValidation(validations, validationName);
-      if (validation != null) {
-        TransformMeta transformMeta =
-            TransformMeta.findTransform(transforms, validation.getSourcingTransformName());
-        validation.setSourcingTransform(transformMeta);
-      }
+    for (Validation validation : validations) {
+      TransformMeta transformMeta =
+              TransformMeta.findTransform(transforms, validation.getSourcingTransformName());
+      validation.setSourcingTransform(transformMeta);
     }
     resetTransformIoMeta();
   }

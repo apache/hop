@@ -1,0 +1,14 @@
+string1,errorCount,errorDescriptions,errorFields,errorCodes
+"",1,Field string1 is null,string1,STR1_NULL
+This string is too long,1,Field string1 has more than 15 characters,string1,STR1_TOO_LONG
+This string is too long,1,Field string1 value is lower than minimum aaa,string1,STR1_MIN_VALUE
+short,1,Field string1 is shorter than 6 characters,string1,STR1_MIN_LENGTH
+"  not trimmed ",1,Field string1 contains leading space(s),string1,STR1_LEAD_SPACES
+"  not trimmed ",1,FIeld string1 has trailing spaces,string1,STR1_TRAIL_SPACES
+"  not trimmed ",1,Field string1 value is lower than minimum aaa,string1,STR1_MIN_VALUE
+COM comment,1,Field string1 starts with COM,string1,STR1_COM
+COM comment,1,Field string1 value is lower than minimum aaa,string1,STR1_MIN_VALUE
+special end END,1,Field string1 ends with END,string1,STR1_END
+"non-alpha """,1,Field string1 contains non-alphanumeric characters,string1,STR1_REGEX_NON_ALPHA
+"non-alpha """,1,Field string1 can only contain alpha-numeric characters,string1,STR1_ONLY_ALPHA
+zzzzzzz,1,Field string1 value is higher than maximum zzz,string1,STR1_MAX_VALUE

@@ -18,6 +18,22 @@
 // CHECKSTYLE:FileLength:OFF
 package org.apache.hop.ui.hopgui.file.pipeline;
 
+import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -191,23 +207,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.ToolTip;
-
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
 
 /**
  * This class handles the display of the pipelines in a graphical way using icons, arrows, etc. One
@@ -472,7 +471,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // The main composite contains the graph view, but if needed also
     // a view with an extra tab containing log, etc.
     //
-    Composite mainComposite = new Composite(this, SWT.NONE);    
+    Composite mainComposite = new Composite(this, SWT.NONE);
     mainComposite.setLayout(new FormLayout());
     FormData fdMainComposite = new FormData();
     fdMainComposite.left = new FormAttachment(0, 0);
@@ -1819,7 +1818,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void zoomOut() {
     super.zoomOut();
   }
-  
+
   @Override
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
@@ -3175,30 +3174,26 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog(hopShell());
 
-      // Run something in the background to cancel active database queries, forecably if needed!
-      // TODO: make this runnable a Lambda expression in a way that does not
-      // raise java.lang.SecurityException even on RAP/RWT.
+      // Run something in the background to cancel active database queries. Force this if needed!
+      //
       Runnable run =
-          new Runnable() {
-            @Override
-            public void run() {
-              IProgressMonitor monitor = pmd.getProgressMonitor();
-              while (pmd.getShell() == null
-                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-                try {
-                  Thread.sleep(250);
-                } catch (InterruptedException e) {
-                  // Ignore
-                }
+          () -> {
+            IProgressMonitor monitor = pmd.getProgressMonitor();
+            while (pmd.getShell() == null
+                || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+              try {
+                Thread.sleep(250);
+              } catch (InterruptedException e) {
+                // Ignore
               }
+            }
 
-              if (monitor.isCanceled()) { // Disconnect and see what happens!
+            if (monitor.isCanceled()) { // Disconnect and see what happens!
 
-                try {
-                  pipelineMeta.cancelQueries();
-                } catch (Exception e) {
-                  // Ignore
-                }
+              try {
+                pipelineMeta.cancelQueries();
+              } catch (Exception e) {
+                // Ignore
               }
             }
           };
@@ -3206,14 +3201,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       new Thread(run).start();
 
       pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      new ErrorDialog(
-          hopShell(),
-          BaseMessages.getString(PKG, "PipelineGraph.Dialog.GettingFields.Title"),
-          BaseMessages.getString(PKG, "PipelineGraph.Dialog.GettingFields.Message"),
-          e);
-      alreadyThrownError = true;
-    } catch (InterruptedException e) {
+    } catch (InvocationTargetException | InterruptedException e) {
       new ErrorDialog(
           hopShell(),
           BaseMessages.getString(PKG, "PipelineGraph.Dialog.GettingFields.Title"),
@@ -5456,8 +5444,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       List<Execution> executions = iLocation.findExecutions(transformId);
       if (executions.size() > 0) {
         Execution execution = executions.get(0);
-        ExecutionState executionState =
-                iLocation.getExecutionState(execution.getId());
+        ExecutionState executionState = iLocation.getExecutionState(execution.getId());
         executionPerspective.createExecutionViewer(locationName, execution, executionState);
         executionPerspective.activate();
       }

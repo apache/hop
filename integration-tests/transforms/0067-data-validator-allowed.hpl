@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0067-data-validator-allowed</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/03/08 15:01:48.586</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/03/08 15:01:48.586</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Validate data</from>
+      <to>Errors</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Validate data</from>
+      <to>Output</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>sample data</from>
+      <to>Validate data</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Errors</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Output</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>512</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Validate data</name>
+    <type>Validator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <concat_errors>N</concat_errors>
+    <validate_all>Y</validate_all>
+    <validator_field>
+      <allowed_value>
+        <value>A</value>
+        <value>B</value>
+        <value>C</value>
+      </allowed_value>
+      <data_type>String</data_type>
+      <data_type_verified>N</data_type_verified>
+      <error_code>STR1_ALLOWED</error_code>
+      <error_description>Field string1 has an non-allowed value</error_description>
+      <is_sourcing_values>N</is_sourcing_values>
+      <max_length/>
+      <min_length/>
+      <name>string1</name>
+      <null_allowed>Y</null_allowed>
+      <only_null_allowed>N</only_null_allowed>
+      <only_numeric_allowed>N</only_numeric_allowed>
+      <validation_name>string1: only ABC</validation_name>
+    </validator_field>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sample data</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>A</item>
+      </line>
+      <line>
+        <item>B</item>
+      </line>
+      <line>
+        <item>C</item>
+      </line>
+      <line>
+        <item>X</item>
+      </line>
+      <line>
+        <item>B</item>
+      </line>
+      <line>
+        <item>A</item>
+      </line>
+      <line>
+        <item>Z</item>
+      </line>
+      <line>
+        <item>A</item>
+      </line>
+      <line>
+        <item>B</item>
+      </line>
+      <line>
+        <item>C</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>string1</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>144</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+    <error>
+      <source_transform>Validate data</source_transform>
+      <target_transform>Errors</target_transform>
+      <is_enabled>Y</is_enabled>
+      <nr_valuename>errorCount</nr_valuename>
+      <descriptions_valuename>errorDescriptions</descriptions_valuename>
+      <fields_valuename>errorFields</fields_valuename>
+      <codes_valuename>errorCodes</codes_valuename>
+      <max_errors/>
+      <max_pct_errors/>
+      <min_pct_rows/>
+    </error>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

@@ -1,0 +1,6 @@
+string1,string2,errorCount,errorDescriptions,errorFields,errorCodes
+B,X,1,Field string2 is not matching with lookup values.,string2,STR2_DICTIONARY
+X,C,1,Field string1 is not matching with lookup values.,string1,STR1_DICTIONARY
+B,Z,1,Field string2 is not matching with lookup values.,string2,STR2_DICTIONARY
+Z,B,1,Field string1 is not matching with lookup values.,string1,STR1_DICTIONARY
+C,Y,1,Field string2 is not matching with lookup values.,string2,STR2_DICTIONARY
