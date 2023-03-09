@@ -528,7 +528,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         if (log.isBasic()) {
           logBasic(
               "Connected to database ["
-                  + meta.getConnection()
+                  + variables.resolve(meta.getConnection())
                   + "] (commit="
                   + data.commitSize
                   + ")");
