@@ -3,7 +3,7 @@
   "unitTestsBasePath" : "${PROJECT_HOME}",
   "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
   "enforcingExecutionInHome" : true,
-  "parentProjectName" : "default",
+  "parentProjectName" : "",
   "config" : {
     "variables" : [ {
       "name" : "HOP_LICENSE_HEADER_FILE",
