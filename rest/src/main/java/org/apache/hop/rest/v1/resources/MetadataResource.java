@@ -20,6 +20,7 @@ package org.apache.hop.rest.v1.resources;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -126,6 +127,32 @@ public class MetadataResource extends BaseResource {
       return Response.ok().entity(metadata.getName()).build();
     } catch (Exception e) {
       return getServerError("Error saving element of type " + key, e, true);
+    }
+  }
+
+  /**
+   * Save a metadata element
+   *
+   * @param key The key of the type of metadata to delete
+   * @param elementName The name of the element to delete
+   * @return
+   * @throws HopException
+   */
+  @DELETE
+  @Path("/{key}/{elementName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public Response deleteElement(
+      @PathParam("key") String key, @PathParam("elementName") String elementName)
+      throws HopException {
+    try {
+      IHopMetadataProvider provider = hop.getMetadataProvider();
+      Class<IHopMetadata> metadataClass = provider.getMetadataClassForKey(key);
+      IHopMetadataSerializer<IHopMetadata> serializer = provider.getSerializer(metadataClass);
+      serializer.delete(elementName);
+      return Response.ok().entity(elementName).build();
+    } catch (Exception e) {
+      return getServerError(
+          "Error deleting element of type " + key + " with name " + elementName, e, true);
     }
   }
 }

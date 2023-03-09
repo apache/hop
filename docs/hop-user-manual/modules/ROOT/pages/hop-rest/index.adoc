@@ -24,11 +24,37 @@ under the License.
 
 == Description
 
-The Hop REST web application is deployed as a WAR file `hop-rest-<version>.war`.  You can put this archive in the `webapps` folder of your favorite server (e.g. Apache Tomcat).  We suggest that you rename it to `hop.war` or that you unzip it in a `hop` folder.
+The Hop REST web application is deployed as a WAR file `hop-rest-<version>.war`.
+You can put this archive in the `webapps` folder of your favorite server (e.g. Apache Tomcat).
+We suggest that you rename it to `hop.war` or that you unzip it in a `hop` folder.
 
 == The base URL
 
 When deployed under a `webapps/hop` folder you will get the services, detailed below, under the base URL of `/hop/api/v1/`.
+
+== Configuration
+
+When the web application starts it will look for an environment variable called `HOP_REST_CONFIG_FOLDER` to determine where it will look for a file called `hop-rest.properties`.
+This file can contain the following properties to determine the configuration of the application:
+
+[cols="1,2"]
+|===
+|Property|Description
+
+|`logLevel`
+|The logging level to use, one of `NOTHING`, `ERROR`, `MINIMAL`,
+`BASIC`, `DETAILED`, `DEBUG`, or `ROWLEVEL`.
+
+|`metadataExportFile`
+|The metadata to use for the web application in the form of a single JSON 'export' file.  Use the GUI tools menu or `sh hop-conf.sh --export-metadata` to export metadata to a single file.
+
+|`environmentName`
+|In case the `projects` plugin is available it will enable this environment and the underlying project (to be configured on the system, point to a configuration with `HOP_CONFIG_FOLDER`) before starting the application.
+
+|`projectName`
+|In case the `projects` plugin is available it will enable this project (to be configured on the system, point to a configuration with `HOP_CONFIG_FOLDER`) before starting the application.
+
+|===
 
 == Metadata services
 
@@ -130,6 +156,29 @@ The metadata services are deployed under sub-path `metadata/`.
 
 |===
 
+=== Delete a metadata element
+
+[cols="1,2"]
+|===
+|Type
+|`DELETE`
+
+|Path
+|`metadata/{key}/{name}`
+
+|Arguments
+|`key` : the key of the metadata type to save. `name` : the name of the metadata element to delete.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X DELETE http://localhost:8080/hop/api/v1/metadata/pipeline-run-configuration/Flink/`
+
+|Output
+|`Flink`
+
+|===
 
 == Plugins services
 
@@ -225,8 +274,6 @@ The body to post can contain the following options (see also: the example above)
 * `runConfig`: the name of the pipeline run configuration to use
 * `variables`: a map with variables (or parameters) with their names and values
 * `bodyContent`: this will be set as a variable using the body content variable option in the Web Service metadata.
-
-
 
 == Execution Information Location services
 
