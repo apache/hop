@@ -24,7 +24,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
@@ -62,6 +64,18 @@ public class PluginsResource extends BaseResource {
   public Response listPlugins(@PathParam("typeClassName") String typeClassName) {
     try {
       PluginRegistry registry = PluginRegistry.getInstance();
+
+      // Make sure that the requested type class is actually available in the plugin registry.
+      // If we don't do this any class in the classpath can be constructed which is not secure.
+      //
+      List<Class<? extends IPluginType>> pluginTypes = registry.getPluginTypes();
+      Set<String> typeClassesSet = new HashSet<>();
+      pluginTypes.forEach(c -> typeClassesSet.add(c.getName()));
+      if (!typeClassesSet.contains(typeClassName)) {
+        throw new HopException(
+            "Type class name is not available in the plugin registry: " + typeClassName);
+      }
+
       Class<IPluginType<?>> typeClass = (Class<IPluginType<?>>) Class.forName(typeClassName);
       List<IPlugin> plugins = registry.getPlugins(typeClass);
       return Response.ok(plugins).build();
