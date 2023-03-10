@@ -145,8 +145,7 @@ if [ -n "${HOP_PROJECT_FOLDER}" ]; then
   # The project folder should exist
   #
   if [ ! -d "${HOP_PROJECT_FOLDER}" ]; then
-    log "Error: the folder specified in variable HOP_PROJECT_FOLDER does not exist: ${HOP_PROJECT_FOLDER}"
-    exitWithCode 9
+    log "Warning: the folder specified in variable HOP_PROJECT_FOLDER does not exist in the container: ${HOP_PROJECT_FOLDER}"
   else
     log "The specified project folder exists"
   fi
