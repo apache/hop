@@ -64,6 +64,7 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_DEFAULT_ENVIRONMENT = "10040-default-environment";
   private static final String WIDGET_ID_STANDARD_PARENT_PROJECT = "10050-standard-parent-project";
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
+  private static final String WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT="10070-restrict-environments-to-active-project";
   private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
       "10070-default-project-config-filename";
 
@@ -155,6 +156,19 @@ public class ProjectsConfigOptionPlugin
       description = "i18n::ProjectConfig.StdProjectFilename.Message")
   private String defaultProjectConfigFile;
 
+  @GuiWidgetElement(
+      id = WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.CHECKBOX,
+      variables = false,
+      label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message"
+  )
+  @CommandLine.Option(
+          names = {"-ep", "--environments-for-active-project"},
+          description = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message"
+  )
+  private Boolean environmentsForActiveProject;
+
   /**
    * Gets instance
    *
@@ -172,6 +186,7 @@ public class ProjectsConfigOptionPlugin
     instance.standardParentProject = config.getStandardParentProject();
     instance.standardProjectsFolder = config.getStandardProjectsFolder();
     instance.defaultProjectConfigFile = config.getDefaultProjectConfigFile();
+    instance.environmentsForActiveProject = config.isEnvironmentsForActiveProject();
     return instance;
   }
 
@@ -241,6 +256,15 @@ public class ProjectsConfigOptionPlugin
             "The default project configuration filename is set to '"
                 + defaultProjectConfigFile
                 + "'");
+        changed = true;
+      }
+      if (environmentsForActiveProject != null) {
+        config.setEnvironmentsForActiveProject(environmentsForActiveProject);
+        if (environmentsForActiveProject) {
+          log.logBasic("Only listing environments for the active project");
+        } else {
+          log.logBasic("Listing all environments, regardless of the active project");
+        }
         changed = true;
       }
       // Save to file if anything changed
@@ -336,6 +360,10 @@ public class ProjectsConfigOptionPlugin
         case WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME:
           defaultProjectConfigFile = ((TextVar) control).getText();
           ProjectsConfigSingleton.getConfig().setDefaultProjectConfigFile(defaultProjectConfigFile);
+          break;
+        case WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT:
+          environmentsForActiveProject = ((Button) control).getSelection();
+          ProjectsConfigSingleton.getConfig().setEnvironmentsForActiveProject(environmentsForActiveProject);
           break;
       }
     }
@@ -462,6 +490,20 @@ public class ProjectsConfigOptionPlugin
   /** @param defaultProjectConfigFile The defaultProjectConfigFile to set */
   public void setDefaultProjectConfigFile(String defaultProjectConfigFile) {
     this.defaultProjectConfigFile = defaultProjectConfigFile;
+  }
+
+  /**
+   * Gets environmentsForActiveProject
+   *
+   * @return value of environmentsForActiveProject
+   */
+  public Boolean getEnvironmentsForActiveProject() {
+    return environmentsForActiveProject;
+  }
+
+  /** @param environmentsForActiveProject The environmentsForActiveProject flag to set */
+  public void setEnvironmentsForActiveProject(Boolean environmentsForActiveProject) {
+    this.environmentsForActiveProject = environmentsForActiveProject;
   }
 
   /**

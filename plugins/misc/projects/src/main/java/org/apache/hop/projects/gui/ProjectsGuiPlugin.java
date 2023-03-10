@@ -204,18 +204,24 @@ public class ProjectsGuiPlugin {
     }
     String projectName = projectsCombo.getText();
 
-    // list all environments and select the first one if we don't have a project selected
-    if (StringUtils.isEmpty(projectName)) {
-      List<String> allEnvironments = config.listEnvironmentNames();
-      environmentsCombo.setItems(allEnvironments.toArray(new String[allEnvironments.size()]));
-      selectEnvironmentInList(allEnvironments.get(0));
-      return;
+    if(config.isEnvironmentsForActiveProject() && StringUtils.isEmpty(projectName)){
+      // list all environments and select the first one if we don't have a project selected
+        List<String> allEnvironments = config.listEnvironmentNames();
+        environmentsCombo.setItems(allEnvironments.toArray(new String[allEnvironments.size()]));
+        selectEnvironmentInList(allEnvironments.get(0));
+        return;
     }
+
     ProjectConfig projectConfig = config.findProjectConfig(projectName);
 
-    // get the environments for the selected project.
-    if(environmentsCombo != null){
-      List<String> projectEnvironments = config.listEnvironmentNamesForProject(projectName);
+    if(config.isEnvironmentsForActiveProject()){
+      // get the environments for the selected project.
+      if(environmentsCombo != null){
+        List<String> projectEnvironments = config.listEnvironmentNamesForProject(projectName);
+        environmentsCombo.setItems(projectEnvironments.toArray(new String[projectEnvironments.size()]));
+      }
+    }else{
+      List<String> projectEnvironments = config.listEnvironmentNames();
       environmentsCombo.setItems(projectEnvironments.toArray(new String[projectEnvironments.size()]));
     }
 
