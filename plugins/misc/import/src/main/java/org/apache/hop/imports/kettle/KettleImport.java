@@ -38,6 +38,7 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlFormatter;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.imp.HopImportBase;
 import org.apache.hop.imp.IHopImport;
 import org.apache.hop.imp.ImportPlugin;
@@ -75,7 +76,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     description = "Imports Kettle/PDI files, metadata and variables",
     documentationUrl = "/plugins/import/kettle-import.html")
 public class KettleImport extends HopImportBase implements IHopImport {
-
+  private static final Class<?> PKG = KettleImport.class;
   private int kjbCounter;
   private int ktrCounter;
   private int otherCounter;
@@ -98,9 +99,13 @@ public class KettleImport extends HopImportBase implements IHopImport {
   public void findFilesToImport() throws HopException {
     AtomicInteger count = new AtomicInteger();
     try {
+      // Reset counters
+      this.kjbCounter = 0;
+      this.ktrCounter = 0;
+      this.otherCounter = 0;
+
       // Find all files...
       //
-
       List<FileObject> allFiles = new ArrayList<>();
       allFiles.addAll(HopVfs.findFiles(getInputFolder(), null, !skippingFolders));
 
@@ -704,15 +709,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
   @Override
   public String getImportReport() {
     String eol = System.getProperty("line.separator");
-    String messageString = "Imported: " + eol;
+    String messageString = BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.Imported.Label") + eol;
     if (getKjbCounter() > 0) {
-      messageString += getKjbCounter() + " jobs" + eol;
+      messageString += getKjbCounter() + " " + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedJobs.Label") + eol;
     }
     if (getKtrCounter() > 0) {
-      messageString += getKtrCounter() + " transformations" + eol;
+      messageString += getKtrCounter() + " " + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedTransf.Label") + eol;
     }
     if (getOtherCounter() > 0) {
-      messageString += getOtherCounter() + " other files" + eol;
+      messageString += getOtherCounter() + " " + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedOther.Label") + eol;
     }
     if (getVariableCounter() > 0) {
       messageString +=
