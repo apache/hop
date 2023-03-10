@@ -77,6 +77,7 @@ import java.util.concurrent.atomic.AtomicInteger;
     documentationUrl = "/plugins/import/kettle-import.html")
 public class KettleImport extends HopImportBase implements IHopImport {
   private static final Class<?> PKG = KettleImport.class;
+
   private int kjbCounter;
   private int ktrCounter;
   private int otherCounter;
@@ -590,14 +591,14 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
 
         if (entryType == EntryType.JOB || entryType == EntryType.TRANS) {
-          if (currentNode.getNodeName().equals("run_configuration")
-              && Utils.isEmpty(currentNode.getTextContent())) {
+          if (currentNode.getNodeName().equals("run_configuration")) {
             if (entryType == EntryType.JOB)
               currentNode.setTextContent(defaultWorkflowRunConfiguration);
             else if (entryType == EntryType.TRANS)
               currentNode.setTextContent(defaultPipelineRunConfiguration);
           }
         }
+
 
         // rename Kettle elements to Hop elements
         if (KettleConst.kettleElementReplacements.containsKey(currentNode.getNodeName())) {
