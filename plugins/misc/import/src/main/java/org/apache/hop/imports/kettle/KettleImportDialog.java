@@ -23,6 +23,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.SingletonUtil;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -44,13 +45,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -669,33 +664,59 @@ public class KettleImportDialog extends Dialog {
       kettleImport.setSkippingExistingTargetFiles(wSkipExisting.getSelection());
       kettleImport.setSkippingHiddenFilesAndFolders(wSkipHidden.getSelection());
       kettleImport.setSkippingFolders(wSkipFolders.getSelection());
-      kettleImport.setDefaultPipelineRunConfiguration(
-          Const.NVL(wPipelineRunConfiguration.getText(), ""));
-      kettleImport.setDefaultWorkflowRunConfiguration(
-          Const.NVL(wWorkflowRunConfiguration.getText(), ""));
 
-      // We're going to run the import in a progress dialog with a monitor...
-      //
-      ProgressMonitorDialog monitorDialog =
-          new ProgressMonitorDialog(HopGui.getInstance().getShell());
-      monitorDialog.run(
-          true,
-          monitor -> {
-            try {
-              monitor.beginTask("Importing files", 4);
-              kettleImport.runImport(monitor);
-              monitor.done();
-            } catch (Throwable e) {
-              throw new InvocationTargetException(e, "Error importing " + Const.getStackTracker(e));
-            }
-          });
+      String defaultPRC = Const.NVL(wPipelineRunConfiguration.getText(), "");
+      kettleImport.setDefaultPipelineRunConfiguration(defaultPRC);
+      String defaultWRC = Const.NVL(wWorkflowRunConfiguration.getText(), "");
+      kettleImport.setDefaultWorkflowRunConfiguration(defaultWRC);
 
-      // Show some statistics after the import...
-      //
-      MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION|SWT.OK);
-      box.setText("Import summary");
-      box.setMessage(kettleImport.getImportReport());
-      box.open();
+      boolean goForImport = true;
+      if ((Utils.isEmpty(defaultPRC) && Utils.isEmpty(defaultWRC))
+          || Utils.isEmpty(defaultPRC)
+          || Utils.isEmpty(defaultWRC)) {
+        MessageBox box = new MessageBox(shell, SWT.ICON_WARNING | SWT.OK | SWT.CANCEL);
+        box.setText(BaseMessages.getString(PKG, "KettleImportDialog.NoDefaultRC.Title"));
+        box.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "KettleImportDialog.NoDefaultRC"
+                    + ((Utils.isEmpty(defaultPRC) && Utils.isEmpty(defaultWRC))
+                        ? "All"
+                        : (Utils.isEmpty(defaultPRC)
+                            ? "Prc"
+                            : (Utils.isEmpty(defaultWRC) ? "Wrc" : "")))
+                    + ".Message"));
+        int answer = box.open();
+
+        if (answer == SWT.CANCEL)
+          goForImport = false;
+      }
+
+      if (goForImport) {
+        // We're going to run the import in a progress dialog with a monitor...
+        //
+        ProgressMonitorDialog monitorDialog =
+            new ProgressMonitorDialog(HopGui.getInstance().getShell());
+        monitorDialog.run(
+            true,
+            monitor -> {
+              try {
+                monitor.beginTask("Importing files", 4);
+                kettleImport.runImport(monitor);
+                monitor.done();
+              } catch (Throwable e) {
+                throw new InvocationTargetException(
+                    e, "Error importing " + Const.getStackTracker(e));
+              }
+            });
+
+        // Show some statistics after the import...
+        //
+        MessageBox box = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
+        box.setText(BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.Title"));
+        box.setMessage(kettleImport.getImportReport());
+        box.open();
+      }
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error importing", e);
     }

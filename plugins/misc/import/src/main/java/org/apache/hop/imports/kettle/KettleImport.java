@@ -586,11 +586,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
 
         if (entryType == EntryType.JOB || entryType == EntryType.TRANS) {
           if (currentNode.getNodeName().equals("run_configuration")
-              && Utils.isEmpty(currentNode.getNodeValue())) {
+              && Utils.isEmpty(currentNode.getTextContent())) {
             if (entryType == EntryType.JOB)
-              currentNode.setNodeValue(defaultWorkflowRunConfiguration);
+              currentNode.setTextContent(defaultWorkflowRunConfiguration);
             else if (entryType == EntryType.TRANS)
-              currentNode.setNodeValue(defaultPipelineRunConfiguration);
+              currentNode.setTextContent(defaultPipelineRunConfiguration);
           }
         }
 
