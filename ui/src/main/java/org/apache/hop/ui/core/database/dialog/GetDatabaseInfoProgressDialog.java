@@ -21,11 +21,16 @@ import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
+import org.apache.hop.core.exception.HopDatabaseBatchException;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;
@@ -54,30 +59,42 @@ public class GetDatabaseInfoProgressDialog {
 
   public DatabaseMetaInformation open() {
     final DatabaseMetaInformation dmi = new DatabaseMetaInformation(variables, databaseMeta);
-    IRunnableWithProgress op =
-        monitor -> {
-          try {
-            dmi.getData(
-                HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter(monitor));
-          } catch (Exception e) {
-            throw new InvocationTargetException(
-                e,
-                BaseMessages.getString(
-                    PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString()));
-          }
-        };
 
-    try {
-      ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      pmd.run(true, op);
+    if (!EnvironmentUtils.getInstance().isWeb()){
+      IRunnableWithProgress op =
+              monitor -> {
+                try {
+                  dmi.getData(
+                          HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter(monitor));
+                } catch (Exception e) {
+                  throw new InvocationTargetException(
+                          e,
+                          BaseMessages.getString(
+                                  PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString()));
+                }
+              };
 
-      if (pmd.getProgressMonitor().isCanceled()) return null;
-    } catch (InvocationTargetException e) {
-      showErrorDialog(e);
-      return null;
-    } catch (InterruptedException e) {
-      showErrorDialog(e);
-      return null;
+      try {
+        ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+        pmd.run(true, op);
+
+        if (pmd.getProgressMonitor().isCanceled()) return null;
+      } catch (InvocationTargetException e) {
+        showErrorDialog(e);
+        return null;
+      } catch (InterruptedException e) {
+        showErrorDialog(e);
+        return null;
+      }
+    }else{
+      try{
+        Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+        shell.setCursor(cursor);
+        dmi.getData(HopGui.getInstance().getLoggingObject(), null);
+      }catch(HopDatabaseException e){
+        showErrorDialog(e);
+        return null;
+      }
     }
 
     return dmi;
