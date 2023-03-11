@@ -21,7 +21,6 @@ import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaInformation;
-import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
