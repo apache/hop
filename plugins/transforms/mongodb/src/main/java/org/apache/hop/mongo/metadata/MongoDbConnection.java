@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -293,7 +294,8 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
     setIfNotNullOrEmpty(
         variables, propertiesBuilder, MongoProp.AUTH_DATABASE, authenticationDatabaseName);
     setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.USERNAME, authenticationUser);
-    setIfNotNullOrEmpty(variables, propertiesBuilder, MongoProp.PASSWORD, authenticationPassword);
+    setIfNotNullOrEmptyPassword(
+        variables, propertiesBuilder, MongoProp.PASSWORD, authenticationPassword);
     setIfNotNullOrEmpty(
         variables, propertiesBuilder, MongoProp.AUTH_MECHA, authenticationMechanism.name());
     setIfNotNullOrEmpty(
@@ -309,6 +311,13 @@ public class MongoDbConnection extends HopMetadataBase implements IHopMetadata {
       IVariables variables, MongoProperties.Builder builder, MongoProp prop, String value) {
     if (StringUtils.isNotEmpty(value)) {
       builder.set(prop, variables.resolve(value));
+    }
+  }
+
+  private static void setIfNotNullOrEmptyPassword(
+      IVariables variables, MongoProperties.Builder builder, MongoProp prop, String value) {
+    if (StringUtils.isNotEmpty(value)) {
+      builder.set(prop, Utils.resolvePassword(variables, variables.resolve(value)));
     }
   }
 
