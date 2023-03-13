@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.formula.editor.FormulaEditor;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -51,10 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class FormulaDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FormulaDialog.class; // For Translator
@@ -65,7 +63,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
   private FormulaMeta currentMeta;
   private FormulaMeta originalMeta;
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
   private ColumnInfo[] colinf;
 
   private String[] fieldNames;
@@ -77,7 +75,6 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
     // The order here is important... currentMeta is looked at for changes
     currentMeta = (FormulaMeta) baseTransformMeta;
     originalMeta = (FormulaMeta) currentMeta.clone();
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -101,7 +98,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
     shell.setText(BaseMessages.getString(PKG, "FormulaDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     //
@@ -187,7 +184,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
 
                   // Remember these fields...
                   for (int i = 0; i < row.size(); i++) {
-                    inputFields.put(row.getValueMeta(i).getName(), new Integer(i));
+                    inputFields.add(row.getValueMeta(i).getName());
                   }
 
                   setComboBoxes();
@@ -282,25 +279,13 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
     shell
         .getDisplay()
         .syncExec(
             () -> {
               // Add the newly create fields.
               //
-
-              Set<String> keySet = fields.keySet();
-              List<String> entries = new ArrayList<>(keySet);
-
-              String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-              Const.sortStrings(fieldNames);
-
+              String[] fieldNames = ConstUi.sortFieldNames(inputFields);
               colinf[5].setComboValues(fieldNames);
               FormulaDialog.this.fieldNames = fieldNames;
             });

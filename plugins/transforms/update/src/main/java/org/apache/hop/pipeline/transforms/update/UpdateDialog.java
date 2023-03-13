@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -60,10 +61,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class UpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = UpdateMeta.class; // For Translator
@@ -94,7 +92,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
   private ColumnInfo[] ciReturn;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private Button wSkipLookup;
 
@@ -105,7 +103,6 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
     input = (UpdateMeta) in;
-    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -479,7 +476,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
 
               setComboBoxes();
@@ -536,16 +533,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     // Key fields
     ciKey[2].setComboValues(fieldNames);
     ciKey[3].setComboValues(fieldNames);

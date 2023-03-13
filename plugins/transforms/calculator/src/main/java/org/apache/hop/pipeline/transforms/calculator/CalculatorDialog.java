@@ -52,10 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
@@ -69,7 +66,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
   private final CalculatorMeta currentMeta;
   private final CalculatorMeta originalMeta;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
   private ColumnInfo[] colinf;
 
   public CalculatorDialog(
@@ -79,7 +76,6 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     // The order here is important... currentMeta is looked at for changes
     currentMeta = (CalculatorMeta) in;
     originalMeta = (CalculatorMeta) currentMeta.clone();
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -102,7 +98,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     shell.setText(BaseMessages.getString(PKG, "CalculatorDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int fdMargin = 15;
 
     // Buttons at the very bottom
@@ -290,9 +286,8 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
-
               setComboBoxes();
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "CalculatorDialog.Log.UnableToFindInput"));
@@ -316,10 +311,12 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
+    final List<String> fields = new ArrayList<>();
 
     // Add the currentMeta fields...
-    fields.putAll(inputFields);
+    for(String s :  inputFields) {
+      fields.add(s);
+    }
 
     shell
         .getDisplay()
@@ -330,18 +327,11 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
               int nrNonEmptyFields = wFields.nrNonEmpty();
               for (int i = 0; i < nrNonEmptyFields; i++) {
                 TableItem item = wFields.getNonEmpty(i);
-                fields.put(
-                    item.getText(1), 1000000 + i); // The number is just to debug the origin of
-                // the fieldname
+                fields.add(item.getText(1));
               }
             });
 
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(fields);
     colinf[2].setComboValues(fieldNames);
     colinf[3].setComboValues(fieldNames);
     colinf[4].setComboValues(fieldNames);

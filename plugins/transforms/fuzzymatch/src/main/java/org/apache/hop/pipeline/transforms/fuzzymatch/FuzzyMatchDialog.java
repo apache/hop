@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -826,23 +827,15 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
           if (lookupTransformMeta != null) {
             try {
               IRowMeta row = pipelineMeta.getTransformFields(variables, lookupTransformMeta);
-              Map<String, Integer> lookupFields = new HashMap<>();
+              List<String> lookupFields = new ArrayList<>();
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                lookupFields.put(row.getValueMeta(i).getName(), i);
+                lookupFields.add(row.getValueMeta(i).getName());
               }
 
               // Something was changed in the row.
               //
-
-              // Add the currentMeta fields...
-              final Map<String, Integer> fields = new HashMap<>(lookupFields);
-
-              Set<String> keySet = fields.keySet();
-              List<String> entries = new ArrayList<>(keySet);
-
-              String[] fieldNames = entries.toArray(new String[0]);
-              Const.sortStrings(fieldNames);
+              String[] fieldNames = ConstUi.sortFieldNames(lookupFields);
               // return fields
               ciReturn[0].setComboValues(fieldNames);
             } catch (HopException e) {

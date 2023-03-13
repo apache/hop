@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -69,10 +70,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class ExcelWriterTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
@@ -136,7 +134,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   private ColumnInfo[] colinf;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private CCombo wIfFileExists;
 
@@ -177,7 +175,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (ExcelWriterTransformMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -206,7 +203,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     shell.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the bottom
     //
@@ -1445,7 +1442,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
               setComboBoxes();
             } catch (HopException e) {
@@ -1651,17 +1648,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colinf[0].setComboValues(fieldNames);
     colinf[7].setComboValues(fieldNames);
     colinf[8].setComboValues(fieldNames);

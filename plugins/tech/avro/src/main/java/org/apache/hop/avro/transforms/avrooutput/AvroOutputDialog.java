@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -60,11 +61,8 @@ import org.eclipse.swt.widgets.Text;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class AvroOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =
@@ -113,7 +111,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
   private final AvroOutputMeta input;
   private Button wAddToResult;
   private ColumnInfo[] colinf;
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
   private Schema avroSchema;
   private boolean validSchema = false;
   private String[] avroFieldNames = null;
@@ -126,7 +124,6 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
       String transformName) {
     super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
     input = (AvroOutputMeta) baseTransformMeta;
-    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -802,7 +799,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
               setComboBoxes();
             } catch (HopException e) {
@@ -956,17 +953,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colinf[0].setComboValues(fieldNames);
   }
 

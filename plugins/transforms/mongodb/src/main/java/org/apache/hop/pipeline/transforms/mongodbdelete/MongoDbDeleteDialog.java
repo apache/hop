@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -69,9 +70,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /** Dialog class for MongoDbDelete step */
@@ -97,7 +96,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
   private Label wlExecuteForEachRow;
   private Button wcbEcuteForEachRow;
   private ColumnInfo[] colInf;
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   public MongoDbDeleteDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String name) {
@@ -105,7 +104,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, name);
     currentMeta = (MongoDbDeleteMeta) in;
     originalMeta = (MongoDbDeleteMeta) currentMeta.clone();
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -369,7 +367,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
 
                 // Remember these fields...
                 for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                  inputFields.add(row.getValueMeta(i).getName());
                 }
 
                 setComboBoxes();
@@ -693,16 +691,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
   }
 
   protected void setComboBoxes() {
-    final Map<String, Integer> fields = new HashMap<>();
-
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String fieldNames[] = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colInf[2].setComboValues(fieldNames);
     colInf[2].setReadOnly(false);
     colInf[3].setComboValues(fieldNames);

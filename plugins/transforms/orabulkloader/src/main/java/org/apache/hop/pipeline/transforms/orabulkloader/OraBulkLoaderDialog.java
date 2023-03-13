@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -69,11 +70,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 
 /**
  * Dialog class for the Oracle bulk loader transformation.
@@ -108,7 +105,7 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
   
   private OraBulkLoaderMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciReturn;
   private CTabFolder wTabFolder;
@@ -133,7 +130,6 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (OraBulkLoaderMeta) in;
-    inputFields = new HashMap<String, Integer>();
   }
 
   public String open() {
@@ -817,7 +813,7 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), i );
+              inputFields.add(row.getValueMeta(i).getName());
             }
 
             setComboBoxes();
@@ -926,17 +922,7 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
-
-    // Add the currentMeta fields...
-    fields.putAll( inputFields );
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
-
-    String[] fieldNames = entries.toArray( new String[entries.size()] );
-    Const.sortStrings( fieldNames );
-    // return fields
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciReturn[1].setComboValues( fieldNames );
   }
 
