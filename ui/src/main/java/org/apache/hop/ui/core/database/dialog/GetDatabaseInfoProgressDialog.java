@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -31,8 +32,6 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables,
@@ -59,19 +58,19 @@ public class GetDatabaseInfoProgressDialog {
   public DatabaseMetaInformation open() {
     final DatabaseMetaInformation dmi = new DatabaseMetaInformation(variables, databaseMeta);
 
-    if (!EnvironmentUtils.getInstance().isWeb()){
+    if (!EnvironmentUtils.getInstance().isWeb()) {
       IRunnableWithProgress op =
-              monitor -> {
-                try {
-                  dmi.getData(
-                          HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter(monitor));
-                } catch (Exception e) {
-                  throw new InvocationTargetException(
-                          e,
-                          BaseMessages.getString(
-                                  PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString()));
-                }
-              };
+          monitor -> {
+            try {
+              dmi.getData(
+                  HopGui.getInstance().getLoggingObject(), new ProgressMonitorAdapter(monitor));
+            } catch (Exception e) {
+              throw new InvocationTargetException(
+                  e,
+                  BaseMessages.getString(
+                      PKG, "GetDatabaseInfoProgressDialog.Error.GettingInfoTable", e.toString()));
+            }
+          };
 
       try {
         ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
@@ -85,12 +84,12 @@ public class GetDatabaseInfoProgressDialog {
         showErrorDialog(e);
         return null;
       }
-    }else{
-      try{
+    } else {
+      try {
         Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
         shell.setCursor(cursor);
         dmi.getData(HopGui.getInstance().getLoggingObject(), null);
-      }catch(HopDatabaseException e){
+      } catch (HopDatabaseException e) {
         showErrorDialog(e);
         return null;
       }
