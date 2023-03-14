@@ -2381,6 +2381,7 @@ public class Const {
       for (int i = 1; i <= dateFormatsCount; i++) {
         dateFormats[i - 1] = BaseMessages.getString(PKG, "Const.DateFormat" + Integer.toString(i));
       }
+      Arrays.sort(dateFormats);
     }
     return dateFormats;
   }
