@@ -143,7 +143,6 @@ public class KettleConst {
                 {"BlockUntilStepsFinish", "BlockUntilTransformsFinish"},
                 {"TypeExitExcelWriterStep", "TypeExitExcelWriterTransform"},
                 {"StepMetastructure", "TransformMetaStructure"},
-                {"Pentaho local", "local"},
                 {"JobExecutor", "WorkflowExecutor"},
                 {"execution_result_target_step", "execution_result_target_transform"},
                 {"TransExecutor", "PipelineExecutor"},
