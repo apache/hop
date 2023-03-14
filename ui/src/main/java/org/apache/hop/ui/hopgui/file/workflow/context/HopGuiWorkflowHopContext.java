@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.workflow.context;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -33,6 +34,8 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
 
   public static final String CONTEXT_ID = "HopGuiWorkflowHopContext";
 
+  private static String ROUTING_CATEGORY = TranslateUtil.translate("i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text", HopGuiWorkflowGraph.class);
+  
   private WorkflowMeta workflowMeta;
   private WorkflowHopMeta hopMeta;
   private HopGuiWorkflowGraph workflowGraph;
@@ -70,14 +73,31 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
     //
     List<GuiAction> pluginActions = getPluginActions(true);
     if (pluginActions != null) {
-      for (GuiAction pluginAction : pluginActions) {
-        actions.add(lambdaBuilder.createLambda(pluginAction, this, workflowGraph));
+      for (GuiAction pluginAction : pluginActions) {              
+        if ( isGuiActionAvailable(pluginAction)  ) {
+          actions.add(lambdaBuilder.createLambda(pluginAction, this, workflowGraph));
+        }
       }
     }
 
     return actions;
   }
 
+  protected boolean isGuiActionAvailable(final GuiAction guiAction) {
+    if (hopMeta==null) {
+      return false;
+    }
+    
+    // Filter routing action on the first hop after Start
+    //
+    // TODO: Find a more robust way to detect routing actions 
+    if ( hopMeta.getFromAction().isStart() && guiAction.getCategory().equals(ROUTING_CATEGORY) ) {
+      return false;
+    }
+    
+    return true;
+  }
+  
   /**
    * Gets workflowMeta
    *

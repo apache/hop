@@ -33,20 +33,16 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
     implements Comparable<PipelineHopMeta>, Cloneable {
   private static final Class<?> PKG = Pipeline.class; // For Translator
 
-  public static final String XML_HOP_TAG = "hop";
-  public static final String XML_FROM_TAG = "from";
-  public static final String XML_TO_TAG = "to";
-
   public PipelineHopMeta(TransformMeta from, TransformMeta to, boolean en) {
     this.from = from;
     this.to = to;
-    enabled = en;
+    this.enabled = en;
   }
 
   public PipelineHopMeta(TransformMeta from, TransformMeta to) {
     this.from = from;
     this.to = to;
-    enabled = true;
+    this.enabled = true;
   }
 
   public PipelineHopMeta() {
@@ -55,18 +51,11 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
 
   public PipelineHopMeta(Node hopNode, List<TransformMeta> transforms) throws HopXmlException {
     try {
-      this.from =
-          searchTransform(
-              transforms, XmlHandler.getTagValue(hopNode, PipelineHopMeta.XML_FROM_TAG));
+      this.from = searchTransform(transforms,
+          XmlHandler.getTagValue(hopNode, XML_FROM_TAG));
       this.to =
-          searchTransform(transforms, XmlHandler.getTagValue(hopNode, PipelineHopMeta.XML_TO_TAG));
-      String en = XmlHandler.getTagValue(hopNode, "enabled");
-
-      if (en == null) {
-        enabled = true;
-      } else {
-        enabled = en.equalsIgnoreCase("Y");
-      }
+          searchTransform(transforms, XmlHandler.getTagValue(hopNode, XML_TO_TAG));
+      this.enabled = getTagValueAsBoolean(hopNode, XML_ENABLED_TAG, true);    
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "PipelineHopMeta.Exception.UnableToLoadHopInfo"), e);
@@ -148,13 +137,13 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
     StringBuilder xml = new StringBuilder(200);
 
     if (this.from != null && this.to != null) {
-      xml.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+      xml.append("    ").append(XmlHandler.openTag(XML_HOP_TAG)).append(Const.CR);
       xml.append("      ")
-          .append(XmlHandler.addTagValue(PipelineHopMeta.XML_FROM_TAG, this.from.getName()));
+          .append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
       xml.append("      ")
-          .append(XmlHandler.addTagValue(PipelineHopMeta.XML_TO_TAG, this.to.getName()));
-      xml.append("      ").append(XmlHandler.addTagValue("enabled", enabled));
-      xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
+          .append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
+      xml.append("      ").append(XmlHandler.addTagValue(XML_ENABLED_TAG, enabled));
+      xml.append("    ").append(XmlHandler.closeTag(XML_HOP_TAG)).append(Const.CR);
     }
 
     return xml.toString();
