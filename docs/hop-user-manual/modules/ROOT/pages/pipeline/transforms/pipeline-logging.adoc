@@ -17,14 +17,31 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: The pipeline logging transform gives you detailed logging information about a pipeline and its transforms.
+:openvar: ${
+:closevar: }
 
-= Pipeline Logging
+= image:icons/pipeline-log.svg[Pipeline logging transform Icon, role="image-doc-icon"] Pipeline Logging
 
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
 == Description
 
 the Pipeline Logging transform receives its input from a xref:metadata-types/pipeline-log.adoc[Pipeline Log] metadata item.
 
 The transform requires very little configuration, but provides a lot of information.
+
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 == Related Plugins
 

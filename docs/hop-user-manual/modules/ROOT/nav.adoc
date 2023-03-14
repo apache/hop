@@ -257,6 +257,7 @@ under the License.
 *** xref:pipeline/transforms/verticabulkloader.adoc[Vertica Bulk Loader]
 *** xref:pipeline/transforms/webservices.adoc[Web services lookup]
 *** xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor]
+*** xref:pipeline/transforms/workflow-logging.adoc[Workflow Logging]
 *** xref:pipeline/transforms/writetolog.adoc[Write to log]
 *** xref:pipeline/transforms/xmlinputstream.adoc[XML Input Stream (StAX)]
 *** xref:pipeline/transforms/xmljoin.adoc[XML Join]

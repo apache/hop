@@ -1,0 +1,94 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: The workflow logging transform gives you detailed logging information about a workflow and its actions.
+:openvar: ${
+:closevar: }
+
+= image:icons/workflow-log.svg[Workflow logging transform Icon, role="image-doc-icon"] Workflow logging
+
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+the Workflow Logging transform receives its input from a xref:metadata-types/workflow-log.adoc[Workflow Log] metadata item.
+
+The transform requires very little configuration, but provides a lot of information.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Related Plugins
+
+* xref:metadata-types/workflow-log.adoc[Workflow Log]
+
+== Options
+
+[%header, width="90%", cols="1,5"]
+|===
+|Option|Description
+|Transform name|Name of this transform
+|Also log action details a|
+
+* checked: the transform outputs both workflow and action logging and metrics. In this case, the logging will contain one line per action. For each action, the workflow logging and metrics information is repeated.
+* unchecked: the transform only outputs workflow logging and metrics.
+|===
+
+== Output Fields
+
+[%header, width="90%", cols="1,1,5"]
+|===
+ |Fieldname|Type|Description
+3+|**Workflow Logging Fields**
+|loggingDate|Date|the date and time this workflow was executed
+|loggingPhase|String|the phase this workflow is in at the time of logging (e.g. 'end')
+|workflowName|String|the logged workflow name
+|workflowFilename|String|the logged workflow file name
+|workflowStart|Date|execution start date for the logged workflow
+|workflowEnd|Date|execution end date for the logged workflow
+|workflowLogChannelId|String|logging channel id for the logged workflow
+|parentLogChannelId|String|parent logging channel id for the logged workflow (e.g. the channel id of the parent workflow)
+|workflowLogging|String|full logging text for the logged workflow
+|workflowErrorCount|Integer|number of errors that occurred in the logged workflow execution
+|workflowStatusDescription|String|status description for the logged workflow (e.g. 'Finished')
+3+|**Action Logging Fields**
+|actionName|String|the name of the action in the logged pipeline
+|actionNr|Integer|the number of the current action
+|actionResult|the result (exit code, Y/N) of the current action
+|actionLogChannelId|String|log channel id for the current action
+|actionLoggingText|String|logging text for the current action
+|actionErrors|Integer|number of errors for the current action
+|actionLogDate|String|status of the current action (e.g. 'Finished')
+|actionDuration|Integer|total duration for the current action
+|actionExitStatus|exit status of the current action
+|actionNrFilesRetrieved|the number of files retrieved by the current transform (if applicable)
+|actionFilename|the filename to use for the current action, e.g. the workflow or pipeline the current action runs.
+|actionComment|an optional comment added to the logs, e.g. `Workflow execution finished`
+|actionReason|an optional reason provided by the current action
+|===
+
