@@ -980,9 +980,12 @@ public class ExcelWriterTransform
       } else {
         baseFileName = file.getName().toString();
       }
+
+      // If starting cell provided, use the posY derived above, otherwise use default behaviour
+      int startY = !Utils.isEmpty(data.realStartingCell) ? posY : Math.max(posY, sheet.getLastRowNum());
+
       ExcelWriterWorkbookDefinition workbookDefinition =
-          new ExcelWriterWorkbookDefinition(
-              baseFileName, file, wb, sheet, posX, Math.max(posY, sheet.getLastRowNum()));
+          new ExcelWriterWorkbookDefinition(baseFileName, file, wb, sheet, posX, startY);
       workbookDefinition.setSplitNr(splitNr);
       data.usedFiles.add(workbookDefinition);
       data.currentWorkbookDefinition = workbookDefinition;
