@@ -164,7 +164,7 @@ public class ProjectsConfigOptionPlugin
       label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message"
   )
   @CommandLine.Option(
-          names = {"-ep", "--environments-for-active-project"},
+          names = {"-eap", "--environments-for-active-project"},
           description = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message"
   )
   private Boolean environmentsForActiveProject;
