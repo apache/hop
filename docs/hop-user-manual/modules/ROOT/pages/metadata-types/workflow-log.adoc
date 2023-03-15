@@ -17,6 +17,8 @@ under the License.
 :imagesdir: ../../assets/images/
 :page-pagination:
 :description: Allows to log the activity of a workflow with a pipeline. A workflow log streams logging information from a running workflow to a pipeline. This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+:openvar: ${
+:closevar: }
 
 = Workflow Log
 
@@ -27,11 +29,21 @@ image:icons/workflow-log.svg[]
 Allows to log the activity of a workflow with a pipeline.
 
 A workflow log streams logging information from a running workflow to a pipeline.
-This receiving pipeline can then process this logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+
+The only requirement for the receiving pipeline is that it starts with a xref:pipeline/transforms/workflow-logging.adoc[Workflow Logging] transform. Other than that, the logging pipeline is "just another pipeline".
+In this logging pipeline, you can process the logging information and e.g. write to a relational or NoSQL database, a Kafka topic etc
+
+== Samples
+
+The samples project comes with an example workflow log.
+
+Check the metadata perspective for the workflow log `workflow-log-example`. This workflow log is configured to send logging information for the workflow `{openvar}PROJECT_HOME{closevar}/reflection/generate-fake-books.hwf` to the logging pipeline `{openvar}PROJECT_HOME{closevar}/reflection/workflow-log-example.hpl`.
+
+image:metadata-types/workflow-log.png[Workflow Log, width="75%"]
 
 == Related Plugins
 
-* Workflow Logging
+* xref:pipeline/transforms/workflow-logging.adoc[Workflow Logging]
 
 == Options
 
@@ -48,6 +60,3 @@ This receiving pipeline can then process this logging information and e.g. write
 |Interval in seconds|30|if executed periodically, indicates the interval at which the workflow log is executed
 |===
 
-== Samples
-
-None

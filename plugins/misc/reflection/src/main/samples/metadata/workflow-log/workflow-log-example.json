@@ -1,0 +1,13 @@
+{
+  "loggingParentsOnly": true,
+  "name": "workflow-log-example",
+  "workflowToLog": [
+    "${PROJECT_HOME}/reflection/generate-fake-books.hwf"
+  ],
+  "intervalInSeconds": "30",
+  "executingPeriodically": false,
+  "pipelineFilename": "${PROJECT_HOME}/reflection/workflow-log-example.hpl",
+  "executingAtEnd": true,
+  "enabled": true,
+  "executingAtStart": true
+}

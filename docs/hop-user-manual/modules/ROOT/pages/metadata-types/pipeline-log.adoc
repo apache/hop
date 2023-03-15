@@ -60,6 +60,3 @@ image:metadata-types/pipeline-log.png[Pipeline Log, width="75%"]
 |Interval in seconds|30|if executed periodically, indicates the interval at which the pipeline log is executed
 |===
 
-== Samples
-
-None
