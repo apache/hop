@@ -88,6 +88,7 @@ body:
       label: Issue Component
       options:
         - "Component: Actions"
+        - "Component: API"
         - "Component: Beam"
         - "Component: CLI"
         - "Component: Containers"
