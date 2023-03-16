@@ -21,6 +21,12 @@ under the License.
 :openvar: {
 :closevar: }
 
+// supported functions are available at the link below.
+// also check plugins/transforms/formula/src/main/resources/functions.xml for the list of functions
+// and plugins/transforms/formula/src/main/resources/check-doc-vs-functions.hpl for any missing function definitions (functions.xml) or docs (formula.adoc).
+//
+// https://poi.apache.org/components/spreadsheet/eval-devguide.html#What+functions+are+supported?
+
 :toc: macro
 
 = image:transforms/icons/formula.svg[Formula transform Icon, role="image-doc-icon"] Formula
@@ -270,50 +276,6 @@ toc::[]
 |DATE(2003;2;29)=DATE(2003;3;1) |True|Non-leap year rolls forward
 |===
 
-==== DATEDIF
-
-|===
-|*description*|Return the number of years, months, or days between two date numbers.
-|*syntax*|DATEDIF( DateParam StartDate ; DateParam EndDate ; Text Format )
-|*returns*|Number
-|*semantics*|Compute difference between StartDate and EndDate, in the units given by Format.
-The Format is a code from the following table, entered as text, that specifies the format you want the result of DATEDIF to have:
-y : Years
-m : Months. If there is not a complete month between the dates, 0 will be returned.
-d : Days
-md : Days, ignoring months and years
-ym : Months, ignoring years
-yd : Days, ignoring years
-
-|*constraints*|None
-|===
-
-*Examples*
-|===
-|expression|result|comment
-|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "y") ||
-|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "m") |43|The number of months between February 15, 1990, and September 15, 1993.
-|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "d") ||
-|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "md") |0|The day of the month for both start-date and end-date is the 15th
-|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "ym") |7|The number of months between February and September.
-|DATEDIF(DATE(1990;2;15); DATE(1993;9;15); "yd") ||
-|===
-
-==== DATETIMEVALUE
-
-|===
-|*description*|Returns an internal number for a text having a datetime format.
-|*syntax*|DATETIMEVALUE( Text D )
-|*returns*|DateTime
-|*semantics*|This computes the serial number of the text string D, using the current locale. This function acceptS ISO date format (YYYY-MM-DD HH:mm:ss), which is locale-independent.
-|*constraints*|None
-|===
-
-*Examples*
-|===
-|expression|result|comment
-|DATETIMEVALUE("2004-12-25 12:56:45") |2004-12-25 12:56:45|DATETIMEVALUE
-|===
 
 ==== DATEVALUE
 
@@ -2495,17 +2457,6 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |3&2-1 |“31”|Binary “-” has higher precedence than “&”
 |===
 
-==== ASC
-
-
-|===
-|*description*|Converts full-width to half-width ASCII and katakana characters.
-|*syntax*|ASC( Text t1 )
-|*returns*|Text
-|*semantics*|
-|*constraints*|None
-|===
-
 
 ==== CHAR
 
@@ -2555,23 +2506,6 @@ n!! = n*(n-2)*(n-4)...(3)(1)
 |CODE("d") |100|Unicode character d is decimal 100.
 |===
 
-==== CONCAT
-
-
-|===
-|*description*|The CONCAT function combines the text from multiple ranges and/or strings, but it doesn't provide delimiter or IgnoreEmpty arguments.
-|*syntax*|CONCAT( Text t1 ; Text t2; Text tN )
-|*returns*|Text
-|*semantics*|Returns the text strings concatenated together
-|*constraints*|Requires one or more parameters
-|===
-
-*Examples*
-|===
-|expression|result|comment
-|CONCAT("A";"B") |AB|2 parameter concatenation.
-|CONCAT("AB";"CD";"EF") |ABCDEF|3 parameter concatenation
-|===
 
 ==== CONCATENATE
 
