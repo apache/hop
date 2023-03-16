@@ -50,6 +50,7 @@ body:
     id: component
     attributes:
       label: Issue Component
+      multiple: true
       options:
         - "Component: Actions"
         - "Component: Beam"
