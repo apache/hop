@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2022/04/22 14:00:46.314</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/04/22 14:00:46.314</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -63,62 +61,78 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <formulas>
-    <formula>
-      <field_name>today</field_name>
-      <formula>TODAY()</formula>
-      <value_type>1</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>tomorrow</field_name>
-      <formula>TODAY()+1</formula>
-      <value_type>1</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>days_since_graduation</field_name>
-      <formula>TODAY()-DATE(2021,12,17)</formula>
-      <value_type>5</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>workdays_since_graduation</field_name>
-      <formula>NETWORKDAYS(DATE(2021,12,17), TODAY())</formula>
-      <value_type>5</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>todays_year</field_name>
-      <formula>YEAR(TODAY())</formula>
-      <value_type>5</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>todays_month</field_name>
-      <formula>MONTH(TODAY())</formula>
-      <value_type>5</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field/>
-    </formula>
-    <formula>
-      <field_name>current_month</field_name>
-      <formula>MONTH([now])</formula>
-      <value_type>5</value_type>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <replace_field>one</replace_field>
-    </formula>
+      <formula>
+        <field_name>today</field_name>
+        <formula>TODAY()</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>1</value_type>
+      </formula>
+      <formula>
+        <field_name>tomorrow</field_name>
+        <formula>TODAY()+1</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>1</value_type>
+      </formula>
+      <formula>
+        <field_name>days_since_graduation</field_name>
+        <formula>TODAY()-DATE(2021,12,17)</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+      <formula>
+        <field_name>workdays_since_graduation</field_name>
+        <formula>NETWORKDAYS(DATE(2021,12,17), TODAY())</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+      <formula>
+        <field_name>todays_year</field_name>
+        <formula>YEAR(TODAY())</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+      <formula>
+        <field_name>todays_month</field_name>
+        <formula>MONTH(TODAY())</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+      <formula>
+        <field_name>current_month</field_name>
+        <formula>MONTH([now])</formula>
+        <replace_field>one</replace_field>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+      <formula>
+        <field_name>current_minute</field_name>
+        <formula>MINUTE([now])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
+      <formula>
+        <field_name>current_second</field_name>
+        <formula>SECOND([now])</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>5</value_type>
+      </formula>
     </formulas>
     <attributes/>
     <GUI>
@@ -141,24 +155,24 @@ limitations under the License.
       <field>
         <length>-1</length>
         <name>one</name>
+        <nullif>1</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>Integer</type>
-        <nullif>1</nullif>
       </field>
       <field>
         <length>-1</length>
         <name>three</name>
+        <nullif>3</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>Integer</type>
-        <nullif>3</nullif>
       </field>
     </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
     <limit>1</limit>
+    <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
