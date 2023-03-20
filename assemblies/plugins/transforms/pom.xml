@@ -92,6 +92,7 @@
     <module>ifnull</module>
     <module>janino</module>
     <module>javascript</module>
+    <module>jdbc-metadata</module>
     <module>joinrows</module>
     <module>json</module>
     <module>kafka</module>

@@ -225,7 +225,7 @@ public class ComboVar extends Composite {
 
   @Override
   public void dispose() {
-    if (wCombo != null && wCombo != null) {
+    if (wCombo != null) {
       wCombo.dispose();
     }
   }
