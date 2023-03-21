@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -50,11 +51,11 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       throws IllegalArgumentException {
     Object argument;
     if (type == String.class) {
-      argument = (String) stringValue;
+      argument = stringValue;
     } else if (type == Boolean.class) {
       argument = "Y".equals(stringValue) ? Boolean.TRUE : Boolean.FALSE;
     } else if (type == Integer.class) {
-      argument = new Integer(stringValue);
+      argument = Integer.valueOf(stringValue);
     } else {
       throw new IllegalArgumentException("Can't handle valueType " + type.getName());
     }
@@ -80,8 +81,8 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
    * @throws Exception
    */
   private void initMethod(JdbcMetadataMeta meta, JdbcMetadataData data) throws Exception {
-    // set up the method to call
-    /*   logDebug("Setting up method to call.");
+    //set up the method to call
+    logDebug("Setting up method to call.");
     Method method = meta.getMethod();
     data.method = method;
 
@@ -90,16 +91,16 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     Class<?>[] argumentTypes = method.getParameterTypes();
     int argc = argumentTypes.length;
     logDebug("Method has " + argc + " arguments.");
-    List<String> arguments = meta.getArguments();
-    int argSize = arguments.size();
-    logDebug("We expected " + argSize + " arguments.");
-    if (argc != argSize) {
-      throw new Exception("Method has a " + argc + " arguments, we expected " + argSize);
+    String[] arguments = new String[meta.getArguments().size()];
+    meta.getArguments().toArray(arguments);
+    logDebug("We expected " + arguments.length + " arguments.");
+    if (argc != arguments.length) {
+      throw new Exception("Method has a " + argc + " arguments, we expected " + arguments.length);
     }
     logDebug("Allocating arguments array.");
-    data.arguments = new ArrayList();
+    data.arguments = new Object[argc];
     String stringArgument;
-    if (meta.getArgumentSourceFields()) {
+    if (meta.isArgumentSourceFields()) {
       //arguments are specified by values coming from fields.
       //we don't know about the fields yet, so we
       //initialize with bogus value so we can check if all fields were found
@@ -113,10 +114,10 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       //arguments are specified directly by the user in the step.
       //here we convert the string values into proper argument values
       Class<?> argumentType;
-      String argument;
+      Object argument;
       for (int i = 0; i < argc; i++) {
         argumentType = argumentTypes[i];
-        stringArgument = arguments.get(i);
+        stringArgument = arguments[i];
         if (stringArgument == null) {
           argument = null;
         }
@@ -134,9 +135,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
             argument = stringToArgumentValue(stringArgument, argumentType);
           }
         }
-        data.arguments.add(i, argument);
+        data.arguments[i] = argument;
       }
-    }*/
+    }
   }
 
   /**
@@ -351,20 +352,20 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       throws Exception {
     // if the arguments are not from fields, then we already took care of it in the init phase, so
     // leave
-    /*   if (!meta.getArgumentSourceFields()) return;
-    //if the arguments are from fields, then we already stored the right indices to take the values from
+    if (!meta.isArgumentSourceFields()) return;
+    // if the arguments are from fields, then we already stored the right indices to take the values
+    // from
     Object[] args = data.arguments;
     int[] indices = data.argumentFieldIndices;
     int index;
     Class<?>[] argumentTypes = data.method.getParameterTypes();
     Class<?> argumentType;
     Object argument;
-    for (int i = 0; i < args.length; i++){
+    for (int i = 0; i < args.length; i++) {
       index = indices[i];
       if (index == -2) {
         argument = null;
-      }
-      else {
+      } else {
         argument = row[index];
       }
       argumentType = argumentTypes[i];
@@ -372,13 +373,12 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         if ("".equals(argument)) {
           logDebug("Converted empty string to null for argument array");
           argument = null;
-        }
-        else {
-          argument = stringListToObjectArray((String)argument, argumentType.getComponentType());
+        } else {
+          argument = stringListToObjectArray((String) argument, argumentType.getComponentType());
         }
       }
       args[i] = argument;
-    }*/
+    }
   }
 
   private Object[] createOutputRow(
@@ -506,7 +506,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
                         + "\" found for argument "
                         + j
                         + ": "
-                        + ((String) arg[0]));
+                        + arg[0]);
               }
             } else {
               // this argument points to a valid field.
@@ -544,7 +544,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       }
 
       // clone the input row structure and place it in our data object
-      data.outputRowMeta = (IRowMeta) inputRowMeta.clone();
+      data.outputRowMeta = inputRowMeta.clone();
       // use meta.getFields() to change it, so it reflects the output row structure
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     } // end of first
@@ -555,7 +555,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       prepareMethodArguments(meta, data, r);
       if (getLogLevel() == LogLevel.ROWLEVEL) {
         logRowlevel("About to invoke method");
-  /*      for (int i = 0; i < data.arguments.size(); i++) {
+        for (int i = 0; i < data.arguments.length; i++) {
           logRowlevel(
               "Argument "
                   + i
@@ -565,8 +565,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
                       : data.arguments[i].toString()
                           + "; "
                           + data.arguments[i].getClass().getName()));
-        }*/
+        }
       }
+
       DatabaseMetaData databaseMetaData = connection.getMetaData();
       ResultSet resultSet = (ResultSet) data.method.invoke(databaseMetaData, data.arguments);
       ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
@@ -575,42 +576,21 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       Object value;
       boolean outputRows = false;
       int k;
- /*     while (resultSet.next()) {
+      while (resultSet.next()) {
         logRowlevel("Processing 1 output row.");
         Object[] outputRow = createOutputRow(meta, data, r);
         for (int i = data.outputRowOffset, j = 0; i < data.outputRowMeta.size(); i++, j++) {
           k = data.resultSetIndices[j];
           if (k > columnCount) continue;
-          IValueMeta valueMetaInterface = data.outputRowMeta.getValueMeta(i);
-         switch (valueMetaInterface.getType()) {
-            case valueMetaInterface
-                .TYPE_BOOLEAN: // while the JDBC spec prescribes boolean, not all drivers actually
-                               // can deliver.
-              boolean v;
-              switch (resultSetMetaData.getColumnType(k)) {
-                case Types.INTEGER:
-                case Types.SMALLINT:
-                case Types.TINYINT:
-                  v = resultSet.getInt(k) == 1 ? true : false;
-                  break;
-                default:
-                  v = resultSet.getBoolean(k);
-              }
-              value = new Boolean(v);
-              break;
-            case valueMetaInterface.TYPE_INTEGER:
-              value = new Long(resultSet.getInt(k));
-              break;
-            default:
-              value = resultSet.getObject(k);
-          }
+          int type = data.outputRowMeta.getValueMeta(i).getType();
+          value = getColumnValue(resultSet, resultSetMetaData, k, type);
           outputRow[i] = value;
           outputRows = true;
         }
         // put the row to the output row stream
         putRow(data.outputRowMeta, outputRow);
         logRowlevel("Done processing 1 output row.");
-      }*/
+      }
       resultSet.close();
       if (!outputRows && meta.isAlwaysPassInputRow()) {
         Object[] outputRow = createOutputRow(meta, data, r);
@@ -633,6 +613,35 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
 
     // indicate that processRow() should be called again
     return true;
+  }
+
+  private static Object getColumnValue(
+      ResultSet resultSet, ResultSetMetaData resultSetMetaData, int k, int type)
+      throws SQLException {
+    Object value;
+    switch (type) {
+      case IValueMeta
+          .TYPE_BOOLEAN: // while the JDBC spec prescribes boolean, not all drivers actually
+        // can deliver.
+        boolean v;
+        switch (resultSetMetaData.getColumnType(k)) {
+          case Types.INTEGER:
+          case Types.SMALLINT:
+          case Types.TINYINT:
+            v = resultSet.getInt(k) == 1;
+            break;
+          default:
+            v = resultSet.getBoolean(k);
+        }
+        value = Boolean.valueOf(v);
+        break;
+      case IValueMeta.TYPE_INTEGER:
+        value = Long.valueOf(resultSet.getInt(k));
+        break;
+      default:
+        value = resultSet.getObject(k);
+    }
+    return value;
   }
 
   @Override

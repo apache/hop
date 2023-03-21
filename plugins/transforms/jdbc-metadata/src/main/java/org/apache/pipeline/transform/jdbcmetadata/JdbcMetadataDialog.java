@@ -50,7 +50,7 @@ import java.util.List;
 
 public class JdbcMetadataDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JdbcMetadataMeta.class; // for i18n purposes
-  private JdbcMetadataMeta meta;
+  private JdbcMetadataMeta input;
 
   private int middle = props.getMiddlePct();
   private int margin = PropsUi.getMargin();
@@ -95,7 +95,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
   public JdbcMetadataDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    meta = (JdbcMetadataMeta) in;
+    input = (JdbcMetadataMeta) in;
   }
 
   private final String[] emptyFieldList = new String[0];
@@ -145,9 +145,6 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
   /** Remove the UI to enter method arguments The current values are stored and returned. */
   private List<String> removeArgumentsUI() {
     Control[] controls = metadataComposite.getChildren();
-    logBasic(
-            "[removeArgumentsUI] metadataComposite start - Children # -> "
-                    + controls.length);
     List<String> currentValues = new ArrayList<String>();
     for (Control control : controls) {
       if (control == alwaysPassInputRowLabel
@@ -158,25 +155,20 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
           || control == argumentSourceFields
           || control == removeArgumentFieldsLabel
           || control == removeArgumentFieldsButton) continue;
-      if (control instanceof Combo ) {
-        if (control.isDisposed()) {
-          logBasic("removeArgumentsUI - trying to access a disposed control!");
-        }
-        if (!control.isDisposed() && (((Combo) control).getText() != null || ((Combo) control).getText().length()>0)) {
-          currentValues.add(((Combo) control).getText());
-          logBasic("removeArgumentsUI - control.getText(): " + ((Combo) control).getText());
+      if (control instanceof ComboVar) {
+        if (!control.isDisposed()
+            && (((ComboVar) control).getText() != null
+                || ((ComboVar) control).getText().length() > 0)) {
+          currentValues.add(((ComboVar) control).getText());
         }
       }
       if (!control.isDisposed()) {
-        logBasic("removeArgumentsUI - Disposing control!");
+        logDebug("removeArgumentsUI - Disposing control!");
         control.dispose();
-        logBasic("removeArgumentsUI - number of children in parent composite: " + controls.length);
+        logDebug("removeArgumentsUI - number of children in parent composite: " + controls.length);
       }
     }
-
-    logBasic(
-        "[removeArgumentsUI] metadataComposite end - Children # -> "
-            + metadataComposite.getChildren().length);
+    ;
     return currentValues;
   }
 
@@ -189,7 +181,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
    * @return The combobox where the user enters the argument.
    */
   // private ComboVar createArgumentUI(
-  private Combo createArgumentUI(
+  private ComboVar createArgumentUI(
       Object[] argumentDescriptor, Control lastControl, String[] items) {
     String argumentName = (String) argumentDescriptor[0];
     Label label = new Label(metadataComposite, SWT.RIGHT);
@@ -203,10 +195,8 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
     labelFormData.top = new FormAttachment(lastControl, margin);
     label.setLayoutData(labelFormData);
 
-//    ComboVar comboVar =
-//        new ComboVar(variables, metadataComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    Combo comboVar =
-        new Combo (metadataComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    ComboVar comboVar =
+        new ComboVar(variables, metadataComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(comboVar);
     FormData comboVarFormData = new FormData();
     comboVarFormData.left = new FormAttachment(middle, 0);
@@ -221,7 +211,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
   }
   /** Create UI to enter arguments. Return a new set of arguments to store in the meta object */
   private List<String> createArgumentsUI(Object[] argumentDescriptors, List<String> currentValues) {
-    logBasic(
+    logDebug(
         "createArgumentsUI, currentValues = "
             + (currentValues == null ? "null" : currentValues.size()));
     Object[] argumentDescriptor;
@@ -231,8 +221,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
     String[] items = argumentSourceFields.getSelection() ? getFieldListForCombo() : emptyFieldList;
     for (int i = 0; i < argc; i++) {
       argumentDescriptor = (Object[]) argumentDescriptors[i];
-      // ComboVar comboVar = createArgumentUI(argumentDescriptor, lastControl, items);
-      Combo comboVar = createArgumentUI(argumentDescriptor, lastControl, items);
+      ComboVar comboVar = createArgumentUI(argumentDescriptor, lastControl, items);
       lastControl = comboVar;
 
       // copy the old argument values to the new arguments array
@@ -247,7 +236,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
   /** fill the fields table with output fields. */
   private void populateFieldsTable(Object[] methodDescriptor) {
-    logBasic("populateFieldsTable 1");
+    logDebug("populateFieldsTable 1");
     List<OutputField> outputFields = getOutputFields();
     outputFieldsTableView.clearAll();
     IValueMeta[] fields = (IValueMeta[]) methodDescriptor[2];
@@ -278,12 +267,12 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void populateFieldsTable() {
-    logBasic("populateFieldsTable 2");
+    logDebug("populateFieldsTable 2");
     populateFieldsTable(JdbcMetadataMeta.getMethodDescriptor(methodCombo.getSelectionIndex()));
   }
 
   private void updateOutputFields(List<OutputField> outputFields) {
-    logBasic("updateOutputFields " + outputFields);
+    logDebug("updateOutputFields " + outputFields);
     if (outputFields == null) return;
     outputFieldsTableView.clearAll();
     OutputField outputField;
@@ -311,12 +300,12 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
    * takes care of that.
    */
   private void methodUpdated(List<String> argumentValues) {
-    logBasic(
+    logDebug(
         "methodUpdated, argumentValues = "
             + (argumentValues == null ? "null" : argumentValues.size()));
     // first, remove the controls for the previous set of arguments
     List<String> currentValues = removeArgumentsUI();
-    logBasic("currentValue = " + currentValues.size());
+    logDebug("currentValue = " + currentValues.size());
     if (argumentValues == null) {
       argumentValues = new ArrayList(currentValues.size());
       currentValues.addAll(argumentValues);
@@ -329,41 +318,33 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
     List<String> newArguments = createArgumentsUI(argumentDescriptors, argumentValues);
     // update the arguments in the meta object
-    meta.setArguments(newArguments);
-    // show / hide the argument source ui depending on whether we have arguments
-    boolean visible = newArguments.size() > 0;
-    /* (SR) Temporarily removed
-        argumentSourceFields.setVisible(visible);
-        argumentSourceLabel.setVisible(visible);
-        removeArgumentFieldsLabel.setVisible(visible);
-        removeArgumentFieldsButton.setVisible(visible);
-    */
+    input.setArguments(newArguments);
+
     metadataComposite.layout();
   }
 
   private void methodUpdated() {
-    logBasic("Parameterless methodUpdated called.");
+    logDebug("Parameterless methodUpdated called.");
     methodUpdated(null);
   }
 
   public String open() {
     dialogChanged = false;
-    // store some convenient SWT variables
     Shell parent = getParent();
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     props.setLook(shell);
-    setShellImage(shell, meta);
+    setShellImage(shell, input);
 
-    changed = meta.hasChanged();
+    changed = input.hasChanged();
 
-    lsMod = e -> meta.setChanged();
+    lsMod = e -> input.setChanged();
     SelectionListener lsSelection =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            meta.setChanged();
+            input.setChanged();
           }
         };
     // ------------------------------------------------------- //
@@ -439,7 +420,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
     connectionComposite.setLayout(connectionTabLayout);
 
     // Connection line
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(meta.getConnectionName(), variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnectionName(), variables);
     wConnectionSource =
         addConnectionLine(
             connectionComposite,
@@ -602,7 +583,6 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
     methodCombo = new Combo(metadataComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(methodCombo);
-    // methodCombo.setEditable(false);
     methodCombo.addModifyListener(lsMod);
     FormData methodComboFormData = new FormData();
     methodComboFormData.left = new FormAttachment(middle, 0);
@@ -625,10 +605,10 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
           @Override
           public void widgetSelected(SelectionEvent selectionEvent) {
-            logBasic("methodCombo changed, calling parameterless methodUpdated");
+            logDebug("methodCombo changed, calling parameterless methodUpdated");
             methodUpdated();
             populateFieldsTable();
-            meta.setChanged();
+            input.setChanged();
           }
         };
     methodCombo.addSelectionListener(methodComboSelectionListener);
@@ -662,14 +642,22 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
           public void widgetSelected(SelectionEvent selectionEvent) {
             Control[] controls = metadataComposite.getChildren();
             boolean selection = argumentSourceFields.getSelection();
+            removeArgumentFieldsButton.setSelection(selection);
             removeArgumentFieldsButton.setEnabled(selection);
             String[] items = selection ? getFieldListForCombo() : emptyFieldList;
-            for (Control control : controls) {
-              if (!(control instanceof ComboVar)) continue;
-              ComboVar comboVar = (ComboVar) control;
-              comboVar.setItems(items);
+
+            if (!selection) {
+              removeArgumentsUI();
+            } else {
+              methodUpdated(null);
+              for (Control control : controls) {
+                if (!(control instanceof ComboVar)) continue;
+                ComboVar comboVar = (ComboVar) control;
+                comboVar.setItems(items);
+              }
             }
-            meta.setChanged();
+
+            input.setChanged();
           }
         };
     argumentSourceFields.addSelectionListener(argumentSourceFieldsSelectionListener);
@@ -767,7 +755,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             populateFieldsTable();
-            meta.setChanged();
+            input.setChanged();
           }
         });
 
@@ -827,7 +815,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
     setSize();
     populateDialog();
-    meta.setChanged(changed);
+    input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -844,7 +832,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
     int index = JdbcMetadataMeta.getMethodDescriptorIndex(method);
     if (index == -1) throw new IllegalArgumentException("Index for method " + method + " is -1.");
     methodCombo.select(index);
-    logBasic("setMethod called, calling parameterless method updated");
+    logDebug("setMethod called, calling parameterless method updated");
   }
 
   /**
@@ -855,50 +843,55 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
     wTransformName.selectAll();
     String value;
 
-    value = meta.getConnectionSource();
+    value = input.getConnectionSource();
     selectConnectionSource(value);
 
-    value = meta.getConnectionName();
+    value = input.getConnectionName();
     if (value != null) wConnectionSource.setText(value);
 
-    value = meta.getConnectionField();
+    value = input.getConnectionField();
     if (value != null) connectionField.setText(value);
 
-    value = meta.getJdbcDriverField();
+    value = input.getJdbcDriverField();
     if (value != null) jdbcDriverField.setText(value);
 
-    value = meta.getJdbcUrlField();
+    value = input.getJdbcUrlField();
     if (value != null) jdbcUrlField.setText(value);
 
-    value = meta.getJdbcUserField();
+    value = input.getJdbcUserField();
     if (value != null) jdbcUserField.setText(value);
 
-    value = meta.getJdbcPasswordField();
+    value = input.getJdbcPasswordField();
     if (value != null) jdbcPasswordField.setText(value);
 
-    alwaysPassInputRowButton.setSelection(meta.isAlwaysPassInputRow());
+    alwaysPassInputRowButton.setSelection(input.isAlwaysPassInputRow());
 
-    value = meta.getMethodName();
+    value = input.getMethodName();
     if (value != null) setMethod(value);
 
-    argumentSourceFields.setSelection(meta.isArgumentSourceFields());
-    if (meta.getArguments() != null && meta.getArguments().size() > 0) {
-      methodUpdated(meta.getArguments());
+    if (input.isArgumentSourceFields()) {
+      argumentSourceFields.setSelection(input.isArgumentSourceFields());
+      if (input.getArguments() != null && input.getArguments().size() > 0) {
+        methodUpdated(input.getArguments());
+      } else {
+        // If no arguments' values are saved build the arguments' list without assigning any values
+        methodUpdated(new ArrayList<>());
+      }
     }
 
-    logBasic("Calling methodUpdated from populate dialog.");
-    if (meta.getOutputFields() != null && meta.getOutputFields().size() > 0) {
-      updateOutputFields(meta.getOutputFields());
+    logDebug("Calling methodUpdated from populate dialog.");
+    if (input.getOutputFields() != null && input.getOutputFields().size() > 0) {
+      updateOutputFields(input.getOutputFields());
     }
 
-    removeArgumentFieldsButton.setSelection(meta.isRemoveArgumentFields());
-    removeArgumentFieldsButton.setEnabled(meta.isArgumentSourceFields());
+    removeArgumentFieldsButton.setSelection(input.isRemoveArgumentFields());
+    removeArgumentFieldsButton.setEnabled(input.isArgumentSourceFields());
   }
 
   /** Called when the user cancels the dialog. */
   private void cancel() {
     transformName = null;
-    meta.setChanged(changed);
+    input.setChanged(changed);
     dispose();
   }
 
@@ -907,28 +900,25 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
     transformName = wTransformName.getText();
     // Save settings to the meta object
-    meta.setConnectionSource(
+    input.setConnectionSource(
         JdbcMetadataMeta.connectionSourceOptions[wConnectionSource.getSelectionIndex()]);
-    meta.setConnectionName(wConnectionSource.getText());
-    meta.setConnectionField(connectionField.getText());
-    meta.setJdbcDriverField(jdbcDriverField.getText());
-    meta.setJdbcUrlField(jdbcUrlField.getText());
-    meta.setJdbcUserField(jdbcUserField.getText());
-    meta.setJdbcPasswordField(jdbcPasswordField.getText());
-    meta.setAlwaysPassInputRow(alwaysPassInputRowButton.getSelection());
-    meta.setMethodName(JdbcMetadataMeta.getMethodName(methodCombo.getSelectionIndex()));
-    meta.setArgumentSourceFields(argumentSourceFields.getSelection());
-    meta.setArguments(getArguments());
-    meta.setRemoveArgumentFields(removeArgumentFieldsButton.getSelection());
-    meta.setOutputFields(getOutputFields());
+    input.setConnectionName(wConnectionSource.getText());
+    input.setConnectionField(connectionField.getText());
+    input.setJdbcDriverField(jdbcDriverField.getText());
+    input.setJdbcUrlField(jdbcUrlField.getText());
+    input.setJdbcUserField(jdbcUserField.getText());
+    input.setJdbcPasswordField(jdbcPasswordField.getText());
+    input.setAlwaysPassInputRow(alwaysPassInputRowButton.getSelection());
+    input.setMethodName(JdbcMetadataMeta.getMethodName(methodCombo.getSelectionIndex()));
+    input.setArgumentSourceFields(argumentSourceFields.getSelection());
+    input.setArguments(getArguments());
+    input.setRemoveArgumentFields(removeArgumentFieldsButton.getSelection());
+    input.setOutputFields(getOutputFields());
 
-    meta.setChanged(dialogChanged || changed);
-    // close the SWT dialog window
     dispose();
   }
 
   private List<String> getArguments() {
-    logBasic("getArguments");
     List<String> arguments = new ArrayList<String>();
     Control[] controls = metadataComposite.getChildren();
     String text;

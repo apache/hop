@@ -24,7 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.util.List;
 import java.util.Map;
 
 public class JdbcMetadataData extends BaseTransformData implements ITransformData {
@@ -37,7 +36,7 @@ public class JdbcMetadataData extends BaseTransformData implements ITransformDat
   // used to store the DatabaseMetaData method that generates the data
   public Method method;
   // use to store the arguments to the method
-  public List<String> arguments;
+  public Object[] arguments;
   // named kettle connection cache. Used when connection is a named connection specified by input
   // fields
   public Map<String, Database> databases = null;
