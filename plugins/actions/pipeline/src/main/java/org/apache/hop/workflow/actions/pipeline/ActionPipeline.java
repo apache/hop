@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.pipeline;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -56,12 +61,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-
 /** This is the action that defines a pipeline to be run. */
 @Action(
     id = "PIPELINE",
@@ -77,8 +76,8 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   public static final class ParameterDefinition {
     @HopMetadataProperty(key = "pass_all_parameters")
     private boolean passingAllParameters = true;
-    
-    @HopMetadataProperty(groupKey = "parameters", key = "parameter")
+
+    @HopMetadataProperty(key = "parameter")
     private List<Parameter> parameters;
 
     public ParameterDefinition() {
@@ -92,7 +91,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     public void setPassingAllParameters(boolean passingAllParameters) {
       this.passingAllParameters = passingAllParameters;
     }
-    
+
     public List<Parameter> getParameters() {
       return parameters;
     }
@@ -100,52 +99,56 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     public void setParameters(List<Parameter> parameters) {
       this.parameters = parameters;
     }
-    
+
     public String[] getNames() {
       List<String> list = new ArrayList<>();
-      for (Parameter parameter:parameters) {
+      for (Parameter parameter : parameters) {
         list.add(parameter.getName());
       }
       return list.toArray(new String[0]);
     }
-    
+
     public String[] getValues() {
       List<String> list = new ArrayList<>();
-      for (Parameter parameter:parameters) {
+      for (Parameter parameter : parameters) {
         list.add(parameter.getValue());
       }
       return list.toArray(new String[0]);
     }
   }
-  
+
   public static final class Parameter {
-    @HopMetadataProperty
-    public String name;
-    @HopMetadataProperty
-    public String value;
-    @HopMetadataProperty(key="stream_name")
-    public String field;   
-    
+    @HopMetadataProperty public String name;
+    @HopMetadataProperty public String value;
+
+    @HopMetadataProperty(key = "stream_name")
+    public String field;
+
     public String getName() {
       return name;
     }
+
     public String getValue() {
       return value;
     }
+
     public String getField() {
       return field;
     }
+
     public void setName(String name) {
       this.name = name;
     }
+
     public void setValue(String value) {
       this.value = value;
     }
+
     public void setField(String field) {
       this.field = field;
     }
   }
-  
+
   @HopMetadataProperty(key = "filename")
   private String filename;
 
@@ -173,7 +176,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   @HopMetadataProperty(key = "logfile")
   private String logfile;
 
-  @HopMetadataProperty(key = "logext")  
+  @HopMetadataProperty(key = "logext")
   private String logext;
 
   @HopMetadataProperty(key = "add_date")
@@ -181,7 +184,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "add_time")
   private boolean addTime;
- 
+
   @HopMetadataProperty(key = "loglevel", storeWithCode = true)
   private LogLevel logFileLevel;
 
@@ -190,7 +193,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "parameters")
   private ParameterDefinition parameterDefinition;
-  
+
   @HopMetadataProperty(key = "run_configuration")
   private String runConfiguration;
 
@@ -205,7 +208,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     this("");
     clear();
   }
-  
+
   public ParameterDefinition getParameterDefinition() {
     return parameterDefinition;
   }
@@ -433,48 +436,46 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
           if (paramsFromPrevious) { // Copy the input the parameters
 
-              for (Parameter parameter : parameterDefinition.getParameters()) {
-                if (!Utils.isEmpty(parameter.getName())) {
-                  // We have a parameter
-                  if (Utils.isEmpty(Const.trim(parameter.getField()))) {
-                    namedParam.setParameterValue(
-                        parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
-                  } else {
-                    String fieldValue = "";
+            for (Parameter parameter : parameterDefinition.getParameters()) {
+              if (!Utils.isEmpty(parameter.getName())) {
+                // We have a parameter
+                if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+                  namedParam.setParameterValue(
+                      parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
+                } else {
+                  String fieldValue = "";
 
-                    if (resultRow != null) {
-                      fieldValue = resultRow.getString(parameter.getField(), "");
-                    }
-                    // Get the value from the input stream
-                    namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
+                  if (resultRow != null) {
+                    fieldValue = resultRow.getString(parameter.getField(), "");
                   }
+                  // Get the value from the input stream
+                  namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
                 }
               }
-
+            }
           }
         } else {
 
           if (paramsFromPrevious) {
             // Copy the input the parameters
             for (Parameter parameter : parameterDefinition.getParameters()) {
-                if (!Utils.isEmpty(parameter.getName())) {
-                  // We have a parameter
-                  if (Utils.isEmpty(Const.trim(parameter.getField()))) {
-                    namedParam.setParameterValue(
-                        parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
-                  } else {
-                    String fieldValue = "";
+              if (!Utils.isEmpty(parameter.getName())) {
+                // We have a parameter
+                if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+                  namedParam.setParameterValue(
+                      parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
+                } else {
+                  String fieldValue = "";
 
-                    if (resultRow != null) {
-                      fieldValue = resultRow.getString(parameter.getField(), "");
-                    }
-                    // Get the value from the input stream
-                    namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
+                  if (resultRow != null) {
+                    fieldValue = resultRow.getString(parameter.getField(), "");
                   }
+                  // Get the value from the input stream
+                  namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
                 }
               }
             }
-
+          }
         }
 
         // Handle the parameters...
@@ -611,8 +612,8 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     result.clear(); // clear only the numbers, NOT the files or rows.
     result.add(newResult);
 
-    if ( !Utils.isEmpty( newResult.getRows() )) {
-      result.setRows( newResult.getRows() );
+    if (!Utils.isEmpty(newResult.getRows())) {
+      result.setRows(newResult.getRows());
     }
   }
 
@@ -774,12 +775,16 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     return logfile;
   }
 
-  /** @return the waitingToFinish */
+  /**
+   * @return the waitingToFinish
+   */
   public boolean isWaitingToFinish() {
     return waitingToFinish;
   }
 
-  /** @param waitingToFinish the waitingToFinish to set */
+  /**
+   * @param waitingToFinish the waitingToFinish to set
+   */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
   }
@@ -838,11 +843,13 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     super.setParentWorkflowMeta(parentWorkflowMeta);
   }
 
-  public void prepareFieldNamesParameters(List<Parameter> parameters, INamedParameters namedParam,
-      ActionPipeline actionPipeline) throws UnknownParamException {
+  public void prepareFieldNamesParameters(
+      List<Parameter> parameters, INamedParameters namedParam, ActionPipeline actionPipeline)
+      throws UnknownParamException {
     for (Parameter parameter : parameters) {
       // Grab the parameter value set in the Pipeline action
-      // Set parameter.getField() only if exists and if it is not declared any static parameter.getValue()
+      // Set parameter.getField() only if exists and if it is not declared any static
+      // parameter.getValue()
       //
       String thisValue = namedParam.getParameterValue(parameter.getName());
       // Set value only if is not empty at namedParam and exists in parameter.getField
@@ -858,18 +865,17 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         // Or if not in parameter.getValue() then we can add that variable with that value too
         actionPipeline.setVariable(parameter.getName(), Const.NVL(thisValue, ""));
       }
-
     }
   }
- 
+
   public boolean isExecPerRow() {
     return execPerRow;
   }
-  
+
   public void setExecPerRow(boolean runEveryResultRow) {
     this.execPerRow = runEveryResultRow;
   }
-  
+
   public boolean isAddDate() {
     return addDate;
   }
@@ -956,5 +962,5 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   public void setClearResultFiles(boolean clearResultFiles) {
     this.clearResultFiles = clearResultFiles;
-  }  
+  }
 }

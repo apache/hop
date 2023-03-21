@@ -17,6 +17,12 @@
 
 package org.apache.hop.workflow.actions.workflow;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -52,13 +58,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 /**
  * Recursive definition of a Workflow. This transform means that an entire Workflow has to be
  * executed. It can be the same Workflow, but just make sure that you don't get an endless loop.
@@ -78,8 +77,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   public static final class ParameterDefinition {
     @HopMetadataProperty(key = "pass_all_parameters")
     private boolean passingAllParameters = true;
-    
-    @HopMetadataProperty(groupKey = "parameters", key = "parameter")
+
+    @HopMetadataProperty(key = "parameter")
     private List<Parameter> parameters;
 
     public ParameterDefinition() {
@@ -93,7 +92,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     public void setPassingAllParameters(boolean passingAllParameters) {
       this.passingAllParameters = passingAllParameters;
     }
-    
+
     public List<Parameter> getParameters() {
       return parameters;
     }
@@ -102,74 +101,78 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       this.parameters = parameters;
     }
   }
-  
+
   public static final class Parameter {
-    @HopMetadataProperty
-    public String name;
-    @HopMetadataProperty
-    public String value;
-    @HopMetadataProperty(key="stream_name")
-    public String field;   
-    
+    @HopMetadataProperty public String name;
+    @HopMetadataProperty public String value;
+
+    @HopMetadataProperty(key = "stream_name")
+    public String field;
+
     public String getName() {
       return name;
     }
+
     public String getValue() {
       return value;
     }
+
     public String getField() {
       return field;
     }
+
     public void setName(String name) {
       this.name = name;
     }
+
     public void setValue(String value) {
       this.value = value;
     }
+
     public void setField(String field) {
       this.field = field;
     }
   }
-  
+
   @HopMetadataProperty(key = "filename")
   private String filename;
-  
+
   @HopMetadataProperty(key = "params_from_previous")
   private boolean paramsFromPrevious;
-  
+
   @HopMetadataProperty(key = "exec_per_row")
   private boolean execPerRow;
-  
+
   @HopMetadataProperty(key = "set_logfile")
   private boolean setLogfile;
-  
+
   @HopMetadataProperty(key = "logfile")
   private String logfile;
-  
+
   @HopMetadataProperty(key = "logext")
-  private String logext; 
-  
+  private String logext;
+
   @HopMetadataProperty(key = "add_date")
   private boolean addDate;
-  
+
   @HopMetadataProperty(key = "add_time")
   private boolean addTime;
-  
+
   @HopMetadataProperty(key = "loglevel", storeWithCode = true)
   private LogLevel logFileLevel;
-  
+
   @HopMetadataProperty(key = "set_append_logfile")
   private boolean setAppendLogfile;
-  
+
   @HopMetadataProperty(key = "create_parent_folder")
   private boolean createParentFolder;
-  
+
   @HopMetadataProperty(key = "wait_until_finished")
   private boolean waitingToFinish = true;
-  
+
   @HopMetadataProperty(key = "parameters")
   private ParameterDefinition parameterDefinition;
-  
+
   @HopMetadataProperty(key = "run_configuration")
   private String runConfiguration;
 
@@ -347,35 +350,34 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         // Now add those parameter values specified by the user in the action
         //
         for (Parameter parameter : parameterDefinition.getParameters()) {
-            if (!Utils.isEmpty(parameter.getName())) {
+          if (!Utils.isEmpty(parameter.getName())) {
 
-              // If it's not yet present in the parent workflow, add it...
-              //
-              if (Const.indexOfString(parameter.getName(), namedParam.listParameters()) < 0) {
-                // We have a parameter
-                try {
-                  namedParam.addParameterDefinition(parameter.getName(), "", "Action runtime");
-                } catch (DuplicateParamException e) {
-                  // Should never happen
-                  //
-                  logError("Duplicate parameter definition for " + parameter.getName());
-                }
-              }
-
-              if (Utils.isEmpty(Const.trim(parameter.getField()))) {
-                namedParam.setParameterValue(
-                    parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
-              } else {
-                // something filled in, in the field column...
+            // If it's not yet present in the parent workflow, add it...
+            //
+            if (Const.indexOfString(parameter.getName(), namedParam.listParameters()) < 0) {
+              // We have a parameter
+              try {
+                namedParam.addParameterDefinition(parameter.getName(), "", "Action runtime");
+              } catch (DuplicateParamException e) {
+                // Should never happen
                 //
-                String value = "";
-                if (resultRow != null) {
-                  value = resultRow.getString(parameter.getField(), "");
-                }
-                namedParam.setParameterValue(parameter.getName(), value);
+                logError("Duplicate parameter definition for " + parameter.getName());
               }
             }
 
+            if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+              namedParam.setParameterValue(
+                  parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
+            } else {
+              // something filled in, in the field column...
+              //
+              String value = "";
+              if (resultRow != null) {
+                value = resultRow.getString(parameter.getField(), "");
+              }
+              namedParam.setParameterValue(parameter.getName(), value);
+            }
+          }
         }
 
         Result oneResult = new Result();
@@ -396,8 +398,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
               if (!Utils.isEmpty(parameter.getName())) {
                 // We have a parameter
                 if (Utils.isEmpty(Const.trim(parameter.getField()))) {
-                  namedParam.setParameterValue(parameter.getName(),
-                      Const.NVL(resolve(parameter.getValue()), ""));
+                  namedParam.setParameterValue(
+                      parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
                 } else {
                   String fieldValue = "";
 
@@ -421,8 +423,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
               if (!Utils.isEmpty(parameter.getName())) {
                 // We have a parameter
                 if (Utils.isEmpty(Const.trim(parameter.getField()))) {
-                  namedParam.setParameterValue(parameter.getName(),
-                      Const.NVL(resolve(parameter.getValue()), ""));
+                  namedParam.setParameterValue(
+                      parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
                 } else {
                   String fieldValue = "";
 
@@ -728,12 +730,16 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  /** @return Returns the runEveryResultRow. */
+  /**
+   * @return Returns the runEveryResultRow.
+   */
   public boolean isExecPerRow() {
     return execPerRow;
   }
 
-  /** @param runEveryResultRow The runEveryResultRow to set. */
+  /**
+   * @param runEveryResultRow The runEveryResultRow to set.
+   */
   public void setExecPerRow(boolean runEveryResultRow) {
     this.execPerRow = runEveryResultRow;
   }
@@ -825,12 +831,16 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     return logfile;
   }
 
-  /** @return the waitingToFinish */
+  /**
+   * @return the waitingToFinish
+   */
   public boolean isWaitingToFinish() {
     return waitingToFinish;
   }
 
-  /** @param waitingToFinish the waitingToFinish to set */
+  /**
+   * @param waitingToFinish the waitingToFinish to set
+   */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
   }
@@ -875,7 +885,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return getWorkflowMeta(metadataProvider, variables);
   }
-  
+
   public boolean isAddDate() {
     return addDate;
   }

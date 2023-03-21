@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.pipeline;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -53,8 +54,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /** This dialog allows you to edit the pipeline action (ActionPipeline) */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
@@ -128,7 +127,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     fdWait.top = new FormAttachment(wClearFiles, 10);
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
-    
+
     // force reload from file specification
     wbGetParams.addListener(SWT.Selection, e -> getParameters(null));
 
@@ -191,7 +190,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
   protected Control createRunConfigurationControl() {
     wRunConfiguration =
         new MetaSelectionLine<>(
-            variables,            
+            variables,
             metadataProvider,
             PipelineRunConfiguration.class,
             shell,
@@ -199,7 +198,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             null,
             null,
             true);
-    
+
     return wRunConfiguration;
   }
 
@@ -311,15 +310,10 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     actionPipeline.setName(wName.getText());
     actionPipeline.setRunConfiguration(wRunConfiguration.getText());
     actionPipeline.setFileName(wPath.getText());
-    if (actionPipeline.getFilename().isEmpty()) {
-      throw new HopException(
-          BaseMessages.getString(
-              PKG, "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound"));
-    }
 
     ParameterDefinition parameterDefinition = action.getParameterDefinition();
     parameterDefinition.getParameters().clear();
-    
+
     // Do the parameters
     int nrItems = wParameters.nrNonEmpty();
     for (int i = 0; i < nrItems; i++) {
@@ -341,7 +335,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
       } else {
         parameter.setValue("");
       }
-      
+
       parameterDefinition.getParameters().add(parameter);
     }
     parameterDefinition.setPassingAllParameters(wPassParams.getSelection());
