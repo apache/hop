@@ -56,6 +56,7 @@ public class ComboVar extends Composite {
   private IVariables variables;
 
   private CCombo wCombo;
+  private Label wlImage;
 
   private ModifyListener modifyListenerTooltipText;
 
@@ -99,7 +100,7 @@ public class ComboVar extends Composite {
 
     // Add the variable $ image on the top right of the control
     //
-    Label wlImage = new Label(this, SWT.NONE);
+    wlImage = new Label(this, SWT.NONE);
     wlImage.setImage(GuiResource.getInstance().getImageVariableMini());
     wlImage.setToolTipText(BaseMessages.getString(PKG, "TextVar.tooltip.InsertVariable"));
     FormData fdlImage = new FormData();
@@ -225,9 +226,13 @@ public class ComboVar extends Composite {
 
   @Override
   public void dispose() {
-    if (wCombo != null) {
+    if (wCombo != null && !wCombo.isDisposed()) {
       wCombo.dispose();
     }
+    if (wlImage != null && !wlImage.isDisposed()) {
+      wlImage.dispose();
+    }
+    super.dispose();
   }
 
   @Override
