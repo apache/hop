@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.workflow;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -54,15 +55,13 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-import java.util.List;
-
 /** This dialog allows you to edit the workflow action (ActionWorkflow) */
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
   private ActionWorkflow action;
   private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
-  
+
   private static final String[] FILE_FILTERLOGNAMES =
       new String[] {
         BaseMessages.getString(PKG, "ActionWorkflow.Fileformat.TXT"),
@@ -165,16 +164,17 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Title"),
-          BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Message"),
+          BaseMessages.getString(
+              PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Message"),
           e);
     }
   }
-  
+
   @Override
   protected Control createRunConfigurationControl() {
-  wRunConfiguration =
+    wRunConfiguration =
         new MetaSelectionLine<>(
-            variables,            
+            variables,
             metadataProvider,
             WorkflowRunConfiguration.class,
             shell,
@@ -265,7 +265,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       } catch (HopException e) {
         // Ignore errors
       }
-     
+
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
       if (Utils.isEmpty(action.getRunConfiguration())) {
         wRunConfiguration.select(0);
@@ -277,7 +277,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     }
 
     setLogFileEnabled();
-    
+
     wName.selectAll();
     wName.setFocus();
   }
@@ -298,12 +298,12 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     ParameterDefinition parameterDefinition = action.getParameterDefinition();
     parameterDefinition.getParameters().clear();
-    
+
     // Do the parameters
     int nrItems = wParameters.nrNonEmpty();
     for (int i = 0; i < nrItems; i++) {
       TableItem item = wParameters.getNonEmpty(i);
-      
+
       Parameter parameter = new Parameter();
       parameter.setName(item.getText(1));
 
@@ -320,7 +320,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       } else {
         parameter.setValue("");
       }
-      
+
       parameterDefinition.getParameters().add(parameter);
     }
     parameterDefinition.setPassingAllParameters(wPassParams.getSelection());
