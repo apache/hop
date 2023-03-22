@@ -442,6 +442,7 @@ under the License.
 * xref:hop-server/index.adoc[Hop Server]
 ** xref:hop-server/rest-api.adoc[REST api]
 ** xref:hop-server/web-service.adoc[Web Service]
+** xref:hop-server/async-web-service.adoc[Async Web Service]
 * xref:hop-rest/index.adoc[Hop REST Web Application]
 * xref:hop-tools/index.adoc[Hop Tools]
 ** xref:hop-tools/hop-conf/hop-conf.adoc[hop-conf]
