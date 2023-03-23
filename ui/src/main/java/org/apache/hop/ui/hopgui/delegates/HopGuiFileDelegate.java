@@ -17,6 +17,13 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -48,14 +55,6 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.WorkflowSvgPainter;
 import org.eclipse.swt.SWT;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public class HopGuiFileDelegate {
 
@@ -112,9 +111,10 @@ public class HopGuiFileDelegate {
         // Do it again to test
         hopGui.handleFileCapabilities(hopFile, fileTypeHandler.hasChanged(), false, false);
       }
-        // Also save the state of Hop GUI
-        //
-        hopGui.auditDelegate.writeLastOpenFiles();
+
+      // Also save the state of Hop GUI
+      //
+      hopGui.auditDelegate.writeLastOpenFiles();
     }
 
     return fileTypeHandler;

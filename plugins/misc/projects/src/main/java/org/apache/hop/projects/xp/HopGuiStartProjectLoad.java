@@ -116,13 +116,13 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
             }
 
             // Set system variables for HOP_HOME, HOP_METADATA_FOLDER, ...
-            // Sets the namespace in HopGui to the name of the project
+            // Sets the namespace in HopGui to the name of the project.
             //
             ProjectsGuiPlugin.enableHopGuiProject(lastProjectName, project, lastEnvironment);
 
-            // Don't open the files twice
+            // Don't open the files again in the HopGui startup code.
             //
-            HopGui.getInstance().setOpeningLastFiles(false);
+            hopGui.setOpeningLastFiles(false);
           }
         }
       } else {
