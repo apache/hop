@@ -24,7 +24,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
-import java.util.Map;
 
 public class JdbcMetadataData extends BaseTransformData implements ITransformData {
 
@@ -37,21 +36,9 @@ public class JdbcMetadataData extends BaseTransformData implements ITransformDat
   public Method method;
   // use to store the arguments to the method
   public Object[] arguments;
-  // named kettle connection cache. Used when connection is a named connection specified by input
-  // fields
-  public Map<String, Database> databases = null;
-  // connection cache. Used when connection is a jdbc connection specified by input fields
-  public Map<String[], Connection> connections = null;
+
+  public Database db;
   // key to the connection cache.
-  public String[] connectionKey = null;
-  // field index for named kettle connection
-  public int connectionField = -1;
-  // field indices for jdbc connections
-  public int jdbcDriverField = -1;
-  public int jdbcUrlField = -1;
-  public int jdbcUserField = -1;
-  public int jdbcPasswordField = -1;
-  // indices for fields used to specify method arguments
   public int[] argumentFieldIndices;
   // the offset in the output row from where we can add our metadata fields.
   // (we need this in case we're required to remove arguments fields from the input)
