@@ -55,6 +55,7 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
   -j, --project=<projectOption>
                           The name of the project to use
   -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+      --logfile=<logFile>   Write Hop console log to a file
   -m, --metadata-export=<metadataExportFile>
                           A file containing exported metadata in JSON format
   -o, --printoptions      Print the used options
@@ -93,6 +94,10 @@ Check the xref:projects/projects-environments.adoc[documentation on environments
 |```-l```
 |```--level```
 |The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+
+|```-lf```
+|```--logfile```
+|Write Hop console log to a file specified by the user
 
 |```-m```
 |```--metadata-export```
