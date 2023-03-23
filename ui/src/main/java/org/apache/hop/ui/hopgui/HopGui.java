@@ -259,6 +259,7 @@ public class HopGui
   public HopGuiFileRefreshDelegate fileRefreshDelegate;
 
   private boolean openingLastFiles;
+  private boolean reOpeningFiles;
 
   protected HopGui() {
     this(Display.getCurrent());
@@ -418,7 +419,12 @@ public class HopGui
         () -> {
           openingLastFiles = true;
 
-          // Here the projects plugin opens up the last project/environment.
+          // We keep track of the fact that we might be re-opening files at this time.
+          // If we change the open files list while we're re-opening files things get chaotic and buggy.
+          //
+          reOpeningFiles = true;
+
+          // Here the 'projects' plugin opens up the last project/environment.
           // It sets openingLastFiles to false so the block below is not executed.
           //
           try {
@@ -437,6 +443,10 @@ public class HopGui
           if (openingLastFiles) {
             auditDelegate.openLastFiles();
           }
+
+          // We need to start tracking file history again.
+          //
+          reOpeningFiles = false;
         });
 
     // See if we need to show the Welcome dialog
@@ -1904,5 +1914,23 @@ public class HopGui
    */
   public void setEventsHandler(HopGuiEventsHandler eventsHandler) {
     this.eventsHandler = eventsHandler;
+  }
+
+  /**
+   * Gets reOpeningFiles
+   *
+   * @return value of reOpeningFiles
+   */
+  public boolean isReOpeningFiles() {
+    return reOpeningFiles;
+  }
+
+  /**
+   * Sets reOpeningFiles
+   *
+   * @param reOpeningFiles value of reOpeningFiles
+   */
+  public void setReOpeningFiles(boolean reOpeningFiles) {
+    this.reOpeningFiles = reOpeningFiles;
   }
 }

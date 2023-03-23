@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.AuditList;
@@ -35,10 +38,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class HopGuiAuditDelegate {
 
@@ -109,11 +108,11 @@ public class HopGuiAuditDelegate {
                 if (fileTypeHandler != null) {
                   // Restore zoom, scroll and so on
                   AuditState auditState = auditStateMap.get(filename);
-                  if (auditState != null && fileTypeHandler != null) {
+                  if (auditState != null) {
                     fileTypeHandler.applyStateProperties(auditState.getStateMap());
 
                     Boolean bActive = (Boolean) auditState.getStateMap().get(STATE_PROPERTY_ACTIVE);
-                    if (bActive != null && bActive.booleanValue()) {
+                    if (bActive != null && bActive) {
                       activeFileTypeHandler = fileTypeHandler;
                     }
                   }
@@ -132,6 +131,9 @@ public class HopGuiAuditDelegate {
         }
       }
     }
+    // Always start with an active data orchestration perspective.
+    //
+    HopGui.getDataOrchestrationPerspective().activate();
   }
 
   private void openMetadataObject(String className, String name) throws HopException {
@@ -154,7 +156,10 @@ public class HopGuiAuditDelegate {
             IHopMetadata metadata = serializer.load(name);
             MetadataManager<IHopMetadata> metadataManager =
                 new MetadataManager<>(
-                    HopGui.getInstance().getVariables(), metadataProvider, metadataClass, hopGui.getShell());
+                    HopGui.getInstance().getVariables(),
+                    metadataProvider,
+                    metadataClass,
+                    hopGui.getShell());
             MetadataEditor<IHopMetadata> editor = metadataManager.createEditor(metadata);
 
             // We assume that all tab items are closed so we can just open up a new editor for the
@@ -173,6 +178,12 @@ public class HopGuiAuditDelegate {
 
   /** Remember all the open files per perspective */
   public void writeLastOpenFiles() {
+    // When we're re-opening files at the start of the Hop GUI, we don't need to save the open files list.
+    // Things get chaotic otherwise.
+    //
+    if (hopGui.isReOpeningFiles()) {
+      return;
+    }
     if (!hopGui.getProps().openLastFile()) {
       return;
     }
@@ -183,7 +194,7 @@ public class HopGuiAuditDelegate {
       List<TabItemHandler> tabItems = perspective.getItems();
       if (tabItems != null) {
         // This perspective has the ability to handle multiple files.
-        // Lets's save the files in the given order...
+        // Let's save the files in the given order...
         //
         AuditStateMap auditStateMap = new AuditStateMap();
 
