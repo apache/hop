@@ -18,6 +18,9 @@
 
 package org.apache.hop.pipeline.transforms.execinfo;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
@@ -38,10 +41,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.json.simple.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 /** Execute a process * */
 public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
@@ -279,12 +278,13 @@ public class ExecInfo extends BaseTransform<ExecInfoMeta, ExecInfoData> {
     outputRow[index++] = execution.getRegistrationDate();
     outputRow[index++] = execution.getExecutionStartDate();
     outputRow[index++] = execution.getRunConfigurationName();
-    outputRow[index++] = execution.getLogLevel();
+    outputRow[index++] = execution.getLogLevel() == null ? null : execution.getLogLevel().getCode();
     if (executionState != null) {
       outputRow[index++] = executionState.getUpdateTime();
       outputRow[index++] = executionState.getLoggingText();
       outputRow[index++] = executionState.isFailed();
-      outputRow[index] = executionState.getStatusDescription();
+      outputRow[index++] = executionState.getStatusDescription();
+      outputRow[index] = executionState.getExecutionEndDate();
     }
     putRow(data.outputRowMeta, outputRow);
   }

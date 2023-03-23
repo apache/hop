@@ -18,6 +18,7 @@
 
 package org.apache.hop.pipeline.transforms.execinfo;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -32,8 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 @Transform(
     id = "ExecInfo",
@@ -130,6 +129,7 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
                 .addString("loggingText")
                 .addBoolean("failed")
                 .addString("statusDescription")
+                .addDate("executionEndDate")
                 .build());
         return;
       case DeleteExecution:
