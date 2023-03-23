@@ -365,43 +365,12 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
         }
       };
 
-  private static final String CONNECTION_SOURCE = "connectionSource";
-  private static final String CONNECTION_NAME = "connectionName";
-  private static final String CONNECTION_FIELD = "connectionField";
-  private static final String JDBC_DRIVER_FIELD = "jdbcDriverField";
-  private static final String JDBC_URL_FIELD = "jdbcUrlField";
-  private static final String JDBC_USER_FIELD = "jdbcUserField";
-  private static final String JDBC_PASSWORD_FIELD = "jdbcPasswordField";
-  private static final String ALWAYS_PASS_INPUT_ROW = "alwaysPassInputRow";
-  private static final String METHOD_NAME = "methodName";
-  private static final String REMOVE_ARGUMENT_FIELDS = "removeArgumentFields";
-  private static final String ARGUMENT_SOURCE_FIELDS = "argumentSourceFields";
-  private static final String ARGUMENT = "argument";
-  private static final String ARGUMENTS = ARGUMENT + "s";
-  private static final String OUTPUT_FIELD = "outputField";
-  private static final String OUTPUT_FIELDS = OUTPUT_FIELD + "s";
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_RENAME = "rename";
-
   /**
    * The PKG member is used when looking up internationalized strings. The properties file with
    * localized keys is expected to reside in {the package of the class
    * specified}/messages/messages_{locale}.properties
    */
   private static Class<?> PKG = JdbcMetadataMeta.class; // for i18n purposes
-
-  public static final String connectionSourceOptionConnection = "Connection";
-  public static final String connectionSourceOptionConnectionField = "ConnectionField";
-  public static final String connectionSourceOptionJDBC = "JDBC";
-  public static final String connectionSourceOptionJDBCFields = "JDBCFields";
-
-  public static final String[] connectionSourceOptions =
-      new String[] {
-        connectionSourceOptionConnection,
-        connectionSourceOptionConnectionField,
-        connectionSourceOptionJDBC,
-        connectionSourceOptionJDBCFields
-      };
 
   /**
    * Constructor should call super() to make sure the base class has a chance to initialize
@@ -421,171 +390,21 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   }
 
   public void setDefault() {
-    connectionSource = "Connection";
-    connectionName = "";
-    jdbcDriverField = "";
-    jdbcUrlField = "";
-    jdbcUserField = "";
-    jdbcPasswordField = "";
     methodName = "getCatalogs";
     argumentSourceFields = false;
     outputFields = new ArrayList<>();
     outputFields.add(new OutputField("TABLE_CAT","TABLE_CAT"));
   }
 
-  /** Stores the connectionsource. */
   @HopMetadataProperty
-  private String connectionSource;
-  /**
-   * Get the index of the connection source option
-   *
-   * @param connectionSourceOption
-   * @return
-   */
-  public static int getConnectionSourceOptionIndex(String connectionSourceOption) {
-    for (int i = 0; i < connectionSourceOptions.length; i++) {
-      if (connectionSourceOptions[i].equals(connectionSourceOption)) return i;
-    }
-    return -1;
-  }
-  /**
-   * Getter for the name of the field containing the connection source
-   *
-   * @return the source of the connection data
-   */
-  public String getConnectionSource() {
-    return connectionSource;
-  }
-  /**
-   * Setter for the name of the field containing the connection source
-   *
-   * @param connectionSource the source for the connection data
-   */
-  public void setConnectionSource(String connectionSource) {
-    if (connectionSource == null) connectionSource = connectionSourceOptions[0];
-    else if (getConnectionSourceOptionIndex(connectionSource) == -1)
-      throw new IllegalArgumentException(
-          connectionSource + " is not a valid value for connectionSource.");
-    this.connectionSource = connectionSource;
+  private String connection;
+
+  public String getConnection() {
+    return connection;
   }
 
-  /** Stores the name of connection. */
-  @HopMetadataProperty
-  private String connectionName;
-  /**
-   * Getter for the name of the connection
-   *
-   * @return the name of the connection
-   */
-  public String getConnectionName() {
-    return connectionName;
-  }
-  /**
-   * Setter for the name of the connection
-   *
-   * @param connectionName the name of the connection
-   */
-  public void setConnectionName(String connectionName) {
-    this.connectionName = connectionName;
-  }
-
-  /** Stores the name of field holding the connection name. */
-  @HopMetadataProperty
-  private String connectionField;
-  /**
-   * Getter for the name of the field holding the connection name
-   *
-   * @return the name of the field holding the connection name
-   */
-  public String getConnectionField() {
-    return connectionField;
-  }
-  /**
-   * Setter for the name of the field holding the name of the connection
-   *
-   * @param connectionField the name of the field holding the connection name
-   */
-  public void setConnectionField(String connectionField) {
-    this.connectionField = connectionField;
-  }
-  /** Stores the name of the field containing the name of the jdbc driver. */
-  @HopMetadataProperty
-  private String jdbcDriverField;
-  /**
-   * Getter for the name of the field containing the jdbc driver
-   *
-   * @return the name of the field containing the jdbc driver
-   */
-  public String getJdbcDriverField() {
-    return jdbcDriverField;
-  }
-  /**
-   * Setter for the name of the field containing the jdbc driver
-   *
-   * @param jdbcDriverField the name of the field containing the jdbc driver
-   */
-  public void setJdbcDriverField(String jdbcDriverField) {
-    this.jdbcDriverField = jdbcDriverField;
-  }
-
-  /** Stores the name of the field containing the url for the jdbc connection. */
-  @HopMetadataProperty
-  private String jdbcUrlField;
-  /**
-   * Getter for the name of the field containing the jdbc url
-   *
-   * @return the name of the field containing the jdbc url
-   */
-  public String getJdbcUrlField() {
-    return jdbcUrlField;
-  }
-  /**
-   * Setter for the name of the field containing the jdbc url
-   *
-   * @param jdbcUrlField the name of the field containing the jdbc url
-   */
-  public void setJdbcUrlField(String jdbcUrlField) {
-    this.jdbcUrlField = jdbcUrlField;
-  }
-
-  /** Stores the name of the field containing the username for the jdbc connection. */
-  @HopMetadataProperty
-  private String jdbcUserField;
-  /**
-   * Getter for the name of the field containing the jdbc user
-   *
-   * @return the name of the field containing the jdbc user
-   */
-  public String getJdbcUserField() {
-    return jdbcUserField;
-  }
-  /**
-   * Setter for the name of the field containing the jdbc user
-   *
-   * @param jdbcUserField the name of the field containing the jdbc user
-   */
-  public void setJdbcUserField(String jdbcUserField) {
-    this.jdbcUserField = jdbcUserField;
-  }
-
-  /** Stores the name of the field containing the password for the jdbc connection. */
-  @HopMetadataProperty
-  private String jdbcPasswordField;
-  /**
-   * Getter for the name of the field containing the jdbc password
-   *
-   * @return the name of the field containing the jdbc password
-   */
-  public String getJdbcPasswordField() {
-    return jdbcPasswordField;
-  }
-  /**
-   * Setter for the name of the field containing the jdbc password
-   *
-   * @param jdbcPasswordField the name of the field containing the jdbc password
-   */
-  public void setJdbcPasswordField(String jdbcPasswordField) {
-    this.jdbcPasswordField = jdbcPasswordField;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /** Stores the whether the input row should be returned even if no metadata was found */

@@ -31,10 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataData> {
   public JdbcMetadata(
@@ -93,9 +90,9 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     logDebug("Method has " + argc + " arguments.");
     String[] arguments = new String[meta.getArguments().size()];
     meta.getArguments().toArray(arguments);
-    logDebug("We expected " + arguments.length + " arguments.");
+    logDebug("We expected " + arguments.length + " arguments' values.");
     if (argc != arguments.length) {
-      throw new Exception("Method has a " + argc + " arguments, we expected " + arguments.length);
+      throw new Exception("Method has a " + argc + " arguments, we expected " + arguments.length + " values.");
     }
     logDebug("Allocating arguments array.");
     data.arguments = new Object[argc];
@@ -140,80 +137,6 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     }
   }
 
-  /**
-   * Utility to create a jdbc connection. (Used when the connection source is JDBC or JDBCFields)
-   *
-   * @param driver The fully qualified classname identifying the jdbc driver
-   * @param url The driver-specific url to create the connection
-   * @param user The database user that wants to establish a connection
-   * @param password The password required to establish the connection
-   * @return A jdbc connection object.
-   * @throws Exception
-   */
-  private Connection createJdbcConnection(String driver, String url, String user, String password)
-      throws Exception {
-    Class.forName(driver);
-    return DriverManager.getConnection(url, user, password);
-  }
-
-  /**
-   * Initialize the connection
-   *
-   * @param meta
-   * @param data
-   * @throws Exception
-   */
-  private void initConnection(JdbcMetadataMeta meta, JdbcMetadataData data) throws Exception {
-    // Try to establish a connection in advance
-    logDebug("Try to establish a connection in advance.");
-    String connectionSource = meta.getConnectionSource();
-    logDebug("Connection source: " + connectionSource);
-    Connection connection;
-
-    if (JdbcMetadataMeta.connectionSourceOptionConnection.equals(connectionSource)) {
-      // connection is a named kettle connection
-      DatabaseMeta dbMeta = getPipelineMeta().findDatabase(meta.getConnectionName(), variables);
-      Database database = new Database(this, this, dbMeta);
-      database.connect();
-      connection = database.getConnection();
-      if (connection == null) {
-        throw new Exception("Connection returned by database object is null!");
-      }
-      data.database = database;
-    } else if (JdbcMetadataMeta.connectionSourceOptionJDBC.equals(connectionSource)) {
-      // connection is a user-entered jdbc connection
-      String jdbcDriver = variables.resolve(meta.getJdbcDriverField());
-      String jdbcUrl = variables.resolve(meta.getJdbcUrlField());
-      String jdbcUser = variables.resolve(meta.getJdbcUserField());
-      String jdbcPassword = variables.resolve(meta.getJdbcPasswordField());
-      logDebug("Attempt to create JDBC connection.");
-      logDebug("Driver: " + jdbcDriver);
-      logDebug("Url: " + jdbcUrl);
-      logDebug("User: " + jdbcUser);
-      connection = createJdbcConnection(jdbcDriver, jdbcUrl, jdbcUser, jdbcPassword);
-    } else if (JdbcMetadataMeta.connectionSourceOptionJDBCFields.equals(connectionSource)) {
-      // Connection is a jdbc connection specified by field values
-      // we don't know the field values yet, but we can initialize a few vars to access their value
-      // later on
-      connection = null;
-      data.jdbcDriverField = -1;
-      data.jdbcUrlField = -1;
-      data.jdbcUserField = -1;
-      data.jdbcPasswordField = -1;
-    } else if (JdbcMetadataMeta.connectionSourceOptionConnectionField.equals(connectionSource)) {
-      // Connection is a named kettle connection specified by a field value
-      // we don't know about the field value yet, but we can initialize a var to access its value
-      // later on
-      connection = null;
-      data.connectionField = -1;
-    } else {
-      // should not arrive here, just initialize the connection to make the compiler shut up.
-      connection = null;
-    }
-    // if the connection is null at this point, then we need to establish it on a row by row basis
-    data.connection = connection;
-  }
-
   private void initOutputFields(JdbcMetadataMeta meta, JdbcMetadataData data) {
     List<OutputField> outputFields = meta.getOutputFields();
     int n = outputFields.size();
@@ -242,11 +165,14 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     if (!super.init()) return false;
 
     try {
-      data.databases = new HashMap<String, Database>();
-      data.connections = new HashMap<String[], Connection>();
-      data.connectionKey = new String[4];
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      if (databaseMeta == null) {
+        logError("Database connection is missing for transform " + getTransformName());
+        return false;
+      }
+      data.db = new Database(this, this, databaseMeta);
+      data.db.connect();
       initMethod(meta, data);
-      initConnection(meta, data);
       initOutputFields(meta, data);
     } catch (Exception exception) {
       logError(
@@ -260,84 +186,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     return result;
   }
 
-  private String getConnectionNameFromRow(JdbcMetadataData data, Object[] row) {
-    return (String) (row[data.connectionField]);
-  }
 
-  private String getJdbcDriverFromRow(JdbcMetadataData data, Object[] row) {
-    return (String) (row[data.jdbcDriverField]);
-  }
-
-  private String getJdbcUrlFromRow(JdbcMetadataData data, Object[] row) {
-    return (String) (row[data.jdbcUrlField]);
-  }
-
-  private String getJdbcUserFromRow(JdbcMetadataData data, Object[] row) {
-    return (String) (row[data.jdbcUserField]);
-  }
-
-  private String getJdbcPasswordFromRow(JdbcMetadataData data, Object[] row) {
-    return (String) (row[data.jdbcPasswordField]);
-  }
-
-  /**
-   * This is called in the processRow function to obtain the contain to apply the metadata method
-   * to.
-   *
-   * @param meta
-   * @param data
-   * @param row
-   * @return
-   * @throws Exception
-   */
-  private Connection getConnection(JdbcMetadataMeta meta, JdbcMetadataData data, Object[] row)
-      throws Exception {
-    Connection connection;
-    if (data.connection == null) {
-      // connection could not be initialized at init, so we have to obtain it now on a row by row
-      // basis.
-      String connectionSource = meta.getConnectionSource();
-      if (JdbcMetadataMeta.connectionSourceOptionConnectionField.equals(connectionSource)) {
-        // connection is a named kettle connection specified by a field value
-        String connectionName = getConnectionNameFromRow(data, row);
-        // try to get this named connection from the cache
-        Database database = data.databases.get(connectionName);
-        if (database == null) {
-          // we haven't seen this named connection before, try to find it.
-          DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(connectionName, variables);
-          database = new Database(this, this, databaseMeta);
-          connection = database.getConnection();
-          if (connection == null) {
-            throw new IllegalArgumentException("Connection returned by database is null!");
-          }
-          // cache the database for later use
-          data.databases.put(connectionName, database);
-        } else {
-          // database found in cache, get its connection
-          connection = database.getConnection();
-        }
-      } else if (JdbcMetadataMeta.connectionSourceOptionJDBCFields.equals(connectionSource)) {
-        // database connectin is a jdbc connection defined by field values.
-        // try to find this connection in the cache
-        String[] key = data.connectionKey;
-        key[0] = getJdbcDriverFromRow(data, row);
-        key[1] = getJdbcUrlFromRow(data, row);
-        key[2] = getJdbcUserFromRow(data, row);
-        key[3] = getJdbcPasswordFromRow(data, row);
-        connection = data.connections.get(key);
-        if (connection == null) {
-          // connection not yet in the cache. Let's create it and cahce it.
-          connection = createJdbcConnection(key[0], key[1], key[2], key[3]);
-          data.connections.put(key, connection);
-        }
-      } else {
-        throw new Exception("Unexpected error acquiring connection");
-      }
-    } else {
-      connection = data.connection;
-    }
-    return connection;
-  }
 
   /**
    * This is called in the processRow function to get the actual arguments for the jdbc metadata
@@ -414,134 +263,8 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       first = false;
       IRowMeta inputRowMeta = getInputRowMeta();
       data.outputRowOffset = inputRowMeta.size();
-      String connectionSource = meta.getConnectionSource();
       boolean argumentSourceFields = meta.isArgumentSourceFields();
       // check if we need to use fields.
-      // If so, store the indices so we can easily extract their values during transformation
-      if (JdbcMetadataMeta.connectionSourceOptionJDBCFields.equals(connectionSource)
-          || JdbcMetadataMeta.connectionSourceOptionConnectionField.equals(connectionSource)
-          || argumentSourceFields) {
-        logDebug("Looking up indices of input fields.");
-        String fieldName;
-        String[] fieldNames = inputRowMeta.getFieldNames();
-        logDebug("We have " + fieldNames.length + " input fields.");
-        List<String> arguments = meta.getArguments();
-        int argc = arguments.size();
-        String stringArgument;
-        for (int i = 0; i < fieldNames.length; i++) {
-          fieldName = fieldNames[i];
-          logDebug("Looking at field: " + fieldName);
-          // store indices for connection source fields
-          if (JdbcMetadataMeta.connectionSourceOptionConnectionField.equals(connectionSource)) {
-            if (fieldName.equals(meta.getConnectionField())) {
-              logDebug("Found the connection field at index: " + i);
-              data.connectionField = i;
-            }
-          } else if (JdbcMetadataMeta.connectionSourceOptionJDBCFields.equals(connectionSource)) {
-            if (fieldName.equals(meta.getJdbcDriverField())) {
-              logDebug("Found the jdbcDriverField field at index: " + i);
-              data.jdbcDriverField = i;
-            }
-            if (fieldName.equals(meta.getJdbcUrlField())) {
-              logDebug("Found the jdbcUrlField field at index: " + i);
-              data.jdbcUrlField = i;
-            }
-            if (fieldName.equals(meta.getJdbcUserField())) {
-              logDebug("Found the jdbcUserField field at index: " + i);
-              data.jdbcUserField = i;
-            }
-            if (fieldName.equals(meta.getJdbcPasswordField())) {
-              logDebug("Found the jdbcPasswordField field at index: " + i);
-              data.jdbcPasswordField = i;
-            }
-          }
-          // store indices for argument fields
-          if (argumentSourceFields) {
-            logDebug("Trying to match argument fields against: " + fieldName);
-            for (int j = 0; j < argc; j++) {
-              stringArgument = arguments.get(j);
-              logDebug("Found argument " + j + ": " + stringArgument);
-              if (fieldName.equals(stringArgument)) {
-                logDebug("Match, storing index " + i);
-                data.argumentFieldIndices[j] = i;
-              }
-            }
-          }
-        } // end fields loop
-
-        // ensure that we have all required fields.
-        if ((JdbcMetadataMeta.connectionSourceOptionJDBCFields.equals(connectionSource)
-                && (data.jdbcDriverField == -1
-                    || data.jdbcUrlField == -1
-                    || data.jdbcUserField == -1
-                    || data.jdbcPasswordField == -1))
-            || (JdbcMetadataMeta.connectionSourceOptionConnectionField.equals(connectionSource)
-                && data.connectionField == -1)) {
-          throw new HopException("Not all fields for the connection source were found.");
-        }
-
-        if (argumentSourceFields) {
-          // keep track of how many fields we used as args.
-          // We need this in case remove argument fields is enabled
-          // as this is the number of fields we need to discard from the input row.
-          int fieldsUsedAsArgs = 0;
-          // ensure all argument fields are bound to a valid field
-          argumentFields:
-          for (int j = 0; j < argc; j++) {
-            logDebug("Argument indices at " + j + ": " + data.argumentFieldIndices[j]);
-            if (data.argumentFieldIndices[j] == -1) {
-              // this argument does not point to any existing field.
-              if (arguments.get(j) == null || arguments.get(j).length() == 0) {
-                // the argument is blank, this is ok: we will pass null instead
-                data.argumentFieldIndices[j] = -2;
-              } else {
-                // this argument is not blank - this means it points to a non-existing field.
-                // this is an error.
-                Object[] descriptor = meta.getMethodDescriptor();
-                Object[] args = (Object[]) descriptor[1];
-                Object[] arg = (Object[]) args[j];
-                throw new HopException(
-                    "No field \""
-                        + arguments.get(j)
-                        + "\" found for argument "
-                        + j
-                        + ": "
-                        + arg[0]);
-              }
-            } else {
-              // this argument points to a valid field.
-              // let's check if this same field was already used as arg:
-              for (int i = 0; i < j; i++) {
-                if (data.argumentFieldIndices[i] == data.argumentFieldIndices[j]) {
-                  // yes, it was used already. Let's check the next argument.
-                  continue argumentFields;
-                }
-              }
-              // this field was not used already, so mark it as used.
-              fieldsUsedAsArgs++;
-            }
-          }
-
-          if (meta.isRemoveArgumentFields()) {
-            int n = data.outputRowOffset;
-            data.outputRowOffset -= fieldsUsedAsArgs;
-            data.inputFieldsToCopy = new int[data.outputRowOffset];
-
-            inputFieldsToCopy:
-            for (int i = 0, j = 0; i < n; i++) { // for each field in the input row
-              for (int k = 0; k < argc; k++) { // for each method argument
-                if (data.argumentFieldIndices[k] == i) {
-                  // this input field is used as argument. Continue to the next field.
-                  continue inputFieldsToCopy;
-                }
-              }
-              // this field was not used as argument. make sure we copy it to the output.
-              data.inputFieldsToCopy[j++] = i;
-            }
-          }
-        }
-        logDebug("Done looking up indices of input fields.");
-      }
 
       // clone the input row structure and place it in our data object
       data.outputRowMeta = inputRowMeta.clone();
@@ -551,7 +274,6 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
 
     try {
       logRowlevel("Processing 1 input row");
-      Connection connection = getConnection(meta, data, r);
       prepareMethodArguments(meta, data, r);
       if (getLogLevel() == LogLevel.ROWLEVEL) {
         logRowlevel("About to invoke method");
@@ -568,7 +290,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         }
       }
 
-      DatabaseMetaData databaseMetaData = connection.getMetaData();
+      DatabaseMetaData databaseMetaData = data.db.getConnection().getMetaData();
       ResultSet resultSet = (ResultSet) data.method.invoke(databaseMetaData, data.arguments);
       ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
       int columnCount = resultSetMetaData.getColumnCount();
@@ -666,48 +388,11 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       logError("Error cleaning up connection: " + ex.getMessage());
     }
     data.connection = null;
-
-    // clean up the database map
-    Iterator<Map.Entry<String, Database>> dbIterator = data.databases.entrySet().iterator();
-    while (dbIterator.hasNext()) {
-      Map.Entry<String, Database> current = dbIterator.next();
-      Database database = current.getValue();
-      try {
-        database.disconnect();
-      } catch (Exception ex) {
-        logError("Error cleaning up database " + current.getKey() + ": " + ex.getMessage());
-      }
-    }
-    data.databases.clear();
-    data.databases = null;
-
-    // clean up the connection map
-    Iterator<Map.Entry<String[], Connection>> connectionIterator =
-        data.connections.entrySet().iterator();
-    while (connectionIterator.hasNext()) {
-      Connection connection = connectionIterator.next().getValue();
-      try {
-        if (!connection.isClosed()) {
-          connection.close();
-        }
-      } catch (Exception ex) {
-        logError("Error cleaning up connection: " + ex.getMessage());
-      }
-    }
-    data.connections.clear();
-    data.connections = null;
-
     data.arguments = null;
     data.method = null;
     data.argumentFieldIndices = null;
     data.inputFieldsToCopy = null;
     data.resultSetIndices = null;
-    data.connectionKey = null;
-
-    data.jdbcDriverField = -1;
-    data.jdbcUrlField = -1;
-    data.jdbcUserField = -1;
-    data.jdbcPasswordField = -1;
 
     super.dispose();
   }
