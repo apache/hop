@@ -406,73 +406,73 @@ This product bundles batik-util 1.16, which is available under a
 This product bundles batik-xml 1.16, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-model-fn-execution 2.45.0, which is available under a
+This product bundles beam-model-fn-execution 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-model-job-management 2.45.0, which is available under a
+This product bundles beam-model-job-management 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-model-pipeline 2.45.0, which is available under a
+This product bundles beam-model-pipeline 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-core-construction-java 2.45.0, which is available under a
+This product bundles beam-runners-core-construction-java 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-core-java 2.45.0, which is available under a
+This product bundles beam-runners-core-java 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-direct-java 2.45.0, which is available under a
+This product bundles beam-runners-direct-java 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-flink-1.15 2.45.0, which is available under a
+This product bundles beam-runners-flink-1.15 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-google-cloud-dataflow-java 2.45.0, which is available under a
+This product bundles beam-runners-google-cloud-dataflow-java 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-java-fn-execution 2.45.0, which is available under a
+This product bundles beam-runners-java-fn-execution 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-runners-spark-3 2.45.0, which is available under a
+This product bundles beam-runners-spark-3 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-core 2.45.0, which is available under a
+This product bundles beam-sdks-java-core 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-expansion-service 2.45.0, which is available under a
+This product bundles beam-sdks-java-expansion-service 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-extensions-google-cloud-platform-core 2.45.0, which is available under a
+This product bundles beam-sdks-java-extensions-google-cloud-platform-core 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-extensions-join-library 2.45.0, which is available under a
+This product bundles beam-sdks-java-extensions-join-library 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-extensions-protobuf 2.45.0, which is available under a
+This product bundles beam-sdks-java-extensions-protobuf 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-fn-execution 2.45.0, which is available under a
+This product bundles beam-sdks-java-fn-execution 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-amazon-web-services 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-amazon-web-services 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-google-cloud-platform 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-google-cloud-platform 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-hadoop-common 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-hadoop-common 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-hadoop-file-system 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-hadoop-file-system 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-kafka 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-kafka 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-kinesis 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-kinesis 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles beam-sdks-java-io-synthetic 2.45.0, which is available under a
+This product bundles beam-sdks-java-io-synthetic 2.46.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles beam-vendor-bytebuddy-1_11_0 0.1, which is available under a
@@ -679,40 +679,40 @@ This product bundles findbugs-annotations 1.3.9-1, which is available under a
 This product bundles flexjson 2.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-annotations 1.15.2, which is available under a
+This product bundles flink-annotations 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles flink-clients 1.15.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-core 1.15.2, which is available under a
+This product bundles flink-core 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles flink-file-sink-common 1.15.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-hadoop-fs 1.15.2, which is available under a
+This product bundles flink-hadoop-fs 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-java 1.15.2, which is available under a
+This product bundles flink-java 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-metrics-core 1.15.2, which is available under a
+This product bundles flink-metrics-core 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-optimizer 1.15.2, which is available under a
+This product bundles flink-optimizer 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-queryable-state-client-java 1.15.2, which is available under a
+This product bundles flink-queryable-state-client-java 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-rpc-akka-loader 1.15.2, which is available under a
+This product bundles flink-rpc-akka-loader 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-rpc-core 1.15.2, which is available under a
+This product bundles flink-rpc-core 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles flink-runtime 1.15.2, which is available under a
+This product bundles flink-runtime 1.15.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles flink-shaded-asm-9 9.2-15.0, which is available under a
@@ -751,13 +751,13 @@ This product bundles force-partner-api 50.0.0, which is available under a
 This product bundles force-wsc 50.0.0, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax 2.19.5, which is available under a
+This product bundles gax 2.19.6, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax-grpc 2.19.5, which is available under a
+This product bundles gax-grpc 2.19.6, which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
-This product bundles gax-grpc-2.22.0-testlib.jar , which is available under a
+This product bundles gax-grpc-2.23.0-testlib.jar , which is available under a
 "3-clause BSD" license. For details, see licenses/LICENSE-BSD3.
 
 This product bundles gax-httpjson 0.104.5, which is available under a
@@ -811,10 +811,10 @@ This product bundles google-auth-library-oauth2-http 1.12.1, which is available 
 This product bundles google-cloud-bigquery 1.128.3, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-bigquerystorage 2.28.4, which is available under a
+This product bundles google-cloud-bigquerystorage 2.31.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-bigtable 2.18.3, which is available under a
+This product bundles google-cloud-bigtable 2.19.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-cloud-core 2.8.27, which is available under a
@@ -826,7 +826,7 @@ This product bundles google-cloud-core-grpc 2.8.27, which is available under a
 This product bundles google-cloud-core-http 2.8.27, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles google-cloud-spanner 6.35.2, which is available under a
+This product bundles google-cloud-spanner 6.36.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles google-cloud-storage 2.15.0, which is available under a
@@ -892,7 +892,7 @@ This product bundles grpc-google-cloud-bigtable-admin-v2 1.27.1, which is availa
 This product bundles grpc-google-cloud-bigtable-v2 1.27.1, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles grpc-google-cloud-pubsub-v1 1.105.1, which is available under a
+This product bundles grpc-google-cloud-pubsub-v1 1.105.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles grpc-google-cloud-storage-v2 2.12.0-alpha, which is available under a
@@ -1609,28 +1609,28 @@ This product bundles poi-scratchpad 5.2.3, which is available under a
 This product bundles postgresql 42.4.3, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
 
-This product bundles proto-google-cloud-bigquerystorage-v1 2.28.4, which is available under a
+This product bundles proto-google-cloud-bigquerystorage-v1 2.31.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-bigtable-admin-v2 2.18.3, which is available under a
+This product bundles proto-google-cloud-bigtable-admin-v2 2.19.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-bigtable-v2 2.18.3, which is available under a
+This product bundles proto-google-cloud-bigtable-v2 2.19.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-datastore-v1 0.104.3, which is available under a
+This product bundles proto-google-cloud-datastore-v1 0.104.4, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-pubsub-v1 1.105.1, which is available under a
+This product bundles proto-google-cloud-pubsub-v1 1.105.2, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-spanner-admin-database-v1 6.35.2, which is available under a
+This product bundles proto-google-cloud-spanner-admin-database-v1 6.36.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-spanner-admin-instance-v1 6.35.2, which is available under a
+This product bundles proto-google-cloud-spanner-admin-instance-v1 6.36.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles proto-google-cloud-spanner-v1 6.35.2, which is available under a
+This product bundles proto-google-cloud-spanner-v1 6.36.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles proto-google-cloud-storage-v2 2.12.0-alpha, which is available under a
@@ -1777,13 +1777,13 @@ This product bundles SparseBitSet 1.2, which is available under a
 This product bundles splunk 1.6.5.0, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spring-core 5.3.18, which is available under a
+This product bundles spring-core 5.3.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spring-expression 5.3.18, which is available under a
+This product bundles spring-expression 5.3.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
-This product bundles spring-jcl 5.3.18, which is available under a
+This product bundles spring-jcl 5.3.25, which is available under a
 "Apache 2.0" license. For details, see LICENSE.
 
 This product bundles sqlite-jdbc 3.28.0, which is available under a
@@ -1929,5 +1929,3 @@ This product bundles zookeeper 3.8.0, which is available under a
 
 This product bundles zstd-jni 1.5.2-2, which is available under a
 "2-clause BSD" license. For details, see licenses/LICENSE-BSD2.
-
-
