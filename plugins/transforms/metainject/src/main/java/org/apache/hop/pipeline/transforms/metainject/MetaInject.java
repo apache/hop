@@ -425,7 +425,6 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
               }
             } else {
               // target transform doesn't have specified key - just report but don't fail like in
-              // 6.0 (BACKLOG-6753)
               logError(
                   BaseMessages.getString(
                       PKG,
@@ -474,7 +473,6 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
                 targetTransformMeta, target.getAttributeKey(), null, value);
           } else {
             // target transform doesn't have specified key - just report but don't fail like in 6.0
-            // (BACKLOG-6753)
             logError(
                 BaseMessages.getString(
                     PKG,

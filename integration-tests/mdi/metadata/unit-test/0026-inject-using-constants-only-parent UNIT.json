@@ -1,0 +1,33 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "A",
+          "data_set_field": "A"
+        }
+      ],
+      "field_order": [
+        "group",
+        "A"
+      ],
+      "data_set_name": "golden-only-use-constants",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0026-inject-using-constants-only-parent UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0026-inject-using-constants-only-parent.hpl",
+  "test_type": "UNIT_TEST"
+}
