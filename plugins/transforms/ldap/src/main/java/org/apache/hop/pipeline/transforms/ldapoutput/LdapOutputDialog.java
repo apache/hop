@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocol;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -67,10 +68,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
@@ -103,7 +101,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   private Label wlDeleteRDN;
   private Button wDeleteRDN;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciReturn;
 
@@ -153,7 +151,6 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (LdapOutputMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -1014,7 +1011,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
 
               setComboBoxes();
@@ -1302,17 +1299,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
-    // return fields
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciReturn[1].setComboValues(fieldNames);
   }
 

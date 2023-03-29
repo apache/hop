@@ -847,7 +847,9 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     String[] fieldNames = (String[]) entries.toArray(new String[entries.size()]);
 
-    Const.sortStrings(fieldNames);
+    if ( PropsUi.getInstance().isSortFieldByName() ) {
+      Const.sortStrings(fieldNames);
+    }
     ciFields[1].setComboValues(fieldNames);
   }
 

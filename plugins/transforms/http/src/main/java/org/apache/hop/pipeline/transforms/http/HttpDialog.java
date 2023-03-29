@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -61,10 +62,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class HttpDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = HttpMeta.class; // For Translator
@@ -106,8 +104,8 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
   private ColumnInfo[] colinf;
   private ColumnInfo[] colinfHeaders;
 
-  private final Map<String, Integer> inputFields;
-
+  private final List<String> inputFields = new ArrayList<>();
+  
   private boolean gotEncodings = false;
 
   private TextVar wConnectionTimeOut;
@@ -119,8 +117,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
   public HttpDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (HttpMeta) in;
-    inputFields = new HashMap<>();
+    input = (HttpMeta) in;  
   }
 
   @Override
@@ -142,7 +139,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "HTTPDialog.Shell.Title"));
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     setupButtons();
 
@@ -279,7 +276,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
               setComboBoxes();
             } catch (HopException e) {
@@ -961,17 +958,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colinf[0].setComboValues(fieldNames);
     colinfHeaders[0].setComboValues(fieldNames);
   }

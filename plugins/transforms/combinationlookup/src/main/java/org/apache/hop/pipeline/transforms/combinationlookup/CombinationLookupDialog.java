@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -64,10 +65,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CombinationLookupDialog.class; // For Translator
@@ -113,8 +111,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
 
   private DatabaseMeta databaseMeta;
 
-  private final Map<String, Integer> inputFields;
-
+  private final List<String> inputFields = new ArrayList<>();
+  
   /** List of ColumnInfo that should have the field names of the selected database table */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
@@ -122,7 +120,6 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (CombinationLookupMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -141,7 +138,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     shell.setText(BaseMessages.getString(PKG, "CombinationLookupDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     ModifyListener lsMod = e -> input.setChanged();
     ModifyListener lsTableMod =
@@ -558,9 +555,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
-
               setComboBoxes();
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
@@ -601,17 +597,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
-    // Key fields
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[1].setComboValues(fieldNames);
   }
 

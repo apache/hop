@@ -1015,7 +1015,9 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     List<String> entries = new ArrayList<>(keySet);
 
     String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
+    if ( PropsUi.getInstance().isSortFieldByName() ) {
+      Const.sortStrings(fieldNames);
+    }
     // return fields
     ciReturn[1].setComboValues(fieldNames);
   }
