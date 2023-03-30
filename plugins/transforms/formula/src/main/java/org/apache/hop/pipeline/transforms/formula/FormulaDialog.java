@@ -58,7 +58,6 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
   private static final Class<?> PKG = FormulaDialog.class; // For Translator
 
   private TableView wFields;
-  private FormData fdFields;
 
   private FormulaMeta currentMeta;
   private FormulaMeta originalMeta;
@@ -79,6 +78,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
 
   @Override
   public String open() {
+    FormData fdFields;
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
@@ -231,7 +231,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
     wFields.addModifyListener(
         arg0 ->
             // Now set the combo's
-            shell.getDisplay().asyncExec(() -> setComboBoxes()));
+            shell.getDisplay().asyncExec(this::setComboBoxes));
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);

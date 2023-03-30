@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.stringcut;
 
-import org.apache.hop.core.Const;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -46,9 +47,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StringCutDialog extends BaseTransformDialog implements ITransformDialog {
 
