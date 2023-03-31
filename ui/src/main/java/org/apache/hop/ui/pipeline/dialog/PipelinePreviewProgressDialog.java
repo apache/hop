@@ -17,9 +17,11 @@
 
 package org.apache.hop.ui.pipeline.dialog;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.row.IRowMeta;
@@ -38,10 +40,6 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 /** Takes care of displaying a dialog that will handle the wait while previewing a pipeline... */
 public class PipelinePreviewProgressDialog {
@@ -252,11 +250,8 @@ public class PipelinePreviewProgressDialog {
 
       int worked = pct - previousPct;
 
-      if(progressMonitor != null){
-        if (worked > 0) {
+      if (progressMonitor != null && (worked > 0)) {
           progressMonitor.worked(worked);
-        }
-
       }
       previousPct = pct;
 

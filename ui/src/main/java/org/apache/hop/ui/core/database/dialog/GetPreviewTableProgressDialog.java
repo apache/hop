@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
@@ -34,9 +36,6 @@ import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're getting rows for a
@@ -119,10 +118,7 @@ public class GetPreviewTableProgressDialog {
         new Thread(run).start();
 
         pmd.run(true, op);
-      } catch (InvocationTargetException e) {
-        showErrorDialog(e);
-        return null;
-      } catch (InterruptedException e) {
+      } catch (InvocationTargetException | InterruptedException e) {
         showErrorDialog(e);
         return null;
       }

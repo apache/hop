@@ -337,8 +337,8 @@ public class ConfigGeneralOptionsTab {
     fdSortFieldByName.right = new FormAttachment(100, -margin);
     fdSortFieldByName.top = new FormAttachment(wlSortFieldByName, 0, SWT.CENTER);
     wSortFieldByName.setLayoutData(fdSortFieldByName);
-    wSortFieldByName.setSelection(props.isSortFieldByName());   
-    wSortFieldByName.addListener(SWT.Selection, e -> saveValues(e));
+    wSortFieldByName.setSelection(props.isSortFieldByName());
+    wSortFieldByName.addListener(SWT.Selection, this::saveValues);
     lastControl = wSortFieldByName;
     
     // Tooltips

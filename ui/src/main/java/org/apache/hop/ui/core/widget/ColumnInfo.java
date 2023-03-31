@@ -221,8 +221,7 @@ public class ColumnInfo {
   }
 
   public String[] getComboValues() {
-    String[] retval = comboValueSupplier.get();
-    return retval;
+    return comboValueSupplier.get();
   }
 
   /** @return the numeric */

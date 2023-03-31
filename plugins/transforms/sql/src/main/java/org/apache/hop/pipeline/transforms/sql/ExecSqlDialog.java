@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
-import org.apache.hop.core.Const;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -61,9 +62,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExecSqlDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
@@ -626,21 +624,6 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     wTransformName.selectAll();
     wTransformName.setFocus();
-  }
-
-  private void checkCancel(ShellEvent e) {
-    if (changedInDialog) {
-      int save = HopGuiWorkflowGraph.showChangedWarning(shell, wTransformName.getText());
-      if (save == SWT.CANCEL) {
-        e.doit = false;
-      } else if (save == SWT.YES) {
-        ok();
-      } else {
-        cancel();
-      }
-    } else {
-      cancel();
-    }
   }
 
   private void cancel() {

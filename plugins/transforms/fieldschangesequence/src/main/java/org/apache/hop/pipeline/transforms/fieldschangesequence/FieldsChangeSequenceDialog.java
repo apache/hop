@@ -249,10 +249,9 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
                     if (!wFields.isDisposed()) {
                       for (int i = 0; i < wFields.table.getItemCount(); i++) {
                         TableItem it = wFields.table.getItem(i);
-                        if (!Utils.isEmpty(it.getText(1))) {                         
-                          if (!inputFields.contains(it.getText(1))) {
-                            it.setBackground(GuiResource.getInstance().getColorRed());
-                          }
+                        if (!Utils.isEmpty(it.getText(1))
+                            && (!inputFields.contains(it.getText(1)))) {
+                          it.setBackground(GuiResource.getInstance().getColorRed());
                         }
                       }
                     }

@@ -17,7 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
-import org.apache.hop.core.Const;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -48,9 +49,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -251,10 +249,9 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
                     if (!wFields.isDisposed()) {
                       for (int i = 0; i < wFields.table.getItemCount(); i++) {
                         TableItem it = wFields.table.getItem(i);
-                        if (!Utils.isEmpty(it.getText(1))) {
-                          if (!inputFields.contains(it.getText(1))) {
-                            it.setBackground(GuiResource.getInstance().getColorRed());
-                          }
+                        if (!Utils.isEmpty(it.getText(1))
+                            && (!inputFields.contains(it.getText(1)))) {
+                          it.setBackground(GuiResource.getInstance().getColorRed());
                         }
                       }
                     }

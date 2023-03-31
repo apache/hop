@@ -443,7 +443,7 @@ public class BeanInjector<Meta extends Object> {
       return null;
     }
     // if constants are added without data we still want 1 row created
-    if (existList.size() == 0) {
+    if (existList.isEmpty()) {
       return extendList(s, obj, 1);
     }
 
