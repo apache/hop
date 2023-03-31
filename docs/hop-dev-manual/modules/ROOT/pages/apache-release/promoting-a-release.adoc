@@ -74,6 +74,9 @@ docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t docker.io/apache/hop-web:X.XX -t docker.io/apache/hop-web:latest --push
 
 # Create and push Dataflow template
+# Create hop-fatjar.jar
+./assemblies/client/target/hop/hop-conf.sh --generate-fat-jar=../hop-fatjar.jar
+# Create image
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.dataflowTemplate -t docker.io/apache/hop-dataflow-template:X.XX -t docker.io/apache/hop-dataflow-template:latest --push
 
 ----
