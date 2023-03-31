@@ -34,3 +34,16 @@ under the License.
 
 TIP: Starting with Oracle Database 11g Release 1 (11.1), data type "Date" will be mapped to "Timestamp" by default. 
 Set JDBC property oracle.jdbc.mapDateToTimestamp=false to avoid data type "Date" being converted to data type "Timestamp".
+
+== Creating connections
+
+There are 3 ways to create a connection to an Oracle database in Apache Hop:
+
+* If you have a SID, use this (old) format: `jdbc:oracle:thin:@hostname:PORT:SID`. +
+Put the SID as is in the database name
+
+* If you have a service name, use this (newer) format: `jdbc:oracle:thin:@//HOSTNAME:PORT/SERVICENAME`. +
+Put the service name with `/` prefix in the database name
+
+* If you want to use TNS format: `jdbc:oracle:thin:@(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=host) (PORT=port)) (CONNECT_DATA=(SERVICE_NAME=service_name))`. +
+Put the TNS description in the database name and leave the hostname and port empty.
