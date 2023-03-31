@@ -129,6 +129,11 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
   }
 
   @Override
+  public void setDefault(){
+    batchSize = "1000";
+  }
+
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String name,
