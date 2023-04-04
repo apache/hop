@@ -27,7 +27,7 @@ Check the full list of topics on the left hand side.
 If you're a developer and want to extend Hop, want to build new functionality or want to fix a bug you found, check the http://hop.apache.org/dev-manual/latest/[developer documentation]
 
 TIP: Hop treats documentation as any other part of software that can have bugs or missing features.
-If you find any incorrect information or are missing a crucial piece of documentation, please http://hop.apache.org/community/contribution-guides/jira-guide/[create a JIRA ticket].
+If you find any incorrect information or are missing a crucial piece of documentation, please https://github.com/apache/hop/issues[create an issue on GitHub].
 
 [%noheader,frame=none,grid=none]
 |====
