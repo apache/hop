@@ -119,7 +119,7 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
     this.caseValueGroup = m.caseValueGroup;
     this.defaultTargetTransformName = m.defaultTargetTransformName;
     this.usingContains = m.usingContains;
-    for (SwitchCaseTarget target : this.caseTargets) {
+    for (SwitchCaseTarget target : m.caseTargets) {
       this.caseTargets.add(new SwitchCaseTarget(target));
     }
   }
