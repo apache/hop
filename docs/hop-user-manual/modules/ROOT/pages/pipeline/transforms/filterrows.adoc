@@ -116,3 +116,56 @@ This sample transform gives you all the information, such as the values for the 
 2. Select the transform, copy it to the clipboard, and then paste it into a text editor.
 Alternatively, you can store the .HPL, and then open the .HPL in a text editor.
 3. Find the <condition> element and its nested elements and modify it accordingly to use it in your MDI scenario.
+
+== MDI Example
+
+The example filter condition below injects the following filter conditions into a Filter Rows transform.
+
+The full example pipelines are available in the samples project as `metadata-injection/filter-rows-mdi-parent.hpl` and `metadata-injection/filter-rows-mdi-child.hpl`
+
+[source, shell]
+----
+stateCode = FL
+AND
+housenr > 100
+----
+
+[source,xml]
+----
+<condition>
+            <negated>N</negated>
+            <conditions>
+                <condition>
+                    <negated>N</negated>
+                    <leftvalue>stateCode</leftvalue>
+                    <function>=</function>
+                    <rightvalue/>
+                    <value>
+                        <name>constant</name>
+                        <type>String</type>
+                        <text>FL</text>
+                        <length>-1</length>
+                        <precision>-1</precision>
+                        <isnull>N</isnull>
+                        <mask/>
+                    </value>
+                </condition>
+                <condition>
+                    <negated>N</negated>
+                    <operator>AND</operator>
+                    <leftvalue>housenr</leftvalue>
+                    <function>&gt;</function>
+                    <rightvalue/>
+                    <value>
+                        <name>constant</name>
+                        <type>Integer</type>
+                        <text>100</text>
+                        <length>-1</length>
+                        <precision>0</precision>
+                        <isnull>N</isnull>
+                        <mask>####0;-####0</mask>
+                    </value>
+                </condition>
+            </conditions>
+        </condition>
+----

@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>filter-rows-mdi-parent</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2022/11/29 12:52:24.795</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2022/11/29 12:52:24.795</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>metadata</from>
+      <to>filter-rows-mdi-child.hpl</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>filter-rows-mdi-child.hpl</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/metadata-injection/filter-rows-mdi-child.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform>True</source_transform>
+    <source_output_fields>
+      <source_output_field>
+        <source_output_field_name>id</source_output_field_name>
+        <source_output_field_type>Integer</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>name</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>firstname</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>zip</source_output_field_name>
+        <source_output_field_type>Integer</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>city</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>birthdate</source_output_field_name>
+        <source_output_field_type>Date</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>street</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>housenr</source_output_field_name>
+        <source_output_field_type>Integer</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>stateCode</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+      <source_output_field>
+        <source_output_field_name>state</source_output_field_name>
+        <source_output_field_type>String</source_output_field_type>
+        <source_output_field_length>-1</source_output_field_length>
+        <source_output_field_precision>-1</source_output_field_precision>
+      </source_output_field>
+    </source_output_fields>
+    <target_file/>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>N</no_execution>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>
+      <mapping>
+        <target_transform_name>FL and housenr>100</target_transform_name>
+        <target_attribute_key>SEND_FALSE_TRANSFORM</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>metadata</source_transform>
+        <source_field>falseTarget</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>FL and housenr>100</target_transform_name>
+        <target_attribute_key>SEND_TRUE_TRANSFORM</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>metadata</source_transform>
+        <source_field>trueTarget</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>FL and housenr>100</target_transform_name>
+        <target_attribute_key>CONDITION</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform>metadata</source_transform>
+        <source_field>conditionXml</source_field>
+      </mapping>
+    </mappings>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>metadata</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>&lt;condition>
+            &lt;negated>N&lt;/negated>
+            &lt;conditions>
+                &lt;condition>
+                    &lt;negated>N&lt;/negated>
+                    &lt;leftvalue>stateCode&lt;/leftvalue>
+                    &lt;function>=&lt;/function>
+                    &lt;rightvalue/>
+                    &lt;value>
+                        &lt;name>constant&lt;/name>
+                        &lt;type>String&lt;/type>
+                        &lt;text>FL&lt;/text>
+                        &lt;length>-1&lt;/length>
+                        &lt;precision>-1&lt;/precision>
+                        &lt;isnull>N&lt;/isnull>
+                        &lt;mask/>
+                    &lt;/value>
+                &lt;/condition>
+                &lt;condition>
+                    &lt;negated>N&lt;/negated>
+                    &lt;operator>AND&lt;/operator>
+                    &lt;leftvalue>housenr&lt;/leftvalue>
+                    &lt;function>&amp;gt;&lt;/function>
+                    &lt;rightvalue/>
+                    &lt;value>
+                        &lt;name>constant&lt;/name>
+                        &lt;type>Integer&lt;/type>
+                        &lt;text>100&lt;/text>
+                        &lt;length>-1&lt;/length>
+                        &lt;precision>0&lt;/precision>
+                        &lt;isnull>N&lt;/isnull>
+                        &lt;mask>####0;-####0&lt;/mask>
+                    &lt;/value>
+                &lt;/condition>
+            &lt;/conditions>
+        &lt;/condition></item>
+        <item>True</item>
+        <item>False</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>conditionXml</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>trueTarget</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>falseTarget</name>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>144</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
