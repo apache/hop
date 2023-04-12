@@ -41,6 +41,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -258,6 +259,21 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
             bigQuery.getTable(
                 variables.resolve(meta.getDatasetId()), variables.resolve(meta.getTableId()));
 
+        if (table == null) {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setText(BaseMessages.getString(PKG, "BeamBQInputDialog.TableNotFound.Title"));
+          mb.setMessage(
+              variables.resolve(meta.getTableId())
+                  + " "
+                  + BaseMessages.getString(PKG, "BeamBQInputDialog.TableNotFound.Message"));
+          switch (mb.open()) {
+            case SWT.OK:
+              break;
+            default:
+              break;
+          }
+          return;
+        }
         TableDefinition definition = table.getDefinition();
         Schema schema = definition.getSchema();
         FieldList fieldList = schema.getFields();
