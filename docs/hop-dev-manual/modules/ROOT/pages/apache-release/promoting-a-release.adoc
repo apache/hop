@@ -78,6 +78,7 @@ docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.we
 ./assemblies/client/target/hop/hop-conf.sh --generate-fat-jar=../hop-fatjar.jar
 # Create image
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.dataflowTemplate -t docker.io/apache/hop-dataflow-template:X.XX -t docker.io/apache/hop-dataflow-template:latest --push
+docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t docker.io/apache/hop-web:X.XX-beam -t docker.io/apache/hop-web:latest-beam --push
 
 ----
 
