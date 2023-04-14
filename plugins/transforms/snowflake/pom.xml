@@ -32,7 +32,7 @@
     <name>Hop Plugins Transforms Snowflake Bulk Loader</name>
 
     <properties>
-        <snowflake.jdbc.version>3.13.19</snowflake.jdbc.version>
+        <snowflake.jdbc.version>3.13.29</snowflake.jdbc.version>
     </properties>
 
     <dependencies>
