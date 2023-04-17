@@ -17,23 +17,26 @@
 
 package org.apache.pipeline.transform.jdbcmetadata;
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
+import java.sql.*;
+import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Method;
-import java.sql.*;
-import java.util.List;
-
 public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataData> {
+
+  boolean treatAsInputTransform = false;
+
   public JdbcMetadata(
       TransformMeta transformMeta,
       JdbcMetadataMeta meta,
@@ -78,38 +81,41 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
    * @throws Exception
    */
   private void initMethod(JdbcMetadataMeta meta, JdbcMetadataData data) throws Exception {
-    //set up the method to call
+    // Set up the method to call
     logDebug("Setting up method to call.");
     Method method = meta.getMethod();
     data.method = method;
 
-    //Try to set up the arguments for the method
+    // Try to set up the arguments for the method
     logDebug("Setting up method arguments.");
     Class<?>[] argumentTypes = method.getParameterTypes();
     int argc = argumentTypes.length;
     logDebug("Method has " + argc + " arguments.");
+    // If no arguments, treat it as an input transform and run it without any providing any input
+    // stream
+    treatAsInputTransform = argc == 0;
     String[] arguments = new String[meta.getArguments().size()];
     meta.getArguments().toArray(arguments);
     logDebug("We expected " + arguments.length + " arguments' values.");
     if (argc != arguments.length) {
-      throw new Exception("Method has a " + argc + " arguments, we expected " + arguments.length + " values.");
+      throw new Exception(
+          "Method has a " + argc + " arguments, we expected " + arguments.length + " values.");
     }
     logDebug("Allocating arguments array.");
     data.arguments = new Object[argc];
     String stringArgument;
     if (meta.isArgumentSourceFields()) {
-      //arguments are specified by values coming from fields.
-      //we don't know about the fields yet, so we
-      //initialize with bogus value so we can check if all fields were found
-      logDebug("Allocating fieldindices array for arguments.");
+      // arguments are specified by values coming from fields.
+      // we don't know about the fields yet, so we
+      // initialize with bogus value so we can check if all fields were found
+      logDebug("Allocating field indices array for arguments.");
       data.argumentFieldIndices = new int[argc];
       for (int i = 0; i < argc; i++) {
         data.argumentFieldIndices[i] = -1;
       }
-    }
-    else {
-      //arguments are specified directly by the user in the step.
-      //here we convert the string values into proper argument values
+    } else {
+      // arguments are specified directly by the user in the step.
+      // here we convert the string values into proper argument values
       Class<?> argumentType;
       Object argument;
       for (int i = 0; i < argc; i++) {
@@ -117,18 +123,15 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         stringArgument = arguments[i];
         if (stringArgument == null) {
           argument = null;
-        }
-        else {
+        } else {
           stringArgument = variables.resolve(stringArgument);
           if (argumentType.isArray()) {
             if (stringArgument.length() == 0) {
               argument = null;
-            }
-            else {
+            } else {
               argument = stringListToObjectArray(stringArgument, argumentType.getComponentType());
             }
-          }
-          else {
+          } else {
             argument = stringToArgumentValue(stringArgument, argumentType);
           }
         }
@@ -186,8 +189,6 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     return result;
   }
 
-
-
   /**
    * This is called in the processRow function to get the actual arguments for the jdbc metadata
    * method
@@ -233,11 +234,13 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
   private Object[] createOutputRow(
       JdbcMetadataMeta meta, JdbcMetadataData data, Object[] inputRow) {
     Object[] outputRow = new Object[data.outputRowMeta.size()];
-    if (data.inputFieldsToCopy == null) {
-      System.arraycopy(inputRow, 0, outputRow, 0, getInputRowMeta().size());
-    } else {
-      for (int i = 0; i < data.inputFieldsToCopy.length; i++) {
-        outputRow[i] = inputRow[data.inputFieldsToCopy[i]];
+    if (!treatAsInputTransform) {
+      if (data.inputFieldsToCopy == null) {
+        System.arraycopy(inputRow, 0, outputRow, 0, getInputRowMeta().size());
+      } else {
+        for (int i = 0; i < data.inputFieldsToCopy.length; i++) {
+          outputRow[i] = inputRow[data.inputFieldsToCopy[i]];
+        }
       }
     }
     return outputRow;
@@ -251,7 +254,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
 
     // if no more rows are expected, indicate step is finished and processRow() should not be called
     // again
-    if (r == null) {
+    if (!treatAsInputTransform && r == null) {
       setOutputDone();
       return false;
     }
@@ -260,14 +263,96 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     // it is used to guard some processing tasks, like figuring out field indexes
     // in the row structure that only need to be done once
     if (first) {
-      first = false;
-      IRowMeta inputRowMeta = getInputRowMeta();
-      data.outputRowOffset = inputRowMeta.size();
-      boolean argumentSourceFields = meta.isArgumentSourceFields();
-      // check if we need to use fields.
+      if (!treatAsInputTransform) {
+        first = false;
+        IRowMeta inputRowMeta = getInputRowMeta();
+        data.outputRowOffset = inputRowMeta.size();
+        boolean argumentSourceFields = meta.isArgumentSourceFields();
+        logDebug("Looking up indices of input fields.");
+        String[] fieldNames = inputRowMeta.getFieldNames();
+        logDebug("We have " + fieldNames.length + " input fields.");
+        List<String> arguments = meta.getArguments();
+        int argc = arguments.size();
+        // store indices for argument fields
+        if (argumentSourceFields) {
+          String stringArgument;
+          for (int i = 0; i < fieldNames.length; i++) {
+            String fieldName = fieldNames[i];
+            logDebug("Looking at field: " + fieldName);
+            for (int j = 0; j < argc; j++) {
+              stringArgument = arguments.get(j);
+              logDebug("Found argument " + j + ": " + stringArgument);
+              if (fieldName.equals(stringArgument)) {
+                logDebug("Match, storing index " + i);
+                data.argumentFieldIndices[j] = i;
+              }
+            }
+          }
+          // keep track of how many fields we used as args.
+          // We need this in case remove argument fields is enabled
+          // as this is the number of fields we need to discard from the input row.
+          int fieldsUsedAsArgs = 0;
+          // ensure all argument fields are bound to a valid field
+          argumentFields:
+          for (int j = 0; j < argc; j++) {
+            logDebug("Argument indices at " + j + ": " + data.argumentFieldIndices[j]);
+            if (data.argumentFieldIndices[j] == -1) {
+              // this argument does not point to any existing field.
+              if (arguments.get(j) == null || arguments.get(j).length() == 0) {
+                // the argument is blank, this is ok: we will pass null instead
+                data.argumentFieldIndices[j] = -2;
+              } else {
+                // this argument is not blank - this means it points to a non-existing field.
+                // this is an error.
+                Object[] descriptor = meta.getMethodDescriptor();
+                Object[] args = (Object[]) descriptor[1];
+                Object[] arg = (Object[]) args[j];
+                throw new HopException(
+                    "No field \""
+                        + arguments.get(j)
+                        + "\" found for argument "
+                        + j
+                        + ": "
+                        + ((String) arg[0]));
+              }
+            } else {
+              // this argument points to a valid field.
+              // let's check if this same field was already used as arg:
+              for (int i = 0; i < j; i++) {
+                if (data.argumentFieldIndices[i] == data.argumentFieldIndices[j]) {
+                  // yes, it was used already. Let's check the next argument.
+                  continue argumentFields;
+                }
+              }
+              // this field was not used already, so mark it as used.
+              fieldsUsedAsArgs++;
+            }
+          }
 
-      // clone the input row structure and place it in our data object
-      data.outputRowMeta = inputRowMeta.clone();
+          if (meta.isRemoveArgumentFields()) {
+            int n = data.outputRowOffset;
+            data.outputRowOffset -= fieldsUsedAsArgs;
+            data.inputFieldsToCopy = new int[data.outputRowOffset];
+
+            inputFieldsToCopy:
+            for (int i = 0, j = 0; i < n; i++) { // for each field in the input row
+              for (int k = 0; k < argc; k++) { // for each method argument
+                if (data.argumentFieldIndices[k] == i) {
+                  // this input field is used as argument. Continue to the next field.
+                  continue inputFieldsToCopy;
+                }
+              }
+              // this field was not used as argument. make sure we copy it to the output.
+              data.inputFieldsToCopy[j++] = i;
+            }
+          }
+        }
+        logDebug("Done looking up indices of input fields.");
+        // clone the input row structure and place it in our data object
+        data.outputRowMeta = getInputRowMeta().clone();
+      } else {
+        data.outputRowMeta = new RowMeta();
+      }
       // use meta.getFields() to change it, so it reflects the output row structure
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
     } // end of first
@@ -331,6 +416,11 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     // log progress if it is time to to so
     if (checkFeedback(getLinesRead())) {
       logBasic("Linenr " + getLinesRead()); // Some basic logging
+    }
+
+    if (treatAsInputTransform) {
+      setOutputDone();
+      return false;
     }
 
     // indicate that processRow() should be called again

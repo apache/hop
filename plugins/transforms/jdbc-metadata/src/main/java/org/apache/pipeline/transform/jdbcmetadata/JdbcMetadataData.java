@@ -42,7 +42,7 @@ public class JdbcMetadataData extends BaseTransformData implements ITransformDat
   public int[] argumentFieldIndices;
   // the offset in the output row from where we can add our metadata fields.
   // (we need this in case we're required to remove arguments fields from the input)
-  public int outputRowOffset = -1;
+  public int outputRowOffset = 0;
   //
   public int[] inputFieldsToCopy;
   // the indices of the columns in the resultset

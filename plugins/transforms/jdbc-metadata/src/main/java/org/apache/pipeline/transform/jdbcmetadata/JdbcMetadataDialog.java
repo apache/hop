@@ -495,6 +495,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
     removeArgumentFieldsButtonFormData.right = new FormAttachment(100, 0);
     removeArgumentFieldsButtonFormData.top = new FormAttachment(lastControl, margin);
     removeArgumentFieldsButton.setLayoutData(removeArgumentFieldsButtonFormData);
+    removeArgumentFieldsButton.addSelectionListener(lsSelection);
 
     // layout the metdata tab
     FormData metadataTabFormData = new FormData();
