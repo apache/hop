@@ -84,9 +84,11 @@ body:
   - type: dropdown
     id: component
     attributes:
+      multiple: true
       label: Issue Component
       options:
         - "Component: Actions"
+        - "Component: API"
         - "Component: Beam"
         - "Component: CLI"
         - "Component: Containers"

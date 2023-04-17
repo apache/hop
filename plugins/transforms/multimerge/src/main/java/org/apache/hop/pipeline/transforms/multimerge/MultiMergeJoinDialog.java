@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
@@ -56,10 +57,8 @@ import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
 
 public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
@@ -70,11 +69,11 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
   private CCombo joinTypeCombo;
   private final Text[] keyValTextBox;
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
   private IRowMeta prev;
   private ColumnInfo[] ciKeys;
 
-  private final int margin = props.getMargin();
+  private final int margin = PropsUi.getMargin();
   private final int middle = props.getMiddlePct();
 
   private final MultiMergeJoinMeta joinMeta;
@@ -289,7 +288,6 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
    */
   private void configureKeys(
       final Text keyValTextBox, final int inputStreamIndex, ModifyListener lsMod) {
-    inputFields = new HashMap<>();
 
     final Shell subShell = new Shell(shell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
     final FormLayout formLayout = new FormLayout();
@@ -351,7 +349,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
               if (prev != null) {
                 // Remember these fields...
                 for (int i = 0; i < prev.size(); i++) {
-                  inputFields.put(prev.getValueMeta(i).getName(), Integer.valueOf(i));
+                  inputFields.add(prev.getValueMeta(i).getName());
                 }
                 setComboBoxes();
               }
@@ -411,17 +409,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKeys[0].setComboValues(fieldNames);
   }
 

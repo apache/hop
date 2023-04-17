@@ -50,8 +50,10 @@ body:
     id: component
     attributes:
       label: Issue Component
+      multiple: true
       options:
         - "Component: Actions"
+        - "Component: API"
         - "Component: Beam"
         - "Component: CLI"
         - "Component: Containers"

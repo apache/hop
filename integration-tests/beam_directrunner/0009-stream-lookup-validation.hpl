@@ -277,7 +277,7 @@ limitations under the License.
       <field>
         <name>nrPerState</name>
         <type>Integer</type>
-        <format> #</format>
+        <format>#</format>
         <currency/>
         <decimal/>
         <group/>

@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.SimpleFileSelection;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -60,11 +61,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG = TeraFastMeta.class; // For Translator
@@ -113,7 +110,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
 
   private ColumnInfo[] ciReturn;
 
-  private final Map<String, Integer> inputFields = new HashMap<>();
+  private final List<String> inputFields = new ArrayList<>();
 
   /** List of ColumnInfo that should have the field names of the selected database table. */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
@@ -198,7 +195,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
 
             // Remember these fields...
             for (int i = 0; i < row.size(); i++) {
-              TeraFastDialog.this.inputFields.put(row.getValueMeta(i).getName(), i);
+              inputFields.add(row.getValueMeta(i).getName());
             }
 
             setComboBoxes();
@@ -222,16 +219,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(this.inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     // return fields
     this.ciReturn[1].setComboValues(fieldNames);
   }

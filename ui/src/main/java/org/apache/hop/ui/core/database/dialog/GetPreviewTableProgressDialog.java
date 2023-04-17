@@ -22,6 +22,7 @@ import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -29,6 +30,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.util.EnvironmentUtils;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
 
 import java.lang.reflect.InvocationTargetException;
@@ -67,61 +71,85 @@ public class GetPreviewTableProgressDialog {
   }
 
   public List<Object[]> open() {
-    IRunnableWithProgress op =
-        monitor -> {
-          db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
-          try {
-            db.connect();
+    if(!EnvironmentUtils.getInstance().isWeb()){
+      IRunnableWithProgress op =
+              monitor -> {
+                db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
+                try {
+                  db.connect();
 
-            if (limit > 0) {
-              db.setQueryLimit(limit);
-            }
+                  if (limit > 0) {
+                    db.setQueryLimit(limit);
+                  }
 
-            rows = db.getFirstRows(tableName, limit, new ProgressMonitorAdapter(monitor));
-            rowMeta = db.getReturnRowMeta();
-          } catch (HopException e) {
-            throw new InvocationTargetException(
-                e, "Couldn't find any rows because of an error :" + e.toString());
-          } finally {
-            db.disconnect();
-          }
-        };
+                  rows = db.getFirstRows(tableName, limit, new ProgressMonitorAdapter(monitor));
+                  rowMeta = db.getReturnRowMeta();
+                } catch (HopException e) {
+                  throw new InvocationTargetException(
+                          e, "Couldn't find any rows because of an error :" + e.toString());
+                } finally {
+                  db.disconnect();
+                }
+              };
+      try {
+        final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
+        // Run something in the background to cancel active database queries, forecably if needed!
+        Runnable run =
+                () -> {
+                  IProgressMonitor monitor = pmd.getProgressMonitor();
+                  while (pmd.getShell() == null
+                          || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+                    try {
+                      Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                      // Ignore
+                    }
+                  }
 
-    try {
-      final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
-      // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run =
-          () -> {
-            IProgressMonitor monitor = pmd.getProgressMonitor();
-            while (pmd.getShell() == null
-                || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-              try {
-                Thread.sleep(100);
-              } catch (InterruptedException e) {
-                // Ignore
-              }
-            }
+                  if (monitor.isCanceled()) { // Disconnect and see what happens!
 
-            if (monitor.isCanceled()) { // Disconnect and see what happens!
+                    try {
+                      db.cancelQuery();
+                    } catch (Exception e) {
+                      // Ignore
+                    }
+                  }
+                };
+        // Start the cancel tracker in the background!
+        new Thread(run).start();
 
-              try {
-                db.cancelQuery();
-              } catch (Exception e) {
-                // Ignore
-              }
-            }
-          };
-      // Start the cancel tracker in the background!
-      new Thread(run).start();
+        pmd.run(true, op);
+      } catch (InvocationTargetException e) {
+        showErrorDialog(e);
+        return null;
+      } catch (InterruptedException e) {
+        showErrorDialog(e);
+        return null;
+      }
+    }else{
+      try{
+        Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+        shell.setCursor(cursor);
 
-      pmd.run(true, op);
-    } catch (InvocationTargetException e) {
-      showErrorDialog(e);
-      return null;
-    } catch (InterruptedException e) {
-      showErrorDialog(e);
-      return null;
+        db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
+        db.connect();
+
+        if (limit > 0) {
+          db.setQueryLimit(limit);
+        }
+
+        rows = db.getFirstRows(tableName, limit, null);
+        rowMeta = db.getReturnRowMeta();
+
+      }catch(HopDatabaseException e){
+        showErrorDialog(e);
+        return null;
+      }finally{
+        db.disconnect();
+      }
+
     }
+
 
     return rows;
   }
@@ -143,4 +171,5 @@ public class GetPreviewTableProgressDialog {
   public IRowMeta getRowMeta() {
     return rowMeta;
   }
+
 }

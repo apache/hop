@@ -51,7 +51,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     if (Utils.isEmpty(getHostname())) {
       return "org.apache.derby.jdbc.EmbeddedDriver";
     } else {
-      return "org.apache.derby.jdbc.ClientDriver";
+      return "org.apache.derby.client.ClientAutoloadedDriver";
     }
   }
 

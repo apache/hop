@@ -51,7 +51,7 @@ public class DerbyDatabaseMetaTest {
 
     assertEquals("org.apache.derby.jdbc.EmbeddedDriver", nativeMeta.getDriverClass());
     nativeMeta.setHostname("FOOHOST");
-    assertEquals("org.apache.derby.jdbc.ClientDriver", nativeMeta.getDriverClass());
+    assertEquals("org.apache.derby.client.ClientAutoloadedDriver", nativeMeta.getDriverClass());
 
     assertEquals("jdbc:derby://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertEquals("jdbc:derby://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));

@@ -136,6 +136,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
         int valueType = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
+        String mask = null;
 
         switch (aggregate.getType()) {
           case First:
@@ -145,11 +146,13 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
           case Minimum:
           case Maximum:
             valueType = subj.getType();
+            mask = subj.getConversionMask();
             break;
           case CountDistinct:
           case CountAll:
           case CountAny:
             valueType = IValueMeta.TYPE_INTEGER;
+            mask = "0";
             break;
           case Sum:
           case Average:
@@ -158,11 +161,13 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
             } else {
               valueType = IValueMeta.TYPE_NUMBER;
             }
-            break;
+            mask = subj.getConversionMask();
+            break;            
           case Median:
           case Percentile:
           case StandardDeviation:
             valueType = IValueMeta.TYPE_NUMBER;
+            mask = subj.getConversionMask();
             break;
           case ConcatComma:
           case ConcatString:
@@ -183,24 +188,24 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
         }
 
         if (valueType != IValueMeta.TYPE_NONE) {
-          IValueMeta v;
+          IValueMeta valueMeta;
           try {
-            v = ValueMetaFactory.createValueMeta(valueName, valueType);
+            valueMeta = ValueMetaFactory.createValueMeta(valueName, valueType);
           } catch (HopPluginException e) {
             log.logError(
                 BaseMessages.getString(PKG, "MemoryGroupByMeta.Exception.UnknownValueMetaType"),
                 valueType,
                 e);
-            v = new ValueMetaNone(valueName);
+            valueMeta = new ValueMetaNone(valueName);
           }
-          v.setOrigin(origin);
-          v.setLength(length, precision);
+          valueMeta.setOrigin(origin);
+          valueMeta.setLength(length, precision);
 
-          if (subj != null) {
-            v.setConversionMask(subj.getConversionMask());
+          if (mask != null) {
+            valueMeta.setConversionMask(mask);
           }
 
-          fields.addValueMeta(v);
+          fields.addValueMeta(valueMeta);
         }
       }
     }

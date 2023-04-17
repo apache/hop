@@ -102,6 +102,7 @@ public class HopWebTest {
         options.addArguments("--no-sandbox");
         options.addArguments("--disable-dev-shm-usage");
         options.addArguments("--window-size=1280,800");
+        options.addArguments("--remote-allow-origins=*");
 
         driver = new ChromeDriver(options);
         actions = new Actions(driver);

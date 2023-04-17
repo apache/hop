@@ -132,7 +132,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     shell.setText(BaseMessages.getString(PKG, "SelectValuesDialog.Shell.Label"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -961,7 +961,9 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     String[] fieldNames = entries.toArray(new String[entries.size()]);
 
-    Const.sortStrings(fieldNames);
+    if ( PropsUi.getInstance().isSortFieldByName() ) {
+      Const.sortStrings(fieldNames);
+    }
 
     bPreviousFieldsLoaded = true;
     for (ColumnInfo colInfo : fieldColumns) {

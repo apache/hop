@@ -618,18 +618,26 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             break;
           case BASE64_ENCODE:
             if(dataA != null){
-              calcData[index] = Base64.getEncoder().withoutPadding().encodeToString(dataA.toString().getBytes());
-            }else{
+              if(metaA.getType() == IValueMeta.TYPE_BINARY) {
+                calcData[index] = Base64.getEncoder().withoutPadding().encodeToString(metaA.getBinary(dataA));
+              } else {
+                calcData[index] = Base64.getEncoder().withoutPadding().encodeToString(metaA.getString(dataA).getBytes());
+              }
+            } else {
               calcData[index] = null;
             }
             resultType = IValueMeta.TYPE_STRING;
             break;
           case BASE64_DECODE:
             if(dataA != null){
-              byte[] tmpDecoded = Base64.getDecoder().decode(dataA.toString());
-              String tmpDecodedString = new String(tmpDecoded);
-              calcData[index] = targetMeta.convertData(metaA, tmpDecodedString);
-            }else{
+              byte[] tmpDecoded = Base64.getDecoder().decode(metaA.getString(dataA));
+              if(targetMeta.getType() == IValueMeta.TYPE_BINARY) {
+                calcData[index] = tmpDecoded;
+              } else {
+                String tmpDecodedString = new String(tmpDecoded);
+                calcData[index] = targetMeta.convertData(metaA, tmpDecodedString);  
+              }
+            } else {
               calcData[index] = null;
             }
             resultType = targetMeta.getType();

@@ -18,6 +18,15 @@
 package org.apache.hop.base;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
@@ -45,16 +54,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.server.HopServer;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AbstractMeta
     implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes {
@@ -263,9 +262,9 @@ public abstract class AbstractMeta
   /**
    * Find a database connection by it's name
    *
-   * @deprecated use {@link #findDatabase(String name, IVariables variables)}
    * @param name The database name to look for
    * @return The database connection or null if nothing was found.
+   * @deprecated use {@link #findDatabase(String name, IVariables variables)}
    */
   @Deprecated(since = "2.0")
   public DatabaseMeta findDatabase(String name) {
@@ -295,6 +294,13 @@ public abstract class AbstractMeta
     try {
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(name));
+      if (databaseMeta == null) {
+        throw new RuntimeException(
+            "Unable to load database with name '"
+                + variables.resolve(name)
+                + "' from the metadata. Please verify that the case of the connection name is correct because that could be an issue!");
+      }
+
       return databaseMeta;
     } catch (HopException e) {
       throw new RuntimeException(

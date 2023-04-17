@@ -1,24 +1,19 @@
 {
-  "variables": [
-    {
-      "name": "MONGO_HOSTNAME",
-      "value": "mongo",
-      "description": "The MongoDB hostname"
-    },
-    {
-      "name": "MONGO_PORT",
-      "value": "27017",
-      "description": "The data port "
-    },
-    {
-      "name": "MONGO_USERNAME",
-      "value": "",
-      "description": "Username: none"
-    },
-    {
-      "name": "MONGO_PASSWORD",
-      "value": "",
-      "description": "Password: none"
-    }
-  ]
+  "variables" : [ {
+    "name" : "MONGO_HOSTNAME",
+    "value" : "mongo",
+    "description" : "The MongoDB hostname"
+  }, {
+    "name" : "MONGO_PORT",
+    "value" : "27017",
+    "description" : "The data port "
+  }, {
+    "name" : "MONGO_USERNAME",
+    "value" : "root",
+    "description" : "Username: none"
+  }, {
+    "name" : "MONGO_PASSWORD",
+    "value" : "Encrypted 2be98afc86aa7f2e4cb1cb671d382a3df",
+    "description" : "Password: none"
+  } ]
 }

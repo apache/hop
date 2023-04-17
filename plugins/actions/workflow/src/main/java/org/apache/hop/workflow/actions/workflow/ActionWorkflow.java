@@ -17,6 +17,12 @@
 
 package org.apache.hop.workflow.actions.workflow;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -26,7 +32,6 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
@@ -37,8 +42,8 @@ import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
@@ -52,14 +57,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
-import org.w3c.dom.Node;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * Recursive definition of a Workflow. This transform means that an entire Workflow has to be
@@ -77,30 +74,106 @@ import java.util.UUID;
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
+  public static final class ParameterDefinition {
+    @HopMetadataProperty(key = "pass_all_parameters")
+    private boolean passingAllParameters = true;
+
+    @HopMetadataProperty(key = "parameter")
+    private List<Parameter> parameters;
+
+    public ParameterDefinition() {
+      this.parameters = new ArrayList<>();
+    }
+
+    public boolean isPassingAllParameters() {
+      return passingAllParameters;
+    }
+
+    public void setPassingAllParameters(boolean passingAllParameters) {
+      this.passingAllParameters = passingAllParameters;
+    }
+
+    public List<Parameter> getParameters() {
+      return parameters;
+    }
+
+    public void setParameters(List<Parameter> parameters) {
+      this.parameters = parameters;
+    }
+  }
+
+  public static final class Parameter {
+    @HopMetadataProperty public String name;
+    @HopMetadataProperty public String value;
+
+    @HopMetadataProperty(key = "stream_name")
+    public String field;
+
+    public String getName() {
+      return name;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public String getField() {
+      return field;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
+
+    public void setField(String field) {
+      this.field = field;
+    }
+  }
+
+  @HopMetadataProperty(key = "filename")
   private String filename;
 
-  public boolean paramsFromPrevious;
-  public boolean execPerRow;
+  @HopMetadataProperty(key = "params_from_previous")
+  private boolean paramsFromPrevious;
 
-  public String[] parameters;
-  public String[] parameterFieldNames;
-  public String[] parameterValues;
+  @HopMetadataProperty(key = "exec_per_row")
+  private boolean execPerRow;
 
-  public boolean setLogfile;
-  public String logfile;
-  public String logext;
-  public boolean addDate;
-  public boolean addTime;
-  public LogLevel logFileLevel;
+  @HopMetadataProperty(key = "set_logfile")
+  private boolean setLogfile;
 
-  public boolean parallel;
-  public boolean setAppendLogfile;
-  public boolean createParentFolder;
+  @HopMetadataProperty(key = "logfile")
+  private String logfile;
 
-  public boolean waitingToFinish = true;
+  @HopMetadataProperty(key = "logext")
+  private String logext;
 
-  public boolean passingAllParameters = true;
+  @HopMetadataProperty(key = "add_date")
+  private boolean addDate;
 
+  @HopMetadataProperty(key = "add_time")
+  private boolean addTime;
+
+  @HopMetadataProperty(key = "loglevel", storeWithCode = true)
+  private LogLevel logFileLevel;
+
+  @HopMetadataProperty(key = "set_append_logfile")
+  private boolean setAppendLogfile;
+
+  @HopMetadataProperty(key = "create_parent_folder")
+  private boolean createParentFolder;
+
+  @HopMetadataProperty(key = "wait_until_finished")
+  private boolean waitingToFinish = true;
+
+  @HopMetadataProperty(key = "parameters")
+  private ParameterDefinition parameterDefinition;
+
+  @HopMetadataProperty(key = "run_configuration")
   private String runConfiguration;
 
   public static final LogLevel DEFAULT_LOG_LEVEL = LogLevel.NOTHING;
@@ -109,6 +182,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
   public ActionWorkflow(String name) {
     super(name, "");
+    this.parameterDefinition = new ParameterDefinition();
   }
 
   public ActionWorkflow() {
@@ -116,29 +190,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     clear();
   }
 
-  private void allocateArgs(int nrArgs) {}
-
-  private void allocateParams(int nrParameters) {
-    parameters = new String[nrParameters];
-    parameterFieldNames = new String[nrParameters];
-    parameterValues = new String[nrParameters];
-  }
-
-  @Override
-  public Object clone() {
-    ActionWorkflow je = (ActionWorkflow) super.clone();
-    if (parameters != null) {
-      int nrParameters = parameters.length;
-      je.allocateParams(nrParameters);
-      System.arraycopy(parameters, 0, je.parameters, 0, nrParameters);
-      System.arraycopy(parameterFieldNames, 0, je.parameterFieldNames, 0, nrParameters);
-      System.arraycopy(parameterValues, 0, je.parameterValues, 0, nrParameters);
-    }
-    return je;
-  }
-
-  public void setFileName(String n) {
-    filename = n;
+  public void setFileName(String name) {
+    this.filename = name;
   }
 
   @Override
@@ -179,119 +232,12 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(400);
-
-    retval.append(super.getXml());
-
-    retval.append("      ").append(XmlHandler.addTagValue("run_configuration", runConfiguration));
-
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("params_from_previous", paramsFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("exec_per_row", execPerRow));
-    retval.append("      ").append(XmlHandler.addTagValue("set_logfile", setLogfile));
-    retval.append("      ").append(XmlHandler.addTagValue("logfile", logfile));
-    retval.append("      ").append(XmlHandler.addTagValue("logext", logext));
-    retval.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "loglevel",
-                logFileLevel != null ? logFileLevel.getCode() : DEFAULT_LOG_LEVEL.getCode()));
-    retval.append("      ").append(XmlHandler.addTagValue("wait_until_finished", waitingToFinish));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("create_parent_folder", createParentFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("run_configuration", runConfiguration));
-
-    if (parameters != null) {
-      retval.append("      ").append(XmlHandler.openTag("parameters"));
-
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("pass_all_parameters", passingAllParameters));
-
-      for (int i = 0; i < parameters.length; i++) {
-        // This is a better way of making the XML file than the arguments.
-        retval.append("            ").append(XmlHandler.openTag("parameter"));
-
-        retval.append("            ").append(XmlHandler.addTagValue("name", parameters[i]));
-        retval
-            .append("            ")
-            .append(XmlHandler.addTagValue("stream_name", parameterFieldNames[i]));
-        retval.append("            ").append(XmlHandler.addTagValue("value", parameterValues[i]));
-
-        retval.append("            ").append(XmlHandler.closeTag("parameter"));
-      }
-      retval.append("      ").append(XmlHandler.closeTag("parameters"));
-    }
-    retval.append("      ").append(XmlHandler.addTagValue("set_append_logfile", setAppendLogfile));
-
-    return retval.toString();
+  public ParameterDefinition getParameterDefinition() {
+    return parameterDefinition;
   }
 
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      runConfiguration = XmlHandler.getTagValue(entrynode, "run_configuration");
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-
-      paramsFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "params_from_previous"));
-      execPerRow = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "exec_per_row"));
-      setLogfile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_logfile"));
-      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_date"));
-      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "add_time"));
-      logfile = XmlHandler.getTagValue(entrynode, "logfile");
-      logext = XmlHandler.getTagValue(entrynode, "logext");
-      logFileLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
-      setAppendLogfile =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "set_append_logfile"));
-      createParentFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "create_parent_folder"));
-      runConfiguration = XmlHandler.getTagValue(entrynode, "run_configuration");
-
-      String wait = XmlHandler.getTagValue(entrynode, "wait_until_finished");
-      if (Utils.isEmpty(wait)) {
-        waitingToFinish = true;
-      } else {
-        waitingToFinish = "Y".equalsIgnoreCase(wait);
-      }
-
-      // How many arguments?
-      int argnr = 0;
-      while (XmlHandler.getTagValue(entrynode, "argument" + argnr) != null) {
-        argnr++;
-      }
-      allocateArgs(argnr);
-
-      Node parametersNode = XmlHandler.getSubNode(entrynode, "parameters");
-
-      String passAll = XmlHandler.getTagValue(parametersNode, "pass_all_parameters");
-      passingAllParameters = Utils.isEmpty(passAll) || "Y".equalsIgnoreCase(passAll);
-
-      int nrParameters = XmlHandler.countNodes(parametersNode, "parameter");
-      allocateParams(nrParameters);
-
-      for (int i = 0; i < nrParameters; i++) {
-        Node knode = XmlHandler.getSubNodeByNr(parametersNode, "parameter", i);
-
-        parameters[i] = XmlHandler.getTagValue(knode, "name");
-        parameterFieldNames[i] = XmlHandler.getTagValue(knode, "stream_name");
-        parameterValues[i] = XmlHandler.getTagValue(knode, "value");
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load 'workflow' action from XML node", xe);
-    }
+  public void setParameterDefinition(ParameterDefinition parameterDefinition) {
+    this.parameterDefinition = parameterDefinition;
   }
 
   @Override
@@ -299,7 +245,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     result.setEntryNr(nr);
 
     LogChannelFileWriter logChannelFileWriter = null;
-    LogLevel jobLogLevel = parentWorkflow.getLogLevel();
+    LogLevel workflowLogLevel = parentWorkflow.getLogLevel();
 
     if (setLogfile) {
       String realLogFilename = resolve(getLogFilename());
@@ -331,7 +277,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         result.setResult(false);
         return result;
       }
-      jobLogLevel = logFileLevel;
+      workflowLogLevel = logFileLevel;
     }
 
     try {
@@ -403,35 +349,33 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
         // Now add those parameter values specified by the user in the action
         //
-        if (parameters != null) {
-          for (int idx = 0; idx < parameters.length; idx++) {
-            if (!Utils.isEmpty(parameters[idx])) {
+        for (Parameter parameter : parameterDefinition.getParameters()) {
+          if (!Utils.isEmpty(parameter.getName())) {
 
-              // If it's not yet present in the parent workflow, add it...
-              //
-              if (Const.indexOfString(parameters[idx], namedParam.listParameters()) < 0) {
-                // We have a parameter
-                try {
-                  namedParam.addParameterDefinition(parameters[idx], "", "Action runtime");
-                } catch (DuplicateParamException e) {
-                  // Should never happen
-                  //
-                  logError("Duplicate parameter definition for " + parameters[idx]);
-                }
-              }
-
-              if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
-                namedParam.setParameterValue(
-                    parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
-              } else {
-                // something filled in, in the field column...
+            // If it's not yet present in the parent workflow, add it...
+            //
+            if (Const.indexOfString(parameter.getName(), namedParam.listParameters()) < 0) {
+              // We have a parameter
+              try {
+                namedParam.addParameterDefinition(parameter.getName(), "", "Action runtime");
+              } catch (DuplicateParamException e) {
+                // Should never happen
                 //
-                String value = "";
-                if (resultRow != null) {
-                  value = resultRow.getString(parameterFieldNames[idx], "");
-                }
-                namedParam.setParameterValue(parameters[idx], value);
+                logError("Duplicate parameter definition for " + parameter.getName());
               }
+            }
+
+            if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+              namedParam.setParameterValue(
+                  parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
+            } else {
+              // something filled in, in the field column...
+              //
+              String value = "";
+              if (resultRow != null) {
+                value = resultRow.getString(parameter.getField(), "");
+              }
+              namedParam.setParameterValue(parameter.getName(), value);
             }
           }
         }
@@ -450,22 +394,20 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
           if (paramsFromPrevious) { // Copy the input the parameters
 
-            if (parameters != null) {
-              for (int idx = 0; idx < parameters.length; idx++) {
-                if (!Utils.isEmpty(parameters[idx])) {
-                  // We have a parameter
-                  if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
-                    namedParam.setParameterValue(
-                        parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
-                  } else {
-                    String fieldValue = "";
+            for (Parameter parameter : parameterDefinition.getParameters()) {
+              if (!Utils.isEmpty(parameter.getName())) {
+                // We have a parameter
+                if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+                  namedParam.setParameterValue(
+                      parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
+                } else {
+                  String fieldValue = "";
 
-                    if (resultRow != null) {
-                      fieldValue = resultRow.getString(parameterFieldNames[idx], "");
-                    }
-                    // Get the value from the input stream
-                    namedParam.setParameterValue(parameters[idx], Const.NVL(fieldValue, ""));
+                  if (resultRow != null) {
+                    fieldValue = resultRow.getString(parameter.getField(), "");
                   }
+                  // Get the value from the input stream
+                  namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
                 }
               }
             }
@@ -477,23 +419,20 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
           sourceRows = result.getRows();
 
           if (paramsFromPrevious) { // Copy the input the parameters
+            for (Parameter parameter : parameterDefinition.getParameters()) {
+              if (!Utils.isEmpty(parameter.getName())) {
+                // We have a parameter
+                if (Utils.isEmpty(Const.trim(parameter.getField()))) {
+                  namedParam.setParameterValue(
+                      parameter.getName(), Const.NVL(resolve(parameter.getValue()), ""));
+                } else {
+                  String fieldValue = "";
 
-            if (parameters != null) {
-              for (int idx = 0; idx < parameters.length; idx++) {
-                if (!Utils.isEmpty(parameters[idx])) {
-                  // We have a parameter
-                  if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
-                    namedParam.setParameterValue(
-                        parameters[idx], Const.NVL(resolve(parameterValues[idx]), ""));
-                  } else {
-                    String fieldValue = "";
-
-                    if (resultRow != null) {
-                      fieldValue = resultRow.getString(parameterFieldNames[idx], "");
-                    }
-                    // Get the value from the input stream
-                    namedParam.setParameterValue(parameters[idx], Const.NVL(fieldValue, ""));
+                  if (resultRow != null) {
+                    fieldValue = resultRow.getString(parameter.getField(), "");
                   }
+                  // Get the value from the input stream
+                  namedParam.setParameterValue(parameter.getName(), Const.NVL(fieldValue, ""));
                 }
               }
             }
@@ -506,7 +445,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
             WorkflowEngineFactory.createWorkflowEngine(
                 this, resolve(runConfiguration), getMetadataProvider(), workflowMeta, this);
         workflow.setParentWorkflow(parentWorkflow);
-        workflow.setLogLevel(jobLogLevel);
+        workflow.setLogLevel(workflowLogLevel);
         workflow.shareWith(this);
         workflow.setResult(result);
         workflow.setInternalHopVariables();
@@ -533,7 +472,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
             // This value should pass down to the sub-workflow if that's what we
             // opted to do.
             //
-            if (isPassingAllParameters()) {
+            if (parameterDefinition.isPassingAllParameters()) {
               String parentValue = parentWorkflow.getParameterValue(parameterNames[idx]);
               if (!Utils.isEmpty(parentValue)) {
                 workflow.setParameterValue(parameterNames[idx], parentValue);
@@ -791,12 +730,16 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  /** @return Returns the runEveryResultRow. */
+  /**
+   * @return Returns the runEveryResultRow.
+   */
   public boolean isExecPerRow() {
     return execPerRow;
   }
 
-  /** @param runEveryResultRow The runEveryResultRow to set. */
+  /**
+   * @param runEveryResultRow The runEveryResultRow to set.
+   */
   public void setExecPerRow(boolean runEveryResultRow) {
     this.execPerRow = runEveryResultRow;
   }
@@ -884,28 +827,22 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  protected String getLogfile() {
+  public String getLogfile() {
     return logfile;
   }
 
-  /** @return the waitingToFinish */
+  /**
+   * @return the waitingToFinish
+   */
   public boolean isWaitingToFinish() {
     return waitingToFinish;
   }
 
-  /** @param waitingToFinish the waitingToFinish to set */
+  /**
+   * @param waitingToFinish the waitingToFinish to set
+   */
   public void setWaitingToFinish(boolean waitingToFinish) {
     this.waitingToFinish = waitingToFinish;
-  }
-
-  /** @return the passingAllParameters */
-  public boolean isPassingAllParameters() {
-    return passingAllParameters;
-  }
-
-  /** @param passingAllParameters the passingAllParameters to set */
-  public void setPassingAllParameters(boolean passingAllParameters) {
-    this.passingAllParameters = passingAllParameters;
   }
 
   public IWorkflowEngine<WorkflowMeta> getWorkflow() {
@@ -947,5 +884,77 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
     return getWorkflowMeta(metadataProvider, variables);
+  }
+
+  public boolean isAddDate() {
+    return addDate;
+  }
+
+  public boolean isAddTime() {
+    return addTime;
+  }
+
+  public void setAddDate(boolean addDate) {
+    this.addDate = addDate;
+  }
+
+  public void setAddTime(boolean addTime) {
+    this.addTime = addTime;
+  }
+
+  public String getLogext() {
+    return logext;
+  }
+
+  public void setFilename(String filename) {
+    this.filename = filename;
+  }
+
+  public void setLogfile(String logfile) {
+    this.logfile = logfile;
+  }
+
+  public void setLogext(String logext) {
+    this.logext = logext;
+  }
+
+  public boolean isSetLogfile() {
+    return setLogfile;
+  }
+
+  public LogLevel getLogFileLevel() {
+    return logFileLevel;
+  }
+
+  public boolean isCreateParentFolder() {
+    return createParentFolder;
+  }
+
+  public void setSetLogfile(boolean setLogfile) {
+    this.setLogfile = setLogfile;
+  }
+
+  public void setLogFileLevel(LogLevel logFileLevel) {
+    this.logFileLevel = logFileLevel;
+  }
+
+  public void setCreateParentFolder(boolean createParentFolder) {
+    this.createParentFolder = createParentFolder;
+  }
+
+  public boolean isParamsFromPrevious() {
+    return paramsFromPrevious;
+  }
+
+  public boolean isSetAppendLogfile() {
+    return setAppendLogfile;
+  }
+
+  public void setParamsFromPrevious(boolean paramsFromPrevious) {
+    this.paramsFromPrevious = paramsFromPrevious;
+  }
+
+  public void setSetAppendLogfile(boolean setAppendLogfile) {
+    this.setAppendLogfile = setAppendLogfile;
   }
 }

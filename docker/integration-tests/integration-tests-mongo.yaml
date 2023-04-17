@@ -15,7 +15,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-version: '2.4'
+version: '3.5'
 services:
   integration_test_mongo:
     extends:
@@ -32,8 +32,13 @@ services:
     ports:
       - "27017"
     healthcheck:
-      test: echo 'db.runCommand("ping").ok' | mongo 127.0.0.1:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 30s
       timeout: 10s
       retries: 6
-      start_period: 240s      
+      start_period: 240s
+    environment:
+      MONGO_INITDB_DATABASE: my_db
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    command: mongod --auth

@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -49,10 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -63,7 +61,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
   private final StringOperationsMeta input;
 
   // holds the names of the fields entering this transform
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciKey;
 
@@ -71,7 +69,6 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
     input = (StringOperationsMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -242,7 +239,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
               if (row != null) {
                 // Remember these fields...
                 for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), i);
+                  inputFields.add(row.getValueMeta(i).getName());
                 }
 
                 setComboBoxes();
@@ -255,7 +252,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
                       for (int i = 0; i < wFields.table.getItemCount(); i++) {
                         TableItem it = wFields.table.getItem(i);
                         if (!Utils.isEmpty(it.getText(1))) {
-                          if (!inputFields.containsKey(it.getText(1))) {
+                          if (!inputFields.contains(it.getText(1))) {
                             it.setBackground(GuiResource.getInstance().getColorRed());
                           }
                         }
@@ -278,10 +275,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
   }
 
   protected void setComboBoxes() {
-    Set<String> keySet = inputFields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[0].setComboValues(fieldNames);
   }
 

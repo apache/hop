@@ -67,8 +67,11 @@ public class ExecutionState {
   /** Extra details that a plugin might want to save in the state */
   private Map<String, String> details;
 
-  /** Indicates whether or not the execution failed */
+  /** Indicates whether the execution failed */
   private boolean failed;
+
+  /** If the execution finished, what was the end date? */
+  private Date executionEndDate;
 
   /**
    * The ID of the container where we are executing in. Usually this is the Object ID found on the
@@ -333,5 +336,23 @@ public class ExecutionState {
    */
   public void setContainerId(String containerId) {
     this.containerId = containerId;
+  }
+
+  /**
+   * Gets executionEndDate
+   *
+   * @return value of executionEndDate
+   */
+  public Date getExecutionEndDate() {
+    return executionEndDate;
+  }
+
+  /**
+   * Sets executionEndDate
+   *
+   * @param executionEndDate value of executionEndDate
+   */
+  public void setExecutionEndDate(Date executionEndDate) {
+    this.executionEndDate = executionEndDate;
   }
 }

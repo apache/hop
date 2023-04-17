@@ -88,7 +88,7 @@ Here is the documentation for the relevant plugins:
 |1.15.x
 
 |2.4.0
-|2.45.0
+|2.46.0
 |3.3.X (scala 2.12)
 |1.15.x
 

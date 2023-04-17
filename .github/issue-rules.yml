@@ -30,6 +30,9 @@ rules:
   contains: 'Actions'
   addLabels: [ 'Actions' ]
 - valueFor: 'Component'
+  contains: 'API'
+  addLabels: [ 'API' ]
+- valueFor: 'Component'
   contains: 'Beam'
   addLabels: ['Beam']
 - valueFor: 'Component'

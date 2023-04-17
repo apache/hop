@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.workflow;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -32,6 +33,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -41,26 +43,24 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.workflow.ActionWorkflow.Parameter;
+import org.apache.hop.workflow.actions.workflow.ActionWorkflow.ParameterDefinition;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /** This dialog allows you to edit the workflow action (ActionWorkflow) */
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
-  protected ActionWorkflow action;
+  private ActionWorkflow action;
+  private MetaSelectionLine<WorkflowRunConfiguration> wRunConfiguration;
 
   private static final String[] FILE_FILTERLOGNAMES =
       new String[] {
@@ -112,39 +112,12 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
 
-    // End Server Section
+    // force reload from file specification
+    wbGetParams.addListener(SWT.Selection, e -> getParameters(null));
 
-    Composite cRunConfiguration = new Composite(wOptions, SWT.NONE);
-    cRunConfiguration.setLayout(new FormLayout());
-    PropsUi.setLook(cRunConfiguration);
-    FormData fdLocal = new FormData();
-    fdLocal.top = new FormAttachment(0);
-    fdLocal.right = new FormAttachment(100);
-    fdLocal.left = new FormAttachment(0);
+    wbBrowse.addListener(SWT.Selection, e -> pickFileVFS());
 
-    wbGetParams.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            getParameters(null); // force reload from file specification
-          }
-        });
-
-    wbBrowse.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            pickFileVFS();
-          }
-        });
-
-    wbLogFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            selectLogFile(FILE_FILTERLOGNAMES);
-          }
-        });
+    wbLogFilename.addListener(SWT.Selection, e -> selectLogFile(FILE_FILTERLOGNAMES));
   }
 
   @Override
@@ -163,8 +136,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   @Override
-  protected String[] getParameters() {
-    return action.parameters;
+  protected int getParameterCount() {
+    return action.getParameterDefinition().getParameters().size();
   }
 
   protected void getParameters(WorkflowMeta inputWorkflowMeta) {
@@ -191,9 +164,26 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       new ErrorDialog(
           shell,
           BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Title"),
-          BaseMessages.getString(PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Message"),
+          BaseMessages.getString(
+              PKG, "ActionWorkflowDialog.Exception.UnableToLoadWorkflow.Message"),
           e);
     }
+  }
+
+  @Override
+  protected Control createRunConfigurationControl() {
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            WorkflowRunConfiguration.class,
+            shell,
+            SWT.BORDER,
+            null,
+            null,
+            true);
+
+    return wRunConfiguration;
   }
 
   protected void pickFileVFS() {
@@ -221,41 +211,43 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wPath.setText(Const.NVL(action.getFilename(), ""));
 
     // Parameters
-    if (action.parameters != null) {
-      for (int i = 0; i < action.parameters.length; i++) {
-        TableItem ti = wParameters.table.getItem(i);
-        if (!Utils.isEmpty(action.parameters[i])) {
-          ti.setText(1, Const.NVL(action.parameters[i], ""));
-          ti.setText(2, Const.NVL(action.parameterFieldNames[i], ""));
-          ti.setText(3, Const.NVL(action.parameterValues[i], ""));
+    ParameterDefinition parameterDefinition = action.getParameterDefinition();
+    if (action.getParameterDefinition() != null) {
+      for (int i = 0; i < parameterDefinition.getParameters().size(); i++) {
+        Parameter parameter = parameterDefinition.getParameters().get(i);
+        TableItem item = wParameters.getTable().getItem(i);
+        if (!Utils.isEmpty(parameter.getName())) {
+          item.setText(1, Const.NVL(parameter.getName(), ""));
+          item.setText(2, Const.NVL(parameter.getField(), ""));
+          item.setText(3, Const.NVL(parameter.getValue(), ""));
         }
       }
       wParameters.setRowNums();
       wParameters.optWidth(true);
     }
 
-    wPassParams.setSelection(action.isPassingAllParameters());
+    wPassParams.setSelection(parameterDefinition.isPassingAllParameters());
 
-    wPrevToParams.setSelection(action.paramsFromPrevious);
-    wEveryRow.setSelection(action.execPerRow);
-    wSetLogfile.setSelection(action.setLogfile);
-    if (action.logfile != null) {
-      wLogfile.setText(action.logfile);
+    wPrevToParams.setSelection(action.isParamsFromPrevious());
+    wEveryRow.setSelection(action.isExecPerRow());
+    wSetLogfile.setSelection(action.isSetLogfile());
+    if (action.getLogfile() != null) {
+      wLogfile.setText(action.getLogfile());
     }
-    if (action.logext != null) {
-      wLogext.setText(action.logext);
+    if (action.getLogext() != null) {
+      wLogext.setText(action.getLogext());
     }
-    wAddDate.setSelection(action.addDate);
-    wAddTime.setSelection(action.addTime);
+    wAddDate.setSelection(action.isAddDate());
+    wAddTime.setSelection(action.isAddTime());
 
-    if (action.logFileLevel != null) {
-      wLoglevel.select(action.logFileLevel.getLevel());
+    if (action.getLogFileLevel() != null) {
+      wLoglevel.select(action.getLogFileLevel().getLevel());
     } else {
       // Set the default log level
       wLoglevel.select(ActionWorkflow.DEFAULT_LOG_LEVEL.getLevel());
     }
-    wAppendLogfile.setSelection(action.setAppendLogfile);
-    wCreateParentFolder.setSelection(action.createParentFolder);
+    wAppendLogfile.setSelection(action.isSetAppendLogfile());
+    wCreateParentFolder.setSelection(action.isCreateParentFolder());
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
 
     try {
@@ -275,8 +267,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       }
 
       wRunConfiguration.setItems(runConfigurations.toArray(new String[0]));
-      wRunConfiguration.setText(Const.NVL(action.getRunConfiguration(), ""));
-
       if (Utils.isEmpty(action.getRunConfiguration())) {
         wRunConfiguration.select(0);
       } else {
@@ -285,6 +275,8 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     } catch (Exception e) {
       LogChannel.UI.logError("Error getting workflow run configurations", e);
     }
+
+    setLogFileEnabled();
 
     wName.selectAll();
     wName.setFocus();
@@ -299,64 +291,52 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   @VisibleForTesting
-  protected void getInfo(ActionWorkflow aw) {
-    String jobPath = getPath();
-    aw.setName(getName());
-    aw.setFileName(jobPath);
-    aw.setRunConfiguration(wRunConfiguration.getText());
+  protected void getInfo(ActionWorkflow action) {
+    action.setName(wName.getText());
+    action.setFileName(wPath.getText());
+    action.setRunConfiguration(wRunConfiguration.getText());
+
+    ParameterDefinition parameterDefinition = action.getParameterDefinition();
+    parameterDefinition.getParameters().clear();
 
     // Do the parameters
     int nrItems = wParameters.nrNonEmpty();
-    int nr = 0;
     for (int i = 0; i < nrItems; i++) {
-      String param = wParameters.getNonEmpty(i).getText(1);
-      if (param != null && param.length() != 0) {
-        nr++;
-      }
-    }
-    aw.parameters = new String[nr];
-    aw.parameterFieldNames = new String[nr];
-    aw.parameterValues = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String param = wParameters.getNonEmpty(i).getText(1);
-      String fieldName = wParameters.getNonEmpty(i).getText(2);
-      String value = wParameters.getNonEmpty(i).getText(3);
+      TableItem item = wParameters.getNonEmpty(i);
 
-      aw.parameters[nr] = param;
+      Parameter parameter = new Parameter();
+      parameter.setName(item.getText(1));
 
-      if (!Utils.isEmpty(Const.trim(fieldName))) {
-        aw.parameterFieldNames[nr] = fieldName;
+      String fieldName = Const.trim(item.getText(2));
+      if (!Utils.isEmpty(fieldName)) {
+        parameter.setField(fieldName);
       } else {
-        aw.parameterFieldNames[nr] = "";
+        parameter.setField("");
       }
 
-      if (!Utils.isEmpty(Const.trim(value))) {
-        aw.parameterValues[nr] = value;
+      String value = Const.trim(item.getText(3));
+      if (!Utils.isEmpty(value)) {
+        parameter.setValue(value);
       } else {
-        aw.parameterValues[nr] = "";
+        parameter.setValue("");
       }
 
-      nr++;
+      parameterDefinition.getParameters().add(parameter);
     }
-    aw.setPassingAllParameters(wPassParams.getSelection());
+    parameterDefinition.setPassingAllParameters(wPassParams.getSelection());
 
-    aw.setLogfile = wSetLogfile.getSelection();
-    aw.addDate = wAddDate.getSelection();
-    aw.addTime = wAddTime.getSelection();
-    aw.logfile = wLogfile.getText();
-    aw.logext = wLogext.getText();
-    if (wLoglevel.getSelectionIndex() >= 0) {
-      aw.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
-    } else {
-      aw.logFileLevel = LogLevel.BASIC;
-    }
-    aw.paramsFromPrevious = wPrevToParams.getSelection();
-    aw.execPerRow = wEveryRow.getSelection();
-    aw.setAppendLogfile = wAppendLogfile.getSelection();
-    aw.setWaitingToFinish(wWaitingToFinish.getSelection());
-    aw.createParentFolder = wCreateParentFolder.getSelection();
-    aw.setRunConfiguration(wRunConfiguration.getText());
+    action.setSetLogfile(wSetLogfile.getSelection());
+    action.setAddDate(wAddDate.getSelection());
+    action.setAddTime(wAddTime.getSelection());
+    action.setLogfile(wLogfile.getText());
+    action.setLogext(wLogext.getText());
+    action.setLogFileLevel(LogLevel.lookupDescription(wLoglevel.getText()));
+    action.setParamsFromPrevious(wPrevToParams.getSelection());
+    action.setExecPerRow(wEveryRow.getSelection());
+    action.setSetAppendLogfile(wAppendLogfile.getSelection());
+    action.setWaitingToFinish(wWaitingToFinish.getSelection());
+    action.setCreateParentFolder(wCreateParentFolder.getSelection());
+    action.setRunConfiguration(wRunConfiguration.getText());
   }
 
   @Override

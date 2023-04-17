@@ -22,6 +22,13 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -34,15 +41,9 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.json.simple.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-/** @param <T> */
+/**
+ * @param <T>
+ */
 public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
   protected IHopMetadataProvider metadataProvider;
@@ -104,17 +105,21 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
       try {
         fileInputStream = HopVfs.getInputStream(filename);
         JsonFactory jsonFactory = new JsonFactory();
-        com.fasterxml.jackson.core.JsonParser jsonParser =
-            jsonFactory.createParser(fileInputStream);
+        try (com.fasterxml.jackson.core.JsonParser jsonParser =
+            jsonFactory.createParser(fileInputStream)) {
 
-        jsonParser.nextToken(); // skip {
+          // skip opening '{'
+          jsonParser.nextToken();
 
-        T t = parser.loadJsonObject(managedClass, jsonParser);
-        inheritVariables(t);
-        t.setMetadataProviderName(metadataProvider.getDescription());
-        return t;
+          T t = parser.loadJsonObject(managedClass, jsonParser);
+          inheritVariables(t);
+          t.setMetadataProviderName(metadataProvider.getDescription());
+          return t;
+        }
       } finally {
-        fileInputStream.close();
+        if (fileInputStream != null) {
+          fileInputStream.close();
+        }
       }
     } catch (Exception e) {
       throw new HopException(
@@ -147,8 +152,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
       try (OutputStream outputStream = HopVfs.getOutputStream(filename, false)) {
         String jsonString = jObject.toJSONString();
         Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
-        JsonParser jp = new JsonParser();
-        JsonElement je = jp.parse(jsonString);
+        JsonElement je = JsonParser.parseString(jsonString);
 
         String formattedJson = gson.toJson(je);
         outputStream.write(formattedJson.getBytes(StandardCharsets.UTF_8));
@@ -244,22 +248,30 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
 
-  /** @param baseFolder The baseFolder to set */
+  /**
+   * @param baseFolder The baseFolder to set
+   */
   public void setBaseFolder(String baseFolder) {
     this.baseFolder = baseFolder;
   }
 
-  /** @param managedClass The managedClass to set */
+  /**
+   * @param managedClass The managedClass to set
+   */
   public void setManagedClass(Class<T> managedClass) {
     this.managedClass = managedClass;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

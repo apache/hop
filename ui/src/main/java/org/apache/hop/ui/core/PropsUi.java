@@ -71,6 +71,8 @@ public class PropsUi extends Props {
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
 
   private static final String HIDE_MENU_BAR = "HideMenuBar";
+  
+  private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
 
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
 
@@ -428,15 +430,6 @@ public class PropsUi extends Props {
   public boolean getAutoSplit() {
     String autosplit = getProperty(STRING_AUTO_SPLIT);
     return YES.equalsIgnoreCase(autosplit); // Default = OFF
-  }
-
-  public void setAutoCollapseCoreObjectsTree(boolean autoCollapse) {
-    setProperty(STRING_AUTO_COLLAPSE_CORE_TREE, autoCollapse ? YES : NO);
-  }
-
-  public boolean getAutoCollapseCoreObjectsTree() {
-    String autoCollapse = getProperty(STRING_AUTO_COLLAPSE_CORE_TREE);
-    return YES.equalsIgnoreCase(autoCollapse); // Default = OFF
   }
 
   public void setExitWarningShown(boolean show) {
@@ -807,7 +800,16 @@ public class PropsUi extends Props {
     return YES.equalsIgnoreCase(
         System.getProperty(ConstUi.HOP_GUI_HIDE_MENU, getProperty(HIDE_MENU_BAR, YES)));
   }
+  
+  public void setSortFieldByName(boolean sort) {
+    setProperty(SORT_FIELD_BY_NAME, sort ? YES : NO);
+  }
 
+  public boolean isSortFieldByName() {
+    return YES.equalsIgnoreCase(
+        System.getProperty(SORT_FIELD_BY_NAME, getProperty(SORT_FIELD_BY_NAME, YES)));
+  }
+  
   public void setShowingHelpToolTips(boolean show) {
     setProperty(SHOW_HELP_TOOL_TIPS, show ? YES : NO);
   }

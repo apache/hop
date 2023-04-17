@@ -1,0 +1,49 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /technology/memgraph/
+:language: en_US
+:description: Apache Hop has extensive support for the Neo4j graph database. Memgraph is largely compatible with Neo4j and can use a lot of the Neo4j functionality in Apache Hop.
+
+= Memgraph
+
+== Description
+
+https://www.memgraph.com[Memgraph^] is largely compatible with Neo4j and can use a lot of the Neo4j functionality in Apache Hop. Memgraph focuses on in-memory, realtime and scalable analytics.
+
+The Memgraph compatibility with Neo4j allows you to use a lot of the Neo4j functionality in Apache Hop with Memgraph.
+
+
+== Run Memgraph in docker
+
+The `--bolt-server-name-for-init=Neo4j/` parameter needs to be set to allow Apache Hop to connect to a Memgraph database over the `bolt` protocol. More information is available in the https://memgraph.com/docs/memgraph/connect-to-memgraph/drivers/java[memgraph docs^].
+
+Example command to start a Memgraph server in a container:
+
+`docker run -it -p 7687:7687 -p 7444:7444 -p 3000:3000 -e MEMGRAPH="--bolt-server-name-for-init=Neo4j/" memgraph/memgraph-platform`
+
+== What works
+
+* xref:metadata-types/neo4j/neo4j-connection.adoc[Neo4j connections]: make sure to specify `bolt` instead of the default `neo4j` protocol
+* most of the xref:pipeline/transforms/neo4j-graphoutput.adoc[Neo4j graph output], xref:pipeline/transforms/neo4j-output.adoc[Neo4j output], xref:pipeline/transforms/neo4j-cypher.adoc[Cypher transforms] and xref:workflow/actions/neo4j-cypherscript.adoc[actions] (except for index manipulation, see below) seem to work correctly. Please create a https://github.com/apache/hop/issues/[bug ticket] if you find any issues.
+
+== known issues
+
+Memgraph's index syntax differs from the Neo4j syntax, which causes the xref:workflow/actions/neo4j-index.adoc[Neo4j index] and xref:workflow/actions/neo4j-constraint.adoc[Neo4j constraint] actions to fail.
+
+Creating indexes through a Cypher action or a Cypher transform fails with an error similar to `ERROR: org.neo4j.driver.exceptions.ClientException: Index manipulation not allowed in multicommand transactions.`.
+
+Check the https://memgraph.com/docs/memgraph/reference-guide/indexing[Memgraph docs^] for more information on indexing.

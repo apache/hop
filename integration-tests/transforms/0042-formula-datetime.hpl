@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2022/04/29 08:06:36.941</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/04/29 08:06:36.941</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -71,6 +69,190 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>Calculator</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <calculation>
+      <calc_type>DATE_DIFF</calc_type>
+      <field_a>today</field_a>
+      <field_b>graduation_day</field_b>
+      <field_name>days_since_graduation</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>DATE_WORKING_DIFF</calc_type>
+      <field_a>today</field_a>
+      <field_b>graduation_day</field_b>
+      <field_name>workdays_since_graduation</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>MONTH_OF_DATE</calc_type>
+      <field_a>today</field_a>
+      <field_name>todays_month</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>YEAR_OF_DATE</calc_type>
+      <field_a>today</field_a>
+      <field_name>todays_year</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>Integer</value_type>
+    </calculation>
+    <failIfNoFile>Y</failIfNoFile>
+    <attributes/>
+    <GUI>
+      <xloc>352</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Invalid</name>
+    <type>Abort</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <abort_option>ABORT_WITH_ERROR</abort_option>
+    <always_log_rows>Y</always_log_rows>
+    <row_threshold>0</row_threshold>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Valid</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>736</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Verify</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>today</leftvalue>
+            <negated>N</negated>
+            <operator>-</operator>
+            <rightvalue>today_formula</rightvalue>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>tomorrow</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue>tomorrow_formula</rightvalue>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>days_since_graduation</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue>days_since_graduation_formula</rightvalue>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>workdays_since_graduation</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue>workdays_since_graduation_formula</rightvalue>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>todays_month</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue>todays_month_formula</rightvalue>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>todays_year</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue>todays_year_formula</rightvalue>
+          </condition>
+          <condition>
+            <conditions>
+</conditions>
+            <function>=</function>
+            <leftvalue>today</leftvalue>
+            <negated>N</negated>
+            <operator>AND</operator>
+            <rightvalue>today_timestamp</rightvalue>
+          </condition>
+        </conditions>
+        <function>=</function>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <send_false_to>Invalid</send_false_to>
+    <send_true_to>Valid</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>608</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>date time formulas</name>
     <type>Formula</type>
@@ -139,6 +321,14 @@ limitations under the License.
         <value_precision>-1</value_precision>
         <value_type>5</value_type>
       </formula>
+      <formula>
+        <field_name>today_timestamp</field_name>
+        <formula>TODAY()</formula>
+        <replace_field/>
+        <value_length>-1</value_length>
+        <value_precision>-1</value_precision>
+        <value_type>9</value_type>
+      </formula>
     </formulas>
     <attributes/>
     <GUI>
@@ -159,46 +349,35 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
         <length>-1</length>
         <name>one</name>
+        <nullif>1</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>Integer</type>
-        <nullif>1</nullif>
       </field>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
         <length>-1</length>
         <name>three</name>
+        <nullif>3</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>Integer</type>
-        <nullif>3</nullif>
       </field>
       <field>
-        <currency/>
-        <decimal/>
         <format>yyyy-MM-dd</format>
-        <group/>
         <length>-1</length>
         <name>graduation_day</name>
+        <nullif>2021-12-17</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>Date</type>
-        <nullif>2021-12-17</nullif>
       </field>
     </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
     <limit>1</limit>
+    <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
@@ -235,189 +414,6 @@ limitations under the License.
     <GUI>
       <xloc>256</xloc>
       <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Verify</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <send_true_to>Valid</send_true_to>
-    <send_false_to>Invalid</send_false_to>
-    <compare>
-      <condition>
-        <negated>N</negated>
-        <conditions>
-          <condition>
-            <negated>N</negated>
-            <leftvalue>today</leftvalue>
-            <function>=</function>
-            <rightvalue>today_formula</rightvalue>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>tomorrow</leftvalue>
-            <function>=</function>
-            <rightvalue>tomorrow_formula</rightvalue>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>days_since_graduation</leftvalue>
-            <function>=</function>
-            <rightvalue>days_since_graduation_formula</rightvalue>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>workdays_since_graduation</leftvalue>
-            <function>=</function>
-            <rightvalue>workdays_since_graduation_formula</rightvalue>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>todays_month</leftvalue>
-            <function>=</function>
-            <rightvalue>todays_month_formula</rightvalue>
-          </condition>
-          <condition>
-            <negated>N</negated>
-            <operator>AND</operator>
-            <leftvalue>todays_year</leftvalue>
-            <function>=</function>
-            <rightvalue>todays_year_formula</rightvalue>
-          </condition>
-        </conditions>
-      </condition>
-    </compare>
-    <attributes/>
-    <GUI>
-      <xloc>608</xloc>
-      <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Calculator</name>
-    <type>Calculator</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <failIfNoFile>Y</failIfNoFile>
-    <calculation>
-      <calc_type>DATE_DIFF</calc_type>
-      <conversion_mask/>
-      <currency_symbol/>
-      <decimal_symbol/>
-      <field_a>today</field_a>
-      <field_b>graduation_day</field_b>
-      <field_c/>
-      <field_name>days_since_graduation</field_name>
-      <grouping_symbol/>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>Integer</value_type>
-    </calculation>
-    <calculation>
-      <calc_type>DATE_WORKING_DIFF</calc_type>
-      <conversion_mask/>
-      <currency_symbol/>
-      <decimal_symbol/>
-      <field_a>today</field_a>
-      <field_b>graduation_day</field_b>
-      <field_c/>
-      <field_name>workdays_since_graduation</field_name>
-      <grouping_symbol/>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>Integer</value_type>
-    </calculation>
-    <calculation>
-      <calc_type>MONTH_OF_DATE</calc_type>
-      <conversion_mask/>
-      <currency_symbol/>
-      <decimal_symbol/>
-      <field_a>today</field_a>
-      <field_b/>
-      <field_c/>
-      <field_name>todays_month</field_name>
-      <grouping_symbol/>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>Integer</value_type>
-    </calculation>
-    <calculation>
-      <calc_type>YEAR_OF_DATE</calc_type>
-      <conversion_mask/>
-      <currency_symbol/>
-      <decimal_symbol/>
-      <field_a>today</field_a>
-      <field_b/>
-      <field_c/>
-      <field_name>todays_year</field_name>
-      <grouping_symbol/>
-      <remove>N</remove>
-      <value_length>-1</value_length>
-      <value_precision>-1</value_precision>
-      <value_type>Integer</value_type>
-    </calculation>
-    <attributes/>
-    <GUI>
-      <xloc>352</xloc>
-      <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Valid</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>736</xloc>
-      <yloc>96</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Invalid</name>
-    <type>Abort</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <abort_option>ABORT_WITH_ERROR</abort_option>
-    <always_log_rows>Y</always_log_rows>
-    <message/>
-    <row_threshold>0</row_threshold>
-    <attributes/>
-    <GUI>
-      <xloc>608</xloc>
-      <yloc>208</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

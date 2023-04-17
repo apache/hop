@@ -31,9 +31,9 @@ import java.util.List;
 public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneable {
   private static final Class<?> PKG = WorkflowHopMeta.class; // For Translator
 
-  public static final String XML_FROM_TAG = "from";
-  public static final String XML_TO_TAG = "to";
-
+  public static final String XML_EVALUATION_TAG = "evaluation";
+  public static final String XML_UNCONDITIONAL_TAG = "unconditional";
+  
   private boolean evaluation;
   private boolean unconditional;
 
@@ -68,16 +68,11 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
 
   public WorkflowHopMeta(Node hopNode, List<ActionMeta> actions) throws HopXmlException {
     try {
-      this.from =
-          searchAction(actions, XmlHandler.getTagValue(hopNode, WorkflowHopMeta.XML_FROM_TAG));
-      this.to = searchAction(actions, XmlHandler.getTagValue(hopNode, WorkflowHopMeta.XML_TO_TAG));
-      String en = XmlHandler.getTagValue(hopNode, "enabled");
-
-      if (en == null) {
-        enabled = true;
-      } else {
-        enabled = en.equalsIgnoreCase("Y");
-      }
+      this.from = searchAction(actions, XmlHandler.getTagValue(hopNode, XML_FROM_TAG));
+      this.to = searchAction(actions, XmlHandler.getTagValue(hopNode, XML_TO_TAG));
+      this.enabled = getTagValueAsBoolean(hopNode, XML_ENABLED_TAG, true);
+      this.evaluation = getTagValueAsBoolean(hopNode, XML_EVALUATION_TAG, true);
+      this.unconditional = getTagValueAsBoolean(hopNode, XML_UNCONDITIONAL_TAG, false);
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfo"), e);
@@ -111,24 +106,12 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     try {
       String fromName = XmlHandler.getTagValue(hopNode, XML_FROM_TAG);
       String toName = XmlHandler.getTagValue(hopNode, XML_TO_TAG);
-      String sEnabled = XmlHandler.getTagValue(hopNode, "enabled");
-      String sEvaluation = XmlHandler.getTagValue(hopNode, "evaluation");
-      String sUnconditional = XmlHandler.getTagValue(hopNode, "unconditional");
-
+      
       this.from = workflow.findAction(fromName);
       this.to = workflow.findAction(toName);
-
-      if (sEnabled == null) {
-        enabled = true;
-      } else {
-        enabled = "Y".equalsIgnoreCase(sEnabled);
-      }
-      if (sEvaluation == null) {
-        evaluation = true;
-      } else {
-        evaluation = "Y".equalsIgnoreCase(sEvaluation);
-      }
-      unconditional = "Y".equalsIgnoreCase(sUnconditional);
+      this.enabled = getTagValueAsBoolean(hopNode, XML_ENABLED_TAG, true);
+      this.evaluation = getTagValueAsBoolean(hopNode, XML_EVALUATION_TAG, true);
+      this.unconditional = getTagValueAsBoolean(hopNode, XML_UNCONDITIONAL_TAG, false); 
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "WorkflowHopMeta.Exception.UnableToLoadHopInfoXML"), e);
@@ -138,13 +121,13 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
   public String getXml() {
     StringBuilder xml = new StringBuilder(200);
     if ((null != this.from) && (null != this.to)) {
-      xml.append("    ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
+      xml.append("    ").append(XmlHandler.openTag(XML_HOP_TAG)).append(Const.CR);
       xml.append("      ").append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
       xml.append("      ").append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
-      xml.append("      ").append(XmlHandler.addTagValue("enabled", enabled));
-      xml.append("      ").append(XmlHandler.addTagValue("evaluation", evaluation));
-      xml.append("      ").append(XmlHandler.addTagValue("unconditional", unconditional));
-      xml.append("    ").append(XmlHandler.closeTag(XML_TAG)).append(Const.CR);
+      xml.append("      ").append(XmlHandler.addTagValue(XML_ENABLED_TAG, this.enabled));
+      xml.append("      ").append(XmlHandler.addTagValue(XML_EVALUATION_TAG, this.evaluation));
+      xml.append("      ").append(XmlHandler.addTagValue(XML_UNCONDITIONAL_TAG, this.unconditional));
+      xml.append("    ").append(XmlHandler.closeTag(XML_HOP_TAG)).append(Const.CR);
     }
 
     return xml.toString();

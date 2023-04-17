@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.pipeline;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -33,6 +34,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
@@ -42,23 +44,23 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.pipeline.ActionPipeline.Parameter;
+import org.apache.hop.workflow.actions.pipeline.ActionPipeline.ParameterDefinition;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /** This dialog allows you to edit the pipeline action (ActionPipeline) */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
 
-  protected ActionPipeline action;
+  private ActionPipeline action;
+  private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
 
   private static final String[] FILE_FILTERLOGNAMES =
       new String[] {
@@ -126,29 +128,12 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     fdWait.left = new FormAttachment(0, 0);
     wWaitingToFinish.setLayoutData(fdWait);
 
-    wbGetParams.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            getParameters(null); // force reload from file specification
-          }
-        });
+    // force reload from file specification
+    wbGetParams.addListener(SWT.Selection, e -> getParameters(null));
 
-    wbBrowse.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            pickFileVFS();
-          }
-        });
+    wbBrowse.addListener(SWT.Selection, e -> pickFileVFS());
 
-    wbLogFilename.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            selectLogFile(FILE_FILTERLOGNAMES);
-          }
-        });
+    wbLogFilename.addListener(SWT.Selection, e -> selectLogFile(FILE_FILTERLOGNAMES));
   }
 
   @Override
@@ -167,8 +152,8 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
   }
 
   @Override
-  protected String[] getParameters() {
-    return action.parameters;
+  protected int getParameterCount() {
+    return action.getParameterDefinition().getParameters().size();
   }
 
   private void getParameters(PipelineMeta inputPipelineMeta) {
@@ -201,6 +186,22 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     }
   }
 
+  @Override
+  protected Control createRunConfigurationControl() {
+    wRunConfiguration =
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            PipelineRunConfiguration.class,
+            shell,
+            SWT.BORDER,
+            null,
+            null,
+            true);
+
+    return wRunConfiguration;
+  }
+
   protected void pickFileVFS() {
     HopPipelineFileType<PipelineMeta> pipelineFileType = new HopPipelineFileType<>();
     String filename =
@@ -225,43 +226,42 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     wPath.setText(Const.NVL(action.getFilename(), ""));
 
     // Parameters
-    if (action.parameters != null) {
-      for (int i = 0; i < action.parameters.length; i++) {
-        TableItem ti = wParameters.table.getItem(i);
-        if (!Utils.isEmpty(action.parameters[i])) {
-          ti.setText(1, Const.NVL(action.parameters[i], ""));
-          ti.setText(2, Const.NVL(action.parameterFieldNames[i], ""));
-          ti.setText(3, Const.NVL(action.parameterValues[i], ""));
+    ParameterDefinition parameterDefinition = action.getParameterDefinition();
+    if (action.getParameterDefinition() != null) {
+      for (int i = 0; i < parameterDefinition.getParameters().size(); i++) {
+        Parameter parameter = parameterDefinition.getParameters().get(i);
+        TableItem item = wParameters.getTable().getItem(i);
+        if (!Utils.isEmpty(parameter.getName())) {
+          item.setText(1, Const.NVL(parameter.getName(), ""));
+          item.setText(2, Const.NVL(parameter.getField(), ""));
+          item.setText(3, Const.NVL(parameter.getValue(), ""));
         }
       }
       wParameters.setRowNums();
       wParameters.optWidth(true);
     }
 
-    wPassParams.setSelection(action.isPassingAllParameters());
+    wPassParams.setSelection(parameterDefinition.isPassingAllParameters());
 
-    if (action.logfile != null) {
-      wLogfile.setText(action.logfile);
+    if (action.getLogfile() != null) {
+      wLogfile.setText(action.getLogfile());
     }
-    if (action.logext != null) {
-      wLogext.setText(action.logext);
+    if (action.getLogext() != null) {
+      wLogext.setText(action.getLogext());
     }
 
-    wPrevToParams.setSelection(action.paramsFromPrevious);
-    wEveryRow.setSelection(action.execPerRow);
-    wSetLogfile.setSelection(action.setLogfile);
-    wAddDate.setSelection(action.addDate);
-    wAddTime.setSelection(action.addTime);
-    wClearRows.setSelection(action.clearResultRows);
-    wClearFiles.setSelection(action.clearResultFiles);
+    wPrevToParams.setSelection(action.isParamsFromPrevious());
+    wEveryRow.setSelection(action.isExecPerRow());
+    wSetLogfile.setSelection(action.isSetLogfile());
+    wAddDate.setSelection(action.isAddDate());
+    wAddTime.setSelection(action.isAddTime());
+    wClearRows.setSelection(action.isClearResultRows());
+    wClearFiles.setSelection(action.isClearResultFiles());
     wWaitingToFinish.setSelection(action.isWaitingToFinish());
-    wAppendLogfile.setSelection(action.setAppendLogfile);
-
-    wbLogFilename.setSelection(action.setAppendLogfile);
-
-    wCreateParentFolder.setSelection(action.createParentFolder);
-    if (action.logFileLevel != null) {
-      wLoglevel.select(action.logFileLevel.getLevel());
+    wAppendLogfile.setSelection(action.isSetAppendLogfile());
+    wCreateParentFolder.setSelection(action.isCreateParentFolder());
+    if (action.getLogFileLevel() != null) {
+      wLoglevel.select(action.getLogFileLevel().getLevel());
     }
 
     try {
@@ -292,6 +292,8 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
       LogChannel.UI.logError("Error getting pipeline run configurations", e);
     }
 
+    setLogFileEnabled();
+
     wName.selectAll();
     wName.setFocus();
   }
@@ -308,68 +310,49 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     actionPipeline.setName(wName.getText());
     actionPipeline.setRunConfiguration(wRunConfiguration.getText());
     actionPipeline.setFileName(wPath.getText());
-    if (actionPipeline.getFilename().isEmpty()) {
-      throw new HopException(
-          BaseMessages.getString(
-              PKG, "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound"));
-    }
+
+    ParameterDefinition parameterDefinition = action.getParameterDefinition();
+    parameterDefinition.getParameters().clear();
 
     // Do the parameters
     int nrItems = wParameters.nrNonEmpty();
-    int nr = 0;
     for (int i = 0; i < nrItems; i++) {
-      String param = wParameters.getNonEmpty(i).getText(1);
-      if (param != null && param.length() != 0) {
-        nr++;
-      }
-    }
-    actionPipeline.parameters = new String[nrItems];
-    actionPipeline.parameterFieldNames = new String[nrItems];
-    actionPipeline.parameterValues = new String[nrItems];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String param = wParameters.getNonEmpty(i).getText(1);
-      String fieldName = wParameters.getNonEmpty(i).getText(2);
-      String value = wParameters.getNonEmpty(i).getText(3);
+      TableItem item = wParameters.getNonEmpty(i);
 
-      actionPipeline.parameters[nr] = param;
+      Parameter parameter = new Parameter();
+      parameter.setName(item.getText(1));
 
-      if (!Utils.isEmpty(Const.trim(fieldName))) {
-        actionPipeline.parameterFieldNames[nr] = fieldName;
+      String fieldName = Const.trim(item.getText(2));
+      if (!Utils.isEmpty(fieldName)) {
+        parameter.setField(fieldName);
       } else {
-        actionPipeline.parameterFieldNames[nr] = "";
+        parameter.setField("");
       }
 
-      if (!Utils.isEmpty(Const.trim(value))) {
-        actionPipeline.parameterValues[nr] = value;
+      String value = Const.trim(item.getText(3));
+      if (!Utils.isEmpty(value)) {
+        parameter.setValue(value);
       } else {
-        actionPipeline.parameterValues[nr] = "";
+        parameter.setValue("");
       }
 
-      nr++;
+      parameterDefinition.getParameters().add(parameter);
     }
+    parameterDefinition.setPassingAllParameters(wPassParams.getSelection());
 
-    actionPipeline.setPassingAllParameters(wPassParams.getSelection());
-
-    actionPipeline.logfile = wLogfile.getText();
-    actionPipeline.logext = wLogext.getText();
-
-    if (wLoglevel.getSelectionIndex() >= 0) {
-      actionPipeline.logFileLevel = LogLevel.values()[wLoglevel.getSelectionIndex()];
-    } else {
-      actionPipeline.logFileLevel = LogLevel.BASIC;
-    }
-
-    actionPipeline.paramsFromPrevious = wPrevToParams.getSelection();
-    actionPipeline.execPerRow = wEveryRow.getSelection();
-    actionPipeline.setLogfile = wSetLogfile.getSelection();
-    actionPipeline.addDate = wAddDate.getSelection();
-    actionPipeline.addTime = wAddTime.getSelection();
-    actionPipeline.clearResultRows = wClearRows.getSelection();
-    actionPipeline.clearResultFiles = wClearFiles.getSelection();
-    actionPipeline.createParentFolder = wCreateParentFolder.getSelection();
+    actionPipeline.setLogfile(wLogfile.getText());
+    actionPipeline.setLogext(wLogext.getText());
+    actionPipeline.setLogFileLevel(LogLevel.lookupDescription(wLoglevel.getText()));
+    actionPipeline.setParamsFromPrevious(wPrevToParams.getSelection());
+    actionPipeline.setExecPerRow(wEveryRow.getSelection());
+    actionPipeline.setSetLogfile(wSetLogfile.getSelection());
+    actionPipeline.setAddDate(wAddDate.getSelection());
+    actionPipeline.setAddTime(wAddTime.getSelection());
+    actionPipeline.setClearResultRows(wClearRows.getSelection());
+    actionPipeline.setClearResultFiles(wClearFiles.getSelection());
+    actionPipeline.setCreateParentFolder(wCreateParentFolder.getSelection());
     actionPipeline.setRunConfiguration(wRunConfiguration.getText());
-    actionPipeline.setAppendLogfile = wAppendLogfile.getSelection();
+    actionPipeline.setSetAppendLogfile(wAppendLogfile.getSelection());
     actionPipeline.setWaitingToFinish(wWaitingToFinish.getSelection());
   }
 

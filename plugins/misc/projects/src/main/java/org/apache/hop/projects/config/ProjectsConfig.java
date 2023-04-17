@@ -37,6 +37,7 @@ public class ProjectsConfig {
 
   private boolean projectMandatory;
   private boolean environmentMandatory;
+  private boolean environmentsForActiveProject;
   private String defaultProject;
   private String defaultEnvironment;
   private String standardParentProject;
@@ -68,6 +69,7 @@ public class ProjectsConfig {
     standardParentProject = config.standardParentProject;
     standardProjectsFolder = config.standardProjectsFolder;
     defaultProjectConfigFile = config.defaultProjectConfigFile;
+    environmentsForActiveProject = config.environmentsForActiveProject;
   }
 
   public ProjectConfig findProjectConfig(String projectName) {
@@ -164,6 +166,18 @@ public class ProjectsConfig {
   public List<String> listEnvironmentNames() {
     List<String> names = new ArrayList<>();
     lifecycleEnvironments.stream().forEach(env -> names.add(env.getName()));
+    Collections.sort(names);
+    return names;
+  }
+
+  public List<String> listEnvironmentNamesForProject(String projectName){
+    List<String> names = new ArrayList<>();
+    lifecycleEnvironments.stream().forEach(env -> {
+      if(env.getProjectName().equals(projectName)){
+        names.add(env.getName());
+      }
+    });
+
     Collections.sort(names);
     return names;
   }
@@ -371,4 +385,20 @@ public class ProjectsConfig {
   public void setDefaultProjectConfigFile(String defaultProjectConfigFile) {
     this.defaultProjectConfigFile = defaultProjectConfigFile;
   }
+
+  /**
+   * Gets environmentsForActiveProject
+   *
+   * @return value of environmentsForActiveProject
+   */
+  public boolean isEnvironmentsForActiveProject() {
+    return environmentsForActiveProject;
+  }
+
+  /** @param environmentsForActiveProject The environmentMandatory to set */
+  public void setEnvironmentsForActiveProject(boolean environmentsForActiveProject) {
+    this.environmentsForActiveProject = environmentsForActiveProject;
+  }
+
+
 }

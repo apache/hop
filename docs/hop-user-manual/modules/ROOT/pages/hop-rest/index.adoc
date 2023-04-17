@@ -1,0 +1,369 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[HopRest]]
+:imagesdir: ../assets/images
+:description: hop-rest is a web application (and docker container) which is capable of working with the Hop ecosystem.
+
+:toc:
+
+= Hop REST Web Application
+
+== Description
+
+The Hop REST web application is deployed as a WAR file `hop-rest-<version>.war`.
+You can put this archive in the `webapps` folder of your favorite server (e.g. Apache Tomcat).
+We suggest that you rename it to `hop.war` or that you unzip it in a `hop` folder.
+
+== The base URL
+
+When deployed under a `webapps/hop` folder you will get the services, detailed below, under the base URL of `/hop/api/v1/`.
+
+== Configuration
+
+When the web application starts it will look for an environment variable called `HOP_REST_CONFIG_FOLDER` to determine where it will look for a file called `hop-rest.properties`.
+This file can contain the following properties to determine the configuration of the application:
+
+[cols="1,2"]
+|===
+|Property|Description
+
+|`logLevel`
+|The logging level to use, one of `NOTHING`, `ERROR`, `MINIMAL`,
+`BASIC`, `DETAILED`, `DEBUG`, or `ROWLEVEL`.
+
+|`metadataExportFile`
+|The metadata to use for the web application in the form of a single JSON 'export' file.  Use the GUI tools menu or `sh hop-conf.sh --export-metadata` to export metadata to a single file.
+
+|`environmentName`
+|In case the `projects` plugin is available it will enable this environment and the underlying project (to be configured on the system, point to a configuration with `HOP_CONFIG_FOLDER`) before starting the application.
+
+|`projectName`
+|In case the `projects` plugin is available it will enable this project (to be configured on the system, point to a configuration with `HOP_CONFIG_FOLDER`) before starting the application.
+
+|===
+
+== Metadata services
+
+The metadata services are deployed under sub-path `metadata/`.
+
+=== List the metadata type keys
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`metadata/types`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET http://localhost:8080/hop/api/v1/metadata/types`
+
+|Example output
+|
+`["dataset","workflow-log","async-web-service","execution-info-location","web-service","cassandra-connection","workflow-run-configuration","unit-test","rdbms","mongodb-connection","file-definition","splunk","pipeline-run-configuration","pipeline-log","server","partition","execution-data-profile","neo4j-connection","pipeline-probe","neo4j-graph-model"]`
+
+|===
+
+=== List the metadata elements for a key
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`metadata/list/{key}`
+
+|Arguments
+|`key` : the key of the metadata type
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET http://localhost:8080/hop/api/v1/metadata/list/pipeline-run-configuration/`
+
+|Example output
+|
+`["local"]`
+
+|===
+
+=== Get a metadata element
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`metadata/{key}/{name}`
+
+|Arguments
+|`key` : the key of the metadata type, `{name}` : the name of the metadata element to get.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET http://localhost:8080/hop/api/v1/metadata/pipeline-run-configuration/local/`
+
+|Example output
+|
+`{"engineRunConfiguration":{"Local":{"feedback_size":"50000","sample_size":"1000","sample_type_in_gui":"None","wait_time":"2","rowset_size":"10000","safe_mode":false,"show_feedback":false,"topo_sort":false,"gather_metrics":false,"transactional":false}},"defaultSelection":false,"configurationVariables":[],"name":"local","description":"Runs your pipelines locally with the standard local Hop pipeline engine","dataProfile":"first-last","executionInfoLocationName":"local"}`
+
+|===
+
+=== Save a metadata element
+
+[cols="1,2"]
+|===
+|Type
+|`POST`
+
+|Path
+|`metadata/{key}`
+
+|Arguments
+|`key` : the key of the metadata type to save
+
+|Consumes
+|`application/json`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X POST http://localhost:8080/hop/api/v1/metadata/pipeline-run-configuration/ -d '{"engineRunConfiguration":{"Local":{"feedback_size":"50000","sample_size":"1000","sample_type_in_gui":"None","wait_time":"2","rowset_size":"10000","safe_mode":false,"show_feedback":false,"topo_sort":false,"gather_metrics":false,"transactional":false}},"defaultSelection":false,"configurationVariables":[],"name":"local","description":"Runs your pipelines locally with the standard local Hop pipeline engine","dataProfile":"first-last","executionInfoLocationName":"local"}'`
+
+|===
+
+=== Delete a metadata element
+
+[cols="1,2"]
+|===
+|Type
+|`DELETE`
+
+|Path
+|`metadata/{key}/{name}`
+
+|Arguments
+|`key` : the key of the metadata type to save. `name` : the name of the metadata element to delete.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X DELETE http://localhost:8080/hop/api/v1/metadata/pipeline-run-configuration/Flink/`
+
+|Output
+|`Flink`
+
+|===
+
+== Plugins services
+
+The plugins services are deployed under sub-path `plugins/`.
+
+=== List all the plugin type classes
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`plugins/types`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET http://localhost:8080/hop/api/v1/plugins/types`
+
+|Example output
+|
+`["org.apache.hop.core.compress.CompressionPluginType","org.apache.hop.core.row.value.ValueMetaPluginType","org.apache.hop.core.database.DatabasePluginType","org.apache.hop.core.plugins.TransformPluginType","org.apache.hop.core.auth.AuthenticationConsumerPluginType","org.apache.hop.imp.ImportPluginType","org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType","org.apache.hop.core.auth.AuthenticationProviderPluginType","org.apache.hop.core.plugins.PartitionerPluginType","org.apache.hop.core.logging.LoggingPluginType","org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType","org.apache.hop.core.config.plugin.ConfigPluginType","org.apache.hop.core.plugins.HopServerPluginType","org.apache.hop.core.plugins.ActionPluginType","org.apache.hop.core.extension.ExtensionPointPluginType","org.apache.hop.pipeline.engine.PipelineEnginePluginType","org.apache.hop.pipeline.transform.RowDistributionPluginType","org.apache.hop.workflow.engine.WorkflowEnginePluginType","org.apache.hop.core.vfs.plugin.VfsPluginType","org.apache.hop.execution.sampler.ExecutionDataSamplerPluginType","org.apache.hop.metadata.plugin.MetadataPluginType"]`
+
+|===
+
+=== List all the plugins for a given type class
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`plugins/list/{typeClassName}/`
+
+|Arguments
+|`key` : the class name of the plugin type
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET http://localhost:8080/hop/api/v1/plugins/list/org.apache.hop.pipeline.engine.PipelineEnginePluginType`
+
+This call retrieves all the information about all the pipeline engine plugins.
+
+|Example output
+|
+`[{"category":null,"name":"Beam DataFlow pipeline engine","description":"This allows you to run your pipeline on Google Cloud Platform DataFlow, provided by the Apache Beam community","ids":["BeamDataFlowPipelineEngine"],"pluginType":"org.apache.hop.pipeline.engine.PipelineEnginePluginType","imageFile":null,"separateClassLoaderNeeded":false,"classLoaderGroup":null,"nativePlugin":false, ... }`
+
+|===
+
+== Execution services
+
+The 'Execution' services are deployed under sub-path `execution/`.
+
+=== Execute a pipeline synchronously
+
+[cols="1,2"]
+|===
+|Type
+|`POST`
+
+|Path
+|`execution/sync`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X POST  http://localhost:8080/hop/api/v1/execution/sync/  -H 'Content-Type: application/json'  -d '{ "service" : "test", "runConfig" : "local", "variables" : { "VAR1" : "value1", "VAR2" : "value2" }, "bodyContent" : "This is body content" }'`
+`
+|Example output
+|The executing pipeline can produce output like this:
+
+`{
+"rows" : [ {
+"id" : 1,
+"uuid" : "93b534f0-31ef-4992-8012-ffbfd3d7d489",
+"var1" : "value1",
+"var2" : "value2",
+"bodyContent" : "This is body content"
+}, ... ]
+}`
+
+|===
+
+The body to post can contain the following options (see also: the example above)
+
+* `execute`: the name of the Web Service metadata element to use
+* `runConfig`: the name of the pipeline run configuration to use
+* `variables`: a map with variables (or parameters) with their names and values
+* `bodyContent`: this will be set as a variable using the body content variable option in the Web Service metadata.
+
+== Execution Information Location services
+
+The execution information location services are deployed under sub-path `location/`.
+
+=== Get execution IDs
+
+[cols="1,2"]
+|===
+|Type
+|`POST`
+
+|Path
+|`location/executions/{locationName}`
+
+|Arguments
+|`locationName` : the name of the execution information location to query.
+
+|Consumes
+|`application/json`
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET  http://localhost:8080/hop/api/v1/location/executions/local/  -H 'Content-Type: application/json'  -d '{ "includeChildren" : "true", "limit" : 100 }'`
+`
+|Example output
+|The list of execution IDs looks like this:
+
+`["af84cbc2-0166-4dea-956f-72b73cf66d0d", "bf84cbc2-0166-4dea-956f-72b73cf66d0e", "cf84cbc2-0166-4dea-956f-72b73cf66d0f"]`
+
+|===
+
+The body to post can contain the following options (see also: the example above)
+
+* `includeChildren`: Set this to true if you want to see child executions of workflows and pipelines
+* `limit`: the maximum number of IDs to retrieve or a value <=0 to get all IDs
+
+=== Get execution
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`location/executions/{locationName}/{executionId}`
+
+|Arguments
+|`locationName`: the name of the execution information location to query. `executionId`: the ID of the execution to retrieve.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET  http://localhost:8080/hop/api/v1/location/executions/local/df84cbc2-0166-4dea-956f-72b73cf66d0d/`
+`
+|Example output
+|The execution details look like this:
+
+`{"name":"pipeline-name","filename":"/path/filename.hpl","id":"df84cbc2-0166-4dea-956f-72b73cf66d0d","parentId":null,"executionType":"Pipeline", ... }`
+
+|===
+
+=== Get execution state
+
+[cols="1,2"]
+|===
+|Type
+|`GET`
+
+|Path
+|`location/state/{locationName}/{executionId}`
+
+|Arguments
+|`locationName`: the name of the execution information location to query. `executionId`: the ID of the execution state to retrieve.
+
+|Produces
+|`application/json`
+
+|Example call
+|`curl -X GET  http://localhost:8080/hop/api/v1/location/state/local/df84cbc2-0166-4dea-956f-72b73cf66d0d/`
+`
+|Example output
+|The execution state looks like this:
+
+`{"executionType":"Pipeline","parentId":null,"id":"df84cbc2-0166-4dea-956f-72b73cf66d0d","name":"test-service","copyNr":null,"loggingText":"logging-text","lastLogLineNr":14,"metrics":[{"componentName":"id","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"uuid","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"Enhanced JSON Output","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":1,"Updated":0,"Output":1,"Rejected":0,"Buffers Input":0}},{"componentName":"OUTPUT","componentCopy":"0","metrics":{"Read":1,"Buffers Output":0,"Errors":0,"Input":0,"Written":1,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"5 rows","componentCopy":"0","metrics":{"Read":0,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}},{"componentName":"Get variables","componentCopy":"0","metrics":{"Read":5,"Buffers Output":0,"Errors":0,"Input":0,"Written":5,"Updated":0,"Output":0,"Rejected":0,"Buffers Input":0}}],"statusDescription":"Finished","updateTime":1678191016156,"childIds":["46690405-4b06-4353-973a-06aff689afe0","ec974060-e228-4438-8408-b049803eb316","f7344a76-06b0-4499-95a1-1b30bd987561","32837620-df15-4602-b32c-69111689767f","db2e3feb-3ab1-4491-a4dc-7036cc0c3a3f","4653fb73-ac94-4ac3-adef-a14e6129aa14"],"details":{},"failed":false,"containerId":"c7c90ed5-6684-408a-be11-d1fd1c65164a"}`
+
+|===
+
+
+
