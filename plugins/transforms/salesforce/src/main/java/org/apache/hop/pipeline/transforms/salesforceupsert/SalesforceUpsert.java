@@ -138,22 +138,25 @@ public class SalesforceUpsert
         for (int i = 0; i < data.nrFields; i++) {
           IValueMeta valueMeta = data.inputRowMeta.getValueMeta(data.fieldnrs[i]);
           Object object = rowData[data.fieldnrs[i]];
-
-          if (valueMeta.isNull(object)) {
-            // The value is null
-            // We need to keep track of this field
-            fieldsToNull.add(
-                SalesforceUtils.getFieldToNullName(
-                    log, meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
-          } else {
-            Object normalObject = normalizeValue(valueMeta, rowData[data.fieldnrs[i]]);
-            if (data.mapData && data.dataTypeMap != null) {
-              normalObject =
-                  mapDataTypes(valueMeta.getType(), meta.getUpdateLookup()[i], normalObject);
+          // Only if the upsert field's value is null do not consider that field in this loop at all (Issue #2820)
+          if (!(valueMeta.isNull(object)
+              & meta.getUpsertField().equals(meta.getUpdateLookup()[i]))) {
+            if (valueMeta.isNull(object)) {
+              // The value is null
+              // We need to keep track of this field
+              fieldsToNull.add(
+                  SalesforceUtils.getFieldToNullName(
+                      log, meta.getUpdateLookup()[i], meta.getUseExternalId()[i]));
+            } else {
+              Object normalObject = normalizeValue(valueMeta, rowData[data.fieldnrs[i]]);
+              if (data.mapData && data.dataTypeMap != null) {
+                normalObject =
+                    mapDataTypes(valueMeta.getType(), meta.getUpdateLookup()[i], normalObject);
+              }
+              upsertfields.add(
+                  SalesforceConnection.createMessageElement(
+                      meta.getUpdateLookup()[i], normalObject, meta.getUseExternalId()[i]));
             }
-            upsertfields.add(
-                SalesforceConnection.createMessageElement(
-                    meta.getUpdateLookup()[i], normalObject, meta.getUseExternalId()[i]));
           }
         }
 
