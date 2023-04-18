@@ -20,6 +20,8 @@ package org.apache.hop.pipeline.transforms.propertyinput;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.ResultFile;
@@ -1323,14 +1325,30 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
-    wShortFileFieldName.setText(in.getShortFileFieldName());
-    wPathFieldName.setText(in.getPathFieldName());
-    wIsHiddenName.setText(in.getHiddenFieldName());
-    wLastModificationTimeName.setText(in.getLastModificationTimeFieldName());
-    wUriName.setText(in.getUriNameFieldName());
-    wRootUriName.setText(in.getRootUriNameFieldName());
-    wExtensionFieldName.setText(in.getExtensionFieldName());
-    wSizeFieldName.setText(in.getSizeFieldName());
+    if(!StringUtils.isEmpty(in.getShortFileFieldName())){
+      wShortFileFieldName.setText(in.getShortFileFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getPathFieldName())){
+      wPathFieldName.setText(in.getPathFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getHiddenFieldName())){
+      wIsHiddenName.setText(in.getHiddenFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getLastModificationTimeFieldName())){
+      wLastModificationTimeName.setText(in.getLastModificationTimeFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getUriNameFieldName())){
+      wUriName.setText(in.getUriNameFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getRootUriNameFieldName())){
+      wRootUriName.setText(in.getRootUriNameFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getExtensionFieldName())){
+      wExtensionFieldName.setText(in.getExtensionFieldName());
+    }
+    if(!StringUtils.isEmpty(in.getSizeFieldName())){
+      wSizeFieldName.setText(in.getSizeFieldName());
+    }
 
     setIncludeFilename();
     setIncludeRowNum();
