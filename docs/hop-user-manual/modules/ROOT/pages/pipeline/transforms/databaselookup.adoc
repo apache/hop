@@ -81,7 +81,7 @@ Notes:
 
 * Enabling error handling on the Database Lookup transform will redirect all failed lookup rows to the error handling transform, instead of adding them to the main output steam with null/default values.
 * _Type_ is the type of the output field.
-* When we use _Trim type_ the transform behavior will be to trim all the spaces but leave any newline character eventually contained in the string extracted by the transform upon a successful lookup
+* When we use _Trim type_ option, the current transform behavior is to trim all the spaces but leave any newline character eventually contained in the string extracted by the transform upon a successful lookup.
 
 |Do not pass the row if the lookup fails|Enable to avoid passing a row when lookup fails.
 Within the SQL syntax, enabling this would be an INNER JOIN, otherwise it would be an OUTER JOIN.
