@@ -381,6 +381,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
   }
 
   private void cancel() {
+    needingEnvironmentRefresh = false;
     returnValue = null;
 
     dispose();
