@@ -459,5 +459,6 @@ under the License.
 * xref:how-to-guides/index.adoc[How-to guides]
 ** xref:how-to-guides/apache-hop-web-services-docker.adoc[Hop web services in Docker]
 ** xref:how-to-guides/joins-lookups.adoc[Joins and lookups]
+** xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]
 ** xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow]
 * xref:community-blogs/index.adoc[Community Posts]
