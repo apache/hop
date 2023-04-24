@@ -307,7 +307,7 @@ under the License.
 *** xref:workflow/actions/ftpdelete.adoc[FTP delete]
 *** xref:workflow/actions/ftp.adoc[Get a file with FTP]
 *** xref:workflow/actions/sftp.adoc[Get a file with SFTP]
-*** xref:workflow/actions/getpop.adoc[Get Mail from POP]
+*** xref:workflow/actions/getpop.adoc[Get Mails (POP3/IMAP)]
 *** xref:workflow/actions/http.adoc[Http Get]
 *** xref:workflow/actions/eval.adoc[JavaScript]
 *** xref:workflow/actions/mail.adoc[Mail]

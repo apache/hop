@@ -16,31 +16,114 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Get Mail From POP action retrieves mails from a POP server and stores them into one or more files.
+:description: The Get Mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
 
-= Get Mail from POP
+= Get Mails (POP3/IMAP)
 
 == Description
 
-The Get Mail From POP action retrieves mails from a POP server and stores them into one or more files.
+The Get Mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
 
 == Options
+
+=== General
 
 [options="header"]
 |===
 |Option|Description
+2+|**Server Settings**
 |Workflow action name|The name of the workflow action.
 |Source Host|The host name or IP-address of the pop server.
 |Use SSL |If checked A secure connection will be used to communicate with the server.
 |Use XOAUTH2 |If checked XOAuth2 will be used to authenticate with the server.
+|Port|The port to run the SSL POP3 or IMAP connection over.
 |Username|The username to log in with.
 |Password|The password to log in with.
-|Use POP with SSL|Check this if the POP server uses SSL (Secure Socket Layer, Encrypted).
-|Port|The port to run the SSL POP connection over.
+|Use proxy|check to enable proxy authentication
+|Proxy username|proxy authorised user (only available if `Use proxy` is checked)
+|Protocol a|Choose between
+
+* POP3
+* IMAP
+* MBOX
+|Test connection|Click this button to test the provided settings
+2+|**Target folder**
 |Target directory|The directory in which you want to put the mail files.
-|Target filename pattern|The filename pattern (start of filename).
-|Retrieve|Select the e-mails to retrieve: all, unread or a selection of the first e-mails.
+|Create folder|check to create the specified target directory if it doesn't exist
+|Target filename pattern|The filename pattern (start of filename). The default pattern is `name_{SYS\|hhmmss_MMddyyyy\|}_#IdFile#.mail`
+|Save message content|check to save the message body text for retrieved email messages
+|Get mail attachment|check to save the attachments for retrieved email messages
+|Different folder for attachment|check to save the attachments for retrieved email messages in a different folder than the message body
+|Attachment files folder|the folder to store attachments for retrieved email messages in (only available if `Different folder for attachment` is checked)
+|Attachment wildcard|the wildcard to use to save attachments for retrieved email messages (none = all)
+|===
+
+=== Settings
+
+**Action**: this dropdown box lets you specify the action to perform on the retrieved email messages:
+
+* Get messages
+* Move messages to folder (IMAP only since POP3 only knows one folder "INBOX")
+* Delete messages
+
+[options="header"]
+|===
+|Option|Description
+2+|**POP3 settings**
+|Retrieve
+a|Select the e-mails to retrieve:
+
+* All emails
+* Retrieve first ... emails
 |Retrieve the .. first emails|Allows you to specify the number of emails to retrieve if "first ... emails" is selected.
-|Delete emails after retrieval|Check this if you want to delete the mails on the pop server after retrieval.
+|Delete emails after retrieval|check to delete the mails on the pop server after retrieval.
+2+|**IMAP settings**
+|Option|Description
+|IMAP folder|the folder on the IMAP server to retrieve messages from
+|Include subfolders|check to select messages for subfolders from the selected IMAP folder
+|Retrieve a|choose one of
+
+* Get all messages
+* Get new messages
+* Get old messages
+* Get read messages
+* Get unread messages
+* Get flagged messages
+* Get not flagged messages
+* Get draft messages
+* Get not draft messages
+* Get answered messages
+* Get not answered messages
+|Retrieve the first...emails|specify the number of messages to retrieve
+|After retrieved a|specfiy the action to perform on email messages after retrieval:
+
+* Do nothing
+* Delete message
+* Move message to folder
+|Move to folder|move the retrieved messages to a different folder on the IMAP server (if `Move message to folder` was selected)
+|Create folder|create a folder on the IMAP server to move the messages to if it doesn't exist.
+|===
+
+=== Filters
+
+[options="header"]
+|===
+|Option|Description
+2+|**Header**
+|Sender (FROM)|messages will be filtered on sender
+|Recipient (TO)|messages will be filtered on recipient
+|Subject|messages will be filtered on subject
+2+|**Content**
+|Option|Description
+|Body|messages will be filtered on the specified text in the email body
+2+|**Received date**
+|Option|Description
+|Condition a|Choose a date or date range. The available options are
+
+* None (default, don't filter on received date)
+* Equal to `Date 1`
+* Smaller than `Date 1`
+* Greater than `Date 1`
+* Between `Date 1` and `Date 2`
 |===
 
