@@ -139,6 +139,14 @@ public class SalesforceUpsert
           IValueMeta valueMeta = data.inputRowMeta.getValueMeta(data.fieldnrs[i]);
           Object object = rowData[data.fieldnrs[i]];
 
+          // Only if the upsert field's value is null do not consider that field in this loop at all
+          // (Issue #2820)
+          if (meta.getUpsertField() != null
+              && valueMeta.isNull(object)
+                  & meta.getUpsertField().equals(meta.getUpdateLookup()[i])) {
+            continue;
+          }
+
           if (valueMeta.isNull(object)) {
             // The value is null
             // We need to keep track of this field
