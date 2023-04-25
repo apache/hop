@@ -600,7 +600,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       if (!Utils.isEmpty(connectionName)
               && connectionName.startsWith("${")
               && connectionName.endsWith("}")) {
-        meta.setDatabaseMeta(getPipelineMeta().findDatabase(resolve(connectionName)));
+        meta.setDatabaseMeta(getPipelineMeta().findDatabase(resolve(connectionName), variables));
       }
 
       // Schema-table combination...
