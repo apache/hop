@@ -1146,7 +1146,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setSchemaname(wSchemaname.getText());
     action.setTablename(wTablename.getText());
     action.setFilename(wFilename.getText());
@@ -1191,7 +1191,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       return;
     }
 
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(connectionName);
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -1212,10 +1212,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
   /** Get a list of columns, comma separated, allow the user to select from it. */
   private void getListColumns() {
     if (!Utils.isEmpty(wTablename.getText())) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, variables, databaseMeta);
-        try {
+        try (Database database = new Database(loggingObject, variables, databaseMeta)) {
           database.connect();
           IRowMeta row = database.getTableFieldsMeta(wSchemaname.getText(), wTablename.getText());
           String[] available = row.getFieldNames();
@@ -1251,8 +1250,6 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
               BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
               BaseMessages.getString(PKG, "ActionMssqlBulkLoad.ConnectionError2.DialogMessage"),
               e);
-        } finally {
-          database.disconnect();
         }
       }
     }
