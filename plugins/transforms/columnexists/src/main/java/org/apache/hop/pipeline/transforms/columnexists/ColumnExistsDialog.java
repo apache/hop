@@ -439,7 +439,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -462,10 +462,9 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
@@ -496,11 +495,6 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
-      } finally {
-        if (database != null) {
-          database.disconnect();
-          database = null;
-        }
       }
     }
   }
