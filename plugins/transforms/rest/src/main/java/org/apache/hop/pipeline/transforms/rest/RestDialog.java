@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.rest;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -27,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -59,10 +61,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class RestDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = RestMeta.class; // For Translator
@@ -95,7 +94,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
   private final RestMeta input;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private Label wlBody;
   private ComboVar wBody;
@@ -137,7 +136,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (RestMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -167,7 +165,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     setupTransformName(lsMod, middle, margin);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
@@ -428,7 +426,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
                 // Remember these fields...
                 for (int i = 0; i < row.size(); i++) {
-                  inputFields.put(row.getValueMeta(i).getName(), i);
+                  inputFields.add(row.getValueMeta(i).getName());
                 }
 
                 setComboBoxes();
@@ -1275,17 +1273,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colinfoparams[0].setComboValues(fieldNames);
     colinf[0].setComboValues(fieldNames);
   }

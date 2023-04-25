@@ -623,6 +623,7 @@ public class ProjectDialog extends Dialog {
   }
 
   private void cancel() {
+    needingProjectRefresh = false;
     returnValue = null;
 
     dispose();

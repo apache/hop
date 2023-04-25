@@ -441,7 +441,7 @@ public class ConfigGuiOptionsTab {
     wHideMenuBar.setLayoutData(fdHideMenuBar);
     wHideMenuBar.addListener(SWT.Selection, e -> saveValues());
 
-    // Hide menu bar?
+    // Show tableview tool bar ?
     Label wlShowTableViewToolbar = new Label(wLookComp, SWT.RIGHT);
     wlShowTableViewToolbar.setText(
         BaseMessages.getString(PKG, "EnterOptionsDialog.ShowTableViewToolbar.Label"));

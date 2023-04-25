@@ -124,6 +124,7 @@ public class TableViewExportToExcelToolbarButton {
           } else {
             // Convert back from String to the original data type
             //
+            cellValueMeta.setConversionMask(valueMeta.getConversionMask());
             Object object = valueMeta.convertData(cellValueMeta, string);
 
             switch (valueMeta.getType()) {

@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -55,10 +56,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /*
  * ConcatFieldsDialog
@@ -83,7 +81,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
   private ColumnInfo[] fieldColumns;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   public ConcatFieldsDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -94,7 +92,6 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta,
         sname);
     input = (ConcatFieldsMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -376,7 +373,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
               setComboBoxes();
             } catch (HopException e) {
@@ -428,14 +425,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
   /** Something was changed in the row. Handle this change. */
   protected void setComboBoxes() {
     // Add the currentMeta fields...
-    final Map<String, Integer> fields = new HashMap<>(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[0]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     fieldColumns[0].setComboValues(fieldNames);
   }
 

@@ -29,11 +29,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.logging.LoggingObject;
+import org.apache.hop.core.logging.*;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.INamedParameterDefinitions;
 import org.apache.hop.core.parameters.INamedParameters;
@@ -41,6 +37,7 @@ import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.JarCache;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -72,7 +69,7 @@ import java.util.Map;
 
 @Command(versionProvider = HopVersionProvider.class)
 public class HopRun implements Runnable, IHasHopMetadataProvider {
-  
+
   @Option(
       names = {"-f", "--file"},
       description = "The filename of the workflow or pipeline to run")
@@ -80,7 +77,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
   @Option(
       names = {"-l", "--level"},
-      description = "The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
+      description =
+          "The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL")
   private String level;
 
   @Option(
@@ -89,11 +87,17 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       description = "Displays this help message and quits.")
   private boolean helpRequested;
 
-  @Option(names = {"-v", "--version"},
+  @Option(
+      names = {"-v", "--version"},
       versionHelp = true,
       description = "Print version information and exit")
   private boolean versionRequested;
-  
+
+  @Option(
+      names = {"-lf", "--logfile"},
+      description = "Write Hop console log to a file")
+  private String logFile;
+
   @Option(
       names = {"-p", "--parameters"},
       description = "A comma separated list of PARAMETER=VALUE pairs",
@@ -136,6 +140,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   @Override
   public void run() {
     validateOptions();
+    FileLoggingEventListener fileLoggingEventListener = null;
 
     try {
       log = new LogChannel("HopRun");
@@ -174,6 +179,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         }
       }
 
+      if (!Utils.isEmpty(logFile)) {
+        fileLoggingEventListener = new FileLoggingEventListener(logFile, false);
+        HopLogStore.getAppender().addLoggingEventListener(fileLoggingEventListener);
+      }
+
       if (isPipeline()) {
         runPipeline(cmd, log);
       }
@@ -186,6 +196,10 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     } catch (Exception e) {
       throw new ExecutionException(
           cmd, "There was an error during execution of file '" + filename + "'", e);
+    } finally {
+      if (fileLoggingEventListener != null) {
+        HopLogStore.getAppender().removeLoggingEventListener(fileLoggingEventListener);
+      }
     }
   }
 
@@ -244,7 +258,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       if (StringUtils.isEmpty(configuration.getRunConfiguration())) {
         PipelineRunConfiguration defaultRunConfiguration =
-                PipelineRunConfiguration.findDefault(metadataProvider);
+            PipelineRunConfiguration.findDefault(metadataProvider);
         if (defaultRunConfiguration != null) {
           configuration.setRunConfiguration(defaultRunConfiguration.getName());
         }
@@ -331,7 +345,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       //
       if (StringUtils.isEmpty(configuration.getRunConfiguration())) {
         WorkflowRunConfiguration defaultRunConfiguration =
-                WorkflowRunConfiguration.findDefault(metadataProvider);
+            WorkflowRunConfiguration.findDefault(metadataProvider);
         if (defaultRunConfiguration != null) {
           configuration.setRunConfiguration(defaultRunConfiguration.getName());
         }
@@ -366,7 +380,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       WorkflowMeta workflowMeta) {
     try {
       String runConfigurationName = variables.resolve(configuration.getRunConfiguration());
-      //Create a logging object to push down the correct loglevel to the Workflow
+      // Create a logging object to push down the correct loglevel to the Workflow
       //
       LoggingObject workflowLog = new LoggingObject(log);
       workflowLog.setLogLevel(configuration.getLogLevel());
@@ -763,6 +777,14 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
    */
   public void setLog(ILogChannel log) {
     this.log = log;
+  }
+
+  public String getLogFile() {
+    return logFile;
+  }
+
+  public void setLogFile(String logFile) {
+    this.logFile = logFile;
   }
 
   /**

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
+import java.sql.Timestamp;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -151,6 +152,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
               formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
               break;
             case IValueMeta.TYPE_TIMESTAMP:
+              outputValue = Timestamp.from(DateUtil.getJavaDate(cellValue.getNumberValue()).toInstant());
               data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
               formula.setNeedDataConversion(formula.getValueType() != IValueMeta.TYPE_NUMBER);
               break;

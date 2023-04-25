@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -73,10 +74,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =
@@ -114,7 +112,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
 
   private ColumnInfo[] ciReturn;
 
-  private final Map<String, Integer> inputFields = new HashMap<>();
+  private final List<String> inputFields = new ArrayList<>();
 
   /** List of ColumnInfo that should have the field names of the selected database table */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
@@ -754,7 +752,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
 
               setComboBoxes();
@@ -912,16 +910,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     // return fields
     if (ciReturn != null) {
       ciReturn[1].setComboValues(fieldNames);

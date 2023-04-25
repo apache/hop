@@ -59,11 +59,11 @@ public class ConfigGeneralOptionsTab {
   private Button wAutoSplit;
   private Button wCopyDistribute;
   private Button wExitWarning;
-  private Button wAutoCollapse;
   private Button wToolTip;
   private Button wHelpTip;
   private Button wbUseDoubleClick;
   private Button wbUseGlobalFileBookmarks;
+  private Button wSortFieldByName;
 
   public ConfigGeneralOptionsTab() {
     // This instance is created in the GuiPlugin system by calling this constructor, after which it
@@ -320,27 +320,27 @@ public class ConfigGeneralOptionsTab {
         });
     lastControl = wClearCustom;
 
-    // Auto-collapse core objects tree branches?
-    Label wlAutoCollapse = new Label(wGeneralComp, SWT.RIGHT);
-    wlAutoCollapse.setText(
-        BaseMessages.getString(PKG, "EnterOptionsDialog.EnableAutoCollapseCoreObjectTree.Label"));
-    PropsUi.setLook(wlAutoCollapse);
-    FormData fdlAutoCollapse = new FormData();
-    fdlAutoCollapse.left = new FormAttachment(0, 0);
-    fdlAutoCollapse.top = new FormAttachment(lastControl, 2 * margin);
-    fdlAutoCollapse.right = new FormAttachment(middle, -margin);
-    wlAutoCollapse.setLayoutData(fdlAutoCollapse);
-    wAutoCollapse = new Button(wGeneralComp, SWT.CHECK);
-    PropsUi.setLook(wAutoCollapse);
-    wAutoCollapse.setSelection(props.getAutoCollapseCoreObjectsTree());
-    FormData fdAutoCollapse = new FormData();
-    fdAutoCollapse.left = new FormAttachment(middle, 0);
-    fdAutoCollapse.top = new FormAttachment(wlAutoCollapse, 0, SWT.CENTER);
-    fdAutoCollapse.right = new FormAttachment(100, 0);
-    wAutoCollapse.setLayoutData(fdAutoCollapse);
-    wAutoCollapse.addListener(SWT.Selection, this::saveValues);
-    lastControl = wlAutoCollapse;
-
+    // Sort field by name
+    Label wlSortFieldByName = new Label(wGeneralComp, SWT.RIGHT);
+    wlSortFieldByName.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.Label"));
+    wlSortFieldByName.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.ToolTip"));
+    PropsUi.setLook(wlSortFieldByName);
+    FormData fdlSortFieldByName = new FormData();
+    fdlSortFieldByName.left = new FormAttachment(0, 0);
+    fdlSortFieldByName.right = new FormAttachment(middle, -margin);
+    fdlSortFieldByName.top = new FormAttachment(lastControl, 2 * margin);
+    wlSortFieldByName.setLayoutData(fdlSortFieldByName);
+    wSortFieldByName = new Button(wGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wSortFieldByName);
+    FormData fdSortFieldByName = new FormData();
+    fdSortFieldByName.left = new FormAttachment(middle, 0);
+    fdSortFieldByName.right = new FormAttachment(100, -margin);
+    fdSortFieldByName.top = new FormAttachment(wlSortFieldByName, 0, SWT.CENTER);
+    wSortFieldByName.setLayoutData(fdSortFieldByName);
+    wSortFieldByName.setSelection(props.isSortFieldByName());
+    wSortFieldByName.addListener(SWT.Selection, this::saveValues);
+    lastControl = wSortFieldByName;
+    
     // Tooltips
     Label wlToolTip = new Label(wGeneralComp, SWT.RIGHT);
     wlToolTip.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.ToolTipsEnabled.Label"));
@@ -476,7 +476,7 @@ public class ConfigGeneralOptionsTab {
     props.setShowCopyOrDistributeWarning(wCopyDistribute.getSelection());
     props.setExitWarningShown(wExitWarning.getSelection());
     props.setShowToolTips(wToolTip.getSelection());
-    props.setAutoCollapseCoreObjectsTree(wAutoCollapse.getSelection());
+    props.setSortFieldByName(wSortFieldByName.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
     props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());

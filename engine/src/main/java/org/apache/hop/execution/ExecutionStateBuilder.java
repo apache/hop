@@ -18,6 +18,12 @@
 
 package org.apache.hop.execution;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -29,13 +35,6 @@ import org.apache.hop.pipeline.engine.IEngineMetric;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public final class ExecutionStateBuilder {
   private ExecutionType executionType;
@@ -52,6 +51,7 @@ public final class ExecutionStateBuilder {
   private boolean failed;
   private Map<String, String> details;
   private String containerId;
+  private Date executionEndDate;
 
   private ExecutionStateBuilder() {
     this.updateTime = new Date();
@@ -95,7 +95,8 @@ public final class ExecutionStateBuilder {
             .withStatusDescription(pipeline.getStatusDescription())
             .withChildIds(
                 LoggingRegistry.getInstance().getChildrenMap().get(pipeline.getLogChannelId()))
-            .withContainerId(pipeline.getContainerId());
+            .withContainerId(pipeline.getContainerId())
+            .withExecutionEndDate(pipeline.getExecutionEndDate());
 
     EngineMetrics engineMetrics = pipeline.getEngineMetrics();
 
@@ -134,7 +135,8 @@ public final class ExecutionStateBuilder {
         .withName(component.getName())
         .withCopyNr(Integer.toString(component.getCopyNr()))
         .withParentId(pipeline.getLogChannelId())
-        .withContainerId(pipeline.getContainerId());
+        .withContainerId(pipeline.getContainerId())
+        .withExecutionEndDate(component.getExecutionEndDate());
   }
 
   private static void addMetric(
@@ -169,7 +171,8 @@ public final class ExecutionStateBuilder {
         .withStatusDescription(workflow.getStatusDescription())
         .withChildIds(
             LoggingRegistry.getInstance().getChildrenMap().get(workflow.getLogChannelId()))
-        .withContainerId(workflow.getContainerId());
+        .withContainerId(workflow.getContainerId())
+        .withExecutionEndDate(workflow.getExecutionEndDate());
   }
 
   public ExecutionStateBuilder withExecutionType(ExecutionType executionType) {
@@ -248,6 +251,11 @@ public final class ExecutionStateBuilder {
     return this;
   }
 
+  public ExecutionStateBuilder withExecutionEndDate(Date executionEndDate) {
+    this.executionEndDate = executionEndDate;
+    return this;
+  }
+
   public ExecutionState build() {
     ExecutionState state = new ExecutionState();
     state.setExecutionType(executionType);
@@ -264,6 +272,7 @@ public final class ExecutionStateBuilder {
     state.setFailed(failed);
     state.setDetails(details);
     state.setContainerId(containerId);
+    state.setExecutionEndDate(executionEndDate);
     return state;
   }
 }

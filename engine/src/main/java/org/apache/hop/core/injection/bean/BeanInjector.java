@@ -17,12 +17,8 @@
 
 package org.apache.hop.core.injection.bean;
 
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import static com.google.common.collect.Lists.newLinkedList;
+import static java.util.Objects.requireNonNull;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
@@ -34,9 +30,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.stream.Collectors;
-
-import static com.google.common.collect.Lists.newLinkedList;
-import static java.util.Objects.requireNonNull;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.injection.AfterInjection;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 
 /** Engine for get/set metadata injection properties from bean. */
 public class BeanInjector<Meta extends Object> {
@@ -442,6 +441,10 @@ public class BeanInjector<Meta extends Object> {
     List<Object> existList = (List<Object>) s.field.get(obj);
     if (existList == null) {
       return null;
+    }
+    // if constants are added without data we still want 1 row created
+    if (existList.isEmpty()) {
+      return extendList(s, obj, 1);
     }
 
     return index < existList.size() ? existList : null;

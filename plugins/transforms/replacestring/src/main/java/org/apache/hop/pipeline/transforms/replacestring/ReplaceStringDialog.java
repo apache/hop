@@ -27,6 +27,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -46,10 +47,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /** Search and replace in string. */
 public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {
@@ -59,7 +57,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
 
   private final ReplaceStringMeta input;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciKey;
 
@@ -67,7 +65,6 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (ReplaceStringMeta) in, tr, sname);
     input = (ReplaceStringMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -230,7 +227,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
 
               setComboBoxes();
@@ -252,16 +249,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-
-    // Add the currentMeta fields...
-    final Map<String, Integer> fields = new HashMap<>(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[0]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[0].setComboValues(fieldNames);
     ciKey[6].setComboValues(fieldNames);
   }

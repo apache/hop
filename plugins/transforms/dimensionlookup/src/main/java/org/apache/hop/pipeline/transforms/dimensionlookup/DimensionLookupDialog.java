@@ -18,10 +18,7 @@
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -40,6 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -149,7 +147,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
   private ColumnInfo[] keyColumns;
 
-  private final Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private boolean gotPreviousFields = false;
 
@@ -163,7 +161,6 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     super(
         parent, variables, (BaseTransformMeta<DimensionLookup, DimensionLookupData>) in, tr, sname);
     input = (DimensionLookupMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -691,7 +688,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
 
               setComboBoxes();
@@ -1047,14 +1044,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-
-    // Add the currentMeta fields...
-    final Map<String, Integer> fields = new HashMap<>(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = Const.sortStrings(entries.toArray(new String[0]));
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     keyColumns[1].setComboValues(fieldNames);
     fieldColumns[1].setComboValues(fieldNames);
   }

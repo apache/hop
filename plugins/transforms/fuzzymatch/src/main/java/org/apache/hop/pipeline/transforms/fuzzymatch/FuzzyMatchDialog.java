@@ -17,11 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.DAMERAU_LEVENSHTEIN;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.DOUBLE_METAPHONE;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.JARO;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.JARO_WINKLER;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.LEVENSHTEIN;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.METAPHONE;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.NEEDLEMAN_WUNSH;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.PAIR_SIMILARITY;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.REFINED_SOUNDEX;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.SOUNDEX;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.getDescriptions;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.lookupDescription;
+
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -33,6 +43,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -57,19 +68,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.DAMERAU_LEVENSHTEIN;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.DOUBLE_METAPHONE;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.JARO;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.JARO_WINKLER;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.LEVENSHTEIN;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.METAPHONE;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.NEEDLEMAN_WUNSH;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.PAIR_SIMILARITY;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.REFINED_SOUNDEX;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.SOUNDEX;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.getDescriptions;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.lookupDescription;
 
 public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
@@ -826,23 +824,15 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
           if (lookupTransformMeta != null) {
             try {
               IRowMeta row = pipelineMeta.getTransformFields(variables, lookupTransformMeta);
-              Map<String, Integer> lookupFields = new HashMap<>();
+              List<String> lookupFields = new ArrayList<>();
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                lookupFields.put(row.getValueMeta(i).getName(), i);
+                lookupFields.add(row.getValueMeta(i).getName());
               }
 
               // Something was changed in the row.
               //
-
-              // Add the currentMeta fields...
-              final Map<String, Integer> fields = new HashMap<>(lookupFields);
-
-              Set<String> keySet = fields.keySet();
-              List<String> entries = new ArrayList<>(keySet);
-
-              String[] fieldNames = entries.toArray(new String[0]);
-              Const.sortStrings(fieldNames);
+              String[] fieldNames = ConstUi.sortFieldNames(lookupFields);
               // return fields
               ciReturn[0].setComboValues(fieldNames);
             } catch (HopException e) {

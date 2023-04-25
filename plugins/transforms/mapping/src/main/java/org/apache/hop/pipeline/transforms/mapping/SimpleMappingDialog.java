@@ -475,7 +475,9 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
       MappingVariableMapping mapping = parameters.getVariableMappings().get(i);
       TableItem tableItem = wMappingParameters.table.getItem(i);
       tableItem.setText(1, mapping.getName());
-      tableItem.setText(2, mapping.getValue());
+      if (!Utils.isEmpty(mapping.getValue())) {
+        tableItem.setText(2, mapping.getValue());
+      }
     }
     wMappingParameters.setRowNums();
     wMappingParameters.optWidth(true);
@@ -504,12 +506,12 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
         transforms.add(transformMeta);
       }
     }
-    String[] transformnames = new String[transforms.size()];
-    for (int i = 0; i < transformnames.length; i++) {
-      transformnames[i] = transforms.get(i).getName();
+    String[] transformNames = new String[transforms.size()];
+    for (int i = 0; i < transformNames.length; i++) {
+      transformNames[i] = transforms.get(i).getName();
     }
 
-    return transformnames;
+    return transformNames;
   }
 
   public IRowMeta getFieldsFromTransform(boolean parent, boolean input) throws HopException {

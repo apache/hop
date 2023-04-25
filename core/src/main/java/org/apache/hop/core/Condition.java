@@ -17,6 +17,12 @@
 
 package org.apache.hop.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -35,10 +41,10 @@ import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.w3c.dom.Node;
 
-import java.util.*;
-import java.util.regex.Pattern;
-
-import static org.apache.hop.core.Condition.Function.*;
+import static org.apache.hop.core.Condition.Function.EQUAL;
+import static org.apache.hop.core.Condition.Function.NOT_NULL;
+import static org.apache.hop.core.Condition.Function.NULL;
+import static org.apache.hop.core.Condition.Function.TRUE;
 import static org.apache.hop.core.Condition.Operator.AND;
 import static org.apache.hop.core.Condition.Operator.NONE;
 
@@ -394,7 +400,8 @@ public class Condition implements Cloneable {
         // Old metadata contains a right value block without name, type and so on.  This means: no
         // value
         // Removed the name check, old fixed values do not contain a name element causing regression
-        Object field2 = rightValue != null && rightFieldIndex == -2 ? rightValue.createValueData() : null;
+        Object field2 =
+            rightValue != null && rightFieldIndex == -2 ? rightValue.createValueData() : null;
         if (field2 == null && rightFieldIndex >= 0) {
           fieldMeta2 = rowMeta.getValueMeta(rightFieldIndex);
           field2 = r[rightFieldIndex];
@@ -900,7 +907,14 @@ public class Condition implements Cloneable {
         return null;
       }
       IValueMeta valueMeta = createValueMeta();
-      return valueMeta.convertDataCompatible(new ValueMetaString("text"), text);
+
+      ValueMetaAndData val = new ValueMetaAndData(valueMeta.getName(), text);
+      val.setValueMeta(valueMeta);
+
+      IValueMeta stringValueMeta = new ValueMetaString(valueMeta.getName());
+      stringValueMeta.setConversionMetadata(valueMeta);
+
+      return stringValueMeta.convertDataUsingConversionMetaData(val.getValueData());
     }
 
     /**

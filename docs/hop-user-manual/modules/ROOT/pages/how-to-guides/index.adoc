@@ -22,6 +22,7 @@ under the License.
 
 This page contains a collection of how-to guides to perform a variety of tasks, configurations etc with Apache Hop.
 
-* xref:how-to-guides/apache-hop-web-services-docker.adoc[Using Apache Hop web services in Docker]
+* xref:how-to-guides/joins-lookups.adoc[Joins and lookups in Apache Hop]
+* xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]
 * xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Pipelines and Workflows from Apache Airflow]
-* xref:how-to-guides/joins-lookups.adoc[Joins and lookups]
+* xref:how-to-guides/apache-hop-web-services-docker.adoc[Using Apache Hop web services in Docker]

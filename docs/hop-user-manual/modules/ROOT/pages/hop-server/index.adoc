@@ -22,8 +22,6 @@ under the License.
 
 Hop Server is a lightweight server to run workflows and pipelines with the xref:pipeline/pipeline-run-configurations/native-remote-pipeline-engine.adoc[Remote pipeline] or xref:workflow/workflow-run-configurations/native-remote-workflow-engine.adoc[Remote workflow] run configurations.
 
-Additionally, a Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] and xref:hop-server/async-web-service.adoc[Asynchronous Web Service] metadata types.
-
 == Starting and Stopping Hop Server
 
 === General Use
@@ -617,3 +615,6 @@ The header bar for workflows and pipelines is almost identical (from left to rig
 |Remove pipeline/workflow from list|
 |===
 
+== Hop Server web Services
+
+A Hop Server can also be accessed directly through a number of web services and in combination with the xref:hop-server/web-service.adoc[Web Service] and xref:hop-server/async-web-service.adoc[Asynchronous Web Service] metadata types.

@@ -228,8 +228,10 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
                 for (int i = 0; i < row.size(); i++) {
                   fieldNames[i] = row.getValueMeta(i).getName();
                 }
-
-                Const.sortStrings(fieldNames);
+                
+                if ( PropsUi.getInstance().isSortFieldByName() ) {
+                  Const.sortStrings(fieldNames);
+                }
               } catch (HopException e) {
                 logError(BaseMessages.getString(PKG, "CoalesceDialog.Log.UnableToFindInput"));
               }

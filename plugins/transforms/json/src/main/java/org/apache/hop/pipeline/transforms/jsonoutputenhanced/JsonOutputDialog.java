@@ -28,6 +28,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -64,10 +65,7 @@ import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class JsonOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JsonOutputMeta.class; // needed by Translator!!
@@ -136,13 +134,12 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
   private Group wSettings;
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   public JsonOutputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (JsonOutputMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -443,7 +440,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                inputFields.add(row.getValueMeta(i).getName());
               }
               setFieldListComboBoxes();
             } catch (HopException e) {
@@ -948,17 +945,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   protected void setFieldListComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colinf[0].setComboValues(fieldNames);
     keyColInf[0].setComboValues(fieldNames);
   }

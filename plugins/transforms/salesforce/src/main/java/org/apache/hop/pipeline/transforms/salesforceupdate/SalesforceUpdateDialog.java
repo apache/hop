@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformDialog;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -70,16 +71,13 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   private static final Class<?> PKG = SalesforceUpdateMeta.class; // For Translator
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciReturn;
 
@@ -114,7 +112,6 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, in, pipelineMeta, sname);
     input = (SalesforceUpdateMeta) in;
-    inputFields = new HashMap<>();
   }
 
   @Override
@@ -492,7 +489,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), Integer.valueOf(i));
+                inputFields.add(row.getValueMeta(i).getName());
               }
 
               setComboBoxes();
@@ -504,7 +501,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
                           for (int i = 0; i < wReturn.table.getItemCount(); i++) {
                             TableItem it = wReturn.table.getItem(i);
                             if (!Utils.isEmpty(it.getText(2))) {
-                              if (!inputFields.containsKey(it.getText(2))) {
+                              if (!inputFields.contains(it.getText(2))) {
                                 it.setBackground(GuiResource.getInstance().getColorRed());
                               }
                             }
@@ -881,16 +878,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     // return fields
     ciReturn[1].setComboValues(fieldNames);
   }

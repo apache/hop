@@ -18,15 +18,14 @@
 package org.apache.hop.i18n;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 
 public class GlobalMessages extends AbstractMessageHandler {
   protected static Class<?> PKG = GlobalMessages.class; // For Translator
@@ -42,7 +41,7 @@ public class GlobalMessages extends AbstractMessageHandler {
 
   public static final String[] localeCodes = {
     "en_US", "nl_NL", "zh_CN", "es_ES", "fr_FR", "de_DE", "pt_BR", "pt_PT", "es_AR", "no_NO",
-    "it_IT", "ja_JP", "ko_KR"
+    "it_IT", "ja_JP", "ko_KR", "pl_PL"
   };
 
   public static final String[] localeDescr = {
@@ -59,22 +58,24 @@ public class GlobalMessages extends AbstractMessageHandler {
     "Italian (Italy)",
     "Japanese (Japan) (Beta)",
     "Korean (Korea) (Beta)",
+    "Polski (Beta)",
   };
 
   public static final String[] localeBetaStatus = {
-          "N", //"English (US)"
-          "Y", //"Nederlands"
-          "N", //"Simplified Chinese"
-          "Y", //"Espa\u00F1ol (Spain)"
-          "N", //"Fran\u00E7ais"
-          "Y", //"Deutsch"
-          "Y", //"Portuguese (Brazil)"
-          "Y", //"Portuguese (Portugal)"
-          "Y", //"Espa\u00F1ol (Argentina)"
-          "Y", //"Norwegian (Norway)"
-          "N", //"Italian (Italy)"
-          "Y", //"Japanese (Japan)"
-          "Y", //"Korean (Korea)"
+    "N", // "English (US)"
+    "Y", // "Nederlands"
+    "N", // "Simplified Chinese"
+    "Y", // "Espa\u00F1ol (Spain)"
+    "N", // "Fran\u00E7ais"
+    "Y", // "Deutsch"
+    "Y", // "Portuguese (Brazil)"
+    "Y", // "Portuguese (Portugal)"
+    "Y", // "Espa\u00F1ol (Argentina)"
+    "Y", // "Norwegian (Norway)"
+    "N", // "Italian (Italy)"
+    "Y", // "Japanese (Japan)"
+    "Y", // "Korean (Korea)"
+    "Y", // "Polski (Beta)"
   };
 
   protected static GlobalMessages GMinstance = null;

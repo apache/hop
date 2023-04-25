@@ -21,6 +21,14 @@ package org.apache.hop.neo4j.execution;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -77,15 +85,6 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.Value;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @GuiPlugin(description = "Neo4j execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
     id = "neo4j-location",
@@ -114,6 +113,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String EP_FAILED = "failed";
   public static final String EP_DETAILS = "details";
   public static final String EP_CONTAINER_ID = "containerId";
+  public static final String EP_EXECUTION_END_DATE = "executionEndDate";
 
   public static final String CL_EXECUTION_METRIC = "ExecutionMetric";
   public static final String CP_ID = "id";
@@ -639,7 +639,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
               .withValue(EP_CHILD_IDS, state.getChildIds())
               .withValue(EP_FAILED, state.isFailed())
               .withValue(EP_DETAILS, state.getDetails())
-              .withValue(EP_CONTAINER_ID, state.getContainerId());
+              .withValue(EP_CONTAINER_ID, state.getContainerId())
+              .withValue(EP_EXECUTION_END_DATE, state.getExecutionEndDate());
 
       transaction.run(stateCypherBuilder.cypher(), stateCypherBuilder.parameters());
 
@@ -701,7 +702,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
                 EP_CHILD_IDS,
                 EP_FAILED,
                 EP_DETAILS,
-                EP_CONTAINER_ID);
+                EP_CONTAINER_ID,
+                EP_EXECUTION_END_DATE);
     Result result = transaction.run(executionBuilder.cypher(), executionBuilder.parameters());
 
     // We expect exactly one result
@@ -724,7 +726,8 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
             .withChildIds(getList(record, EP_CHILD_IDS))
             .withFailed(getBoolean(record, EP_FAILED))
             .withDetails(getMap(record, EP_DETAILS))
-            .withContainerId(getString(record, EP_CONTAINER_ID));
+            .withContainerId(getString(record, EP_CONTAINER_ID))
+            .withExecutionEndDate(getDate(record, EP_EXECUTION_END_DATE));
 
     // Add the metrics to the state...
     //

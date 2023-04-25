@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
@@ -238,7 +239,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   private Link wDevelopedBy;
   private FormData fdDevelopedBy;
 
-  private Map<String, Integer> inputFields;
+  private final List<String> inputFields = new ArrayList<>();
 
   private Display display;
 
@@ -250,7 +251,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (SnowflakeBulkLoaderMeta) in;
-    inputFields = new HashMap<>();
     this.pipelineMeta = pipelineMeta;
   }
 
@@ -1075,7 +1075,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
-                inputFields.put(row.getValueMeta(i).getName(), i);
+                inputFields.add(row.getValueMeta(i).getName());
               }
               setComboBoxes();
             } catch (HopException e) {
@@ -1168,17 +1168,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   private void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<>();
-
-    // Add the currentMeta fields...
-    fields.putAll(inputFields);
-
-    Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<>(keySet);
-
-    String[] fieldNames = entries.toArray(new String[entries.size()]);
-
-    Const.sortStrings(fieldNames);
+    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     colinf[0].setComboValues(fieldNames);
   }
 
