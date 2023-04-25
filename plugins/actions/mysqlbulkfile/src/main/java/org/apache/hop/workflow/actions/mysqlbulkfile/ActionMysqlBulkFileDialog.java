@@ -594,7 +594,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setSchemaName(wSchemaName.getText());
     action.setTableName(wTableName.getText());
     action.setFilename(wFilename.getText());
@@ -620,7 +620,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(
@@ -642,10 +642,10 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
   /** Get a list of columns, comma separated, allow the user to select from it. */
   private void getListColumns() {
     if (!Utils.isEmpty(wTableName.getText())) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
       if (databaseMeta != null) {
-        Database database = new Database(loggingObject, variables, databaseMeta);
-        try {
+        
+        try (Database database = new Database(loggingObject, variables, databaseMeta)) {
           database.connect();
           IRowMeta row = database.getTableFieldsMeta(wSchemaName.getText(), wTableName.getText());
           String[] available = row.getFieldNames();
@@ -681,8 +681,6 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
               BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
               BaseMessages.getString(PKG, "ActionMysqlBulkFile.ConnectionError2.DialogMessage"),
               e);
-        } finally {
-          database.disconnect();
         }
       }
     }
