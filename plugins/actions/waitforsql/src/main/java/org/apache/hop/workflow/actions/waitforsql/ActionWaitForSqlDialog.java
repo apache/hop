@@ -588,7 +588,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getSql() {
-    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (inf != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -734,7 +734,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
 
     action.schemaName = wSchemaname.getText();
     action.tableName = wTablename.getText();
@@ -756,7 +756,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(

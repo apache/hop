@@ -275,14 +275,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   protected void checkConnection() throws HopDatabaseException {
     // check connection
     // connect and disconnect
-    Database dbchecked = null;
-    try {
-      dbchecked = new Database(this, this, connection);
+    try (Database dbchecked = new Database(this, this, connection)) {
       dbchecked.connect();
-    } finally {
-      if (dbchecked != null) {
-        dbchecked.disconnect();
-      }
     }
   }
 
@@ -439,6 +433,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     boolean successOK = false;
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
+    
     Database db = new Database(this, this, connection);
     try {
       db.connect();
