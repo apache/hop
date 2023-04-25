@@ -319,7 +319,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setArgFromPrevious(wPrevious.getSelection());
 
     int nrItems = wFields.nrNonEmpty();
@@ -350,10 +350,10 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   }
 
   private void getTableName() {
-    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+      
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] tableNames = database.getTablenames();
         Arrays.sort(tableNames);
@@ -378,8 +378,6 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "ActionTruncateTables.ConnectionError.DialogMessage"),
             e);
-      } finally {
-        database.disconnect();
       }
       wFields.removeEmptyRows();
       wFields.setRowNums();

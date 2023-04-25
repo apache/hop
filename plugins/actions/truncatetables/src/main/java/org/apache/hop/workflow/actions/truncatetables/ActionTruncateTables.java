@@ -225,9 +225,8 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
         return result;
       }
     }
-    if (connection != null) {
-      Database db = new Database(this, this, connection);
-      try {
+    if (connection != null) {      
+      try (Database db = new Database(this, this, connection)) {
         db.connect();
         if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments
 
@@ -291,11 +290,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
         result.setNrErrors(1);
         logError(
             BaseMessages.getString(
-                PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));
-      } finally {
-        if (db != null) {
-          db.disconnect();
-        }
+                PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));     
       }
     } else {
       result.setNrErrors(1);
