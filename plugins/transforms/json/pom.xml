@@ -36,7 +36,7 @@
         <guava.version>31.1-jre</guava.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
         <dependency.org.powermock.version>2.0.9</dependency.org.powermock.version>
-        <json-path.version>2.7.0</json-path.version>
+        <json-path.version>2.8.0</json-path.version>
         <jsch.version>0.1.54</jsch.version>
     </properties>
 

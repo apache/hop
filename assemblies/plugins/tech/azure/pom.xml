@@ -62,7 +62,7 @@
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>accessors-smart</artifactId>
-            <version>${json-smart.version}</version>
+            <version>${accessors-smart.version}</version>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
