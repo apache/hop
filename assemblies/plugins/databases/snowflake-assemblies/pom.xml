@@ -32,6 +32,10 @@
     <name>Hop Assemblies Plugins Databases Snowflake</name>
     <description />
 
+    <properties>
+        <snowflake.jdbc.version>3.13.30</snowflake.jdbc.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -42,7 +46,7 @@
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
-            <version>3.13.19</version>
+            <version>${snowflake.jdbc.version}</version>
         </dependency>
     </dependencies>
 
