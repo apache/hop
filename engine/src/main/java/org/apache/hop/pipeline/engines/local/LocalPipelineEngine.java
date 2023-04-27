@@ -513,11 +513,14 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     } finally {
       // We're now certain all listeners fired. We can close the location.
       //
-      try {
-        executionInfoLocation.getExecutionInfoLocation().close();
-      } catch (Exception e) {
-        log.logError(
-            "Error closing execution information location: " + executionInfoLocation.getName(), e);
+      if (executionInfoLocation != null) {
+        try {
+          executionInfoLocation.getExecutionInfoLocation().close();
+        } catch (Exception e) {
+          log.logError(
+              "Error closing execution information location: " + executionInfoLocation.getName(),
+              e);
+        }
       }
     }
   }
