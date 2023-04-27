@@ -323,13 +323,12 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
           column.setLength(DataType.SHORT_DATE_TIME.getFixedSize());
           break;
         case IValueMeta.TYPE_STRING:
-          if (length < 255) {
+          if (length < DataType.TEXT.getMaxSize()/DataType.TEXT.getUnitSize() ) {
             column.setType(DataType.TEXT);
-            column.setLength(DataType.TEXT.getUnitSize());
           } else {
-            column.setType(DataType.MEMO);
-            column.setLength(DataType.MEMO.getUnitSize());
+            column.setType(DataType.MEMO);            
           }
+          column.setLength(length);
           break;
         case IValueMeta.TYPE_BINARY:
           column.setType(DataType.BINARY);
