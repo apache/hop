@@ -50,6 +50,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
   public static final String PARAMETER_LOCATION = "location";
   public static final String PARAMETER_CHILDREN = "children";
   public static final String PARAMETER_LIMIT = "limit";
+  public static final String PARAMETER_INCLUDE_LARGE_LOGGING = "includeLargeLogging";
   public static final String PARAMETER_ID = "id";
   public static final String PARAMETER_NAME = "name";
   public static final String PARAMETER_EXEC_TYPE = "execType";
@@ -57,6 +58,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
 
   public enum Type {
     STATE,
+    STATE_LOGGING,
     IDS,
     EXECUTION,
     CHILDREN,
@@ -147,6 +149,25 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
               ExecutionState executionState =
                   location.getExecutionInfoLocation().getExecutionState(id);
               outputExecutionStateAsJson(out, executionState);
+            }
+            break;
+          case STATE_LOGGING:
+            {
+              // Get the logging text for the state of an execution: we need an execution ID
+              //
+              String id = request.getParameter(PARAMETER_ID);
+              if (StringUtils.isEmpty(id)) {
+                throw new HopException(
+                    "Please specify the ID of execution state with parameter 'id'");
+              }
+              // -1 means: no limit. The underlying plugin(s) might still limit though.
+              // Log files can get really large.
+              //
+              String sizeLimitString = request.getParameter(PARAMETER_LIMIT);
+              int sizeLimit = Const.toInt(sizeLimitString, -1);
+              String loggingText =
+                  location.getExecutionInfoLocation().getExecutionStateLoggingText(id, sizeLimit);
+              outputIdAsJson(out, loggingText);
             }
             break;
           case IDS:

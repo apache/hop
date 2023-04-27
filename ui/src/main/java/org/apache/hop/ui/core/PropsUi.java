@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -51,9 +53,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.Widget;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
  * fonts, positions of windows, etc.
@@ -71,7 +70,7 @@ public class PropsUi extends Props {
   private static final String SHOW_HELP_TOOL_TIPS = "ShowHelpToolTips";
 
   private static final String HIDE_MENU_BAR = "HideMenuBar";
-  
+
   private static final String SORT_FIELD_BY_NAME = "SortFieldByName";
 
   private static final String CANVAS_GRID_SIZE = "CanvasGridSize";
@@ -87,6 +86,9 @@ public class PropsUi extends Props {
   private static final String DARK_MODE = "DarkMode";
 
   private static final String GLOBAL_ZOOMFACTOR = "GlobalZoomFactor";
+
+  private static final String MAX_EXECUTION_LOGGING_TEXT_SIZE = "MaxExecutionLoggingTextSize";
+  public static final int DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE = 2000000;
 
   private Map<RGB, RGB> contrastingColors;
 
@@ -155,30 +157,37 @@ public class PropsUi extends Props {
         }
       }
     }
-    
+
     // Various tweaks to improve dark theme experience on Windows
     if (OsHelper.isWindows() && isDarkMode()) {
       display.setData("org.eclipse.swt.internal.win32.useDarkModeExplorerTheme", true);
       display.setData("org.eclipse.swt.internal.win32.useShellTitleColoring", true);
-      display.setData("org.eclipse.swt.internal.win32.menuBarForegroundColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.menuBarForegroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
-      display.setData("org.eclipse.swt.internal.win32.menuBarBackgroundColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.menuBarBackgroundColor",
           new Color(display, 0x30, 0x30, 0x30));
-      display.setData("org.eclipse.swt.internal.win32.menuBarBorderColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.menuBarBorderColor",
           new Color(display, 0x50, 0x50, 0x50));
       display.setData("org.eclipse.swt.internal.win32.all.use_WS_BORDER", true);
-      display.setData("org.eclipse.swt.internal.win32.Table.headerLineColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.Table.headerLineColor",
           new Color(display, 0x50, 0x50, 0x50));
-      display.setData("org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.Label.disabledForegroundColor",
           new Color(display, 0x80, 0x80, 0x80));
       display.setData("org.eclipse.swt.internal.win32.Combo.useDarkTheme", true);
-      display.setData("org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.ToolBar.backgroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
-      display.setData("org.eclipse.swt.internal.win32.Combo.backgroundColor",
+      display.setData(
+          "org.eclipse.swt.internal.win32.Combo.backgroundColor",
           new Color(display, 0xD0, 0xD0, 0xD0));
       display.setData("org.eclipse.swt.internal.win32.ProgressBar.useColors", true);
     }
-    
+
     if (display != null) {
       FontData fontData = getDefaultFont();
       setProperty(STRING_FONT_DEFAULT_NAME, fontData.getName());
@@ -461,7 +470,7 @@ public class PropsUi extends Props {
 
   public static void setLook(Widget widget) {
     int style = WIDGET_STYLE_DEFAULT;
-    if (widget instanceof Table ) {
+    if (widget instanceof Table) {
       style = WIDGET_STYLE_TABLE;
     } else if (widget instanceof Tree) {
       style = WIDGET_STYLE_TREE;
@@ -480,7 +489,7 @@ public class PropsUi extends Props {
     }
 
     setLook(widget, style);
-     
+
     if (widget instanceof Composite) {
       Composite composite = (Composite) widget;
       for (Control child : composite.getChildren()) {
@@ -498,14 +507,14 @@ public class PropsUi extends Props {
       setLookOnLinux(widget, style);
     }
   }
-  
+
   protected static void setLookOnWindows(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
     Color background = null;
-    Color foreground = null; 
-    
-    if ( widget instanceof Shell ) {
+    Color foreground = null;
+
+    if (widget instanceof Shell) {
       background = gui.getColorWhite();
       foreground = gui.getColorBlack();
       Shell shell = (Shell) widget;
@@ -514,7 +523,7 @@ public class PropsUi extends Props {
       shell.setBackground(gui.getColorWhite());
       return;
     }
-    
+
     switch (style) {
       case WIDGET_STYLE_DEFAULT:
         background = gui.getColorWhite();
@@ -525,16 +534,16 @@ public class PropsUi extends Props {
         background = gui.getColorWhite();
         foreground = gui.getColorBlack();
         break;
-      case WIDGET_STYLE_TABLE: 
+      case WIDGET_STYLE_TABLE:
         if (PropsUi.getInstance().isDarkMode()) {
           background = gui.getColorWhite();
-          foreground = gui.getColorBlack();       
-          Table table = (Table) widget;  
+          foreground = gui.getColorBlack();
+          Table table = (Table) widget;
           table.setHeaderBackground(gui.getColorLightGray());
-          table.setHeaderForeground(gui.getColorDarkGray());       
+          table.setHeaderForeground(gui.getColorDarkGray());
         }
         break;
-      case WIDGET_STYLE_TREE: 
+      case WIDGET_STYLE_TREE:
         if (PropsUi.getInstance().isDarkMode()) {
           background = gui.getColorWhite();
           foreground = gui.getColorBlack();
@@ -544,7 +553,7 @@ public class PropsUi extends Props {
         }
         break;
       case WIDGET_STYLE_TOOLBAR:
-        if (PropsUi.getInstance().isDarkMode() ) {
+        if (PropsUi.getInstance().isDarkMode()) {
           background = gui.getColorLightGray();
           foreground = gui.getColorBlack();
         }
@@ -552,7 +561,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TAB:
         CTabFolder tabFolder = (CTabFolder) widget;
         tabFolder.setBorderVisible(true);
-        tabFolder.setTabHeight(28);        
+        tabFolder.setTabHeight(28);
         if (PropsUi.getInstance().isDarkMode()) {
           tabFolder.setBackground(gui.getColorWhite());
           tabFolder.setForeground(gui.getColorBlack());
@@ -560,7 +569,7 @@ public class PropsUi extends Props {
           tabFolder.setSelectionForeground(gui.getColorBlack());
         }
         break;
-      case WIDGET_STYLE_PUSH_BUTTON:   
+      case WIDGET_STYLE_PUSH_BUTTON:
         break;
       default:
         background = gui.getColorGray();
@@ -578,10 +587,9 @@ public class PropsUi extends Props {
 
     if (foreground != null && !foreground.isDisposed() && (widget instanceof Control)) {
       ((Control) widget).setForeground(foreground);
-    }    
+    }
   }
-  
-  
+
   protected static void setLookOnMac(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
@@ -610,7 +618,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TABLE:
         background = gui.getColorLightGray();
         foreground = gui.getColorDarkGray();
-        Table table = (Table) widget;  
+        Table table = (Table) widget;
         table.setHeaderBackground(gui.getColorLightGray());
         table.setHeaderForeground(gui.getColorDarkGray());
         break;
@@ -654,7 +662,7 @@ public class PropsUi extends Props {
       ((Control) widget).setForeground(foreground);
     }
   }
-  
+
   protected static void setLookOnLinux(final Widget widget, int style) {
     final GuiResource gui = GuiResource.getInstance();
     Font font = gui.getFontDefault();
@@ -673,7 +681,7 @@ public class PropsUi extends Props {
       case WIDGET_STYLE_TABLE:
         background = gui.getColorLightGray();
         foreground = gui.getColorDarkGray();
-        Table table = (Table) widget;  
+        Table table = (Table) widget;
         table.setHeaderBackground(gui.getColorLightGray());
         table.setHeaderForeground(gui.getColorDarkGray());
         break;
@@ -717,7 +725,7 @@ public class PropsUi extends Props {
       ((Control) widget).setForeground(foreground);
     }
   }
-  
+
   /**
    * @return Returns the display.
    */
@@ -800,7 +808,7 @@ public class PropsUi extends Props {
     return YES.equalsIgnoreCase(
         System.getProperty(ConstUi.HOP_GUI_HIDE_MENU, getProperty(HIDE_MENU_BAR, YES)));
   }
-  
+
   public void setSortFieldByName(boolean sort) {
     setProperty(SORT_FIELD_BY_NAME, sort ? YES : NO);
   }
@@ -809,7 +817,7 @@ public class PropsUi extends Props {
     return YES.equalsIgnoreCase(
         System.getProperty(SORT_FIELD_BY_NAME, getProperty(SORT_FIELD_BY_NAME, YES)));
   }
-  
+
   public void setShowingHelpToolTips(boolean show) {
     setProperty(SHOW_HELP_TOOL_TIPS, show ? YES : NO);
   }
@@ -1008,6 +1016,18 @@ public class PropsUi extends Props {
 
   public void setGlobalZoomFactor(double globalZoomFactor) {
     setProperty(GLOBAL_ZOOMFACTOR, Double.toString(globalZoomFactor));
+  }
+
+  public int getMaxExecutionLoggingTextSize() {
+    return Const.toInt(
+        getProperty(
+            MAX_EXECUTION_LOGGING_TEXT_SIZE,
+            Integer.toString(DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE)),
+        DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE);
+  }
+
+  public void setMaxExecutionLoggingTextSize(int maxExecutionLoggingTextSize) {
+    setProperty(MAX_EXECUTION_LOGGING_TEXT_SIZE, Integer.toString(maxExecutionLoggingTextSize));
   }
 
   protected static final String[] globalZoomFactorLevels =

@@ -19,6 +19,16 @@
 package org.apache.hop.execution.local;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -39,14 +49,6 @@ import org.apache.hop.execution.plugin.ExecutionInfoLocationPlugin;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-
 @GuiPlugin(description = "File execution information location GUI elements")
 @ExecutionInfoLocationPlugin(
     id = "local-folder",
@@ -56,6 +58,9 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
   public static final String FILENAME_EXECUTION_JSON = "execution.json";
   public static final String FILENAME_STATE_JSON = "state.json";
+  public static final String FILENAME_STATE_LOG = "state.log";
+
+  public static final int MAX_JSON_LOGGING_TEXT_SIZE = 2000;
 
   @HopMetadataProperty protected String pluginId;
 
@@ -197,6 +202,15 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       //
       String updateFilename = getUpdateFilename(executionState);
 
+      String loggingText = executionState.getLoggingText();
+      boolean saveLoggingToFile =
+          loggingText != null && loggingText.length() > MAX_JSON_LOGGING_TEXT_SIZE;
+      if (saveLoggingToFile) {
+        // Only save the first 10k logging text in the JSON
+        //
+        executionState.setLoggingText(loggingText.substring(0, MAX_JSON_LOGGING_TEXT_SIZE));
+      }
+
       // Create the folder(s) of the parent if needed:
       //
       HopVfs.getFileObject(updateFilename).getParent().createFolder();
@@ -208,10 +222,10 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
       // Also append to a log file...
       //
-      if (executionState.getLoggingText() != null) {
+      if (saveLoggingToFile) {
         String logFilename = getLogFilename(executionState);
         try (OutputStream outputStream = HopVfs.getOutputStream(logFilename, false)) {
-          outputStream.write(executionState.getLoggingText().getBytes(StandardCharsets.UTF_8));
+          outputStream.write(loggingText.getBytes(StandardCharsets.UTF_8));
         }
       }
     } catch (Exception e) {
@@ -220,7 +234,13 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public synchronized ExecutionState getExecutionState(String executionId) throws HopException {
+  public ExecutionState getExecutionState(String executionId) throws HopException {
+    return getExecutionState(executionId, true);
+  }
+
+  @Override
+  public synchronized ExecutionState getExecutionState(String executionId, boolean includeLogging)
+      throws HopException {
     try {
       String updateFilename = getUpdateFilename(executionId);
       if (!HopVfs.fileExists(updateFilename)) {
@@ -228,10 +248,73 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       }
       try (InputStream inputStream = HopVfs.getInputStream(updateFilename)) {
         ObjectMapper mapper = HopJson.newMapper();
-        return mapper.readValue(inputStream, ExecutionState.class);
+        ExecutionState executionState = mapper.readValue(inputStream, ExecutionState.class);
+
+        // See if we have a separate log file, for larger logging texts
+        //
+        if (includeLogging) {
+          // Load at most 20M characters worth of logging text.
+          //
+          executionState.setLoggingText(getExecutionStateLoggingText(executionId, 20000000));
+        }
+        return executionState;
       }
     } catch (Exception e) {
       throw new HopException("Unable to get the execution status for ID " + executionId, e);
+    }
+  }
+
+  @Override
+  public String getExecutionStateLoggingText(String executionId, int sizeLimit)
+      throws HopException {
+    try {
+      // Get the execution state to determine the filename.
+      // We don't load the logging for performance and to avoid an infinite loop.
+      //
+      ExecutionState state = getExecutionState(executionId, false);
+      if (state==null) {
+        return null;
+      }
+      return getExecutionStateLoggingText(state, sizeLimit);
+    } catch (Exception e) {
+      throw new HopException("Error reading state logging text for execution ID " + executionId, e);
+    }
+  }
+
+  protected String getExecutionStateLoggingText(ExecutionState executionState, int sizeLimit)
+      throws HopException {
+    try {
+      // If there's a separate log file we'll read everything from there.
+      String logFilename = getLogFilename(executionState);
+      if (HopVfs.fileExists(logFilename)) {
+        // Only read the first part of the file, if a size limit was set.
+        //
+        try (Reader reader =
+            new BufferedReader(
+                new InputStreamReader(
+                    HopVfs.getInputStream(logFilename), StandardCharsets.UTF_8))) {
+          StringBuilder log = new StringBuilder();
+          int c;
+          while ((c = reader.read()) != -1 && (sizeLimit <= 0 || sizeLimit > log.length())) {
+            log.append((char) c);
+          }
+          return log.toString();
+        }
+      } else {
+        if (StringUtils.isEmpty(executionState.getLoggingText())) {
+          return null;
+        }
+        // Return the first part of the logging text only.
+        //
+        return executionState
+            .getLoggingText()
+            .substring(0, Math.min(sizeLimit, executionState.getLoggingText().length()));
+      }
+    } catch (Exception e) {
+      throw new HopException(
+          "Error loading the logging text associated with the execution state of "
+              + executionState.getId(),
+          e);
     }
   }
 

@@ -90,7 +90,7 @@ At the bottom you have different tabs:
 |In case you're examining a pipeline execution you can see the overall transform metrics if there are any.
 
 |Log
-|Here you can find the pipeline or workflow logging text
+|Here you can find the pipeline or workflow logging text. The logging text is loaded lazily when the tab is selected.  The first part of the log is shown up to the limit specified in the configuration perspective under the option `Maximum execution logging text size` which is specified in number of characters.
 
 |Data
 |During the execution of a pipeline or workflow Hop can capture all sorts of data. Which data depends on the type of work that is being done and on how capturing is configured.  For example the amount of data captured depends on the xref:metadata-types/execution-data-profile.adoc[Execution Data Profile] you set for a pipeline or whether of not there was interesting information after the execution of an action.

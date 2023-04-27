@@ -889,6 +889,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         System.exit(1);
       } else {
         hopRun.run();
+        System.out.println("HopRun exit.");
         if (hopRun.isFinishedWithoutError()) {
           System.exit(0);
         } else {

@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -26,8 +27,6 @@ import org.apache.hop.execution.plugin.ExecutionInfoLocationPluginType;
 import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.IHopMetadataObjectFactory;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-
-import java.util.List;
 
 /**
  * This interface describes how execution information can be interacted with for a certain location.
@@ -89,13 +88,36 @@ public interface IExecutionInfoLocation extends Cloneable {
   boolean deleteExecution(String executionId) throws HopException;
 
   /**
-   * Get the execution state for an execution
+   * Get the execution state for an execution. Any large logging text associated with the requested
+   * execution state is also loaded.
    *
    * @param executionId The id of the execution
    * @return The state of the execution or null if not found
    * @throws HopException In case there was a problem reading the state
    */
   ExecutionState getExecutionState(String executionId) throws HopException;
+
+  /**
+   * Get the execution state for an execution
+   *
+   * @param executionId The id of the execution
+   * @param includeLogging Set to true if the logging text (can be big) also needs to be loaded.
+   * @return The state of the execution or null if not found
+   * @throws HopException In case there was a problem reading the state
+   */
+  ExecutionState getExecutionState(String executionId, boolean includeLogging)
+      throws HopException;
+
+  /**
+   * Load the logging text of an execution state separately.
+   *
+   * @param executionId The id of the execution to look for.
+   * @param sizeLimit The maximum amount of characters to load from the logging text.
+   *                  Set the limit to <=0 if you want to load everything up to a global limit of usually 20MB.
+   * @return The complete logging text
+   * @throws HopException
+   */
+  String getExecutionStateLoggingText(String executionId, int sizeLimit) throws HopException;
 
   /**
    * register output data for a given transform

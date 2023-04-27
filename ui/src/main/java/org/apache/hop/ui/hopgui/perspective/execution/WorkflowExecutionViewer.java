@@ -18,6 +18,15 @@
 
 package org.apache.hop.ui.hopgui.perspective.execution;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
@@ -97,16 +106,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.w3c.dom.Node;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @GuiPlugin
 public class WorkflowExecutionViewer extends BaseExecutionViewer
     implements IExecutionViewer, PaintListener, MouseListener {
@@ -140,7 +139,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   private TableView infoView;
   private CTabItem logTab;
   private CTabItem dataTab;
-  private Text loggingText;
   private SashForm dataSash;
   private org.eclipse.swt.widgets.List dataList;
   private TableView dataView;
@@ -163,7 +161,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     // Calculate the pipeline size only once since the metadata is read-only
     //
     this.maximum = workflowMeta.getMaximum();
-    
+
     addWidgets();
   }
 
@@ -234,7 +232,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     // where the focus should be
     //
     hopGui.replaceKeyboardShortcutListeners(this);
-    
+
     tabFolder.setSelection(0);
     sash.setWeights(60, 40);
   }
@@ -278,7 +276,9 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-      executionState = iLocation.getExecutionState(execution.getId());
+      // Don't load execution logging since that can be a lot of data at times.
+      //
+      executionState = iLocation.getExecutionState(execution.getId(), false);
       if (executionState == null) {
         return;
       }
@@ -312,10 +312,6 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       infoView.add("Container ID", executionState.getContainerId());
 
       infoView.optimizeTableView();
-
-      loggingText.setText(Const.NVL(executionState.getLoggingText(), ""));
-      // Scroll to the bottom
-      loggingText.setSelection(loggingText.getCharCount());
 
       // Cache the information of all the executed actions...
       //
@@ -468,6 +464,16 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
     PropsUi.setLook(loggingText);
 
     logTab.setControl(loggingText);
+
+    // When the logging tab comes into focus, re-load the logging text
+    //
+    tabFolder.addListener(
+        SWT.Selection,
+        e -> {
+          if (tabFolder.getSelection() == logTab) {
+            refreshLoggingText();
+          }
+        });
   }
 
   private void addPluginTabs() {
@@ -965,10 +971,11 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         child = childExecutions.get(index);
       }
 
-      // Open this one
+      // Open this execution with state. Don't load execution logging.
       //
-      perspective.createExecutionViewer(
-          locationName, child, iLocation.getExecutionState(child.getId()));
+      //
+      ExecutionState state = iLocation.getExecutionState(child.getId(), false);
+      perspective.createExecutionViewer(locationName, child, state);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error drilling down into selected action", e);
     }
@@ -1002,10 +1009,10 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
       Execution grandParent = iLocation.getExecution(grandParentId);
 
-      // Open this one
+      // Open this execution with state. Don't load the logging text.
       //
-      perspective.createExecutionViewer(
-          locationName, grandParent, iLocation.getExecutionState(grandParent.getId()));
+      ExecutionState state = iLocation.getExecutionState(grandParent.getId(), false);
+      perspective.createExecutionViewer(locationName, grandParent, state);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error navigating up to parent execution", e);
     }

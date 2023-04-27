@@ -676,17 +676,24 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
 
   @Override
   public ExecutionState getExecutionState(String executionId) throws HopException {
+    return getExecutionState(executionId, true);
+  }
+
+  @Override
+  public ExecutionState getExecutionState(String executionId, boolean includeLogging)
+      throws HopException {
     synchronized (this) {
       try {
         return session.readTransaction(
-            transaction -> getNeo4jExecutionState(transaction, executionId));
+            transaction -> getNeo4jExecutionState(transaction, executionId, includeLogging));
       } catch (Exception e) {
         throw new HopException("Error getting execution from Neo4j", e);
       }
     }
   }
 
-  private ExecutionState getNeo4jExecutionState(Transaction transaction, String executionId) {
+  private ExecutionState getNeo4jExecutionState(
+      Transaction transaction, String executionId, boolean includeLogging) {
     CypherQueryBuilder executionBuilder =
         CypherQueryBuilder.of()
             .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
@@ -713,13 +720,20 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
     }
     org.neo4j.driver.Record record = result.next();
 
+    // Only load logging text if we're asking for it specifically.
+    //
+    String loggingText = null;
+    if (includeLogging) {
+      loggingText = getString(record, EP_LOGGING_TEXT);
+    }
+
     ExecutionStateBuilder stateBuilder =
         ExecutionStateBuilder.of()
             .withId(executionId)
             .withName(getString(record, EP_NAME))
             .withCopyNr(getString(record, EP_COPY_NR))
             .withParentId(getString(record, EP_PARENT_ID))
-            .withLoggingText(getString(record, EP_LOGGING_TEXT))
+            .withLoggingText(loggingText)
             .withExecutionType(ExecutionType.valueOf(getString(record, EP_EXECUTION_TYPE)))
             .withStatusDescription(getString(record, EP_STATUS_DESCRIPTION))
             .withUpdateTime(getDate(record, EP_UPDATE_TIME))
@@ -766,6 +780,48 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
+  public String getExecutionStateLoggingText(String executionId, int sizeLimit)
+      throws HopException {
+    synchronized (this) {
+      try {
+        return session.readTransaction(
+            transaction -> getNeo4jExecutionStateLoggingText(transaction, executionId, sizeLimit));
+      } catch (Exception e) {
+        throw new HopException("Error getting execution from Neo4j", e);
+      }
+    }
+  }
+
+  private String getNeo4jExecutionStateLoggingText(
+      Transaction transaction, String executionId, int sizeLimit) {
+    CypherQueryBuilder executionBuilder =
+        CypherQueryBuilder.of()
+            .withLabelAndKey("n", EL_EXECUTION, EP_ID, executionId)
+            .withReturnValues("n", EP_LOGGING_TEXT);
+    Result result = transaction.run(executionBuilder.cypher(), executionBuilder.parameters());
+
+    // We expect exactly one result
+    //
+    if (!result.hasNext()) {
+      return null;
+    }
+    org.neo4j.driver.Record record = result.next();
+
+    // Only return the string up to the size limit
+    //
+    String loggingText = getString(record, EP_LOGGING_TEXT);
+    if (loggingText == null) {
+      return null;
+    }
+    if (sizeLimit <= 0) {
+      return loggingText;
+    }
+    // Return at most 20MB
+    //
+    return loggingText.substring(0, Math.min(sizeLimit, loggingText.length()));
+  }
+
+  @Override
   public List<Execution> findExecutions(String parentExecutionId) throws HopException {
     synchronized (this) {
       try {
@@ -805,7 +861,7 @@ public class NeoExecutionInfoLocation implements IExecutionInfoLocation {
         findNeo4jExecutions(
             transaction, e -> e.getExecutionType() == executionType && name.equals(e.getName()));
     for (Execution execution : executions) {
-      ExecutionState executionState = getNeo4jExecutionState(transaction, execution.getId());
+      ExecutionState executionState = getNeo4jExecutionState(transaction, execution.getId(), false);
       if (executionState != null && !executionState.isFailed()) {
         return execution;
       }

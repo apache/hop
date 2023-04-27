@@ -146,7 +146,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH+"/")
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_EXECUTION)
@@ -203,7 +203,7 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     try {
       validateSettings();
       URI uri =
-          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH+"/")
+          new URIBuilder(RegisterExecutionInfoServlet.CONTEXT_PATH + "/")
               .addParameter(
                   RegisterExecutionInfoServlet.PARAMETER_TYPE,
                   RegisterExecutionInfoServlet.TYPE_DATA)
@@ -258,7 +258,8 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
   }
 
   @Override
-  public ExecutionState getExecutionState(String executionId) throws HopException {
+  public ExecutionState getExecutionState(String executionId, boolean includeLogging)
+      throws HopException {
     try {
       validateSettings();
       URI uri =
@@ -267,6 +268,9 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
                   GetExecutionInfoServlet.PARAMETER_TYPE, GetExecutionInfoServlet.Type.STATE.name())
               .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
               .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_INCLUDE_LARGE_LOGGING,
+                  includeLogging ? "Y" : "N")
               .build();
 
       String json = server.execService(variables, uri.toString());
@@ -274,6 +278,33 @@ public class RemoteExecutionInfoLocation implements IExecutionInfoLocation {
     } catch (Exception e) {
       throw new HopException("Error getting execution state from remote location", e);
     }
+  }
+
+  @Override
+  public String getExecutionStateLoggingText(String executionId, int sizeLimit)
+      throws HopException {
+    try {
+      validateSettings();
+      URI uri =
+          new URIBuilder(GetExecutionInfoServlet.CONTEXT_PATH)
+              .addParameter(
+                  GetExecutionInfoServlet.PARAMETER_TYPE,
+                  GetExecutionInfoServlet.Type.STATE_LOGGING.name())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LOCATION, location.getName())
+              .addParameter(GetExecutionInfoServlet.PARAMETER_ID, executionId)
+              .addParameter(GetExecutionInfoServlet.PARAMETER_LIMIT, Integer.toString(sizeLimit))
+              .build();
+
+      String loggingText = server.execService(variables, uri.toString());
+      return HopJson.newMapper().readValue(loggingText, String.class);
+    } catch (Exception e) {
+      throw new HopException("Error reading state logging text for execution ID " + executionId, e);
+    }
+  }
+
+  @Override
+  public ExecutionState getExecutionState(String executionId) throws HopException {
+    return getExecutionState(executionId, true);
   }
 
   @Override
