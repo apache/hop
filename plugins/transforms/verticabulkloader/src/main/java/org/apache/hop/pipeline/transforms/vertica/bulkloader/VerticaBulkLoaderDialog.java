@@ -139,7 +139,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod =
@@ -169,7 +169,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString("System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -177,7 +177,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -203,7 +203,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.TargetSchema.Label")); // $NON-NLS-1$
-    props.setLook(wlSchema);
+    PropsUi.setLook(wlSchema);
     fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
@@ -211,7 +211,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlSchema.setLayoutData(fdlSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wSchema);
+    PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     wSchema.addFocusListener(lsFocusLost);
     fdSchema = new FormData();
@@ -223,7 +223,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     // Table line...
     wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.TargetTable.Label"));
-    props.setLook(wlTable);
+    PropsUi.setLook(wlTable);
     fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
@@ -231,7 +231,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlTable.setLayoutData(fdlTable);
 
     wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbTable);
+    PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString("System.Button.Browse"));
     fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
@@ -239,7 +239,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(wTable);
+    PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
     fdTable = new FormData();
@@ -313,14 +313,14 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlSpecifyFields = new Label(shell, SWT.RIGHT);
     wlSpecifyFields.setText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.SpecifyFields.Label"));
-    props.setLook(wlSpecifyFields);
+    PropsUi.setLook(wlSpecifyFields);
     fdlSpecifyFields = new FormData();
     fdlSpecifyFields.left = new FormAttachment(0, 0);
     fdlSpecifyFields.top = new FormAttachment(wOnlyWhenHaveRows, margin);
     fdlSpecifyFields.right = new FormAttachment(middle, -margin);
     wlSpecifyFields.setLayoutData(fdlSpecifyFields);
     wSpecifyFields = new Button(shell, SWT.CHECK);
-    props.setLook(wSpecifyFields);
+    PropsUi.setLook(wSpecifyFields);
     fdSpecifyFields = new FormData();
     fdSpecifyFields.left = new FormAttachment(middle, 0);
     fdSpecifyFields.top = new FormAttachment(wlSpecifyFields, 0, SWT.CENTER);
@@ -337,7 +337,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
         });
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF KEY TAB ///
@@ -351,7 +351,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     mainLayout.marginHeight = 3;
 
     Composite wMainComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wMainComp);
+    PropsUi.setLook(wMainComp);
     wMainComp.setLayout(mainLayout);
 
     fdMainComp = new FormData();
@@ -366,7 +366,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlDirect.setText(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.InsertDirect.Label"));
     wlDirect.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.InsertDirect.Tooltip"));
-    props.setLook(wlDirect);
+    PropsUi.setLook(wlDirect);
     fdlDirect = new FormData();
     fdlDirect.left = new FormAttachment(0, 0);
     fdlDirect.top = new FormAttachment(0, margin);
@@ -375,7 +375,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wDirect = new Button(wMainComp, SWT.CHECK);
     wDirect.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.InsertDirect.Tooltip"));
-    props.setLook(wDirect);
+    PropsUi.setLook(wDirect);
     fdDirect = new FormData();
     fdDirect.left = new FormAttachment(middle, 0);
     fdDirect.top = new FormAttachment(0, margin);
@@ -390,7 +390,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.AbortOnError.Label"));
     wlAbortOnError.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.AbortOnError.Tooltip"));
-    props.setLook(wlAbortOnError);
+    PropsUi.setLook(wlAbortOnError);
     fdlAbortOnError = new FormData();
     fdlAbortOnError.left = new FormAttachment(0, 0);
     fdlAbortOnError.top = new FormAttachment(wlDirect, margin);
@@ -399,7 +399,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wAbortOnError = new Button(wMainComp, SWT.CHECK);
     wAbortOnError.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.AbortOnError.Tooltip"));
-    props.setLook(wAbortOnError);
+    PropsUi.setLook(wAbortOnError);
     fdAbortOnError = new FormData();
     fdAbortOnError.left = new FormAttachment(middle, 0);
     fdAbortOnError.top = new FormAttachment(wlDirect, margin);
@@ -416,7 +416,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlExceptionsLogFile.setToolTipText(
         BaseMessages.getString(
             PKG, "VerticaBulkLoaderDialog.ExceptionsLogFile.Tooltip")); // $NON-NLS-1$
-    props.setLook(wlExceptionsLogFile);
+    PropsUi.setLook(wlExceptionsLogFile);
     fdlExceptionsLogFile = new FormData();
     fdlExceptionsLogFile.left = new FormAttachment(0, 0);
     fdlExceptionsLogFile.right = new FormAttachment(middle, -margin);
@@ -427,7 +427,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wExceptionsLogFile.setToolTipText(
         BaseMessages.getString(
             PKG, "VerticaBulkLoaderDialog.ExceptionsLogFile.Tooltip")); // $NON-NLS-1$
-    props.setLook(wExceptionsLogFile);
+    PropsUi.setLook(wExceptionsLogFile);
     wExceptionsLogFile.addModifyListener(lsMod);
     wExceptionsLogFile.addFocusListener(lsFocusLost);
     fdExceptionsLogFile = new FormData();
@@ -444,7 +444,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlRejectedDataLogFile.setToolTipText(
         BaseMessages.getString(
             PKG, "VerticaBulkLoaderDialog.RejectedDataLogFile.Tooltip")); // $NON-NLS-1$
-    props.setLook(wlRejectedDataLogFile);
+    PropsUi.setLook(wlRejectedDataLogFile);
     fdlRejectedDataLogFile = new FormData();
     fdlRejectedDataLogFile.left = new FormAttachment(0, 0);
     fdlRejectedDataLogFile.right = new FormAttachment(middle, -margin);
@@ -455,7 +455,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wRejectedDataLogFile.setToolTipText(
         BaseMessages.getString(
             PKG, "VerticaBulkLoaderDialog.RejectedDataLogFile.Tooltip")); // $NON-NLS-1$
-    props.setLook(wRejectedDataLogFile);
+    PropsUi.setLook(wRejectedDataLogFile);
     wRejectedDataLogFile.addModifyListener(lsMod);
     wRejectedDataLogFile.addFocusListener(lsFocusLost);
     fdRejectedDataLogFile = new FormData();
@@ -470,7 +470,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.StreamName.Label")); // $NON-NLS-1$
     wlStreamName.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.StreamName.Tooltip")); // $NON-NLS-1$
-    props.setLook(wlStreamName);
+    PropsUi.setLook(wlStreamName);
     fdlStreamName = new FormData();
     fdlStreamName.left = new FormAttachment(0, 0);
     fdlStreamName.right = new FormAttachment(middle, -margin);
@@ -480,7 +480,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wStreamName = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wStreamName.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.StreamName.Tooltip")); // $NON-NLS-1$
-    props.setLook(wStreamName);
+    PropsUi.setLook(wStreamName);
     wStreamName.addModifyListener(lsMod);
     wStreamName.addFocusListener(lsFocusLost);
     fdStreamName = new FormData();
@@ -501,7 +501,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
             PKG, "VerticaBulkLoaderDialog.FieldsTab.CTabItem.Title")); // $NON-NLS-1$
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wFieldsComp);
+    PropsUi.setLook(wFieldsComp);
 
     FormLayout fieldsCompLayout = new FormLayout();
     fieldsCompLayout.marginWidth = Const.FORM_MARGIN;
@@ -512,7 +512,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlFields = new Label(wFieldsComp, SWT.NONE);
     wlFields.setText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.InsertFields.Label")); // $NON-NLS-1$
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment(0, 0);
     fdlUpIns.top = new FormAttachment(0, margin);
@@ -798,14 +798,13 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
               colInfo.setComboValues(new String[] {});
             }
             if (!StringUtil.isEmpty(wTable.getText())) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(wConnection.getText());
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
-                try {
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+              if (databaseMeta != null) {
+                try (Database db = new Database(loggingObject, variables, databaseMeta)) {
                   db.connect();
 
                   String schemaTable =
-                      ci.getQuotedSchemaTableCombination(
+                      databaseMeta.getQuotedSchemaTableCombination(
                           variables,
                           variables.resolve(wSchema.getText()),
                           variables.resolve(wTable.getText()));
@@ -970,7 +969,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     if (StringUtil.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
 
     if (databaseMeta != null) {
       log.logDebug(
