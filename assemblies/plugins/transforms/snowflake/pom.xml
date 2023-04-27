@@ -35,7 +35,7 @@
     <description />
 
     <properties>
-        <snowflake.jdbc.version>3.13.19</snowflake.jdbc.version>
+        <snowflake.jdbc.version>3.13.30</snowflake.jdbc.version>
     </properties>
 
     <dependencies>

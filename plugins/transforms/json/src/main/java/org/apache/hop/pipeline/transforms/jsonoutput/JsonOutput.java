@@ -231,7 +231,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     data.jg.put(data.realBlocName, data.ja);
     String value = data.jg.toJSONString();
 
-    if (rowData != null && data.outputValue && data.outputRowMeta != null) {
+    if (data.outputValue && data.outputRowMeta != null) {
       Object[] outputRowData = RowDataUtil.addValueData(rowData, data.inputRowMetaSize, value);
       incrementLinesOutput();
       putRow(data.outputRowMeta, outputRowData);
