@@ -909,6 +909,17 @@ public class Const {
       description =
           "Name of the variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included (default behavior) otherwise they will not be included")
   public static final String HOP_JSON_INPUT_INCLUDE_NULLS = "HOP_JSON_INPUT_INCLUDE_NULLS";
+
+  /**
+   * This variable is used to disable the strict searching of the context dialog
+   */
+  @Variable(
+          value = "N",
+          description =
+                  "This variable influences how the search is done in the context dialog, when set to Y it will do a strict search (Needed for automated UI testing)")
+  public static final String HOP_CONTEXT_DIALOG_STRICT_SEARCH = "HOP_CONTEXT_DIALOG_STRICT_SEARCH";
+
+
   /** By default, HOP do consider NULLs while parsing input */
   public static final String JSON_INPUT_INCLUDE_NULLS = "Y";
 
