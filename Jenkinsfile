@@ -162,7 +162,7 @@ pipeline {
                     //Base docker image
                     sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web -t ${DOCKER_REPO_WEB}:${env.POM_VERSION} -t ${DOCKER_REPO_WEB}:Development --push"
                     //Image including fat-jar
-                    sh "docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t ${DOCKER_REPO_WEB}:${env.POM_VERSION}-beam -t ${DOCKER_REPO_WEB}:Development-beam --push"
+                    sh "docker buildx build  --build-arg HOP_WEB_VERSION=Development --platform linux/amd64,linux/arm64 . -f docker/Dockerfile.web-fatjar -t ${DOCKER_REPO_WEB}:${env.POM_VERSION}-beam -t ${DOCKER_REPO_WEB}:Development-beam --push"
                     sh "docker buildx rm hop"
                   }
             }
