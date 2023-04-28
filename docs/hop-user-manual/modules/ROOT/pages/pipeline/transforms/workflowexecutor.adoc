@@ -44,9 +44,7 @@ By default, the specified workflow will be executed once for each input row.
 
 This row can be used to set parameters and variables and it is passed to the workflow in the form of a result row.
 
-You can also allow a group of records to be passed based on the value in a field (when the value changes the workflow is executed) or on time.
-
-In these cases, the first row of the group or rows is used to set parameters or variables in the workflow.
+You can also allow a group of records to be passed based on the value in a field (when the value changes the workflow is executed) or on time. In these cases, the first row of the group or rows is used to set parameters or variables in the workflow.
 
 It is possible to launch multiple copies of this transform to facilitate parallel workflow processing.
 
@@ -99,8 +97,9 @@ If you don't need a certain result simply leave a blank input field.
 
 In the "Result rows" tab you can specify the layout of the expected result rows of this workflow and to which transform to send them after execution.
 
-Please note that this transform will verify that the data type of the result row fields are identical to what is specified.
-If there is a difference an error will be thrown.
+The workflow executor performs a consistency check over the fields we declared in this tab as the fields that want to receive in output. The check will be performed by making sure the fields we require are really present in the results stream and that type of each fields is really the type we expected to be. If there are any differences an error will be thrown. The error will give you the complete picture about which fields are missing and/or which fields were declared by considering a wrong datatype.
+
+*Note*: remember that currently this transform always give you a result row back even if the pipelines started in the sub-workflow don't return any result. In this case, the result row that you will get back will contain only the fields provided by the flow as input of this transform.
 
 === Result Files Tab
 
