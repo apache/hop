@@ -17,13 +17,14 @@
 
 package org.apache.hop.core.gui.plugin.action;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.gui.plugin.IGuiActionLambda;
-import org.apache.hop.core.util.StringUtil;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.plugin.IGuiActionLambda;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.StringUtil;
 
 public class GuiAction {
   private String id;
@@ -160,9 +161,14 @@ public class GuiAction {
 
     string = StringUtil.removeDiacriticalMarks(string);
 
-    // TODO: consider some fuzzy matching algorithm
-    // TODO: Do a Levenshtein distance on the filter string across all valid string indexes 0..
-    return string.toUpperCase().contains(filter.toUpperCase());
+    if (EnvUtil.getSystemProperty(Const.HOP_CONTEXT_DIALOG_STRICT_SEARCH, "N").equalsIgnoreCase("Y")) {
+      // Use strict matching of strings
+      return string.equalsIgnoreCase(filter);
+    } else {
+      // TODO: consider some fuzzy matching algorithm
+      // TODO: Do a Levenshtein distance on the filter string across all valid string indexes 0..
+      return string.toUpperCase().contains(filter.toUpperCase());
+    }
   }
 
   @Override
@@ -224,7 +230,9 @@ public class GuiAction {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -238,7 +246,9 @@ public class GuiAction {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(GuiActionType type) {
     this.type = type;
   }
@@ -252,7 +262,9 @@ public class GuiAction {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -266,7 +278,9 @@ public class GuiAction {
     return tooltip;
   }
 
-  /** @param tooltip The tooltip to set */
+  /**
+   * @param tooltip The tooltip to set
+   */
   public void setTooltip(String tooltip) {
     this.tooltip = tooltip;
   }
@@ -280,7 +294,9 @@ public class GuiAction {
     return image;
   }
 
-  /** @param image The image to set */
+  /**
+   * @param image The image to set
+   */
   public void setImage(String image) {
     this.image = image;
   }
@@ -294,7 +310,9 @@ public class GuiAction {
     return actionLambda;
   }
 
-  /** @param actionLambda The actionLambda to set */
+  /**
+   * @param actionLambda The actionLambda to set
+   */
   public void setActionLambda(IGuiActionLambda actionLambda) {
     this.actionLambda = actionLambda;
   }
@@ -308,7 +326,9 @@ public class GuiAction {
     return guiPluginClassName;
   }
 
-  /** @param guiPluginClassName The guiPluginClassName to set */
+  /**
+   * @param guiPluginClassName The guiPluginClassName to set
+   */
   public void setGuiPluginClassName(String guiPluginClassName) {
     this.guiPluginClassName = guiPluginClassName;
   }
@@ -322,7 +342,9 @@ public class GuiAction {
     return guiPluginMethodName;
   }
 
-  /** @param guiPluginMethodName The methodName to set */
+  /**
+   * @param guiPluginMethodName The methodName to set
+   */
   public void setGuiPluginMethodName(String guiPluginMethodName) {
     this.guiPluginMethodName = guiPluginMethodName;
   }
@@ -336,7 +358,9 @@ public class GuiAction {
     return classLoader;
   }
 
-  /** @param classLoader The classLoader to set */
+  /**
+   * @param classLoader The classLoader to set
+   */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
@@ -350,7 +374,9 @@ public class GuiAction {
     return keywords;
   }
 
-  /** @param keywords The keywords to set */
+  /**
+   * @param keywords The keywords to set
+   */
   public void setKeywords(List<String> keywords) {
     this.keywords = keywords;
   }
@@ -364,7 +390,9 @@ public class GuiAction {
     return category;
   }
 
-  /** @param category The category to set */
+  /**
+   * @param category The category to set
+   */
   public void setCategory(String category) {
     this.category = category;
   }
@@ -378,7 +406,9 @@ public class GuiAction {
     return categoryOrder;
   }
 
-  /** @param categoryOrder The categoryOrder to set */
+  /**
+   * @param categoryOrder The categoryOrder to set
+   */
   public void setCategoryOrder(String categoryOrder) {
     this.categoryOrder = categoryOrder;
   }
