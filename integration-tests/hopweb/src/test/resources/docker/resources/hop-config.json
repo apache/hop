@@ -1,0 +1,389 @@
+{
+  "variables" : [ {
+    "name" : "HOP_AGGREGATION_ALL_NULLS_ARE_ZERO",
+    "value" : "N",
+    "description" : "Set this variable to 'Y' to return 0 when all values within an aggregate are NULL. Otherwise by default a NULL is returned when all values are NULL."
+  }, {
+    "name" : "HOP_AGGREGATION_MIN_NULL_IS_VALUED",
+    "value" : "N",
+    "description" : "Set this variable to 'Y' to set the minimum to NULL if NULL is within an aggregate. Otherwise by default NULL is ignored by the MIN aggregate and MIN is set to the minimum value that is not NULL. See also the variable HOP_AGGREGATION_ALL_NULLS_ARE_ZERO."
+  }, {
+    "name" : "HOP_ALLOW_EMPTY_FIELD_NAMES_AND_TYPES",
+    "value" : "false",
+    "description" : "Set this variable to 'Y' to allow your pipeline to pass 'null' fields and/or empty types."
+  }, {
+    "name" : "HOP_AUTO_CREATE_CONFIG",
+    "value" : "Y",
+    "description" : "Set this value to N if you don't want to automatically create a hop configuration file (hop-config.json) when it's missing\n    "
+  }, {
+    "name" : "HOP_BATCHING_ROWSET",
+    "value" : "",
+    "description" : "Set this variable to 'Y' if you want to test a more efficient batching row set."
+  }, {
+    "name" : "HOP_COMPATIBILITY_CALCULATION_TIMEZONE_DECOMPOSITION",
+    "value" : "N",
+    "description" : ""
+  }, {
+    "name" : "HOP_COMPATIBILITY_DB_IGNORE_TIMEZONE",
+    "value" : "N",
+    "description" : "System wide flag to ignore timezone while writing date/timestamp value to the database."
+  }, {
+    "name" : "HOP_COMPATIBILITY_MEMORY_GROUP_BY_SUM_AVERAGE_RETURN_NUMBER_TYPE",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "HOP_COMPATIBILITY_MERGE_ROWS_USE_REFERENCE_STREAM_WHEN_IDENTICAL",
+    "value" : "N",
+    "description" : "Set this variable to 'Y' for backward compatibility for the Merge Rows (diff) transform. Setting this to Y will use the data from the reference stream (instead of the comparison stream) in case the compared rows are identical."
+  }, {
+    "name" : "HOP_COMPATIBILITY_SELECT_VALUES_TYPE_CHANGE_USES_TYPE_DEFAULTS",
+    "value" : "N",
+    "description" : ""
+  }, {
+    "name" : "HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS",
+    "value" : "N",
+    "description" : ""
+  }, {
+    "name" : "HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS",
+    "value" : "N",
+    "description" : ""
+  }, {
+    "name" : "HOP_COMPATIBILITY_TEXT_FILE_OUTPUT_APPEND_NO_HEADER",
+    "value" : "N",
+    "description" : "Set this variable to 'Y' for backward compatibility for the Text File Output transform. Setting this to Ywill add no header row at all when the append option is enabled, regardless if the file is existing or not."
+  }, {
+    "name" : "HOP_COMPATIBILITY_XML_OUTPUT_NULL_VALUES",
+    "value" : "N",
+    "description" : ""
+  }, {
+    "name" : "HOP_CORE_TRANSFORMS_FILE",
+    "value" : "",
+    "description" : "The name of the project variable that will contain the alternative location of the hop-transforms.xml file. You can use this to\n      customize the list of available internal transforms outside of the codebase.\n    "
+  }, {
+    "name" : "HOP_CORE_WORKFLOW_ACTIONS_FILE",
+    "value" : "",
+    "description" : "The name of the project variable that will contain the alternative location of the hop-workflow-actions.xml file."
+  }, {
+    "name" : "HOP_DEFAULT_BIGNUMBER_FORMAT",
+    "value" : "",
+    "description" : "The name of the variable containing an alternative default bignumber format"
+  }, {
+    "name" : "HOP_DEFAULT_BUFFER_POLLING_WAITTIME",
+    "value" : "20",
+    "description" : "This is the default polling frequency for the transforms input buffer (in ms)"
+  }, {
+    "name" : "HOP_DEFAULT_DATE_FORMAT",
+    "value" : "",
+    "description" : "The name of the variable containing an alternative default date format"
+  }, {
+    "name" : "HOP_DEFAULT_INTEGER_FORMAT",
+    "value" : "",
+    "description" : "The name of the variable containing an alternative default integer format"
+  }, {
+    "name" : "HOP_DEFAULT_NUMBER_FORMAT",
+    "value" : "",
+    "description" : "The name of the variable containing an alternative default number format"
+  }, {
+    "name" : "HOP_DEFAULT_SERVLET_ENCODING",
+    "value" : "",
+    "description" : "Defines the default encoding for servlets, leave it empty to use Java default encoding"
+  }, {
+    "name" : "HOP_DEFAULT_TIMESTAMP_FORMAT",
+    "value" : "",
+    "description" : "The name of the variable containing an alternative default timestamp format"
+  }, {
+    "name" : "HOP_DISABLE_CONSOLE_LOGGING",
+    "value" : "N",
+    "description" : "Set this variable to 'Y' to disable standard Hop logging to the console. (stdout)"
+  }, {
+    "name" : "HOP_EMPTY_STRING_DIFFERS_FROM_NULL",
+    "value" : "N",
+    "description" : "NULL vs Empty String. If this setting is set to 'Y', an empty string and null are different. Otherwise they are not"
+  }, {
+    "name" : "HOP_FAIL_ON_LOGGING_ERROR",
+    "value" : "N",
+    "description" : "Set this variable to Y when you want the workflow/pipeline fail with an error when the related logging process (e.g. to a database)\n      fails.\n    "
+  }, {
+    "name" : "HOP_FILE_OUTPUT_MAX_STREAM_COUNT",
+    "value" : "1024",
+    "description" : "This project variable is used by the Text File Output transform. It defines the max number of simultaneously open files within the transform. The transform will close/reopen files as necessary to insure the max is not exceeded"
+  }, {
+    "name" : "HOP_FILE_OUTPUT_MAX_STREAM_LIFE",
+    "value" : "0",
+    "description" : "This project variable is used by the Text File Output transform. It defines the max number of milliseconds between flushes of files opened by the transform."
+  }, {
+    "name" : "HOP_GLOBAL_LOG_VARIABLES_CLEAR_ON_EXPORT",
+    "value" : "false",
+    "description" : "Set this variable to 'N' to preserve global log variables defined in pipeline / workflow Properties -> Log panel. Changing it to 'Y' will clear it when export pipeline / workflow."
+  }, {
+    "name" : "HOP_JSON_INPUT_INCLUDE_NULLS",
+    "value" : "Y",
+    "description" : "Name of the variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included (default behavior) otherwise they will not be included"
+  }, {
+    "name" : "HOP_LENIENT_STRING_TO_NUMBER_CONVERSION",
+    "value" : "N",
+    "description" : "System wide flag to allow lenient string to number conversion for backward compatibility. If this setting is set to 'Y', an string starting with digits will be converted successfully into a number. (example: 192.168.1.1 will be converted into 192 or 192.168 or 192168 depending on the decimal and grouping symbol). The default (N) will be to throw an error if non-numeric symbols are found in the string."
+  }, {
+    "name" : "HOP_LICENSE_HEADER_FILE",
+    "value" : "",
+    "description" : "This is the name of the variable which when set should contains the path to a file which will be included in the serialization of pipelines and workflows"
+  }, {
+    "name" : "HOP_LOG_MARK_MAPPINGS",
+    "value" : "N",
+    "description" : "Set this variable to 'Y' to precede transform/action name in log lines with the complete path to the transform/action. Useful to perfectly identify where a problem happened in our process."
+  }, {
+    "name" : "HOP_LOG_SIZE_LIMIT",
+    "value" : "0",
+    "description" : "The log size limit for all pipelines and workflows that don't have the \"log size limit\" property set in their respective properties."
+  }, {
+    "name" : "HOP_LOG_TAB_REFRESH_DELAY",
+    "value" : "1000",
+    "description" : "The hop log tab refresh delay."
+  }, {
+    "name" : "HOP_LOG_TAB_REFRESH_PERIOD",
+    "value" : "1000",
+    "description" : "The hop log tab refresh period."
+  }, {
+    "name" : "HOP_MAX_ACTIONS_LOGGED",
+    "value" : "5000",
+    "description" : "The maximum number of action results kept in memory for logging purposes."
+  }, {
+    "name" : "HOP_MAX_LOGGING_REGISTRY_SIZE",
+    "value" : "10000",
+    "description" : "The maximum number of logging registry entries kept in memory for logging purposes"
+  }, {
+    "name" : "HOP_MAX_LOG_SIZE_IN_LINES",
+    "value" : "0",
+    "description" : "The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)"
+  }, {
+    "name" : "HOP_MAX_LOG_TIMEOUT_IN_MINUTES",
+    "value" : "1440",
+    "description" : "The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)"
+  }, {
+    "name" : "HOP_MAX_TAB_LENGTH",
+    "value" : "",
+    "description" : "A variable to configure Tab size"
+  }, {
+    "name" : "HOP_MAX_WORKFLOW_TRACKER_SIZE",
+    "value" : "5000",
+    "description" : "The maximum age (in minutes) of a log line while being kept internally by Hop. Set to 0 to keep all rows indefinitely (default)"
+  }, {
+    "name" : "HOP_PASSWORD_ENCODER_PLUGIN",
+    "value" : "Hop",
+    "description" : "Specifies the password encoder plugin to use by ID (Hop is the default)."
+  }, {
+    "name" : "HOP_PIPELINE_PAN_JVM_EXIT_CODE",
+    "value" : "",
+    "description" : "Set this variable to an integer that will be returned as the Pan JVM exit code."
+  }, {
+    "name" : "HOP_PIPELINE_ROWSET_SIZE",
+    "value" : "",
+    "description" : "Name of the environment variable that contains the size of the pipeline rowset size. This overwrites values that you set pipeline settings"
+  }, {
+    "name" : "HOP_PLUGIN_CLASSES",
+    "value" : "",
+    "description" : "A comma delimited list of classes to scan for plugin annotations"
+  }, {
+    "name" : "HOP_PLUGIN_PACKAGES",
+    "value" : "",
+    "description" : "A comma delimited list of packages to scan for plugin annotations (warning: slow!!)"
+  }, {
+    "name" : "HOP_REDIRECT_STDERR",
+    "value" : "N",
+    "description" : "Set this variable to Y to redirect stderr to Hop logging."
+  }, {
+    "name" : "HOP_REDIRECT_STDOUT",
+    "value" : "N",
+    "description" : "Set this variable to Y to redirect stdout to Hop logging."
+  }, {
+    "name" : "HOP_ROWSET_GET_TIMEOUT",
+    "value" : "50",
+    "description" : "The name of the variable that optionally contains an alternative rowset get timeout (in ms). This only makes a difference for extremely short lived pipelines."
+  }, {
+    "name" : "HOP_ROWSET_PUT_TIMEOUT",
+    "value" : "50",
+    "description" : "The name of the variable that optionally contains an alternative rowset put timeout (in ms). This only makes a difference for extremely short lived pipelines."
+  }, {
+    "name" : "HOP_S3_VFS_PART_SIZE",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "HOP_SERVER_DETECTION_TIMER",
+    "value" : "",
+    "description" : "The name of the variable that defines the timer used for detecting server nodes"
+  }, {
+    "name" : "HOP_SERVER_JETTY_ACCEPTORS",
+    "value" : "",
+    "description" : "A variable to configure jetty option: acceptors for Hop server"
+  }, {
+    "name" : "HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE",
+    "value" : "",
+    "description" : "A variable to configure jetty option: acceptQueueSize for Hop server"
+  }, {
+    "name" : "HOP_SERVER_JETTY_RES_MAX_IDLE_TIME",
+    "value" : "",
+    "description" : "A variable to configure jetty option: lowResourcesMaxIdleTime for Hop server"
+  }, {
+    "name" : "HOP_SERVER_OBJECT_TIMEOUT_MINUTES",
+    "value" : "1440",
+    "description" : "This project variable will set a time-out after which waiting, completed or stopped pipelines and workflows will be automatically cleaned up. The default value is 1440 (one day)."
+  }, {
+    "name" : "HOP_SERVER_REFRESH_STATUS",
+    "value" : "",
+    "description" : "A variable to configure refresh for Hop server workflow/pipeline status page"
+  }, {
+    "name" : "HOP_SPLIT_FIELDS_REMOVE_ENCLOSURE",
+    "value" : "false",
+    "description" : "Set this variable to 'N' to preserve enclosure symbol after splitting the string in the Split fields transform. Changing it to true will remove first and last enclosure symbol from the resulting string chunks."
+  }, {
+    "name" : "HOP_SYSTEM_HOSTNAME",
+    "value" : "",
+    "description" : "You can use this variable to speed up hostname lookup. Hostname lookup is performed by Hop so that it is capable of logging the server on which a workflow or pipeline is executed."
+  }, {
+    "name" : "HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT",
+    "value" : "0",
+    "description" : "The maximum number of transform performance snapshots to keep in memory. Set to 0 to keep all snapshots indefinitely (default)"
+  }, {
+    "name" : "HOP_USE_NATIVE_FILE_DIALOG",
+    "value" : "N",
+    "description" : "Set this value to 'Y' if you want to use the system file open/save dialog when browsing files."
+  }, {
+    "name" : "HOP_ZIP_MAX_ENTRY_SIZE",
+    "value" : "",
+    "description" : "A variable to configure the maximum file size of a single zip entry"
+  }, {
+    "name" : "HOP_ZIP_MAX_ENTRY_SIZE_DEFAULT_STRING",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "HOP_ZIP_MAX_TEXT_SIZE",
+    "value" : "",
+    "description" : "A variable to configure the maximum number of characters of text that are extracted before an exception is thrown during extracting text from documents"
+  }, {
+    "name" : "HOP_ZIP_MAX_TEXT_SIZE_DEFAULT_STRING",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "HOP_ZIP_MIN_INFLATE_RATIO",
+    "value" : "",
+    "description" : "A variable to configure the minimum allowed ratio between de- and inflated bytes to detect a zipbomb"
+  }, {
+    "name" : "HOP_ZIP_MIN_INFLATE_RATIO_DEFAULT_STRING",
+    "value" : "",
+    "description" : ""
+  }, {
+    "name" : "NEO4J_LOGGING_CONNECTION",
+    "value" : "",
+    "description" : "Set this variable to the name of an existing Neo4j connection to enable execution logging to a Neo4j database."
+  }, {
+    "name" : "HOP_CONTEXT_DIALOG_STRICT_SEARCH",
+    "value" : "Y",
+    "description" : "This variable influences how the search is done in the context dialog, when set to Y it will do a strict search (Needed for automated UI testing)"
+  } ],
+  "googleCloud" : {
+    "serviceAccountKeyFile" : ""
+  },
+  "dropbox" : {
+    "accessToken" : ""
+  },
+  "LocaleDefault" : "en_US",
+  "guiProperties" : {
+    "FontFixedSize" : "13",
+    "MaxUndo" : "100",
+    "DarkMode" : "N",
+    "FontNoteSize" : "13",
+    "ShowOSLook" : "Y",
+    "FontFixedStyle" : "0",
+    "FontNoteName" : ".AppleSystemUIFont",
+    "ContextDialogFixedWidth" : "N",
+    "FontFixedName" : "Monaco",
+    "FontGraphStyle" : "0",
+    "FontDefaultSize" : "9",
+    "GraphColorR" : "255",
+    "FontGraphSize" : "11",
+    "IconSize" : "32",
+    "BackgroundColorB" : "255",
+    "FontNoteStyle" : "0",
+    "FontGraphName" : ".AppleSystemUIFont",
+    "FontDefaultName" : ".AppleSystemUIFont",
+    "GraphColorG" : "255",
+    "UseGlobalFileBookmarks" : "Y",
+    "FontDefaultStyle" : "0",
+    "ContextDialogShowCategories" : "Y",
+    "GraphColorB" : "255",
+    "BackgroundColorR" : "255",
+    "BackgroundColorG" : "255",
+    "WorkflowDialogStyle" : "RESIZE,MAX,MIN",
+    "LineWidth" : "1",
+    "AutoSave" : "N",
+    "ShowCopyOrDistributeWarning" : "Y",
+    "AutoSplit" : "N",
+    "CustomParameterChangeSequenceSortWarning" : "Y",
+    "CustomParameterUniqueSortWarning" : "Y",
+    "CustomParameterNEO4J_OUTPUT_SHOW_DYNAMIC_LABELS_WARNING" : "Y",
+    "TabColorR" : "240",
+    "TabColorG" : "240",
+    "TabColorB" : "240",
+    "MiddlePct" : "35",
+    "CanvasGridSize" : "16",
+    "DefaultPreviewSize" : "1000",
+    "UseDBCache" : "Y",
+    "OpenLastFile" : "Y",
+    "ShowCanvasGrid" : "N",
+    "ShowExitWarning" : "Y",
+    "ShowToolTips" : "Y",
+    "AutoCollapseCoreObjectsTree" : "N",
+    "ShowHelpToolTips" : "Y",
+    "UseDoubleClickOnCanvas" : "N",
+    "CustomParameterEnterOptionsRestartWarning" : "Y",
+    "TableOutputSortMappings" : "N",
+    "CustomParameterGroupSortWarning" : "Y",
+    "CustomParameterSetVariableUsageWarning" : "Y",
+    "GlobalZoomFactor" : "1.0",
+    "CustomParameterMergeJoinSortWarning" : "Y",
+    "CustomParameterUsageInfoParameter" : "Y",
+    "CustomParameterMultiMergeJoinSortWarning" : "Y",
+    "HideMenuBar" : "Y",
+    "ShowTableViewToolbar" : "Y",
+    "CustomParameterCypherBuilderWarning" : "Y",
+    "CustomParameterJSONSortWarning" : "Y",
+    "CustomParameterParallelActionsWarning" : "Y",
+    "CustomParameterPivotSortWarning" : "Y"
+  },
+  "googleDrive" : {
+    "credentialsFile" : "",
+    "tokensFolder" : ""
+  },
+  "projectsConfig" : {
+    "enabled" : true,
+    "projectMandatory" : true,
+    "environmentMandatory" : false,
+    "environmentsForActiveProject" : false,
+    "defaultProject" : "default",
+    "defaultEnvironment" : null,
+    "standardParentProject" : "default",
+    "standardProjectsFolder" : null,
+    "defaultProjectConfigFile" : "project-config.json",
+    "projectConfigurations" : [ {
+      "projectName" : "default",
+      "projectHome" : "${HOP_CONFIG_FOLDER}/projects/default",
+      "configFilename" : "project-config.json"
+    }, {
+      "projectName" : "samples",
+      "projectHome" : "${HOP_CONFIG_FOLDER}/projects/samples",
+      "configFilename" : "project-config.json"
+    } ],
+    "lifecycleEnvironments" : [ ],
+    "projectLifecycles" : [ ]
+  },
+  "azure" : {
+    "account" : "${AZURE_ACCOUNT}",
+    "key" : "${AZURE_KEY}",
+    "blockIncrement" : "4096"
+  },
+  "explorer-perspective" : {
+    "lazyLoadingDepth" : "0",
+    "fileLoadingMaxSize" : "16"
+  },
+  "doNotShowWelcomeDialog" : true
+}
