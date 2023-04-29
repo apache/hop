@@ -1,0 +1,70 @@
+{
+  "relationships": [
+    {
+      "nodeSource": "from node",
+      "name": "dummy relationship",
+      "description": "",
+      "nodeTarget": "to node",
+      "label": "REL",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "relationship property",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "presentation": {
+        "x": 0,
+        "y": 0
+      },
+      "name": "from node",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "node id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "FROM"
+      ]
+    },
+    {
+      "presentation": {
+        "x": 642,
+        "y": 319
+      },
+      "name": "to node",
+      "description": "",
+      "properties": [
+        {
+          "indexed": false,
+          "unique": false,
+          "name": "node id",
+          "description": "",
+          "type": "String",
+          "mandatory": false,
+          "primary": true
+        }
+      ],
+      "labels": [
+        "TO"
+      ]
+    }
+  ],
+  "name": "model-2812",
+  "description": ""
+}
