@@ -57,6 +57,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData> {
 
@@ -301,6 +303,9 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                     + propertyName
                     + "' in the graph model");
           }
+
+          // escape this relationship property if it contains any special characters
+          checkGraphProperty(graphProperty);
 
           String fieldName = mapping.getField();
           int fieldIndex = getInputRowMeta().indexOfValue(fieldName);
@@ -1105,6 +1110,9 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                   + "'");
         }
 
+        // escape this node property if it contains any special characters
+        checkGraphProperty(graphProperty);
+
         // For this selected node we need to see if there are any specific node mappings.
         // These serve the purpose of helping with label selection if this is needed.
         //
@@ -1640,4 +1648,16 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     }
     return id.toString();
   }
+
+  public void checkGraphProperty(GraphProperty graphProperty){
+    // check if the graph property contains any special characters. Escape with a backtick if it does.
+    String graphPropertyValue = graphProperty.getName();
+    Pattern p = Pattern.compile("[^A-Za-z0-9]");
+    Matcher m = p.matcher(graphPropertyValue);
+    if(m.find()){
+      graphPropertyValue = "`" + graphPropertyValue + "`";
+      graphProperty.setName(graphPropertyValue);
+    }
+  }
+
 }
