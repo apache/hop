@@ -55,7 +55,7 @@ Apache Hop is known to work well on the following widely used Java Runtimes:
 
 Apache Hop works well with these 64-bit java runtimes for version 11.
 
-Other Java Runtimes may work but haven't been used and tested as extensively as the Oracle and OpenJDK JREs, so you may be pioneering. Feel free to open a https://hop.apache.org/community/tools/#jira[JIRA ticket] if you run into issues, but please mention your JRE and version.
+Other Java Runtimes may work but haven't been used and tested as extensively as the Oracle and OpenJDK JREs, so you may be pioneering. Feel free to open a https://hop.apache.org/community/tools/#GitHub-Issues[GitHub ticket] if you run into issues, but please mention your JRE and version.
 
 Run `java -version` if you're not sure which Java version is currently installed on your system. Your output should be similar to the one shown below.
 
