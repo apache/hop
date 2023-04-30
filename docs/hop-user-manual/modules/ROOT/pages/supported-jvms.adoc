@@ -42,5 +42,5 @@ The list below is all JVM that has been confirmed having issue with apache Hop.
 
 * https://adoptium.net/[Adoptium]
 
-Other Java Runtimes may work, so you may be pioneering. Feel free to open a https://hop.apache.org/community/tools/#jira[JIRA ticket] if you run into issues, but please mention your JRE and version.
+Other Java Runtimes may work, so you may be pioneering. Feel free to open a https://hop.apache.org/community/tools/#GitHub-Issues[GitHub ticket] if you run into issues, but please mention your JRE and version.
 
