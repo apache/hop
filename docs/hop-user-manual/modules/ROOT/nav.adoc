@@ -157,6 +157,7 @@ under the License.
 *** xref:pipeline/transforms/insertupdate.adoc[Insert / Update]
 *** xref:pipeline/transforms/javafilter.adoc[Java Filter]
 *** xref:pipeline/transforms/javascript.adoc[JavaScript]
+*** xref:pipeline/transforms/jdbcmetadata.adoc[JDBC Metadata]
 *** xref:pipeline/transforms/joinrows.adoc[Join Rows]
 *** xref:pipeline/transforms/jsoninput.adoc[JSON Input]
 *** xref:pipeline/transforms/jsonoutput.adoc[JSON Output]
