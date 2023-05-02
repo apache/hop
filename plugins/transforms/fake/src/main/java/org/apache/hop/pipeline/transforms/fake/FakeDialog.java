@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -41,9 +44,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class FakeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FakeDialog.class; // For Translator
@@ -198,10 +198,15 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
   public String[] getMethodNames(FakerType fakerType) {
     try {
       Method[] methods = fakerType.getFakerClass().getDeclaredMethods();
-      String[] names = new String[methods.length];
-      for (int i = 0; i < names.length; i++) {
-        names[i] = methods[i].getName();
+      ArrayList<String> tempNames = new ArrayList<>();
+      for (Method method : methods) {
+        // ignore Methods needing parameters for now
+        if (method.getParameterCount() == 0) {
+          tempNames.add(method.getName());
+        }
       }
+      String[] names = new String[tempNames.size()];
+      tempNames.toArray(names);
       return names;
     } catch (Exception e) {
       return new String[] {};
