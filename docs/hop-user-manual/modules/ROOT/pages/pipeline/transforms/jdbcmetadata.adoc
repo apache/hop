@@ -1,0 +1,88 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The JDBC Metadata transform allows you to fetch metadata from a database connection, this includes schemas, tables and other objects.
+:imagesdir: ../../../assets/images
+
+= image:transforms/icons/jdbcmetadata.svg[JDBC Metadata transform Icon, role="image-doc-icon"] JDBC Metadata
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The JDBC Metadata transform allows you to fetch metadata from a database connection, this includes schemas, tables and other objects.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Method and Arguments tab
+In this tab, you can specify the java method of the DatabaseMetaData object which is to be called to obtain metadata. It also controls some other aspects of the steps behavior.
+
+*Always pass the input row:* Controls how this step behaves in case there is no metadata. If this option is not checked, the step will not produce any output rows. If this option is checked, the incoming row will still be passed. Any output fields that originate from the metadata resultset will be NULL in this case.
+
+*Metadata Method:* This dropdown list can be used to specify which metadata method to call upon the DatabaseMetaData object to obtain metadata:
+
+- Catalogs: see DatabaseMetaData.getCatalogs()
+
+- Best row identifier: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getBestRowIdentifier(java.lang.String, java.lang.String, java.lang.String, int, boolean)++[DatabaseMetaData.getBestRowIdentifier()]
+
+- Column privileges: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getColumnPrivileges(java.lang.String, java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getColumnPrivileges()]
+
+- Columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getColumns(java.lang.String, java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getColumns()]
+
+- Cross references: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getCrossReference(java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getCrossReferences()]
+
+- Exported key columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getExportedKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getExportedKeys()]
+
+- Foreign key columns: see link:++ttp://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getImportedKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getImportedKeys()]
+
+- Primary key columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getPrimaryKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getPrimaryKeys()]
+
+- Schemas: see DatabaseMetaData.getSchemas()
+
+- Table privileges: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getTablePrivileges(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getTablePrivileges()]
+
+- Table types: see DatabaseMetaData.getTableTypes()
+
+- Tables: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getTables(java.lang.String, java.lang.String, java.lang.String, java.lang.String[])++[DatabaseMetaData.getTables()]
+
+- Data types: see DatabaseMetaData.getTypeInfo()
+
+- Version columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getVersionColumns(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getVersionColumns()]
+
+- After selecting a method, fields will be added to the tab so you can specify any arguments required by the method. For a description of the method-specific arguments and their meaning, please refer to the javadoc for each method (linked above).
+
+*Get arguments from fields:* If this option is checked, arguments to the method can be specified by selecting a field from the incoming stream, and the value of that field is used as actual argument value. If this option is not checked, argument values can be entered directly as a literal into the argument fields.
+
+*Remove argument fields:* This option is applicable when the Get arguments from fields is checked. When checked, the fields that are selected as argument fields are removed from the output stream. This is typically a convenient option when you chain several JdbcMetaData steps in sequence, using the fields coming out of upstream steps as argument fields for downstream steps. In such a case using this option will remove a lot of duplicate fields.
+
+== Output Fields tab
+This tab allows you to control how the output metadata is added to the outputstream.
+
+*Output Fields:* This grid is automatically filled with the appropriate fields as you select a particular metadata method on the Method and Aruments tab. Use this gridview to remove or rename output fields.
+
+*Get fields:* use this button to refill the grid. This will re-add any removed fields, but preserve any renamed fields.
