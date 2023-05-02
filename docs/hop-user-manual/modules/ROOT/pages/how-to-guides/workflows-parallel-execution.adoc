@@ -1,0 +1,84 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[JoinsLookups]]
+:imagesdir: ../../assets/images
+:description: This guide provides an overview of ways to execute workflow actions in parallel.
+
+= Parallel execution in Apache Hop workflows
+
+One of the first xref:installation-configuration.adoc[concepts^] new Apache Hop users learn is that pipelines are executed in parallel and workflows are executed sequentially.
+
+However, there are cases where you want to overrule these defaults and execute pipelines sequentially and workflows in parallel.
+We'll take a closer look at the latter use case in more detail and show how you can run actions in a workflow in parallel.
+
+== Multiple workflow action hops
+
+As you already know, actions in a workflow are executed sequentially. Each action in a workflow has an exit code (success or failure) that determines the path the workflow will follow. This exit code can be ignored in the case of an unconditional hop.
+
+A workflow action can have multiple outgoing hops. However, this doesn't mean the workflow will follow all hops in parallel. If an action has multiple outgoing hops, the default workflow behavior is to execute all actions sequentially in the order they were added to the workflow.
+
+In the example below, the workflow will execute "sample-pipeline.hpl 1" first. Once that action is completed, the workflow will continue to "sample-pipeline.hpl 2".
+
+image:how-to-guides/parallel-workflows/sequential-actions.png[Sequential actions in Apache Hop workflows, width="65%"]
+
+== Parallel execution
+
+Parallel execution in a workflow is possible, but this needs to be specified explicitly. To do so, click on an action's icon and click the "parallel execution" option. Once the parallel option has been activated, the hop line will be dotted and double-crossed, as shown in the screenshot below.
+
+Keep in mind that parallel execution means that all actions that run in parallel will have to share the resources in the Java Virtual Machine (JVM). Small pipelines and workflow actions that run in parallel may be faster, but larger items that require a lot of memory or CPU power may be faster when executed sequentially.
+
+image:how-to-guides/parallel-workflows/parallel-option.png[parallel option in Apache Hop workflows, width="65%"]
+
+image:how-to-guides/parallel-workflows/parallel-actions.png[parallel actions in Apache Hop workflows, width="65%"]
+
+When you run this workflow, the log message will tell you both actions have started in parallel:
+
+[source,shell]
+----
+2023/05/01 10:14:42 - parallel-workflow - Start of workflow execution
+2023/05/01 10:14:42 - parallel-workflow - Starting action [sample-pipeline.hpl 1]
+2023/05/01 10:14:42 - parallel-workflow - Launched action [sample-pipeline.hpl 1] in parallel.
+2023/05/01 10:14:42 - parallel-workflow - Starting action [sample-pipeline.hpl 2]
+2023/05/01 10:14:42 - parallel-workflow - Launched action [sample-pipeline.hpl 2] in parallel.
+----
+
+== Combining sequential and parallel execution
+
+Once you tell a workflow to run in parallel from a given action, it will continue to run the subsequent actions in parallel.
+
+Consider the extremely simple workflow below. This workflow starts both "sample pipeline actions in parallel. After the sample pipelines, the workflow will execute the respective "Write to log" actions, and both workflows will execute the "Dummy" action.
+
+The effective result will be what is shown in the second screenshot below:
+
+image:how-to-guides/parallel-workflows/continue-in-parallel.png[continue workflow execution in parallel, width="65%"]
+
+image:how-to-guides/parallel-workflows/continue-in-parallel-two-streams.png[continue workflow execution in parallel is similar two running in two separate streams, width="65%"]
+
+In a lot of cases, you'll only want to execute parts of a workflow in parallel. Example use cases could be that you want to load data to a number of relatively small database tables or generate a number of relatively small files before continuing with the more heavy lifting.
+
+In those scenarios, you'll want to isolate the parallel processing in a separate child workflow.
+
+In the screenshot below, we've isolated the part of the workflow we want to execute in parallel into a child workflow. When this workflow runs, the child workflow ("parallel workflow") will run both actions in parallel. The child workflow will run both sample pipelines in parallel. When the last of these two pipelines finishes, the parent workflow will continue its (sequential) execution.
+
+image:how-to-guides/parallel-workflows/parallel-workflow-parent.png[parallel execution - parent workflow, width="65%"]
+
+image:how-to-guides/parallel-workflows/parallel-actions.png[parallel actions - child workflow, width="65%"]
+
+== Summary
+
+In this post, we walked through the various options to run workflow actions in parallel in Apache Hop. You also learned how to combine parallel and sequential execution through child workflows.
+
