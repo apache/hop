@@ -20,7 +20,7 @@ under the License.
 
 = Parallel execution in Apache Hop workflows
 
-One of the first xref:installation-configuration.adoc[concepts^] new Apache Hop users learn is that pipelines are executed in parallel and workflows are executed sequentially.
+One of the first xref:installation-configuration.adoc[concepts] new Apache Hop users learn is that pipelines are executed in parallel and workflows are executed sequentially.
 
 However, there are cases where you want to overrule these defaults and execute pipelines sequentially and workflows in parallel.
 We'll take a closer look at the latter use case in more detail and show how you can run actions in a workflow in parallel.
