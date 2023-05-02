@@ -1328,10 +1328,6 @@ public abstract class Pipeline
           badGuys.add(e);
         }
       }
-      if (pipelineWaitUntilFinishedBlockingQueue != null) {
-        // Signal for the waitUntilFinished blocker...
-        pipelineWaitUntilFinishedBlockingQueue.add(new Object());
-      }
       if (!badGuys.isEmpty()) {
         // FIFO
         throw new HopException(badGuys.get(0));
@@ -1348,6 +1344,14 @@ public abstract class Pipeline
         log, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
+  public void pipelineCompleted() throws HopException {
+    // Signal for the waitUntilFinished blocker.
+    // This will cause the wait loop in the waitUntilFinished() method to stop.
+    //
+    if (pipelineWaitUntilFinishedBlockingQueue != null) {
+      pipelineWaitUntilFinishedBlockingQueue.add(new Object());
+    }
+  }
   /**
    * Fires the start-event listeners (if any are registered).
    *

@@ -18,6 +18,14 @@
 
 package org.apache.hop.ui.hopgui.shared;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
@@ -25,7 +33,9 @@ import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.execution.Execution;
+import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.execution.ExecutionState;
+import org.apache.hop.execution.IExecutionInfoLocation;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.core.PropsUi;
@@ -39,22 +49,14 @@ import org.apache.hop.ui.hopgui.perspective.execution.ExecutionPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class BaseExecutionViewer extends DragViewZoomBase
     implements MouseListener, MouseMoveListener {
@@ -75,6 +77,8 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   protected GuiToolbarWidgets toolBarWidgets;
   protected SashForm sash;
   protected CTabFolder tabFolder;
+
+  protected Text loggingText;
 
   protected Point lastClick;
 
@@ -231,10 +235,42 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       }
 
       MetadataManager<IHopMetadata> manager =
-          new MetadataManager<>(variables, metadataProvider, serializer.getManagedClass(), hopGui.getShell());
+          new MetadataManager<>(
+              variables, metadataProvider, serializer.getManagedClass(), hopGui.getShell());
       manager.editMetadata(name);
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error viewing the metadata", e);
+    }
+  }
+
+  protected void refreshLoggingText() {
+    // If this gets called too early, bail out.
+    //
+    if (execution==null || props==null) {
+      return;
+    }
+    Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);
+    try {
+      getShell().setCursor(busyCursor);
+
+      ExecutionInfoLocation location = perspective.getLocationMap().get(locationName);
+      if (location == null) {
+        return;
+      }
+      IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
+
+      String shownLogText =
+          iLocation.getExecutionStateLoggingText(
+              execution.getId(), props.getMaxExecutionLoggingTextSize());
+
+      loggingText.setText(Const.NVL(shownLogText, ""));
+
+      // Scroll to the bottom
+      loggingText.setSelection(loggingText.getCharCount());
+    } catch (Exception e) {
+      new ErrorDialog(getShell(), "Error", "Error refreshing logging text", e);
+    } finally {
+      getShell().setCursor(null);
     }
   }
 

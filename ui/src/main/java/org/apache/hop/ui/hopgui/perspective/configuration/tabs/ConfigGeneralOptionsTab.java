@@ -64,6 +64,7 @@ public class ConfigGeneralOptionsTab {
   private Button wbUseDoubleClick;
   private Button wbUseGlobalFileBookmarks;
   private Button wSortFieldByName;
+  private Text wMaxExecutionLoggingTextSize;
 
   public ConfigGeneralOptionsTab() {
     // This instance is created in the GuiPlugin system by calling this constructor, after which it
@@ -83,8 +84,7 @@ public class ConfigGeneralOptionsTab {
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setImage(GuiResource.getInstance().getImageHop());
     PropsUi.setLook(wGeneralTab);
-    wGeneralTab.setText(
-            BaseMessages.getString(PKG, "EnterOptionsDialog.General.Label"));
+    wGeneralTab.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.General.Label"));
 
     ScrolledComposite sGeneralComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     sGeneralComp.setLayout(new FillLayout());
@@ -322,8 +322,10 @@ public class ConfigGeneralOptionsTab {
 
     // Sort field by name
     Label wlSortFieldByName = new Label(wGeneralComp, SWT.RIGHT);
-    wlSortFieldByName.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.Label"));
-    wlSortFieldByName.setToolTipText(BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.ToolTip"));
+    wlSortFieldByName.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.Label"));
+    wlSortFieldByName.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.SortFieldByName.ToolTip"));
     PropsUi.setLook(wlSortFieldByName);
     FormData fdlSortFieldByName = new FormData();
     fdlSortFieldByName.left = new FormAttachment(0, 0);
@@ -340,7 +342,7 @@ public class ConfigGeneralOptionsTab {
     wSortFieldByName.setSelection(props.isSortFieldByName());
     wSortFieldByName.addListener(SWT.Selection, this::saveValues);
     lastControl = wSortFieldByName;
-    
+
     // Tooltips
     Label wlToolTip = new Label(wGeneralComp, SWT.RIGHT);
     wlToolTip.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.ToolTipsEnabled.Label"));
@@ -421,6 +423,30 @@ public class ConfigGeneralOptionsTab {
     fdbUseGlobalFileBookmarks.right = new FormAttachment(100, 0);
     wbUseGlobalFileBookmarks.setLayoutData(fdbUseGlobalFileBookmarks);
     wbUseGlobalFileBookmarks.addListener(SWT.Selection, this::saveValues);
+    lastControl = wlUseGlobalFileBookmarks;
+
+    // The default preview size
+    Label wlMaxExecutionLoggingTextSize = new Label(wGeneralComp, SWT.RIGHT);
+    wlMaxExecutionLoggingTextSize.setText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.MaxExecutionLoggingTextSizeSize.Label"));
+    PropsUi.setLook(wlMaxExecutionLoggingTextSize);
+    FormData fdlMaxExecutionLoggingTextSize = new FormData();
+    fdlMaxExecutionLoggingTextSize.left = new FormAttachment(0, 0);
+    fdlMaxExecutionLoggingTextSize.right = new FormAttachment(middle, -margin);
+    fdlMaxExecutionLoggingTextSize.top = new FormAttachment(lastControl, 2 * margin);
+    wlMaxExecutionLoggingTextSize.setLayoutData(fdlMaxExecutionLoggingTextSize);
+    wMaxExecutionLoggingTextSize = new Text(wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wMaxExecutionLoggingTextSize.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.MaxExecutionLoggingTextSizeSize.ToolTip"));
+    wMaxExecutionLoggingTextSize.setText(Integer.toString(props.getMaxExecutionLoggingTextSize()));
+    PropsUi.setLook(wMaxExecutionLoggingTextSize);
+    FormData fdMaxExecutionLoggingTextSize = new FormData();
+    fdMaxExecutionLoggingTextSize.left = new FormAttachment(middle, 0);
+    fdMaxExecutionLoggingTextSize.right = new FormAttachment(100, 0);
+    fdMaxExecutionLoggingTextSize.top =
+        new FormAttachment(wlMaxExecutionLoggingTextSize, 0, SWT.CENTER);
+    wMaxExecutionLoggingTextSize.setLayoutData(fdMaxExecutionLoggingTextSize);
+    wMaxExecutionLoggingTextSize.addListener(SWT.Modify, this::saveValues);
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
@@ -480,6 +506,10 @@ public class ConfigGeneralOptionsTab {
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
     props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());
+    props.setMaxExecutionLoggingTextSize(
+        Const.toInt(
+            wMaxExecutionLoggingTextSize.getText(),
+            PropsUi.DEFAULT_MAX_EXECUTION_LOGGING_TEXT_SIZE));
 
     try {
       HopConfig.getInstance().saveToFile();

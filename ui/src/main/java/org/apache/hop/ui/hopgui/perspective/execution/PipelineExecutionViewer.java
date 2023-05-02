@@ -18,6 +18,17 @@
 
 package org.apache.hop.ui.hopgui.perspective.execution;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
@@ -80,8 +91,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -101,18 +110,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.w3c.dom.Node;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @GuiPlugin
 public class PipelineExecutionViewer extends BaseExecutionViewer
@@ -146,7 +143,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   private CTabItem infoTab;
   private TableView infoView;
   private CTabItem logTab;
-  private Text loggingText;
   private CTabItem dataTab;
   private SashForm dataSash;
   private org.eclipse.swt.widgets.List dataList;
@@ -286,7 +282,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       }
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
-      executionState = iLocation.getExecutionState(execution.getId());
+      // Don't load execution logging text to prevent memory issues.
+      //
+      executionState = iLocation.getExecutionState(execution.getId(), false);
       if (executionState == null) {
         return;
       }
@@ -320,10 +318,6 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       infoView.add("Container ID", executionState.getContainerId());
 
       infoView.optimizeTableView();
-
-      loggingText.setText(Const.NVL(executionState.getLoggingText(), ""));
-      // Scroll to the bottom
-      loggingText.setSelection(loggingText.getCharCount());
 
       try {
         ExtensionPointHandler.callExtensionPoint(
@@ -604,6 +598,16 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     PropsUi.setLook(loggingText);
 
     logTab.setControl(loggingText);
+
+    // When the logging tab comes into focus, re-load the logging text
+    //
+    tabFolder.addListener(
+        SWT.Selection,
+        e -> {
+          if (tabFolder.getSelection() == logTab) {
+            refreshLoggingText();
+          }
+        });
   }
 
   @Override
@@ -1015,7 +1019,11 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             break;
           }
           Execution child = childExecutions.get(0);
-          ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+
+          // Don't load logging text as that can be a lot of data.
+          // Lazily load that when the logging text comes into focus.
+          //
+          ExecutionState executionState = iLocation.getExecutionState(execution.getId(), false);
           perspective.createExecutionViewer(locationName, child, executionState);
           return;
         }
@@ -1064,7 +1072,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       } else {
         childExecution = selectExecution(childExecutions);
       }
-      ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+      // Don't load execution logging text to prevent memory issues.
+      //
+      ExecutionState executionState = iLocation.getExecutionState(execution.getId(), false);
       perspective.createExecutionViewer(locationName, childExecution, executionState);
 
     } catch (Exception e) {
@@ -1134,7 +1144,9 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
 
       Execution grandParent = iLocation.getExecution(grandParentId);
 
-      ExecutionState executionState = iLocation.getExecutionState(grandParent.getId());
+      // Don't load execution logging text to prevent memory issues.
+      //
+      ExecutionState executionState = iLocation.getExecutionState(grandParent.getId(), false);
 
       // Open this one
       //
