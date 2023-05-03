@@ -985,17 +985,28 @@ public class ExcelWriterTransform
       int startY = !Utils.isEmpty(data.realStartingCell) ? posY : Math.max(posY, sheet.getLastRowNum());
 
       ExcelWriterWorkbookDefinition workbookDefinition =
-          new ExcelWriterWorkbookDefinition(baseFileName, file, wb, sheet, posX, startY);
-      workbookDefinition.setSplitNr(splitNr);
-      data.usedFiles.add(workbookDefinition);
-      data.currentWorkbookDefinition = workbookDefinition;
-      data.currentWorkbookDefinition.clearStyleCache(numOfFields);
+              prepareWorkbookDefinition(numOfFields, splitNr, file, wb, sheet, posX, baseFileName, startY);
 
       // may have to write a header here
       if (meta.isHeaderEnabled()
           && !(!data.createNewSheet && meta.isAppendOmitHeader() && appendingToSheet)) {
         data.currentWorkbookDefinition.setSheet(writeHeader(workbookDefinition, sheet, posX, posY));
       }
+
+      // Reload Worksheet in Streaming mode when a template is used
+      if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")
+              && meta.getFile().isStreamingData()
+              && meta.getTemplate().isTemplateEnabled()) {
+        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file))) {
+          XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
+          wb = new SXSSFWorkbook(xssfWorkbook, 100);
+          sheet = wb.getSheet(data.realSheetname);
+          // Replace workbookDefinition with reloaded one
+          data.usedFiles.remove(workbookDefinition);
+          prepareWorkbookDefinition(numOfFields, splitNr, file, wb, sheet, posX, baseFileName, startY);
+        }
+      }
+
       if (log.isDebug()) {
         logDebug(
             BaseMessages.getString(
@@ -1007,6 +1018,18 @@ public class ExcelWriterTransform
       setErrors(1);
       throw new HopException("Error opening new file", e);
     }
+  }
+
+  private ExcelWriterWorkbookDefinition prepareWorkbookDefinition(int numOfFields, int splitNr, FileObject file,
+                                                                  Workbook wb, Sheet sheet, int posX,
+                                                                  String baseFileName, int startY) {
+    ExcelWriterWorkbookDefinition workbookDefinition =
+            new ExcelWriterWorkbookDefinition(baseFileName, file, wb, sheet, posX, startY);
+    workbookDefinition.setSplitNr(splitNr);
+    data.usedFiles.add(workbookDefinition);
+    data.currentWorkbookDefinition = workbookDefinition;
+    data.currentWorkbookDefinition.clearStyleCache(numOfFields);
+    return workbookDefinition;
   }
 
   private Sheet openLine(Sheet sheet, int posY) {
