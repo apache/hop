@@ -296,9 +296,9 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    wFilename.setText(Const.NVL(action.getFilename(), ""));
-    wMaximumTimeout.setText(Const.NVL(action.getMaximumTimeout(), ""));
-    wCheckCycleTime.setText(Const.NVL(action.getCheckCycleTime(), ""));
+    wFilename.setText(Const.nullToEmpty(action.getFilename()));
+    wMaximumTimeout.setText(Const.nullToEmpty(action.getMaximumTimeout()));
+    wCheckCycleTime.setText(Const.nullToEmpty(action.getCheckCycleTime()));
     wSuccessOnTimeout.setSelection(action.isSuccessOnTimeout());
     wFileSizeCheck.setSelection(action.isFileSizeCheck());
     wAddFilenameResult.setSelection(action.isAddFilenameToResult());
