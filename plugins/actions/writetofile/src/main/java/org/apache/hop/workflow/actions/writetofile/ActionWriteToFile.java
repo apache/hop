@@ -22,12 +22,11 @@ import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -37,8 +36,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
-
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
@@ -58,10 +55,15 @@ import java.util.List;
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 
+  @HopMetadataProperty(key = "filename")
   private String filename;
+  @HopMetadataProperty(key = "createParentFolder")
   private boolean createParentFolder;
+  @HopMetadataProperty(key = "appendFile")
   private boolean appendFile;
+  @HopMetadataProperty(key = "content")
   private String content;
+  @HopMetadataProperty(key = "encoding")
   private String encoding;
 
   public ActionWriteToFile(String n) {
@@ -81,38 +83,6 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   public Object clone() {
     ActionWriteToFile je = (ActionWriteToFile) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(100);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("createParentFolder", createParentFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("appendFile", appendFile));
-    retval.append("      ").append(XmlHandler.addTagValue("content", content));
-    retval.append("      ").append(XmlHandler.addTagValue("encoding", encoding));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-      createParentFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createParentFolder"));
-      appendFile = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "appendFile"));
-      content = XmlHandler.getTagValue(entrynode, "content");
-      encoding = XmlHandler.getTagValue(entrynode, "encoding");
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'create file' from XML node", xe);
-    }
   }
 
   public void setFilename(String filename) {
@@ -284,9 +254,8 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     if (!Utils.isEmpty(getFilename())) {
-      String realFileName = resolve(getFilename());
       ResourceReference reference = new ResourceReference(this);
-      reference.getEntries().add(new ResourceEntry(realFileName, ResourceType.FILE));
+      reference.getEntries().add(new ResourceEntry(getRealFilename(), ResourceType.FILE));
       references.add(reference);
     }
     return references;
