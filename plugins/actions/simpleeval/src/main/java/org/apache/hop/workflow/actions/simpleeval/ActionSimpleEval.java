@@ -22,18 +22,15 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -50,146 +47,249 @@ import java.util.regex.Pattern;
     documentationUrl = "/workflow/actions/simpleeval.html")
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
+  
+  public enum ValueType implements IEnumHasCodeAndDescription {
+    FIELD("field", BaseMessages.getString(PKG, "ActionSimpleEval.EvalPreviousField.Label")),
+    VARIABLE("variable", BaseMessages.getString(PKG, "ActionSimpleEval.EvalVariable.Label"));
 
-  public static final String[] valueTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSimpleEval.EvalPreviousField.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.EvalVariable.Label"),
-      };
-  public static final String[] valueTypeCode = new String[] {"field", "variable"};
-  public static final int VALUE_TYPE_FIELD = 0;
-  public static final int VALUE_TYPE_VARIABLE = 1;
-  public int valuetype;
+    private final String code;
+    private final String description;
 
-  public static final String[] successConditionDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenContains.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotContains.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenStartWith.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotStartWith.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEndWith.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotEndWith.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenRegExp.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label")
-      };
-  public static final String[] successConditionCode =
-      new String[] {
-        "equal",
-        "different",
-        "contains",
-        "notcontains",
-        "startswith",
-        "notstatwith",
-        "endswith",
-        "notendwith",
-        "regexp",
-        "inlist",
-        "notinlist"
-      };
+    ValueType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
 
-  public static final int SUCCESS_CONDITION_EQUAL = 0;
-  public static final int SUCCESS_CONDITION_DIFFERENT = 1;
-  public static final int SUCCESS_CONDITION_CONTAINS = 2;
-  public static final int SUCCESS_CONDITION_NOT_CONTAINS = 3;
-  public static final int SUCCESS_CONDITION_START_WITH = 4;
-  public static final int SUCCESS_CONDITION_NOT_START_WITH = 5;
-  public static final int SUCCESS_CONDITION_END_WITH = 6;
-  public static final int SUCCESS_CONDITION_NOT_END_WITH = 7;
-  public static final int SUCCESS_CONDITION_REGEX = 8;
-  public static final int SUCCESS_CONDITION_IN_LIST = 9;
-  public static final int SUCCESS_CONDITION_NOT_IN_LIST = 10;
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(ValueType.class);
+    }
 
-  public int successcondition;
+    public static ValueType lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(ValueType.class, description, FIELD);
+    }
 
-  public static final String[] fieldTypeDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeString.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeNumber.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeDateTime.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeBoolean.Label"),
-      };
-  public static final String[] fieldTypeCode =
-      new String[] {"string", "number", "datetime", "boolean"};
-  public static final int FIELD_TYPE_STRING = 0;
-  public static final int FIELD_TYPE_NUMBER = 1;
-  public static final int FIELD_TYPE_DATE_TIME = 2;
-  public static final int FIELD_TYPE_BOOLEAN = 3;
+    public static ValueType lookupCode(String code) {
+      return IEnumHasCode.lookupCode(ValueType.class, code, FIELD);
+    }
 
-  public int fieldtype;
+    @Override
+    public String getCode() {
+      return code;
+    }
 
-  public static final String[] successNumberConditionDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallThan.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallOrEqualThan.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterThan.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterOrEqualThan.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessBetween.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"),
-      };
-  public static final String[] successNumberConditionCode =
-      new String[] {
-        "equal",
-        "different",
-        "smaller",
-        "smallequal",
-        "greater",
-        "greaterequal",
-        "between",
-        "inlist",
-        "notinlist"
-      };
-  public static final int SUCCESS_NUMBER_CONDITION_EQUAL = 0;
-  public static final int SUCCESS_NUMBER_CONDITION_DIFFERENT = 1;
-  public static final int SUCCESS_NUMBER_CONDITION_SMALLER = 2;
-  public static final int SUCCESS_NUMBER_CONDITION_SMALLER_EQUAL = 3;
-  public static final int SUCCESS_NUMBER_CONDITION_GREATER = 4;
-  public static final int SUCCESS_NUMBER_CONDITION_GREATER_EQUAL = 5;
-  public static final int SUCCESS_NUMBER_CONDITION_BETWEEN = 6;
-  public static final int SUCCESS_NUMBER_CONDITION_IN_LIST = 7;
-  public static final int SUCCESS_NUMBER_CONDITION_NOT_IN_LIST = 8;
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
 
-  public int successnumbercondition;
+  public enum SuccessStringCondition implements IEnumHasCodeAndDescription {
+    EQUAL("equal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label")),
+    DIFFERENT("different",BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label")),
+    CONTAINS("contains", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenContains.Label")),
+    NOT_CONTAINS("notcontains", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotContains.Label")),
+    START_WITH("startswith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenStartWith.Label")),
+    NOT_START_WITH("notstatwith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotStartWith.Label")),
+    END_WITH("endswith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEndWith.Label")),
+    NOT_END_WITH("notendwith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotEndWith.Label")),
+    REGEX("regexp", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenRegExp.Label")),
+    IN_LIST("inlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label")),
+    NOT_IN_LIST("notinlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"));
 
-  public static final String[] successBooleanConditionDesc =
-      new String[] {
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenTrue.Label"),
-        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenFalse.Label")
-      };
-  public static final String[] successBooleanConditionCode = new String[] {"true", "false"};
-  public static final int SUCCESS_BOOLEAN_CONDITION_TRUE = 0;
-  public static final int SUCCESS_BOOLEAN_CONDITION_FALSE = 1;
+    private final String code;
+    private final String description;
 
-  public int successbooleancondition;
+    SuccessStringCondition(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
 
-  private String fieldname;
-  private String variablename;
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(SuccessStringCondition.class);
+    }
+
+    public static SuccessStringCondition lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(SuccessStringCondition.class, description, EQUAL);
+    }
+
+    public static SuccessStringCondition lookupCode(String code) {
+      return IEnumHasCode.lookupCode(SuccessStringCondition.class, code, EQUAL);
+    }
+
+    /**
+     * Gets code
+     *
+     * @return value of code
+     */
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    /**
+     * Gets description
+     *
+     * @return value of description
+     */
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  public enum FieldType implements IEnumHasCodeAndDescription {
+    STRING("string", BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeString.Label")),
+    NUMBER("number", BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeNumber.Label")),
+    DATE_TIME("datetime", BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeDateTime.Label")),
+    BOOLEAN("boolean", BaseMessages.getString(PKG, "ActionSimpleEval.FieldTypeBoolean.Label"));
+
+    private final String code;
+    private final String description;
+
+    FieldType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(FieldType.class);
+    }
+
+    public static FieldType lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(FieldType.class, description, STRING);
+    }
+
+    public static FieldType lookupCode(String code) {
+      return IEnumHasCode.lookupCode(FieldType.class, code, STRING);
+    }
+
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+
+  public enum SuccessNumberCondition implements IEnumHasCodeAndDescription {
+    EQUAL("equal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label")),
+    DIFFERENT("different", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label")),
+    SMALLER("smaller", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallThan.Label")),
+    SMALLER_EQUAL("smallequal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallOrEqualThan.Label")),
+    GREATER("greater", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterThan.Label")),
+    GREATER_EQUAL("greaterequal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterOrEqualThan.Label")),
+    BETWEEN("between", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessBetween.Label")),
+    IN_LIST("inlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label")),
+    NOT_IN_LIST("notinlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"));
+
+    private final String code;
+    private final String description;
+
+    SuccessNumberCondition(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(SuccessNumberCondition.class);
+    }
+
+    public static SuccessNumberCondition lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(SuccessNumberCondition.class, description, EQUAL);
+    }
+
+    public static SuccessNumberCondition lookupCode(String code) {
+      return IEnumHasCode.lookupCode(SuccessNumberCondition.class, code, EQUAL);
+    }
+
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+  
+  public enum SuccessBooleanCondition implements IEnumHasCodeAndDescription {
+    TRUE("true", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenTrue.Label")),
+    FALSE("false", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenFalse.Label"));
+
+    private final String code;
+    private final String description;
+
+    SuccessBooleanCondition(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(SuccessBooleanCondition.class);
+    }
+
+    public static SuccessBooleanCondition lookupDescription(String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(SuccessBooleanCondition.class, description, TRUE);
+    }
+
+    public static SuccessBooleanCondition lookupCode(String code) {
+      return IEnumHasCode.lookupCode(SuccessBooleanCondition.class, code, TRUE);
+    }
+
+    @Override
+    public String getCode() {
+      return code;
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+  
+  @HopMetadataProperty(key = "valuetype", storeWithCode = true)
+  private ValueType valueType;
+  @HopMetadataProperty(key = "fieldtype", storeWithCode = true)
+  private FieldType fieldType;
+  @HopMetadataProperty(key = "fieldname")
+  private String fieldName;
+  @HopMetadataProperty(key = "variablename")
+  private String variableName;
+  @HopMetadataProperty(key = "mask")
   private String mask;
-  private String comparevalue;
-  private String minvalue;
-  private String maxvalue;
-
-  private boolean successwhenvarset;
-
+  @HopMetadataProperty(key = "comparevalue")
+  private String compareValue;
+  @HopMetadataProperty(key = "minvalue")
+  private String minValue;
+  @HopMetadataProperty(key = "maxvalue")
+  private String maxValue;
+  @HopMetadataProperty(key = "successcondition", storeWithCode = true)
+  private SuccessStringCondition successStringCondition;
+  @HopMetadataProperty(key = "successwhenvarset")  
+  private boolean successWhenVarSet;  
+  @HopMetadataProperty(key = "successbooleancondition", storeWithCode = true)
+  private SuccessBooleanCondition successBooleanCondition;
+  @HopMetadataProperty(key = "successnumbercondition", storeWithCode = true)
+  private SuccessNumberCondition successNumberCondition;
+ 
   public ActionSimpleEval(String n) {
     super(n, "");
-    valuetype = VALUE_TYPE_FIELD;
-    successcondition = SUCCESS_CONDITION_EQUAL;
-    successnumbercondition = SUCCESS_NUMBER_CONDITION_EQUAL;
-    successbooleancondition = SUCCESS_BOOLEAN_CONDITION_FALSE;
-    minvalue = null;
-    maxvalue = null;
-    comparevalue = null;
-    fieldname = null;
-    variablename = null;
-    fieldtype = FIELD_TYPE_STRING;
+    valueType = ValueType.FIELD;
+    fieldType = FieldType.STRING;
+    successStringCondition = SuccessStringCondition.EQUAL;
+    successNumberCondition = SuccessNumberCondition.EQUAL;
+    successBooleanCondition = SuccessBooleanCondition.TRUE;
+    minValue = null;
+    maxValue = null;
+    compareValue = null;
+    fieldName = null;
+    variableName = null;
     mask = null;
-    successwhenvarset = false;
+    successWhenVarSet = false;
   }
 
   public ActionSimpleEval() {
@@ -202,198 +302,12 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  private static String getValueTypeCode(int i) {
-    if (i < 0 || i >= valueTypeCode.length) {
-      return valueTypeCode[0];
-    }
-    return valueTypeCode[i];
-  }
-
-  private static String getFieldTypeCode(int i) {
-    if (i < 0 || i >= fieldTypeCode.length) {
-      return fieldTypeCode[0];
-    }
-    return fieldTypeCode[i];
-  }
-
-  private static String getSuccessConditionCode(int i) {
-    if (i < 0 || i >= successConditionCode.length) {
-      return successConditionCode[0];
-    }
-    return successConditionCode[i];
-  }
-
-  public static String getSuccessNumberConditionCode(int i) {
-    if (i < 0 || i >= successNumberConditionCode.length) {
-      return successNumberConditionCode[0];
-    }
-    return successNumberConditionCode[i];
-  }
-
-  private static String getSuccessBooleanConditionCode(int i) {
-    if (i < 0 || i >= successBooleanConditionCode.length) {
-      return successBooleanConditionCode[0];
-    }
-    return successBooleanConditionCode[i];
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("valuetype", getValueTypeCode(valuetype)));
-    xml.append("      ").append(XmlHandler.addTagValue("fieldname", fieldname));
-    xml.append("      ").append(XmlHandler.addTagValue("variablename", variablename));
-    xml.append("      ").append(XmlHandler.addTagValue("fieldtype", getFieldTypeCode(fieldtype)));
-    xml.append("      ").append(XmlHandler.addTagValue("mask", mask));
-    xml.append("      ").append(XmlHandler.addTagValue("comparevalue", comparevalue));
-    xml.append("      ").append(XmlHandler.addTagValue("minvalue", minvalue));
-    xml.append("      ").append(XmlHandler.addTagValue("maxvalue", maxvalue));
-    xml.append("      ")
-        .append(
-            XmlHandler.addTagValue("successcondition", getSuccessConditionCode(successcondition)));
-    xml.append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "successnumbercondition", getSuccessNumberConditionCode(successnumbercondition)));
-    xml.append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "successbooleancondition",
-                getSuccessBooleanConditionCode(successbooleancondition)));
-    xml.append("      ").append(XmlHandler.addTagValue("successwhenvarset", successwhenvarset));
-    return xml.toString();
-  }
-
-  private static int getValueTypeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < valueTypeCode.length; i++) {
-      if (valueTypeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  private static int getSuccessNumberByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successNumberConditionCode.length; i++) {
-      if (successNumberConditionCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  private static int getSuccessBooleanByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successBooleanConditionCode.length; i++) {
-      if (successBooleanConditionCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  private static int getFieldTypeByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < fieldTypeCode.length; i++) {
-      if (fieldTypeCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  private static int getSuccessConditionByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successConditionCode.length; i++) {
-      if (successConditionCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
   public void setSuccessWhenVarSet(boolean successwhenvarset) {
-    this.successwhenvarset = successwhenvarset;
+    this.successWhenVarSet = successwhenvarset;
   }
 
   public boolean isSuccessWhenVarSet() {
-    return this.successwhenvarset;
-  }
-
-  public static int getSuccessNumberConditionByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successNumberConditionCode.length; i++) {
-      if (successNumberConditionCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  private static int getSuccessBooleanConditionByCode(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successBooleanConditionCode.length; i++) {
-      if (successBooleanConditionCode[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-    return 0;
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      valuetype = getValueTypeByCode(Const.NVL(XmlHandler.getTagValue(entrynode, "valuetype"), ""));
-      fieldname = XmlHandler.getTagValue(entrynode, "fieldname");
-      fieldtype = getFieldTypeByCode(Const.NVL(XmlHandler.getTagValue(entrynode, "fieldtype"), ""));
-      variablename = XmlHandler.getTagValue(entrynode, "variablename");
-      mask = XmlHandler.getTagValue(entrynode, "mask");
-      comparevalue = XmlHandler.getTagValue(entrynode, "comparevalue");
-      minvalue = XmlHandler.getTagValue(entrynode, "minvalue");
-      maxvalue = XmlHandler.getTagValue(entrynode, "maxvalue");
-      successcondition =
-          getSuccessConditionByCode(
-              Const.NVL(XmlHandler.getTagValue(entrynode, "successcondition"), ""));
-      successnumbercondition =
-          getSuccessNumberConditionByCode(
-              Const.NVL(XmlHandler.getTagValue(entrynode, "successnumbercondition"), ""));
-      successbooleancondition =
-          getSuccessBooleanConditionByCode(
-              Const.NVL(XmlHandler.getTagValue(entrynode, "successbooleancondition"), ""));
-      successwhenvarset =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "successwhenvarset"));
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionSimple.Error.Exception.UnableLoadXML"), xe);
-    }
+    return this.successWhenVarSet;
   }
 
   @Override
@@ -404,8 +318,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     result.setResult(false);
 
     String sourcevalue = null;
-    switch (valuetype) {
-      case VALUE_TYPE_FIELD:
+    switch (valueType) {
+      case FIELD:
         List<RowMetaAndData> rows = result.getRows();
         RowMetaAndData resultRow = null;
         if (isDetailed()) {
@@ -423,7 +337,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         // get first row
         resultRow = rows.get(0);
-        String realfieldname = resolve(fieldname);
+        String realfieldname = resolve(fieldName);
         int indexOfField = -1;
         indexOfField = resultRow.getRowMeta().indexOfValue(realfieldname);
         if (indexOfField == -1) {
@@ -440,8 +354,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         resultRow = null;
         rows = null;
         break;
-      case VALUE_TYPE_VARIABLE:
-        if (Utils.isEmpty(variablename)) {
+      case VARIABLE:
+        if (Utils.isEmpty(variableName)) {
           logError(BaseMessages.getString(PKG, "ActionSimpleEval.Error.VariableMissing"));
           return result;
         }
@@ -482,34 +396,34 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     boolean success = false;
-    String realCompareValue = resolve(comparevalue);
+    String realCompareValue = resolve(compareValue);
     if (realCompareValue == null) {
       realCompareValue = "";
     }
-    String realMinValue = resolve(minvalue);
-    String realMaxValue = resolve(maxvalue);
+    String realMinValue = resolve(minValue);
+    String realMaxValue = resolve(maxValue);
 
-    switch (fieldtype) {
-      case FIELD_TYPE_STRING:
-        switch (successcondition) {
-          case SUCCESS_CONDITION_EQUAL: // equal
+    switch (fieldType) {
+      case STRING:
+        switch (successStringCondition) {
+          case EQUAL: // equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
                       PKG, "ActionSimpleEval.Log.CompareWithValue", sourcevalue, realCompareValue));
             }
             success = (sourcevalue.equals(realCompareValue));
-            if (valuetype == VALUE_TYPE_VARIABLE && !success) {
+            if (valueType == ValueType.VARIABLE && !success) {
               // make the empty value evaluate to true when compared to a not set variable
               if (Utils.isEmpty(realCompareValue)) {
-                String variableName = StringUtil.getVariableName(variablename);
-                if (System.getProperty(variableName) == null) {
+                String key = StringUtil.getVariableName(variableName);
+                if (System.getProperty(key) == null) {
                   success = true;
                 }
               }
             }
             break;
-          case SUCCESS_CONDITION_DIFFERENT: // different
+          case DIFFERENT: // different
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -517,7 +431,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (!sourcevalue.equals(realCompareValue));
             break;
-          case SUCCESS_CONDITION_CONTAINS: // contains
+          case CONTAINS: // contains
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -525,7 +439,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (sourcevalue.contains(realCompareValue));
             break;
-          case SUCCESS_CONDITION_NOT_CONTAINS: // not contains
+          case NOT_CONTAINS: // not contains
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -533,7 +447,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (!sourcevalue.contains(realCompareValue));
             break;
-          case SUCCESS_CONDITION_START_WITH: // starts with
+          case START_WITH: // starts with
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -541,7 +455,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (sourcevalue.startsWith(realCompareValue));
             break;
-          case SUCCESS_CONDITION_NOT_START_WITH: // not start with
+          case NOT_START_WITH: // not start with
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -549,7 +463,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (!sourcevalue.startsWith(realCompareValue));
             break;
-          case SUCCESS_CONDITION_END_WITH: // ends with
+          case END_WITH: // ends with
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -557,7 +471,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (sourcevalue.endsWith(realCompareValue));
             break;
-          case SUCCESS_CONDITION_NOT_END_WITH: // not ends with
+          case NOT_END_WITH: // not ends with
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -565,7 +479,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (!sourcevalue.endsWith(realCompareValue));
             break;
-          case SUCCESS_CONDITION_REGEX: // regexp
+          case REGEX: // regexp
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -573,7 +487,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (Pattern.compile(realCompareValue).matcher(sourcevalue).matches());
             break;
-          case SUCCESS_CONDITION_IN_LIST: // in list
+          case IN_LIST: // in list
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -585,7 +499,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
               success = (sourcevalue.equals(parts[i].trim()));
             }
             break;
-          case SUCCESS_CONDITION_NOT_IN_LIST: // not in list
+          case NOT_IN_LIST: // not in list
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -602,7 +516,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             break;
         }
         break;
-      case FIELD_TYPE_NUMBER:
+      case NUMBER:
         double valuenumber;
         try {
           valuenumber = Double.parseDouble(sourcevalue);
@@ -614,8 +528,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
 
         double valuecompare;
-        switch (successnumbercondition) {
-          case SUCCESS_NUMBER_CONDITION_EQUAL: // equal
+        switch (successNumberCondition) {
+          case EQUAL: // equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -634,7 +548,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber == valuecompare);
             break;
-          case SUCCESS_NUMBER_CONDITION_DIFFERENT: // different
+          case DIFFERENT: // different
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -653,7 +567,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber != valuecompare);
             break;
-          case SUCCESS_NUMBER_CONDITION_SMALLER: // smaller
+          case SMALLER: // smaller
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -672,7 +586,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber < valuecompare);
             break;
-          case SUCCESS_NUMBER_CONDITION_SMALLER_EQUAL: // smaller or equal
+          case SMALLER_EQUAL: // smaller or equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -691,7 +605,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber <= valuecompare);
             break;
-          case SUCCESS_NUMBER_CONDITION_GREATER: // greater
+          case GREATER: // greater
             try {
               valuecompare = Double.parseDouble(realCompareValue);
             } catch (Exception e) {
@@ -705,7 +619,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber > valuecompare);
             break;
-          case SUCCESS_NUMBER_CONDITION_GREATER_EQUAL: // greater or equal
+          case GREATER_EQUAL: // greater or equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -724,7 +638,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber >= valuecompare);
             break;
-          case SUCCESS_NUMBER_CONDITION_BETWEEN: // between min and max
+          case BETWEEN: // between min and max
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -763,7 +677,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (valuenumber >= valuemin && valuenumber <= valuemax);
             break;
-          case SUCCESS_NUMBER_CONDITION_IN_LIST: // in list
+          case IN_LIST: // in list
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -784,7 +698,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
               success = (valuenumber == valuecompare);
             }
             break;
-          case SUCCESS_NUMBER_CONDITION_NOT_IN_LIST: // not in list
+          case NOT_IN_LIST: // not in list
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -811,7 +725,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             break;
         }
         break;
-      case FIELD_TYPE_DATE_TIME:
+      case DATE_TIME:
         String realMask = resolve(mask);
         SimpleDateFormat df = new SimpleDateFormat();
         if (!Utils.isEmpty(realMask)) {
@@ -827,8 +741,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
 
         Date datecompare;
-        switch (successnumbercondition) {
-          case SUCCESS_NUMBER_CONDITION_EQUAL: // equal
+        switch (successNumberCondition) {
+          case EQUAL: // equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -842,7 +756,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (datevalue.equals(datecompare));
             break;
-          case SUCCESS_NUMBER_CONDITION_DIFFERENT: // different
+          case DIFFERENT: // different
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -856,7 +770,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (!datevalue.equals(datecompare));
             break;
-          case SUCCESS_NUMBER_CONDITION_SMALLER: // smaller
+          case SMALLER: // smaller
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -870,7 +784,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (datevalue.before(datecompare));
             break;
-          case SUCCESS_NUMBER_CONDITION_SMALLER_EQUAL: // smaller or equal
+          case SMALLER_EQUAL: // smaller or equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -884,7 +798,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (datevalue.before(datecompare) || datevalue.equals(datecompare));
             break;
-          case SUCCESS_NUMBER_CONDITION_GREATER: // greater
+          case GREATER: // greater
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -898,7 +812,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (datevalue.after(datecompare));
             break;
-          case SUCCESS_NUMBER_CONDITION_GREATER_EQUAL: // greater or equal
+          case GREATER_EQUAL: // greater or equal
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -912,7 +826,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             }
             success = (datevalue.after(datecompare) || datevalue.equals(datecompare));
             break;
-          case SUCCESS_NUMBER_CONDITION_BETWEEN: // between min and max
+          case BETWEEN: // between min and max
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -945,7 +859,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
                 ((datevalue.after(datemin) || datevalue.equals(datemin))
                     && (datevalue.before(datemax) || datevalue.equals(datemax)));
             break;
-          case SUCCESS_NUMBER_CONDITION_IN_LIST: // in list
+          case IN_LIST: // in list
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -963,7 +877,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
               success = (datevalue.equals(datecompare));
             }
             break;
-          case SUCCESS_NUMBER_CONDITION_NOT_IN_LIST: // not in list
+          case NOT_IN_LIST: // not in list
             if (isDebug()) {
               logDebug(
                   BaseMessages.getString(
@@ -987,7 +901,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         df = null;
         break;
-      case FIELD_TYPE_BOOLEAN:
+      case BOOLEAN:
         boolean valuebool;
         try {
           valuebool = ValueMetaString.convertStringToBoolean(sourcevalue);
@@ -998,11 +912,11 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
           return result;
         }
 
-        switch (successbooleancondition) {
-          case SUCCESS_BOOLEAN_CONDITION_FALSE: // false
+        switch (successBooleanCondition) {
+          case FALSE: // false
             success = (!valuebool);
             break;
-          case SUCCESS_BOOLEAN_CONDITION_TRUE: // true
+          case TRUE: // true
             success = (valuebool);
             break;
           default:
@@ -1051,126 +965,16 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     return datevalue;
   }
 
-  public static String getValueTypeDesc(int i) {
-    if (i < 0 || i >= valueTypeDesc.length) {
-      return valueTypeDesc[0];
-    }
-    return valueTypeDesc[i];
-  }
-
-  public static String getFieldTypeDesc(int i) {
-    if (i < 0 || i >= fieldTypeDesc.length) {
-      return fieldTypeDesc[0];
-    }
-    return fieldTypeDesc[i];
-  }
-
-  public static String getSuccessConditionDesc(int i) {
-    if (i < 0 || i >= successConditionDesc.length) {
-      return successConditionDesc[0];
-    }
-    return successConditionDesc[i];
-  }
-
-  public static String getSuccessNumberConditionDesc(int i) {
-    if (i < 0 || i >= successNumberConditionDesc.length) {
-      return successNumberConditionDesc[0];
-    }
-    return successNumberConditionDesc[i];
-  }
-
-  public static String getSuccessBooleanConditionDesc(int i) {
-    if (i < 0 || i >= successBooleanConditionDesc.length) {
-      return successBooleanConditionDesc[0];
-    }
-    return successBooleanConditionDesc[i];
-  }
-
-  public static int getValueTypeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < valueTypeDesc.length; i++) {
-      if (valueTypeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getValueTypeByCode(tt);
-  }
-
-  public static int getFieldTypeByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < fieldTypeDesc.length; i++) {
-      if (fieldTypeDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getFieldTypeByCode(tt);
-  }
-
-  public static int getSuccessConditionByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successConditionDesc.length; i++) {
-      if (successConditionDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getSuccessConditionByCode(tt);
-  }
-
-  public static int getSuccessNumberConditionByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successNumberConditionDesc.length; i++) {
-      if (successNumberConditionDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getSuccessNumberByCode(tt);
-  }
-
-  public static int getSuccessBooleanConditionByDesc(String tt) {
-    if (tt == null) {
-      return 0;
-    }
-
-    for (int i = 0; i < successBooleanConditionDesc.length; i++) {
-      if (successBooleanConditionDesc[i].equalsIgnoreCase(tt)) {
-        return i;
-      }
-    }
-
-    // If this fails, try to match using the code.
-    return getSuccessBooleanByCode(tt);
-  }
-
   public void setMinValue(String minvalue) {
-    this.minvalue = minvalue;
+    this.minValue = minvalue;
   }
 
   public String getMinValue() {
-    return minvalue;
+    return minValue;
   }
 
   public void setCompareValue(String comparevalue) {
-    this.comparevalue = comparevalue;
+    this.compareValue = comparevalue;
   }
 
   public String getMask() {
@@ -1182,35 +986,75 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   }
 
   public String getFieldName() {
-    return fieldname;
+    return fieldName;
   }
 
   public void setFieldName(String fieldname) {
-    this.fieldname = fieldname;
+    this.fieldName = fieldname;
   }
 
   public String getVariableName() {
-    return variablename;
+    return variableName;
   }
 
   public void setVariableName(String variablename) {
-    this.variablename = variablename;
+    this.variableName = variablename;
   }
 
   public String getCompareValue() {
-    return comparevalue;
+    return compareValue;
   }
 
   public void setMaxValue(String maxvalue) {
-    this.maxvalue = maxvalue;
+    this.maxValue = maxvalue;
   }
 
   public String getMaxValue() {
-    return maxvalue;
+    return maxValue;
   }
 
   @Override
   public boolean isEvaluation() {
     return true;
+  }
+
+  public ValueType getValueType() {
+    return valueType;
+  }
+
+  public FieldType getFieldType() {
+    return fieldType;
+  }
+
+  public SuccessStringCondition getSuccessStringCondition() {
+    return successStringCondition;
+  }
+
+  public void setValueType(ValueType valuetype) {
+    this.valueType = valuetype;
+  }
+
+  public void setFieldType(FieldType fieldtype) {
+    this.fieldType = fieldtype;
+  }
+
+  public void setSuccessStringCondition(SuccessStringCondition successcondition) {
+    this.successStringCondition = successcondition;
+  }
+
+  public SuccessBooleanCondition getSuccessBooleanCondition() {
+    return successBooleanCondition;
+  }
+
+  public SuccessNumberCondition getSuccessNumberCondition() {
+    return successNumberCondition;
+  }
+
+  public void setSuccessBooleanCondition(SuccessBooleanCondition successBooleanCondition) {
+    this.successBooleanCondition = successBooleanCondition;
+  }
+
+  public void setSuccessNumberCondition(SuccessNumberCondition successNumberCondition) {
+    this.successNumberCondition = successNumberCondition;
   }
 }
