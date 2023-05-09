@@ -269,8 +269,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     }
 
     if (connection != null) {
-      Database db = new Database(this, this, connection);
-      try {
+      try (Database db = new Database(this, this, connection)) {
         db.connect();
 
         if (useCustomSql) {
@@ -387,10 +386,6 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
         logError(
             BaseMessages.getString(
                 PKG, "ActionEvalTableContent.Error.RunningEntry", dbe.getMessage()));
-      } finally {
-        if (db != null) {
-          db.disconnect();
-        }
       }
     } else {
       errCount++;

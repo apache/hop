@@ -91,7 +91,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     shell.setText(BaseMessages.getString(PKG, "TableExistsDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -305,10 +305,9 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     if (wSchemaname.isDisposed()) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
@@ -339,11 +338,6 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
-      } finally {
-        if (database != null) {
-          database.disconnect();
-          database = null;
-        }
       }
     }
   }

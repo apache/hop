@@ -810,14 +810,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName);
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
-                try {
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+              if (databaseMeta != null) {                
+                try (Database db = new Database(loggingObject, variables, databaseMeta)) {
                   db.connect();
 
                   String schemaTable =
-                      ci.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+                      databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
                   IRowMeta r = db.getTableFields(schemaTable);
                   if (null != r) {
                     String[] fieldNames = r.getFieldNames();
@@ -832,16 +831,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
                     colInfo.setComboValues(new String[] {});
                   }
                   // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user
-                } finally {
-                  try {
-                    if (db != null) {
-                      db.disconnect();
-                    }
-                  } catch (Exception ignored) {
-                    // ignore any errors here.
-                    db = null;
-                  }
+                  // filled, but no problem for the user               
                 }
               }
             }
@@ -951,7 +941,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     inf.setDbConnectionName(wConnection.getText());
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     inf.setBufferSize(wBufferSize.getText());
     inf.setLogFile(wLogFile.getText());
     inf.setTruncate(wTruncate.getSelection());
@@ -982,7 +972,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
@@ -1033,7 +1023,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {

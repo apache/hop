@@ -193,9 +193,8 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
 
     if (connection != null) {
-      Database db = new Database(this, this, connection);
       FileObject sqlFile = null;
-      try {
+      try (Database db = new Database(this, this, connection)) {
         String theSql = null;
         db.connect();
 
@@ -264,7 +263,6 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         result.setNrErrors(1);
         logError(BaseMessages.getString(PKG, "ActionSQL.ErrorRunAction", je.getMessage()));
       } finally {
-        db.disconnect();
         if (sqlFile != null) {
           try {
             sqlFile.close();

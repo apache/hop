@@ -266,8 +266,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
         if (connection != null) {
           // User has specified a connection, We can continue ...
-          Database db = new Database(this, this, connection);
-          try {
+          try (Database db = new Database(this, this, connection)) {
             db.connect();
             // Get schemaname
             String realSchemaname = resolve(schemaName);
@@ -364,9 +363,6 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
                 PreparedStatement ps = db.prepareSql(fileBulkFile);
                 ps.execute();
 
-                // Everything is OK...we can disconnect now
-                db.disconnect();
-
                 if (isAddFileToResult()) {
                   // Add filename to output files
                   ResultFile resultFile =
@@ -381,7 +377,6 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
                 result.setResult(true);
 
               } catch (SQLException je) {
-                db.disconnect();
                 result.setNrErrors(1);
                 logError(
                     BaseMessages.getString(PKG, "ActionMysqlBulkFile.Error.Label")
@@ -397,7 +392,6 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
             } else {
               // Of course, the table should have been created already before the bulk load
               // operation
-              db.disconnect();
               result.setNrErrors(1);
               if (log.isDetailed()) {
                 logDetailed(
@@ -408,7 +402,6 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
             }
 
           } catch (HopDatabaseException dbe) {
-            db.disconnect();
             result.setNrErrors(1);
             logError(
                 BaseMessages.getString(PKG, "ActionMysqlBulkFile.Error.Label")

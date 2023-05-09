@@ -403,8 +403,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     action.setSqlFromFile(wSqlFromFile.getSelection());
     action.setSqlFilename(wFilename.getText());
     action.setSendOneStatement(wSendOneStatement.getSelection());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
-
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
     action.setChanged();
 
     dispose();

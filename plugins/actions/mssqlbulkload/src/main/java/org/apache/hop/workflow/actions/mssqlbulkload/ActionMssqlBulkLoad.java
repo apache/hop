@@ -326,17 +326,16 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
           }
 
           if (connection != null) {
-            // User has specified a connection, We can continue ...
-            Database db = new Database(this, this, connection);
 
-            if (!"MSSQL".equals(db.getDatabaseMeta().getPluginId())) {
+            // User has specified a connection, We can continue ...
+            if (!"MSSQL".equals(connection.getPluginId())) {
 
               logError(
                   BaseMessages.getString(
                       PKG, "ActionMssqlBulkLoad.Error.DbNotMSSQL", connection.getDatabaseName()));
               return result;
             }
-            try {
+            try (Database db = new Database(this, this, connection)) {
               db.connect();
               // Get schemaname
               String realSchemaname = resolve(schemaname);
@@ -514,24 +513,17 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                   logError("An error occurred executing this action : " + je.getMessage(), je);
                 } catch (HopFileException e) {
                   logError("An error occurred executing this action : " + e.getMessage(), e);
-                  result.setNrErrors(1);
-                } finally {
-                  if (db != null) {
-                    db.disconnect();
-                    db = null;
-                  }
+                  result.setNrErrors(1);                
                 }
               } else {
                 // Of course, the table should have been created already before the bulk load
                 // operation
-                db.disconnect();
                 result.setNrErrors(1);
                 logError(
                     BaseMessages.getString(
                         PKG, "ActionMssqlBulkLoad.Error.TableNotExists", realTablename));
               }
             } catch (HopDatabaseException dbe) {
-              db.disconnect();
               result.setNrErrors(1);
               logError("An error occurred executing this entry: " + dbe.getMessage());
             }

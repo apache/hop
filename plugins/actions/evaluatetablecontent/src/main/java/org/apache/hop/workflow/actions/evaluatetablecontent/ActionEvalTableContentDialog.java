@@ -525,7 +525,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   }
 
   private void getSql() {
-    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText());
+    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (inf != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -550,9 +550,8 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
           case SWT.NO:
             wSql.setText(sql);
             break;
-          case SWT.YES:
-            Database db = new Database(loggingObject, variables, inf);
-            try {
+          case SWT.YES:            
+            try (Database db = new Database(loggingObject, variables, inf)) {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);
               if (fields != null) {
@@ -592,8 +591,6 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
                       + Const.CR
                       + e.getMessage());
               mb.open();
-            } finally {
-              db.disconnect();
             }
             break;
           default:
@@ -686,7 +683,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText()));
+    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
 
     action.setSchemaname(wSchemaname.getText());
     action.setTablename(wTablename.getText());
@@ -705,7 +702,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   private void getTableName() {
     String databaseName = wConnection.getText();
     if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName);
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
       if (databaseMeta != null) {
         DatabaseExplorerDialog std =
             new DatabaseExplorerDialog(

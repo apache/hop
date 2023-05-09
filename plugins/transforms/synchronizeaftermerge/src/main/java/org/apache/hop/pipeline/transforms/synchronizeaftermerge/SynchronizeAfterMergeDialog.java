@@ -789,7 +789,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     }
 
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -928,10 +928,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
-                Database db = new Database(loggingObject, variables, databaseMeta);
-                try {
+                try (Database db = new Database(loggingObject, variables, databaseMeta)) {
                   db.connect();
 
                   IRowMeta r =
@@ -950,16 +949,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
                     colInfo.setComboValues(new String[] {});
                   }
                   // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user
-                } finally {
-                  try {
-                    if (db != null) {
-                      db.disconnect();
-                    }
-                  } catch (Exception ignored) {
-                    // ignore any errors here.
-                    db = null;
-                  }
+                  // filled, but no problem for the user 
                 }
               }
             }
@@ -1145,7 +1135,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText()));
+    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
   }
@@ -1176,7 +1166,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       if (log.isDebug()) {
         logDebug(
@@ -1301,7 +1291,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText());
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
