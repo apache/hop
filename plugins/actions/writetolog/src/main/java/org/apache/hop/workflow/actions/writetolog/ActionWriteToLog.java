@@ -20,21 +20,16 @@ package org.apache.hop.workflow.actions.writetolog;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.w3c.dom.Node;
-
 import java.util.Date;
 
 /** Action type to output message to the workflow log. */
@@ -50,15 +45,19 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
 
   /** The log level with which the message should be logged. */
+  @HopMetadataProperty(key = "loglevel", storeWithCode=true)
   private LogLevel actionLogLevel;
-
-  private String logsubject;
-  private String logmessage;
+  
+  @HopMetadataProperty(key = "logsubject")
+  private String logSubject;
+  
+  @HopMetadataProperty(key = "logmessage")
+  private String logMessage;
 
   public ActionWriteToLog(String n) {
     super(n, "");
-    logmessage = null;
-    logsubject = null;
+    logMessage = null;
+    logSubject = null;
   }
 
   public ActionWriteToLog() {
@@ -71,40 +70,9 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("logmessage", logmessage));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "loglevel", (getActionLogLevel() == null) ? null : getActionLogLevel().getCode()));
-    retval.append("      ").append(XmlHandler.addTagValue("logsubject", logsubject));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      logmessage = XmlHandler.getTagValue(entrynode, "logmessage");
-      actionLogLevel = LogLevel.getLogLevelForCode(XmlHandler.getTagValue(entrynode, "loglevel"));
-      logsubject = XmlHandler.getTagValue(entrynode, "logsubject");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "WriteToLog.Error.UnableToLoadFromXML.Label"), e);
-    }
-  }
-
   private class LogWriterObject implements ILoggingObject {
 
     private ILogChannel writerLog;
-
     private LogLevel logLevel;
     private ILoggingObject parent;
     private String subject;
@@ -190,16 +158,16 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  ILogChannel createLogChannel() {
-    LogWriterObject logWriterObject =
-        new LogWriterObject(getRealLogSubject(), this, parentWorkflow.getLogLevel());
+  protected ILogChannel createLogChannel() {
+    String subject = Const.nullToEmpty(resolve(getLogSubject()));
+    LogWriterObject logWriterObject = new LogWriterObject(subject, this, parentWorkflow.getLogLevel());
     return logWriterObject.getLogChannel();
   }
 
   /** Output message to workflow log. */
   public boolean evaluate(Result result) {
     ILogChannel logChannel = createLogChannel();
-    String message = getRealLogMessage();
+    String message = Const.nullToEmpty(resolve(getLogMessage()));
 
     // Filter out empty messages and those that are not visible with the workflow's log level
     if (Utils.isEmpty(message) || !getActionLogLevel().isVisible(logChannel.getLogLevel())) {
@@ -270,41 +238,33 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
     return false;
   }
 
-  public String getRealLogMessage() {
-    return Const.NVL(resolve(getLogMessage()), "");
-  }
-
-  public String getRealLogSubject() {
-    return Const.NVL(resolve(getLogSubject()), "");
-  }
-
   public String getLogMessage() {
-    if (logmessage == null) {
-      logmessage = "";
+    if (logMessage == null) {
+      logMessage = "";
     }
-    return logmessage;
+    return logMessage;
   }
 
   public String getLogSubject() {
-    if (logsubject == null) {
-      logsubject = "";
+    if (logSubject == null) {
+      logSubject = "";
     }
-    return logsubject;
+    return logSubject;
   }
 
-  public void setLogMessage(String s) {
-    logmessage = s;
+  public void setLogMessage(String message) {
+    this.logMessage = message;
   }
 
-  public void setLogSubject(String logsubjectin) {
-    logsubject = logsubjectin;
+  public void setLogSubject(String subject) {
+    this.logSubject = subject;
   }
 
   public LogLevel getActionLogLevel() {
     return actionLogLevel;
   }
 
-  public void setActionLogLevel(LogLevel in) {
-    this.actionLogLevel = in;
+  public void setActionLogLevel(LogLevel level) {
+    this.actionLogLevel = level;
   }
 }

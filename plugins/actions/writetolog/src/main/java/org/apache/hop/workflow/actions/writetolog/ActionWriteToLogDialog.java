@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
@@ -58,7 +59,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
 
   private TextVar wLogSubject;
 
-  private CCombo wLoglevel;
+  private Combo wLoglevel;
 
   public ActionWriteToLogDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -74,6 +75,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell.setMinimumSize(350, 250);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
@@ -127,7 +129,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdlLoglevel.right = new FormAttachment(middle, -margin);
     fdlLoglevel.top = new FormAttachment(wName, margin);
     wlLoglevel.setLayoutData(fdlLoglevel);
-    wLoglevel = new CCombo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wLoglevel = new Combo(shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     wLoglevel.setItems(LogLevel.getLogLevelDescriptions());
     PropsUi.setLook(wLoglevel);
     FormData fdLoglevel = new FormData();

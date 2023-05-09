@@ -42,7 +42,7 @@ public class WriteToLogMetaSymmetric extends WriteToLogMeta {
   }
 
   public void setLogLevelString(String value) {
-    LogLevel lvl = LogLevel.getLogLevelForCode(value);
+    LogLevel lvl = LogLevel.lookupCode(value);
     super.setLogLevel(lvl.getLevel());
   }
 }
