@@ -1,0 +1,61 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "table_name",
+          "data_set_field": "table_name"
+        },
+        {
+          "transform_field": "column_name",
+          "data_set_field": "column_name"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "table_name",
+        "column_name",
+        "result"
+      ],
+      "data_set_name": "golden-column-exist",
+      "transform_name": "Dummy (do nothing)"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "table_name",
+          "data_set_field": "table_name"
+        },
+        {
+          "transform_field": "column_name",
+          "data_set_field": "column_name"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "table_name",
+        "column_name",
+        "result"
+      ],
+      "data_set_name": "golden-column-exist",
+      "transform_name": "end result"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0028-column-exists UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0028-column-exists.hpl",
+  "test_type": "UNIT_TEST"
+}

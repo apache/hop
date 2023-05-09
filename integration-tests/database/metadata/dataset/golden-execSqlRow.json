@@ -1,5 +1,5 @@
 {
-  "base_filename": "data-set-filename.csv",
+  "base_filename": "golden-execSqlRow.csv",
   "name": "golden-execSqlRow",
   "description": "",
   "dataset_fields": [
@@ -8,40 +8,40 @@
       "field_length": -1,
       "field_type": 2,
       "field_precision": -1,
-      "field_format": "",
-      "field_name": "sql"
+      "field_name": "sql",
+      "field_format": ""
     },
     {
       "field_comment": "",
       "field_length": 10,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "update"
+      "field_name": "update",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": 10,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "insert"
+      "field_name": "insert",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": 10,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "delete"
+      "field_name": "delete",
+      "field_format": "####0;-####0"
     },
     {
       "field_comment": "",
       "field_length": 10,
       "field_type": 5,
       "field_precision": 0,
-      "field_format": "####0;-####0",
-      "field_name": "read"
+      "field_name": "read",
+      "field_format": "####0;-####0"
     }
   ],
   "folder_name": "${HOP_DATASETS_FOLDER}"

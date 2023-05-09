@@ -1,0 +1,3 @@
+table_name,column_name,result
+testtable,key,Y
+testtable,not_existant_column,N
