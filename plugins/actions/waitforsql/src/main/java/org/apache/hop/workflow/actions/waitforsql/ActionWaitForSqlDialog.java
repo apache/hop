@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.waitforsql;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
@@ -590,11 +589,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getSql() {
-    if (StringUtils.isEmpty(wConnection.getText())) {
-      return;
-    }
-    
-    DatabaseMeta databaseMeta = this.workflowMeta.findDatabase(variables.resolve(wConnection.getText()), variables);
+    DatabaseMeta databaseMeta = this.workflowMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
@@ -753,21 +748,13 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getTableName() {
-    if (StringUtils.isNotEmpty(wConnection.getText())) {
-      DatabaseMeta databaseMeta = this.workflowMeta.findDatabase(variables.resolve(wConnection.getText()), variables);
-      if (databaseMeta != null) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog(shell, SWT.NONE, variables,
-            databaseMeta, getWorkflowMeta().getDatabases());
-        std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
-        if (std.open()) {
-          wTablename.setText(Const.NVL(std.getTableName(), ""));
-        }
-      } else {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionWaitForSQL.ConnectionError2.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
-        mb.open();
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog(shell, SWT.NONE, variables,
+          databaseMeta, getWorkflowMeta().getDatabases());
+      std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
+      if (std.open()) {
+        wTablename.setText(Const.NVL(std.getTableName(), ""));
       }
     }
   }

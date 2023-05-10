@@ -205,9 +205,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     // check connection
     // connect and disconnect
     try {
-      IHopMetadataProvider metadataProvider = this.getParentWorkflow().getMetadataProvider();
-      DatabaseMeta databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(resolve(connection));
-
+      DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
       try ( Database database = new Database(this, this, databaseMeta)) {
         database.connect();
       }
@@ -370,9 +368,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
     
-    IHopMetadataProvider metadataProvider = this.getParentWorkflow().getMetadataProvider();
-    DatabaseMeta databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(resolve(connection));
-    
+    DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
     try (Database db = new Database(this, this, databaseMeta)) {
       db.connect();
       if (customSqlEnabled) {
