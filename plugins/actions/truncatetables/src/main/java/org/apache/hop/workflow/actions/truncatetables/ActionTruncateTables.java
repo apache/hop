@@ -17,18 +17,15 @@
 
 package org.apache.hop.workflow.actions.truncatetables;
 
-import org.apache.hop.core.Const;
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
@@ -41,9 +38,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** This defines a Truncate Tables action. */
 @Action(
@@ -97,64 +91,6 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     }
     return je;
   }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", this.connection == null ? null : this.connection.getName()));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("arg_from_previous", this.argFromPrevious));
-    retval.append("      <fields>").append(Const.CR);
-    if (tableNames != null) {
-      for (int i = 0; i < this.tableNames.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", this.tableNames[i]));
-        retval
-            .append("          ")
-            .append(XmlHandler.addTagValue("schemaname", this.schemaNames[i]));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      String dbname = XmlHandler.getTagValue(entrynode, "connection");
-      this.connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-      this.argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        this.tableNames[i] = XmlHandler.getTagValue(fnode, "name");
-        this.schemaNames[i] = XmlHandler.getTagValue(fnode, "schemaname");
-      }
-    } catch (HopException e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionTruncateTables.UnableLoadXML"), e);
-    }
-  }
-
   public void setDatabase(DatabaseMeta database) {
     this.connection = database;
   }
