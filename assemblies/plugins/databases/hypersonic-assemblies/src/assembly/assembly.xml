@@ -46,13 +46,5 @@
                 <include>org.apache.hop:hop-databases-hypersonic:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.hsqldb:hsqldb:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
     </dependencySets>
 </assembly>

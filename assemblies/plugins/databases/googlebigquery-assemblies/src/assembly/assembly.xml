@@ -51,15 +51,5 @@
                 <include>org.apache.hop:hop-databases-googlebigquery:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.google.api-client:google-api-client:jar</include>
-                <include>com.google.apis:google-api-services-bigquery:jar</include>
-                <include>com.google.http-client:google-http-client-jackson2:jar</include>
-                <include>com.google.oauth-client:google-oauth-client:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>        
     </dependencySets>
 </assembly>

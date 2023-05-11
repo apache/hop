@@ -42,6 +42,7 @@
         <module>static</module>
         <module>lib</module>
         <module>lib-beam</module>
+        <module>lib-jdbc</module>
         <module>client</module>
         <module>web</module>
         <module>core</module>

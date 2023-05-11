@@ -22,8 +22,9 @@ setlocal
 REM switch to script directory
 cd /D %~dp0
 
-set LIBSPATH=lib\core;lib\beam
-set CLASSPATH=lib\core\*;lib\beam\*;lib\swt\win64\*
+set LIBSPATH=lib\core;lib\beam;lib\jdbc
+set CLASSPATH=lib\core\*;lib\beam\*;lib\jdbc\*;lib\swt\win64\*
+
 
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java

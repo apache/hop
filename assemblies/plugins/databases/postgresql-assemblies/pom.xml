@@ -34,20 +34,11 @@
     <name>Hop Assemblies Plugins Databases PostgreSQL</name>
     <description />
 
-    <properties>
-        <postgresql.version>42.4.3</postgresql.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-postgresql</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>${postgresql.version}</version>
         </dependency>
     </dependencies>
 

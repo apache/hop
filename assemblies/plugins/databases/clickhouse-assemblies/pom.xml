@@ -32,28 +32,11 @@
     <name>Hop Assemblies Plugins Databases ClickHouse</name>
     <description />
 
-    <properties>
-        <clickhouse.jdbc.version>0.3.2-patch11</clickhouse.jdbc.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-clickhouse</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.clickhouse</groupId>
-            <artifactId>clickhouse-jdbc</artifactId>
-            <version>${clickhouse.jdbc.version}</version>
-            <!-- below is only needed when all you want is a shaded jar -->
-            <classifier>all</classifier>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-    </dependencies>
+     </dependencies>
 </project>

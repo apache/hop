@@ -34,21 +34,11 @@
     <name>Hop Assemblies Plugins Databases Vertica</name>
     <description />
 
-    <properties>
-        <vertica.jdbc.version>12.0.3-0</vertica.jdbc.version>
-    </properties>
-
-
-    <dependencies>
+   <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-vertica</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vertica.jdbc</groupId>
-            <artifactId>vertica-jdbc</artifactId>
-            <version>${vertica.jdbc.version}</version>
         </dependency>
     </dependencies>
 

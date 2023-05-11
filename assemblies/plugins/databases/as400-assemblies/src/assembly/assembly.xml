@@ -46,12 +46,5 @@
                 <include>org.apache.hop:hop-databases-as400:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>net.sf.jt400:jt400</include>
-            </includes>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-        </dependencySet>
     </dependencySets>
 </assembly>

@@ -46,13 +46,5 @@
                 <include>org.apache.hop:hop-databases-snowflake:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <useProjectArtifact>false</useProjectArtifact>
-            <scope>runtime</scope>
-            <includes>
-                <include>net.snowflake:snowflake-jdbc</include>
-            </includes>
-        </dependencySet>
     </dependencySets>
 </assembly>

@@ -34,31 +34,11 @@
 	<name>Hop Assemblies Plugins Databases Microsoft Access</name>
 	<description />
 
-	<properties>
-		<ucanaccess.version>5.0.1</ucanaccess.version>
-		<hsqldb.version>2.7.1</hsqldb.version>
-	</properties>
-
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.hop</groupId>
 			<artifactId>hop-databases-access</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.ucanaccess</groupId>
-			<artifactId>ucanaccess</artifactId>
-			<version>${ucanaccess.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.healthmarketscience.jackcess</groupId>
-			<artifactId>jackcess</artifactId>
-			<version>${jackcess.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hsqldb</groupId>
-			<artifactId>hsqldb</artifactId>
-			<version>${hsqldb.version}</version>
 		</dependency>
 	</dependencies>
 
