@@ -45,7 +45,7 @@ You'll see the option listed in a similar output to the one below:
 ----
 Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                     [-j=<projectOption>] [-l=<level>]
-                    [-r=<runConfigurationName>] [-p=<parameters>[,
+                    [-r=<runConfigurationName>] [-ps=<parametersSeparator] [-p=<parameters>[,
                     <parameters>...]]... [-s=<systemProperties>[,
                     <systemProperties>...]]...
   -e, --environment=<environmentOption>
@@ -55,12 +55,15 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
   -j, --project=<projectOption>
                           The name of the project to use
   -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
-      --logfile=<logFile>   Write Hop console log to a file
+  -l, --level=<level>     The debug level, one of NOTHING, ERROR, MINIMAL, BASIC, DETAILED, DEBUG, ROWLEVEL
+  -lf, --logfile=<logfile-name> The complete filename where hop-run will write the Hop console log
   -m, --metadata-export=<metadataExportFile>
                           A file containing exported metadata in JSON format
   -o, --printoptions      Print the used options
   -p, --parameters=<parameters>[,<parameters>...]
-                          A comma separated list of PARAMETER=VALUE pairs
+                          A list of PARAMETER=VALUE pairs
+  -ps, --parameters-separator=<parametersSeparator>
+                          A character to be used as separator for our list of PARAMETER=VALUE pairs (default is ",").
   -r, --runconfig=<runConfigurationName>
                           The name of the Run Configuration to use
   -s, --system-properties=<systemProperties>[,<systemProperties>...]
@@ -97,7 +100,7 @@ Check the xref:projects/projects-environments.adoc[documentation on environments
 
 |```-lf```
 |```--logfile```
-|Write Hop console log to a file specified by the user
+|The complete filename where hop-run will write the Hop console log
 
 |```-m```
 |```--metadata-export```
@@ -110,6 +113,10 @@ Check the xref:projects/projects-environments.adoc[documentation on environments
 |```-p```
 |```--parameters```
 |A comma separated list of PARAMETER=VALUE pairs
+
+|```-ps```
+|```--parameters-separator```
+|A character to be used as separator for our list of PARAMETER=VALUE pairs (default is ",").
 
 |```-r```
 |```--runconfig```
