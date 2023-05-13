@@ -16,30 +16,135 @@ under the License.
 ////
 [[HopServer]]
 :imagesdir: ../../assets/images
-:description: This tutorial explains how to run Apache Hop workflows and pipelines in Apache Airflow with the DockerOperator
+:description: This how-to explains how to run Apache Hop workflows and pipelines in Apache Airflow with the DockerOperator
 
-= Run workflows and pipelines from Apache Airflow
+= image:how-to-guides/run-hop-in-apache-airflow/airflow-logo.svg[Apache Airflow, width="75vw", align="center"]Run workflows and pipelines in Apache Airflow
 
-== Introduction
+== What is Apache Airflow?
 
-Apache Airflow is an open-source workflow management platform for data engineering pipelines.
+From the https://airflow.apache.org/[Apache Airflow website]:
 
-Airflow uses directed acyclic graphs (DAGs) to manage workflow orchestration. Tasks and dependencies are defined in Python and then Airflow manages the scheduling and execution. DAGs can be run either on a defined schedule (e.g. hourly or daily) or based on external event triggers (e.g. a file appearing in an AWS S3 bucket). DAGs can often be written in one Python file.
+[quote]
+Airflow is a platform created by the community to programmatically author, schedule and monitor workflows.
 
-Apache Hop workflows and pipelines can be used in Airflow through the https://airflow.apache.org/docs/apache-airflow-providers-docker/stable/_api/airflow/providers/docker/operators/docker/index.html[DockerOperator^] .
-Alternatively, the https://airflow.apache.org/docs/apache-airflow/stable/howto/operator/bash.html[BashOperator^] to call xref:hop-run/index.adoc[Hop Run] could also be used.
+Airflow uses Directed Acyclic Graphs (or https://airflow.apache.org/docs/apache-airflow/1.10.10/concepts.html[DAGs^]). A DAG  is a collection of all the tasks you want to run, organized in a way that reflects their relationships and dependencies.
 
-== Sample Dag
+A DAG is defined in a Python script, which represents the DAGs structure (tasks and their dependencies) as code.
 
-Running a Hop workflow or pipeline through the Airflow DockerOperator uses Docker to run a workflow or pipeline through a Docker container.
+From an Apache Hop point of view, our focus is different: Apache Hop wants to enable citizen developers to be productive data engineers without the need to write code. With that in mind, we don't need all the bells and whistles Apache Airflow provides (but don't let that stop you from using Apache Airflow to its full potential!).
 
-TIP: Check the xref:tech-manual::docker-container.adoc[Docker] docs for more information on how to run Apache Hop workflows and pipelines with Docker. Check xref:projects/index.adoc[Projects and environments] for more information and best practices to set up your project .
+== Run Apache Airflow in Docker Compose
 
-In the example below, we'll run a sample pipeline. The project and environment will be provided as mounted volumes to the container (`LOCAL_PATH_TO_PROJECT_FOLDER` and `LOCAL_PATH_TO_ENV_FOLDER`).
+The goal of this page is to get a basic Airflow setup running to demonstrate how Apache Airflow and Apache Hop can be used together. Check out the different https://airflow.apache.org/docs/apache-airflow/stable/installation/index.html[installation options^] if you want to build a production-ready Apache Airflow installation.
 
-Since your Airflow workflows probably will do more than just run a pipeline (e.g. perform a `git clone` or `git pull` first), two DummyOperators (start and end) were added to the sample.
+To keep things simple, we'll use Docker Compose to get Apache Airflow up and running in a matter of minutes. Even though https://docs.docker.com/compose/[Docker Compose^] has been said to be on the verge of extinction for quite a while now, it still is a quick and convenient way to experiment with data platforms that would otherwise be time-consuming and difficult to set up.
 
-[code,python]
+Apache Airflow provides a https://airflow.apache.org/docs/apache-airflow/2.6.0/docker-compose.yaml[docker-compose.yaml^] file. Our goal is to run Apache Hop workflows and pipelines in Apache Airflow, so we're not interested in the Airflow sample DAGs that come with this docker-compose file.
+
+Change the **AIRFLOW__CORE__LOAD_EXAMPLES** variable to "false" in the default file, and add an additional line **/var/run/docker.sock:/var/run/docker.sock** in the volumes section.
+All of this has already been done if you use the https://github.com/apache/hop/tree/master/docs/hop-user-manual/modules/ROOT/assets/files/how-to-guides/apache-airflow/docker-compose.yaml[the file] in our github repository.
+
+To run Apache Airflow from this docker-compose file, go the directory where you saved this file and run
+
+[source, bash]
+----
+docker compose up
+----
+
+The various Apache Airflow need a couple of moments to start. Once you see a couple of lines like the ones below in the logs, we're good to go.
+
+[source, bash]
+----
+apache-airflow-airflow-triggerer-1  | [2023-05-07 07:50:08 +0000] [24] [INFO] Booting worker with pid: 24
+apache-airflow-airflow-triggerer-1  | [2023-05-07 07:50:08 +0000] [25] [INFO] Booting worker with pid: 25
+apache-airflow-airflow-scheduler-1  |   ____________       _____________
+apache-airflow-airflow-scheduler-1  |  ____    |__( )_________  __/__  /________      __
+apache-airflow-airflow-scheduler-1  | ____  /| |_  /__  ___/_  /_ __  /_  __ \_ | /| / /
+apache-airflow-airflow-scheduler-1  | ___  ___ |  / _  /   _  __/ _  / / /_/ /_ |/ |/ /
+apache-airflow-airflow-scheduler-1  |  _/_/  |_/_/  /_/    /_/    /_/  \____/____/|__/
+apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.601+0000] {executor_loader.py:114} INFO - Loaded executor: CeleryExecutor
+apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.652+0000] {scheduler_job_runner.py:823} INFO - Starting the scheduler
+apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.653+0000] {scheduler_job_runner.py:830} INFO - Processing each file at most -1 times
+apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.657+0000] {manager.py:165} INFO - Launched DagFileProcessorManager with pid: 34
+apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.658+0000] {scheduler_job_runner.py:1576} INFO - Resetting orphaned tasks for active dag runs
+apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.660+0000] {settings.py:60} INFO - Configured default timezone Timezone('UTC')
+----
+
+Go to http://localhost:8080/home in your browser and log on with username "airflow" and password "airflow".
+
+Even though we're not running in production, the username and password can be easily changed from the docker-compose file. Just change the values for the **AIRFLOW_WWW_USER_USERNAME** and **AIRFLOW_WWW_USER_PASSWORD** variables in the docker-compose file or use any of the available ways to https://docs.docker.com/compose/environment-variables/set-environment-variables/[work with variables^] in Docker compose.
+
+After you logged on, Apache Airflow will show you an empty list of DAGs. We're ready for the real fun.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-empty-server.png[Apache Airflow - Empty server, width="75%"]
+
+== Your first Apache Airflow and Apache Hop DAG
+
+We'll use the Apache Airflow https://airflow.apache.org/docs/apache-airflow-providers-docker/stable/_api/airflow/providers/docker/operators/docker/index.html[DockerOperator^] to run Apache Hop workflows and pipelines from an embedded container in Apache Airflow.
+
+Again, you don't need to be an Apache Airflow, Docker, or Python expert to create DAGs, we'll treat DAGs as just another text file.
+Since we'll use a container to run our workflows and pipelines, the configuration in our DAG will look very similar to the environment variables you'll pass to the  xref:tech-manual::docker-container.adoc[short-lived Apache Hop container].
+
+Let's take a closer look at a couple of things in the DAG we'll use. This will look very familiar if you've even run Apache Hop workflows and pipelines in containers:
+
+Import the DockerOperator into your DAG:
+
+[source, python]
+----
+from airflow.operators.docker_operator import DockerOperator
+----
+
+Let's take a look at the end of the Apache Hop task first:
+
+[source, python]
+----
+mounts=[Mount(source='LOCAL_PATH_TO_PROJECT_FOLDER', target='/project', type='bind'),
+        Mount(source='LOCAL_PATH_TO_ENV_FOLDER', target='/project-config', type='bind')],
+----
+
+The mounts section is where we'll link your project and environment folders to the container.
+**LOCAL_PATH_TO_PROJECT_FOLDER** is the path to the project folder on your local file system (the folder where you keep your hop-config.json file, metadata folder and workflows and pipelines). This folder will be mounted as /project inside the container.
+**LOCAL_PATH_TO_ENV_FOLDER** is similar but points to the folder where your environment configuration (json) files are. This folder will be mounted as /project-config inside the container.
+
+Define and configure the pipeline in your DAG task:
+
+[source, python]
+----
+hop = DockerOperator(
+        task_id='sample-pipeline',
+        # use the Apache Hop Docker image. Add your tags here in the default apache/hop: syntax
+        image='apache/hop',
+        api_version='auto',
+        auto_remove=True,
+        environment= {
+            'HOP_RUN_PARAMETERS': 'INPUT_DIR=',
+            'HOP_LOG_LEVEL': 'Basic',
+            'HOP_FILE_PATH': '${PROJECT_HOME}/transforms/null-if-basic.hpl',
+            'HOP_PROJECT_DIRECTORY': '/project',
+            'HOP_PROJECT_NAME': 'hop-airflow-sample',
+            'HOP_ENVIRONMENT_NAME': 'env-hop-airflow-sample.json',
+            'HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS': '/project-config/env-hop-airflow-sample.json',
+            'HOP_RUN_CONFIG': 'local'
+        },
+----
+
+The parameters to specify here are:
+
+* **task_id**: a unique id for this Airflow task in the DAG
+* **image**: we use "apache/hop" in this example, which will always grab the latest release. Add a tag to use a specific Apache Hop release, e.g. "apache/hop:2.4.0" or "apache/hop:Development" for the very latest development version
+* **environment** is where we'll tell the DockerOperator which pipeline to run and provide additional configuration. The environment variables used here are exactly what you would pass to a standalone short-lived container without Airflow:
+** HOP_RUN_PARAMETERS: parameters to pass to the workflow or pipeline
+** HOP_LOG_LEVEL: the logging level to use with your workflow or pipeline
+** HOP_FILE_PATH: the path to the workflow or pipeline you want to use. This is the path in the container and is relative to the project folder
+** HOP_PROJECT_DIRECTORY: the folder where your project files live. In this example, this is the /project folder we mounted in the previous section.
+** HOP_PROJECT_NAME: your Apache Hop project's name. This will only be used internally (and will show in the logs). Your project name is not necessarily the same name you used to develop the project in Hop Gui, but keeping things consistent never hurts.
+** HOP_ENVIRONMENT_NAME: similar to the project name, this is the name for the environment that will be created through hop-conf when the container starts.
+** HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS: the paths to your environment configuration files. These file paths should be relative to the /project-config folder we mounted in the previous section.
+** HOP_RUN_CONFIG: the workflow or pipeline run configuration to use. Your mileage may vary, but in the vast majority of cases, using a local run configuration will be what you need.
+
+That's everything we need to specify for a first run. This DAG will look like the one below:
+
+[source, python]
 ----
 from datetime import datetime, timedelta
 from airflow import DAG
@@ -66,16 +171,16 @@ with DAG('sample-pipeline', default_args=default_args, schedule_interval=None, c
     end_dag = DummyOperator(
         task_id='end_dag'
         )
-    hop = DockerOperator(
+        hop = DockerOperator(
         task_id='sample-pipeline',
-# use the Apache Hop Docker image. Add your tags here in the default apache/hop:<TAG> syntax
+        # use the Apache Hop Docker image. Add your tags here in the default apache/hop: syntax
         image='apache/hop',
         api_version='auto',
         auto_remove=True,
         environment= {
-            'HOP_RUN_PARAMETERS': 'INPUT_DIR=<YOUR_INPUT_PATH>',
+            'HOP_RUN_PARAMETERS': 'INPUT_DIR=',
             'HOP_LOG_LEVEL': 'Basic',
-            'HOP_FILE_PATH': '${PROJECT_HOME}/etl/sample-pipeline.hpl',
+            'HOP_FILE_PATH': '${PROJECT_HOME}/transforms/null-if-basic.hpl',
             'HOP_PROJECT_DIRECTORY': '/project',
             'HOP_PROJECT_NAME': 'hop-airflow-sample',
             'HOP_ENVIRONMENT_NAME': 'env-hop-airflow-sample.json',
@@ -84,16 +189,162 @@ with DAG('sample-pipeline', default_args=default_args, schedule_interval=None, c
         },
         docker_url="unix://var/run/docker.sock",
         network_mode="bridge",
-        mounts=[Mount(source='<LOCAL_PATH_TO_PROJECT_FOLDER>', target='/project', type='bind'), Mount(source='LOCAL_PATH_TO_ENV_FOLDER', target='/project-config', type='bind')],
+        mounts=[Mount(source='LOCAL_PATH_TO_PROJECT_FOLDER', target='/project', type='bind'), Mount(source='LOCAL_PATH_TO_ENV_FOLDER', target='/project-config', type='bind')],
         force_pull=False
         )
     start_dag >> hop >> end_dag
 ----
 
-After you deploy this DAG to your Airflow dags folder (e.g. as `hop-airflow-sample.py`), it will be picked up by Apache Airflow and is ready to run.
+== Deploy and run your first DAG
 
-Check the Airflow logs for the `sample-pipeline` task for the full Hop logs of the pipeline execution.
+All it takes to deploy your dag is to put it in Airflow's dags folder. Our docker-compose setup has created a dags folder in the directory where you started the compose file. Airflow will scan this folder every two minutes by default.
 
-image:how-to-guides/run-hop-in-apache-airflow/airflow-dag-run.png[Apache Airflow - Hop DAG run, width="45%"]
+Save the DAG we just created in your dags folder as apache-hop-dag-simple.py. After a short wait, your DAG will show up in the list of dags.
 
+If there are any syntax errors in your DAG, Airflow will let you know. Expand the error dialog for more details about the error.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-error.png[Apache Airflow - DAG error, width="45%"]
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-available.png[Apache Airflow - DAG available, width="75%"]
+
+Click on the **sample-pipeline** DAG to see more details about it. From the tab list at the top of the page, select "Code" to review the DAG you just deployed, or "Graph" to see the graph representation of the DAG. This graph is extremely simple, but we're exploring Apache Airflow, so that's intentional.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-graph.png[Apache Airflow - DAG graph, width="65%"]
+
+To run this DAG, click the play icon with the **Trigger DAG** option. The icon is available from multiple locations in the Apache Airflow user interface. It is almost always available in the upper right corner.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-run.png[Apache Airflow - trigger DAG, width="45%"]
+
+Your DAG will run in the background. To follow up and check the logs, click on your DAG name to go to its details page.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-logs.png[Apache Airflow - DAG logs, width="45%"]
+
+[source, bash]
+----
+2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - Ouput.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
+[2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - null-if-basic - Pipeline duration : 0.45 seconds [  0.450 ]
+[2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - HopRun exit.
+[2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - null-if-basic - Execution finished on a local pipeline engine with run configuration 'local'
+[2023-05-07, 13:54:40 UTC] {taskinstance.py:1373} INFO - Marking task as SUCCESS. dag_id=sample-pipeline, task_id=sample-pipeline, execution_date=20230507T135409, start_date=20230507T135411, end_date=20230507T135440
+[2023-05-07, 13:54:40 UTC] {local_task_job_runner.py:232} INFO - Task exited with return code 0
+----
+
+When you return to the Airflow home screen, your DAG will now show green circles for successful runs.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-runs.png[Apache Airflow - DAG logs, width="90%"]
+
+== Using variables and parameters in a DAG
+
+Your real-life pipelines will be more complex than the extremely simple example pipeline we just ran.
+
+In the basic example we just ran, we passed an environment file but didn't use it. In a lot of cases, you'll want to not only use variables from your environment files, you may also want to pass parameters to your pipelines and workflows. Let's have a closer look at that.
+
+Create the environment configuration below to a config folder next to your project folder. We'll use the pipeline `pipelines/pipeline-with-parameter.hpl` from the samples project to print a pipeline parameter and a variable from the environment configuration file to the logs. Again, these examples are extremely simple, your real-life projects will be more complex, but the process remains the same.
+
+[source, json]
+----
+{
+  "variables" : [ {
+    "name" : "ENV_VARIABLE",
+    "value" : "variable value",
+    "description" : ""
+  } ]
+}
+----
+
+This pipeline is again very basic. All we'll do is accept a parameter and print it in the logs:
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-pipeline-with-parameter.png[Apache Airflow - run a pipeline with parameters, width="75%"]
+
+We'll create a new DAG for this example. Most of it will be the same or similar to the previous example, with some minor changes:
+
+First of all, we'll need to add one additional import at the start of the DAG:
+
+[source, python]
+----
+from airflow import DAG
+from airflow.models import Variable
+from airflow.operators.bash_operator import BashOperator
+----
+
+Next, we'll need to add the parameter in this pipeline and tell Airflow to pick up the values from the run configuration we'll pass to the DAG later on.
+
+We'll also use logging level Detailed to make sure we can see the parameters we'll pass to the pipeline.
+
+[source, python]
+----
+environment= {
+            'HOP_RUN_PARAMETERS': 'PRM_EXAMPLE=',
+            'HOP_LOG_LEVEL': 'Detailed',
+            'HOP_FILE_PATH': '${PROJECT_HOME}/hop/pipeline-with-parameter.hpl',
+            'HOP_PROJECT_DIRECTORY': '/project',
+            'HOP_PROJECT_NAME': 'hop-airflow-sample',
+            'HOP_ENVIRONMENT_NAME': 'env-hop-airflow-sample.json',
+            'HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS': '/project-config/hop-airflow-config.json',
+            'HOP_RUN_CONFIG': 'local'
+        },
+----
+
+Also, we really need the environment configuration file this time, so make sure your mounts are correct.
+
+[source, python]
+----
+mounts=[Mount(source='<YOUR_PROJECT_PATH>/', target='/project', type='bind'),
+                Mount(source='<YOUR_CONFIG_PATH>/config/', target='/project-config', type='bind')],
+----
+
+Add this new DAG to your dags folder and wait for it to appear in your Apache Airflow console.
+
+To run this DAG with parameters, we'll use the **Trigger DAG w/ config** option. We'll specify the **prm_example** value that Airflow will pass to the **PRM_EXAMPLE** parameter in the pipeline. The syntax to use is shown below. Click "Trigger" when you're done.
+
+image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-two-dags.png[Apache Airflow - two DAGs, width="90%"]
+
+[%autowidth, cols="3,3,3", frame=none, grid=none]
+|===
+| image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-trigger-dag-with-config.png[Apache Airflow - trigger DAG with config]
+| image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-run-config.png[Apache Airflow - trigger DAG with config]
+| image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-trigger.png[Apache Airflow - trigger DAG with config]
+|===
+
+Your DAG logs will now show the environment variable and the parameter we used in this example:
+
+[source, bash]
+----
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - pipeline-with-parameter - Pipeline has allocated 5 threads and 4 rowsets.
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - generate 1 row.0 - Starting to run...
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - generate 1 row.0 - Finished processing (I=0, O=0, R=0, W=1, U=0, E=0)
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${PRM_EXAMPLE}.0 - field [example] has value [EXAMPLE VALUE]
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${PRM_EXAMPLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write parameter to log.0 -
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${ENV_VARIABLE}.0 - field [env_variable] has value [variable value]
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write env_variable to log.0 -
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write parameter to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${ENV_VARIABLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write env_variable to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+----
+
+== Scheduling a DAG in Apache Airflow
+
+So far, we've looked at DAG that we ran manually and ad-hoc. There are lots of https://airflow.apache.org/docs/apache-airflow/stable/authoring-and-scheduling/index.html[well-documented^] options to schedule DAGs in Apache Airflow.  Since scheduling your DAGs is not really Apache Hop related, we'll only cover this briefly here.
+
+One option is to provide a cron string to schedule your DAG execution. For example, to run a specific DAG at 10:00 am every morning, we'll change the schedule_interval from None to a cron expression in the "with DAG" line in our DAG (line breaks added for readability):
+
+[source, python]
+----
+  with DAG(
+      'sample-pipeline',
+      default_args=default_args,
+      schedule_interval='0 10 * * *',
+      catchup=False,
+      is_paused_upon_creation=False
+    ) as dag:
+----
+
+For a more detailed description of the scheduling options in Apache Airflow, you may find https://medium.com/@thehippieandtheboss/how-to-define-the-dag-schedule-interval-parameter-cb2d81d2a02e[this Medium post^] helpful.
+
+== Summary
+
+We've covered the basics of running Apache Hop pipelines (or workflows) in Apache Airflow with the DockerOperator.
+
+There are other options: you could use Airflow's https://airflow.apache.org/docs/apache-airflow/stable/howto/operator/bash.html[BashOperator^] to use xref:hop-run/index.adoc[hop-run] directly or the https://airflow.apache.org/docs/apache-airflow-providers-http/stable/operators.html[HTTP operator^] to run pipelines or workflows on a remote hop server.
 
