@@ -108,7 +108,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       // no more input to be expected...
       // Let's output the remaining unsafe data
       outPutRow(prevRow);
-      if (data.isWriteToFile) writeJsonFile();
+      // only attempt writing to file when the first row is not empty
+      if (data.isWriteToFile && !first) writeJsonFile();
       setOutputDone();
       return false;
     }
