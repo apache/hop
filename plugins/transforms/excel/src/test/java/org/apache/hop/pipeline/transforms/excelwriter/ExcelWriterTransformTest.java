@@ -203,7 +203,7 @@ public class ExcelWriterTransformTest {
     when(vmi.getNumber(anyObject())).thenReturn(12.0);
 
     when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
-    when(metaMock.getFile().isStreamingData()).thenReturn(true);
+    when(metaMock.getFile().isStreamingData()).thenReturn(false);
     when(metaMock.isHeaderEnabled()).thenReturn(false);
     when(metaMock.getFile().getExtension()).thenReturn(XLSX);
     when(metaMock.getOutputFields()).thenReturn(fields);
@@ -223,6 +223,51 @@ public class ExcelWriterTransformTest {
     verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
   }
 
+
+  @Test
+  public void testWriteUsingTemplateWithFormatting_Streaming() throws Exception {
+
+    String path = Files.createTempDir().getAbsolutePath() + File.separator + "formatted_streaming.xlsx";
+
+    dataMock.fieldnrs = new int[] {0};
+    dataMock.linkfieldnrs = new int[] {-1};
+    dataMock.commentfieldnrs = new int[] {-1};
+    dataMock.createNewFile = true;
+    dataMock.realTemplateFileName =
+            getClass().getResource("template_with_formatting_streaming.xlsx").getFile();
+    dataMock.realSheetname = "Data";
+    dataMock.inputRowMeta = mock(IRowMeta.class);
+
+    List<ExcelWriterOutputField> fields = new ArrayList<>();
+    fields.add(new ExcelWriterOutputField());
+
+    IValueMeta vmi = mock(ValueMetaInteger.class);
+    when(vmi.getType()).thenReturn(IValueMeta.TYPE_INTEGER);
+    when(vmi.getName()).thenReturn("name");
+    when(vmi.getNumber(anyObject())).thenReturn(12.0);
+
+    when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
+    when(metaMock.getFile().isStreamingData()).thenReturn(true);
+    when(metaMock.getStartingCell()).thenReturn("A2");
+
+    when(metaMock.isHeaderEnabled()).thenReturn(false);
+    when(metaMock.getFile().getExtension()).thenReturn(XLSX);
+    when(metaMock.getOutputFields()).thenReturn(fields);
+
+    when(dataMock.inputRowMeta.size()).thenReturn(10);
+    when(dataMock.inputRowMeta.getValueMeta(anyInt())).thenReturn(vmi);
+
+    when(transform.buildFilename(0)).thenReturn(path);
+    dataMock.usedFiles.add(dataMock.currentWorkbookDefinition);
+    transform.prepareNextOutputFile(any(Object[].class));
+
+    dataMock.currentWorkbookDefinition.setPosY(1);
+    dataMock.currentWorkbookDefinition.setSheet(spy(dataMock.currentWorkbookDefinition.getSheet()));
+    transform.writeNextLine(dataMock.currentWorkbookDefinition, new Object[] {12});
+
+    verify(dataMock.currentWorkbookDefinition.getSheet(), times(1)).createRow(1);
+    verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
+  }
   @Test
   public void testValueBigNumber() throws Exception {
 
