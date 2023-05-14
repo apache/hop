@@ -51,6 +51,7 @@
     <module>duckdb-assemblies</module>
     <module>monetdb-assemblies</module>
     <module>cache-assemblies</module>
+    <module>iris-assemblies</module>
     <module>exasol4-assemblies</module>
     <module>sqlbase-assemblies</module>
     <module>h2-assemblies</module>

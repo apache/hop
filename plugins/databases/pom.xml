@@ -81,6 +81,7 @@
                 <module>derby</module>
                 <module>monetdb</module>
                 <module>cache</module>
+                <module>iris</module>
                 <module>exasol4</module>
                 <module>sqlbase</module>
                 <module>h2</module>

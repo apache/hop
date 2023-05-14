@@ -18,18 +18,16 @@ under the License.
 :documentationPath: /database/databases/
 :language: en_US
 
-= InterSystems Cache
+= InterSystems Iris
 
 [cols="2*",options="header"]
 |===
 | Option | Info
 |Type | Relational
-|Driver | Included
-|Version Included | 3.0.0
+|Driver | https://intersystems-community.github.io/iris-driver-distribution/[Driver Link]
+|Version Included | None
 |Hop Dependencies | None
-|Documentation | https://cedocs.intersystems.com/latest/csp/docbook/DocBook.UI.Page.cls?KEY=BGJD[Documentation Link]
-|JDBC Url  | jdbc:Cache://hostname:1972/database
-|Driver folder | Hop Installation/plugins/databases/cache/lib
+|Documentation | https://docs.intersystems.com/iris20223/csp/docbook/Doc.View.cls?KEY=BJAVA_connecting[Documentation Link]
+|JDBC Url  | jdbc:IRIS://hostname:port/database
+|Driver folder | Hop Installation/plugins/databases/iris/lib
 |===
-
-NOTE: Old driver connection, prefer new InterSystems Iris connection.
