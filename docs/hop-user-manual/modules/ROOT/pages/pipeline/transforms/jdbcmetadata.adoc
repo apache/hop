@@ -58,7 +58,7 @@ In this tab, you can specify the java method of the DatabaseMetaData object whic
 
 - Exported key columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getExportedKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getExportedKeys()]
 
-- Foreign key columns: see link:++ttp://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getImportedKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getImportedKeys()]
+- Foreign key columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getImportedKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getImportedKeys()]
 
 - Primary key columns: see link:++http://docs.oracle.com/javase/7/docs/api/java/sql/DatabaseMetaData.html#getPrimaryKeys(java.lang.String, java.lang.String, java.lang.String)++[DatabaseMetaData.getPrimaryKeys()]
 
