@@ -31,49 +31,49 @@
   <description />
 
   <modules>
-    <module>greenplum-assemblies</module>
-    <module>cockroachdb-assemblies</module>
-    <module>postgresql-assemblies</module>
-    <module>redshift-assemblies</module>
-    <module>sybase-assemblies</module>
-    <module>sybaseiq-assemblies</module>
-    <module>vectorwise-assemblies</module>
-    <module>vertica-assemblies</module>
-    <module>teradata-assemblies</module>
-    <module>universe-assemblies</module>
-    <module>firebird-assemblies</module>
-    <module>ingres-assemblies</module>
-    <module>as400-assemblies</module>
-    <module>db2-assemblies</module>
-    <module>mariadb-assemblies</module>
-    <module>infobright-assemblies</module>
-    <module>derby-assemblies</module>
-    <module>duckdb-assemblies</module>
-    <module>monetdb-assemblies</module>
-    <module>cache-assemblies</module>
-    <module>iris-assemblies</module>
-    <module>exasol4-assemblies</module>
-    <module>sqlbase-assemblies</module>
-    <module>h2-assemblies</module>
-    <module>hypersonic-assemblies</module>
-    <module>informix-assemblies</module>
-    <module>interbase-assemblies</module>
-    <module>kingbasees-assemblies</module>
     <module>access-assemblies</module>
-    <module>mssqlnative-assemblies</module>
+    <module>as400-assemblies</module>
+    <module>cache-assemblies</module>
+    <module>clickhouse-assemblies</module>
+    <module>cockroachdb-assemblies</module>
+    <module>db2-assemblies</module>
+    <module>derby-assemblies</module>
+    <module>doris-assemblies</module>
+    <module>duckdb-assemblies</module>
+    <module>exasol4-assemblies</module>
+    <module>firebird-assemblies</module>
+    <module>generic-assemblies</module>
+    <module>googlebigquery-assemblies</module>
+    <module>greenplum-assemblies</module>
+    <module>h2-assemblies</module>
+    <module>hive-assemblies</module>
+    <module>hypersonic-assemblies</module>
+    <module>infobright-assemblies</module>
+    <module>informix-assemblies</module>
+    <module>ingres-assemblies</module>
+    <module>interbase-assemblies</module>
+    <module>iris-assemblies</module>
+    <module>kingbasees-assemblies</module>
+    <module>mariadb-assemblies</module>
+    <module>monetdb-assemblies</module>
     <module>mssql-assemblies</module>
+    <module>mssqlnative-assemblies</module>
     <module>mysql-assemblies</module>
     <module>netezza-assemblies</module>
     <module>oracle-assemblies</module>
     <module>oraclerdb-assemblies</module>
+    <module>postgresql-assemblies</module>
+    <module>redshift-assemblies</module>
     <module>sapdb-assemblies</module>
-    <module>sqlite-assemblies</module>
-    <module>googlebigquery-assemblies</module>
     <module>snowflake-assemblies</module>
-    <module>clickhouse-assemblies</module>
-    <module>doris-assemblies</module>
-    <module>generic-assemblies</module>
-    <module>hive-assemblies</module>
+    <module>sqlbase-assemblies</module>
+    <module>sqlite-assemblies</module>
+    <module>sybase-assemblies</module>
+    <module>sybaseiq-assemblies</module>
+    <module>teradata-assemblies</module>
+    <module>universe-assemblies</module>
+    <module>vectorwise-assemblies</module>
+    <module>vertica-assemblies</module>
   </modules>
 
 
