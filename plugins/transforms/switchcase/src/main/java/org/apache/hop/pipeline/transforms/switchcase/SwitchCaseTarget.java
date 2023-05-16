@@ -28,14 +28,14 @@ public class SwitchCaseTarget implements Cloneable {
   @HopMetadataProperty(
       key = "value",
       injectionKey = "SWITCH_CASE_TARGET.CASE_VALUE",
-      injectionKeyDescription = "SwitchCaseMeta.Injection.CASE_VALUE")
+      injectionKeyDescription = "SwitchCaseMeta.Injection.SWITCH_CASE_TARGET.CASE_VALUE")
   private String caseValue;
 
   /** The case target transform name (only used during serialization) */
   @HopMetadataProperty(
       key = "target_transform",
       injectionKey = "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME",
-      injectionKeyDescription = "SwitchCaseMeta.Injection.CASE_TARGET_TRANSFORM_NAME")
+      injectionKeyDescription = "SwitchCaseMeta.Injection.SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME")
   private String caseTargetTransformName;
 
   public SwitchCaseTarget() {}

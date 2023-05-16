@@ -124,6 +124,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
       newInjectionConstants(this, en.getKey(), en.getValue());
     }
     for (Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet()) {
+      en.getValue().resetTransformIoMeta();
       en.getValue().searchInfoAndTargetTransforms(transforms);
     }
 
