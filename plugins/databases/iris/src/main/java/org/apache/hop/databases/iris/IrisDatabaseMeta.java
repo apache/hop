@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.hop.databases.cache;
+package org.apache.hop.databases.iris;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -26,11 +26,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
 /**
- * Contains InterSystems Cache specific information through static final members
+ * Contains InterSystems Iris specific information through static final members
  */
-@DatabaseMetaPlugin(type = "CACHE", typeDescription = "InterSystems Cache", documentationUrl = "/database/databases/cache.html")
-@GuiPlugin(id = "GUI-CacheDatabaseMeta")
-public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
+@DatabaseMetaPlugin(type = "IRIS", typeDescription = "InterSystems Iris", documentationUrl = "/database/databases/iris.html")
+@GuiPlugin(id = "GUI-IrisDatabaseMeta")
+public class IrisDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
@@ -62,12 +62,12 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getDriverClass() {
-    return "com.intersys.jdbc.CacheDriver";
+    return "com.intersystems.jdbc.IRISDriver";
   }
 
   @Override
   public String getURL(String hostname, String port, String databaseName) {
-    return "jdbc:Cache://" + hostname + ":" + port + "/" + databaseName;
+    return "jdbc:IRIS://" + hostname + ":" + port + "/" + databaseName;
   }
 
   /**
