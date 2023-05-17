@@ -70,13 +70,6 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public Object clone() {
-    ActionTruncateTables je = (ActionTruncateTables) super.clone();
-
-    return je;
-  }
-
-  @Override
   public boolean isEvaluation() {
     return true;
   }
@@ -192,7 +185,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
             }
           }
 
-        } else if (this.items != null && this.items.size() > 0) {
+        } else if (this.items != null && !this.items.isEmpty()) {
 
           for (int i = 0;
               i < this.items.size() && !parentWorkflow.isStopped() && continueProcess;
@@ -246,41 +239,11 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     nrSuccess++;
   }
 
-  //  @Override
-  //  public void check(
-  //      List<ICheckResult> remarks,
-  //      WorkflowMeta workflowMeta,
-  //      IVariables variables,
-  //      IHopMetadataProvider metadataProvider) {
-  //    boolean res =
-  //        ActionValidatorUtils.andValidator()
-  //            .validate(
-  //                this,
-  //                "arguments",
-  //                remarks,
-  //                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-  //
-  //    if (!res) {
-  //      return;
-  //    }
-  ////
-  ////    ValidatorContext ctx = new ValidatorContext();
-  ////    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-  ////    AndValidator.putValidators(
-  ////        ctx, ActionValidatorUtils.notNullValidator(),
-  // ActionValidatorUtils.fileExistsValidator());
-  ////
-  ////    for (int i = 0; i < tableNames.length; i++) {
-  ////      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks,
-  // ctx);
-  ////    }
-  //  }
-
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (items != null && items.size() > 0) {
+    if (items != null && !items.isEmpty()) {
       ResourceReference reference = null;
       for (TruncateTableItem item : this.items) {
         String filename = resolve(item.getTableName());

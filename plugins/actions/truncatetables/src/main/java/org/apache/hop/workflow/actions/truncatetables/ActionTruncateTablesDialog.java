@@ -282,7 +282,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       wConnection.setText(action.getConnection());
     }
 
-    if (action.getItems() != null && action.getItems().size() > 0) {
+    if (action.getItems() != null && !action.getItems().isEmpty()) {
 
       for (int i = 0; i < action.getItems().size(); i++) {
         TruncateTableItem tti = action.getItems().get(i);
@@ -333,16 +333,15 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       }
     }
 
-    List<TruncateTableItem>truncateTableItemList = action.getItems();
+    List<TruncateTableItem> truncateTableItemList = action.getItems();
     truncateTableItemList.clear();
-    
+
     for (int i = 0; i < nrItems; i++) {
       String tableName = wFields.getNonEmpty(i).getText(1);
       String schemaName = wFields.getNonEmpty(i).getText(2);
       TruncateTableItem tti = new TruncateTableItem(tableName, schemaName);
       truncateTableItemList.add(tti);
     }
-
 
     dispose();
   }
