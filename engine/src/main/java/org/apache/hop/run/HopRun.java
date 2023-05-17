@@ -101,7 +101,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   @Option(
       names = {"-p", "--parameters"},
       description = "A list of PARAMETER=VALUE pairs")
-  private String parameters = null;
+  private String[] parameters = null;
 
   @Option(
           names = {"-ps", "--parameters-separator"},
@@ -483,25 +483,27 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       if (parameters != null) {
         parametersSeparator = parametersSeparator == null ? "," : parametersSeparator;
 
-        for (String parameter : parameters.split(parametersSeparator)) {
-          String[] split = parameter.split("=", 2);
-          String key = split.length > 0 ? split[0] : null;
-          String value = split.length > 1 ? split[1] : null;
-          if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
-            value = value.substring(1, value.length() - 1);
-          }
+        for (String parameter : parameters) {
+          for(String singleParameter : parameter.split(parametersSeparator)){
+            String[] split = singleParameter.split("=", 2);
+            String key = split.length > 0 ? split[0] : null;
+            String value = split.length > 1 ? split[1] : null;
+            if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
+              value = value.substring(1, value.length() - 1);
+            }
 
-          if (key != null) {
-            // We can work with this.
-            //
-            if (Const.indexOfString(key, availableParameters) < 0) {
-              // A variable
+            if (key != null) {
+              // We can work with this.
               //
-              configuration.getVariablesMap().put(key, value);
-            } else {
-              // A parameter
-              //
-              configuration.getParametersMap().put(key, value);
+              if (Const.indexOfString(key, availableParameters) < 0) {
+                // A variable
+                //
+                configuration.getVariablesMap().put(key, value);
+              } else {
+                // A parameter
+                //
+                configuration.getParametersMap().put(key, value);
+              }
             }
           }
         }
@@ -674,14 +676,14 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
    *
    * @return value of parameters
    */
-  public String getParameters() {
+  public String[] getParameters() {
     return parameters;
   }
 
   /**
    * @param parameters The parameters to set
    */
-  public void setParameters(String parameters) {
+  public void setParameters(String[] parameters) {
     this.parameters = parameters;
   }
 

@@ -17,7 +17,6 @@
 
 package org.apache.hop.workflow.actions.waitforsql;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
@@ -41,6 +40,7 @@ import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.waitforsql.ActionWaitForSql.SuccessCondition;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.FocusAdapter;
@@ -171,7 +171,8 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, databaseMeta, lsMod);
 
     // Schema name line
     wlSchemaname = new Label(shell, SWT.RIGHT);
@@ -251,7 +252,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdlSuccessCondition.top = new FormAttachment(0, margin);
     wlSuccessCondition.setLayoutData(fdlSuccessCondition);
     wSuccessCondition = new CCombo(wSuccessGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
-    wSuccessCondition.setItems(ActionWaitForSql.successConditionsDesc);
+    wSuccessCondition.setItems(SuccessCondition.getDescriptions());
     wSuccessCondition.select(0); // +1: starts at -1
 
     PropsUi.setLook(wSuccessCondition);
@@ -588,17 +589,17 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getSql() {
-    DatabaseMeta inf = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
-    if (inf != null) {
+    DatabaseMeta databaseMeta = this.workflowMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
       DatabaseExplorerDialog std =
           new DatabaseExplorerDialog(
-              shell, SWT.NONE, variables, inf, getWorkflowMeta().getDatabases());
+              shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
       if (std.open()) {
         String sql =
             "SELECT *"
                 + Const.CR
                 + "FROM "
-                + inf.getQuotedSchemaTableCombination(
+                + databaseMeta.getQuotedSchemaTableCombination(
                     variables, std.getSchemaName(), std.getTableName())
                 + Const.CR;
         wSql.setText(sql);
@@ -614,7 +615,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
             wSql.setText(sql);
             break;
           case SWT.YES:
-            Database db = new Database(loggingObject, variables, inf);
+            Database db = new Database(loggingObject, variables, databaseMeta);
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);
@@ -627,11 +628,11 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
                   } else {
                     sql += ", ";
                   }
-                  sql += inf.quoteField(field.getName()) + Const.CR;
+                  sql += databaseMeta.quoteField(field.getName()) + Const.CR;
                 }
                 sql +=
                     "FROM "
-                        + inf.getQuotedSchemaTableCombination(
+                        + databaseMeta.getQuotedSchemaTableCombination(
                             variables, std.getSchemaName(), std.getTableName())
                         + Const.CR;
                 wSql.setText(sql);
@@ -665,7 +666,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       mb.setMessage(BaseMessages.getString(PKG, "ActionWaitForSQL.ConnectionNoLongerAvailable"));
       mb.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.DialogCaptionError4"));
       mb.open();
-    }
+    }    
   }
 
   public void setPosition() {
@@ -696,23 +697,18 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
-    }
-
-    wSchemaname.setText(Const.nullToEmpty(action.schemaName));
-    wTablename.setText(Const.nullToEmpty(action.tableName));
-
-    wSuccessCondition.setText(ActionWaitForSql.getSuccessConditionDesc(action.successCondition));
-    wRowsCountValue.setText(Const.NVL(action.rowsCountValue, "0"));
-    wCustomSql.setSelection(action.isCustomSql);
-    wUseSubs.setSelection(action.isUseVars);
-    wAddRowsToResult.setSelection(action.isAddRowsResult);
-    wClearResultList.setSelection(action.isClearResultList);
-    wSql.setText(Const.nullToEmpty(action.customSql));
-    wMaximumTimeout.setText(Const.NVL(action.getMaximumTimeout(), ""));
-    wCheckCycleTime.setText(Const.NVL(action.getCheckCycleTime(), ""));
+    wConnection.setText(Const.nullToEmpty(action.getConnection()));
+    wSchemaname.setText(Const.nullToEmpty(action.getSchemaName()));
+    wTablename.setText(Const.nullToEmpty(action.getTableName()));
+    wSuccessCondition.setText(action.getSuccessCondition().getDescription());
+    wRowsCountValue.setText(Const.NVL(action.getRowsCountValue(), "0"));
+    wCustomSql.setSelection(action.isCustomSqlEnabled());
+    wUseSubs.setSelection(action.isUseVars());
+    wAddRowsToResult.setSelection(action.isAddRowsResult());
+    wClearResultList.setSelection(action.isClearResultList());
+    wSql.setText(Const.nullToEmpty(action.getCustomSql()));
+    wMaximumTimeout.setText(Const.nullToEmpty(action.getMaximumTimeout()));
+    wCheckCycleTime.setText(Const.nullToEmpty(action.getCheckCycleTime()));
     wSuccessOnTimeout.setSelection(action.isSuccessOnTimeout());
 
     wName.selectAll();
@@ -734,18 +730,16 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
-
-    action.schemaName = wSchemaname.getText();
-    action.tableName = wTablename.getText();
-    action.successCondition =
-        ActionWaitForSql.getSuccessConditionByDesc(wSuccessCondition.getText());
-    action.rowsCountValue = wRowsCountValue.getText();
-    action.isCustomSql = wCustomSql.getSelection();
-    action.isUseVars = wUseSubs.getSelection();
-    action.isAddRowsResult = wAddRowsToResult.getSelection();
-    action.isClearResultList = wClearResultList.getSelection();
-    action.customSql = wSql.getText();
+    action.setConnection(wConnection.getText());
+    action.setSchemaName(wSchemaname.getText());
+    action.setTableName(wTablename.getText());
+    action.setSuccessCondition(SuccessCondition.lookupDescription(wSuccessCondition.getText()));
+    action.setRowsCountValue(wRowsCountValue.getText());
+    action.setCustomSqlEnabled(wCustomSql.getSelection());
+    action.setUseVars(wUseSubs.getSelection());
+    action.setAddRowsResult(wAddRowsToResult.getSelection());
+    action.setClearResultList(wClearResultList.getSelection());
+    action.setCustomSql(wSql.getText());
     action.setMaximumTimeout(wMaximumTimeout.getText());
     action.setCheckCycleTime(wCheckCycleTime.getText());
     action.setSuccessOnTimeout(wSuccessOnTimeout.getSelection());
@@ -754,23 +748,13 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getTableName() {
-    String databaseName = wConnection.getText();
-    if (StringUtils.isNotEmpty(databaseName)) {
-      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(databaseName, variables);
-      if (databaseMeta != null) {
-        DatabaseExplorerDialog std =
-            new DatabaseExplorerDialog(
-                shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
-        std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
-        if (std.open()) {
-          wTablename.setText(Const.NVL(std.getTableName(), ""));
-        }
-      } else {
-        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-        mb.setMessage(
-            BaseMessages.getString(PKG, "ActionWaitForSQL.ConnectionError2.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
-        mb.open();
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog(shell, SWT.NONE, variables,
+          databaseMeta, getWorkflowMeta().getDatabases());
+      std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
+      if (std.open()) {
+        wTablename.setText(Const.NVL(std.getTableName(), ""));
       }
     }
   }
