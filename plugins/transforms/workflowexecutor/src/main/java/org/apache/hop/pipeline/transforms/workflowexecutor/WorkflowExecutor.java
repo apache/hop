@@ -283,7 +283,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     // Optionally also send the result rows to a specified target transform...
     //
     boolean rowConsistencyChecked = false;
-    boolean consistencyPassed = true;
+
     String missingFields = "";
     String expectedTypes = "";
     String currentTypes = "";
@@ -291,44 +291,46 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     if (meta.getResultRowsTargetTransformMeta() != null && result.getRows() != null) {
 
       for (RowMetaAndData row : result.getRows()) {
-
         // .. but before, perform all the consistency checks just one time just in the first result
         // row
         if (!rowConsistencyChecked) {
-          for (int i = 0; i < meta.getResultRowsField().length; i++) {
-            IValueMeta valueMeta = row.getRowMeta().getValueMeta(i);
-            if (valueMeta == null) {
-              missingFields +=
-                  (missingFields.length() > 0 ? missingFields = "," : "")
-                      + meta.getResultRowsField()[i];
-              consistencyPassed = false;
-            }
+            for (int i = 0; i < meta.getResultRowsField().length; i++) {
+              int idx = row.getRowMeta().indexOfValue(meta.getResultRowsField()[i]);
+              
+              if (idx == -1) {
+                missingFields +=
+                    (missingFields.length() > 0 ? "," : "")
+                        + meta.getResultRowsField()[i];
+              }
+              
+              IValueMeta valueMeta = row.getRowMeta().getValueMeta(i);
 
-            if (valueMeta != null && valueMeta.getType() != meta.getResultRowsType()[i]) {
-              expectedTypes +=
-                  (expectedTypes.length() > 0 ? expectedTypes = "," : "")
-                      + ValueMetaFactory.getValueMetaName(meta.getResultRowsType()[i]);
-              currentTypes +=
-                  (currentTypes.length() > 0 ? currentTypes = "," : "") + valueMeta.getTypeDesc();
-              consistencyPassed = false;
+              if (valueMeta != null && valueMeta.getType() != meta.getResultRowsType()[i]) {
+                expectedTypes +=
+                    (expectedTypes.length() > 0 ? "," : "")
+                        + ValueMetaFactory.getValueMetaName(meta.getResultRowsType()[i]);
+                currentTypes +=
+                    (currentTypes.length() > 0 ? "," : "") + valueMeta.getTypeDesc();
+              }
             }
-          }
-          rowConsistencyChecked = true;
-        }
+            rowConsistencyChecked = true;
 
-        if (!consistencyPassed) {
           if (missingFields.length() > 0) {
             logError("Unable to find required fields [" + missingFields + "] in result row!");
           }
 
           if (currentTypes.length() > 0) {
             logError(
-                BaseMessages.getString(
-                    PKG, "WorkflowExecutor.IncorrectDataTypePassed", currentTypes, expectedTypes));
+                    BaseMessages.getString(
+                            PKG,
+                            "WorkflowExecutor.IncorrectDataTypePassed",
+                            currentTypes,
+                            expectedTypes));
+            throw new HopException(
+                    "We got into troubles while performing a consistency check on incoming result rows!");
           }
-          
-          throw new HopException("We got into troubles while performing a consistency check on incoming result rows!");
         }
+
         Object[] targetRow = RowDataUtil.allocateRowData(data.resultRowsOutputRowMeta.size());
 
         for (int i = 0; i < meta.getResultRowsField().length; i++) {
