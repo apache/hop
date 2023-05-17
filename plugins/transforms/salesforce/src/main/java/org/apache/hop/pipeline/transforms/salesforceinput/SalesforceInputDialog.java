@@ -37,11 +37,7 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformDialog;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -1413,29 +1409,44 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         connection.connect();
         // We are connected, so let's query
         XmlObject[] fields = connection.getElements();
-        int nrFields = fields.length;
-        Set<String> fieldNames = new HashSet<>();
-        for (int i = 0; i < nrFields; i++) {
-          addFields("", fieldNames, fields[i]);
+        if (fields != null) {
+          int nrFields = fields.length;
+          Set<String> fieldNames = new HashSet<>();
+          for (int i = 0; i < nrFields; i++) {
+            addFields("", fieldNames, fields[i]);
+          }
+          fieldsName = fieldNames.toArray(new String[fieldNames.size()]);
+        } else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+          mb.setMessage(
+                  BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.SOQL.NoRecords.DialogMessage"));
+          mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.SOQL.NoRecords.DialogTitle"));
+          mb.open();
         }
-        fieldsName = fieldNames.toArray(new String[fieldNames.size()]);
       } else {
         connection.connect();
-
         Field[] fields = connection.getObjectFields(realModule);
-        fieldsName = new String[fields.length];
-        for (int i = 0; i < fields.length; i++) {
-          Field field = fields[i];
-          fieldsName[i] = field.getName();
-          addField(field);
+        if (fields != null) {
+          fieldsName = new String[fields.length];
+          for (int i = 0; i < fields.length; i++) {
+            Field field = fields[i];
+            fieldsName[i] = field.getName();
+            addField(field);
+          }
+        }  else {
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+          mb.setMessage(
+                  BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.Condition.NoRecords.DialogMessage"));
+          mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.Condition.NoRecords.DialogTitle"));
+          mb.open();
         }
       }
       if (fieldsName != null) {
         columns[1].setComboValues(fieldsName);
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
       }
-      wFields.removeEmptyRows();
-      wFields.setRowNums();
-      wFields.optWidth(true);
     } catch (HopException e) {
       new ErrorDialog(
           shell,
@@ -1606,7 +1617,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   }
 
   /**
-   * Read the data from the TextFileInputMeta object and show it in this dialog.
+   * Read the data from the SalesforceInputMeta object and show it in this dialog.
    *
    * @param in The SalesforceInputMeta object to obtain the data from.
    */
