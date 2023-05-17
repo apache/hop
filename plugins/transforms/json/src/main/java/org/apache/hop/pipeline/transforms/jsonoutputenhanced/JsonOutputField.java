@@ -94,8 +94,7 @@ public class JsonOutputField implements Cloneable {
   @Override
   public Object clone() {
     try {
-      Object retval = super.clone();
-      return retval;
+      return super.clone();
     } catch (CloneNotSupportedException e) {
       return null;
     }

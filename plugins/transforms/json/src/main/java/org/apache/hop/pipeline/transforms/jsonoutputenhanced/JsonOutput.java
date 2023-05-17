@@ -83,13 +83,11 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         // Init global json items array only if output to file is needed
         data.jsonItems = new ArrayList<>();
         data.isWriteToFile = true;
-        if (!meta.isDoNotOpenNewFileInit()) {
-          if (data.isWriteToFile && !openNewFile()) {
-            logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
-            stopAll();
-            setErrors(1);
-            return false;
-          }
+        if (!meta.isDoNotOpenNewFileInit() && data.isWriteToFile && !openNewFile()) {
+          logError(BaseMessages.getString(PKG, "JsonOutput.Error.OpenNewFile", buildFilename()));
+          stopAll();
+          setErrors(1);
+          return false;
         }
       }
 
@@ -107,7 +105,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     if (r == null) {
       // no more input to be expected...
       // Let's output the remaining unsafe data
-      outPutRow(prevRow);
+      outputRow(prevRow);
       // only attempt writing to file when the first row is not empty
       if (data.isWriteToFile && !first) writeJsonFile();
       setOutputDone();
@@ -133,7 +131,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     if (!sameGroup(prevRow, row) && data.jsonKeyGroupItems.size() > 0) {
       // Output the new row
       logDebug("Record Num: " + data.nrRow + " - Generating JSON chunk");
-      outPutRow(prevRow);
+      outputRow(prevRow);
       data.jsonKeyGroupItems = new ArrayList<>();
     }
 
@@ -190,7 +188,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
                   itemNode.put(getJsonAttributeName(outputField), jsonNode);
                 }
               } catch (IOException e) {
-                throw new HopTransformException(BaseMessages.getString(PKG, "JsonOutput.Error.Casting"), e);
+                throw new HopTransformException(
+                    BaseMessages.getString(PKG, "JsonOutput.Error.Casting"), e);
               }
             } else {
               itemNode.put(getJsonAttributeName(outputField), value);
@@ -228,7 +227,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   }
 
   @SuppressWarnings("unchecked")
-  private void outPutRow(Object[] rowData) throws HopException {
+  private void outputRow(Object[] rowData) throws HopException {
     // We can now output an object
     ObjectNode globalItemNode = null;
 
