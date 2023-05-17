@@ -95,14 +95,18 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
   @Option(
       names = {"-lf", "--logfile"},
-      description = "Write Hop console log to a file")
+      description = "The complete filename where hop-run will write the Hop console log")
   private String logFile;
 
   @Option(
       names = {"-p", "--parameters"},
-      description = "A comma separated list of PARAMETER=VALUE pairs",
-      split = ",")
-  private String[] parameters = null;
+      description = "A list of PARAMETER=VALUE pairs")
+  private String parameters = null;
+
+  @Option(
+          names = {"-ps", "--parameters-separator"},
+          description = "A character to be used as separator for our list of PARAMETER=VALUE pairs (default is ,)" )
+  private String parametersSeparator = null;
 
   @Option(
       names = {"-s", "--system-properties"},
@@ -224,9 +228,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         return;
       }
     }
+
     String[] helpArgs = new String[args.length + 1];
     System.arraycopy(args, 0, helpArgs, 0, args.length);
     helpArgs[args.length] = "-h";
+
     cmd.parseArgs(helpArgs);
   }
 
@@ -473,8 +479,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       INamedParameterDefinitions namedParams) {
     try {
       String[] availableParameters = namedParams.listParameters();
+
       if (parameters != null) {
-        for (String parameter : parameters) {
+        parametersSeparator = parametersSeparator == null ? "," : parametersSeparator;
+
+        for (String parameter : parameters.split(parametersSeparator)) {
           String[] split = parameter.split("=", 2);
           String key = split.length > 0 ? split[0] : null;
           String value = split.length > 1 ? split[1] : null;
@@ -665,14 +674,14 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
    *
    * @return value of parameters
    */
-  public String[] getParameters() {
+  public String getParameters() {
     return parameters;
   }
 
   /**
    * @param parameters The parameters to set
    */
-  public void setParameters(String[] parameters) {
+  public void setParameters(String parameters) {
     this.parameters = parameters;
   }
 
