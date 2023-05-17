@@ -71,8 +71,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   private static final Class<?> PKG = JsonOutputMeta.class; // needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "JSONSortWarning";
-  public static final String SYSTEM_COMBO_NO = "System.Combo.No"
-  public static final String SYSTEM_COMBO_YES = "System.Combo.Yes"
+  public static final String SYSTEM_COMBO_NO = "System.Combo.No";
+  public static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   private Label wlEncoding;
   private ComboVar wEncoding;

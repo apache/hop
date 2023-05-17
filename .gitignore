@@ -58,3 +58,5 @@ integration-tests/spreadsheet/files/exel-multi-part_2.xlsx
 integration-tests/spreadsheet/files/exel-multi-part_3.xlsx
 
 integration-tests/spreadsheet/files/exel-multi-part_4.xlsx
+
+integration-tests/json/output
