@@ -685,14 +685,17 @@ public class SalesforceConnection {
   // TODO : Go back to this one
   // I am sure there is an easy way to return meta for a SOQL result
   public XmlObject[] getElements() throws Exception {
+    XmlObject[] result = null;
     // Query first
     this.qr = getBinding().query(getSQL());
     // and then return records
-    SObject con = getQueryResult().getRecords()[0];
-    if (con == null) {
-      return null;
+    if (this.qr.getSize() > 0) {
+      SObject con = getQueryResult().getRecords()[0];
+      if (con != null) {
+        result = getChildren(con);
+      }
     }
-    return getChildren(con);
+    return result;
   }
 
   public boolean queryMore() throws HopException {
