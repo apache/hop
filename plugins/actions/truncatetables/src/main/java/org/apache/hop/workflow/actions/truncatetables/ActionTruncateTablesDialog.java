@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.truncatetables;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -51,8 +53,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Arrays;
 
 /**
  * This dialog allows you to edit the Truncate Tables action settings. (select the connection and
@@ -136,7 +136,8 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
+    DatabaseMeta dbMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, dbMeta, lsMod);
 
     Label wlPrevious = new Label(shell, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionTruncateTables.Previous.Label"));
@@ -208,7 +209,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
           wFields.setRowNums();
         });
 
-    int nrRows = action.getTableNames() == null ? 1 : action.getTableNames().length;
+    int nrRows = action.getItems() == null ? 1 : action.getItems().size();
     final int nrFieldsRows = nrRows;
 
     ColumnInfo[] columns =
@@ -276,21 +277,21 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
+
+    if (action.getConnection() != null) {
+      wConnection.setText(action.getConnection());
     }
 
-    String[] tableNames = action.getTableNames();
-    String[] schemaNames = action.getSchemaNames();
+    if (action.getItems() != null && !action.getItems().isEmpty()) {
 
-    if (tableNames != null) {
-      for (int i = 0; i < tableNames.length; i++) {
+      for (int i = 0; i < action.getItems().size(); i++) {
+        TruncateTableItem tti = action.getItems().get(i);
         TableItem ti = wFields.table.getItem(i);
-        if (tableNames[i] != null) {
-          ti.setText(1, tableNames[i]);
+        if (!Utils.isEmpty(tti.getTableName())) {
+          ti.setText(1, tti.getTableName());
         }
-        if (schemaNames[i] != null) {
-          ti.setText(2, schemaNames[i]);
+        if (!Utils.isEmpty(tti.getSchemaName())) {
+          ti.setText(2, tti.getSchemaName());
         }
       }
 
@@ -298,6 +299,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       wFields.setRowNums();
       wFields.optWidth(true);
     }
+
     wPrevious.setSelection(action.isArgFromPrevious());
 
     wName.selectAll();
@@ -319,7 +321,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
+    action.setConnection(wConnection.getText());
     action.setArgFromPrevious(wPrevious.getSelection());
 
     int nrItems = wFields.nrNonEmpty();
@@ -330,21 +332,16 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
         nr++;
       }
     }
-    String[] tables = new String[nr];
-    String[] schemas = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      String wild = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && arg.length() != 0) {
-        tables[nr] = arg;
-        schemas[nr] = wild;
-        nr++;
-      }
-    }
 
-    action.setTableNames(tables);
-    action.setSchemaNames(schemas);
+    List<TruncateTableItem> truncateTableItemList = action.getItems();
+    truncateTableItemList.clear();
+
+    for (int i = 0; i < nrItems; i++) {
+      String tableName = wFields.getNonEmpty(i).getText(1);
+      String schemaName = wFields.getNonEmpty(i).getText(2);
+      TruncateTableItem tti = new TruncateTableItem(tableName, schemaName);
+      truncateTableItemList.add(tti);
+    }
 
     dispose();
   }
@@ -352,7 +349,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   private void getTableName() {
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      
+
       try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] tableNames = database.getTablenames();

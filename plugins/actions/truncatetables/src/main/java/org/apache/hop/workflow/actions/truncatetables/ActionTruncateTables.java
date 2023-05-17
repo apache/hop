@@ -17,33 +17,22 @@
 
 package org.apache.hop.workflow.actions.truncatetables;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** This defines a Truncate Tables action. */
 @Action(
@@ -57,13 +46,13 @@ import java.util.List;
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTruncateTables.class; // For Translator
 
+  @HopMetadataProperty(key = "arg_from_previous")
   private boolean argFromPrevious;
 
-  private DatabaseMeta connection;
+  @HopMetadataProperty private String connection;
 
-  private String[] tableNames;
-
-  private String[] schemaNames;
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<TruncateTableItem> items;
 
   private int nrErrors = 0;
   private int nrSuccess = 0;
@@ -72,95 +61,12 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   public ActionTruncateTables(String name) {
     super(name, "");
     this.argFromPrevious = false;
-    this.tableNames = null;
-    this.schemaNames = null;
     this.connection = null;
   }
 
   public ActionTruncateTables() {
     this("");
-  }
-
-  public void allocate(int nrFields) {
-    this.tableNames = new String[nrFields];
-    this.schemaNames = new String[nrFields];
-  }
-
-  @Override
-  public Object clone() {
-    ActionTruncateTables je = (ActionTruncateTables) super.clone();
-    if (tableNames != null) {
-      int nrFields = tableNames.length;
-      je.allocate(nrFields);
-      System.arraycopy(tableNames, 0, je.tableNames, 0, nrFields);
-      System.arraycopy(schemaNames, 0, je.schemaNames, 0, nrFields);
-    }
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", this.connection == null ? null : this.connection.getName()));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("arg_from_previous", this.argFromPrevious));
-    retval.append("      <fields>").append(Const.CR);
-    if (tableNames != null) {
-      for (int i = 0; i < this.tableNames.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval.append("          ").append(XmlHandler.addTagValue("name", this.tableNames[i]));
-        retval
-            .append("          ")
-            .append(XmlHandler.addTagValue("schemaname", this.schemaNames[i]));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      String dbname = XmlHandler.getTagValue(entrynode, "connection");
-      this.connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-      this.argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        this.tableNames[i] = XmlHandler.getTagValue(fnode, "name");
-        this.schemaNames[i] = XmlHandler.getTagValue(fnode, "schemaname");
-      }
-    } catch (HopException e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionTruncateTables.UnableLoadXML"), e);
-    }
-  }
-
-  public void setDatabase(DatabaseMeta database) {
-    this.connection = database;
-  }
-
-  public DatabaseMeta getDatabase() {
-    return this.connection;
+    this.items = new ArrayList<>();
   }
 
   @Override
@@ -173,13 +79,29 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     return true;
   }
 
-  private boolean truncateTables(String tableName, String schemaname, Database db) {
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
+  }
+
+  public List<TruncateTableItem> getItems() {
+    return items;
+  }
+
+  public void setItems(List<TruncateTableItem> items) {
+    this.items = items;
+  }
+
+  private boolean truncateTables(String tableName, String schemaName, Database db) {
     boolean retval = false;
     try {
       // check if table exists!
-      if (db.checkTableExists(schemaname, tableName)) {
-        if (!Utils.isEmpty(schemaname)) {
-          db.truncateTable(schemaname, tableName);
+      if (db.checkTableExists(schemaName, tableName)) {
+        if (!Utils.isEmpty(schemaName)) {
+          db.truncateTable(schemaName, tableName);
         } else {
           db.truncateTable(tableName);
         }
@@ -225,8 +147,11 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
         return result;
       }
     }
-    if (connection != null) {      
-      try (Database db = new Database(this, this, connection)) {
+    if (connection != null) {
+
+      try (Database db =
+          new Database(
+              this, this, getParentWorkflowMeta().findDatabase(connection, getVariables()))) {
         db.connect();
         if (argFromPrevious && rows != null) { // Copy the input row to the (command line) arguments
 
@@ -260,21 +185,23 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
             }
           }
 
-        } else if (tableNames != null) {
+        } else if (this.items != null && !this.items.isEmpty()) {
+
           for (int i = 0;
-              i < tableNames.length && !parentWorkflow.isStopped() && continueProcess;
+              i < this.items.size() && !parentWorkflow.isStopped() && continueProcess;
               i++) {
-            String realTablename = resolve(tableNames[i]);
-            String realSchemaname = resolve(schemaNames[i]);
-            if (!Utils.isEmpty(realTablename)) {
+            TruncateTableItem tableItem = this.items.get(i);
+            String realTableName = resolve(tableItem.getTableName());
+            String realSchemaName = resolve(tableItem.getSchemaName());
+            if (!Utils.isEmpty(realTableName)) {
               if (log.isDetailed()) {
                 logDetailed(
                     BaseMessages.getString(
-                        PKG, "ActionTruncateTables.ProcessingArg", tableNames[i], schemaNames[i]));
+                        PKG, "ActionTruncateTables.ProcessingArg", realTableName, realSchemaName));
               }
 
               // let's truncate table
-              if (truncateTables(realTablename, realSchemaname, db)) {
+              if (truncateTables(realTableName, realSchemaName, db)) {
                 updateSuccess();
               } else {
                 updateErrors();
@@ -282,7 +209,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
             } else {
               logError(
                   BaseMessages.getString(
-                      PKG, "ActionTruncateTables.ArgEmpty", tableNames[i], schemaNames[i]));
+                      PKG, "ActionTruncateTables.ArgEmpty", realTableName, realSchemaName));
             }
           }
         }
@@ -290,7 +217,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
         result.setNrErrors(1);
         logError(
             BaseMessages.getString(
-                PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));     
+                PKG, "ActionTruncateTables.Error.RunningEntry", dbe.getMessage()));
       }
     } else {
       result.setNrErrors(1);
@@ -313,48 +240,13 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] {
-      connection,
-    };
-  }
-
-  @Override
-  public void check(
-      List<ICheckResult> remarks,
-      WorkflowMeta workflowMeta,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider) {
-    boolean res =
-        ActionValidatorUtils.andValidator()
-            .validate(
-                this,
-                "arguments",
-                remarks,
-                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
-
-    if (!res) {
-      return;
-    }
-
-    ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-    AndValidator.putValidators(
-        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
-
-    for (int i = 0; i < tableNames.length; i++) {
-      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
-    }
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (tableNames != null) {
+    if (items != null && !items.isEmpty()) {
       ResourceReference reference = null;
-      for (int i = 0; i < tableNames.length; i++) {
-        String filename = resolve(tableNames[i]);
+      for (TruncateTableItem item : this.items) {
+        String filename = resolve(item.getTableName());
         if (reference == null) {
           reference = new ResourceReference(this);
           references.add(reference);
@@ -371,21 +263,5 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
 
   public void setArgFromPrevious(boolean argFromPrevious) {
     this.argFromPrevious = argFromPrevious;
-  }
-
-  public String[] getTableNames() {
-    return tableNames;
-  }
-
-  public void setTableNames(String[] tableNames) {
-    this.tableNames = tableNames;
-  }
-
-  public String[] getSchemaNames() {
-    return schemaNames;
-  }
-
-  public void setSchemaNames(String[] schemaNames) {
-    this.schemaNames = schemaNames;
   }
 }
