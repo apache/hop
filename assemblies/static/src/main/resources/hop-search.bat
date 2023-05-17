@@ -80,14 +80,13 @@ echo.
 echo HOP_OPTIONS=%HOP_OPTIONS%
 echo.
 rem ===[Collect command line arguments...]======================================
-set _cmdline=
-:TopArg
-if %1!==! goto EndArg
-set _cmdline=%_cmdline% %1
-shift
-goto TopArg
-:EndArg
+if [%1]==[DEBUG] (
+FOR /f "tokens=1*" %%x IN ("%*") DO set _cmdline=%%y
+GOTO Run
+)
+set _cmdline=%*
 
+:Run
 echo Command to start Hop will be:
 echo %_HOP_JAVA% -classpath %CLASSPATH% -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.config.HopConfig %_cmdline%
 echo.
