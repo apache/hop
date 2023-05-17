@@ -282,19 +282,31 @@ public abstract class AbstractMeta
 
   /**
    * Find a database connection by it's name
-   *
+   * 
    * @param name The database name to look for
-   * @param variables Ivariables to use to resolve possible database name
+   * @param variables IVariables to use to resolve possible database name
    * @return The database connection or null if nothing was found.
    */
   public DatabaseMeta findDatabase(String name, IVariables variables) {
+    return findDatabase(name, variables, false);
+  }
+
+  /**
+   * Find a database connection by it's name
+   * 
+   * @param name The database name to look for
+   * @param variables IVariables to use to resolve possible database name
+   * @param haltOnMissingMeta Raise an exception in case connection is missing 
+   * @returnThe database connection or null if nothing was found.
+   */
+  public DatabaseMeta findDatabase(String name, IVariables variables, boolean haltOnMissingMeta) {
     if (metadataProvider == null || StringUtils.isEmpty(variables.resolve(name))) {
       return null;
     }
     try {
       DatabaseMeta databaseMeta =
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(name));
-      if (databaseMeta == null) {
+      if (databaseMeta == null && haltOnMissingMeta) {
         throw new RuntimeException(
             "Unable to load database with name '"
                 + variables.resolve(name)

@@ -340,9 +340,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
     lastControl = wTransformName;
 
-    // Connection line
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(shell, lastControl, databaseMeta, lsMod);
+    wConnection = addConnectionLine(shell, lastControl, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     lastControl = wConnection;

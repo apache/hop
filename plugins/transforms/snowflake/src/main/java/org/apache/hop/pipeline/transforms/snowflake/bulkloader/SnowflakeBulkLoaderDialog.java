@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -77,13 +80,6 @@ import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @SuppressWarnings({"FieldCanBeLocal", "WeakerAccess", "unused"})
 public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
@@ -346,8 +342,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wLoaderComp.setLayout(loaderLayout);
 
     // Connection line
-    DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(wLoaderComp, wTransformName, dbm, lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
     if (input.getConnection() == null && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
     }
