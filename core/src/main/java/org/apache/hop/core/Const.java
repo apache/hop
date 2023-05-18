@@ -522,7 +522,8 @@ public class Const {
   public static boolean toBoolean(String string) {
     return "y".equalsIgnoreCase(string)
         || "yes".equalsIgnoreCase(string)
-        || "true".equalsIgnoreCase(string);
+        || "true".equalsIgnoreCase(string)
+        || "t".equalsIgnoreCase(string);
   }
 
   /**

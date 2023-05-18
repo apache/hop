@@ -36,14 +36,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -144,7 +136,8 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), null);
+    DatabaseMeta databaseMeta = workflowMeta.findDatabase(action.getConnection(), variables);
+    wConnection = addConnectionLine(shell, wName, databaseMeta, null);
 
     // SQL from file?
     Label wlSqlFromFile = new Label(shell, SWT.RIGHT);
@@ -163,14 +156,10 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
     fdSqlFromFile.right = new FormAttachment(100, 0);
     wSqlFromFile.setLayoutData(fdSqlFromFile);
-    wSqlFromFile.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            activeSqlFromFile();
-            action.setChanged();
-          }
-        });
+    wSqlFromFile.addListener(SWT.Selection, e -> {
+      activeSqlFromFile();
+      action.setChanged();
+    });
 
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
@@ -232,13 +221,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdUseOneStatement.top = new FormAttachment(wlUseOneStatement, 0, SWT.CENTER);
     fdUseOneStatement.right = new FormAttachment(100, 0);
     wSendOneStatement.setLayoutData(fdUseOneStatement);
-    wSendOneStatement.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
+    wSendOneStatement.addListener(SWT.Selection, e -> action.setChanged());
 
     // Use variable substitution?
     Label wlUseSubs = new Label(shell, SWT.RIGHT);
@@ -257,14 +240,10 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdUseSubs.top = new FormAttachment(wlUseSubs, 0, SWT.CENTER);
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
-    wUseSubs.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setUseVariableSubstitution(!action.getUseVariableSubstitution());
-            action.setChanged();
-          }
-        });
+    wUseSubs.addListener(SWT.Selection, e -> {
+      action.setUseVariableSubstitution(!action.isUseVariableSubstitution());
+      action.setChanged();
+    });
 
     wlPosition = new Label(shell, SWT.NONE);
     wlPosition.setText(BaseMessages.getString(PKG, "ActionSQL.LineNr.Label", "0"));
@@ -294,49 +273,14 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdSql.right = new FormAttachment(100, -20);
     fdSql.bottom = new FormAttachment(wlPosition, -margin);
     wSql.setLayoutData(fdSql);
-    wSql.addModifyListener(arg0 -> setPosition());
-
-    wSql.addKeyListener(
-        new KeyAdapter() {
-          @Override
-          public void keyPressed(KeyEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void keyReleased(KeyEvent e) {
-            setPosition();
-          }
-        });
-    wSql.addFocusListener(
-        new FocusAdapter() {
-          @Override
-          public void focusGained(FocusEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void focusLost(FocusEvent e) {
-            setPosition();
-          }
-        });
-    wSql.addMouseListener(
-        new MouseAdapter() {
-          @Override
-          public void mouseDoubleClick(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseDown(MouseEvent e) {
-            setPosition();
-          }
-
-          @Override
-          public void mouseUp(MouseEvent e) {
-            setPosition();
-          }
-        });
+    wSql.addListener(SWT.Modify, e -> setPosition());
+    wSql.addListener(SWT.KeyDown, e -> setPosition());
+    wSql.addListener(SWT.KeyUp, e -> setPosition());
+    wSql.addListener(SWT.FocusIn, e -> setPosition());
+    wSql.addListener(SWT.FocusOut, e -> setPosition());
+    wSql.addListener(SWT.MouseDoubleClick, e -> setPosition());
+    wSql.addListener(SWT.MouseDown, e -> setPosition());
+    wSql.addListener(SWT.MouseUp, e -> setPosition());
 
     getData();
     activeSqlFromFile();
@@ -358,17 +302,10 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
     wSql.setText(Const.nullToEmpty(action.getSql()));
-    DatabaseMeta dbinfo = action.getDatabase();
-    if (dbinfo != null && dbinfo.getName() != null) {
-      wConnection.setText(dbinfo.getName());
-    } else {
-      wConnection.setText("");
-    }
-
-    wUseSubs.setSelection(action.getUseVariableSubstitution());
-    wSqlFromFile.setSelection(action.getSqlFromFile());
+    wConnection.setText(Const.nullToEmpty(action.getConnection()));
+    wUseSubs.setSelection(action.isUseVariableSubstitution());
+    wSqlFromFile.setSelection(action.isSqlFromFile());
     wSendOneStatement.setSelection(action.isSendOneStatement());
-
     wFilename.setText(Const.nullToEmpty(action.getSqlFilename()));
 
     wName.selectAll();
@@ -398,12 +335,12 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
       return;
     }
     action.setName(wName.getText());
+    action.setConnection(wConnection.getText());
     action.setSql(wSql.getText());
     action.setUseVariableSubstitution(wUseSubs.getSelection());
     action.setSqlFromFile(wSqlFromFile.getSelection());
     action.setSqlFilename(wFilename.getText());
-    action.setSendOneStatement(wSendOneStatement.getSelection());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
+    action.setSendOneStatement(wSendOneStatement.getSelection());    
     action.setChanged();
 
     dispose();

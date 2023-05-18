@@ -2756,6 +2756,8 @@ public class ConstTest {
     assertTrue(Const.toBoolean("true"));
     assertTrue(Const.toBoolean("True"));
     assertTrue(Const.toBoolean("TRUE"));
+    assertTrue(Const.toBoolean("T"));
+    assertTrue(Const.toBoolean("t"));
     assertFalse(Const.toBoolean("N"));
     assertFalse(Const.toBoolean("n"));
     assertFalse(Const.toBoolean("treu"));
