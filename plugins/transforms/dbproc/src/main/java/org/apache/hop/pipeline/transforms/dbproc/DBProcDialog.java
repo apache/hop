@@ -139,7 +139,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), null);
 
     // ProcName line...
     // add button to get list of procedures on selected connection...
