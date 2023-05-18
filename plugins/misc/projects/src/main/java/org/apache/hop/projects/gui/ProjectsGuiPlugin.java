@@ -135,7 +135,7 @@ public class ProjectsGuiPlugin {
     try {
       Project project = projectConfig.loadProject(hopGui.getVariables());
       ProjectDialog projectDialog =
-          new ProjectDialog(hopGui.getShell(), project, projectConfig, hopGui.getVariables(), true);
+          new ProjectDialog(hopGui.getDisplay().getActiveShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
         config.addProjectConfig(projectConfig);
 
@@ -169,7 +169,7 @@ public class ProjectsGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Header"),
           BaseMessages.getString(
               PKG, "ProjectGuiPlugin.EditProject.Error.Dialog.Message", projectName),
@@ -178,7 +178,7 @@ public class ProjectsGuiPlugin {
   }
 
   private boolean askAboutProjectRefresh(HopGui hopGui) {
-    MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+    MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO);
     box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ReloadProject.Dialog.Header"));
     box.setMessage(BaseMessages.getString(PKG, "ProjectGuiPlugin.ReloadProject.Dialog.Message"));
     int answer = box.open();
@@ -282,7 +282,7 @@ public class ProjectsGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.ChangeProject.Error.Dialog.Header"),
           BaseMessages.getString(
               PKG, "ProjectGuiPlugin.ChangeProject.Error.Dialog.Message", projectName),
@@ -319,7 +319,7 @@ public class ProjectsGuiPlugin {
       project.setParentProjectName(config.getStandardParentProject());
 
       ProjectDialog projectDialog =
-          new ProjectDialog(hopGui.getShell(), project, projectConfig, variables, false);
+          new ProjectDialog(hopGui.getDisplay().getActiveShell(), project, projectConfig, variables, false);
       String projectName = projectDialog.open();
       if (projectName != null) {
         config.addProjectConfig(projectConfig);
@@ -334,7 +334,7 @@ public class ProjectsGuiPlugin {
           project.saveToFile();
         } else {
           // If projects exists load configuration
-          MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_QUESTION | SWT.OK);
+          MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.ICON_QUESTION | SWT.OK);
           box.setText(BaseMessages.getString(PKG, "ProjectGuiPlugin.ProjectExists.Dialog.Header"));
           box.setMessage(
               BaseMessages.getString(PKG, "ProjectGuiPlugin.ProjectExists.Dialog.Message"));
@@ -421,7 +421,7 @@ public class ProjectsGuiPlugin {
 
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.AddProject.Error.Dialog.Header"),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.AddProject.Error.Dialog.Message"),
           e);
@@ -553,7 +553,7 @@ public class ProjectsGuiPlugin {
 
     try {
       LifecycleEnvironmentDialog dialog =
-          new LifecycleEnvironmentDialog(hopGui.getShell(), environment, hopGui.getVariables());
+          new LifecycleEnvironmentDialog(hopGui.getDisplay().getActiveShell(), environment, hopGui.getVariables());
       if (dialog.open() != null) {
         config.addEnvironment(environment);
         ProjectsConfigSingleton.saveConfig();
@@ -573,7 +573,7 @@ public class ProjectsGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Header"),
           BaseMessages.getString(
               PKG, "ProjectGuiPlugin.EditEnvironment.Error.Dialog.Message", environmentName),
@@ -619,7 +619,7 @@ public class ProjectsGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Header"),
           BaseMessages.getString(
               PKG, "ProjectGuiPlugin.ChangeEnvironment.Error.Dialog.Message", environmentName),
@@ -650,7 +650,7 @@ public class ProjectsGuiPlugin {
       LifecycleEnvironment environment =
           new LifecycleEnvironment(null, "", projectName, new ArrayList<>());
       LifecycleEnvironmentDialog dialog =
-          new LifecycleEnvironmentDialog(hopGui.getShell(), environment, hopGui.getVariables());
+          new LifecycleEnvironmentDialog(hopGui.getDisplay().getActiveShell(), environment, hopGui.getVariables());
       String environmentName = dialog.open();
       if (environmentName != null) {
         config.addEnvironment(environment);
@@ -667,7 +667,7 @@ public class ProjectsGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.AddEnvironment.Error.Dialog.Header"),
           BaseMessages.getString(PKG, "ProjectGuiPlugin.AddEnvironment.Error.Dialog.Message"),
           e);

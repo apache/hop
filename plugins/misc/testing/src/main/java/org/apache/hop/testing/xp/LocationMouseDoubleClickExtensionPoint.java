@@ -100,7 +100,7 @@ public class LocationMouseDoubleClickExtensionPoint
             if (inputLocation != null) {
               PipelineUnitTestSetLocationDialog dialog =
                   new PipelineUnitTestSetLocationDialog(
-                      hopGui.getShell(),
+                      hopGui.getDisplay().getActiveShell(),
                       variables,
                       hopGui.getMetadataProvider(),
                       inputLocation,
@@ -121,7 +121,7 @@ public class LocationMouseDoubleClickExtensionPoint
             if (goldenLocation != null) {
               PipelineUnitTestSetLocationDialog dialog =
                   new PipelineUnitTestSetLocationDialog(
-                      hopGui.getShell(),
+                      hopGui.getDisplay().getActiveShell(),
                       variables,
                       hopGui.getMetadataProvider(),
                       goldenLocation,
@@ -162,7 +162,7 @@ public class LocationMouseDoubleClickExtensionPoint
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error editing location", e);
+      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error editing location", e);
     }
   }
 

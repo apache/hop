@@ -95,7 +95,7 @@ public class HopGuiWorkflowActionDelegate {
         if (action.isStart()) {
           // Check if start is already on the canvas...
           if (workflowMeta.findStart() != null) {
-            HopGuiWorkflowGraph.showOnlyStartOnceMessage(hopGui.getShell());
+            HopGuiWorkflowGraph.showOnlyStartOnceMessage(hopGui.getDisplay().getActiveShell());
             return null;
           }
         }
@@ -144,7 +144,7 @@ public class HopGuiWorkflowActionDelegate {
       }
     } catch (Throwable e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(
               PKG, "HopGui.ErrorDialog.UnexpectedErrorCreatingNewJobGraphEntry.Title"),
           BaseMessages.getString(
@@ -205,7 +205,7 @@ public class HopGuiWorkflowActionDelegate {
 
     if (MissingAction.ID.equals(action.getPluginId())) {
       return new MissingActionDialog(
-          hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables());
+          hopGui.getDisplay().getActiveShell(), action, workflowMeta, workflowGraph.getVariables());
     }
 
     PluginRegistry registry = PluginRegistry.getInstance();
@@ -257,7 +257,7 @@ public class HopGuiWorkflowActionDelegate {
           BaseMessages.getString(
               PKG, "HopGui.Dialog.ErrorCreatingActionDialog.Message", dialogClassName);
       hopGui.getLog().logError(errorMsg);
-      new ErrorDialog(hopGui.getShell(), errorTitle, errorMsg, t);
+      new ErrorDialog(hopGui.getDisplay().getActiveShell(), errorTitle, errorMsg, t);
       return null;
     }
   }
@@ -297,7 +297,7 @@ public class HopGuiWorkflowActionDelegate {
         }
         workflowGraph.updateGui();
       } else {
-        MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+        MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
         mb.setMessage(BaseMessages.getString(PKG, "HopGui.Dialog.ActionCanNotBeChanged.Message"));
         mb.setText(BaseMessages.getString(PKG, "HopGui.Dialog.ActionCanNotBeChanged.Title"));
         mb.open();
@@ -306,7 +306,7 @@ public class HopGuiWorkflowActionDelegate {
     } catch (Exception e) {
       if (!hopGui.getShell().isDisposed()) {
         new ErrorDialog(
-            hopGui.getShell(),
+            hopGui.getDisplay().getActiveShell(),
             BaseMessages.getString(PKG, "HopGui.ErrorDialog.ErrorEditingAction.Title"),
             BaseMessages.getString(PKG, "HopGui.ErrorDialog.ErrorEditingAction.Message"),
             e);
@@ -374,7 +374,7 @@ public class HopGuiWorkflowActionDelegate {
     }
 
     if (action.isStart()) {
-      MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
       mb.setMessage(BaseMessages.getString(PKG, "HopGui.Dialog.OnlyUseStartOnce.Message"));
       mb.setText(BaseMessages.getString(PKG, "HopGui.Dialog.OnlyUseStartOnce.Title"));
       mb.open();

@@ -120,7 +120,7 @@ public class HopGuiAuditDelegate {
               }
             }
           } catch (Exception e) {
-            new ErrorDialog(hopGui.getShell(), "Error", "Error opening file '" + filename + "'", e);
+            new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error opening file '" + filename + "'", e);
           }
         }
 

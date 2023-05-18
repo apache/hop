@@ -360,7 +360,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           }
         } catch (Exception e) {
           new ErrorDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               "Error",
               "Hop was unable to invoke @GuiTab method "
                   + tabItem.getMethod().getName()
@@ -731,7 +731,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
         viewPort = pipelinePainter.getViewPort();
         graphPort = pipelinePainter.getGraphPort();
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();

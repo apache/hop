@@ -1207,7 +1207,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             PreviewRowsDialog previewRowsDialog =
                 new PreviewRowsDialog(
-                    hopGui.getShell(),
+                    hopGui.getDisplay().getActiveShell(),
                     variables,
                     SWT.NONE,
                     dataTransformMeta.getName(),
@@ -1216,7 +1216,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             previewRowsDialog.setTitleMessage(title, prefix + message);
             previewRowsDialog.open();
           } catch (Exception ex) {
-            new ErrorDialog(hopGui.getShell(), "Error", "Error showing preview dialog", ex);
+            new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error showing preview dialog", ex);
           }
         }
       }
@@ -3333,7 +3333,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
 
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();
@@ -3647,7 +3647,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     PipelineDialog tid =
-        new PipelineDialog(hopGui.getShell(), SWT.NONE, variables, pipelineMeta, currentTab);
+        new PipelineDialog(hopGui.getDisplay().getActiveShell(), SWT.NONE, variables, pipelineMeta, currentTab);
     if (tid.open() != null) {
       hopGui.setParametersAsVariablesInUI(pipelineMeta, variables);
       updateGui();
@@ -3710,7 +3710,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       FileObject fileObject = HopVfs.getFileObject(filename);
       if (fileObject.exists()) {
-        MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Overwrite?");
         box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
         int answer = box.open();
@@ -3772,7 +3772,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             String filename =
                 BaseDialog.presentFileDialog(
                     true,
-                    hopGui.getShell(),
+                    hopGui.getDisplay().getActiveShell(),
                     fileType.getFilterExtensions(),
                     fileType.getFilterNames(),
                     true);
