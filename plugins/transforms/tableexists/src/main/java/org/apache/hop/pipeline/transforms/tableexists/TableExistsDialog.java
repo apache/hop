@@ -113,8 +113,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
     wConnection.addModifyListener(lsMod);
 
     // Schema name line

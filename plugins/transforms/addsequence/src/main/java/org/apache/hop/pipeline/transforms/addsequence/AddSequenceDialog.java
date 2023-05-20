@@ -186,8 +186,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
           }
         });
     // Connection line
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(gDatabase, wUseDatabase, databaseMeta, lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
     wConnection.addModifyListener(e -> activeSequence());
 
     // Schema line...

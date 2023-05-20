@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.Database;
@@ -59,12 +60,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
+import org.eclipse.swt.widgets.*;
 
 public class TableInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
@@ -135,9 +131,8 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
+
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
@@ -394,11 +389,11 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
             ? wSql.getSelectionText()
             : wSql.getText());
 
-    meta.setRowLimit(wLimit.getText());  
+    meta.setRowLimit(wLimit.getText());
     meta.setExecuteEachInputRow(wEachRow.getSelection());
     meta.setVariableReplacementActive(wVariables.getSelection());
     meta.setLookup(wDataFrom.getText());
-    
+
     // Force recreate TransformIOMeta and update info stream
     meta.resetTransformIoMeta();
     meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());

@@ -158,8 +158,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wTransformName, dbm, lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...

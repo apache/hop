@@ -210,8 +210,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    DatabaseMeta dbm = pipelineMeta.findDatabase(input.getConnection(), variables);
-    wConnection = addConnectionLine(shell, wTransformName, dbm, null);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
     wConnection.addModifyListener(e -> setFlags());
     wConnection.addSelectionListener(lsSelection);
 
