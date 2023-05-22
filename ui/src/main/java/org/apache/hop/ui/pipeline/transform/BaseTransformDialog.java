@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.pipeline.transform;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -74,9 +76,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** This class provides functionality common to Transform Dialogs. */
 public class BaseTransformDialog extends Dialog {
@@ -1255,21 +1254,25 @@ public class BaseTransformDialog extends Dialog {
    * @param lsMod
    * @return the combo box UI component
    */
-    public MetaSelectionLine<DatabaseMeta> addConnectionLine(
-          Composite parent, Control previous, String connection, ModifyListener lsMod) {
-
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
-    // If we are unable to find the database metadata, display only a warning message so that the user
-    // can proceed to correct the issue in the affected pipeline
-    if (databaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
-      mb.setMessage(
-              BaseMessages.getString(
-                      PKG,
-                      "BaseTransformDialog.InvalidConnection.DialogMessage",
-                      variables.resolve(connection)));
-      mb.setText(BaseMessages.getString(PKG, "BaseTransformDialog.InvalidConnection.DialogTitle"));
-      mb.open();
+  public MetaSelectionLine<DatabaseMeta> addConnectionLine(
+      Composite parent, Control previous, String connection, ModifyListener lsMod) {
+    DatabaseMeta databaseMeta = null;
+    if (connection != null) {
+      databaseMeta = pipelineMeta.findDatabase(connection, variables);
+      // If we are unable to find the database metadata, display only a warning message so that the
+      // user
+      // can proceed to correct the issue in the affected pipeline
+      if (databaseMeta == null) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+        mb.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "BaseTransformDialog.InvalidConnection.DialogMessage",
+                variables.resolve(connection)));
+        mb.setText(
+            BaseMessages.getString(PKG, "BaseTransformDialog.InvalidConnection.DialogTitle"));
+        mb.open();
+      }
     }
     return addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
   }
