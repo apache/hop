@@ -26,7 +26,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.dialog.MessageBox;import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
@@ -125,6 +125,35 @@ public abstract class ActionDialog extends Dialog {
             BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Tooltip"));
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
+  }
+
+  /**
+   * Adds the connection line for the given parent and previous control, and returns a meta
+   * selection manager control
+   *
+   * @param parent the parent composite object
+   * @param previous the previous control
+   * @param connection
+   * @param lsMod
+   * @return the combo box UI component
+   */
+  public MetaSelectionLine<DatabaseMeta> addConnectionLine(
+          Composite parent, Control previous, String connection, ModifyListener lsMod) {
+
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(connection, variables);
+    // If we are unable to find the database metadata, display only a warning message so that the user
+    // can proceed to correct the issue in the affected pipeline
+    if (databaseMeta == null) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
+      mb.setMessage(
+              BaseMessages.getString(
+                      PKG,
+                      "BaseTransformDialog.InvalidConnection.DialogMessage",
+                      variables.resolve(connection)));
+      mb.setText(BaseMessages.getString(PKG, "BaseTransformDialog.InvalidConnection.DialogTitle"));
+      mb.open();
+    }
+    return addConnectionLine(parent, previous, databaseMeta, lsMod);
   }
 
   public IHopMetadataProvider getMetadataProvider() {

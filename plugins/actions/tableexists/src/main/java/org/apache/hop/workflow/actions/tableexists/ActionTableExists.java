@@ -23,12 +23,9 @@ import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.core.util.Utils;import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -37,7 +34,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -53,13 +49,18 @@ import java.util.List;
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator
 
+  @HopMetadataProperty(key="tablename")
   private String tableName;
-  private String schemaname;
-  private DatabaseMeta connection;
+
+  @HopMetadataProperty(key="schemaname")
+  private String schemaName;
+
+  @HopMetadataProperty(key="connection")
+  private String connection;
 
   public ActionTableExists(String n) {
     super(n, "");
-    schemaname = null;
+    schemaName = null;
     tableName = null;
     connection = null;
   }
@@ -74,59 +75,28 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     return je;
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-
-    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
-    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-
-      tableName = XmlHandler.getTagValue(entrynode, "tablename");
-      schemaname = XmlHandler.getTagValue(entrynode, "schemaname");
-      String dbname = XmlHandler.getTagValue(entrynode, "connection");
-      connection = DatabaseMeta.loadDatabase(metadataProvider, dbname);
-    } catch (HopException e) {
-      throw new HopXmlException(BaseMessages.getString(PKG, "TableExists.Meta.UnableLoadXml"), e);
-    }
-  }
-
-  public void setTablename(String tableName) {
+  public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
-  public String getTablename() {
+  public String getTableName() {
     return tableName;
   }
 
-  public String getSchemaname() {
-    return schemaname;
+  public String getSchemaName() {
+    return schemaName;
   }
 
-  public void setSchemaname(String schemaname) {
-    this.schemaname = schemaname;
+  public void setSchemaName(String schemaName) {
+    this.schemaName = schemaName;
   }
 
-  public void setDatabase(DatabaseMeta database) {
-    this.connection = database;
-  }
-
-  public DatabaseMeta getDatabase() {
+  public String getConnection() {
     return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   @Override
@@ -144,33 +114,38 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     Result result = previousResult;
     result.setResult(false);
 
-    if (connection != null) {
-      Database db = new Database(this, this, connection);
-      try {
-        db.connect();
-        String realTablename = resolve(tableName);
-        String realSchemaname = resolve(schemaname);
+    if (!Utils.isEmpty(connection)) {
+      DatabaseMeta dbMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+      if (dbMeta != null) {
+        Database db = new Database(this, this, dbMeta);
+        try {
+          db.connect();
+          String realTableName = resolve(tableName);
+          String realSchemaName = resolve(schemaName);
 
-        if (db.checkTableExists(realSchemaname, realTablename)) {
-          if (log.isDetailed()) {
-            logDetailed(BaseMessages.getString(PKG, "TableExists.Log.TableExists", realTablename));
+          if (db.checkTableExists(realSchemaName, realTableName)) {
+            if (log.isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(PKG, "TableExists.Log.TableExists", realTableName));
+            }
+            result.setResult(true);
+          } else {
+            if (log.isDetailed()) {
+              logDetailed(
+                  BaseMessages.getString(PKG, "TableExists.Log.TableNotExists", realTableName));
+            }
           }
-          result.setResult(true);
-        } else {
-          if (log.isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(PKG, "TableExists.Log.TableNotExists", realTablename));
-          }
-        }
-      } catch (HopDatabaseException dbe) {
-        result.setNrErrors(1);
-        logError(BaseMessages.getString(PKG, "TableExists.Error.RunningAction", dbe.getMessage()));
-      } finally {
-        if (db != null) {
-          try {
-            db.disconnect();
-          } catch (Exception e) {
-            /* Ignore */
+        } catch (HopDatabaseException dbe) {
+          result.setNrErrors(1);
+          logError(
+              BaseMessages.getString(PKG, "TableExists.Error.RunningAction", dbe.getMessage()));
+        } finally {
+          if (db != null) {
+            try {
+              db.disconnect();
+            } catch (Exception e) {
+              /* Ignore */
+            }
           }
         }
       }
@@ -183,22 +158,16 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
   }
 
   @Override
-  public DatabaseMeta[] getUsedDatabaseConnections() {
-    return new DatabaseMeta[] {
-      connection,
-    };
-  }
-
-  @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (connection != null) {
+    DatabaseMeta dbMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
+    if (dbMeta != null) {
       ResourceReference reference = new ResourceReference(this);
-      reference.getEntries().add(new ResourceEntry(connection.getHostname(), ResourceType.SERVER));
+      reference.getEntries().add(new ResourceEntry(dbMeta.getHostname(), ResourceType.SERVER));
       reference
           .getEntries()
-          .add(new ResourceEntry(connection.getDatabaseName(), ResourceType.DATABASENAME));
+          .add(new ResourceEntry(dbMeta.getDatabaseName(), ResourceType.DATABASENAME));
       references.add(reference);
     }
     return references;

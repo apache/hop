@@ -1266,7 +1266,7 @@ public class BaseTransformDialog extends Dialog {
         mb.open();
       }
     }
-    return addConnectionLine(shell, wTransformName, databaseMeta, lsMod);
+    return addConnectionLine(parent, previous, databaseMeta, lsMod);
   }
 
   public interface IFieldsChoiceDialogProvider {
