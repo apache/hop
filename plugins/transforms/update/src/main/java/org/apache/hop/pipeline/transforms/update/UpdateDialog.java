@@ -736,11 +736,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       return;
     }
 
-    // Get the information for the dialog into the input structure.
-    getInfo(input);
-
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    if (databaseMeta == null) {
+    if (Utils.isEmpty(input.getConnection())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "UpdateDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "UpdateDialog.InvalidConnection.DialogTitle"));
@@ -748,6 +744,8 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       return;
     }
 
+    // Get the information for the dialog into the input structure.
+    getInfo(input);
     dispose();
   }
 

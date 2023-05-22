@@ -391,6 +391,16 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
+
+    if (input.getConnection() == null) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogTitle"));
+      mb.open();
+      return;
+    }
+
     input.setCommitSize(Const.toInt(wCommit.getText(), 0));
     transformName = wTransformName.getText(); // return value
     input.setSqlFieldName(wSqlFieldName.getText());
@@ -403,16 +413,6 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     input.setReadField(wReadField.getText());
     input.setSqlFromfile(wSqlFromFile.getSelection());
     input.setSendOneStatement(wSendOneStatement.getSelection());
-
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    if (databaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogTitle"));
-      mb.open();
-      return;
-    }
 
     dispose();
   }

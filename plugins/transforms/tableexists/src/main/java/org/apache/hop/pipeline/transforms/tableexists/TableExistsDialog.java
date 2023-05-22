@@ -259,21 +259,20 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
       return;
     }
 
+    if (input.getConnection() == null) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "TableExistsDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "TableExistsDialog.InvalidConnection.DialogTitle"));
+      mb.open();
+    }
+
     input.setConnection(wConnection.getText());
     input.setSchemaName(wSchemaname.getText());
     input.setTableNameField(wTableName.getText());
     input.setResultFieldName(wResult.getText());
 
     transformName = wTransformName.getText(); // return value
-
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    if (databaseMeta == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "TableExistsDialog.InvalidConnection.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "TableExistsDialog.InvalidConnection.DialogTitle"));
-      mb.open();
-    }
 
     dispose();
   }

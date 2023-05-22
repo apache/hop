@@ -405,12 +405,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     transformName = wTransformName.getText(); // return value
-    // copy info to TextFileInputMeta class (input)
-
-    getInfo(input, false);
-
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    if (databaseMeta == null) {
+    if (Utils.isEmpty(input.getConnection())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.SelectValidConnection"));
       mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));
@@ -418,6 +413,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
       return;
     }
 
+    getInfo(input, false);
     dispose();
   }
 

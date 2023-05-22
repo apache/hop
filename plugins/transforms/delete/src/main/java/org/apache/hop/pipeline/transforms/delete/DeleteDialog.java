@@ -484,17 +484,15 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
       return;
     }
 
-    // Get the information for the dialog into the input structure.
-    getInfo(input);
-
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-    if (databaseMeta == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "DeleteDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "DeleteDialog.InvalidConnection.DialogTitle"));
       mb.open();
       return;
     }
+    // Get the information for the dialog into the input structure.
+    getInfo(input);
 
     dispose();
   }
