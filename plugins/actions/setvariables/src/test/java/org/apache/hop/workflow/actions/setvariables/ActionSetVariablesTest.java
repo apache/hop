@@ -17,23 +17,23 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlParserFactoryProducer;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableDefinition;
+import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableType;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
@@ -45,13 +45,17 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-
-public class WorkflowEntrySetVariablesTest {
+public class ActionSetVariablesTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
   private ActionSetVariables action;
 
@@ -75,6 +79,42 @@ public class WorkflowEntrySetVariablesTest {
   @After
   public void tearDown() throws Exception {}
 
+  @Test
+  public void testSerialization() throws Exception {
+    HopClientEnvironment.init();
+    MemoryMetadataProvider provider = new MemoryMetadataProvider();
+
+    ActionSetVariables action =
+        ActionSerializationTestUtil.testSerialization(
+            "/set-variables-action.xml", ActionSetVariables.class, provider);
+
+    // Properties file variables
+    assertEquals(VariableType.CURRENT_WORKFLOW, action.getFileVariableType());
+    assertEquals("filename.txt", action.getFilename());
+    
+    // Settings
+    assertTrue(action.isReplaceVars());
+    
+    // Static variables
+    VariableDefinition definition = action.getVariableDefinitions().get(0);
+    assertEquals("VAR_CURRENT", definition.getName());
+    assertEquals("current", definition.getValue());
+    assertEquals(VariableType.CURRENT_WORKFLOW, definition.getType());
+    definition = action.getVariableDefinitions().get(1);
+    assertEquals("VAR_PARENT", definition.getName());
+    assertEquals("parent", definition.getValue());
+    assertEquals(VariableType.PARENT_WORKFLOW, definition.getType());
+    definition = action.getVariableDefinitions().get(2);
+    assertEquals("VAR_ROOT", definition.getName());
+    assertEquals("root", definition.getValue());
+    assertEquals(VariableType.ROOT_WORKFLOW, definition.getType());
+    definition = action.getVariableDefinitions().get(3);
+    assertEquals("VAR_JVM", definition.getName());
+    assertEquals("jvm", definition.getValue());
+    assertEquals(VariableType.JVM, definition.getType());
+  }
+  
+  
   @Test
   public void testASCIIText() throws Exception {
     // properties file with native2ascii
@@ -129,7 +169,7 @@ public class WorkflowEntrySetVariablesTest {
   public void testParentJobVariablesExecutingFilePropertiesThatChangesVariablesAndParameters()
       throws Exception {
     action.setReplaceVars(true);
-    action.setFileVariableType(1);
+    action.setFileVariableType(VariableType.CURRENT_WORKFLOW);
 
     IWorkflowEngine<WorkflowMeta> parentWorkflow = action.getParentWorkflow();
 
@@ -186,7 +226,7 @@ public class WorkflowEntrySetVariablesTest {
   }
 
   @Test
-  public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable()
+  public void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable()
       throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
@@ -197,7 +237,7 @@ public class WorkflowEntrySetVariablesTest {
   }
 
   @Test
-  public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
+  public void testSetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(
         getEntryNode("variableNotNull", "someValue", "JVM"), metadataProvider, new Variables());
@@ -208,7 +248,7 @@ public class WorkflowEntrySetVariablesTest {
   }
 
   @Test
-  public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull()
+  public void testSetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull()
       throws Exception {
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
     action.loadXml(

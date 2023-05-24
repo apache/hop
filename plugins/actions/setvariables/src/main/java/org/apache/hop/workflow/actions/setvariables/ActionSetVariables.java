@@ -17,18 +17,18 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
+import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -41,8 +41,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -62,124 +60,122 @@ import java.util.Properties;
 public class ActionSetVariables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSetVariables.class; // For Translator
 
-  public boolean replaceVars;
+  @HopMetadataProperty(key = "replacevars")
+  private boolean replaceVars;
 
-  public String[] variableName;
+  @HopMetadataProperty(groupKey = "fields", key = "field")  
+  private List<VariableDefinition> variableDefinitions;
+  
+  @HopMetadataProperty(key = "filename")
+  private String filename;
 
-  public String[] variableValue;
+  @HopMetadataProperty(key = "file_variable_type")
+  private VariableType fileVariableType;
 
-  public int[] variableType;
+  public enum VariableType implements IEnumHasCodeAndDescription {
+    JVM(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.JVM")),
+    CURRENT_WORKFLOW(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.CurrentWorkflow")),
+    PARENT_WORKFLOW(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.ParentWorkflow")),
+    ROOT_WORKFLOW(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.RootWorkflow"));
 
-  public String filename;
+    private final String description;
+    
+    VariableType(String description) {
+      this.description = description;
+    }
 
-  public int fileVariableType;
+    public static String[] getDescriptions() {
+      return IEnumHasCodeAndDescription.getDescriptions(VariableType.class);
+    }
 
-  public static final int VARIABLE_TYPE_JVM = 0;
-  public static final int VARIABLE_TYPE_CURRENT_WORKFLOW = 1;
-  public static final int VARIABLE_TYPE_PARENT_WORKFLOW = 2;
-  public static final int VARIABLE_TYPE_ROOT_WORKFLOW = 3;
+    public static VariableType lookupDescription(final String description) {
+      return IEnumHasCodeAndDescription.lookupDescription(VariableType.class, description, JVM);
+    }
 
-  public static final String[] variableTypeCode = {
-    "JVM", "CURRENT_WORKFLOW", "PARENT_WORKFLOW", "ROOT_WORKFLOW"
-  };
-  private static final String[] variableTypeDesc = {
-    BaseMessages.getString(PKG, "ActionSetVariables.VariableType.JVM"),
-    BaseMessages.getString(PKG, "ActionSetVariables.VariableType.CurrentWorkflow"),
-    BaseMessages.getString(PKG, "ActionSetVariables.VariableType.ParentWorkflow"),
-    BaseMessages.getString(PKG, "ActionSetVariables.VariableType.RootWorkflow"),
-  };
+    public static VariableType lookupCode(final String code) {
+      return IEnumHasCode.lookupCode(VariableType.class, code, JVM);
+    }
 
+    @Override
+    public String getCode() {
+      return name();
+    }
+
+    @Override
+    public String getDescription() {
+      return description;
+    }
+  }
+  
+  
+  public static final class VariableDefinition {    
+    public VariableDefinition() {
+      super();
+    }
+    
+    public VariableDefinition(String name, String value, VariableType type) {
+      super();
+      this.name = name;
+      this.value = value;
+      this.type = type;
+    }
+
+    @HopMetadataProperty(key = "variable_name")
+    private String name;
+
+    @HopMetadataProperty(key = "variable_value")
+    private String value;
+        
+    @HopMetadataProperty(key = "variable_type")
+    private VariableType type;
+
+    public String getName() {
+      return name;
+    }
+    
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    public void setValue(String value) {
+      this.value = value;
+    }
+
+    public VariableType getType() {
+      return type;
+    }
+
+    public void setType(VariableType type) {
+      this.type = type;
+    }
+  }
+  
   public ActionSetVariables(String n) {
     super(n, "");
     replaceVars = true;
-    variableName = null;
-    variableValue = null;
+    fileVariableType = VariableType.CURRENT_WORKFLOW;
+    variableDefinitions = new ArrayList<>();
   }
 
   public ActionSetVariables() {
     this("");
   }
 
-  public void allocate(int nrFields) {
-    variableName = new String[nrFields];
-    variableValue = new String[nrFields];
-    variableType = new int[nrFields];
+  public ActionSetVariables(ActionSetVariables other) {
+    super(other.getName(), other.getDescription(), other.getPluginId());
+    this.filename = other.getFilename();
+    this.fileVariableType = other.getFileVariableType();
+    this.replaceVars = other.isReplaceVars();
+    this.variableDefinitions = other.getVariableDefinitions();
   }
 
   @Override
   public Object clone() {
-    ActionSetVariables je = (ActionSetVariables) super.clone();
-    if (variableName != null) {
-      int nrFields = variableName.length;
-      je.allocate(nrFields);
-      System.arraycopy(variableName, 0, je.variableName, 0, nrFields);
-      System.arraycopy(variableValue, 0, je.variableValue, 0, nrFields);
-      System.arraycopy(variableType, 0, je.variableType, 0, nrFields);
-    }
-    return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(300);
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("replacevars", replaceVars));
-
-    retval.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue("file_variable_type", getVariableTypeCode(fileVariableType)));
-
-    retval.append("      <fields>").append(Const.CR);
-    if (variableName != null) {
-      for (int i = 0; i < variableName.length; i++) {
-        retval.append("        <field>").append(Const.CR);
-        retval
-            .append("          ")
-            .append(XmlHandler.addTagValue("variable_name", variableName[i]));
-        retval
-            .append("          ")
-            .append(XmlHandler.addTagValue("variable_value", variableValue[i]));
-        retval
-            .append("          ")
-            .append(XmlHandler.addTagValue("variable_type", getVariableTypeCode(variableType[i])));
-        retval.append("        </field>").append(Const.CR);
-      }
-    }
-    retval.append("      </fields>").append(Const.CR);
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      replaceVars = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "replacevars"));
-
-      filename = XmlHandler.getTagValue(entrynode, "filename");
-      fileVariableType = getVariableType(XmlHandler.getTagValue(entrynode, "file_variable_type"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-      // How many field variableName?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        variableName[i] = XmlHandler.getTagValue(fnode, "variable_name");
-        variableValue[i] = XmlHandler.getTagValue(fnode, "variable_value");
-        variableType[i] = getVariableType(XmlHandler.getTagValue(fnode, "variable_type"));
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionSetVariables.Meta.UnableLoadXML", xe.getMessage()),
-          xe);
-    }
+    return new ActionSetVariables(this);
   }
 
   @Override
@@ -188,9 +184,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     result.setNrErrors(0);
     try {
 
-      List<String> variables = new ArrayList<>();
-      List<String> variableValues = new ArrayList<>();
-      List<Integer> variableTypes = new ArrayList<>();
+      List<VariableDefinition> definitions = new ArrayList<>();
 
       String realFilename = resolve(filename);
       if (!Utils.isEmpty(realFilename)) {
@@ -201,9 +195,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
           Properties properties = new Properties();
           properties.load(reader);
           for (Object key : properties.keySet()) {
-            variables.add((String) key);
-            variableValues.add((String) properties.get(key));
-            variableTypes.add(fileVariableType);
+            definitions.add(new VariableDefinition((String) key, (String) properties.get(key), fileVariableType));
           }
         } catch (Exception e) {
           throw new HopException(
@@ -212,13 +204,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         }
       }
 
-      if (variableName != null) {
-        for (int i = 0; i < variableName.length; i++) {
-          variables.add(variableName[i]);
-          variableValues.add(variableValue[i]);
-          variableTypes.add(variableType[i]);
-        }
-      }
+      definitions.addAll(variableDefinitions);
 
       // if parentWorkflow exists - clear/reset all entrySetVariables before applying the actual
       // ones
@@ -239,85 +225,84 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         }
       }
 
-      for (int i = 0; i < variables.size(); i++) {
-        String varname = variables.get(i);
-        String value = variableValues.get(i);
-        int type = variableTypes.get(i);
+      for (VariableDefinition definition : definitions) {
+        String name = definition.getName();
+        String value = definition.getValue();
 
         if (replaceVars) {
-          varname = resolve(varname);
+          name = resolve(name);
           value = resolve(value);
         }
 
         // OK, where do we set this value...
-        switch (type) {
-          case VARIABLE_TYPE_JVM:
+        switch (definition.getType()) {
+          case JVM:
             if (value != null) {
-              System.setProperty(varname, value);
+              System.setProperty(name, value);
             } else {
-              System.clearProperty(varname);
+              System.clearProperty(name);
             }
-            setVariable(varname, value);
+            setVariable(name, value);
             IWorkflowEngine<WorkflowMeta> parentWorkflowTraverse = parentWorkflow;
             while (parentWorkflowTraverse != null) {
-              parentWorkflowTraverse.setVariable(varname, value);
+              parentWorkflowTraverse.setVariable(name, value);
               parentWorkflowTraverse = parentWorkflowTraverse.getParentWorkflow();
             }
             break;
 
-          case VARIABLE_TYPE_ROOT_WORKFLOW:
+          case ROOT_WORKFLOW:
             // set variable in this action
-            setVariable(varname, value);
+            setVariable(name, value);
             IWorkflowEngine<WorkflowMeta> rootWorkflow = parentWorkflow;
             while (rootWorkflow != null) {
-              rootWorkflow.setVariable(varname, value);
+              rootWorkflow.setVariable(name, value);
               rootWorkflow = rootWorkflow.getParentWorkflow();
             }
             break;
 
-          case VARIABLE_TYPE_CURRENT_WORKFLOW:
-            setVariable(varname, value);
+          case CURRENT_WORKFLOW:
+            setVariable(name, value);
 
             if (parentWorkflow != null) {
-              String parameterValue = parentWorkflow.getParameterValue(varname);
+              String parameterValue = parentWorkflow.getParameterValue(name);
               // if not a parameter, set the value
               if (parameterValue == null) {
-                setEntryTransformSetVariable(varname, value);
+                setEntryTransformSetVariable(name, value);
               } else {
                 // if parameter, save the initial parameter value for use in reset/clear variables
                 // in future calls
                 if (parameterValue != null
                     && parameterValue != value
-                    && !entryTransformSetVariablesMap.containsKey(varname)) {
-                  setEntryTransformSetVariable(varname, parameterValue);
+                    && !entryTransformSetVariablesMap.containsKey(name)) {
+                  setEntryTransformSetVariable(name, parameterValue);
                 }
               }
-              parentWorkflow.setVariable(varname, value);
+              parentWorkflow.setVariable(name, value);
 
             } else {
               throw new HopWorkflowException(
                   BaseMessages.getString(
-                      PKG, "ActionSetVariables.Error.UnableSetVariableCurrentWorkflow", varname));
+                      PKG, "ActionSetVariables.Error.UnableSetVariableCurrentWorkflow", name));
             }
             break;
 
-          case VARIABLE_TYPE_PARENT_WORKFLOW:
-            setVariable(varname, value);
+          case PARENT_WORKFLOW:
+            setVariable(name, value);
 
             if (parentWorkflow != null) {
-              parentWorkflow.setVariable(varname, value);
+              parentWorkflow.setVariable(name, value);
               IWorkflowEngine<WorkflowMeta> gpWorkflow = parentWorkflow.getParentWorkflow();
               if (gpWorkflow != null) {
-                gpWorkflow.setVariable(varname, value);
+                gpWorkflow.setVariable(name, value);
               } else {
                 throw new HopWorkflowException(
                     BaseMessages.getString(
-                        PKG, "ActionSetVariables.Error.UnableSetVariableParentWorkflow", varname));
+                        PKG, "ActionSetVariables.Error.UnableSetVariableParentWorkflow", name));
               }
             } else {
               throw new HopWorkflowException(
                   BaseMessages.getString(
-                      PKG, "ActionSetVariables.Error.UnableSetVariableCurrentWorkflow", varname));
+                      PKG, "ActionSetVariables.Error.UnableSetVariableCurrentWorkflow", name));
             }
             break;
 
@@ -329,7 +314,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         if (log.isDetailed()) {
           logDetailed(
               BaseMessages.getString(
-                  PKG, "ActionSetVariables.Log.SetVariableToValue", varname, value));
+                  PKG, "ActionSetVariables.Log.SetVariableToValue", name, value));
         }
       }
     } catch (Exception e) {
@@ -355,64 +340,12 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     return replaceVars;
   }
 
-  public String[] getVariableValue() {
-    return variableValue;
+  public List<VariableDefinition> getVariableDefinitions() {
+    return variableDefinitions;
   }
 
-  /** @param fieldValue The fieldValue to set. */
-  public void setVariableName(String[] fieldValue) {
-    this.variableName = fieldValue;
-  }
-
-  /**
-   * @return Returns the local variable flag: true if this variable is only valid in the parents
-   *     workflow.
-   */
-  public int[] getVariableType() {
-    return variableType;
-  }
-
-  /**
-   * @param variableType The variable type, see also VARIABLE_TYPE_...
-   * @return the variable type code for this variable type
-   */
-  public static final String getVariableTypeCode(int variableType) {
-    return variableTypeCode[variableType];
-  }
-
-  /**
-   * @param variableType The variable type, see also VARIABLE_TYPE_...
-   * @return the variable type description for this variable type
-   */
-  public static final String getVariableTypeDescription(int variableType) {
-    return variableTypeDesc[variableType];
-  }
-
-  /**
-   * @param variableType The code or description of the variable type
-   * @return The variable type
-   */
-  public static final int getVariableType(String variableType) {
-    for (int i = 0; i < variableTypeCode.length; i++) {
-      if (variableTypeCode[i].equalsIgnoreCase(variableType)) {
-        return i;
-      }
-    }
-    for (int i = 0; i < variableTypeDesc.length; i++) {
-      if (variableTypeDesc[i].equalsIgnoreCase(variableType)) {
-        return i;
-      }
-    }
-    return VARIABLE_TYPE_JVM;
-  }
-
-  /** @param localVariable The localVariable to set. */
-  public void setVariableType(int[] localVariable) {
-    this.variableType = localVariable;
-  }
-
-  public static final String[] getVariableTypeDescriptions() {
-    return variableTypeDesc;
+  public void setVariableDefinitions(List<VariableDefinition> variableDefinitions) {
+    this.variableDefinitions = variableDefinitions;
   }
 
   @Override
@@ -437,27 +370,20 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
-
-    for (int i = 0; i < variableName.length; i++) {
-      ActionValidatorUtils.andValidator().validate(this, "variableName[" + i + "]", remarks, ctx);
-    }
   }
 
   @Override
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    if (variableName != null) {
-      ResourceReference reference = null;
-      for (int i = 0; i < variableName.length; i++) {
-        String filename = resolve(variableName[i]);
-        if (reference == null) {
-          reference = new ResourceReference(this);
-          references.add(reference);
-        }
-        reference.getEntries().add(new ResourceEntry(filename, ResourceType.FILE));
-      }
+    
+    String realFilename = resolve(this.filename);    
+    if (!Utils.isEmpty(realFilename)) {
+      ResourceReference reference = new ResourceReference(this);
+      references.add(reference);    
+      reference.getEntries().add(new ResourceEntry(realFilename, ResourceType.FILE));
     }
+    
     return references;
   }
 
@@ -473,12 +399,12 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
   }
 
   /** @return the fileVariableType */
-  public int getFileVariableType() {
+  public VariableType getFileVariableType() {
     return fileVariableType;
   }
 
-  /** @param fileVariableType the fileVariableType to set */
-  public void setFileVariableType(int fileVariableType) {
-    this.fileVariableType = fileVariableType;
+  /** @param scope the fileVariableType to set */
+  public void setFileVariableType(VariableType scope) {
+    this.fileVariableType = scope;
   }
 }
