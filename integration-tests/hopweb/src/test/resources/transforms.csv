@@ -60,7 +60,6 @@ Combination lookup/update
 Concat Fields
 Copy rows to result
 Credit card validator
-CSV file input
 Data grid
 Data validator
 Database join
@@ -110,7 +109,6 @@ If Null
 Injector
 Insert / update
 Java filter
-JavaScript
 Join rows (cartesian product)
 JSON input
 JSON output
@@ -131,12 +129,10 @@ Microsoft Access output
 Microsoft Excel input
 Microsoft Excel writer
 MonetDB bulk loader
-MongoDB Delete
 MongoDB input
 MongoDB output
 Multiway merge join
 Neo4j Cypher
-Neo4j Cypher Builder
 Neo4j Generate CSVs
 Neo4j Graph Output
 Neo4j Import
@@ -173,7 +169,6 @@ Salesforce update
 Salesforce upsert
 Sample rows
 SAS Input
-Script
 Select values
 Serialize to file
 Set field value
@@ -208,7 +203,6 @@ Token Replacement
 Unique rows
 Unique rows (HashSet)
 Update
-User defined Java class
 User defined Java expression
 Value mapper
 Vertica bulk loader
