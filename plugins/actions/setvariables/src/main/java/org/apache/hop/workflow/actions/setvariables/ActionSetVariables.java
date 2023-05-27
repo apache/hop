@@ -17,6 +17,12 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -41,12 +47,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 /** This defines a 'Set variables' action. */
 @Action(
@@ -63,9 +63,9 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
   @HopMetadataProperty(key = "replacevars")
   private boolean replaceVars;
 
-  @HopMetadataProperty(groupKey = "fields", key = "field")  
+  @HopMetadataProperty(groupKey = "fields", key = "field")
   private List<VariableDefinition> variableDefinitions;
-  
+
   @HopMetadataProperty(key = "filename")
   private String filename;
 
@@ -74,12 +74,13 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
   public enum VariableType implements IEnumHasCodeAndDescription {
     JVM(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.JVM")),
-    CURRENT_WORKFLOW(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.CurrentWorkflow")),
+    CURRENT_WORKFLOW(
+        BaseMessages.getString(PKG, "ActionSetVariables.VariableType.CurrentWorkflow")),
     PARENT_WORKFLOW(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.ParentWorkflow")),
     ROOT_WORKFLOW(BaseMessages.getString(PKG, "ActionSetVariables.VariableType.RootWorkflow"));
 
     private final String description;
-    
+
     VariableType(String description) {
       this.description = description;
     }
@@ -106,13 +107,12 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
       return description;
     }
   }
-  
-  
-  public static final class VariableDefinition {    
+
+  public static final class VariableDefinition {
     public VariableDefinition() {
       super();
     }
-    
+
     public VariableDefinition(String name, String value, VariableType type) {
       super();
       this.name = name;
@@ -125,14 +125,14 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
     @HopMetadataProperty(key = "variable_value")
     private String value;
-        
+
     @HopMetadataProperty(key = "variable_type")
     private VariableType type;
 
     public String getName() {
       return name;
     }
-    
+
     public void setName(String name) {
       this.name = name;
     }
@@ -153,7 +153,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
       this.type = type;
     }
   }
-  
+
   public ActionSetVariables(String n) {
     super(n, "");
     replaceVars = true;
@@ -195,7 +195,9 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
           Properties properties = new Properties();
           properties.load(reader);
           for (Object key : properties.keySet()) {
-            definitions.add(new VariableDefinition((String) key, (String) properties.get(key), fileVariableType));
+            definitions.add(
+                new VariableDefinition(
+                    (String) key, (String) properties.get(key), fileVariableType));
           }
         } catch (Exception e) {
           throw new HopException(
@@ -272,7 +274,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
                 // if parameter, save the initial parameter value for use in reset/clear variables
                 // in future calls
                 if (parameterValue != null
-                    && parameterValue != value
+                    && !parameterValue.equals(value)
                     && !entryTransformSetVariablesMap.containsKey(name)) {
                   setEntryTransformSetVariable(name, parameterValue);
                 }
@@ -362,7 +364,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
                 remarks,
                 AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
-    if (res == false) {
+    if (!res) {
       return;
     }
 
@@ -376,34 +378,42 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
   public List<ResourceReference> getResourceDependencies(
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
-    
-    String realFilename = resolve(this.filename);    
+
+    String realFilename = resolve(this.filename);
     if (!Utils.isEmpty(realFilename)) {
       ResourceReference reference = new ResourceReference(this);
-      references.add(reference);    
+      references.add(reference);
       reference.getEntries().add(new ResourceEntry(realFilename, ResourceType.FILE));
     }
-    
+
     return references;
   }
 
-  /** @return the filename */
+  /**
+   * @return the filename
+   */
   @Override
   public String getFilename() {
     return filename;
   }
 
-  /** @param filename the filename to set */
+  /**
+   * @param filename the filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /** @return the fileVariableType */
+  /**
+   * @return the fileVariableType
+   */
   public VariableType getFileVariableType() {
     return fileVariableType;
   }
 
-  /** @param scope the fileVariableType to set */
+  /**
+   * @param scope the fileVariableType to set
+   */
   public void setFileVariableType(VariableType scope) {
     this.fileVariableType = scope;
   }

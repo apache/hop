@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -47,8 +49,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.ArrayList;
-import java.util.List;
 
 /** This dialog allows you to edit the Set variables action settings. */
 public class ActionSetVariablesDialog extends ActionDialog implements IActionDialog {
@@ -242,7 +242,9 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
           false),
       new ColumnInfo(
           BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.VariableType"),
-          ColumnInfo.COLUMN_TYPE_CCOMBO,VariableType.getDescriptions(), false),
+          ColumnInfo.COLUMN_TYPE_CCOMBO,
+          VariableType.getDescriptions(),
+          false),
     };
     colinf[0].setUsingVariables(true);
     colinf[1].setUsingVariables(true);
@@ -323,11 +325,11 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
       if (name != null && name.length() != 0) {
         String value = wFields.getNonEmpty(i).getText(2);
         VariableType scope = VariableType.lookupDescription(wFields.getNonEmpty(i).getText(3));
-        list.add(new VariableDefinition(name, value, scope));        
+        list.add(new VariableDefinition(name, value, scope));
       }
     }
     action.setVariableDefinitions(list);
-    
+
     dispose();
   }
 }

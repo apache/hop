@@ -21,6 +21,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
@@ -45,15 +55,6 @@ import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
-import java.nio.charset.StandardCharsets;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.ParserConfigurationException;
 
 public class ActionSetVariablesTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
@@ -91,10 +92,10 @@ public class ActionSetVariablesTest {
     // Properties file variables
     assertEquals(VariableType.CURRENT_WORKFLOW, action.getFileVariableType());
     assertEquals("filename.txt", action.getFilename());
-    
+
     // Settings
     assertTrue(action.isReplaceVars());
-    
+
     // Static variables
     VariableDefinition definition = action.getVariableDefinitions().get(0);
     assertEquals("VAR_CURRENT", definition.getName());
@@ -113,8 +114,7 @@ public class ActionSetVariablesTest {
     assertEquals("jvm", definition.getValue());
     assertEquals(VariableType.JVM, definition.getType());
   }
-  
-  
+
   @Test
   public void testASCIIText() throws Exception {
     // properties file with native2ascii
