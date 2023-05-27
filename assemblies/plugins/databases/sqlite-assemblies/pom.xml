@@ -35,7 +35,7 @@
     <description />
 
     <properties>
-        <sqlite.version>3.28.0</sqlite.version>
+        <sqlite.version>3.42.0.0</sqlite.version>
     </properties>
 
 
