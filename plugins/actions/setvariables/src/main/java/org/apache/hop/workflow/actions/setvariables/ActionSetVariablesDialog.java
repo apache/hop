@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.setvariables;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -33,11 +35,11 @@ import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableDefinition;
+import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -170,7 +172,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     fdFileVariableType.top = new FormAttachment(wFilename, margin);
     fdFileVariableType.right = new FormAttachment(100, 0);
     wFileVariableType.setLayoutData(fdFileVariableType);
-    wFileVariableType.setItems(ActionSetVariables.getVariableTypeDescriptions());
+    wFileVariableType.setItems(VariableType.getDescriptions());
 
     FormData fdgFilename = new FormData();
     fdgFilename.left = new FormAttachment(0, margin);
@@ -206,13 +208,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     fdVarSubs.top = new FormAttachment(wlVarSubs, 0, SWT.CENTER);
     fdVarSubs.right = new FormAttachment(100, 0);
     wVarSubs.setLayoutData(fdVarSubs);
-    wVarSubs.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
+    wVarSubs.addListener(SWT.Selection, e -> action.setChanged());
 
     FormData fdgSettings = new FormData();
     fdgSettings.left = new FormAttachment(0, margin);
@@ -232,10 +228,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     fdlFields.top = new FormAttachment(gSettings, margin);
     wlFields.setLayoutData(fdlFields);
 
-    int rows =
-        action.variableName == null
-            ? 1
-            : (action.variableName.length == 0 ? 0 : action.variableName.length);
+    int rows = action.getVariableDefinitions().size();
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf = {
@@ -250,7 +243,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
       new ColumnInfo(
           BaseMessages.getString(PKG, "ActionSetVariables.Fields.Column.VariableType"),
           ColumnInfo.COLUMN_TYPE_CCOMBO,
-          ActionSetVariables.getVariableTypeDescriptions(),
+          VariableType.getDescriptions(),
           false),
     };
     colinf[0].setUsingVariables(true);
@@ -285,22 +278,17 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     wName.setText(Const.nullToEmpty(action.getName()));
 
     wFilename.setText(Const.NVL(action.getFilename(), ""));
-    wFileVariableType.setText(
-        ActionSetVariables.getVariableTypeDescription(action.getFileVariableType()));
+    wFileVariableType.setText(action.getFileVariableType().getDescription());
 
     wVarSubs.setSelection(action.isReplaceVars());
 
-    if (action.variableName != null) {
-      for (int i = 0; i < action.variableName.length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (action.variableName[i] != null) {
-          ti.setText(1, action.variableName[i]);
-        }
-        if (action.getVariableValue()[i] != null) {
-          ti.setText(2, action.getVariableValue()[i]);
-        }
-
-        ti.setText(3, ActionSetVariables.getVariableTypeDescription(action.getVariableType()[i]));
+    if (action.getVariableDefinitions() != null) {
+      int i = 0;
+      for (VariableDefinition definition : action.getVariableDefinitions()) {
+        TableItem item = wFields.table.getItem(i++);
+        item.setText(1, Const.nullToEmpty(definition.getName()));
+        item.setText(2, Const.nullToEmpty(definition.getValue()));
+        item.setText(3, definition.getType().getDescription());
       }
       wFields.setRowNums();
       wFields.optWidth(true);
@@ -324,37 +312,23 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
       mb.open();
       return;
     }
-    action.setName(wName.getText());
 
+    action.setName(wName.getText());
     action.setFilename(wFilename.getText());
-    action.setFileVariableType(ActionSetVariables.getVariableType(wFileVariableType.getText()));
+    action.setFileVariableType(VariableType.lookupDescription(wFileVariableType.getText()));
     action.setReplaceVars(wVarSubs.getSelection());
 
     int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
+    List<VariableDefinition> list = new ArrayList<>();
     for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        nr++;
+      String name = wFields.getNonEmpty(i).getText(1);
+      if (name != null && name.length() != 0) {
+        String value = wFields.getNonEmpty(i).getText(2);
+        VariableType scope = VariableType.lookupDescription(wFields.getNonEmpty(i).getText(3));
+        list.add(new VariableDefinition(name, value, scope));
       }
     }
-    action.variableName = new String[nr];
-    action.variableValue = new String[nr];
-    action.variableType = new int[nr];
-
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String varname = wFields.getNonEmpty(i).getText(1);
-      String varvalue = wFields.getNonEmpty(i).getText(2);
-      String vartype = wFields.getNonEmpty(i).getText(3);
-
-      if (varname != null && varname.length() != 0) {
-        action.variableName[nr] = varname;
-        action.variableValue[nr] = varvalue;
-        action.variableType[nr] = ActionSetVariables.getVariableType(vartype);
-        nr++;
-      }
-    }
+    action.setVariableDefinitions(list);
 
     dispose();
   }
