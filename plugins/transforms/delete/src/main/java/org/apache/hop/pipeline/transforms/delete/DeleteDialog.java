@@ -484,7 +484,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
       return;
     }
 
-    if (input.getConnection() == null) {
+    if (wConnection.getText() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "DeleteDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "DeleteDialog.InvalidConnection.DialogTitle"));

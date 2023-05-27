@@ -405,7 +405,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     transformName = wTransformName.getText(); // return value
-    if (Utils.isEmpty(input.getConnection())) {
+    if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "TableInputDialog.SelectValidConnection"));
       mb.setText(BaseMessages.getString(PKG, "TableInputDialog.DialogCaptionError"));

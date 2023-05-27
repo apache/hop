@@ -768,7 +768,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       return;
     }
 
-    if (Utils.isEmpty(input.getConnection())) {
+    if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "InsertUpdateDialog.InvalidConnection.DialogMessage"));

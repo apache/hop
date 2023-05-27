@@ -736,7 +736,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
       return;
     }
 
-    if (Utils.isEmpty(input.getConnection())) {
+    if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "UpdateDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "UpdateDialog.InvalidConnection.DialogTitle"));

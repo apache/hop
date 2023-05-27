@@ -259,7 +259,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
       return;
     }
 
-    if (input.getConnection() == null) {
+    if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
               BaseMessages.getString(PKG, "TableExistsDialog.InvalidConnection.DialogMessage"));

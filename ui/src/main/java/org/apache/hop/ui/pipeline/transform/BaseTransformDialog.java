@@ -930,7 +930,7 @@ public class BaseTransformDialog extends Dialog {
 
     int choice = 0;
 
-    if (keys.size() > 0) {
+    if (keys.isEmpty()) {
       // Ask what we should do with the existing data in the transform.
       //
       DialogBoxWithButtons getFieldsChoiceDialog =
@@ -953,11 +953,9 @@ public class BaseTransformDialog extends Dialog {
 
       boolean add = true;
 
-      if (choice == 0) { // hang on, see if it's not yet in the table view
-
-        if (keys.indexOf(v.getName()) >= 0) {
-          add = false;
-        }
+      if (choice == 0
+          && keys.indexOf(v.getName()) >= 0) { // hang on, see if it's not yet in the table view
+        add = false;
       }
 
       if (add) {
@@ -971,21 +969,15 @@ public class BaseTransformDialog extends Dialog {
             tableItem.setText(dataTypeColumn[c], v.getTypeDesc());
           }
         }
-        if (lengthColumn > 0) {
-          if (v.getLength() >= 0) {
-            tableItem.setText(lengthColumn, Integer.toString(v.getLength()));
-          }
+        if (lengthColumn > 0 && v.getLength() >= 0) {
+          tableItem.setText(lengthColumn, Integer.toString(v.getLength()));
         }
-        if (precisionColumn > 0) {
-          if (v.getPrecision() >= 0) {
-            tableItem.setText(precisionColumn, Integer.toString(v.getPrecision()));
-          }
+        if (precisionColumn > 0 && v.getPrecision() >= 0) {
+          tableItem.setText(precisionColumn, Integer.toString(v.getPrecision()));
         }
 
-        if (listener != null) {
-          if (!listener.tableItemInserted(tableItem, v)) {
-            tableItem.dispose(); // remove it again
-          }
+        if (listener != null && !listener.tableItemInserted(tableItem, v)) {
+          tableItem.dispose(); // remove it again
         }
       }
     }
@@ -1257,7 +1249,7 @@ public class BaseTransformDialog extends Dialog {
   public MetaSelectionLine<DatabaseMeta> addConnectionLine(
       Composite parent, Control previous, String connection, ModifyListener lsMod) {
     DatabaseMeta databaseMeta = null;
-    if (connection != null) {
+    if (!Utils.isEmpty(connection)) {
       databaseMeta = pipelineMeta.findDatabase(connection, variables);
       // If we are unable to find the database metadata, display only a warning message so that the
       // user
