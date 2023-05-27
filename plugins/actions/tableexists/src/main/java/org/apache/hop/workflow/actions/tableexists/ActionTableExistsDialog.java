@@ -118,17 +118,17 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     wName.setLayoutData(fdName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wName, action.getDatabase(), lsMod);
+    wConnection = addConnectionLine(shell, wName, action.getConnection(), lsMod);
 
     // Schema name line
-    Label wlSchemaname = new Label(shell, SWT.RIGHT);
-    wlSchemaname.setText(BaseMessages.getString(PKG, "ActionTableExists.Schemaname.Label"));
-    PropsUi.setLook(wlSchemaname);
-    FormData fdlSchemaname = new FormData();
-    fdlSchemaname.left = new FormAttachment(0, 0);
-    fdlSchemaname.right = new FormAttachment(middle, -margin);
-    fdlSchemaname.top = new FormAttachment(wConnection, 2 * margin);
-    wlSchemaname.setLayoutData(fdlSchemaname);
+    Label wlSchemaName = new Label(shell, SWT.RIGHT);
+    wlSchemaName.setText(BaseMessages.getString(PKG, "ActionTableExists.Schemaname.Label"));
+    PropsUi.setLook(wlSchemaName);
+    FormData fdlSchemaName = new FormData();
+    fdlSchemaName.left = new FormAttachment(0, 0);
+    fdlSchemaName.right = new FormAttachment(middle, -margin);
+    fdlSchemaName.top = new FormAttachment(wConnection, 2 * margin);
+    wlSchemaName.setLayoutData(fdlSchemaName);
 
     Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSchema);
@@ -209,10 +209,10 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
     wName.setText(Const.nullToEmpty(action.getName()));
-    wTablename.setText(Const.nullToEmpty(action.getTablename()));
-    wSchemaname.setText(Const.nullToEmpty(action.getSchemaname()));
-    if (action.getDatabase() != null) {
-      wConnection.setText(action.getDatabase().getName());
+    wTablename.setText(Const.nullToEmpty(action.getTableName()));
+    wSchemaname.setText(Const.nullToEmpty(action.getSchemaName()));
+    if (action.getConnection() != null) {
+      wConnection.setText(action.getConnection());
     }
 
     wName.selectAll();
@@ -234,9 +234,9 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       return;
     }
     action.setName(wName.getText());
-    action.setDatabase(getWorkflowMeta().findDatabase(wConnection.getText(), variables));
-    action.setTablename(wTablename.getText());
-    action.setSchemaname(wSchemaname.getText());
+    action.setConnection(wConnection.getText());
+    action.setTableName(wTablename.getText());
+    action.setSchemaName(wSchemaname.getText());
 
     dispose();
   }

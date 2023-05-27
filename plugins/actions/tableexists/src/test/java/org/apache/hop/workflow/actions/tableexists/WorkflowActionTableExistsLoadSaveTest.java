@@ -35,6 +35,6 @@ public class WorkflowActionTableExistsLoadSaveTest
 
   @Override
   protected List<String> listAttributes() {
-    return Arrays.asList("tablename", "schemaname", "database");
+    return Arrays.asList("tableName", "schemaName", "connection");
   }
 }
