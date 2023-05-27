@@ -20,6 +20,14 @@ package org.apache.hop.pipeline.transforms.vertica.bulkloader;
 import com.google.common.annotations.VisibleForTesting;
 import com.vertica.jdbc.VerticaConnection;
 import com.vertica.jdbc.VerticaCopyStream;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import javax.sql.PooledConnection;
 import org.apache.commons.dbcp.DelegatingConnection;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -41,17 +49,8 @@ import org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary.Column
 import org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary.ColumnType;
 import org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary.StreamEncoder;
 
-import javax.sql.PooledConnection;
-import java.io.*;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
 public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, VerticaBulkLoaderData> {
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       VerticaBulkLoader.class; // for i18n purposes, needed by Translator2!!
 
   private static final SimpleDateFormat SIMPLE_DATE_FORMAT =
@@ -69,6 +68,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean processRow() throws HopException {
     Object[] r = getRow(); // this also waits for a previous transform to be
     // finished.
@@ -310,7 +310,8 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
       return new ColumnSpec(ColumnSpec.ConstantWidthType.FLOAT);
     } else if (targetColumnTypeName.equals("CHAR")) {
       return new ColumnSpec(ColumnSpec.UserDefinedWidthType.CHAR, targetValueMeta.getLength());
-    } else if (targetColumnTypeName.equals("VARCHAR") || targetColumnTypeName.equals("CHARACTER VARYING")) {
+    } else if (targetColumnTypeName.equals("VARCHAR")
+        || targetColumnTypeName.equals("CHARACTER VARYING")) {
       return new ColumnSpec(ColumnSpec.VariableWidthType.VARCHAR, targetValueMeta.getLength());
     } else if (targetColumnTypeName.equals("DATE")) {
       if (inputValueMeta.isDate() == false) {
@@ -387,7 +388,7 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
         "Column type " + targetColumnTypeName + " not supported."); // $NON-NLS-1$
   }
 
-  private void initializeWorker(){
+  private void initializeWorker() {
     final String dml = buildCopyStatementSqlString();
 
     data.workerThread =
@@ -410,7 +411,10 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
                                 rowsLoaded, getLinesOutput()));
                       }
                       data.db.disconnect();
-                    } catch (SQLException | IllegalStateException | ClassNotFoundException | HopException e) {
+                    } catch (SQLException
+                        | IllegalStateException
+                        | ClassNotFoundException
+                        | HopException e) {
                       if (e.getCause() instanceof InterruptedIOException) {
                         logBasic("SQL statement interrupted by halt of pipeline");
                       } else {
@@ -617,7 +621,6 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     }
   }
 
-
   @Override
   public void dispose() {
 
@@ -656,12 +659,14 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
   }
 
   @VisibleForTesting
-  VerticaCopyStream createVerticaCopyStream(String dml) throws SQLException, ClassNotFoundException, HopDatabaseException {
+  VerticaCopyStream createVerticaCopyStream(String dml)
+      throws SQLException, ClassNotFoundException, HopDatabaseException {
     return new VerticaCopyStream(getVerticaConnection(), dml);
   }
 
   @VisibleForTesting
-  VerticaConnection getVerticaConnection() throws SQLException, ClassNotFoundException, HopDatabaseException {
+  VerticaConnection getVerticaConnection()
+      throws SQLException, ClassNotFoundException, HopDatabaseException {
 
     Connection conn = data.db.getConnection();
     if (conn != null) {
@@ -682,8 +687,8 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
               VerticaConnection vc = conn.unwrap(VerticaConnection.class);
               return vc;
             }
-          } catch (SQLException Ignored) {
-            // Ignored - the connection doesn't support unwrap or the connection cannot be
+          } catch (SQLException ignored) {
+            // ignored - the connection doesn't support unwrap or the connection cannot be
             // unwrapped into a VerticaConnection.
           }
         }

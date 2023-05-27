@@ -337,6 +337,7 @@ public class TransformBatchTransform extends TransformTransform {
       }
     }
 
+    @Override
     protected void sendSamplesToLocation(boolean finished) throws HopException {
       ExecutionDataBuilder dataBuilder =
           ExecutionDataBuilder.of()

@@ -49,6 +49,7 @@ public class HopURLClassLoader extends URLClassLoader {
     this.name = name;
   }
 
+  @Override
   public String getName() {
     return name;
   }

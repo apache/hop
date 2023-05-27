@@ -119,6 +119,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
     canvas.setFocus();
   }
 
+  @Override
   protected float calculateCorrectedMagnification() {
     return (float) (magnification * PropsUi.getInstance().getZoomFactor());
   }

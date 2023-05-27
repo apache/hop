@@ -152,6 +152,7 @@ final class DynamicWaitTimes {
       return statusList.stream().noneMatch(SingleStreamStatus::allowAdjust);
     }
 
+    @Override
     protected void doReset(int index) {
       statusList.get(index).reset();
     }

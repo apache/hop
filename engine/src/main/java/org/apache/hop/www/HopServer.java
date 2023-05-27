@@ -67,17 +67,6 @@ import org.w3c.dom.Node;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
-
 public class HopServer implements Runnable, IHasHopMetadataProvider {
   private static final Class<?> PKG = HopServer.class; // For Translator
 

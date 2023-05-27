@@ -45,6 +45,7 @@ public abstract class DragViewZoomBase extends Composite {
     super(parent, style);
   }
 
+  @Override
   public abstract void redraw();
 
   public Point screen2real(int x, int y) {

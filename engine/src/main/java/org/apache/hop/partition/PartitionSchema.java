@@ -80,6 +80,7 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     return name;
   }
 
+  @Override
   public boolean equals(Object obj) {
     if (obj == null || name == null) {
       return false;
@@ -87,6 +88,7 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     return name.equals(((PartitionSchema) obj).name);
   }
 
+  @Override
   public int hashCode() {
     return name.hashCode();
   }

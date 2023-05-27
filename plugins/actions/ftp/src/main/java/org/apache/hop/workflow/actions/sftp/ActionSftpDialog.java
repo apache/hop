@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.sftp;
 
+import java.net.InetAddress;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -51,8 +52,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.net.InetAddress;
 
 /** This dialog allows you to edit the SFTP action settings. */
 public class ActionSftpDialog extends ActionDialog implements IActionDialog {
@@ -810,7 +809,6 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
   private boolean connectToSftp(boolean checkFolder, String remotefoldername) {
     boolean retval = false;
     try {
-      WorkflowMeta workflowMeta = getWorkflowMeta();
 
       if (sftpclient == null) {
         // Create sftp client to host ...
@@ -875,6 +873,7 @@ public class ActionSftpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
+  @Override
   public void dispose() {
     closeFtpConnections();
     super.dispose();

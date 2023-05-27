@@ -37,7 +37,6 @@ import java.util.Random;
 public class RandomRowsExecutionDataSampler
     extends ExecutionDataSamplerBase<RandomRowsExecutionDataSamplerStore>
     implements IExecutionDataSampler<RandomRowsExecutionDataSamplerStore> {
-  private static final Class<?> PKG = RandomRowsExecutionDataSampler.class; // For Translator
 
   public RandomRowsExecutionDataSampler() {
     super();

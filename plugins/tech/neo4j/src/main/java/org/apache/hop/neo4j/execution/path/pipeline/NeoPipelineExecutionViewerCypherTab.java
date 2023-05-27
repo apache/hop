@@ -18,23 +18,13 @@
 
 package org.apache.hop.neo4j.execution.path.pipeline;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.execution.ExecutionInfoLocation;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.execution.NeoExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerCypherTab;
-import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerLineageTab;
-import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerTabBase;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
-import org.apache.hop.ui.hopgui.shared.BaseExecutionViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Text;
 
 @GuiPlugin
@@ -47,9 +37,10 @@ public class NeoPipelineExecutionViewerCypherTab extends NeoExecutionViewerCyphe
   }
 
   @GuiTab(
-          id = "90010-pipeline-execution-viewer-neo4j-cypher-tab",
-          parentId = PipelineExecutionViewer.PIPELINE_EXECUTION_VIEWER_TABS,
-          description = "Neo4j Cypher")
+      id = "90010-pipeline-execution-viewer-neo4j-cypher-tab",
+      parentId = PipelineExecutionViewer.PIPELINE_EXECUTION_VIEWER_TABS,
+      description = "Neo4j Cypher")
+  @Override
   public void addNeo4jCypherTab(CTabFolder tabFolder) {
     super.addNeo4jCypherTab(tabFolder);
   }

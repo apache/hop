@@ -49,7 +49,7 @@ import java.util.Map;
     documentationUrl = "/pipeline/transforms/jdbcmetadata.html")
 public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetadataData> {
 
-  public static Class<DatabaseMetaData> DatabaseMetaDataClass;
+  public static Class<DatabaseMetaData> databaseMetaDataClass;
 
   private static final Map<Integer, String> OPTIONS_SCOPE = new HashMap<Integer, String>();
 
@@ -366,22 +366,15 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
       };
 
   /**
-   * The PKG member is used when looking up internationalized strings. The properties file with
-   * localized keys is expected to reside in {the package of the class
-   * specified}/messages/messages_{locale}.properties
-   */
-  private static Class<?> PKG = JdbcMetadataMeta.class; // for i18n purposes
-
-  /**
    * Constructor should call super() to make sure the base class has a chance to initialize
    * properly.
    */
   @SuppressWarnings("unchecked")
   public JdbcMetadataMeta() {
     super();
-    if (JdbcMetadataMeta.DatabaseMetaDataClass == null) {
+    if (JdbcMetadataMeta.databaseMetaDataClass == null) {
       try {
-        JdbcMetadataMeta.DatabaseMetaDataClass =
+        JdbcMetadataMeta.databaseMetaDataClass =
             (Class<DatabaseMetaData>) Class.forName("java.sql.DatabaseMetaData");
       } catch (Exception exception) {
         throw new IllegalArgumentException(exception);
@@ -389,6 +382,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     }
   }
 
+  @Override
   public void setDefault() {
     methodName = "getCatalogs";
     argumentSourceFields = false;
@@ -591,11 +585,13 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
    *
    * @return a deep copy of this
    */
+  @Override
   public Object clone() {
     Object retval = super.clone();
     return retval;
   }
 
+  @Override
   public void getFields(
       IRowMeta rowMeta,
       String origin,

@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.orabulkloader;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -52,11 +54,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -69,14 +69,11 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Dialog class for the Oracle bulk loader transformation.
- */
-public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = OraBulkLoaderDialog.class; // for i18n purposes, needed by Translator2!!
+/** Dialog class for the Oracle bulk loader transformation. */
+public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
+  private static final Class<?> PKG =
+      OraBulkLoaderDialog.class; // for i18n purposes, needed by Translator2!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
   private TextVar wSchema;
@@ -102,29 +99,28 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
   private Button wFailOnError;
   private Button wParallel;
   private TextVar wAltRecordTerm;
-  
+
   private OraBulkLoaderMeta input;
 
   private final List<String> inputFields = new ArrayList<>();
 
   private ColumnInfo[] ciReturn;
-  private CTabFolder wTabFolder;
-  
-//  private Composite helpComp;
 
-  /**
-   * List of ColumnInfo that should have the field names of the selected database table
-   */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  /** List of ColumnInfo that should have the field names of the selected database table */
+  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   // These should not be translated, they are required to exist on all
   // platforms according to the documentation of "Charset".
-  private static String[] encodings = { "", "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16" };
+  private static String[] encodings = {
+    "", "US-ASCII", "ISO-8859-1", "UTF-8", "UTF-16BE", "UTF-16LE", "UTF-16"
+  };
 
-  private static String[] characterSetNames = { "", "US7ASCII", "WE8ISO8859P1", "UTF8", };
+  private static String[] characterSetNames = {
+    "", "US7ASCII", "WE8ISO8859P1", "UTF8",
+  };
 
-  private static final String[] ALL_FILETYPES = new String[] { BaseMessages.getString(
-    PKG, "OraBulkLoaderDialog.Filetype.All" ) };
+  private static final String[] ALL_FILETYPES =
+      new String[] {BaseMessages.getString(PKG, "OraBulkLoaderDialog.Filetype.All")};
 
   public OraBulkLoaderDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -133,26 +129,21 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
   }
 
   public String open() {
+    CTabFolder wTabFolder;
     Shell parent = getParent();
 
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );    
-    shell.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Shell.Title" ) );
-    PropsUi.setLook( shell );
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Shell.Title"));
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
-    ModifyListener lsTableMod = new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        input.setChanged();
-        setTableFieldCombo();
-      }
-    };
-    SelectionListener lsSelection = new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-        setTableFieldCombo();
-      }
-    };
+    ModifyListener lsTableMod =
+        arg0 -> {
+          input.setChanged();
+          setTableFieldCombo();
+        };
+
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -164,39 +155,38 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     int middle = props.getMiddlePct();
     int margin = PropsUi.getMargin();
 
-    
     // Transform name line
-    wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
-    PropsUi.setLook( wlTransformName );
+    wlTransformName = new Label(shell, SWT.RIGHT);
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
+    PropsUi.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
-    fdlTransformName.left = new FormAttachment( 0, 0 );
-    fdlTransformName.right = new FormAttachment( middle, -margin );
-    fdlTransformName.top = new FormAttachment( 0, margin );
-    wlTransformName.setLayoutData( fdlTransformName );
-    
-    wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTransformName.setText( transformName );
-    PropsUi.setLook( wTransformName );
-    wTransformName.addModifyListener( lsMod );
+    fdlTransformName.left = new FormAttachment(0, 0);
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment(0, margin);
+    wlTransformName.setLayoutData(fdlTransformName);
+
+    wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wTransformName.setText(transformName);
+    PropsUi.setLook(wTransformName);
+    wTransformName.addModifyListener(lsMod);
     FormData fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment( middle, 0 );
-    fdTransformName.top = new FormAttachment( 0, margin );
-    fdTransformName.right = new FormAttachment( 100, 0 );
-    wTransformName.setLayoutData( fdTransformName );
-    
+    fdTransformName.left = new FormAttachment(middle, 0);
+    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.right = new FormAttachment(100, 0);
+    wTransformName.setLayoutData(fdTransformName);
+
     // The buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> ok() );
-    wSql = new Button( shell, SWT.PUSH );
-    wSql.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.SQL.Button" ) );
-    wSql.addListener( SWT.Selection, e -> create() );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
-      
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wSql = new Button(shell, SWT.PUSH);
+    wSql.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.SQL.Button"));
+    wSql.addListener(SWT.Selection, e -> create());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    setButtonPositions(new Button[] {wOk, wCancel, wSql}, margin, null);
+
     // Tab folder
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_DEFAULT);
@@ -207,8 +197,7 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-    
-    
+
     CTabItem wBulkLoaderTab = new CTabItem(wTabFolder, SWT.NONE);
     wBulkLoaderTab.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.BulkLoader.Label"));
 
@@ -218,347 +207,348 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     fdBulkLoaderLayout.marginHeight = 3;
     wBulkLoaderComposite.setLayout(fdBulkLoaderLayout);
     PropsUi.setLook(wBulkLoaderComposite);
-    
+
     FormData fdComp = new FormData();
-    fdComp.left = new FormAttachment( 0, 0 );
-    fdComp.top = new FormAttachment( 0, 0 );
-    fdComp.right = new FormAttachment( 100, 0 );
-    fdComp.bottom = new FormAttachment( 100, 0 );
-    wBulkLoaderComposite.setLayoutData( fdComp );
+    fdComp.left = new FormAttachment(0, 0);
+    fdComp.top = new FormAttachment(0, 0);
+    fdComp.right = new FormAttachment(100, 0);
+    fdComp.bottom = new FormAttachment(100, 0);
+    wBulkLoaderComposite.setLayoutData(fdComp);
 
     // Connection line
-    wConnection = addConnectionLine(wBulkLoaderComposite, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection =
+        addConnectionLine(wBulkLoaderComposite, wTransformName, input.getDatabaseMeta(), lsMod);
 
     // Schema line...
-    Label wlSchema = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlSchema.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TargetSchema.Label" ) );
-    PropsUi.setLook( wlSchema );
+    Label wlSchema = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlSchema.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.TargetSchema.Label"));
+    PropsUi.setLook(wlSchema);
     FormData fdlSchema = new FormData();
-    fdlSchema.left = new FormAttachment( 0, 0 );
-    fdlSchema.right = new FormAttachment( middle, -margin );
-    fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
-    wlSchema.setLayoutData( fdlSchema );
+    fdlSchema.left = new FormAttachment(0, 0);
+    fdlSchema.right = new FormAttachment(middle, -margin);
+    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    wlSchema.setLayoutData(fdlSchema);
 
-    Button wbSchema = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbSchema );
-    wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    wbSchema.addListener( SWT.Selection, e -> getSchemaNames() );
+    Button wbSchema = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
     FormData fdbSchema = new FormData();
-    fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
-    fdbSchema.right = new FormAttachment( 100, 0 );
-    wbSchema.setLayoutData( fdbSchema );
+    fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
+    fdbSchema.right = new FormAttachment(100, 0);
+    wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wSchema );
-    wSchema.addModifyListener( lsTableMod );
+    wSchema = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSchema);
+    wSchema.addModifyListener(lsTableMod);
     FormData fdSchema = new FormData();
-    fdSchema.left = new FormAttachment( middle, 0 );
-    fdSchema.top = new FormAttachment( wConnection, margin * 2 );
-    fdSchema.right = new FormAttachment( wbSchema, -margin );
-    wSchema.setLayoutData( fdSchema );
-    
-    // Table line...
-    Label wlTable = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlTable.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TargetTable.Label" ) );
-    PropsUi.setLook( wlTable );
-    FormData fdlTable = new FormData();
-    fdlTable.left = new FormAttachment( 0, 0 );
-    fdlTable.right = new FormAttachment( middle, -margin );
-    fdlTable.top = new FormAttachment( wbSchema, margin );
-    wlTable.setLayoutData( fdlTable );
+    fdSchema.left = new FormAttachment(middle, 0);
+    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.right = new FormAttachment(wbSchema, -margin);
+    wSchema.setLayoutData(fdSchema);
 
-    Button wbTable = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbTable );
-    wbTable.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
-    wbTable.addListener( SWT.Selection, e -> getTableName() );
+    // Table line...
+    Label wlTable = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlTable.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.TargetTable.Label"));
+    PropsUi.setLook(wlTable);
+    FormData fdlTable = new FormData();
+    fdlTable.left = new FormAttachment(0, 0);
+    fdlTable.right = new FormAttachment(middle, -margin);
+    fdlTable.top = new FormAttachment(wbSchema, margin);
+    wlTable.setLayoutData(fdlTable);
+
+    Button wbTable = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbTable);
+    wbTable.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
+    wbTable.addListener(SWT.Selection, e -> getTableName());
     FormData fdbTable = new FormData();
-    fdbTable.right = new FormAttachment( 100, 0 );
-    fdbTable.top = new FormAttachment( wbSchema, margin );
-    wbTable.setLayoutData( fdbTable );
-    wTable = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wTable );
-    wTable.addModifyListener( lsTableMod );
+    fdbTable.right = new FormAttachment(100, 0);
+    fdbTable.top = new FormAttachment(wbSchema, margin);
+    wbTable.setLayoutData(fdbTable);
+    wTable = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wTable);
+    wTable.addModifyListener(lsTableMod);
     FormData fdTable = new FormData();
-    fdTable.left = new FormAttachment( middle, 0 );
-    fdTable.top = new FormAttachment( wbSchema, margin );
-    fdTable.right = new FormAttachment( wbTable, -margin );
-    wTable.setLayoutData( fdTable );
+    fdTable.left = new FormAttachment(middle, 0);
+    fdTable.top = new FormAttachment(wbSchema, margin);
+    fdTable.right = new FormAttachment(wbTable, -margin);
+    wTable.setLayoutData(fdTable);
 
     // Sqlldr line...
-    Label wlSqlldr = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlSqlldr.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Sqlldr.Label" ) );
-    PropsUi.setLook( wlSqlldr );
+    Label wlSqlldr = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlSqlldr.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Sqlldr.Label"));
+    PropsUi.setLook(wlSqlldr);
     FormData fdlSqlldr = new FormData();
-    fdlSqlldr.left = new FormAttachment( 0, 0 );
-    fdlSqlldr.right = new FormAttachment( middle, -margin );
-    fdlSqlldr.top = new FormAttachment( wTable, margin );
-    wlSqlldr.setLayoutData( fdlSqlldr );
+    fdlSqlldr.left = new FormAttachment(0, 0);
+    fdlSqlldr.right = new FormAttachment(middle, -margin);
+    fdlSqlldr.top = new FormAttachment(wTable, margin);
+    wlSqlldr.setLayoutData(fdlSqlldr);
 
-    Button wbSqlldr = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbSqlldr );
-    wbSqlldr.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
+    Button wbSqlldr = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSqlldr);
+    wbSqlldr.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
     FormData fdbSqlldr = new FormData();
-    fdbSqlldr.right = new FormAttachment( 100, 0 );
-    fdbSqlldr.top = new FormAttachment( wTable, margin );
-    wbSqlldr.setLayoutData( fdbSqlldr );
-    wSqlldr = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wSqlldr );
-    wSqlldr.addModifyListener( lsMod );
+    fdbSqlldr.right = new FormAttachment(100, 0);
+    fdbSqlldr.top = new FormAttachment(wTable, margin);
+    wbSqlldr.setLayoutData(fdbSqlldr);
+    wSqlldr = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wSqlldr);
+    wSqlldr.addModifyListener(lsMod);
     FormData fdSqlldr = new FormData();
-    fdSqlldr.left = new FormAttachment( middle, 0 );
-    fdSqlldr.top = new FormAttachment( wTable, margin );
-    fdSqlldr.right = new FormAttachment( wbSqlldr, -margin );
-    wSqlldr.setLayoutData( fdSqlldr );
+    fdSqlldr.left = new FormAttachment(middle, 0);
+    fdSqlldr.top = new FormAttachment(wTable, margin);
+    fdSqlldr.right = new FormAttachment(wbSqlldr, -margin);
+    wSqlldr.setLayoutData(fdSqlldr);
 
     // Load Method line
-    Label wlLoadMethod = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlLoadMethod.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.LoadMethod.Label" ) );
-    PropsUi.setLook( wlLoadMethod );
+    Label wlLoadMethod = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlLoadMethod.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.LoadMethod.Label"));
+    PropsUi.setLook(wlLoadMethod);
     FormData fdlLoadMethod = new FormData();
-    fdlLoadMethod.left = new FormAttachment( 0, 0 );
-    fdlLoadMethod.right = new FormAttachment( middle, -margin );
-    fdlLoadMethod.top = new FormAttachment( wSqlldr, margin );
-    wlLoadMethod.setLayoutData( fdlLoadMethod );
-    wLoadMethod = new CCombo( wBulkLoaderComposite, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wLoadMethod.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AutoEndLoadMethod.Label" ) );
-    wLoadMethod.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.ManualLoadMethod.Label" ) );
-    wLoadMethod.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AutoConcLoadMethod.Label" ) );
-    wLoadMethod.select( 0 ); // +1: starts at -1
-    wLoadMethod.addModifyListener( lsMod );
+    fdlLoadMethod.left = new FormAttachment(0, 0);
+    fdlLoadMethod.right = new FormAttachment(middle, -margin);
+    fdlLoadMethod.top = new FormAttachment(wSqlldr, margin);
+    wlLoadMethod.setLayoutData(fdlLoadMethod);
+    wLoadMethod = new CCombo(wBulkLoaderComposite, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wLoadMethod.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.AutoEndLoadMethod.Label"));
+    wLoadMethod.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.ManualLoadMethod.Label"));
+    wLoadMethod.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.AutoConcLoadMethod.Label"));
+    wLoadMethod.select(0); // +1: starts at -1
+    wLoadMethod.addModifyListener(lsMod);
 
-    PropsUi.setLook( wLoadMethod );
+    PropsUi.setLook(wLoadMethod);
     FormData fdLoadMethod = new FormData();
-    fdLoadMethod.left = new FormAttachment( middle, 0 );
-    fdLoadMethod.top = new FormAttachment( wSqlldr, margin );
-    fdLoadMethod.right = new FormAttachment( 100, 0 );
-    wLoadMethod.setLayoutData( fdLoadMethod );
+    fdLoadMethod.left = new FormAttachment(middle, 0);
+    fdLoadMethod.top = new FormAttachment(wSqlldr, margin);
+    fdLoadMethod.right = new FormAttachment(100, 0);
+    wLoadMethod.setLayoutData(fdLoadMethod);
 
     fdLoadMethod = new FormData();
-    fdLoadMethod.left = new FormAttachment( middle, 0 );
-    fdLoadMethod.top = new FormAttachment( wSqlldr, margin );
-    fdLoadMethod.right = new FormAttachment( 100, 0 );
-    wLoadMethod.setLayoutData( fdLoadMethod );
+    fdLoadMethod.left = new FormAttachment(middle, 0);
+    fdLoadMethod.top = new FormAttachment(wSqlldr, margin);
+    fdLoadMethod.right = new FormAttachment(100, 0);
+    wLoadMethod.setLayoutData(fdLoadMethod);
 
     // Load Action line
-    Label wlLoadAction = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlLoadAction.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.LoadAction.Label" ) );
-    PropsUi.setLook( wlLoadAction );
+    Label wlLoadAction = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlLoadAction.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.LoadAction.Label"));
+    PropsUi.setLook(wlLoadAction);
     FormData fdlLoadAction = new FormData();
-    fdlLoadAction.left = new FormAttachment( 0, 0 );
-    fdlLoadAction.right = new FormAttachment( middle, -margin );
-    fdlLoadAction.top = new FormAttachment( wLoadMethod, margin );
-    wlLoadAction.setLayoutData( fdlLoadAction );
-    wLoadAction = new CCombo( wBulkLoaderComposite, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wLoadAction.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AppendLoadAction.Label" ) );
-    wLoadAction.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.InsertLoadAction.Label" ) );
-    wLoadAction.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.ReplaceLoadAction.Label" ) );
-    wLoadAction.add( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TruncateLoadAction.Label" ) );
-    wLoadAction.select( 0 ); // +1: starts at -1
-    wLoadAction.addModifyListener( lsMod );
+    fdlLoadAction.left = new FormAttachment(0, 0);
+    fdlLoadAction.right = new FormAttachment(middle, -margin);
+    fdlLoadAction.top = new FormAttachment(wLoadMethod, margin);
+    wlLoadAction.setLayoutData(fdlLoadAction);
+    wLoadAction = new CCombo(wBulkLoaderComposite, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wLoadAction.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.AppendLoadAction.Label"));
+    wLoadAction.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.InsertLoadAction.Label"));
+    wLoadAction.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.ReplaceLoadAction.Label"));
+    wLoadAction.add(BaseMessages.getString(PKG, "OraBulkLoaderDialog.TruncateLoadAction.Label"));
+    wLoadAction.select(0); // +1: starts at -1
+    wLoadAction.addModifyListener(lsMod);
 
-    PropsUi.setLook( wLoadAction );
+    PropsUi.setLook(wLoadAction);
     FormData fdLoadAction = new FormData();
-    fdLoadAction.left = new FormAttachment( middle, 0 );
-    fdLoadAction.top = new FormAttachment( wLoadMethod, margin );
-    fdLoadAction.right = new FormAttachment( 100, 0 );
-    wLoadAction.setLayoutData( fdLoadAction );
+    fdLoadAction.left = new FormAttachment(middle, 0);
+    fdLoadAction.top = new FormAttachment(wLoadMethod, margin);
+    fdLoadAction.right = new FormAttachment(100, 0);
+    wLoadAction.setLayoutData(fdLoadAction);
 
     // MaxErrors file line
-    Label wlMaxErrors = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlMaxErrors.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.MaxErrors.Label" ) );
-    PropsUi.setLook( wlMaxErrors );
+    Label wlMaxErrors = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlMaxErrors.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.MaxErrors.Label"));
+    PropsUi.setLook(wlMaxErrors);
     FormData fdlMaxErrors = new FormData();
-    fdlMaxErrors.left = new FormAttachment( 0, 0 );
-    fdlMaxErrors.top = new FormAttachment( wLoadAction, margin );
-    fdlMaxErrors.right = new FormAttachment( middle, -margin );
-    wlMaxErrors.setLayoutData( fdlMaxErrors );
-    wMaxErrors = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wMaxErrors );
-    wMaxErrors.addModifyListener( lsMod );
+    fdlMaxErrors.left = new FormAttachment(0, 0);
+    fdlMaxErrors.top = new FormAttachment(wLoadAction, margin);
+    fdlMaxErrors.right = new FormAttachment(middle, -margin);
+    wlMaxErrors.setLayoutData(fdlMaxErrors);
+    wMaxErrors = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wMaxErrors);
+    wMaxErrors.addModifyListener(lsMod);
     FormData fdMaxErrors = new FormData();
-    fdMaxErrors.left = new FormAttachment( middle, 0 );
-    fdMaxErrors.top = new FormAttachment( wLoadAction, margin );
-    fdMaxErrors.right = new FormAttachment( 100, 0 );
-    wMaxErrors.setLayoutData( fdMaxErrors );
+    fdMaxErrors.left = new FormAttachment(middle, 0);
+    fdMaxErrors.top = new FormAttachment(wLoadAction, margin);
+    fdMaxErrors.right = new FormAttachment(100, 0);
+    wMaxErrors.setLayoutData(fdMaxErrors);
 
     // Commmit/batch file line
-    Label wlCommit = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlCommit.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Commit.Label" ) );
-    PropsUi.setLook( wlCommit );
+    Label wlCommit = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlCommit.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Commit.Label"));
+    PropsUi.setLook(wlCommit);
     FormData fdlCommit = new FormData();
-    fdlCommit.left = new FormAttachment( 0, 0 );
-    fdlCommit.top = new FormAttachment( wMaxErrors, margin );
-    fdlCommit.right = new FormAttachment( middle, -margin );
-    wlCommit.setLayoutData( fdlCommit );
-    wCommit = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wCommit );
-    wCommit.addModifyListener( lsMod );
+    fdlCommit.left = new FormAttachment(0, 0);
+    fdlCommit.top = new FormAttachment(wMaxErrors, margin);
+    fdlCommit.right = new FormAttachment(middle, -margin);
+    wlCommit.setLayoutData(fdlCommit);
+    wCommit = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCommit);
+    wCommit.addModifyListener(lsMod);
     FormData fdCommit = new FormData();
-    fdCommit.left = new FormAttachment( middle, 0 );
-    fdCommit.top = new FormAttachment( wMaxErrors, margin );
-    fdCommit.right = new FormAttachment( 100, 0 );
-    wCommit.setLayoutData( fdCommit );
+    fdCommit.left = new FormAttachment(middle, 0);
+    fdCommit.top = new FormAttachment(wMaxErrors, margin);
+    fdCommit.right = new FormAttachment(100, 0);
+    wCommit.setLayoutData(fdCommit);
 
     // Bind size line
-    Label wlBindSize = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlBindSize.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.BindSize.Label" ) );
-    PropsUi.setLook( wlBindSize );
+    Label wlBindSize = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlBindSize.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.BindSize.Label"));
+    PropsUi.setLook(wlBindSize);
     FormData fdlBindSize = new FormData();
-    fdlBindSize.left = new FormAttachment( 0, 0 );
-    fdlBindSize.top = new FormAttachment( wCommit, margin );
-    fdlBindSize.right = new FormAttachment( middle, -margin );
-    wlBindSize.setLayoutData( fdlBindSize );
-    wBindSize = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wBindSize );
-    wBindSize.addModifyListener( lsMod );
+    fdlBindSize.left = new FormAttachment(0, 0);
+    fdlBindSize.top = new FormAttachment(wCommit, margin);
+    fdlBindSize.right = new FormAttachment(middle, -margin);
+    wlBindSize.setLayoutData(fdlBindSize);
+    wBindSize = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wBindSize);
+    wBindSize.addModifyListener(lsMod);
     FormData fdBindSize = new FormData();
-    fdBindSize.left = new FormAttachment( middle, 0 );
-    fdBindSize.top = new FormAttachment( wCommit, margin );
-    fdBindSize.right = new FormAttachment( 100, 0 );
-    wBindSize.setLayoutData( fdBindSize );
+    fdBindSize.left = new FormAttachment(middle, 0);
+    fdBindSize.top = new FormAttachment(wCommit, margin);
+    fdBindSize.right = new FormAttachment(100, 0);
+    wBindSize.setLayoutData(fdBindSize);
 
     // Read size line
-    Label wlReadSize = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlReadSize.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.ReadSize.Label" ) );
-    PropsUi.setLook( wlReadSize );
+    Label wlReadSize = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlReadSize.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.ReadSize.Label"));
+    PropsUi.setLook(wlReadSize);
     FormData fdlReadSize = new FormData();
-    fdlReadSize.left = new FormAttachment( 0, 0 );
-    fdlReadSize.top = new FormAttachment( wBindSize, margin );
-    fdlReadSize.right = new FormAttachment( middle, -margin );
-    wlReadSize.setLayoutData( fdlReadSize );
-    wReadSize = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wReadSize );
-    wReadSize.addModifyListener( lsMod );
+    fdlReadSize.left = new FormAttachment(0, 0);
+    fdlReadSize.top = new FormAttachment(wBindSize, margin);
+    fdlReadSize.right = new FormAttachment(middle, -margin);
+    wlReadSize.setLayoutData(fdlReadSize);
+    wReadSize = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wReadSize);
+    wReadSize.addModifyListener(lsMod);
     FormData fdReadSize = new FormData();
-    fdReadSize.left = new FormAttachment( middle, 0 );
-    fdReadSize.top = new FormAttachment( wBindSize, margin );
-    fdReadSize.right = new FormAttachment( 100, 0 );
-    wReadSize.setLayoutData( fdReadSize );
+    fdReadSize.left = new FormAttachment(middle, 0);
+    fdReadSize.top = new FormAttachment(wBindSize, margin);
+    fdReadSize.right = new FormAttachment(100, 0);
+    wReadSize.setLayoutData(fdReadSize);
 
     // Control file line
-    Label wlControlFile = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlControlFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.ControlFile.Label" ) );
-    PropsUi.setLook( wlControlFile );
+    Label wlControlFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlControlFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.ControlFile.Label"));
+    PropsUi.setLook(wlControlFile);
     FormData fdlControlFile = new FormData();
-    fdlControlFile.left = new FormAttachment( 0, 0 );
-    fdlControlFile.top = new FormAttachment( wReadSize, margin );
-    fdlControlFile.right = new FormAttachment( middle, -margin );
-    wlControlFile.setLayoutData( fdlControlFile );
-    Button wbControlFile = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbControlFile );
-    wbControlFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
+    fdlControlFile.left = new FormAttachment(0, 0);
+    fdlControlFile.top = new FormAttachment(wReadSize, margin);
+    fdlControlFile.right = new FormAttachment(middle, -margin);
+    wlControlFile.setLayoutData(fdlControlFile);
+    Button wbControlFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbControlFile);
+    wbControlFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
     FormData fdbControlFile = new FormData();
-    fdbControlFile.right = new FormAttachment( 100, 0 );
-    fdbControlFile.top = new FormAttachment( wReadSize, margin );
-    wbControlFile.setLayoutData( fdbControlFile );
-    wControlFile = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wControlFile );
-    wControlFile.addModifyListener( lsMod );
+    fdbControlFile.right = new FormAttachment(100, 0);
+    fdbControlFile.top = new FormAttachment(wReadSize, margin);
+    wbControlFile.setLayoutData(fdbControlFile);
+    wControlFile = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wControlFile);
+    wControlFile.addModifyListener(lsMod);
     FormData fdControlFile = new FormData();
-    fdControlFile.left = new FormAttachment( middle, 0 );
-    fdControlFile.top = new FormAttachment( wReadSize, margin );
-    fdControlFile.right = new FormAttachment( wbControlFile, -margin );
-    wControlFile.setLayoutData( fdControlFile );
+    fdControlFile.left = new FormAttachment(middle, 0);
+    fdControlFile.top = new FormAttachment(wReadSize, margin);
+    fdControlFile.right = new FormAttachment(wbControlFile, -margin);
+    wControlFile.setLayoutData(fdControlFile);
 
     // Data file line
-    Label wlDataFile = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlDataFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.DataFile.Label" ) );
-    PropsUi.setLook( wlDataFile );
+    Label wlDataFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlDataFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.DataFile.Label"));
+    PropsUi.setLook(wlDataFile);
     FormData fdlDataFile = new FormData();
-    fdlDataFile.left = new FormAttachment( 0, 0 );
-    fdlDataFile.top = new FormAttachment( wControlFile, margin );
-    fdlDataFile.right = new FormAttachment( middle, -margin );
-    wlDataFile.setLayoutData( fdlDataFile );
-    Button wbDataFile = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbDataFile );
-    wbDataFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
+    fdlDataFile.left = new FormAttachment(0, 0);
+    fdlDataFile.top = new FormAttachment(wControlFile, margin);
+    fdlDataFile.right = new FormAttachment(middle, -margin);
+    wlDataFile.setLayoutData(fdlDataFile);
+    Button wbDataFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbDataFile);
+    wbDataFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
     FormData fdbDataFile = new FormData();
-    fdbDataFile.right = new FormAttachment( 100, 0 );
-    fdbDataFile.top = new FormAttachment( wControlFile, margin );
-    wbDataFile.setLayoutData( fdbDataFile );
-    wDataFile = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wDataFile );
-    wDataFile.addModifyListener( lsMod );
+    fdbDataFile.right = new FormAttachment(100, 0);
+    fdbDataFile.top = new FormAttachment(wControlFile, margin);
+    wbDataFile.setLayoutData(fdbDataFile);
+    wDataFile = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wDataFile);
+    wDataFile.addModifyListener(lsMod);
     FormData fdDataFile = new FormData();
-    fdDataFile.left = new FormAttachment( middle, 0 );
-    fdDataFile.top = new FormAttachment( wControlFile, margin );
-    fdDataFile.right = new FormAttachment( wbDataFile, -margin );
-    wDataFile.setLayoutData( fdDataFile );
+    fdDataFile.left = new FormAttachment(middle, 0);
+    fdDataFile.top = new FormAttachment(wControlFile, margin);
+    fdDataFile.right = new FormAttachment(wbDataFile, -margin);
+    wDataFile.setLayoutData(fdDataFile);
 
     // Log file line
-    Label wlLogFile = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlLogFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.LogFile.Label" ) );
-    PropsUi.setLook( wlLogFile );
+    Label wlLogFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlLogFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.LogFile.Label"));
+    PropsUi.setLook(wlLogFile);
     FormData fdlLogFile = new FormData();
-    fdlLogFile.left = new FormAttachment( 0, 0 );
-    fdlLogFile.top = new FormAttachment( wDataFile, margin );
-    fdlLogFile.right = new FormAttachment( middle, -margin );
-    wlLogFile.setLayoutData( fdlLogFile );
-    Button wbLogFile = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbLogFile );
-    wbLogFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
+    fdlLogFile.left = new FormAttachment(0, 0);
+    fdlLogFile.top = new FormAttachment(wDataFile, margin);
+    fdlLogFile.right = new FormAttachment(middle, -margin);
+    wlLogFile.setLayoutData(fdlLogFile);
+    Button wbLogFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbLogFile);
+    wbLogFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
     FormData fdbLogFile = new FormData();
-    fdbLogFile.right = new FormAttachment( 100, 0 );
-    fdbLogFile.top = new FormAttachment( wDataFile, margin );
-    wbLogFile.setLayoutData( fdbLogFile );
-    wLogFile = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wLogFile );
-    wLogFile.addModifyListener( lsMod );
+    fdbLogFile.right = new FormAttachment(100, 0);
+    fdbLogFile.top = new FormAttachment(wDataFile, margin);
+    wbLogFile.setLayoutData(fdbLogFile);
+    wLogFile = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wLogFile);
+    wLogFile.addModifyListener(lsMod);
     FormData fdLogFile = new FormData();
-    fdLogFile.left = new FormAttachment( middle, 0 );
-    fdLogFile.top = new FormAttachment( wDataFile, margin );
-    fdLogFile.right = new FormAttachment( wbLogFile, -margin );
-    wLogFile.setLayoutData( fdLogFile );
+    fdLogFile.left = new FormAttachment(middle, 0);
+    fdLogFile.top = new FormAttachment(wDataFile, margin);
+    fdLogFile.right = new FormAttachment(wbLogFile, -margin);
+    wLogFile.setLayoutData(fdLogFile);
 
     // Bad file line
-    Label wlBadFile = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlBadFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.BadFile.Label" ) );
-    PropsUi.setLook( wlBadFile );
+    Label wlBadFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlBadFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.BadFile.Label"));
+    PropsUi.setLook(wlBadFile);
     FormData fdlBadFile = new FormData();
-    fdlBadFile.left = new FormAttachment( 0, 0 );
-    fdlBadFile.top = new FormAttachment( wLogFile, margin );
-    fdlBadFile.right = new FormAttachment( middle, -margin );
-    wlBadFile.setLayoutData( fdlBadFile );
-    Button wbBadFile = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbBadFile );
-    wbBadFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
+    fdlBadFile.left = new FormAttachment(0, 0);
+    fdlBadFile.top = new FormAttachment(wLogFile, margin);
+    fdlBadFile.right = new FormAttachment(middle, -margin);
+    wlBadFile.setLayoutData(fdlBadFile);
+    Button wbBadFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbBadFile);
+    wbBadFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
     FormData fdbBadFile = new FormData();
-    fdbBadFile.right = new FormAttachment( 100, 0 );
-    fdbBadFile.top = new FormAttachment( wLogFile, margin );
-    wbBadFile.setLayoutData( fdbBadFile );
-    wBadFile = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wBadFile );
-    wBadFile.addModifyListener( lsMod );
+    fdbBadFile.right = new FormAttachment(100, 0);
+    fdbBadFile.top = new FormAttachment(wLogFile, margin);
+    wbBadFile.setLayoutData(fdbBadFile);
+    wBadFile = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wBadFile);
+    wBadFile.addModifyListener(lsMod);
     FormData fdBadFile = new FormData();
-    fdBadFile.left = new FormAttachment( middle, 0 );
-    fdBadFile.top = new FormAttachment( wLogFile, margin );
-    fdBadFile.right = new FormAttachment( wbBadFile, -margin );
-    wBadFile.setLayoutData( fdBadFile );
+    fdBadFile.left = new FormAttachment(middle, 0);
+    fdBadFile.top = new FormAttachment(wLogFile, margin);
+    fdBadFile.right = new FormAttachment(wbBadFile, -margin);
+    wBadFile.setLayoutData(fdBadFile);
 
     // Discard file line
-    Label wlDiscardFile = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlDiscardFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.DiscardFile.Label" ) );
-    PropsUi.setLook( wlDiscardFile );
+    Label wlDiscardFile = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlDiscardFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.DiscardFile.Label"));
+    PropsUi.setLook(wlDiscardFile);
     FormData fdlDiscardFile = new FormData();
-    fdlDiscardFile.left = new FormAttachment( 0, 0 );
-    fdlDiscardFile.top = new FormAttachment( wBadFile, margin );
-    fdlDiscardFile.right = new FormAttachment( middle, -margin );
-    wlDiscardFile.setLayoutData( fdlDiscardFile );
-    Button wbDiscardFile = new Button( wBulkLoaderComposite, SWT.PUSH | SWT.CENTER );
-    PropsUi.setLook( wbDiscardFile );
-    wbDiscardFile.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Browse.Button" ) );
+    fdlDiscardFile.left = new FormAttachment(0, 0);
+    fdlDiscardFile.top = new FormAttachment(wBadFile, margin);
+    fdlDiscardFile.right = new FormAttachment(middle, -margin);
+    wlDiscardFile.setLayoutData(fdlDiscardFile);
+    Button wbDiscardFile = new Button(wBulkLoaderComposite, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbDiscardFile);
+    wbDiscardFile.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Browse.Button"));
     FormData fdbDiscardFile = new FormData();
-    fdbDiscardFile.right = new FormAttachment( 100, 0 );
-    fdbDiscardFile.top = new FormAttachment( wBadFile, margin );
-    wbDiscardFile.setLayoutData( fdbDiscardFile );
-    wDiscardFile = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wDiscardFile );
-    wDiscardFile.addModifyListener( lsMod );
+    fdbDiscardFile.right = new FormAttachment(100, 0);
+    fdbDiscardFile.top = new FormAttachment(wBadFile, margin);
+    wbDiscardFile.setLayoutData(fdbDiscardFile);
+    wDiscardFile = new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wDiscardFile);
+    wDiscardFile.addModifyListener(lsMod);
     FormData fdDiscardFile = new FormData();
-    fdDiscardFile.left = new FormAttachment( middle, 0 );
-    fdDiscardFile.top = new FormAttachment( wBadFile, margin );
-    fdDiscardFile.right = new FormAttachment( wbDiscardFile, -margin );
-    wDiscardFile.setLayoutData( fdDiscardFile );
+    fdDiscardFile.left = new FormAttachment(middle, 0);
+    fdDiscardFile.top = new FormAttachment(wBadFile, margin);
+    fdDiscardFile.right = new FormAttachment(wbDiscardFile, -margin);
+    wDiscardFile.setLayoutData(fdDiscardFile);
 
     //
     // Control encoding line
@@ -566,174 +556,180 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     // The drop down is editable as it may happen an encoding may not be present
     // on one machine, but you may want to use it on your execution server
     //
-    Label wlEncoding = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlEncoding.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Encoding.Label" ) );
-    PropsUi.setLook( wlEncoding );
+    Label wlEncoding = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlEncoding.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Encoding.Label"));
+    PropsUi.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
-    fdlEncoding.left = new FormAttachment( 0, 0 );
-    fdlEncoding.top = new FormAttachment( wDiscardFile, margin );
-    fdlEncoding.right = new FormAttachment( middle, -margin );
-    wlEncoding.setLayoutData( fdlEncoding );
-    wEncoding = new Combo( wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wEncoding.setToolTipText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Encoding.Tooltip" ) );
-    wEncoding.setItems( encodings );
-    PropsUi.setLook( wEncoding );
+    fdlEncoding.left = new FormAttachment(0, 0);
+    fdlEncoding.top = new FormAttachment(wDiscardFile, margin);
+    fdlEncoding.right = new FormAttachment(middle, -margin);
+    wlEncoding.setLayoutData(fdlEncoding);
+    wEncoding = new Combo(wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wEncoding.setToolTipText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Encoding.Tooltip"));
+    wEncoding.setItems(encodings);
+    PropsUi.setLook(wEncoding);
     FormData fdEncoding = new FormData();
-    fdEncoding.left = new FormAttachment( middle, 0 );
-    fdEncoding.top = new FormAttachment( wDiscardFile, margin );
-    fdEncoding.right = new FormAttachment( 100, 0 );
-    wEncoding.setLayoutData( fdEncoding );
-    wEncoding.addModifyListener( lsMod );
+    fdEncoding.left = new FormAttachment(middle, 0);
+    fdEncoding.top = new FormAttachment(wDiscardFile, margin);
+    fdEncoding.right = new FormAttachment(100, 0);
+    wEncoding.setLayoutData(fdEncoding);
+    wEncoding.addModifyListener(lsMod);
 
     // Oracle character set name line
-    Label wlCharacterSetName = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlCharacterSetName.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.CharacterSetName.Label" ) );
-    PropsUi.setLook( wlCharacterSetName );
+    Label wlCharacterSetName = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlCharacterSetName.setText(
+        BaseMessages.getString(PKG, "OraBulkLoaderDialog.CharacterSetName.Label"));
+    PropsUi.setLook(wlCharacterSetName);
     FormData fdlCharacterSetName = new FormData();
-    fdlCharacterSetName.left = new FormAttachment( 0, 0 );
-    fdlCharacterSetName.top = new FormAttachment( wEncoding, margin );
-    fdlCharacterSetName.right = new FormAttachment( middle, -margin );
-    wlCharacterSetName.setLayoutData( fdlCharacterSetName );
-    wCharacterSetName = new Combo( wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wCharacterSetName
-      .setToolTipText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.CharacterSetName.Tooltip" ) );
-    wCharacterSetName.setItems( characterSetNames );
-    PropsUi.setLook( wCharacterSetName );
+    fdlCharacterSetName.left = new FormAttachment(0, 0);
+    fdlCharacterSetName.top = new FormAttachment(wEncoding, margin);
+    fdlCharacterSetName.right = new FormAttachment(middle, -margin);
+    wlCharacterSetName.setLayoutData(fdlCharacterSetName);
+    wCharacterSetName = new Combo(wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCharacterSetName.setToolTipText(
+        BaseMessages.getString(PKG, "OraBulkLoaderDialog.CharacterSetName.Tooltip"));
+    wCharacterSetName.setItems(characterSetNames);
+    PropsUi.setLook(wCharacterSetName);
     FormData fdCharacterSetName = new FormData();
-    fdCharacterSetName.left = new FormAttachment( middle, 0 );
-    fdCharacterSetName.top = new FormAttachment( wEncoding, margin );
-    fdCharacterSetName.right = new FormAttachment( 100, 0 );
-    wCharacterSetName.setLayoutData( fdCharacterSetName );
-    wCharacterSetName.addModifyListener( lsMod );
+    fdCharacterSetName.left = new FormAttachment(middle, 0);
+    fdCharacterSetName.top = new FormAttachment(wEncoding, margin);
+    fdCharacterSetName.right = new FormAttachment(100, 0);
+    wCharacterSetName.setLayoutData(fdCharacterSetName);
+    wCharacterSetName.addModifyListener(lsMod);
 
     // Alternate Record Terminator
-    Label wlAltRecordTerm = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlAltRecordTerm.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AltRecordTerm.Label" ) );
-    PropsUi.setLook( wlAltRecordTerm );
+    Label wlAltRecordTerm = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlAltRecordTerm.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.AltRecordTerm.Label"));
+    PropsUi.setLook(wlAltRecordTerm);
     FormData fdlAltRecordTerm = new FormData();
-    fdlAltRecordTerm.left = new FormAttachment( 0, 0 );
-    fdlAltRecordTerm.top = new FormAttachment( wCharacterSetName, margin );
-    fdlAltRecordTerm.right = new FormAttachment( middle, -margin );
-    wlAltRecordTerm.setLayoutData( fdlAltRecordTerm );
-    wAltRecordTerm = new TextVar( variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    PropsUi.setLook( wAltRecordTerm );
+    fdlAltRecordTerm.left = new FormAttachment(0, 0);
+    fdlAltRecordTerm.top = new FormAttachment(wCharacterSetName, margin);
+    fdlAltRecordTerm.right = new FormAttachment(middle, -margin);
+    wlAltRecordTerm.setLayoutData(fdlAltRecordTerm);
+    wAltRecordTerm =
+        new TextVar(variables, wBulkLoaderComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wAltRecordTerm);
     FormData fdAltRecordTerm = new FormData();
-    fdAltRecordTerm.left = new FormAttachment( middle, 0 );
-    fdAltRecordTerm.top = new FormAttachment( wCharacterSetName, margin );
-    fdAltRecordTerm.right = new FormAttachment( 100, 0 );
-    wAltRecordTerm.setLayoutData( fdAltRecordTerm );
-    wAltRecordTerm.addModifyListener( lsMod );
+    fdAltRecordTerm.left = new FormAttachment(middle, 0);
+    fdAltRecordTerm.top = new FormAttachment(wCharacterSetName, margin);
+    fdAltRecordTerm.right = new FormAttachment(100, 0);
+    wAltRecordTerm.setLayoutData(fdAltRecordTerm);
+    wAltRecordTerm.addModifyListener(lsMod);
 
     // DirectPath line
-    Label wlDirectPath = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlDirectPath.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.DirectPath.Label" ) );
-    PropsUi.setLook( wlDirectPath );
+    Label wlDirectPath = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlDirectPath.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.DirectPath.Label"));
+    PropsUi.setLook(wlDirectPath);
     FormData fdlDirectPath = new FormData();
-    fdlDirectPath.left = new FormAttachment( 0, 0 );
-    fdlDirectPath.top = new FormAttachment( wAltRecordTerm, margin );
-    fdlDirectPath.right = new FormAttachment( middle, -margin );
-    wlDirectPath.setLayoutData( fdlDirectPath );
-    wDirectPath = new Button( wBulkLoaderComposite, SWT.CHECK );
-    PropsUi.setLook( wDirectPath );
+    fdlDirectPath.left = new FormAttachment(0, 0);
+    fdlDirectPath.top = new FormAttachment(wAltRecordTerm, margin);
+    fdlDirectPath.right = new FormAttachment(middle, -margin);
+    wlDirectPath.setLayoutData(fdlDirectPath);
+    wDirectPath = new Button(wBulkLoaderComposite, SWT.CHECK);
+    PropsUi.setLook(wDirectPath);
     FormData fdDirectPath = new FormData();
-    fdDirectPath.left = new FormAttachment( middle, 0 );
-    fdDirectPath.top = new FormAttachment( wAltRecordTerm, margin );
-    fdDirectPath.right = new FormAttachment( 100, 0 );
-    wDirectPath.setLayoutData( fdDirectPath );
-    wDirectPath.addListener(SWT.Selection, e -> {
-        input.setChanged();
-        // Parallel loading is only possible with a direct path option...
-        //
-        if ( !wDirectPath.getSelection() ) {
-          wParallel.setSelection( false );          
-        }        
-        wParallel.setEnabled(wDirectPath.getSelection());
-    });
+    fdDirectPath.left = new FormAttachment(middle, 0);
+    fdDirectPath.top = new FormAttachment(wAltRecordTerm, margin);
+    fdDirectPath.right = new FormAttachment(100, 0);
+    wDirectPath.setLayoutData(fdDirectPath);
+    wDirectPath.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          // Parallel loading is only possible with a direct path option...
+          //
+          if (!wDirectPath.getSelection()) {
+            wParallel.setSelection(false);
+          }
+          wParallel.setEnabled(wDirectPath.getSelection());
+        });
 
     // Erase files line
-    Label wlEraseFiles = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlEraseFiles.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.EraseFiles.Label" ) );
-    PropsUi.setLook( wlEraseFiles );
+    Label wlEraseFiles = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlEraseFiles.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.EraseFiles.Label"));
+    PropsUi.setLook(wlEraseFiles);
     FormData fdlEraseFiles = new FormData();
-    fdlEraseFiles.left = new FormAttachment( 0, 0 );
-    fdlEraseFiles.top = new FormAttachment( wDirectPath, margin );
-    fdlEraseFiles.right = new FormAttachment( middle, -margin );
-    wlEraseFiles.setLayoutData( fdlEraseFiles );
-    wEraseFiles = new Button( wBulkLoaderComposite, SWT.CHECK );
-    PropsUi.setLook( wEraseFiles );
+    fdlEraseFiles.left = new FormAttachment(0, 0);
+    fdlEraseFiles.top = new FormAttachment(wDirectPath, margin);
+    fdlEraseFiles.right = new FormAttachment(middle, -margin);
+    wlEraseFiles.setLayoutData(fdlEraseFiles);
+    wEraseFiles = new Button(wBulkLoaderComposite, SWT.CHECK);
+    PropsUi.setLook(wEraseFiles);
     FormData fdEraseFiles = new FormData();
-    fdEraseFiles.left = new FormAttachment( middle, 0 );
-    fdEraseFiles.top = new FormAttachment( wDirectPath, margin );
-    fdEraseFiles.right = new FormAttachment( 100, 0 );
-    wEraseFiles.setLayoutData( fdEraseFiles );
-    wEraseFiles.addListener( SWT.Selection, e -> input.setChanged());
+    fdEraseFiles.left = new FormAttachment(middle, 0);
+    fdEraseFiles.top = new FormAttachment(wDirectPath, margin);
+    fdEraseFiles.right = new FormAttachment(100, 0);
+    wEraseFiles.setLayoutData(fdEraseFiles);
+    wEraseFiles.addListener(SWT.Selection, e -> input.setChanged());
 
     // Fail on warning line
-    Label wlFailOnWarning = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlFailOnWarning.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.FailOnWarning.Label" ) );
-    PropsUi.setLook( wlFailOnWarning );
+    Label wlFailOnWarning = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlFailOnWarning.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.FailOnWarning.Label"));
+    PropsUi.setLook(wlFailOnWarning);
     FormData fdlFailOnWarning = new FormData();
-    fdlFailOnWarning.left = new FormAttachment( 0, 0 );
-    fdlFailOnWarning.top = new FormAttachment( wEraseFiles, margin );
-    fdlFailOnWarning.right = new FormAttachment( middle, -margin );
-    wlFailOnWarning.setLayoutData( fdlFailOnWarning );
-    wFailOnWarning = new Button( wBulkLoaderComposite, SWT.CHECK );
-    PropsUi.setLook( wFailOnWarning );
+    fdlFailOnWarning.left = new FormAttachment(0, 0);
+    fdlFailOnWarning.top = new FormAttachment(wEraseFiles, margin);
+    fdlFailOnWarning.right = new FormAttachment(middle, -margin);
+    wlFailOnWarning.setLayoutData(fdlFailOnWarning);
+    wFailOnWarning = new Button(wBulkLoaderComposite, SWT.CHECK);
+    PropsUi.setLook(wFailOnWarning);
     FormData fdFailOnWarning = new FormData();
-    fdFailOnWarning.left = new FormAttachment( middle, 0 );
-    fdFailOnWarning.top = new FormAttachment( wEraseFiles, margin );
-    fdFailOnWarning.right = new FormAttachment( 100, 0 );
-    wFailOnWarning.setLayoutData( fdFailOnWarning );
-    wFailOnWarning.addListener( SWT.Selection, e -> input.setChanged());
+    fdFailOnWarning.left = new FormAttachment(middle, 0);
+    fdFailOnWarning.top = new FormAttachment(wEraseFiles, margin);
+    fdFailOnWarning.right = new FormAttachment(100, 0);
+    wFailOnWarning.setLayoutData(fdFailOnWarning);
+    wFailOnWarning.addListener(SWT.Selection, e -> input.setChanged());
 
     // Fail on error line
-    Label wlFailOnError = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlFailOnError.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.FailOnError.Label" ) );
-    PropsUi.setLook( wlFailOnError );
+    Label wlFailOnError = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlFailOnError.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.FailOnError.Label"));
+    PropsUi.setLook(wlFailOnError);
     FormData fdlFailOnError = new FormData();
-    fdlFailOnError.left = new FormAttachment( 0, 0 );
-    fdlFailOnError.top = new FormAttachment( wFailOnWarning, margin );
-    fdlFailOnError.right = new FormAttachment( middle, -margin );
-    wlFailOnError.setLayoutData( fdlFailOnError );
-    wFailOnError = new Button( wBulkLoaderComposite, SWT.CHECK );
-    PropsUi.setLook( wFailOnError );
+    fdlFailOnError.left = new FormAttachment(0, 0);
+    fdlFailOnError.top = new FormAttachment(wFailOnWarning, margin);
+    fdlFailOnError.right = new FormAttachment(middle, -margin);
+    wlFailOnError.setLayoutData(fdlFailOnError);
+    wFailOnError = new Button(wBulkLoaderComposite, SWT.CHECK);
+    PropsUi.setLook(wFailOnError);
     FormData fdFailOnError = new FormData();
-    fdFailOnError.left = new FormAttachment( middle, 0 );
-    fdFailOnError.top = new FormAttachment( wFailOnWarning, margin );
-    fdFailOnError.right = new FormAttachment( 100, 0 );
-    wFailOnError.setLayoutData( fdFailOnError );
-    wFailOnError.addListener( SWT.Selection, e -> input.setChanged());
+    fdFailOnError.left = new FormAttachment(middle, 0);
+    fdFailOnError.top = new FormAttachment(wFailOnWarning, margin);
+    fdFailOnError.right = new FormAttachment(100, 0);
+    wFailOnError.setLayoutData(fdFailOnError);
+    wFailOnError.addListener(SWT.Selection, e -> input.setChanged());
 
     // Fail on error line
-    Label wlParallel = new Label( wBulkLoaderComposite, SWT.RIGHT );
-    wlParallel.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Parallel.Label" ) );
-    PropsUi.setLook( wlParallel );
+    Label wlParallel = new Label(wBulkLoaderComposite, SWT.RIGHT);
+    wlParallel.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Parallel.Label"));
+    PropsUi.setLook(wlParallel);
     FormData fdlParallel = new FormData();
-    fdlParallel.left = new FormAttachment( 0, 0 );
-    fdlParallel.top = new FormAttachment( wFailOnError, margin );
-    fdlParallel.right = new FormAttachment( middle, -margin );
-    wlParallel.setLayoutData( fdlParallel );
-    wParallel = new Button( wBulkLoaderComposite, SWT.CHECK );
-    PropsUi.setLook( wParallel );
+    fdlParallel.left = new FormAttachment(0, 0);
+    fdlParallel.top = new FormAttachment(wFailOnError, margin);
+    fdlParallel.right = new FormAttachment(middle, -margin);
+    wlParallel.setLayoutData(fdlParallel);
+    wParallel = new Button(wBulkLoaderComposite, SWT.CHECK);
+    PropsUi.setLook(wParallel);
     FormData fdParallel = new FormData();
-    fdParallel.left = new FormAttachment( middle, 0 );
-    fdParallel.top = new FormAttachment( wFailOnError, margin );
-    fdParallel.right = new FormAttachment( 100, 0 );
-    wParallel.setLayoutData( fdParallel );
-    wParallel.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-        // Parallel loading is only possible with a direct path option...
-        //
-        if ( wParallel.getSelection() ) {
-          wDirectPath.setSelection( true );
-        }
-      }
-    } );
-     
+    fdParallel.left = new FormAttachment(middle, 0);
+    fdParallel.top = new FormAttachment(wFailOnError, margin);
+    fdParallel.right = new FormAttachment(100, 0);
+    wParallel.setLayoutData(fdParallel);
+    wParallel.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            // Parallel loading is only possible with a direct path option...
+            //
+            if (wParallel.getSelection()) {
+              wDirectPath.setSelection(true);
+            }
+          }
+        });
+
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Fields.Label"));
-        
+
     Composite wFieldsComposite = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wFieldsComposite);
 
@@ -748,174 +744,202 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     fdDataComp.right = new FormAttachment(100, 0);
     fdDataComp.bottom = new FormAttachment(100, 0);
     wFieldsComposite.setLayoutData(fdDataComp);
-    
-    int UpInsCols = 3;
-    int UpInsRows = ( input.getMappings() != null ? input.getMappings().size() : 1 );
 
-    ciReturn = new ColumnInfo[UpInsCols];
+    int upInsCols = 3;
+    int upInsRows = (input.getMappings() != null ? input.getMappings().size() : 1);
+
+    ciReturn = new ColumnInfo[upInsCols];
     ciReturn[0] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "OraBulkLoaderDialog.ColumnInfo.TableField" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "OraBulkLoaderDialog.ColumnInfo.TableField"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {""},
+            false);
     ciReturn[1] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "OraBulkLoaderDialog.ColumnInfo.StreamField" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "OraBulkLoaderDialog.ColumnInfo.StreamField"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {""},
+            false);
     ciReturn[2] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "OraBulkLoaderDialog.ColumnInfo.DateMask" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          "", BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateMask.Label" ),
-          BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateTimeMask.Label" ) }, true );
-    tableFieldColumns.add( ciReturn[0] );
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "OraBulkLoaderDialog.ColumnInfo.DateMask"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {
+              "",
+              BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label"),
+              BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateTimeMask.Label")
+            },
+            true);
+    tableFieldColumns.add(ciReturn[0]);
     wReturn =
-      new TableView(
-          variables, wFieldsComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
-        UpInsRows, lsMod, props );
+        new TableView(
+            variables,
+            wFieldsComposite,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+            ciReturn,
+            upInsRows,
+            lsMod,
+            props);
 
-    Button wGetLU = new Button( wFieldsComposite, SWT.PUSH );
-    wGetLU.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.GetFields.Label" ) );
-    wGetLU.addListener( SWT.Selection, e -> getUpdate() );
+    Button wGetLU = new Button(wFieldsComposite, SWT.PUSH);
+    wGetLU.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.GetFields.Label"));
+    wGetLU.addListener(SWT.Selection, e -> getUpdate());
     FormData fdGetLU = new FormData();
-    fdGetLU.top = new FormAttachment( 0, 0 );
-    fdGetLU.right = new FormAttachment( 100, 0 );
-    fdGetLU.left = new FormAttachment( wReturn, margin );
-    wGetLU.setLayoutData( fdGetLU );
+    fdGetLU.top = new FormAttachment(0, 0);
+    fdGetLU.right = new FormAttachment(100, 0);
+    fdGetLU.left = new FormAttachment(wReturn, margin);
+    wGetLU.setLayoutData(fdGetLU);
 
-    Button wDoMapping = new Button( wFieldsComposite, SWT.PUSH );
-    wDoMapping.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.EditMapping.Label" ) );
+    Button wDoMapping = new Button(wFieldsComposite, SWT.PUSH);
+    wDoMapping.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.EditMapping.Label"));
     FormData fdDoMapping = new FormData();
-    fdDoMapping.top = new FormAttachment( wGetLU, margin );
-    fdDoMapping.right = new FormAttachment( 100, 0 );
-    wDoMapping.setLayoutData( fdDoMapping );
-    wDoMapping.addListener( SWT.Selection, e -> generateMappings());
+    fdDoMapping.top = new FormAttachment(wGetLU, margin);
+    fdDoMapping.right = new FormAttachment(100, 0);
+    wDoMapping.setLayoutData(fdDoMapping);
+    wDoMapping.addListener(SWT.Selection, e -> generateMappings());
 
     FormData fdReturn = new FormData();
-    fdReturn.left = new FormAttachment( 0, 0 );
-    fdReturn.top = new FormAttachment( 0, 0 );
-    fdReturn.right = new FormAttachment( wDoMapping, -margin );
-    fdReturn.bottom = new FormAttachment(100, 0 );
-    wReturn.setLayoutData( fdReturn );
-
+    fdReturn.left = new FormAttachment(0, 0);
+    fdReturn.top = new FormAttachment(0, 0);
+    fdReturn.right = new FormAttachment(wDoMapping, -margin);
+    fdReturn.bottom = new FormAttachment(100, 0);
+    wReturn.setLayoutData(fdReturn);
 
     wBulkLoaderTab.setControl(wBulkLoaderComposite);
     wFieldsTab.setControl(wFieldsComposite);
-    
+
     //
     // Search the fields in the background
     //
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
+    final Runnable runnable =
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.add(row.getValueMeta(i).getName());
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
+              }
+
+              setComboBoxes();
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
           }
-        }
-      }
-    };
-    new Thread( runnable ).start();
+        };
+    new Thread(runnable).start();
 
-    wbSqlldr.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wSqlldr.getText() != null ) {
-          dialog.setFileName( wSqlldr.getText() );
-        }
-        dialog.setFilterNames( ALL_FILETYPES );
-        if ( dialog.open() != null ) {
-          wSqlldr.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbSqlldr.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] {"*"});
+            if (wSqlldr.getText() != null) {
+              dialog.setFileName(wSqlldr.getText());
+            }
+            dialog.setFilterNames(ALL_FILETYPES);
+            if (dialog.open() != null) {
+              wSqlldr.setText(dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            }
+          }
+        });
 
-    wbControlFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wControlFile.getText() != null ) {
-          dialog.setFileName( wControlFile.getText() );
-        }
-        dialog.setFilterNames( ALL_FILETYPES );
-        if ( dialog.open() != null ) {
-          wControlFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbControlFile.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] {"*"});
+            if (wControlFile.getText() != null) {
+              dialog.setFileName(wControlFile.getText());
+            }
+            dialog.setFilterNames(ALL_FILETYPES);
+            if (dialog.open() != null) {
+              wControlFile.setText(
+                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            }
+          }
+        });
 
-    wbDataFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wDataFile.getText() != null ) {
-          dialog.setFileName( wDataFile.getText() );
-        }
-        dialog.setFilterNames( ALL_FILETYPES );
-        if ( dialog.open() != null ) {
-          wDataFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbDataFile.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] {"*"});
+            if (wDataFile.getText() != null) {
+              dialog.setFileName(wDataFile.getText());
+            }
+            dialog.setFilterNames(ALL_FILETYPES);
+            if (dialog.open() != null) {
+              wDataFile.setText(
+                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            }
+          }
+        });
 
-    wbLogFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wLogFile.getText() != null ) {
-          dialog.setFileName( wLogFile.getText() );
-        }
-        dialog.setFilterNames( ALL_FILETYPES );
-        if ( dialog.open() != null ) {
-          wLogFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbLogFile.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] {"*"});
+            if (wLogFile.getText() != null) {
+              dialog.setFileName(wLogFile.getText());
+            }
+            dialog.setFilterNames(ALL_FILETYPES);
+            if (dialog.open() != null) {
+              wLogFile.setText(
+                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            }
+          }
+        });
 
-    wbBadFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wBadFile.getText() != null ) {
-          dialog.setFileName( wBadFile.getText() );
-        }
-        dialog.setFilterNames( ALL_FILETYPES );
-        if ( dialog.open() != null ) {
-          wBadFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbBadFile.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] {"*"});
+            if (wBadFile.getText() != null) {
+              dialog.setFileName(wBadFile.getText());
+            }
+            dialog.setFilterNames(ALL_FILETYPES);
+            if (dialog.open() != null) {
+              wBadFile.setText(
+                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            }
+          }
+        });
 
-    wbDiscardFile.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-        dialog.setFilterExtensions( new String[] { "*" } );
-        if ( wDiscardFile.getText() != null ) {
-          dialog.setFileName( wDiscardFile.getText() );
-        }
-        dialog.setFilterNames( ALL_FILETYPES );
-        if ( dialog.open() != null ) {
-          wDiscardFile.setText( dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName() );
-        }
-      }
-    } );
+    wbDiscardFile.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+            dialog.setFilterExtensions(new String[] {"*"});
+            if (wDiscardFile.getText() != null) {
+              dialog.setFileName(wDiscardFile.getText());
+            }
+            dialog.setFilterNames(ALL_FILETYPES);
+            if (dialog.open() != null) {
+              wDiscardFile.setText(
+                  dialog.getFilterPath() + Const.FILE_SEPARATOR + dialog.getFileName());
+            }
+          }
+        });
 
     getData();
     wTabFolder.setSelection(0);
     setTableFieldCombo();
-    input.setChanged( changed );
+    input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-    
+
     return transformName;
   }
 
@@ -923,175 +947,173 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     // Something was changed in the row.
     //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    ciReturn[1].setComboValues( fieldNames );
+    ciReturn[1].setComboValues(fieldNames);
   }
 
   private void setTableFieldCombo() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        if ( !wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed() ) {
-          final String tableName = wTable.getText(), connectionName = wConnection.getText(), schemaName =
-            wSchema.getText();
+    Runnable fieldLoader =
+        () -> {
+          if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
+            final String tableName = wTable.getText(),
+                connectionName = wConnection.getText(),
+                schemaName = wSchema.getText();
 
-          // clear
-          for ( ColumnInfo colInfo : tableFieldColumns ) {
-            colInfo.setComboValues( new String[] {} );
-          }
-          if ( !Utils.isEmpty( tableName ) ) {
-            DatabaseMeta databaseMeta = pipelineMeta.findDatabase( connectionName, variables );
-            if ( databaseMeta != null ) {
-              Database db = new Database(loggingObject, variables, databaseMeta);
-              
-              try {
-                db.connect();
+            // clear
+            for (ColumnInfo colInfo : tableFieldColumns) {
+              colInfo.setComboValues(new String[] {});
+            }
+            if (!Utils.isEmpty(tableName)) {
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+              if (databaseMeta != null) {
+                Database db = new Database(loggingObject, variables, databaseMeta);
 
-                String schemaTable =
-                    databaseMeta.getQuotedSchemaTableCombination(
-                        variables, schemaName, tableName);
-               IRowMeta rowMeta = db.getTableFields( schemaTable );
-                if ( null != rowMeta ) {
-                  String[] fieldNames = rowMeta.getFieldNames();
-                  if ( null != fieldNames ) {
-                    for ( ColumnInfo colInfo : tableFieldColumns ) {
-                      colInfo.setComboValues( fieldNames );
+                try {
+                  db.connect();
+
+                  String schemaTable =
+                      databaseMeta.getQuotedSchemaTableCombination(
+                          variables, schemaName, tableName);
+                  IRowMeta rowMeta = db.getTableFields(schemaTable);
+                  if (null != rowMeta) {
+                    String[] fieldNames = rowMeta.getFieldNames();
+                    if (null != fieldNames) {
+                      for (ColumnInfo colInfo : tableFieldColumns) {
+                        colInfo.setComboValues(fieldNames);
+                      }
                     }
                   }
-                }
-              } catch ( Exception e ) {
-                for ( ColumnInfo colInfo : tableFieldColumns ) {
-                  colInfo.setComboValues( new String[] {} );
-                }
-                // ignore any errors here. drop downs will not be
-                // filled, but no problem for the user
-              } finally {
-                try {
-                  if ( db != null ) {
-                    db.disconnect();
+                } catch (Exception e) {
+                  for (ColumnInfo colInfo : tableFieldColumns) {
+                    colInfo.setComboValues(new String[] {});
                   }
-                } catch ( Exception ignored ) {
-                  // ignore any errors here.
-                  db = null;
+                  // ignore any errors here. drop downs will not be
+                  // filled, but no problem for the user
+                } finally {
+                  try {
+                    if (db != null) {
+                      db.disconnect();
+                    }
+                  } catch (Exception ignored) {
+                    // ignore any errors here.
+                    db = null;
+                  }
                 }
               }
             }
           }
-        }
-      }
-    };
-    shell.getDisplay().asyncExec( fieldLoader );
+        };
+    shell.getDisplay().asyncExec(fieldLoader);
   }
 
-  /**
-   * Copy information from the meta-data input to the dialog fields.
-   */
+  /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Log.GettingKeyInfo" ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Log.GettingKeyInfo"));
     }
 
-    wMaxErrors.setText( "" + input.getMaxErrors() );
-    wCommit.setText( "" + input.getCommitSize() );
-    wBindSize.setText( "" + input.getBindSize() );
-    wReadSize.setText( "" + input.getReadSize() );
+    wMaxErrors.setText("" + input.getMaxErrors());
+    wCommit.setText("" + input.getCommitSize());
+    wBindSize.setText("" + input.getBindSize());
+    wReadSize.setText("" + input.getReadSize());
 
     for (int i = 0; i < input.getMappings().size(); i++) {
-      TableItem item = wReturn.table.getItem( i );
+      TableItem item = wReturn.table.getItem(i);
       OraBulkLoaderMappingMeta mapping = input.getMappings().get(i);
-      
-      if ( mapping.getFieldTable() != null ) {
-        item.setText( 1, mapping.getFieldTable() );
+
+      if (mapping.getFieldTable() != null) {
+        item.setText(1, mapping.getFieldTable());
       }
-      if ( mapping.getFieldStream() != null ) {
-        item.setText( 2, mapping.getFieldStream() );
+      if (mapping.getFieldStream() != null) {
+        item.setText(2, mapping.getFieldStream());
       }
       String dateMask = mapping.getDateMask();
-      if ( dateMask != null ) {
-        if ( OraBulkLoaderMeta.DATE_MASK_DATE.equals( dateMask ) ) {
-          item.setText( 3, BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateMask.Label" ) );
-        } else if ( OraBulkLoaderMeta.DATE_MASK_DATETIME.equals( dateMask ) ) {
-          item.setText( 3, BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateTimeMask.Label" ) );
+      if (dateMask != null) {
+        if (OraBulkLoaderMeta.DATE_MASK_DATE.equals(dateMask)) {
+          item.setText(3, BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label"));
+        } else if (OraBulkLoaderMeta.DATE_MASK_DATETIME.equals(dateMask)) {
+          item.setText(3, BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateTimeMask.Label"));
         } else {
-          item.setText( 3, "" );
+          item.setText(3, "");
         }
       } else {
-        item.setText( 3, "" );
+        item.setText(3, "");
       }
-    }   
+    }
 
     if (input.getDatabaseMeta() != null) {
       wConnection.setText(input.getDatabaseMeta().getName());
     }
-    if ( input.getSchemaName() != null ) {
-      wSchema.setText( input.getSchemaName() );
+    if (input.getSchemaName() != null) {
+      wSchema.setText(input.getSchemaName());
     }
-    if ( input.getTableName() != null ) {
-      wTable.setText( input.getTableName() );
+    if (input.getTableName() != null) {
+      wTable.setText(input.getTableName());
     }
-    if ( input.getSqlldr() != null ) {
-      wSqlldr.setText( input.getSqlldr() );
+    if (input.getSqlldr() != null) {
+      wSqlldr.setText(input.getSqlldr());
     }
-    if ( input.getControlFile() != null ) {
-      wControlFile.setText( input.getControlFile() );
+    if (input.getControlFile() != null) {
+      wControlFile.setText(input.getControlFile());
     }
-    if ( input.getDataFile() != null ) {
-      wDataFile.setText( input.getDataFile() );
+    if (input.getDataFile() != null) {
+      wDataFile.setText(input.getDataFile());
     }
-    if ( input.getLogFile() != null ) {
-      wLogFile.setText( input.getLogFile() );
+    if (input.getLogFile() != null) {
+      wLogFile.setText(input.getLogFile());
     }
-    if ( input.getBadFile() != null ) {
-      wBadFile.setText( input.getBadFile() );
+    if (input.getBadFile() != null) {
+      wBadFile.setText(input.getBadFile());
     }
-    if ( input.getDiscardFile() != null ) {
-      wDiscardFile.setText( input.getDiscardFile() );
+    if (input.getDiscardFile() != null) {
+      wDiscardFile.setText(input.getDiscardFile());
     }
-    if ( input.getEncoding() != null ) {
-      wEncoding.setText( input.getEncoding() );
+    if (input.getEncoding() != null) {
+      wEncoding.setText(input.getEncoding());
     }
-    if ( input.getCharacterSetName() != null ) {
-      wCharacterSetName.setText( input.getCharacterSetName() );
+    if (input.getCharacterSetName() != null) {
+      wCharacterSetName.setText(input.getCharacterSetName());
     }
-    if ( input.getAltRecordTerm() != null ) {
-      wAltRecordTerm.setText( input.getAltRecordTerm() );
+    if (input.getAltRecordTerm() != null) {
+      wAltRecordTerm.setText(input.getAltRecordTerm());
     }
-    wDirectPath.setSelection( input.isDirectPath() );
-    wEraseFiles.setSelection( input.isEraseFiles() );
-    wFailOnError.setSelection( input.isFailOnError() );
-    wParallel.setSelection( input.isParallel() );
-    wFailOnWarning.setSelection( input.isFailOnWarning() );
+    wDirectPath.setSelection(input.isDirectPath());
+    wEraseFiles.setSelection(input.isEraseFiles());
+    wFailOnError.setSelection(input.isFailOnError());
+    wParallel.setSelection(input.isParallel());
+    wFailOnWarning.setSelection(input.isFailOnWarning());
 
     String method = input.getLoadMethod();
-    if ( OraBulkLoaderMeta.METHOD_AUTO_END.equals( method ) ) {
-      wLoadMethod.select( 0 );
-    } else if ( OraBulkLoaderMeta.METHOD_MANUAL.equals( method ) ) {
-      wLoadMethod.select( 1 );
-    } else if ( OraBulkLoaderMeta.METHOD_AUTO_CONCURRENT.equals( method ) ) {
-      wLoadMethod.select( 2 );
+    if (OraBulkLoaderMeta.METHOD_AUTO_END.equals(method)) {
+      wLoadMethod.select(0);
+    } else if (OraBulkLoaderMeta.METHOD_MANUAL.equals(method)) {
+      wLoadMethod.select(1);
+    } else if (OraBulkLoaderMeta.METHOD_AUTO_CONCURRENT.equals(method)) {
+      wLoadMethod.select(2);
     } else {
-      if ( log.isDebug() ) {
-        logDebug( "Internal error: load_method set to default 'auto at end'" );
+      if (log.isDebug()) {
+        logDebug("Internal error: load_method set to default 'auto at end'");
       }
-      wLoadMethod.select( 0 );
+      wLoadMethod.select(0);
     }
 
     String action = input.getLoadAction();
-    if ( OraBulkLoaderMeta.ACTION_APPEND.equals( action ) ) {
-      wLoadAction.select( 0 );
-    } else if ( OraBulkLoaderMeta.ACTION_INSERT.equals( action ) ) {
-      wLoadAction.select( 1 );
-    } else if ( OraBulkLoaderMeta.ACTION_REPLACE.equals( action ) ) {
-      wLoadAction.select( 2 );
-    } else if ( OraBulkLoaderMeta.ACTION_TRUNCATE.equals( action ) ) {
-      wLoadAction.select( 3 );
+    if (OraBulkLoaderMeta.ACTION_APPEND.equals(action)) {
+      wLoadAction.select(0);
+    } else if (OraBulkLoaderMeta.ACTION_INSERT.equals(action)) {
+      wLoadAction.select(1);
+    } else if (OraBulkLoaderMeta.ACTION_REPLACE.equals(action)) {
+      wLoadAction.select(2);
+    } else if (OraBulkLoaderMeta.ACTION_TRUNCATE.equals(action)) {
+      wLoadAction.select(3);
     } else {
-      if ( log.isDebug() ) {
-        logDebug( "Internal error: load_action set to default 'append'" );
+      if (log.isDebug()) {
+        logDebug("Internal error: load_action set to default 'append'");
       }
-      wLoadAction.select( 0 );
+      wLoadAction.select(0);
     }
 
     wReturn.setRowNums();
-    wReturn.optWidth( true );
+    wReturn.optWidth(true);
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -1099,109 +1121,121 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
 
   private void cancel() {
     transformName = null;
-    input.setChanged( changed );
+    input.setChanged(changed);
     dispose();
   }
 
-  private void getInfo( OraBulkLoaderMeta meta ) {
-    meta.setMaxErrors( wMaxErrors.getText() );
-    meta.setCommitSize( wCommit.getText() );
-    meta.setBindSize( wBindSize.getText() );
-    meta.setReadSize( wReadSize.getText() );
+  private void getInfo(OraBulkLoaderMeta meta) {
+    meta.setMaxErrors(wMaxErrors.getText());
+    meta.setCommitSize(wCommit.getText());
+    meta.setBindSize(wBindSize.getText());
+    meta.setReadSize(wReadSize.getText());
 
     int nrfields = wReturn.nrNonEmpty();
-    if ( log.isDebug() ) {
-      logDebug( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Log.FoundFields", "" + nrfields ) );
+    if (log.isDebug()) {
+      logDebug(BaseMessages.getString(PKG, "OraBulkLoaderDialog.Log.FoundFields", "" + nrfields));
     }
 
     List<OraBulkLoaderMappingMeta> mappings = new ArrayList<>();
-    for ( int i = 0; i < nrfields; i++ ) {
+    for (int i = 0; i < nrfields; i++) {
       OraBulkLoaderMappingMeta mapping = new OraBulkLoaderMappingMeta();
-      
-      TableItem item = wReturn.getNonEmpty( i );
-      mapping.setFieldTable(item.getText( 1 ));
-      mapping.setFieldStream(item.getText( 2 ));
 
-      if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateMask.Label" ).equals( item.getText( 3 ) ) ) {
+      TableItem item = wReturn.getNonEmpty(i);
+      mapping.setFieldTable(item.getText(1));
+      mapping.setFieldStream(item.getText(2));
+
+      if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label")
+          .equals(item.getText(3))) {
         mapping.setDateMask(OraBulkLoaderMeta.DATE_MASK_DATE);
-      } else if ( BaseMessages
-        .getString( PKG, "OraBulkLoaderDialog.DateTimeMask.Label" ).equals( item.getText( 3 ) ) ) {
+      } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateTimeMask.Label")
+          .equals(item.getText(3))) {
         mapping.setDateMask(OraBulkLoaderMeta.DATE_MASK_DATETIME);
       }
-      
+
       mappings.add(mapping);
     }
-    
+
     meta.setMappings(mappings);
-    meta.setSchemaName( wSchema.getText() );
-    meta.setTableName( wTable.getText() );
-    meta.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText(), variables ) );
-    meta.setSqlldr( wSqlldr.getText() );
-    meta.setControlFile( wControlFile.getText() );
-    meta.setDataFile( wDataFile.getText() );
-    meta.setLogFile( wLogFile.getText() );
-    meta.setBadFile( wBadFile.getText() );
-    meta.setDiscardFile( wDiscardFile.getText() );
-    meta.setEncoding( wEncoding.getText() );
-    meta.setCharacterSetName( wCharacterSetName.getText() );
-    meta.setAltRecordTerm( wAltRecordTerm.getText() );
-    meta.setDirectPath( wDirectPath.getSelection() );
-    meta.setEraseFiles( wEraseFiles.getSelection() );
-    meta.setFailOnError( wFailOnError.getSelection() );
-    meta.setParallel( wParallel.getSelection() );
-    meta.setFailOnWarning( wFailOnWarning.getSelection() );
+    meta.setSchemaName(wSchema.getText());
+    meta.setTableName(wTable.getText());
+    meta.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    meta.setSqlldr(wSqlldr.getText());
+    meta.setControlFile(wControlFile.getText());
+    meta.setDataFile(wDataFile.getText());
+    meta.setLogFile(wLogFile.getText());
+    meta.setBadFile(wBadFile.getText());
+    meta.setDiscardFile(wDiscardFile.getText());
+    meta.setEncoding(wEncoding.getText());
+    meta.setCharacterSetName(wCharacterSetName.getText());
+    meta.setAltRecordTerm(wAltRecordTerm.getText());
+    meta.setDirectPath(wDirectPath.getSelection());
+    meta.setEraseFiles(wEraseFiles.getSelection());
+    meta.setFailOnError(wFailOnError.getSelection());
+    meta.setParallel(wParallel.getSelection());
+    meta.setFailOnWarning(wFailOnWarning.getSelection());
 
     /*
      * Set the load method
      */
     String method = wLoadMethod.getText();
-    if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AutoConcLoadMethod.Label" ).equals( method ) ) {
-      meta.setLoadMethod( OraBulkLoaderMeta.METHOD_AUTO_CONCURRENT );
-    } else if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AutoEndLoadMethod.Label" ).equals( method ) ) {
-      meta.setLoadMethod( OraBulkLoaderMeta.METHOD_AUTO_END );
-    } else if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.ManualLoadMethod.Label" ).equals( method ) ) {
-      meta.setLoadMethod( OraBulkLoaderMeta.METHOD_MANUAL );
+    if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.AutoConcLoadMethod.Label")
+        .equals(method)) {
+      meta.setLoadMethod(OraBulkLoaderMeta.METHOD_AUTO_CONCURRENT);
+    } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.AutoEndLoadMethod.Label")
+        .equals(method)) {
+      meta.setLoadMethod(OraBulkLoaderMeta.METHOD_AUTO_END);
+    } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.ManualLoadMethod.Label")
+        .equals(method)) {
+      meta.setLoadMethod(OraBulkLoaderMeta.METHOD_MANUAL);
     } else {
-      if ( log.isDebug() ) {
-        logDebug( "Internal error: load_method set to default 'auto concurrent', value found '" + method + "'." );
+      if (log.isDebug()) {
+        logDebug(
+            "Internal error: load_method set to default 'auto concurrent', value found '"
+                + method
+                + "'.");
       }
-      meta.setLoadMethod( OraBulkLoaderMeta.METHOD_AUTO_END );
+      meta.setLoadMethod(OraBulkLoaderMeta.METHOD_AUTO_END);
     }
 
     /*
      * Set the load action
      */
     String action = wLoadAction.getText();
-    if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.AppendLoadAction.Label" ).equals( action ) ) {
-      meta.setLoadAction( OraBulkLoaderMeta.ACTION_APPEND );
-    } else if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.InsertLoadAction.Label" ).equals( action ) ) {
-      meta.setLoadAction( OraBulkLoaderMeta.ACTION_INSERT );
-    } else if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.ReplaceLoadAction.Label" ).equals( action ) ) {
-      meta.setLoadAction( OraBulkLoaderMeta.ACTION_REPLACE );
-    } else if ( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TruncateLoadAction.Label" ).equals( action ) ) {
-      meta.setLoadAction( OraBulkLoaderMeta.ACTION_TRUNCATE );
+    if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.AppendLoadAction.Label").equals(action)) {
+      meta.setLoadAction(OraBulkLoaderMeta.ACTION_APPEND);
+    } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.InsertLoadAction.Label")
+        .equals(action)) {
+      meta.setLoadAction(OraBulkLoaderMeta.ACTION_INSERT);
+    } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.ReplaceLoadAction.Label")
+        .equals(action)) {
+      meta.setLoadAction(OraBulkLoaderMeta.ACTION_REPLACE);
+    } else if (BaseMessages.getString(PKG, "OraBulkLoaderDialog.TruncateLoadAction.Label")
+        .equals(action)) {
+      meta.setLoadAction(OraBulkLoaderMeta.ACTION_TRUNCATE);
     } else {
-      if ( log.isDebug() ) {
-        logDebug( "Internal error: load_action set to default 'append', value found '" + action + "'." );
+      if (log.isDebug()) {
+        logDebug(
+            "Internal error: load_action set to default 'append', value found '" + action + "'.");
       }
-      meta.setLoadAction( OraBulkLoaderMeta.ACTION_APPEND );
+      meta.setLoadAction(OraBulkLoaderMeta.ACTION_APPEND);
     }
 
     transformName = wTransformName.getText();
   }
 
   private void ok() {
-    if ( Utils.isEmpty( wTransformName.getText() ) ) {
+    if (Utils.isEmpty(wTransformName.getText())) {
       return;
     }
 
     // Get the information for the dialog into the input structure.
-    getInfo( input );
+    getInfo(input);
 
-    if ( input.getDatabaseMeta() == null ) {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "OraBulkLoaderDialog.InvalidConnection.DialogMessage" ) );
-      mb.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.InvalidConnection.DialogTitle" ) );
+    if (input.getDatabaseMeta() == null) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.InvalidConnection.DialogTitle"));
       mb.open();
     }
 
@@ -1209,34 +1243,41 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText(), variables );
-    if ( databaseMeta != null ) {      
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
         database.connect();
         String[] schemas = database.getSchemas();
 
-        if ( null != schemas && schemas.length > 0 ) {
-          schemas = Const.sortStrings( schemas );
+        if (null != schemas && schemas.length > 0) {
+          schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
-            new EnterSelectionDialog( shell, schemas, BaseMessages.getString(
-              PKG, "OraBulkLoaderDialog.AvailableSchemas.Title", wConnection.getText() ), BaseMessages
-              .getString( PKG, "OraBulkLoaderDialog.AvailableSchemas.Message", wConnection.getText() ) );
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG, "OraBulkLoaderDialog.AvailableSchemas.Title", wConnection.getText()),
+                  BaseMessages.getString(
+                      PKG, "OraBulkLoaderDialog.AvailableSchemas.Message", wConnection.getText()));
           String d = dialog.open();
-          if ( d != null ) {
-            wSchema.setText( Const.NVL( d, "" ) );
+          if (d != null) {
+            wSchema.setText(Const.NVL(d, ""));
             setTableFieldCombo();
           }
 
         } else {
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "OraBulkLoaderDialog.NoSchema.Error" ) );
-          mb.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.GetSchemas.Error" ) );
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(BaseMessages.getString(PKG, "OraBulkLoaderDialog.NoSchema.Error"));
+          mb.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.GetSchemas.Error"));
           mb.open();
         }
-      } catch ( Exception e ) {
-        new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages
-          .getString( PKG, "OraBulkLoaderDialog.ErrorGettingSchemas" ), e );
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "OraBulkLoaderDialog.ErrorGettingSchemas"),
+            e);
       } finally {
         database.disconnect();
       }
@@ -1250,49 +1291,57 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
       return;
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
-    
-    if ( databaseMeta != null ) {
-      if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
+
+    if (databaseMeta != null) {
+      if (log.isDebug()) {
+        logDebug(
+            BaseMessages.getString(PKG, "OraBulkLoaderDialog.Log.LookingAtConnection")
+                + databaseMeta.toString());
       }
 
       DatabaseExplorerDialog dialog =
           new DatabaseExplorerDialog(
               shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases());
-      dialog.setSelectedSchemaAndTable( variables.resolve(wSchema.getText()), variables.resolve(wTable.getText()) );
+      dialog.setSelectedSchemaAndTable(
+          variables.resolve(wSchema.getText()), variables.resolve(wTable.getText()));
       if (dialog.open()) {
         wSchema.setText(Const.NVL(dialog.getSchemaName(), ""));
         wTable.setText(Const.NVL(dialog.getTableName(), ""));
       }
     } else {
-      MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "OraBulkLoaderDialog.InvalidConnection.DialogMessage" ) );
-      mb.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.InvalidConnection.DialogTitle" ) );
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.InvalidConnection.DialogTitle"));
       mb.open();
     }
   }
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevInfoFields( variables, transformName );
-      if ( r != null ) {
+      IRowMeta r = pipelineMeta.getPrevInfoFields(variables, transformName);
+      if (r != null) {
         ITableItemInsertListener listener =
             (tableItem, v) -> {
-              if ( v.getType() == IValueMeta.TYPE_DATE ) {
+              if (v.getType() == IValueMeta.TYPE_DATE) {
                 // The default is date mask.
-                tableItem.setText( 3, BaseMessages.getString( PKG, "OraBulkLoaderDialog.DateMask.Label" ) );
+                tableItem.setText(
+                    3, BaseMessages.getString(PKG, "OraBulkLoaderDialog.DateMask.Label"));
               } else {
-                tableItem.setText( 3, "" );
+                tableItem.setText(3, "");
               }
               return true;
             };
-        
-        BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, listener );
+
+        BaseTransformDialog.getFieldsFromPrevious(
+            r, wReturn, 1, new int[] {1, 2}, new int[] {}, -1, -1, listener);
       }
-    } catch ( HopException ke ) {
+    } catch (HopException ke) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "OraBulkLoaderDialog.FailedToGetFields.DialogTitle" ), BaseMessages
-          .getString( PKG, "OraBulkLoaderDialog.FailedToGetFields.DialogMessage" ), ke );
+          shell,
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.FailedToGetFields.DialogMessage"),
+          ke);
     }
   }
 
@@ -1301,45 +1350,53 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
   private void create() {
     try {
       OraBulkLoaderMeta info = new OraBulkLoaderMeta();
-      getInfo( info );
+      getInfo(info);
 
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
           new TransformMeta(
               BaseMessages.getString(PKG, "OraBulkLoaderDialog.TransformMeta.Title"), name, info);
-      IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
 
       SqlStatement sql =
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
-      if ( !sql.hasError() ) {
-        if ( sql.hasSql() ) {
+      if (!sql.hasError()) {
+        if (sql.hasSql()) {
           SqlEditor sqledit =
-            new SqlEditor( shell, SWT.NONE, variables, info.getDatabaseMeta(), DbCache.getInstance(), sql
-              .getSql() );
+              new SqlEditor(
+                  shell,
+                  SWT.NONE,
+                  variables,
+                  info.getDatabaseMeta(),
+                  DbCache.getInstance(),
+                  sql.getSql());
           sqledit.open();
         } else {
-          MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "OraBulkLoaderDialog.NoSQLNeeds.DialogMessage" ) );
-          mb.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.NoSQLNeeds.DialogTitle" ) );
+          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+          mb.setMessage(
+              BaseMessages.getString(PKG, "OraBulkLoaderDialog.NoSQLNeeds.DialogMessage"));
+          mb.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.NoSQLNeeds.DialogTitle"));
           mb.open();
         }
       } else {
-        MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-        mb.setMessage( sql.getError() );
-        mb.setText( BaseMessages.getString( PKG, "OraBulkLoaderDialog.SQLError.DialogTitle" ) );
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(sql.getError());
+        mb.setText(BaseMessages.getString(PKG, "OraBulkLoaderDialog.SQLError.DialogTitle"));
         mb.open();
       }
-    } catch ( HopException ke ) {
+    } catch (HopException ke) {
       new ErrorDialog(
-        shell, BaseMessages.getString( PKG, "OraBulkLoaderDialog.CouldNotBuildSQL.DialogTitle" ), BaseMessages
-          .getString( PKG, "OraBulkLoaderDialog.CouldNotBuildSQL.DialogMessage" ), ke );
+          shell,
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.CouldNotBuildSQL.DialogTitle"),
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.CouldNotBuildSQL.DialogMessage"),
+          ke);
     }
-
   }
 
   /**
-   * Reads in the fields from the previous transforms and from the ONE next transform and opens an EnterMappingDialog with this
-   * information. After the user did the mapping, those information is put into the Select/Rename table.
+   * Reads in the fields from the previous transforms and from the ONE next transform and opens an
+   * EnterMappingDialog with this information. After the user did the mapping, those information is
+   * put into the Select/Rename table.
    */
   private void generateMappings() {
 
@@ -1349,113 +1406,139 @@ public class OraBulkLoaderDialog  extends BaseTransformDialog implements ITransf
     IRowMeta targetFields;
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields(variables, transformMeta );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell,
-        BaseMessages.getString( PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Title" ),
-        BaseMessages.getString( PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Message" ), e );
+      sourceFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Title"),
+          BaseMessages.getString(
+              PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Message"),
+          e);
       return;
     }
     // refresh data
-    input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText(), variables ) );
-    input.setTableName( variables.resolve( wTable.getText() ) );    
+    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields( variables );
-    } catch ( HopException e ) {
-      new ErrorDialog( shell, BaseMessages.getString(
-        PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Title" ), BaseMessages.getString(
-        PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Message" ), e );
+      targetFields = transformMetaInterface.getRequiredFields(variables);
+    } catch (HopException e) {
+      new ErrorDialog(
+          shell,
+          BaseMessages.getString(
+              PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Title"),
+          BaseMessages.getString(
+              PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Message"),
+          e);
       return;
     }
 
     String[] inputNames = new String[sourceFields.size()];
-    for ( int i = 0; i < sourceFields.size(); i++ ) {
-      IValueMeta value = sourceFields.getValueMeta( i );
+    for (int i = 0; i < sourceFields.size(); i++) {
+      IValueMeta value = sourceFields.getValueMeta(i);
       inputNames[i] = value.getName() + "            (" + value.getOrigin() + ")";
     }
-    
+
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuilder missingSourceFields = new StringBuilder();
     StringBuilder missingTargetFields = new StringBuilder();
 
     int nrFields = wReturn.nrNonEmpty();
-    for ( int i = 0; i < nrFields; i++ ) {
-      TableItem item = wReturn.getNonEmpty( i );
-      String source = item.getText( 2 );
-      String target = item.getText( 1 );
+    for (int i = 0; i < nrFields; i++) {
+      TableItem item = wReturn.getNonEmpty(i);
+      String source = item.getText(2);
+      String target = item.getText(1);
 
-      int sourceIndex = sourceFields.indexOfValue( source );
-      if ( sourceIndex < 0 ) {
-        missingSourceFields.append( Const.CR ).append( "   " ).append( source ).append( " --> " ).append( target );
+      int sourceIndex = sourceFields.indexOfValue(source);
+      if (sourceIndex < 0) {
+        missingSourceFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
       }
-      int targetIndex = targetFields.indexOfValue( target );
-      if ( targetIndex < 0 ) {
-        missingTargetFields.append( Const.CR ).append( "   " ).append( source ).append( " --> " ).append( target );
+      int targetIndex = targetFields.indexOfValue(target);
+      if (targetIndex < 0) {
+        missingTargetFields
+            .append(Const.CR)
+            .append("   ")
+            .append(source)
+            .append(" --> ")
+            .append(target);
       }
-      if ( sourceIndex < 0 || targetIndex < 0 ) {
+      if (sourceIndex < 0 || targetIndex < 0) {
         continue;
       }
 
-      SourceToTargetMapping mapping = new SourceToTargetMapping( sourceIndex, targetIndex );
-      mappings.add( mapping );
+      SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
+      mappings.add(mapping);
     }
 
     // show a confirm dialog if some missing field was found
     //
-    if ( missingSourceFields.length() > 0 || missingTargetFields.length() > 0 ) {
+    if (missingSourceFields.length() > 0 || missingTargetFields.length() > 0) {
 
       String message = "";
-      if ( missingSourceFields.length() > 0 ) {
+      if (missingSourceFields.length() > 0) {
         message +=
-          BaseMessages.getString(
-            PKG, "OraBulkLoaderDialog.DoMapping.SomeSourceFieldsNotFound", missingSourceFields.toString() )
-            + Const.CR;
+            BaseMessages.getString(
+                    PKG,
+                    "OraBulkLoaderDialog.DoMapping.SomeSourceFieldsNotFound",
+                    missingSourceFields.toString())
+                + Const.CR;
       }
-      if ( missingTargetFields.length() > 0 ) {
+      if (missingTargetFields.length() > 0) {
         message +=
-          BaseMessages.getString(
-            PKG, "OraBulkLoaderDialog.DoMapping.SomeTargetFieldsNotFound", missingSourceFields.toString() )
-            + Const.CR;
+            BaseMessages.getString(
+                    PKG,
+                    "OraBulkLoaderDialog.DoMapping.SomeTargetFieldsNotFound",
+                    missingSourceFields.toString())
+                + Const.CR;
       }
       message += Const.CR;
       message +=
-        BaseMessages.getString( PKG, "OraBulkLoaderDialog.DoMapping.SomeFieldsNotFoundContinue" ) + Const.CR;
-     
+          BaseMessages.getString(PKG, "OraBulkLoaderDialog.DoMapping.SomeFieldsNotFoundContinue")
+              + Const.CR;
+
       int answer =
           BaseDialog.openMessageBox(
               shell,
               BaseMessages.getString(PKG, "OraBulkLoaderDialog.DoMapping.SomeFieldsNotFoundTitle"),
               message,
               SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
-      boolean goOn = (answer & SWT.OK) != 0;     
-      
-      if ( !goOn ) {
+      boolean goOn = (answer & SWT.OK) != 0;
+
+      if (!goOn) {
         return;
       }
     }
     EnterMappingDialog d =
-      new EnterMappingDialog( OraBulkLoaderDialog.this.shell, sourceFields.getFieldNames(), targetFields
-        .getFieldNames(), mappings );
+        new EnterMappingDialog(
+            OraBulkLoaderDialog.this.shell,
+            sourceFields.getFieldNames(),
+            targetFields.getFieldNames(),
+            mappings);
     mappings = d.open();
 
     // mappings == null if the user pressed cancel
     //
-    if ( mappings != null ) {
+    if (mappings != null) {
       // Clear and re-populate!
       //
       wReturn.table.removeAll();
-      wReturn.table.setItemCount( mappings.size() );
-      for ( int i = 0; i < mappings.size(); i++ ) {
-        SourceToTargetMapping mapping = mappings.get( i );
-        TableItem item = wReturn.table.getItem( i );
-        item.setText( 2, sourceFields.getValueMeta( mapping.getSourcePosition() ).getName() );
-        item.setText( 1, targetFields.getValueMeta( mapping.getTargetPosition() ).getName() );
+      wReturn.table.setItemCount(mappings.size());
+      for (int i = 0; i < mappings.size(); i++) {
+        SourceToTargetMapping mapping = mappings.get(i);
+        TableItem item = wReturn.table.getItem(i);
+        item.setText(2, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
+        item.setText(1, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
       }
       wReturn.setRowNums();
-      wReturn.optWidth( true );
+      wReturn.optWidth(true);
     }
   }
 }

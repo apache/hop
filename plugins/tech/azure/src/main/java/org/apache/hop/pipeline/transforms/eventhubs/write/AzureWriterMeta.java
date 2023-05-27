@@ -67,6 +67,7 @@ public class AzureWriterMeta extends BaseTransformMeta<AzureWrite, AzureWriterDa
     this.messageField = m.messageField;
   }
 
+  @Override
   public AzureWriterMeta clone() {
     return new AzureWriterMeta(this);
   }

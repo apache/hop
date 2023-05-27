@@ -18,40 +18,16 @@
 
 package org.apache.hop.neo4j.execution.path.pipeline;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.execution.ExecutionInfoLocation;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.neo4j.execution.NeoExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerLineageTab;
-import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerTabBase;
-import org.apache.hop.neo4j.execution.path.PathResult;
-import org.apache.hop.neo4j.logging.util.LoggingCore;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
-import org.neo4j.driver.Record;
-import org.neo4j.driver.Result;
-import org.neo4j.driver.Session;
-import org.neo4j.driver.Value;
-import org.neo4j.driver.types.Node;
-import org.neo4j.driver.types.Path;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @GuiPlugin
 public class NeoPipelineExecutionViewerLineageTab extends NeoExecutionViewerLineageTab {
@@ -68,8 +44,9 @@ public class NeoPipelineExecutionViewerLineageTab extends NeoExecutionViewerLine
       id = "90000-pipeline-execution-viewer-neo4j-execution-lineage-tab",
       parentId = PipelineExecutionViewer.PIPELINE_EXECUTION_VIEWER_TABS,
       description = "Execution lineage")
+  @Override
   public void addNeoExecutionPathTab(CTabFolder tabFolder) {
-   super.addNeoExecutionPathTab(tabFolder);
+    super.addNeoExecutionPathTab(tabFolder);
   }
 
   /**

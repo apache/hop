@@ -344,6 +344,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     wUseXOAUTH2.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             closeMailConnection();
             refreshPort(true);
@@ -1399,8 +1400,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
         input.getBatchSize() == null
             ? String.valueOf(MailInputMeta.DEFAULT_BATCH_SIZE)
             : input.getBatchSize().toString());
-    wStartMessage.setText(input.getStart() == null ? "" : input.getStart().toString());
-    wEndMessage.setText(input.getEnd() == null ? "" : input.getEnd().toString());
+    wStartMessage.setText(input.getStart() == null ? "" : input.getStart());
+    wEndMessage.setText(input.getEnd() == null ? "" : input.getEnd());
     wIgnoreFieldErrors.setSelection(input.isStopOnError());
     setBatchSettingsEnabled();
 

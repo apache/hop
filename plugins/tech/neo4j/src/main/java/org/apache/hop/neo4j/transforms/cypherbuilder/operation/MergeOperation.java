@@ -33,6 +33,7 @@ public class MergeOperation extends BaseOperation {
     super(o);
   }
 
+  @Override
   public MergeOperation clone() {
     return new MergeOperation(this);
   }

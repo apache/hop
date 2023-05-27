@@ -130,6 +130,7 @@ public class StyledTextComp extends Composite {
     textWidget.insert(strInsert);
   }
 
+  @Override
   public void addListener(int eventType, Listener listener) {
     textWidget.addListener(eventType, listener);
   }

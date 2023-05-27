@@ -576,10 +576,12 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
       toolTip = "i18n::ExecutionViewer.GuiAction.ZoomFitToScreen.Tooltip",
       type = GuiToolbarElementType.BUTTON,
       image = "ui/images/zoom-fit.svg")
+  @Override
   public void zoomFitToScreen() {
     super.zoomFitToScreen();
   }
 
+  @Override
   protected Point getArea() {
     org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
     Point area = new Point(rect.width, rect.height);
