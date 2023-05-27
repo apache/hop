@@ -42,7 +42,7 @@
     </licenses>
 
     <properties>
-        <parquet.version>1.12.3</parquet.version>
+        <parquet.version>1.13.1</parquet.version>
     </properties>
 
     <dependencies>
