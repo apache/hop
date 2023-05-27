@@ -38,21 +38,21 @@ public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<Act
     return Arrays.asList(
         "sql",
         "useVariableSubstitution",
-        "sqlfromfile",
-        "sqlfilename",
+        "sqlFromFile",
+        "sqlFilename",
         "sendOneStatement",
-        "database");
+        "connection");
   }
 
   @Override
   protected Map<String, String> createGettersMap() {
     return toMap(
         "sql", "getSql",
-        "useVariableSubstitution", "getUseVariableSubstitution",
-        "sqlfromfile", "getSqlFromFile",
-        "sqlfilename", "getSqlFilename",
+        "useVariableSubstitution", "isUseVariableSubstitution",
+        "sqlFromFile", "isSqlFromFile",
+        "sqlFilename", "getSqlFilename",
         "sendOneStatement", "isSendOneStatement",
-        "database", "getDatabase");
+        "connection", "getConnection");
   }
 
   @Override
@@ -60,9 +60,9 @@ public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<Act
     return toMap(
         "sql", "setSql",
         "useVariableSubstitution", "setUseVariableSubstitution",
-        "sqlfromfile", "setSqlFromFile",
-        "sqlfilename", "setSqlFilename",
+        "sqlFromFile", "setSqlFromFile",
+        "sqlFilename", "setSqlFilename",
         "sendOneStatement", "setSendOneStatement",
-        "database", "setDatabase");
+        "connection", "setConnection");
   }
 }
