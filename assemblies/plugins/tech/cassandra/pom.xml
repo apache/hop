@@ -32,7 +32,7 @@
   <description />
 
   <properties>
-    <cassandra-all.version>4.0.7</cassandra-all.version>
+    <cassandra-all.version>4.1.1</cassandra-all.version>
     <datastax-java-driver.version>4.15.0</datastax-java-driver.version>
     <datastax-native-protocol.version>1.5.1</datastax-native-protocol.version>
   </properties>
