@@ -88,9 +88,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     filenameExtension = "parquet";
     filenameDateTimeFormat = "yyyyMMdd-HHmmss";
     compressionCodec = CompressionCodecName.UNCOMPRESSED;
-    version = ParquetVersion.Version1; // The default is v1
-    rowGroupSize = Integer.toString(ParquetProperties.DEFAULT_PAGE_ROW_COUNT_LIMIT);
-    dataPageSize = Integer.toString(ParquetProperties.DEFAULT_PAGE_SIZE);
+    version = ParquetVersion.Version2; // The default is v2
+    rowGroupSize = Integer.toString(268435456);
+    dataPageSize = Integer.toString(8192);
     dictionaryPageSize = Integer.toString(ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE);
     fields = new ArrayList<>();
     filenameIncludingCopyNr = true;
