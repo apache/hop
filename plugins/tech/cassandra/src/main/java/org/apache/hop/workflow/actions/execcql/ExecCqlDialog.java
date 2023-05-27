@@ -215,6 +215,7 @@ public class ExecCqlDialog extends ActionDialog implements IActionDialog {
     dispose();
   }
 
+  @Override
   public void dispose() {
     props.setScreen(new WindowProperty(shell));
     shell.dispose();

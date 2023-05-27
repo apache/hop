@@ -19,6 +19,8 @@
 package org.apache.hop.workflow.actions.getpop;
 
 import jakarta.mail.Folder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -58,9 +60,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 /** This dialog allows you to edit the Get POP action settings. */
 public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
@@ -362,29 +361,31 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
         });
 
     // USE connection with XOAUTH2
-    Label wlUseXOAUTH2 = new Label( wServerSettings, SWT.RIGHT );
-    wlUseXOAUTH2.setText( BaseMessages.getString( PKG, "ActionGetPOP.UseXOAUTH2Mails.Label" ) );
-    PropsUi.setLook( wlUseXOAUTH2 );
+    Label wlUseXOAUTH2 = new Label(wServerSettings, SWT.RIGHT);
+    wlUseXOAUTH2.setText(BaseMessages.getString(PKG, "ActionGetPOP.UseXOAUTH2Mails.Label"));
+    PropsUi.setLook(wlUseXOAUTH2);
     FormData fdlUseXOAUTH2 = new FormData();
-    fdlUseXOAUTH2.left = new FormAttachment( 0, 0 );
-    fdlUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
-    fdlUseXOAUTH2.right = new FormAttachment( middle, -margin );
-    wlUseXOAUTH2.setLayoutData( fdlUseXOAUTH2 );
-    wUseXOAUTH2 = new Button( wServerSettings, SWT.CHECK );
-    PropsUi.setLook( wUseXOAUTH2 );
+    fdlUseXOAUTH2.left = new FormAttachment(0, 0);
+    fdlUseXOAUTH2.top = new FormAttachment(wUseSSL, margin);
+    fdlUseXOAUTH2.right = new FormAttachment(middle, -margin);
+    wlUseXOAUTH2.setLayoutData(fdlUseXOAUTH2);
+    wUseXOAUTH2 = new Button(wServerSettings, SWT.CHECK);
+    PropsUi.setLook(wUseXOAUTH2);
     FormData fdUseXOAUTH2 = new FormData();
-    wUseXOAUTH2.setToolTipText( BaseMessages.getString( PKG, "ActionGetPOP.UseXOAUTH2Mails.Tooltip" ) );
-    fdUseXOAUTH2.left = new FormAttachment( middle, 0 );
-    fdUseXOAUTH2.top = new FormAttachment( wUseSSL, margin );
-    fdUseXOAUTH2.right = new FormAttachment( 100, 0 );
-    wUseXOAUTH2.setLayoutData( fdUseXOAUTH2 );
+    wUseXOAUTH2.setToolTipText(BaseMessages.getString(PKG, "ActionGetPOP.UseXOAUTH2Mails.Tooltip"));
+    fdUseXOAUTH2.left = new FormAttachment(middle, 0);
+    fdUseXOAUTH2.top = new FormAttachment(wUseSSL, margin);
+    fdUseXOAUTH2.right = new FormAttachment(100, 0);
+    wUseXOAUTH2.setLayoutData(fdUseXOAUTH2);
 
-    wUseXOAUTH2.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        closeMailConnection();
-        refreshPort( true );
-      }
-    } );
+    wUseXOAUTH2.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            closeMailConnection();
+            refreshPort(true);
+          }
+        });
 
     // port
     Label wlPort = new Label(wServerSettings, SWT.RIGHT);
@@ -1412,7 +1413,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
             dialog.setLayout(new GridLayout(3, false));
 
             final DateTime calendar = new DateTime(dialog, SWT.CALENDAR);
-            final DateTime time = new DateTime(dialog, SWT.TIME | SWT.TIME);
+            final DateTime time = new DateTime(dialog, SWT.TIME);
             new Label(dialog, SWT.NONE);
             new Label(dialog, SWT.NONE);
 
@@ -1479,7 +1480,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
             dialogto.setLayout(new GridLayout(3, false));
 
             final DateTime calendarto = new DateTime(dialogto, SWT.CALENDAR | SWT.BORDER);
-            final DateTime timeto = new DateTime(dialogto, SWT.TIME | SWT.TIME);
+            final DateTime timeto = new DateTime(dialogto, SWT.TIME);
             new Label(dialogto, SWT.NONE);
             new Label(dialogto, SWT.NONE);
             Button okto = new Button(dialogto, SWT.PUSH);
@@ -1687,8 +1688,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
   private void conditionReceivedDate() {
     boolean activeReceivedDate =
-        !(MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
-            == MailConnectionMeta.CONDITION_DATE_IGNORE);
+        (MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
+            != MailConnectionMeta.CONDITION_DATE_IGNORE);
     boolean useBetween =
         (MailConnectionMeta.getConditionDateByDesc(wConditionOnReceivedDate.getText())
             == MailConnectionMeta.CONDITION_DATE_BETWEEN);
@@ -1867,6 +1868,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wFirstmails.setEnabled(ok);
   }
 
+  @Override
   public void dispose() {
     closeMailConnection();
     super.dispose();

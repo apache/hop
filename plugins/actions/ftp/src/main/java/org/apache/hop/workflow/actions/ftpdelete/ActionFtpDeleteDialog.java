@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
+import java.net.InetAddress;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -55,8 +56,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.net.InetAddress;
 
 /** This dialog allows you to edit the FTP Delete action settings. */
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
@@ -150,8 +149,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
-
-    WorkflowMeta workflowMeta = getWorkflowMeta();
 
     ModifyListener lsMod =
         e -> {
@@ -1053,7 +1050,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     boolean success = false;
     String realServername = null;
     try {
-      WorkflowMeta workflowMeta = getWorkflowMeta();
 
       if (ftpclient == null || !ftpclient.isConnected()) {
         // Create ftp client to host:port ...
@@ -1091,8 +1087,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   private boolean connectToSftp() {
     boolean retval = false;
     try {
-
-      WorkflowMeta workflowMeta = getWorkflowMeta();
 
       if (sftpclient == null) {
         // Create sftp client to host ...
@@ -1133,6 +1127,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wNrErrorsLessThan.setEnabled(wSuccessCondition.getSelectionIndex() != 0);
   }
 
+  @Override
   public void dispose() {
     closeFtpConnections();
     super.dispose();
@@ -1215,7 +1210,6 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     actionFtpDelete.setRemoteDirectory(wFtpDirectory.getText());
     actionFtpDelete.setWildcard(wWildcard.getText());
     actionFtpDelete.setTimeout(Const.toInt(wTimeout.getText(), 10000));
-    
 
     actionFtpDelete.setUseProxy(wUseProxy.getSelection());
     actionFtpDelete.setProxyHost(wProxyHost.getText());

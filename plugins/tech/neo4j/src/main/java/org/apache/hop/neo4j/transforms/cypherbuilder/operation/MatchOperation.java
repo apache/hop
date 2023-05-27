@@ -32,6 +32,7 @@ public class MatchOperation extends BaseOperation {
     super(o);
   }
 
+  @Override
   public MatchOperation clone() {
     return new MatchOperation(this);
   }

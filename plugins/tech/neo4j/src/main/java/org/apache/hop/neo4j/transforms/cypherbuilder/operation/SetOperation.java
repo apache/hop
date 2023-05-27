@@ -33,6 +33,7 @@ public class SetOperation extends BaseOperation {
     super(o);
   }
 
+  @Override
   public SetOperation clone() {
     return new SetOperation(this);
   }

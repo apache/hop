@@ -199,6 +199,7 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     this.metadataFieldName = meta.metadataFieldName;
   }
 
+  @Override
   public TikaMeta clone() {
     return new TikaMeta(this);
   }
@@ -380,7 +381,7 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     } else {
       FileInputList fileInputList = getFiles(variables);
 
-      if (fileInputList == null || fileInputList.getFiles().size() == 0) {
+      if (fileInputList == null || fileInputList.getFiles().isEmpty()) {
         cr =
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
@@ -432,6 +433,7 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     }
   }
 
+  @Override
   public boolean supportsErrorHandling() {
     return true;
   }

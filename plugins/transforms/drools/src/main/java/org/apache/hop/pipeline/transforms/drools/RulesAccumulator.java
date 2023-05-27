@@ -27,7 +27,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, RulesAccumulatorData> {
-  private static Class<?> PKG = Rules.class; // for i18n purposes
+  private static final Class<?> PKG = Rules.class; // for i18n purposes
 
   public RulesAccumulator(
           TransformMeta transformMeta,
@@ -39,6 +39,7 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
 
     if ( super.init() ) {
@@ -74,10 +75,7 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
     }
   }
 
-  public void dispose( ) {
-     super.dispose();
-  }
-
+  @Override
   public boolean processRow() throws HopException {
     try {
       Object[] r = getRow(); // get row, set busy!

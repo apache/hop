@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.vertica.bulkloader;
 
+import java.util.*;
+import java.util.List;
 import org.apache.hop.core.*;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -54,67 +56,38 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-import java.util.List;
-import java.util.*;
-
 public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG =
+  private static final Class<?> PKG =
       VerticaBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wMainTab, wFieldsTab;
-  private FormData fdMainComp, fdFieldsComp;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlTruncate;
   private Button wTruncate;
 
   private Button wOnlyWhenHaveRows;
-  private Label wlSchema;
+
   private TextVar wSchema;
-  private FormData fdlSchema, fdSchema;
 
-  private Label wlTable;
-  private Button wbTable;
   private TextVar wTable;
-  private FormData fdlTable, fdbTable, fdTable;
 
-  private Label wlExceptionsLogFile;
   private TextVar wExceptionsLogFile;
-  private FormData fdlExceptionsLogFile, fdExceptionsLogFile;
 
-  private Label wlRejectedDataLogFile;
   private TextVar wRejectedDataLogFile;
-  private FormData fdlRejectedDataLogFile, fdRejectedDataLogFile;
 
-  private Label wlStreamName;
   private TextVar wStreamName;
-  private FormData fdlStreamName, fdStreamName;
 
-  private Label wlAbortOnError;
   private Button wAbortOnError;
-  private FormData fdlAbortOnError, fdAbortOnError;
 
-  private Label wlDirect;
   private Button wDirect;
-  private FormData fdlDirect, fdDirect;
 
-  private Label wlSpecifyFields;
   private Button wSpecifyFields;
-  private FormData fdlSpecifyFields, fdSpecifyFields;
 
-  private Label wlFields;
   private TableView wFields;
 
   private Button wGetFields;
-  private FormData fdGetFields;
 
   private Button wDoMapping;
-  private FormData fdDoMapping;
 
   private VerticaBulkLoaderMeta input;
 
@@ -123,33 +96,57 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
   private ColumnInfo[] ciFields;
 
   /** List of ColumnInfo that should have the field names of the selected database table */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   /** Constructor. */
   public VerticaBulkLoaderDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
     input = (VerticaBulkLoaderMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   /** Open the dialog. */
   public String open() {
+    FormData fdDoMapping;
+    FormData fdGetFields;
+    Label wlFields;
+    FormData fdSpecifyFields;
+    Label wlSpecifyFields;
+    FormData fdDirect;
+    FormData fdAbortOnError;
+    FormData fdlAbortOnError;
+    Label wlAbortOnError;
+    FormData fdStreamName;
+    Label wlStreamName;
+    FormData fdRejectedDataLogFile;
+    FormData fdlRejectedDataLogFile;
+    Label wlRejectedDataLogFile;
+    FormData fdExceptionsLogFile;
+    FormData fdlExceptionsLogFile;
+    Label wlExceptionsLogFile;
+    FormData fdbTable;
+    FormData fdlTable;
+    Button wbTable;
+    FormData fdSchema;
+    FormData fdlSchema;
+    Label wlSchema;
+    FormData fdMainComp;
+    CTabItem wFieldsTab;
+    CTabItem wMainTab;
+    FormData fdTabFolder;
+    CTabFolder wTabFolder;
+    Label wlTruncate;
     Shell parent = getParent();
-    Display display = parent.getDisplay();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            input.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> input.setChanged();
     FocusListener lsFocusLost =
         new FocusAdapter() {
+          @Override
           public void focusLost(FocusEvent arg0) {
             setTableFieldCombo();
           }
@@ -192,12 +189,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
       wConnection.select(0);
     }
     wConnection.addModifyListener(lsMod);
-    wConnection.addModifyListener(
-        new ModifyListener() {
-          public void modifyText(ModifyEvent event) {
-            setFlags();
-          }
-        });
+    wConnection.addModifyListener(event -> setFlags());
 
     // Schema line...
     wlSchema = new Label(shell, SWT.RIGHT);
@@ -221,7 +213,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    wlTable = new Label(shell, SWT.RIGHT);
+    Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.TargetTable.Label"));
     PropsUi.setLook(wlTable);
     fdlTable = new FormData();
@@ -242,7 +234,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     PropsUi.setLook(wTable);
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
-    fdTable = new FormData();
+    FormData fdTable = new FormData();
     fdTable.top = new FormAttachment(wSchema, margin);
     fdTable.left = new FormAttachment(middle, 0);
     fdTable.right = new FormAttachment(wbTable, -margin);
@@ -250,6 +242,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     SelectionAdapter lsSelMod =
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             input.setChanged();
           }
@@ -272,25 +265,25 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     fdTruncate.right = new FormAttachment(100, 0);
     wTruncate.setLayoutData(fdTruncate);
     SelectionAdapter lsTruncMod =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent arg0) {
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            input.setChanged();
+          }
+        };
     wTruncate.addSelectionListener(lsTruncMod);
     wTruncate.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                setFlags();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            setFlags();
+          }
+        });
 
     // Truncate only when have rows
     Label wlOnlyWhenHaveRows = new Label(shell, SWT.RIGHT);
     wlOnlyWhenHaveRows.setText(
-            BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.OnlyWhenHaveRows.Label"));
+        BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.OnlyWhenHaveRows.Label"));
     PropsUi.setLook(wlOnlyWhenHaveRows);
     FormData fdlOnlyWhenHaveRows = new FormData();
     fdlOnlyWhenHaveRows.left = new FormAttachment(0, 0);
@@ -299,7 +292,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
     wOnlyWhenHaveRows = new Button(shell, SWT.CHECK);
     wOnlyWhenHaveRows.setToolTipText(
-            BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.OnlyWhenHaveRows.Tooltip"));
+        BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.OnlyWhenHaveRows.Tooltip"));
     PropsUi.setLook(wOnlyWhenHaveRows);
     FormData fdTruncateWhenHaveRows = new FormData();
     fdTruncateWhenHaveRows.left = new FormAttachment(middle, 0);
@@ -308,13 +301,12 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wOnlyWhenHaveRows.setLayoutData(fdTruncateWhenHaveRows);
     wOnlyWhenHaveRows.addSelectionListener(lsSelMod);
 
-
     // Specify fields
     wlSpecifyFields = new Label(shell, SWT.RIGHT);
     wlSpecifyFields.setText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.SpecifyFields.Label"));
     PropsUi.setLook(wlSpecifyFields);
-    fdlSpecifyFields = new FormData();
+    FormData fdlSpecifyFields = new FormData();
     fdlSpecifyFields.left = new FormAttachment(0, 0);
     fdlSpecifyFields.top = new FormAttachment(wOnlyWhenHaveRows, margin);
     fdlSpecifyFields.right = new FormAttachment(middle, -margin);
@@ -331,6 +323,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     // If the flag is off, gray out the fields tab e.g.
     wSpecifyFields.addSelectionListener(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent arg0) {
             setFlags();
           }
@@ -362,12 +355,12 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wMainComp.setLayoutData(fdMainComp);
 
     // Insert directly to ROS
-    wlDirect = new Label(wMainComp, SWT.RIGHT);
+    Label wlDirect = new Label(wMainComp, SWT.RIGHT);
     wlDirect.setText(BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.InsertDirect.Label"));
     wlDirect.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.InsertDirect.Tooltip"));
     PropsUi.setLook(wlDirect);
-    fdlDirect = new FormData();
+    FormData fdlDirect = new FormData();
     fdlDirect.left = new FormAttachment(0, 0);
     fdlDirect.top = new FormAttachment(0, margin);
     fdlDirect.right = new FormAttachment(middle, -margin);
@@ -471,7 +464,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlStreamName.setToolTipText(
         BaseMessages.getString(PKG, "VerticaBulkLoaderDialog.StreamName.Tooltip")); // $NON-NLS-1$
     PropsUi.setLook(wlStreamName);
-    fdlStreamName = new FormData();
+    FormData fdlStreamName = new FormData();
     fdlStreamName.left = new FormAttachment(0, 0);
     fdlStreamName.right = new FormAttachment(middle, -margin);
     fdlStreamName.top = new FormAttachment(wlRejectedDataLogFile, margin * 2);
@@ -519,8 +512,10 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wlFields.setLayoutData(fdlUpIns);
 
     int tableCols = 2;
-    int UpInsRows = (input.getFields() != null && !input.getFields().equals(Collections.emptyList())
-            ? input.getFields().size() : 1 );
+    int upInsRows =
+        (input.getFields() != null && !input.getFields().equals(Collections.emptyList())
+            ? input.getFields().size()
+            : 1);
 
     ciFields = new ColumnInfo[tableCols];
     ciFields[0] =
@@ -542,7 +537,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
             wFieldsComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
             ciFields,
-            UpInsRows,
+            upInsRows,
             lsMod,
             props);
 
@@ -577,7 +572,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     fdFields.bottom = new FormAttachment(100, -2 * margin);
     wFields.setLayoutData(fdFields);
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
     fdFieldsComp.top = new FormAttachment(0, 0);
     fdFieldsComp.right = new FormAttachment(100, 0);
@@ -698,7 +693,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuffer missingSourceFields = new StringBuffer();
     StringBuffer missingTargetFields = new StringBuffer();
 
@@ -790,42 +785,40 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
   private void setTableFieldCombo() {
     Runnable fieldLoader =
-        new Runnable() {
-          public void run() {
-            // clear
-            for (int i = 0; i < tableFieldColumns.size(); i++) {
-              ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
-              colInfo.setComboValues(new String[] {});
-            }
-            if (!StringUtil.isEmpty(wTable.getText())) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-              if (databaseMeta != null) {
-                try (Database db = new Database(loggingObject, variables, databaseMeta)) {
-                  db.connect();
+        () -> {
+          // clear
+          for (int i = 0; i < tableFieldColumns.size(); i++) {
+            ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
+            colInfo.setComboValues(new String[] {});
+          }
+          if (!StringUtil.isEmpty(wTable.getText())) {
+            DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+            if (databaseMeta != null) {
+              try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+                db.connect();
 
-                  String schemaTable =
-                      databaseMeta.getQuotedSchemaTableCombination(
-                          variables,
-                          variables.resolve(wSchema.getText()),
-                          variables.resolve(wTable.getText()));
-                  IRowMeta r = db.getTableFields(schemaTable);
-                  if (null != r) {
-                    String[] fieldNames = r.getFieldNames();
-                    if (null != fieldNames) {
-                      for (int i = 0; i < tableFieldColumns.size(); i++) {
-                        ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
-                        colInfo.setComboValues(fieldNames);
-                      }
+                String schemaTable =
+                    databaseMeta.getQuotedSchemaTableCombination(
+                        variables,
+                        variables.resolve(wSchema.getText()),
+                        variables.resolve(wTable.getText()));
+                IRowMeta r = db.getTableFields(schemaTable);
+                if (null != r) {
+                  String[] fieldNames = r.getFieldNames();
+                  if (null != fieldNames) {
+                    for (int i = 0; i < tableFieldColumns.size(); i++) {
+                      ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
+                      colInfo.setComboValues(fieldNames);
                     }
                   }
-                } catch (Exception e) {
-                  for (int i = 0; i < tableFieldColumns.size(); i++) {
-                    ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
-                    colInfo.setComboValues(new String[] {});
-                  }
-                  // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user
                 }
+              } catch (Exception e) {
+                for (int i = 0; i < tableFieldColumns.size(); i++) {
+                  ColumnInfo colInfo = (ColumnInfo) tableFieldColumns.get(i);
+                  colInfo.setComboValues(new String[] {});
+                }
+                // ignore any errors here. drop downs will not be
+                // filled, but no problem for the user
               }
             }
           }
@@ -836,17 +829,17 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll(inputFields);
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>(keySet);
+    List<String> entries = new ArrayList<>(keySet);
 
     String[] fieldNames = (String[]) entries.toArray(new String[entries.size()]);
 
-    if ( PropsUi.getInstance().isSortFieldByName() ) {
+    if (PropsUi.getInstance().isSortFieldByName()) {
       Const.sortStrings(fieldNames);
     }
     ciFields[1].setComboValues(fieldNames);
@@ -857,7 +850,6 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     wFields.setEnabled(specifyFields);
     wGetFields.setEnabled(specifyFields);
     wDoMapping.setEnabled(specifyFields);
-
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -934,10 +926,9 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      VerticaBulkLoaderField vbf = new VerticaBulkLoaderField(
-              Const.NVL(item.getText(1), ""),
-              Const.NVL(item.getText(2), "")
-      );
+      VerticaBulkLoaderField vbf =
+          new VerticaBulkLoaderField(
+              Const.NVL(item.getText(1), ""), Const.NVL(item.getText(2), ""));
       info.getFields().add(vbf);
     }
   }
@@ -1051,12 +1042,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  databaseMeta,
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
@@ -1079,6 +1065,7 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
     }
   }
 
+  @Override
   public String toString() {
     return this.getClass().getName();
   }

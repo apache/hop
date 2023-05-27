@@ -18,6 +18,13 @@
 package org.apache.hop.www.async;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -38,14 +45,6 @@ import org.apache.hop.www.IHopServerPlugin;
 import org.apache.hop.www.PipelineMap;
 import org.apache.hop.www.WebServiceServlet;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-
 @HopServerServlet(
     id = "asyncStatus",
     name = "Get the status of an asynchronously executing workflow")
@@ -63,6 +62,7 @@ public class AsyncStatusServlet extends BaseHttpServlet implements IHopServerPlu
     super(pipelineMap);
   }
 
+  @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 

@@ -67,6 +67,7 @@ public class CypherScript extends ActionBase implements IAction {
     this.replacingVariables = s.replacingVariables;
   }
 
+  @Override
   public CypherScript clone() {
     return new CypherScript(this);
   }

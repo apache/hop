@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.Arrays;
 
 public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecutorData> {
-  private static Class<?> PKG = Rules.class; // for i18n purposes
+  private static final Class<?> PKG = Rules.class; // for i18n purposes
 
   public RulesExecutor(
       TransformMeta transformMeta,
@@ -40,6 +40,7 @@ public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecuto
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
+  @Override
   public boolean init() {
 
     if (super.init()) {
@@ -70,10 +71,7 @@ public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecuto
     return true;
   }
 
-  public void dispose() {
-    super.dispose();
-  }
-
+  @Override
   public boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row, set busy!

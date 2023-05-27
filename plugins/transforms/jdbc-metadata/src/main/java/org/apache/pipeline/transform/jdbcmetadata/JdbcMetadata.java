@@ -246,6 +246,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
     return outputRow;
   }
 
+  @Override
   public boolean processRow() throws HopException {
 
     // get incoming row, getRow() potentially blocks waiting for more rows, returns null if no more
@@ -379,7 +380,6 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
       ResultSet resultSet = (ResultSet) data.method.invoke(databaseMetaData, data.arguments);
       ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
       int columnCount = resultSetMetaData.getColumnCount();
-      IValueMeta IValueMeta;
       Object value;
       boolean outputRows = false;
       int k;

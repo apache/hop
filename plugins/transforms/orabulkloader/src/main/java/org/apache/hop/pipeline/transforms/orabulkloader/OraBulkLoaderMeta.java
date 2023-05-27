@@ -51,12 +51,12 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/orabulkloader.html")
 public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkLoaderData> implements
 IProvidesDatabaseConnectionInformation {
-  private static Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private static int DEFAULT_COMMIT_SIZE = 100000; // The bigger the better for Oracle
-  private static int DEFAULT_BIND_SIZE = 0;
-  private static int DEFAULT_READ_SIZE = 0;
-  private static int DEFAULT_MAX_ERRORS = 50;
+  private static final int DEFAULT_COMMIT_SIZE = 100000; // The bigger the better for Oracle
+  private static final int DEFAULT_BIND_SIZE = 0;
+  private static final int DEFAULT_READ_SIZE = 0;
+  private static final int DEFAULT_MAX_ERRORS = 50;
 
   /** Database connection */
   @HopMetadataProperty(
@@ -353,6 +353,7 @@ IProvidesDatabaseConnectionInformation {
   }
 
 
+  @Override
   public void setDefault() {
     databaseMeta = null;
     commitSize = Integer.toString( DEFAULT_COMMIT_SIZE );
@@ -380,6 +381,8 @@ IProvidesDatabaseConnectionInformation {
     mappings = new ArrayList<>();
   }
 
+
+  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -391,7 +394,7 @@ IProvidesDatabaseConnectionInformation {
       IVariables variables,
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, variables, databaseMeta );      
@@ -405,8 +408,8 @@ IProvidesDatabaseConnectionInformation {
           remarks.add( cr );
 
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
           // Check fields in table
           String schemaTable =
@@ -420,8 +423,8 @@ IProvidesDatabaseConnectionInformation {
 
             // How about the fields to insert/dateMask in the table?
             first = true;
-            error_found = false;
-            error_message = "";
+            errorFound = false;
+            errorMessage = "";
 
             for (int i = 0; i < mappings.size(); i++) {
               String field = mappings.get(i).getFieldTable();
@@ -430,17 +433,17 @@ IProvidesDatabaseConnectionInformation {
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString(
                       PKG, "OraBulkLoaderMeta.CheckResult.MissingFieldsToLoadInTargetTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + field + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + field + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -448,8 +451,8 @@ IProvidesDatabaseConnectionInformation {
             }
             remarks.add( cr );
           } else {
-            error_message = BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
@@ -462,23 +465,23 @@ IProvidesDatabaseConnectionInformation {
           remarks.add( cr );
 
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for (int i = 0; i < mappings.size(); i++) {
             IValueMeta valueMeta = prev.searchValueMeta(mappings.get(i).getFieldStream());
             if ( valueMeta == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + mappings.get(i).getFieldStream() + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + mappings.get(i).getFieldStream() + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -486,22 +489,22 @@ IProvidesDatabaseConnectionInformation {
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.MissingFieldsInInput3" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.DatabaseErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "OraBulkLoaderMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 
@@ -614,6 +617,7 @@ IProvidesDatabaseConnectionInformation {
     this.directPath = directPath;
   }
 
+  @Override
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
     String realTableName = variables.resolve( tableName );
     String realSchemaName = variables.resolve( schemaName );

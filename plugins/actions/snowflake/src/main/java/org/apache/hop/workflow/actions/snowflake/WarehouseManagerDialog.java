@@ -1002,6 +1002,7 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
     wAlterGroup.setVisible(wAction.getSelectionIndex() == WarehouseManager.MANAGEMENT_ACTION_ALTER);
   }
 
+  @Override
   public void dispose() {
     WindowProperty winprop = new WindowProperty(shell);
     props.setScreen(winprop);

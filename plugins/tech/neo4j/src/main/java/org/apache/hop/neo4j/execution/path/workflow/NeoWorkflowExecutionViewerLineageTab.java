@@ -23,7 +23,6 @@ import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.NeoExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerLineageTab;
-import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.execution.WorkflowExecutionViewer;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
@@ -45,8 +44,9 @@ public class NeoWorkflowExecutionViewerLineageTab extends NeoExecutionViewerLine
       id = "90000-workflow-execution-viewer-neo4j-execution-lineage-tab",
       parentId = WorkflowExecutionViewer.WORKFLOW_EXECUTION_VIEWER_TABS,
       description = "Execution lineage")
+  @Override
   public void addNeoExecutionPathTab(CTabFolder tabFolder) {
-   super.addNeoExecutionPathTab(tabFolder);
+    super.addNeoExecutionPathTab(tabFolder);
   }
 
   /**

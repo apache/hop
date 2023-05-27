@@ -330,6 +330,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return "Hop Server";
   }
 
+  @Override
   public boolean equals(Object obj) {
     if (!(obj instanceof HopServer)) {
       return false;
@@ -338,6 +339,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return name.equalsIgnoreCase(server.getName());
   }
 
+  @Override
   public int hashCode() {
     return name.toLowerCase().hashCode();
   }

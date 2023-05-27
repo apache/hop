@@ -59,6 +59,7 @@ public class EdgeMatchOperation extends BaseOperation {
     this.targetAlias = o.targetAlias;
   }
 
+  @Override
   public EdgeMatchOperation clone() {
     return new EdgeMatchOperation(this);
   }

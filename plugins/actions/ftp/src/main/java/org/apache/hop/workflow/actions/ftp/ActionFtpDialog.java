@@ -944,7 +944,9 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wIfFileExists.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            //Ignore widget selected event
+          }
         });
 
     // Add filenames to result filenames...
@@ -1334,6 +1336,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wlAddTime.setEnabled(!wSpecifyFormat.getSelection());
   }
 
+  @Override
   public void dispose() {
     closeFtpConnection();
     super.dispose();

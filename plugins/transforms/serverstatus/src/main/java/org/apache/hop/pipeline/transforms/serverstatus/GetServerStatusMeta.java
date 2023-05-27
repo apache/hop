@@ -122,6 +122,7 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     this.responseNsField = meta.responseNsField;
   }
 
+  @Override
   public GetServerStatusMeta clone() {
     return new GetServerStatusMeta(this);
   }

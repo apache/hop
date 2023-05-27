@@ -114,6 +114,7 @@ public class RandomRowsExecutionDataSamplerStore
    *
    * @return value of samplerMeta
    */
+  @Override
   public ExecutionDataSamplerMeta getSamplerMeta() {
     return samplerMeta;
   }

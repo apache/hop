@@ -128,8 +128,6 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 
-    WorkflowMeta workflowMeta = getWorkflowMeta();
-
     ModifyListener lsMod =
         e -> {
           ftpclient = null;
@@ -868,7 +866,6 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     boolean retval = false;
     String realServername = null;
     try {
-      WorkflowMeta workflowMeta = getWorkflowMeta();
       ActionFtpPut actionFtpPut = new ActionFtpPut();
       getInfo(actionFtpPut);
 
@@ -916,6 +913,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     return retval;
   }
 
+  @Override
   public void dispose() {
     closeFtpConnection();
     super.dispose();

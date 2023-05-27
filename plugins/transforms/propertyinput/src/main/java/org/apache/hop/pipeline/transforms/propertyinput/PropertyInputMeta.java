@@ -194,6 +194,7 @@ public class PropertyInputMeta extends BaseTransformMeta<PropertyInput, Property
     m.inputFields.forEach(f -> this.inputFields.add(new PIField(f)));
   }
 
+  @Override
   public PropertyInputMeta clone() {
     return new PropertyInputMeta(this);
   }

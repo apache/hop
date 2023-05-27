@@ -671,10 +671,12 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
       toolTip = "i18n::ExecutionViewer.GuiAction.ZoomFitToScreen.Tooltip",
       type = GuiToolbarElementType.BUTTON,
       image = "ui/images/zoom-fit.svg")
+  @Override
   public void zoomFitToScreen() {
     super.zoomFitToScreen();
   }
 
+  @Override
   protected Point getArea() {
     org.eclipse.swt.graphics.Rectangle rect = canvas.getClientArea();
     Point area = new Point(rect.width, rect.height);
@@ -1252,6 +1254,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
    *
    * @return value of execution
    */
+  @Override
   public Execution getExecution() {
     return execution;
   }
@@ -1279,6 +1282,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
    *
    * @return value of locationName
    */
+  @Override
   public String getLocationName() {
     return locationName;
   }
@@ -1324,6 +1328,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
    *
    * @return value of perspective
    */
+  @Override
   public ExecutionPerspective getPerspective() {
     return perspective;
   }
