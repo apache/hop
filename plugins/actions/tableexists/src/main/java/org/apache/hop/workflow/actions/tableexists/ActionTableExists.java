@@ -17,15 +17,18 @@
 
 package org.apache.hop.workflow.actions.tableexists;
 
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.util.Utils;import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.HopMetadataProperty;import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -34,8 +37,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-
-import java.util.List;
 
 /** This defines a table exists action. */
 @Action(
@@ -49,13 +50,13 @@ import java.util.List;
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTableExists.class; // For Translator
 
-  @HopMetadataProperty(key="tablename")
+  @HopMetadataProperty(key = "tablename")
   private String tableName;
 
-  @HopMetadataProperty(key="schemaname")
+  @HopMetadataProperty(key = "schemaname")
   private String schemaName;
 
-  @HopMetadataProperty(key="connection")
+  @HopMetadataProperty(key = "connection")
   private String connection;
 
   public ActionTableExists(String n) {
