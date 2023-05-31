@@ -148,7 +148,7 @@
         <jakarta-mail.version>2.0.1</jakarta-mail.version>
         <jandex.version>3.0.5</jandex.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <jetty.version>9.4.51.v20230217</jetty.version>
+        <jetty.version>9.4.41.v20210516</jetty.version>
         <joda-time.version>2.12.1</joda-time.version>
         <json4s.version>3.7.0-M11</json4s.version>
         <json-simple.version>1.1.1</json-simple.version>
