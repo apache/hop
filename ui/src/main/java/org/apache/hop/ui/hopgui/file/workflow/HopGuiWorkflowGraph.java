@@ -17,6 +17,14 @@
 
 package org.apache.hop.ui.hopgui.file.workflow;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -156,15 +164,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.ToolTip;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 /** Handles the display of Workflows in HopGui, in a graphical form. */
 @GuiPlugin(description = "Workflow Graph tab")
@@ -2827,6 +2826,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       workflowPainter.setMaximum(maximum);
       workflowPainter.setShowingNavigationView(true);
       workflowPainter.setScreenMagnification(magnification);
+      workflowPainter.setShowingNavigationView(!PropsUi.getInstance().isHideViewportEnabled());
 
       try {
         workflowPainter.drawWorkflow();

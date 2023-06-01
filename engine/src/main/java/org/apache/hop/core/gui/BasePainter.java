@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.gui;
 
+import java.util.List;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
@@ -29,8 +30,6 @@ import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.util.List;
 
 public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBaseMeta> {
 
@@ -238,7 +237,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   protected Point real2screen(int x, int y) {
-    Point screen = new Point((int)(x + offset.x), (int)(y + offset.y));
+    Point screen = new Point((int) (x + offset.x), (int) (y + offset.y));
 
     return screen;
   }
@@ -270,13 +269,13 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     Point bounds = gc.getDeviceBounds();
     for (int x = 0; x < bounds.x; x += gridSize) {
       for (int y = 0; y < bounds.y; y += gridSize) {
-        gc.drawPoint((int)(x + (offset.x % gridSize)), (int)(y + (offset.y % gridSize)));
+        gc.drawPoint((int) (x + (offset.x % gridSize)), (int) (y + (offset.y % gridSize)));
       }
     }
   }
 
   protected int round(double value) {
-    return (int)Math.round(value);
+    return (int) Math.round(value);
   }
 
   protected int calcArrowLength() {
