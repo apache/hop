@@ -3309,6 +3309,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       pipelinePainter.setMaximum(maximum);
       pipelinePainter.setShowingNavigationView(true);
       pipelinePainter.setScreenMagnification(magnification);
+      pipelinePainter.setShowingNavigationView(!PropsUi.getInstance().isHideViewportEnabled());
 
       try {
         pipelinePainter.drawPipelineImage();

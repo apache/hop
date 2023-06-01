@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline;
 
+import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -49,17 +54,6 @@ import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.text.DecimalFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.apache.hop.core.gui.IGc.EColor;
-import static org.apache.hop.core.gui.IGc.EFont;
-import static org.apache.hop.core.gui.IGc.EImage;
-import static org.apache.hop.core.gui.IGc.ELineStyle;
 
 public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 
@@ -202,7 +196,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Draw the pipeline onto the image
     //
-    gc.setTransform((float)offset.x, (float)offset.y, magnification);
+    gc.setTransform((float) offset.x, (float) offset.y, magnification);
     gc.setAlpha(255);
     drawPipeline();
 
@@ -790,7 +784,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Show an information icon in the upper left corner of the transform...
     //
-    if ( !Utils.isEmpty(transformMeta.getDescription()) ) {
+    if (!Utils.isEmpty(transformMeta.getDescription())) {
       int xInfo = x - (miniIconSize / 2) - 1;
       int yInfo = y - (miniIconSize / 2) - 1;
       gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
@@ -805,7 +799,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               pipelineMeta,
               transformMeta));
     }
-    
+
     Point namePosition = getNamePosition(name, screen, iconSize);
 
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
@@ -1237,32 +1231,44 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
   }
 
-  /** @return the transformLogMap */
+  /**
+   * @return the transformLogMap
+   */
   public Map<String, String> getTransformLogMap() {
     return transformLogMap;
   }
 
-  /** @param transformLogMap the transformLogMap to set */
+  /**
+   * @param transformLogMap the transformLogMap to set
+   */
   public void setTransformLogMap(Map<String, String> transformLogMap) {
     this.transformLogMap = transformLogMap;
   }
 
-  /** @param startHopTransform the start Hop Transform to set */
+  /**
+   * @param startHopTransform the start Hop Transform to set
+   */
   public void setStartHopTransform(TransformMeta startHopTransform) {
     this.startHopTransform = startHopTransform;
   }
 
-  /** @param endHopLocation the endHopLocation to set */
+  /**
+   * @param endHopLocation the endHopLocation to set
+   */
   public void setEndHopLocation(Point endHopLocation) {
     this.endHopLocation = endHopLocation;
   }
 
-  /** @param noInputTransform the no Input Transform to set */
+  /**
+   * @param noInputTransform the no Input Transform to set
+   */
   public void setNoInputTransform(TransformMeta noInputTransform) {
     this.noInputTransform = noInputTransform;
   }
 
-  /** @param endHopTransform the end Hop Transform to set */
+  /**
+   * @param endHopTransform the end Hop Transform to set
+   */
   public void setEndHopTransform(TransformMeta endHopTransform) {
     this.endHopTransform = endHopTransform;
   }
@@ -1332,7 +1338,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return outputRowsMap;
   }
 
-  /** @param outputRowsMap The outputRowsMap to set */
+  /**
+   * @param outputRowsMap The outputRowsMap to set
+   */
   public void setOutputRowsMap(Map<String, RowBuffer> outputRowsMap) {
     this.outputRowsMap = outputRowsMap;
   }
@@ -1346,7 +1354,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return stateMap;
   }
 
-  /** @param stateMap The stateMap to set */
+  /**
+   * @param stateMap The stateMap to set
+   */
   public void setStateMap(Map<String, Object> stateMap) {
     this.stateMap = stateMap;
   }

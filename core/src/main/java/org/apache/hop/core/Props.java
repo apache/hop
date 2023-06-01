@@ -17,14 +17,13 @@
 
 package org.apache.hop.core;
 
+import java.util.Iterator;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
-
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * We use Props to store all kinds of user interactive information such as the selected colors,
@@ -75,6 +74,8 @@ public class Props implements Cloneable {
   public static final String STRING_OPEN_LAST_FILE = "OpenLastFile";
 
   public static final String STRING_SHOW_CANVAS_GRID = "ShowCanvasGrid";
+
+  public static final String STRING_HIDE_VIEWPORT = "HideViewport";
   public static final String STRING_SHOW_TABLE_VIEW_TOOLBAR = "ShowTableViewToolbar";
   public static final String STRING_SHOW_EXIT_WARNING = "ShowExitWarning";
 
@@ -94,7 +95,7 @@ public class Props implements Cloneable {
   public static final int WIDGET_STYLE_TOOLBAR = 5;
   public static final int WIDGET_STYLE_PUSH_BUTTON = 6;
   public static final int WIDGET_STYLE_TREE = 7;
-  
+
   public Props() {
     log = new LogChannel(STRING_USER_PREFERENCES);
   }

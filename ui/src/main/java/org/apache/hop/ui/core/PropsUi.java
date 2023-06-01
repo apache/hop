@@ -454,6 +454,15 @@ public class PropsUi extends Props {
     setProperty(STRING_SHOW_CANVAS_GRID, anti ? YES : NO);
   }
 
+  public boolean isHideViewportEnabled() {
+    String showViewport = getProperty(STRING_HIDE_VIEWPORT, NO);
+    return YES.equalsIgnoreCase(showViewport); // Default: don't hide the viewport
+  }
+
+  public void setHideViewportEnabled(boolean anti) {
+    setProperty(STRING_HIDE_VIEWPORT, anti ? YES : NO);
+  }
+
   public boolean showExitWarning() {
     String show = getProperty(STRING_SHOW_EXIT_WARNING, YES);
     return YES.equalsIgnoreCase(show); // Default: show repositories dialog at startup

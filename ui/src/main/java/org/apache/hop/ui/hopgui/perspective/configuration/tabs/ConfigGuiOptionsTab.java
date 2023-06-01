@@ -82,6 +82,7 @@ public class ConfigGuiOptionsTab {
   private Text wGridSize;
   private Button wDarkMode;
   private Button wShowCanvasGrid;
+  private Button wHideViewport;
   private Button wHideMenuBar;
   private Button wShowTableViewToolbar;
   private Combo wDefaultLocale;
@@ -420,6 +421,27 @@ public class ConfigGuiOptionsTab {
     wShowCanvasGrid.setLayoutData(fdShowCanvasGrid);
     wShowCanvasGrid.addListener(SWT.Selection, e -> saveValues());
 
+    // Hide Viewport
+    Label wlHideViewport = new Label(wLookComp, SWT.RIGHT);
+    wlHideViewport.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.ShowViewport.Label"));
+    wlHideViewport.setToolTipText(
+        BaseMessages.getString(PKG, "EnterOptionsDialog.ShowViewport.ToolTip"));
+    PropsUi.setLook(wlHideViewport);
+    FormData fdlHideViewport = new FormData();
+    fdlHideViewport.left = new FormAttachment(0, 0);
+    fdlHideViewport.right = new FormAttachment(middle, -margin);
+    fdlHideViewport.top = new FormAttachment(wShowCanvasGrid, margin);
+    wlHideViewport.setLayoutData(fdlHideViewport);
+    wHideViewport = new Button(wLookComp, SWT.CHECK);
+    PropsUi.setLook(wHideViewport);
+    wHideViewport.setSelection(props.isHideViewportEnabled());
+    FormData fdHideViewport = new FormData();
+    fdHideViewport.left = new FormAttachment(middle, 0);
+    fdHideViewport.right = new FormAttachment(100, -margin);
+    fdHideViewport.top = new FormAttachment(wlHideViewport, 0, SWT.CENTER);
+    wHideViewport.setLayoutData(fdHideViewport);
+    wHideViewport.addListener(SWT.Selection, e -> saveValues());
+
     // Hide menu bar?
     Label wlHideMenuBar = new Label(wLookComp, SWT.RIGHT);
     wlHideMenuBar.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.HideMenuBar.Label"));
@@ -429,7 +451,7 @@ public class ConfigGuiOptionsTab {
     FormData fdlHideMenuBar = new FormData();
     fdlHideMenuBar.left = new FormAttachment(0, 0);
     fdlHideMenuBar.right = new FormAttachment(middle, -margin);
-    fdlHideMenuBar.top = new FormAttachment(wShowCanvasGrid, 2 * margin);
+    fdlHideMenuBar.top = new FormAttachment(wHideViewport, 2 * margin);
     wlHideMenuBar.setLayoutData(fdlHideMenuBar);
     wHideMenuBar = new Button(wLookComp, SWT.CHECK);
     PropsUi.setLook(wHideMenuBar);
@@ -716,6 +738,7 @@ public class ConfigGuiOptionsTab {
     props.setCanvasGridSize(Const.toInt(wGridSize.getText(), 1));
     props.setGlobalZoomFactor(Const.toDouble(wGlobalZoom.getText().replace("%", ""), 100) / 100);
     props.setShowCanvasGridEnabled(wShowCanvasGrid.getSelection());
+    props.setHideViewportEnabled(wHideViewport.getSelection());
     props.setDarkMode(wDarkMode.getSelection());
     props.setHidingMenuBar(wHideMenuBar.getSelection());
     props.setShowTableViewToolbar(wShowTableViewToolbar.getSelection());
