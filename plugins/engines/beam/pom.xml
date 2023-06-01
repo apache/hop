@@ -285,7 +285,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-runners-flink-1.15</artifactId>
+            <artifactId>beam-runners-flink-1.16</artifactId>
             <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
