@@ -191,6 +191,7 @@ public class FatJarBuilder {
                     || jarFileBaseName.startsWith("beam-sdks-java-io")
                     || jarFileBaseName.startsWith("beam-runners-spark")
                     || jarFileBaseName.startsWith("beam-runners-direct")
+                    || jarFileBaseName.startsWith("beam-runners-flink")
                     || jarFileBaseName.startsWith("beam-sdks-java-core")
                     || jarFileBaseName.startsWith("beam-runners-core")) {
                   index = false;
