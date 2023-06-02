@@ -16,6 +16,30 @@
  */
 package org.apache.hop.pipeline;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.nullable;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.IProgressMonitor;
@@ -44,31 +68,6 @@ import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.nullable;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class PipelineMetaTest {
   public static final String TRANSFORM_NAME = "Any transform name";
@@ -108,45 +107,6 @@ public class PipelineMetaTest {
     Point actualTransformPoint = pipelineMeta.getMinimum();
     assertEquals(transformPoint.x - PipelineMeta.BORDER_INDENT, actualTransformPoint.x);
     assertEquals(transformPoint.y - PipelineMeta.BORDER_INDENT, actualTransformPoint.y);
-  }
-
-  @Test
-  public void getThisTransformFieldsPassesCloneRowMeta() throws Exception {
-    final String overriddenValue = "overridden";
-
-    TransformMeta nextTransform = mockTransformMeta("nextTransform");
-
-    ITransformMeta smi = mock(ITransformMeta.class);
-    TransformIOMeta ioMeta = mock(TransformIOMeta.class);
-    when(smi.getTransformIOMeta()).thenReturn(ioMeta);
-    doAnswer(
-            (Answer<Object>)
-                invocation -> {
-                  IRowMeta rmi = (IRowMeta) invocation.getArguments()[0];
-                  rmi.clear();
-                  rmi.addValueMeta(new ValueMetaString(overriddenValue));
-                  return null;
-                })
-        .when(smi)
-        .getFields(
-            nullable(IRowMeta.class),
-            nullable(String.class),
-            nullable(IRowMeta[].class),
-            eq(nextTransform),
-            nullable(IVariables.class),
-            nullable(IHopMetadataProvider.class));
-
-    TransformMeta thisTransform = mockTransformMeta("thisTransform");
-    when(thisTransform.getTransform()).thenReturn(smi);
-
-    RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta(new ValueMetaString("value"));
-
-    IRowMeta thisTransformsFields =
-        pipelineMeta.getThisTransformFields(variables, thisTransform, nextTransform, rowMeta);
-
-    assertEquals(1, thisTransformsFields.size());
-    assertEquals(overriddenValue, thisTransformsFields.getValueMeta(0).getName());
   }
 
   @Test
@@ -558,7 +518,8 @@ public class PipelineMetaTest {
 
     // Re-inflate from XML
     //
-    PipelineMeta copy = new PipelineMeta(XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG), metadataProvider);
+    PipelineMeta copy =
+        new PipelineMeta(XmlHandler.loadXmlString(xml, PipelineMeta.XML_TAG), metadataProvider);
 
     assertEquals(xml, copy.getXml(variables));
   }

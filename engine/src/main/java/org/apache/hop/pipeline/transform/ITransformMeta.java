@@ -162,6 +162,29 @@ public interface ITransformMeta {
       throws HopTransformException;
 
   /**
+   * Gets the fields.
+   *
+   * @param pipelineMeta The pipeline metadata to help resolve the output row layout in rare cases.
+   * @param inputRowMeta the input row meta that is modified in this method to reflect the output
+   *     row metadata of the transform
+   * @param name Name of the transform to use as input for the origin field in the values
+   * @param info Fields used as extra lookup information
+   * @param nextTransform the next transform that is targeted
+   * @param variables the variables The variable variables to use to replace variables
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata
+   *     impacting the output fields
+   * @throws HopTransformException the hop transform exception
+   */
+  void getFields(
+          PipelineMeta pipelineMeta,
+          IRowMeta inputRowMeta,
+          String name,
+          IRowMeta[] info,
+          TransformMeta nextTransform,
+          IVariables variables,
+          IHopMetadataProvider metadataProvider)
+          throws HopTransformException;
+  /**
    * Get the XML that represents the values in this transform
    *
    * @return the XML that represents the metadata in this transform

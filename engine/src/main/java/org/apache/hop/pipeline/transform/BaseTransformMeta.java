@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IHopAttribute;
 import org.apache.hop.core.SqlStatement;
@@ -48,15 +56,6 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 /**
  * This class is responsible for implementing common functionality regarding transform meta, such as
  * logging. All Hop transforms have an extension of this where private fields have been added with
@@ -64,10 +63,12 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * <p>For example, the "Text File Output" transform's TextFileOutputMeta class extends
  * BaseTransformMeta by adding fields for the output file name, compression, file format, etc...
+ *
  * <p>
  */
-public class BaseTransformMeta<Main extends ITransform, Data extends ITransformData> implements ITransformMeta, Cloneable {
-   
+public class BaseTransformMeta<Main extends ITransform, Data extends ITransformData>
+    implements ITransformMeta, Cloneable {
+
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("Transform metadata", LoggingObjectType.TRANSFORM_META, null);
 
@@ -83,42 +84,63 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   public BaseTransformMeta() {
     changed = false;
-  } 
-  
+  }
+
   @Override
   @SuppressWarnings({"unchecked"})
-  public ITransform createTransform(TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      ITransformData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     try {
-      ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
+      ParameterizedType parameterizedType =
+          (ParameterizedType) this.getClass().getGenericSuperclass();
       Class<Main> mainClass = (Class<Main>) parameterizedType.getActualTypeArguments()[0];
       Class<Data> dataClass = (Class<Data>) parameterizedType.getActualTypeArguments()[1];
-      
-      // Some tests class use BaseTransformMeta<ITransform,ITransformData>
-      if ( mainClass.isInterface() ) return null;
 
-      Constructor<Main> constructor = mainClass.getConstructor(new Class[] {TransformMeta.class, this.getClass(), dataClass, int.class, PipelineMeta.class, Pipeline.class});
-      return constructor.newInstance(new Object[] {transformMeta, this, data, copyNr, pipelineMeta, pipeline});
-    } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException e) {
+      // Some tests class use BaseTransformMeta<ITransform,ITransformData>
+      if (mainClass.isInterface()) return null;
+
+      Constructor<Main> constructor =
+          mainClass.getConstructor(
+              new Class[] {
+                TransformMeta.class,
+                this.getClass(),
+                dataClass,
+                int.class,
+                PipelineMeta.class,
+                Pipeline.class
+              });
+      return constructor.newInstance(
+          new Object[] {transformMeta, this, data, copyNr, pipelineMeta, pipeline});
+    } catch (InstantiationException
+        | IllegalAccessException
+        | IllegalArgumentException
+        | InvocationTargetException
+        | NoSuchMethodException e) {
       throw new RuntimeException("Error create instance of transform: " + this.getName(), e);
     }
   }
-  
+
   @Override
   public ITransformData createTransformData() {
     try {
-      ParameterizedType parameterizedType = (ParameterizedType) this.getClass().getGenericSuperclass();
+      ParameterizedType parameterizedType =
+          (ParameterizedType) this.getClass().getGenericSuperclass();
       @SuppressWarnings({"unchecked"})
       Class<Data> dataClass = (Class<Data>) parameterizedType.getActualTypeArguments()[1];
-    
+
       // Some tests class use BaseTransformMeta<ITransform,ITransformData>
-      if ( dataClass.isInterface() ) return null;
-      
+      if (dataClass.isInterface()) return null;
+
       return dataClass.newInstance();
     } catch (InstantiationException | IllegalAccessException e) {
       throw new RuntimeException("Error create instance of transform data: " + this.getName(), e);
     }
   }
-  
+
   /*
    * (non-Javadoc)
    *
@@ -231,6 +253,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   /**
    * Gets the fields.
+   * This method doesn't pass along any pipeline metadata to help resolve output row metadata.
    *
    * @param inputRowMeta the input row meta that is modified in this method to reflect the output
    *     row metadata of the transform
@@ -251,6 +274,36 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     // Default: no values are added to the row in the transform
+  }
+
+  /**
+   * Gets the fields.
+   *
+   * @param pipelineMeta The pipeline metadata to help resolve the output row layout in rare cases.
+   * @param inputRowMeta the input row meta that is modified in this method to reflect the output
+   *     row metadata of the transform
+   * @param name Name of the transform to use as input for the origin field in the values
+   * @param info Fields used as extra lookup information
+   * @param nextTransform the next transform that is targeted
+   * @param variables the variables The variable variables to use to replace variables
+   * @param metadataProvider the MetaStore to use to load additional external data or metadata
+   *     impacting the output fields
+   * @throws HopTransformException the hop transform exception
+   */
+  @Override
+  public void getFields(
+      PipelineMeta pipelineMeta,
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
+    // Revert to the default implementation which doesn't pass PipelineMeta.
+    // To know pipelineMeta, implement this method in your transform metadata class.
+    //
+    getFields(inputRowMeta, name, info, nextTransform, variables, metadataProvider);
   }
 
   /**
@@ -342,7 +395,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    * @return an array of database connections meta-data. Return an empty array if no connections are
    *     used.
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public DatabaseMeta[] getUsedDatabaseConnections() {
     return new DatabaseMeta[] {};
   }
@@ -750,7 +803,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
 
   public void convertIOMetaToTransformNames() {}
 
-  /** @return The supported pipeline types that this transform supports. */
+  /**
+   * @return The supported pipeline types that this transform supports.
+   */
   public PipelineType[] getSupportedPipelineTypes() {
     return new PipelineType[] {
       PipelineType.Normal, PipelineType.SingleThreaded,

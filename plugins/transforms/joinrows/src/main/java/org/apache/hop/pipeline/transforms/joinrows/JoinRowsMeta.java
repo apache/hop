@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.joinrows;
 
+import java.io.File;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -36,9 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.util.List;
 
 @InjectionSupported(localizationPrefix = "JoinRows.Injection.")
 @Transform(
@@ -71,62 +70,86 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
   /** Optional condition to limit the join (where clause) */
   private Condition condition;
 
-  /** @return Returns the lookupFromTransform. */
+  /**
+   * @return Returns the lookupFromTransform.
+   */
   public TransformMeta getMainTransform() {
     return mainTransform;
   }
 
-  /** @param lookupFromTransform The lookupFromTransform to set. */
+  /**
+   * @param lookupFromTransform The lookupFromTransform to set.
+   */
   public void setMainTransform(TransformMeta lookupFromTransform) {
     this.mainTransform = lookupFromTransform;
   }
 
-  /** @return Returns the lookupFromTransformName. */
+  /**
+   * @return Returns the lookupFromTransformName.
+   */
   public String getMainTransformName() {
     return mainTransformName;
   }
 
-  /** @param lookupFromTransformName The lookupFromTransformName to set. */
+  /**
+   * @param lookupFromTransformName The lookupFromTransformName to set.
+   */
   public void setMainTransformName(String lookupFromTransformName) {
     this.mainTransformName = lookupFromTransformName;
   }
 
-  /** @param cacheSize The cacheSize to set. */
+  /**
+   * @param cacheSize The cacheSize to set.
+   */
   public void setCacheSize(int cacheSize) {
     this.cacheSize = cacheSize;
   }
 
-  /** @return Returns the cacheSize. */
+  /**
+   * @return Returns the cacheSize.
+   */
   public int getCacheSize() {
     return cacheSize;
   }
 
-  /** @return Returns the directory. */
+  /**
+   * @return Returns the directory.
+   */
   public String getDirectory() {
     return directory;
   }
 
-  /** @param directory The directory to set. */
+  /**
+   * @param directory The directory to set.
+   */
   public void setDirectory(String directory) {
     this.directory = directory;
   }
 
-  /** @return Returns the prefix. */
+  /**
+   * @return Returns the prefix.
+   */
   public String getPrefix() {
     return prefix;
   }
 
-  /** @param prefix The prefix to set. */
+  /**
+   * @param prefix The prefix to set.
+   */
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
 
-  /** @return Returns the condition. */
+  /**
+   * @return Returns the condition.
+   */
   public Condition getCondition() {
     return condition;
   }
 
-  /** @param condition The condition to set. */
+  /**
+   * @param condition The condition to set.
+   */
   public void setCondition(Condition condition) {
     this.condition = condition;
   }
@@ -214,6 +237,7 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
 
   @Override
   public void getFields(
+      PipelineMeta pipelineMeta,
       IRowMeta rowMeta,
       String origin,
       IRowMeta[] info,
@@ -221,19 +245,16 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (variables instanceof PipelineMeta) {
-      PipelineMeta pipelineMeta = (PipelineMeta) variables;
-      TransformMeta[] transforms =
-          pipelineMeta.getPrevTransforms(pipelineMeta.findTransform(origin));
-      TransformMeta mainTransform = pipelineMeta.findTransform(getMainTransformName());
-      rowMeta.clear();
-      if (mainTransform != null) {
-        rowMeta.addRowMeta(pipelineMeta.getTransformFields(variables, mainTransform));
-      }
-      for (TransformMeta transform : transforms) {
-        if (mainTransform == null || !transform.equals(mainTransform)) {
-          rowMeta.addRowMeta(pipelineMeta.getTransformFields(variables, transform));
-        }
+    TransformMeta[] transforms = pipelineMeta.getPrevTransforms(pipelineMeta.findTransform(origin));
+    TransformMeta firstTransform = pipelineMeta.findTransform(getMainTransformName());
+    rowMeta.clear();
+    if (firstTransform != null) {
+      rowMeta.addRowMeta(pipelineMeta.getTransformFields(variables, firstTransform));
+    }
+    for (TransformMeta transform : transforms) {
+      if (!transform.equals(firstTransform)) {
+        IRowMeta transformFields = pipelineMeta.getTransformFields(variables, transform);
+        rowMeta.addRowMeta(transformFields);
       }
     }
   }
@@ -331,7 +352,9 @@ public class JoinRowsMeta extends BaseTransformMeta<JoinRows, JoinRowsData> {
     return null;
   }
 
-  /** @param transforms optionally search the info transform in a list of transforms */
+  /**
+   * @param transforms optionally search the info transform in a list of transforms
+   */
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     mainTransform = TransformMeta.findTransform(transforms, mainTransformName);

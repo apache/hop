@@ -1,0 +1,96 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "id",
+          "data_set_field": "id"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        },
+        {
+          "transform_field": "id_1",
+          "data_set_field": "id_1"
+        },
+        {
+          "transform_field": "value_1",
+          "data_set_field": "value_1"
+        },
+        {
+          "transform_field": "rangeStart",
+          "data_set_field": "rangeStart"
+        },
+        {
+          "transform_field": "rangeEnd",
+          "data_set_field": "rangeEnd"
+        }
+      ],
+      "field_order": [
+        "id",
+        "value",
+        "id_1",
+        "value_1",
+        "rangeStart",
+        "rangeEnd"
+      ],
+      "data_set_name": "golden-join-rows-same-fields-data",
+      "transform_name": "Data"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Comments",
+          "data_set_field": "Comments"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        }
+      ],
+      "field_order": [
+        "Position",
+        "Fieldname",
+        "Comments",
+        "Type",
+        "Length",
+        "Precision",
+        "Origin"
+      ],
+      "data_set_name": "golden-join-rows-same-fields-meta",
+      "transform_name": "Meta"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0044-join-rows-same-fields UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0044-join-rows-same-fields.hpl",
+  "test_type": "UNIT_TEST"
+}

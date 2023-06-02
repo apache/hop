@@ -35,21 +35,21 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>50</xloc>
       <yloc>50</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Run Join rows Unit Test</name>
+      <name>Run Join rows Unit Tests</name>
       <description/>
       <type>RunPipelineTests</type>
       <attributes/>
@@ -57,9 +57,12 @@ limitations under the License.
         <test_name>
           <name>0044-join-rows UNIT</name>
         </test_name>
+        <test_name>
+          <name>0044-join-rows-same-fields UNIT</name>
+        </test_name>
       </test_names>
       <parallel>N</parallel>
-      <xloc>192</xloc>
+      <xloc>272</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -67,7 +70,7 @@ limitations under the License.
   <hops>
     <hop>
       <from>Start</from>
-      <to>Run Join rows Unit Test</to>
+      <to>Run Join rows Unit Tests</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>

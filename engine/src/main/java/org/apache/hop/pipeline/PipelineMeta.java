@@ -19,6 +19,17 @@
 package org.apache.hop.pipeline;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -78,18 +89,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * This class defines information about a pipeline and offers methods to save and load it from XML
@@ -1395,7 +1394,7 @@ public class PipelineMeta extends AbstractMeta
     IRowMeta[] clonedInfo = cloneRowMetaInterfaces(infoRowMeta);
     if (!isSomethingDifferentInRow(before, row)) {
       iTransformMeta.getFields(
-          before, name, clonedInfo, nextTransform, variables, metadataProvider);
+          this, before, name, clonedInfo, nextTransform, variables, metadataProvider);
       // pass the clone object to prevent from spoiling data by other transforms
       row = before;
     }
@@ -1523,7 +1522,6 @@ public class PipelineMeta extends AbstractMeta
     }
      */
 
-
     StringBuilder xml = new StringBuilder(800);
 
     xml.append(XmlHandler.getLicenseHeader(variables));
@@ -1536,9 +1534,11 @@ public class PipelineMeta extends AbstractMeta
         .append(
             XmlHandler.addTagValue("name", getName())); // lossy if name is sync'ed with filename
     xml.append("    ")
-        .append(XmlHandler.addTagValue("name_sync_with_filename", isNameSynchronizedWithFilename()));
+        .append(
+            XmlHandler.addTagValue("name_sync_with_filename", isNameSynchronizedWithFilename()));
     xml.append("    ").append(XmlHandler.addTagValue("description", getDescription()));
-    xml.append("    ").append(XmlHandler.addTagValue("extended_description", getExtendedDescription()));
+    xml.append("    ")
+        .append(XmlHandler.addTagValue("extended_description", getExtendedDescription()));
     xml.append("    ").append(XmlHandler.addTagValue("pipeline_version", getPipelineVersion()));
     xml.append("    ").append(XmlHandler.addTagValue("pipeline_type", getPipelineType().getCode()));
 
@@ -1889,7 +1889,9 @@ public class PipelineMeta extends AbstractMeta
         // Performance monitoring for transforms...
         //
         info.setCapturingTransformPerformanceSnapShots(
-            "Y".equalsIgnoreCase(XmlHandler.getTagValue(infoNode, "capture_transform_performance")));
+            "Y"
+                .equalsIgnoreCase(
+                    XmlHandler.getTagValue(infoNode, "capture_transform_performance")));
         info.setTransformPerformanceCapturingDelay(
             Const.toLong(
                 XmlHandler.getTagValue(infoNode, "transform_performance_capturing_delay"), 1000));
