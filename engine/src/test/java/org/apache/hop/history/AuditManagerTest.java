@@ -16,7 +16,17 @@
  */
 package org.apache.hop.history;
 
-import org.apache.commons.lang.SystemUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.local.LocalAuditManager;
 import org.junit.Ignore;
@@ -24,17 +34,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class AuditManagerTest {
 
@@ -140,10 +139,19 @@ public class AuditManagerTest {
 
   @Test
   public void testClearEvents() throws HopException {
-    // TODO: figure out why this fails in windows
-    if (!SystemUtils.IS_OS_WINDOWS) {
-      AuditManager.getInstance()
-          .setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));
+    // Figure out why this fails in windows and to a lesser extent Linux
+    //
+    if (Const.isWindows()) {
+      return;
+    }
+    AuditManager.getInstance()
+        .setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));
+
+    // Repeat the test 100 times.
+    //
+    for (int i = 0; i < 100; i++) {
+      AuditManager.getActive().clearEvents();
+
       String group = "testClearEvents";
       AuditManager.registerEvent(group, "type1", "name1", "operation1");
       AuditManager.registerEvent(group, "type1", "name1", "operation1");
