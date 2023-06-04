@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::WorkflowLogging.Transform.Name",
     description = "i18n::WorkflowLogging.Transform.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "/pipeline/transforms/pipeline-logging.html",
+    documentationUrl = "/pipeline/transforms/workflow-logging.html",
     image = "workflow-log.svg",
     keywords = "i18n::WorkflowLoggingMeta.keyword")
 public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, WorkflowLoggingData> {
