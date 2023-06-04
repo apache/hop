@@ -1,0 +1,7 @@
+Position,Fieldname,Comments,Type,Length,Precision,Origin
+1,id,,Integer,-1,0,A
+2,value,,String,-1,-1,A
+3,id_1,,Integer,-1,0,B
+4,value_1,,String,-1,-1,B
+5,rangeStart,,Number,-1,-1,B
+6,rangeEnd,,Number,-1,-1,B
