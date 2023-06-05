@@ -42,21 +42,14 @@ docs/.pnp.js
 tmp/images
 
 integration-tests/spreadsheet/files/exel-part-001.xlsx
-
 integration-tests/spreadsheet/files/exel-part-002.xlsx
-
 integration-tests/spreadsheet/files/exel-header-test.xlsx
-
 integration-tests/spreadsheet/files/exelwriter-testfile.xls
-
 integration-tests/spreadsheet/files/exel-multi-part_0.xlsx
-
 integration-tests/spreadsheet/files/exel-multi-part_1.xlsx
-
 integration-tests/spreadsheet/files/exel-multi-part_2.xlsx
-
 integration-tests/spreadsheet/files/exel-multi-part_3.xlsx
-
 integration-tests/spreadsheet/files/exel-multi-part_4.xlsx
-
 integration-tests/json/output
+integration-tests/mdi/files/excelwriter-mdi-test.xlsx
+integration-tests/spreadsheet/files/sample-file-append.xlsx
