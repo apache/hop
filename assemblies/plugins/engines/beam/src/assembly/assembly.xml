@@ -85,6 +85,8 @@
                 <include>com.google.api.grpc:proto-google-cloud-bigquerystorage-v1</include>
                 <include>com.google.api.grpc:proto-google-cloud-bigtable-admin-v2</include>
                 <include>com.google.api.grpc:proto-google-cloud-bigtable-v2</include>
+                <include>com.google.cloud:google-cloud-bigtable-stats</include>
+                <include>com.lmax:disruptor</include>
                 <include>com.google.api.grpc:proto-google-cloud-datastore-v1</include>
                 <include>com.google.api.grpc:proto-google-cloud-pubsub-v1</include>
                 <include>com.google.api.grpc:grpc-google-cloud-storage-v2</include>
