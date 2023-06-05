@@ -110,6 +110,7 @@
                 <include>com.google.cloud:google-cloud-bigquery</include>
                 <include>com.google.cloud:google-cloud-bigquerystorage</include>
                 <include>com.google.cloud:google-cloud-bigtable</include>
+                <include>com.google.cloud.bigtable:bigtable-client-core-config</include>
                 <include>com.google.cloud:google-cloud-core</include>
                 <include>com.google.cloud:google-cloud-core-grpc</include>
                 <include>com.google.cloud:google-cloud-core-http</include>

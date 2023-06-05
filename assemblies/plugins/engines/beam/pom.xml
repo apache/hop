@@ -534,7 +534,12 @@
         <dependency>
             <groupId>com.google.cloud.bigtable</groupId>
             <artifactId>bigtable-metrics-api</artifactId>
-            <version>1.26.3</version>
+            <version>1.29.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud.bigtable</groupId>
+            <artifactId>bigtable-client-core-config</artifactId>
+            <version>1.29.2</version>
         </dependency>
 
         <dependency>
