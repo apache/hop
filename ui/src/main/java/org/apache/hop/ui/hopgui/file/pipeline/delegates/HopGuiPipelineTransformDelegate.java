@@ -144,7 +144,7 @@ public class HopGuiPipelineTransformDelegate {
       String errorMsg =
           BaseMessages.getString(
               PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Message", dialogClassName);
-      new ErrorDialog(hopGui.getShell(), errorTitle, errorMsg, e);
+      new ErrorDialog(hopGui.getDisplay().getActiveShell(), errorTitle, errorMsg, e);
       throw new HopException(e);
     }
   }
@@ -212,7 +212,7 @@ public class HopGuiPipelineTransformDelegate {
         }
         if (nr > 2) {
           transformName = newname;
-          MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+          MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
           mb.setMessage(
               BaseMessages.getString(
                   PKG, "HopGui.Dialog.TransformnameExists.Message", transformName));
@@ -249,7 +249,7 @@ public class HopGuiPipelineTransformDelegate {
         return null;
       }
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.Dialog.UnableOpenDialog.Title"),
           BaseMessages.getString(PKG, "HopGui.Dialog.UnableOpenDialog.Message"),
           e);
@@ -316,7 +316,7 @@ public class HopGuiPipelineTransformDelegate {
             }
             if (nr > 2) {
               transformMeta.setName(newName);
-              MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+              MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
               // "This transformName already exists.  HopGui changed the transformName to
               // ["+newName+"]"
               mb.setMessage(
@@ -370,7 +370,7 @@ public class HopGuiPipelineTransformDelegate {
             sbd.open();
           } catch (Exception ex) {
             new ErrorDialog(
-                hopGui.getShell(),
+                hopGui.getDisplay().getActiveShell(),
                 BaseMessages.getString(PKG, "HopGui.Dialog.ErrorShowingHelpText.Title"),
                 BaseMessages.getString(PKG, "HopGui.Dialog.ErrorShowingHelpText.Message"),
                 ex);
@@ -385,7 +385,7 @@ public class HopGuiPipelineTransformDelegate {
           }
         } else {
           new ErrorDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               // "Error creating transform"
               // "I was unable to create a new transform"
               BaseMessages.getString(PKG, "HopGui.Dialog.UnableCreateNewTransform.Title"),
@@ -396,7 +396,7 @@ public class HopGuiPipelineTransformDelegate {
       } catch (Throwable e) {
         if (!hopGui.getShell().isDisposed()) {
           new ErrorDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               // "Error creating transform"
               BaseMessages.getString(PKG, "HopGui.Dialog.ErrorCreatingTransform.Title"),
               BaseMessages.getString(PKG, "HopGui.Dialog.UnableCreateNewTransform.Message"),
@@ -503,7 +503,7 @@ public class HopGuiPipelineTransformDelegate {
       schemaNames = hopGui.partitionManager.getNamesArray();
     } catch (HopException e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.ErrorDialog.Title"),
           BaseMessages.getString(
               PKG, "HopGui.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas"),
@@ -566,7 +566,7 @@ public class HopGuiPipelineTransformDelegate {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           "Error",
           "There was an unexpected error while editing the partitioning method specifics:",
           e);
@@ -576,7 +576,7 @@ public class HopGuiPipelineTransformDelegate {
   public boolean isDefinedSchemaExist(String[] schemaNames) {
     // Before we start, check if there are any partition schemas defined...
     if ((schemaNames == null) || (schemaNames.length == 0)) {
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_ERROR | SWT.OK);
+      MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.ICON_ERROR | SWT.OK);
       box.setText("Create a partition schema");
       box.setMessage(
           "You first need to create one or more partition schemas before you can select one!");
@@ -628,7 +628,7 @@ public class HopGuiPipelineTransformDelegate {
       // now edit this transformErrorMeta object:
       TransformErrorMetaDialog dialog =
           new TransformErrorMetaDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               pipelineGraph.getVariables(),
               transformErrorMeta,
               pipelineMeta,

@@ -57,10 +57,10 @@ public class HopImportGuiPlugin {
       KettleImport kettleImport = new KettleImport();
       kettleImport.init(hopGui.getVariables(), hopGui.getLog());
       KettleImportDialog dialog =
-          new KettleImportDialog(hopGui.getShell(), hopGui.getVariables(), kettleImport);
+          new KettleImportDialog(hopGui.getDisplay().getActiveShell(), hopGui.getVariables(), kettleImport);
       dialog.open();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getShell(), "Error", "Error importing from Kettle", e);
+      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error importing from Kettle", e);
     }
   }
 }

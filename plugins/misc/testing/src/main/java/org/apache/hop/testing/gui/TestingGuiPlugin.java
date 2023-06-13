@@ -175,7 +175,7 @@ public class TestingGuiPlugin {
       Collections.sort(setNames);
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               setNames.toArray(new String[setNames.size()]),
               BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Header"),
               BaseMessages.getString(
@@ -192,7 +192,7 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ContextAction.SetInputDataset.Error.Header"),
           BaseMessages.getString(
@@ -230,7 +230,7 @@ public class TestingGuiPlugin {
     String[] setFieldNames = setFields.getFieldNames();
 
     EnterMappingDialog mappingDialog =
-        new EnterMappingDialog(hopGui.getShell(), setFieldNames, transformFieldNames);
+        new EnterMappingDialog(hopGui.getDisplay().getActiveShell(), setFieldNames, transformFieldNames);
     List<SourceToTargetMapping> mappings = mappingDialog.open();
     if (mappings == null) {
       return false;
@@ -249,7 +249,7 @@ public class TestingGuiPlugin {
     }
     EditRowsDialog orderDialog =
         new EditRowsDialog(
-            hopGui.getShell(),
+            hopGui.getDisplay().getActiveShell(),
             SWT.NONE,
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Title"),
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Message"),
@@ -330,7 +330,7 @@ public class TestingGuiPlugin {
       context.getPipelineGraph().updateGui();
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ContextAction.ClearInputDataset.Error.Header"),
           BaseMessages.getString(
@@ -349,7 +349,7 @@ public class TestingGuiPlugin {
     // there is no test defined of selected in the pipeline.
     // Show a warning
     //
-    MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+    MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
     box.setMessage(
         BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CheckTestPresent.Message"));
     box.setText(
@@ -395,7 +395,7 @@ public class TestingGuiPlugin {
       Collections.sort(setNames);
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               setNames.toArray(new String[setNames.size()]),
               BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Header"),
               BaseMessages.getString(
@@ -412,7 +412,7 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ContextAction.SetGoldenDataset.Error.Header"),
           BaseMessages.getString(
@@ -545,7 +545,7 @@ public class TestingGuiPlugin {
       saveUnitTest(variables, hopGui.getMetadataProvider(), currentUnitTest, pipelineMeta);
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ContextAction.ClearGoldenDataset.Error.Header"),
           BaseMessages.getString(
@@ -655,7 +655,7 @@ public class TestingGuiPlugin {
         // to use it on the transform?
         //
         MessageBox box =
-            new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION);
+            new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION);
         box.setText(
             BaseMessages.getString(
                 PKG, "TestingGuiPlugin.ContextAction.CreateDataset.DatasetType.Header"));
@@ -689,7 +689,7 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Header"),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.CreateDataset.Error.Message"),
           e);
@@ -719,7 +719,7 @@ public class TestingGuiPlugin {
     PipelineMeta pipelineMeta = context.getPipelineMeta();
 
     if (pipelineMeta.hasChanged()) {
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+      MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
       box.setText(
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ContextAction.Run.SavePipelineDialog.Header"));
@@ -739,7 +739,7 @@ public class TestingGuiPlugin {
       Collections.sort(setNames);
       EnterSelectionDialog esd =
           new EnterSelectionDialog(
-              hopGui.getShell(),
+              hopGui.getDisplay().getActiveShell(),
               setNames.toArray(new String[setNames.size()]),
               BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item1"),
               BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.ActionList.Item2"));
@@ -765,7 +765,7 @@ public class TestingGuiPlugin {
       // Ask for the mapping between the output row and the data set field
       //
       EnterMappingDialog mappingDialog =
-          new EnterMappingDialog(hopGui.getShell(), transformFields, setFields);
+          new EnterMappingDialog(hopGui.getDisplay().getActiveShell(), transformFields, setFields);
       List<SourceToTargetMapping> mapping = mappingDialog.open();
       if (mapping == null) {
         return;
@@ -790,7 +790,7 @@ public class TestingGuiPlugin {
 
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Header"),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ContextAction.Run.Error.Message"),
           e);
@@ -850,7 +850,7 @@ public class TestingGuiPlugin {
       pipelineGraph.updateGui();
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Header"),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Detach.Error.Message"),
           e);
@@ -935,7 +935,7 @@ public class TestingGuiPlugin {
         return; // doesn't exist
       }
 
-      MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
       box.setMessage(
           BaseMessages.getString(
               PKG,
@@ -960,7 +960,7 @@ public class TestingGuiPlugin {
       refreshUnitTestsList();
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Header"),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.Delete.Error.Message"),
           e);
@@ -1021,7 +1021,7 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Header"),
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ToolbarElement.UnitTest.Error.Message", unitTestName),
@@ -1144,7 +1144,7 @@ public class TestingGuiPlugin {
       }
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(
               PKG, "TestingGuiPlugin.ToolbarElement.GetUnitTestList.Error.Header"),
           BaseMessages.getString(
@@ -1304,7 +1304,7 @@ public class TestingGuiPlugin {
       hopGui.getActiveFileTypeHandler().updateGui();
     } catch (Exception exception) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.TweakUnitTestTransform.Error.Header"),
           BaseMessages.getString(
               PKG,
@@ -1347,7 +1347,7 @@ public class TestingGuiPlugin {
       //
       SelectRowDialog dialog =
           new SelectRowDialog(
-              hopGui.getShell(), new Variables(), SWT.DIALOG_TRIM | SWT.MAX | SWT.RESIZE, rows);
+              hopGui.getDisplay().getActiveShell(), new Variables(), SWT.DIALOG_TRIM | SWT.MAX | SWT.RESIZE, rows);
       RowMetaAndData selection = dialog.open();
       if (selection != null) {
         return selection;
@@ -1355,7 +1355,7 @@ public class TestingGuiPlugin {
       return null;
     } catch (Exception e) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Header"),
           BaseMessages.getString(PKG, "TestingGuiPlugin.SelectUnitTestFromAllTests.Error.Message"),
           e);

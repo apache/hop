@@ -1320,7 +1320,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         boolean cancel = false;
         workflowMeta.addWorkflowHop(hopCandidate);
         if (workflowMeta.hasLoop(hopCandidate.getToAction())) {
-          MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
+          MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
           mb.setMessage(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
           mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title"));
           int choice = mb.open();
@@ -1764,7 +1764,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                         ServerPushSessionFacade.stop();
                       } catch (Exception e) {
                         new ErrorDialog(
-                            hopGui.getShell(),
+                            hopGui.getDisplay().getActiveShell(),
                             "Execute workflow",
                             "There was an error during workflow execution",
                             e);
@@ -2768,7 +2768,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     } catch (Exception ex) {
       new ErrorDialog(
-          hopGui.getShell(),
+          hopGui.getDisplay().getActiveShell(),
           BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Header"),
           BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"),
           ex);
@@ -3180,7 +3180,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return false;
     }
 
-    WorkflowDialog jd = new WorkflowDialog(hopGui.getShell(), SWT.NONE, variables, workflowMeta);
+    WorkflowDialog jd = new WorkflowDialog(hopGui.getDisplay().getActiveShell(), SWT.NONE, variables, workflowMeta);
     if (jd.open() != null) {
       // If we added properties, add them to the variables too, so that they appear in the
       // CTRL-SPACE variable completion.
@@ -3241,7 +3241,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       FileObject fileObject = HopVfs.getFileObject(filename);
       if (fileObject.exists()) {
-        MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Overwrite?");
         box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
         int answer = box.open();
