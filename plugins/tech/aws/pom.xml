@@ -32,7 +32,7 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
 
         <!-- Test dependencies -->
         <mockito.version>1.10.19</mockito.version>
