@@ -34,7 +34,7 @@
 
     <properties>
         <!-- Third-party dependencies -->
-        <guava.version>31.1-jre</guava.version>
+        <guava.version>32.0.0-jre</guava.version>
         <aws-java-sdk-s3.version>1.12.279</aws-java-sdk-s3.version>
         <aws-java-sdk-core.version>1.12.279</aws-java-sdk-core.version>
 
