@@ -21,6 +21,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -42,12 +44,9 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -59,7 +58,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,8 +100,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
   private ColumnInfo[] colinf;
   private ColumnInfo[] colinfoparams;
 
-  private String[] fieldNames;
-
   private TextVar wHttpLogin;
 
   private TextVar wHttpPassword;
@@ -127,8 +123,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
   private Button wbTrustStoreFile;
 
   private Button wIgnoreSsl;
-
-  private boolean gotPreviousFields = false;
 
   private Button wMatrixGet;
 
@@ -158,7 +152,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     shell.setText(BaseMessages.getString(PKG, "RestDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     setupButtons(margin);
 
@@ -411,35 +405,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    //
-    // Search the fields in the background
-    //
-
-    final Runnable runnable =
-        new Runnable() {
-          @Override
-          public void run() {
-            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-            if (transformMeta != null) {
-              try {
-                IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-
-                // Remember these fields...
-                for (int i = 0; i < row.size(); i++) {
-                  inputFields.add(row.getValueMeta(i).getName());
-                }
-
-                setComboBoxes();
-              } catch (HopException e) {
-                log.logError(
-                    toString(),
-                    BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-              }
-            }
-          }
-        };
-    new Thread(runnable).start();
-
     lsResize =
         event -> {
           Point size = shell.getSize();
@@ -450,6 +415,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     shell.addListener(SWT.Resize, lsResize);
 
     wTabFolder.setSelection(0);
+    setComboBoxes();
     getData();
     activateUrlInfield();
     activateMethodInfield();
@@ -1018,20 +984,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdBody.top = new FormAttachment(wMethodField, 2 * margin);
     fdBody.right = new FormAttachment(100, -margin);
     wBody.setLayoutData(fdBody);
-    wBody.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            setStreamFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
   }
 
   private void setupMethodNameLine(ModifyListener lsMod, int middle, int margin, Group gSettings) {
@@ -1054,20 +1006,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdMethodField.top = new FormAttachment(wMethodInField, margin);
     fdMethodField.right = new FormAttachment(100, -margin);
     wMethodField.setLayoutData(fdMethodField);
-    wMethodField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            setStreamFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
   }
 
   private void setupMethodInFieldLine(int middle, int margin, Group gSettings) {
@@ -1148,20 +1086,6 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdUrlField.top = new FormAttachment(wUrlInField, margin);
     fdUrlField.right = new FormAttachment(100, -margin);
     wUrlField.setLayoutData(fdUrlField);
-    wUrlField.addFocusListener(
-        new FocusListener() {
-          @Override
-          public void focusLost(FocusEvent e) {}
-
-          @Override
-          public void focusGained(FocusEvent e) {
-            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-            shell.setCursor(busy);
-            setStreamFields();
-            shell.setCursor(null);
-            busy.dispose();
-          }
-        });
   }
 
   private void setupUrlInFieldLine(int middle, int margin, Group gSettings) {
@@ -1269,44 +1193,38 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wMatrixParameters.setEnabled(activateParams);
     wMatrixGet.setEnabled(activateParams);
   }
-
+  
+  //
+  // Search the fields in the background
+  //
   protected void setComboBoxes() {
-    // Something was changed in the row.
-    //
-    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
-    colinfoparams[0].setComboValues(fieldNames);
-    colinf[0].setComboValues(fieldNames);
-  }
+    final Runnable runnable = new Runnable() {
+      @Override
+      public void run() {
+        TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+        if (transformMeta != null) {
+          try {
+            IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-  private void setStreamFields() {
-    if (!gotPreviousFields) {
-      String urlfield = wUrlField.getText();
-      String body = wBody.getText();
-      String method = wMethodField.getText();
+            // Remember these fields...
+            for (int i = 0; i < rowMeta.size(); i++) {
+              inputFields.add(rowMeta.getValueMeta(i).getName());
+            }
 
-      wUrlField.removeAll();
-      wBody.removeAll();
-      wMethodField.removeAll();
-
-      try {
-        if (fieldNames != null) {
-          wUrlField.setItems(fieldNames);
-          wBody.setItems(fieldNames);
-          wMethodField.setItems(fieldNames);
-        }
-      } finally {
-        if (urlfield != null) {
-          wUrlField.setText(urlfield);
-        }
-        if (body != null) {
-          wBody.setText(body);
-        }
-        if (method != null) {
-          wMethodField.setText(method);
+            String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+            colinfoparams[0].setComboValues(fieldNames);
+            colinf[0].setComboValues(fieldNames);
+            wUrlField.setItems(fieldNames);
+            wBody.setItems(fieldNames);
+            wMethodField.setItems(fieldNames);
+          } catch (HopException e) {
+            log.logError(toString(),
+                BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+          }
         }
       }
-      gotPreviousFields = true;
-    }
+    };
+    shell.getDisplay().asyncExec(runnable);
   }
 
   private void activateUrlInfield() {
