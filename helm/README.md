@@ -69,14 +69,22 @@ web.fullnameOverride | No | Override full resource name
 
 ## How to run Hop via helm on kubernetes
 
-Create a secret for the hop server
+### Prequest
+
+Create a secret to store hop server credentials (give `<release_name>` a value of your choice)
 
 ```bash
-kubectl create secret generic <release name>-server --from-literal=pass=admin
+kubectl create secret generic <release_name>-server --from-literal=pass=<admin_password>
 ```
 
-install the helm hop-server chart:
+`<admin_password>` will be used to authenticate to `hop-server` with admin account
+
+### Install
+
+Install the helm hop-server chart :
 
 ```bash
-helm install  <release name> hop
+helm install <release_name> hop
 ```
+
+`<release_name>` has to be the same given in the secret above
