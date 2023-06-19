@@ -24,7 +24,7 @@ under the License.
 |===
 | Option | Info
 |Type | Relational
-|Driver | https://cloud.google.com/bigquery/providers/simba-drivers/[Driver Link]
+|Driver | https://cloud.google.com/bigquery/docs/reference/odbc-jdbc-drivers[Driver Link]
 |Version Included | None
 |Hop Dependencies | None
 |Documentation | https://www.simba.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/d-intro.htm[Documentation Link]
