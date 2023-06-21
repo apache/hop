@@ -66,7 +66,8 @@ public class DialogBoxWithButtons {
     formLayout.marginBottom = formMargin;
     formLayout.marginRight = formMargin;
     shell.setLayout(formLayout);
-
+    PropsUi.setLook(shell);
+    
     Label wLabel = new Label(shell, SWT.CENTER | SWT.WRAP);
     PropsUi.setLook(wLabel);
     wLabel.setText(Const.NVL(message, ""));
