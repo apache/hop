@@ -3647,8 +3647,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return false;
     }
 
+    Shell shell = hopGui.getDisplay().getActiveShell();
+    if(shell == null){
+      shell = hopGui.getShell();
+    }
     PipelineDialog tid =
-        new PipelineDialog(hopGui.getDisplay().getActiveShell(), SWT.NONE, variables, pipelineMeta, currentTab);
+        new PipelineDialog(shell, SWT.NONE, variables, pipelineMeta, currentTab);
     if (tid.open() != null) {
       hopGui.setParametersAsVariablesInUI(pipelineMeta, variables);
       updateGui();

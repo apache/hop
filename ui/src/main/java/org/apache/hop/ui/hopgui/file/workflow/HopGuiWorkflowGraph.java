@@ -3180,7 +3180,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return false;
     }
 
-    WorkflowDialog jd = new WorkflowDialog(hopGui.getDisplay().getActiveShell(), SWT.NONE, variables, workflowMeta);
+    Shell shell = hopGui.getDisplay().getActiveShell();
+    if(shell == null){
+      shell = hopGui.getShell();
+    }
+    WorkflowDialog jd = new WorkflowDialog(shell, SWT.NONE, variables, workflowMeta);
     if (jd.open() != null) {
       // If we added properties, add them to the variables too, so that they appear in the
       // CTRL-SPACE variable completion.
