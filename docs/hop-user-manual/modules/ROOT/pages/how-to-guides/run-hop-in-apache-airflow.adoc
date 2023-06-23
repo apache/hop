@@ -41,7 +41,7 @@ To keep things simple, we'll use Docker Compose to get Apache Airflow up and run
 
 Apache Airflow provides a https://airflow.apache.org/docs/apache-airflow/2.6.0/docker-compose.yaml[docker-compose.yaml^] file. Our goal is to run Apache Hop workflows and pipelines in Apache Airflow, so we're not interested in the Airflow sample DAGs that come with this docker-compose file.
 
-Change the **AIRFLOW__CORE__LOAD_EXAMPLES** variable to "false" in the default file, and add an additional line **/var/run/docker.sock:/var/run/docker.sock** in the volumes section.
+Change the **AIRFLOW\__CORE__LOAD_EXAMPLES** variable to "false" in the default file, and add an additional line **/var/run/docker.sock:/var/run/docker.sock** in the volumes section.
 All of this has already been done if you use the https://github.com/apache/hop/tree/master/docs/hop-user-manual/modules/ROOT/assets/files/how-to-guides/apache-airflow/docker-compose.yaml[the file] in our github repository.
 
 To run Apache Airflow from this docker-compose file, go the directory where you saved this file and run
