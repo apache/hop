@@ -50,6 +50,7 @@ The Simba driver is packaged as a .zip containing many jars. Only a subset of th
  grpc-google-cloud-bigquerystorage-v1-<VERSION>.jar
  grpc-google-cloud-bigquerystorage-v1beta1-<VERSION>.jar
  grpc-google-cloud-bigquerystorage-v1beta2-<VERSION>.jar
+ json-<VERSION>.jar
  proto-google-cloud-bigquerystorage-v1-<VERSION>.jar
  proto-google-cloud-bigquerystorage-v1beta1-<VERSION>.jar
  proto-google-cloud-bigquerystorage-v1beta2-<VERSION>.jar
