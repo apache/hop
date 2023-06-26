@@ -1677,8 +1677,18 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // See if the dateValue is between the from and to date ranges...
       // The last 2 values are from and to
       long time = dateValue.getTime();
-      long from = ((Date) row[row.length - 2]).getTime();
-      long to = ((Date) row[row.length - 1]).getTime();
+      long from = 0L;
+      long to = 0L;
+      
+      Date dateFrom = (Date) row[row.length - 2];
+      if ( dateFrom!=null ) {
+        from = dateFrom.getTime();
+      }      
+      Date dateTo = (Date) row[row.length - 1];
+      if ( dateTo!=null ) {
+        to = dateTo.getTime();
+      }
+       
       if (time >= from && time < to) { // sanity check to see if we have the right version
         if (isRowLevel()) {
           logRowlevel(
