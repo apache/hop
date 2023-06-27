@@ -107,7 +107,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     shell.setText(BaseMessages.getString(PKG, "AddSequenceDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -170,8 +170,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wlUseDatabase.setLayoutData(fdlUseDatabase);
     wUseDatabase = new Button(gDatabase, SWT.CHECK);
     PropsUi.setLook(wUseDatabase);
-    wUseDatabase.setToolTipText(
-        BaseMessages.getString(PKG, "AddSequenceDialog.UseDatabase.Tooltip"));
+    wUseDatabase.setToolTipText(BaseMessages.getString(PKG, "AddSequenceDialog.UseDatabase.Tooltip"));
     FormData fdUseDatabase = new FormData();
     fdUseDatabase.left = new FormAttachment(middle, 0);
     fdUseDatabase.top = new FormAttachment(wlUseDatabase, 0, SWT.CENTER);
@@ -186,7 +185,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
           }
         });
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(gDatabase, wUseDatabase, input.getConnection(), lsMod);
     wConnection.addModifyListener(e -> activeSequence());
 
     // Schema line...
@@ -206,7 +205,8 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdbSchema.top = new FormAttachment(wConnection, 2 * margin);
     fdbSchema.right = new FormAttachment(100, 0);
     wbSchema.setLayoutData(fdbSchema);
-
+    wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
+    
     wSchema = new TextVar(variables, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
@@ -230,10 +230,11 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     PropsUi.setLook(wbSequence);
     wbSequence.setText(BaseMessages.getString(PKG, "AddSequenceDialog.GetSequences.Label"));
     FormData fdbSequence = new FormData();
-    fdbSequence.right = new FormAttachment(100, -margin);
+    fdbSequence.right = new FormAttachment(100, 0);
     fdbSequence.top = new FormAttachment(wbSchema, margin);
     wbSequence.setLayoutData(fdbSequence);
-
+    wbSequence.addListener(SWT.Selection, e -> getSequences());
+    
     wSeqname = new TextVar(variables, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wSeqname.setText("");
     PropsUi.setLook(wSeqname);
@@ -357,20 +358,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdMaxVal.top = new FormAttachment(wIncrBy, margin);
     fdMaxVal.right = new FormAttachment(100, 0);
     wMaxVal.setLayoutData(fdMaxVal);
-    wbSequence.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSequences();
-          }
-        });
-    wbSchema.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            getSchemaNames();
-          }
-        });
+
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
@@ -492,9 +480,8 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
   private void getSequences() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-    if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+    if (databaseMeta != null) {      
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] sequences = database.getSequences();
 
@@ -525,11 +512,6 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "AddSequenceDialog.ErrorGettingSequences"),
             e);
-      } finally {
-        if (database != null) {
-          database.disconnect();
-          database = null;
-        }
       }
     }
   }
@@ -540,8 +522,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
@@ -570,12 +551,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
             shell,
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "AddSequenceDialog.ErrorGettingSchemas"),
-            e);
-      } finally {
-        if (database != null) {
-          database.disconnect();
-          database = null;
-        }
+            e);    
       }
     }
   }
