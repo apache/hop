@@ -50,19 +50,24 @@
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
         <google-api-sheets.version>v4-rev612-1.25.0</google-api-sheets.version>
         <google-api-drive.version>v3-rev197-1.25.0</google-api-drive.version>
-        <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>
+<!--        <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>-->
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
         <jetty-client.version>6.1.26</jetty-client.version>
     </properties>
 
     <dependencies>
         <!-- Google Analytics dependencies -->
-
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-analytics</artifactId>
-            <version>${google-api-services-analytics.version}</version>
+            <groupId>com.google.analytics</groupId>
+            <artifactId>google-analytics-data</artifactId>
+            <version>0.28.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.23.3</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>

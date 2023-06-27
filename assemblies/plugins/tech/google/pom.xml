@@ -47,6 +47,18 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Google Analytics 4 -->
+        <dependency>
+            <groupId>com.google.analytics</groupId>
+            <artifactId>google-analytics-data</artifactId>
+            <version>0.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.23.3</version>
+        </dependency>
+
         <!-- force lib version to match Beam -->
         <dependency>
             <groupId>com.google.code.gson</groupId>

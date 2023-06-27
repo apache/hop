@@ -82,6 +82,8 @@
                 <include>org.mortbay.jetty:servlet-api:jar</include>
                 <include>org.threeten:threetenbp:jar</include>
                 <include>com.google.code.gson:gson</include>
+                <include>com.google.analytics:google-analytics-data:jar</include>
+                <include>com.google.protobuf:protobuf-java-util:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
