@@ -246,6 +246,7 @@ public class DatabaseMetaTest {
     DatabaseMeta meta = mock(DatabaseMeta.class);
     BaseDatabaseMeta iDatabase = mock(BaseDatabaseMeta.class);
     when(iDatabase.isRequiresName()).thenReturn(true);
+    when(iDatabase.getManualUrl()).thenReturn("");
     when(meta.getIDatabase()).thenReturn(iDatabase);
     when(meta.getName()).thenReturn(null);
     when(meta.checkParameters()).thenCallRealMethod();
