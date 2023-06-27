@@ -31,9 +31,6 @@
     <name>Hop Plugins Technology AWS</name>
 
     <properties>
-        <!-- Third-party dependencies -->
-        <guava.version>31.1-jre</guava.version>
-
         <!-- Test dependencies -->
         <mockito.version>1.10.19</mockito.version>
         <powermock.version>2.0.9</powermock.version>
