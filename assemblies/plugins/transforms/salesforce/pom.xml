@@ -35,7 +35,7 @@
     <description>Adds a series of Salesforce plugins</description>
 
     <properties>
-        <com.force.api.version>50.0.0</com.force.api.version>
+        <com.force.api.version>58.0.0</com.force.api.version>
     </properties>
 
     <dependencies>
