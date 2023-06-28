@@ -68,7 +68,9 @@ public class KettleConst {
                 {"step_name", "transform_name"},
                 {"step_description", "transform_description"},
                 // ExcelWriter
-                {"extention", "extension"}
+                {"extention", "extension"},
+                // Formula
+                {"formula_string", "formula"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
