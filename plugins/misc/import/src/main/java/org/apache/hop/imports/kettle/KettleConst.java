@@ -187,7 +187,11 @@ public class KettleConst {
                   "SWITCH_CASE_TARGET.CASE_TARGET_STEP_NAME",
                   "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME"
                 }, // switchcase
-                {"DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"} // switchcase
+                {"DEFAULT_TARGET_STEP_NAME", "DEFAULT_TARGET_TRANSFORM_NAME"}, // switchcase
+                {"CURRENT_JOB", "CURRENT_WORKFLOW"}, // set variable
+                {"PARENT_JOB", "PARENT_WORKFLOW"}, // set variable
+                {"ROOT_JOB", "ROOT_WORKFLOW"} // set variable
+
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
