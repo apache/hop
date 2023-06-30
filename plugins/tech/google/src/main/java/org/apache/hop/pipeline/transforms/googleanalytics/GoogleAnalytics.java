@@ -92,10 +92,10 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
     }
 
     private RunReportRequest getRequest(){
-        try {
+//        try {
 
-            Struct.Builder structBuilder = Struct.newBuilder();
-            JsonFormat.parser().merge(meta.getDimensionFilters(), structBuilder);
+//            Struct.Builder structBuilder = Struct.newBuilder();
+//            JsonFormat.parser().merge(meta.getDimensionFilters(), structBuilder);
 
             return RunReportRequest.newBuilder()
                     .setProperty("properties/" + meta.getGaProperty())
@@ -103,14 +103,14 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
                     .addAllMetrics(metricList)
 //                    .setMetricFilter(FilterExpression.parseFrom(new ByteArrayInputStream(meta.getMetricFilters().getBytes())))
 //                    .setDimensionFilter(FilterExpression.parseFrom(IOUtils.toInputStream(meta.getDimensionFilters(), "UTF-8")))
-                    .setMetricAggregations(0, MetricAggregation.valueOf(MetricAggregation.COUNT_VALUE))
+//                    .setMetricAggregations(0, MetricAggregation.valueOf(MetricAggregation.COUNT_VALUE))
                     .addDateRanges(DateRange.newBuilder().setStartDate(meta.getStartDate()).setEndDate(meta.getEndDate()))
                     .setLimit(REQUEST_ROW_SIZE)
                     .setOffset(requestOffset)
                     .build();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     @Override

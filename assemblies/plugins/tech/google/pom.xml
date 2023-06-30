@@ -51,7 +51,12 @@
         <dependency>
             <groupId>com.google.analytics</groupId>
             <artifactId>google-analytics-data</artifactId>
-            <version>0.28.0</version>
+            <version>0.31.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api.grpc</groupId>
+            <artifactId>proto-google-analytics-data-v1beta</artifactId>
+            <version>0.31.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -93,7 +98,7 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.21.9</version>
+            <version>3.21.12</version>
         </dependency>
         <dependency>
             <groupId>com.google.api.grpc</groupId>
@@ -118,11 +123,22 @@
         <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threetenbp</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.8</version>
         </dependency>
 
         <!-- Google Analytics dependencies -->
 
+        <dependency>
+            <groupId>com.google.analytics</groupId>
+            <artifactId>google-analytics-data</artifactId>
+            <version>0.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.23.3</version>
+        </dependency>
+<!--
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-analytics</artifactId>
@@ -133,6 +149,7 @@
             <artifactId>google-api-client</artifactId>
             <version>${google-api-client.version}</version>
         </dependency>
+-->
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client</artifactId>
