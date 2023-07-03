@@ -54,7 +54,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "Your Azure account")
+      label = "i18n::AzureVFS.Account.Label",
+      toolTip = "i18n::AzureVFS.Account.Description")
   @CommandLine.Option(
       names = {"-aza", "--azure-account"},
       description = "The account to use for the Azure VFS")
@@ -66,7 +67,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       type = GuiElementType.TEXT,
       variables = true,
       password = true,
-      label = "Your Azure key")
+      label = "i18n::AzureVFS.AccountKey.Label",
+      toolTip = "i18n::AzureVFS.AccountKey.Description")
   @CommandLine.Option(
       names = {"-azk", "--azure-key"},
       description = "The key to use for the Azure VFS")
@@ -77,7 +79,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "File block increment size (multiples of 512 only)")
+      label = "i18n::AzureVFS.FileBlockSize.Label",
+      toolTip = "i18n::AzureVFS.FileBlockSize.Description")
   @CommandLine.Option(
       names = {"-azi", "--azure-block-increment"},
       description = "The block increment size for new files on Azure, multiples of 512 only.")
@@ -184,7 +187,9 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     return account;
   }
 
-  /** @param account The account to set */
+  /**
+   * @param account The account to set
+   */
   public void setAccount(String account) {
     this.account = account;
   }
@@ -198,7 +203,9 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     return key;
   }
 
-  /** @param key The key to set */
+  /**
+   * @param key The key to set
+   */
   public void setKey(String key) {
     this.key = key;
   }
@@ -212,7 +219,9 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     return blockIncrement;
   }
 
-  /** @param blockIncrement The blockIncrement to set */
+  /**
+   * @param blockIncrement The blockIncrement to set
+   */
   public void setBlockIncrement(String blockIncrement) {
     this.blockIncrement = blockIncrement;
   }
