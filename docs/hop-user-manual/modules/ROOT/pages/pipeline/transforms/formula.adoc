@@ -83,6 +83,10 @@ TIP: Check the Apache POI docs page for a https://poi.apache.org/components/spre
 
 toc::[]
 
+== Notes
+
+The kettle import process is able to migrate the existing Formula steps contained in kettle processes in the new Hop Formula transform. Even if the migration will go without any problem, the migration process is unable to enter in the inner details of the Formula's transform macros and perform all the necessary checks to guarantee the correct behavior and the expected correct results. Therefore, even if the majority of the macros are the same as the existing macros you can find in Kettle Formula step, we strongly suggest to perfom a review of all of your fomulas transforms to verify that they behave as expected after the migration to the new Hop format.
+
 == Functions
 
 === Basic Computation
