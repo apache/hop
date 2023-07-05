@@ -53,7 +53,8 @@ public class ExplorerPerspectiveConfigPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "Lazy loading maximum initial depth")
+      label = "i18n::ExplorerPerspectiveConfig.LazyLoading.Label",
+      toolTip = "i18n::ExplorerPerspectiveConfig.LazyLoading.Tooltip")
   @CommandLine.Option(
       names = {"-exid", "--explorer-lazy-loading-initial-depth"},
       description = "For the explorer perspective: the initial depth to load not lazily")
@@ -64,7 +65,8 @@ public class ExplorerPerspectiveConfigPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.TEXT,
       variables = true,
-      label = "The maximum file size to load (in MB)")
+      label = "i18n::ExplorerPerspectiveConfig.FileSize.Label",
+      toolTip = "i18n::ExplorerPerspectiveConfig.FileSize.Tooltip")
   @CommandLine.Option(
       names = {"-exms", "--explorer-file-loading-max-size"},
       description = "For the explorer: the maximum file size to load")

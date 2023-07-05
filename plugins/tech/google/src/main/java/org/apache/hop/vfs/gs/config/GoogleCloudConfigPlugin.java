@@ -53,9 +53,9 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FILENAME,
       variables = true,
-      label = "Path to a Google Cloud service account JSON key file",
+      label = "i18n::GoogleCloudPlugin.ConfigPlugin.Description",
       toolTip =
-          "Go to the Google Cloud console to create a key file for the service account you want to use")
+          "i18n::GoogleCloudPlugin.ConfigPlugin.Tooltip")
   @CommandLine.Option(
       names = {"-gck", "--google-cloud-service-account-key-file"},
       description = "Configure the path to a Google Cloud service account JSON key file")
