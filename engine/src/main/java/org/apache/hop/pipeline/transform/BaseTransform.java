@@ -20,6 +20,23 @@ package org.apache.hop.pipeline.transform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import java.io.Closeable;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
@@ -54,24 +71,6 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class can be extended for the actual row processing of the implemented transform.
@@ -1313,7 +1312,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     // Do not call the row listeners for targeted rows.
-    // It can cause rows with varying layouts to arrive at the same listener without a way to keep them apart.
+    // It can cause rows with varying layouts to arrive at the same listener without a way to keep
+    // them apart.
 
     // Keep adding to terminator_rows buffer...
     if (terminator && terminatorRows != null) {
@@ -1696,12 +1696,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       inputRowSetsLock.readLock().unlock();
     }
 
-    // Also set the meta data on the first occurrence.
-    // or if prevTransforms.length > 1 inputRowMeta can be changed
-    if (inputRowMeta == null || prevTransforms.length > 1) {
-      inputRowMeta = inputRowSet.getRowMeta();
+    // Be double sure that we are getting a not null reference to a RowMeta object
+    if (inputRowSet.getRowMeta() != null) {
+      // Also set the meta data on the first occurrence.
+      // or if prevTransforms.length > 1 inputRowMeta can be changed
+      if (inputRowMeta == null || prevTransforms.length > 1) {
+        inputRowMeta = inputRowSet.getRowMeta();
+      }
+    } else {
+      logBasic("WARNING: Trying to assign inputRowMeta to a NULL reference.");  
     }
-
+    
     if (row != null) {
       // OK, before we return the row, let's see if we need to check on mixing
       // row compositions...
