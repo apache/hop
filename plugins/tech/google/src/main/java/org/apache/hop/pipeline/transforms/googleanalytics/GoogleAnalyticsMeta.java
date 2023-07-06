@@ -99,18 +99,6 @@ public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, Goog
     private String metrics;
 
     @HopMetadataProperty(
-            key = "dim_filters",
-            injectionKeyDescription = ""
-    )
-    private String dimensionFilters;
-
-    @HopMetadataProperty(
-            key = "metric_filters",
-            injectionKeyDescription = ""
-    )
-    private String metricFilters;
-
-    @HopMetadataProperty(
             key = "order_by",
             injectionKeyDescription = ""
     )
@@ -196,22 +184,6 @@ public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, Goog
 
     public void setMetrics(String metrics) {
         this.metrics = metrics;
-    }
-
-    public String getDimensionFilters() {
-        return dimensionFilters;
-    }
-
-    public void setDimensionFilters(String dimensionFilters) {
-        this.dimensionFilters = dimensionFilters;
-    }
-
-    public String getMetricFilters() {
-        return metricFilters;
-    }
-
-    public void setMetricFilters(String metricFilters) {
-        this.metricFilters = metricFilters;
     }
 
     public String getSort() {

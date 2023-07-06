@@ -44,7 +44,7 @@ import java.util.List;
 
 @Transform(
     id = "GoogleSheetsPluginInput",
-    image = "GoogleSheetsInput.svg",
+    image = "google-sheets-input.svg",
     name = "i18n::GoogleSheetsInput.transform.Name",
     description = "i18n::GoogleSheetsInput.transform.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",

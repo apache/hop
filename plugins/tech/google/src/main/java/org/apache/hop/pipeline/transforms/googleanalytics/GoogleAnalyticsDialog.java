@@ -94,8 +94,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
 
     private TextVar wQuMetrics;
 
-//    private TextVar wQuDimFilters;
-//    private TextVar wQuMetricFilters;
     private TextVar wQuMetricAggs;
 
     private TextVar wQuSort;
@@ -114,17 +112,17 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
     private ModifyListener lsMod;
 
     static final String REFERENCE_SORT_URI =
-            "https://developers.google.com/analytics/devguides/reporting/core/v3/reference#sort";
+            "https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/OrderBy";
     static final String REFERENCE_METRICS_URI =
             "https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics";
     static final String REFERENCE_DIMENSIONS_URI =
             "https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#dimensions";
-    static final String REFERENCE_FILTERS_URI =
-            "https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filters";
+//    static final String REFERENCE_FILTERS_URI =
+//            "https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filters";
     static final String REFERENCE_DIMENSION_AND_METRIC_URI =
-            "https://developers.google.com/analytics/devguides/reporting/core/v3/";
+            "https://support.google.com/analytics/answer/9143382?hl=en";
     static final String REFERENCE_METRICAGGS_URI =
-            "https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filters";
+            "https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/MetricAggregation";
 
     public GoogleAnalyticsDialog(
             Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -452,7 +450,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
                 BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
         props.setLook(wQuMetricAggsReference);
         wQuMetricAggsReference.addListener(
-                SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_FILTERS_URI));
+                SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_METRICAGGS_URI));
 
         wQuMetricAggsReference.pack(true);
 

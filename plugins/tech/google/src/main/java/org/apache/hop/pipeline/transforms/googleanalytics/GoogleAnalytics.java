@@ -23,7 +23,6 @@ import com.google.analytics.data.v1beta.DateRange;
 import com.google.analytics.data.v1beta.Dimension;
 import com.google.analytics.data.v1beta.DimensionHeader;
 import com.google.analytics.data.v1beta.Metric;
-import com.google.analytics.data.v1beta.MetricAggregation;
 import com.google.analytics.data.v1beta.MetricHeader;
 import com.google.analytics.data.v1beta.MetricType;
 import com.google.analytics.data.v1beta.Row;
@@ -32,8 +31,6 @@ import com.google.analytics.data.v1beta.RunReportResponse;
 import com.google.api.gax.core.FixedCredentialsProvider;
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
-import com.google.protobuf.Struct;
-import com.google.protobuf.util.JsonFormat;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -109,25 +106,16 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
     }
 
     private RunReportRequest getRequest(){
-//        try {
-
-//            Struct.Builder structBuilder = Struct.newBuilder();
-//            JsonFormat.parser().merge(meta.getDimensionFilters(), structBuilder);
 
             return RunReportRequest.newBuilder()
                     .setProperty("properties/" + meta.getGaProperty())
                     .addAllDimensions(dimensionList)
                     .addAllMetrics(metricList)
-//                    .setMetricFilter(FilterExpression.parseFrom(new ByteArrayInputStream(meta.getMetricFilters().getBytes())))
-//                    .setDimensionFilter(FilterExpression.parseFrom(IOUtils.toInputStream(meta.getDimensionFilters(), "UTF-8")))
 //                    .setMetricAggregations(0, MetricAggregation.valueOf(MetricAggregation.COUNT_VALUE))
                     .addDateRanges(DateRange.newBuilder().setStartDate(meta.getStartDate()).setEndDate(meta.getEndDate()))
                     .setLimit(REQUEST_ROW_SIZE)
                     .setOffset(requestOffset)
                     .build();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     @Override

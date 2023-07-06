@@ -32,9 +32,10 @@
     <description />
 
     <properties>
+        <gax.version>2.27.0</gax.version>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <google-api-sheets.version>v4-rev612-1.25.0</google-api-sheets.version>
-        <google-api-drive.version>v3-rev197-1.25.0</google-api-drive.version>
+        <google-api-sheets.version>v4-rev20230526-2.0.0</google-api-sheets.version>
+        <google-api-drive.version>v3-rev20230610-2.0.0</google-api-drive.version>
         <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
         <jetty-client.version>6.1.26</jetty-client.version>
@@ -51,12 +52,17 @@
         <dependency>
             <groupId>com.google.analytics</groupId>
             <artifactId>google-analytics-data</artifactId>
-            <version>0.31.0</version>
+            <version>0.28.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.api.grpc</groupId>
             <artifactId>proto-google-analytics-data-v1beta</artifactId>
-            <version>0.31.0</version>
+            <version>0.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.23.3</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
@@ -91,19 +97,9 @@
             <version>${gax.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java-util</artifactId>
-            <version>3.21.9</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.21.12</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.api.grpc</groupId>
             <artifactId>proto-google-common-protos</artifactId>
-            <version>2.14.0</version>
+            <version>2.21.0</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -133,23 +129,6 @@
             <artifactId>google-analytics-data</artifactId>
             <version>0.28.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java-util</artifactId>
-            <version>3.23.3</version>
-        </dependency>
-<!--
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-analytics</artifactId>
-            <version>${google-api-services-analytics.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>${google-api-client.version}</version>
-        </dependency>
--->
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client</artifactId>
