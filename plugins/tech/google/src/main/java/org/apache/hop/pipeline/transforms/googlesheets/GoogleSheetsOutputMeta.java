@@ -20,19 +20,14 @@ package org.apache.hop.pipeline.transforms.googlesheets;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -55,25 +50,25 @@ public class GoogleSheetsOutputMeta
     create = true;
   }
 
-  @Injection(name = "jsonCrendentialPath", group = "SHEET")
+  @HopMetadataProperty(key = "jsonCredentialPath", injectionGroupKey = "SHEET")
   private String jsonCredentialPath;
 
-  @Injection(name = "spreadsheetKey", group = "SHEET")
+  @HopMetadataProperty(key = "spreadsheetKey", injectionGroupKey = "SHEET")
   private String spreadsheetKey;
 
-  @Injection(name = "worksheetId", group = "SHEET")
+  @HopMetadataProperty(key = "worksheetId", injectionGroupKey = "SHEET")
   private String worksheetId;
 
-  @Injection(name = "Email", group = "SHEET")
+  @HopMetadataProperty(key = "SHAREEMAIL", injectionGroupKey = "SHEET")
   private String shareEmail;
 
-  @Injection(name = "Domain", group = "SHEET")
+  @HopMetadataProperty(key = "SHAREDOMAIN", injectionGroupKey = "SHEET")
   private String shareDomain;
 
-  @Injection(name = "Create", group = "SHEET")
+  @HopMetadataProperty(key = "CREATE", injectionGroupKey = "SHEET")
   private Boolean create;
 
-  @Injection(name = "Append", group = "SHEET")
+  @HopMetadataProperty(key = "APPEND", injectionGroupKey = "SHEET")
   private Boolean append;
 
   @Override
@@ -157,40 +152,6 @@ public class GoogleSheetsOutputMeta
   }
 
   @Override
-  public String getXml() throws HopException {
-    StringBuilder xml = new StringBuilder();
-    try {
-      xml.append(XmlHandler.addTagValue("jsonCredentialPath", this.jsonCredentialPath));
-      xml.append(XmlHandler.addTagValue("worksheetId", this.worksheetId));
-      xml.append(XmlHandler.addTagValue("spreadsheetKey", this.spreadsheetKey));
-      xml.append(XmlHandler.addTagValue("CREATE", Boolean.toString(this.create)));
-      xml.append(XmlHandler.addTagValue("APPEND", Boolean.toString(this.append)));
-      xml.append(XmlHandler.addTagValue("SHAREEMAIL", this.shareEmail));
-      xml.append(XmlHandler.addTagValue("SHAREDOMAIN", this.shareDomain));
-    } catch (Exception e) {
-      throw new HopValueException("Unable to write transform to XML", e);
-    }
-    return xml.toString();
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      this.jsonCredentialPath = XmlHandler.getTagValue(transformNode, "jsonCredentialPath");
-      this.worksheetId = XmlHandler.getTagValue(transformNode, "worksheetId");
-      this.spreadsheetKey = XmlHandler.getTagValue(transformNode, "spreadsheetKey");
-      this.create = Boolean.parseBoolean(XmlHandler.getTagValue(transformNode, "CREATE"));
-      this.append = Boolean.parseBoolean(XmlHandler.getTagValue(transformNode, "APPEND"));
-      this.shareEmail = XmlHandler.getTagValue(transformNode, "SHAREEMAIL");
-      this.shareDomain = XmlHandler.getTagValue(transformNode, "SHAREDOMAIN");
-
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform from XML", e);
-    }
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       PipelineMeta pipelineMeta,
@@ -229,10 +190,5 @@ public class GoogleSheetsOutputMeta
               "No input received from other transforms.",
               transformMeta));
     }
-  }
-
-  @Override
-  public String getDialogClassName() {
-    return GoogleSheetsOutputDialog.class.getName();
   }
 }
