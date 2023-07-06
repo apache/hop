@@ -25,7 +25,9 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -535,6 +537,19 @@ public class ExcelWriterTransform
               && !Utils.isEmpty(excelField.getFormat())
               && !excelField.getFormat().startsWith("Image")) {
             setDataFormat(workbookDefinition, excelField.getFormat(), cell);
+          }
+
+          if (!isTitle
+                  && excelField != null
+                  && Utils.isEmpty(excelField.getFormat())) {
+
+            if (vMeta instanceof ValueMetaDate || vMeta instanceof ValueMetaTimestamp) {
+
+              String format = vMeta.getFormatMask();
+              if (!Utils.isEmpty(format)) {
+                setDataFormat(workbookDefinition, format, cell);
+              }
+            }
           }
           // cache it for later runs
           if (!isTitle) {
