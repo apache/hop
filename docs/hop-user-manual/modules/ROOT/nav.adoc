@@ -462,6 +462,8 @@ under the License.
 * xref:how-to-guides/index.adoc[How-to guides]
 ** xref:how-to-guides/apache-hop-web-services-docker.adoc[Hop web services in Docker]
 ** xref:how-to-guides/joins-lookups.adoc[Joins and lookups]
+** xref:how-to-guides/logging-pipeline-log.adoc[Logging pipeline data with pipeline log]
+** xref:how-to-guides/logging-workflow-log.adoc[Logging workflow data with workflow log]
 ** xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop]
 ** xref:how-to-guides/workflows-parallel-execution.adoc[Parallel execution in workflows]
 ** xref:how-to-guides/run-hop-in-apache-airflow.adoc[Run Hop workflows and pipelines in Apache Airflow]
