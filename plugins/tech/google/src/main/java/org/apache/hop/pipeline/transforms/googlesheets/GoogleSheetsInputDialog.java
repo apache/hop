@@ -57,6 +57,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITransformDialog {
@@ -80,7 +81,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
   @Override
   public String open() {
-    Shell parent = this.getParent();
+    Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     props.setLook(shell);
@@ -550,8 +551,9 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());
     this.wSampleFields.setText(Integer.toString(meta.getSampleFields()));
 
-    for (int i = 0; i < meta.getInputFields().length; i++) {
-      GoogleSheetsInputFields field = meta.getInputFields()[i];
+    for (int i = 0; i < meta.getInputFields().size(); i++) {
+      GoogleSheetsInputField field = meta.getInputFields().get(i);
+//      GoogleSheetsInputFields field = meta.getInputFields()[i];
 
       TableItem item = new TableItem(wFields.table, SWT.NONE);
 
@@ -614,24 +616,26 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     }
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
-    meta.allocate(nrNonEmptyFields);
+//    meta.allocate(nrNonEmptyFields);
 
+    List<GoogleSheetsInputField> googleSheetsInputFields = meta.getInputFields();
     for (int i = 0; i < nrNonEmptyFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      meta.getInputFields()[i] = new GoogleSheetsInputFields();
+      GoogleSheetsInputField field = new GoogleSheetsInputField();
 
       int colnr = 1;
-      meta.getInputFields()[i].setName(item.getText(colnr++));
-      meta.getInputFields()[i].setType(ValueMetaFactory.getIdForValueMeta(item.getText(colnr++)));
-      meta.getInputFields()[i].setFormat(item.getText(colnr++));
-      meta.getInputFields()[i].setLength(Const.toInt(item.getText(colnr++), -1));
-      meta.getInputFields()[i].setPrecision(Const.toInt(item.getText(colnr++), -1));
-      meta.getInputFields()[i].setCurrencySymbol(item.getText(colnr++));
-      meta.getInputFields()[i].setDecimalSymbol(item.getText(colnr++));
-      meta.getInputFields()[i].setGroupSymbol(item.getText(colnr++));
-      meta.getInputFields()[i].setTrimType(
-          ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
+      field.setName(item.getText(colnr++));
+      field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(colnr++)));
+      field.setFormat(item.getText(colnr++));
+      field.setLength(Const.toInt(item.getText(colnr++), -1));
+      field.setPrecision(Const.toInt(item.getText(colnr++), -1));
+      field.setCurrencySymbol(item.getText(colnr++));
+      field.setDecimalSymbol(item.getText(colnr++));
+      field.setGroupSymbol(item.getText(colnr++));
+      field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
+//      googleSheetsInputFields.add(field);
     }
+    meta.setInputFields(googleSheetsInputFields);
     wFields.removeEmptyRows();
     wFields.setRowNums();
     wFields.optWidth(true);
@@ -704,7 +708,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
             item.setText(1, Const.trim(row.get(j).toString()));
             // Fill in sample in order to guess types ___ GoogleSheetsInputFields( String
             // fieldname, int position, int length )
-            GoogleSheetsInputFields sampleInputFields = new GoogleSheetsInputFields();
+            GoogleSheetsInputField sampleInputFields = new GoogleSheetsInputField();
             String columnsLetter = getColumnName(j + 1);
             logBasic("column:" + Integer.toString(j) + ")" + columnsLetter);
             Integer nbSampleFields = Integer.parseInt(variables.resolve(wSampleFields.getText()));

@@ -20,10 +20,10 @@ package org.apache.hop.pipeline.transforms.googlesheets;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.ITextFileInputField;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -33,46 +33,59 @@ import java.util.Calendar;
 import java.util.Date;
 
 /** Describes a single field in a text file */
-public class GoogleSheetsInputFields implements Cloneable, ITextFileInputField {
+public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
 
-  @Injection(name = "INPUT_NAME", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_NAME", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT)NAME", injectionGroupKey = "INPUT_FIELDS")
   private String name;
 
-  @Injection(name = "INPUT_POSITION", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_POSITION", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_POSITION", injectionGroupKey = "INPUT_FIELDS")
   private int position;
 
-  @Injection(name = "INPUT_LENGTH", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_LENGTH", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_LENGTH", injectionGroupKey = "INPUT_FIELDS")
   private int length;
 
   private int type;
 
-  @Injection(name = "INPUT_IGNORE", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_IGNORE", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_IGNORE", injectionGroupKey = "INPUT_FIELDS")
   private boolean ignore;
 
-  @Injection(name = "INPUT_FORMAT", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_FORMAT", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_FORMAT", injectionGroupKey = "INPUT_FIELDS")
+
   private String format;
 
   private int trimtype;
 
-  @Injection(name = "INPUT_PRECISION", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_PRECISION", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_PRECISION", injectionGroupKey = "INPUT_FIELDS")
   private int precision;
 
-  @Injection(name = "INPUT_CURRENCY", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_CURRENCY", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_CURRENCY", injectionGroupKey = "INPUT_FIELDS")
   private String currencySymbol;
 
-  @Injection(name = "INPUT_DECIMAL", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_DECIMAL", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_DECIMAL", injectionGroupKey = "INPUT_FIELDS")
   private String decimalSymbol;
 
-  @Injection(name = "INPUT_GROUP", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_GROUP", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_GROUP", injectionGroupKey = "INPUT_FIELDS")
   private String groupSymbol;
 
-  @Injection(name = "INPUT_REPEAT", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_REPEAT", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_FIELDS", injectionGroupKey = "INPUT_FIELDS")
   private boolean repeat;
 
-  @Injection(name = "INPUT_NULL_STRING", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_NULL_STRING", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_NULL_STRING", injectionGroupKey = "INPUT_FIELDS")
   private String nullString;
 
-  @Injection(name = "INPUT_IF_NULL", group = "INPUT_FIELDS")
+//  @Injection(name = "INPUT_IF_NULL", group = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "INPUT_IF_NULL", injectionGroupKey = "INPUT_FIELDS")
   private String ifNullValue;
 
   private String[] samples;
@@ -96,7 +109,7 @@ public class GoogleSheetsInputFields implements Cloneable, ITextFileInputField {
         "#####.###############%",
       };
 
-  public GoogleSheetsInputFields(String fieldname, int position, int length) {
+  public GoogleSheetsInputField(String fieldname, int position, int length) {
     this.name = fieldname;
     this.position = position;
     this.length = length;
@@ -113,12 +126,12 @@ public class GoogleSheetsInputFields implements Cloneable, ITextFileInputField {
     this.ifNullValue = "";
   }
 
-  public GoogleSheetsInputFields() {
+  public GoogleSheetsInputField() {
     this(null, -1, -1);
   }
 
   public int compare(Object obj) {
-    GoogleSheetsInputFields field = (GoogleSheetsInputFields) obj;
+    GoogleSheetsInputField field = (GoogleSheetsInputField) obj;
 
     return position - field.getPosition();
   }
@@ -129,7 +142,7 @@ public class GoogleSheetsInputFields implements Cloneable, ITextFileInputField {
   }
 
   public boolean equal(Object obj) {
-    GoogleSheetsInputFields field = (GoogleSheetsInputFields) obj;
+    GoogleSheetsInputField field = (GoogleSheetsInputField) obj;
 
     return (position == field.getPosition());
   }
@@ -260,11 +273,11 @@ public class GoogleSheetsInputFields implements Cloneable, ITextFileInputField {
     this.precision = precision;
   }
 
-  public boolean isRepeated() {
+  public boolean isRepeat() {
     return repeat;
   }
 
-  public void setRepeated(boolean repeat) {
+  public void setRepeat(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -623,6 +636,6 @@ public class GoogleSheetsInputFields implements Cloneable, ITextFileInputField {
 
   @Override
   public ITextFileInputField createNewInstance(String newFieldname, int x, int newlength) {
-    return new GoogleSheetsInputFields(newFieldname, x, newlength);
+    return new GoogleSheetsInputField(newFieldname, x, newlength);
   }
 }

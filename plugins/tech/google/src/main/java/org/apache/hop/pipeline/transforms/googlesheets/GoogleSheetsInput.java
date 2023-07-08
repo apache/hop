@@ -228,7 +228,7 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
               outputRowData[outputIndex++] = null;
               logRowlevel("null value");
             } else {
-              GoogleSheetsInputFields input = meta.getInputFields()[outputIndex];
+              GoogleSheetsInputField input = meta.getInputFields().get(outputIndex);
               DateFormat df =
                   (column.getType() == IValueMeta.TYPE_DATE)
                       ? new SimpleDateFormat(input.getFormat())

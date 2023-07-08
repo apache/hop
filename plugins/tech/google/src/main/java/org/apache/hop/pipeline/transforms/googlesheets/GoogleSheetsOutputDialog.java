@@ -58,7 +58,6 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
   private static final Class<?> PKG = GoogleSheetsOutputMeta.class; // for Translator
 
   private final GoogleSheetsOutputMeta meta;
-
   private Label wlTestServiceAccountInfo;
   private TextVar wPrivateKeyStore;
   private TextVar wSpreadsheetKey;
@@ -531,8 +530,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     this.wSpreadsheetKey.setText(meta.getSpreadsheetKey());
     this.wWorksheetId.setText(meta.getWorksheetId());
     this.wShareEmail.setText(meta.getShareEmail());
-    this.wbCreate.setSelection(meta.getCreate());
-    this.wbAppend.setSelection(meta.getAppend());
+    this.wbCreate.setSelection(meta.isCreate());
+    this.wbAppend.setSelection(meta.isAppend());
 
     this.wShareDomainWise.setText(meta.getShareDomain());
     this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());

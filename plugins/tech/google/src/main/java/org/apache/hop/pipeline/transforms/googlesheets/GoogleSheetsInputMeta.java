@@ -18,28 +18,21 @@
 package org.apache.hop.pipeline.transforms.googlesheets;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
@@ -50,30 +43,41 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsinput.html")
-@InjectionSupported(
-    localizationPrefix = "GoogleSheetsInput.injection.",
-    groups = {"SHEET", "INPUT_FIELDS"})
+//@InjectionSupported(
+//    localizationPrefix = "GoogleSheetsInput.injection.",
+//    groups = {"SHEET", "INPUT_FIELDS"})
 public class GoogleSheetsInputMeta
     extends BaseTransformMeta<GoogleSheetsInput, GoogleSheetsInputData> {
 
   public GoogleSheetsInputMeta() {
     super();
-    allocate(0);
+    inputFields = new ArrayList<>();
+//    allocate(0);
   }
 
-  @Injection(name = "jsonCrendentialPath", group = "SHEET")
+//  @Injection(name = "jsonCrendentialPath", group = "SHEET")
+  @HopMetadataProperty(key="jsonCrendentialPath", injectionGroupKey = "SHEET")
   private String jsonCredentialPath;
 
-  @Injection(name = "spreadsheetKey", group = "SHEET")
+//  @Injection(name = "spreadsheetKey", group = "SHEET")
+  @HopMetadataProperty(key="spreadsheetKey", injectionGroupKey = "SHEET")
   private String spreadsheetKey;
 
-  @Injection(name = "worksheetId", group = "SHEET")
+//  @Injection(name = "worksheetId", group = "SHEET")
+  @HopMetadataProperty(key="worksheetId", injectionGroupKey = "SHEET")
   private String worksheetId;
 
-  @Injection(name = "sampleFields", group = "INPUT_Fields")
+//  @Injection(name = "sampleFields", group = "INPUT_Fields")
+  @HopMetadataProperty(key="sampleFields", injectionGroupKey = "INPUT_Fields")
   private Integer sampleFields;
 
-  @InjectionDeep private GoogleSheetsInputFields[] inputFields;
+//  @InjectionDeep
+  @HopMetadataProperty(
+          groupKey = "fields",
+          key="field",
+          injectionGroupKey = "FIELDS"
+  )
+  private List<GoogleSheetsInputField> inputFields;
 
   @Override
   public void setDefault() {
@@ -91,8 +95,11 @@ public class GoogleSheetsInputMeta
     this.jsonCredentialPath = key;
   }
 
-  public GoogleSheetsInputFields[] getInputFields() {
+  public List<GoogleSheetsInputField> getInputFields() {
     return inputFields;
+  }
+  public void setInputFields(List<GoogleSheetsInputField> inputFields){
+    this.inputFields = inputFields;
   }
 
   public String getSpreadsheetKey() {
@@ -115,31 +122,27 @@ public class GoogleSheetsInputMeta
     return this.sampleFields == null ? 100 : this.sampleFields;
   }
 
-  public void setSampleFields(int sampleFields) {
+  public void setSampleFields(Integer sampleFields) {
     this.sampleFields = sampleFields;
-  }
-
-  public void allocate(int nrfields) {
-    inputFields = new GoogleSheetsInputFields[nrfields];
   }
 
   @Override
   public Object clone() {
     GoogleSheetsInputMeta retval = (GoogleSheetsInputMeta) super.clone();
     if (retval != null) {
-      int nrKeys = inputFields.length;
-      retval.allocate(nrKeys);
+      int nrKeys = inputFields.size();
       retval.setJsonCredentialPath(this.jsonCredentialPath);
       retval.setSpreadsheetKey(this.spreadsheetKey);
       retval.setWorksheetId(this.worksheetId);
       retval.setSampleFields(this.sampleFields);
       for (int i = 0; i < nrKeys; i++) {
-        retval.inputFields[i] = (GoogleSheetsInputFields) inputFields[i].clone();
+        retval.inputFields.add((GoogleSheetsInputField) inputFields.get(i).clone());
       }
     }
     return retval;
   }
 
+/*
   @Override
   public String getXml() throws HopException {
     StringBuilder xml = new StringBuilder();
@@ -175,7 +178,9 @@ public class GoogleSheetsInputMeta
     }
     return xml.toString();
   }
+*/
 
+/*
   @Override
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
@@ -221,6 +226,7 @@ public class GoogleSheetsInputMeta
       throw new HopXmlException("Unable to load transform from XML", e);
     }
   }
+*/
 
   @Override
   public void getFields(
@@ -233,8 +239,8 @@ public class GoogleSheetsInputMeta
       throws HopTransformException {
     try {
       rowMeta.clear(); // Start with a clean slate, eats the input
-      for (int i = 0; i < inputFields.length; i++) {
-        GoogleSheetsInputFields field = inputFields[i];
+      for (int i = 0; i < inputFields.size(); i++) {
+        GoogleSheetsInputField field = inputFields.get(i);
 
         int type = field.getType();
         if (type == IValueMeta.TYPE_NONE) {
@@ -304,8 +310,8 @@ public class GoogleSheetsInputMeta
     }
   }
 
-  @Override
-  public String getDialogClassName() {
-    return GoogleSheetsInputDialog.class.getName();
-  }
+//  @Override
+//  public String getDialogClassName() {
+//    return GoogleSheetsInputDialog.class.getName();
+//  }
 }

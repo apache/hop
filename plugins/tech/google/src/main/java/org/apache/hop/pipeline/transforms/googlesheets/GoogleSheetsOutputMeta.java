@@ -20,7 +20,6 @@ package org.apache.hop.pipeline.transforms.googlesheets;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -39,9 +38,9 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsoutput.html")
-@InjectionSupported(
-    localizationPrefix = "GoogleSheetsOutput.injection.",
-    groups = {"SHEET", "INPUT_FIELDS"})
+//@InjectionSupported(
+//    localizationPrefix = "GoogleSheetsOutput.injection.",
+//    groups = {"SHEET", "INPUT_FIELDS"})
 public class GoogleSheetsOutputMeta
     extends BaseTransformMeta<GoogleSheetsOutput, GoogleSheetsOutputData> {
 
@@ -114,7 +113,7 @@ public class GoogleSheetsOutputMeta
     this.shareDomain = shareDomain;
   }
 
-  public Boolean getCreate() {
+  public Boolean isCreate() {
     return this.create == null ? false : this.create;
   }
 
@@ -126,7 +125,7 @@ public class GoogleSheetsOutputMeta
     this.append = append;
   }
 
-  public Boolean getAppend() {
+  public Boolean isAppend() {
     return this.append == null ? false : this.append;
   }
 

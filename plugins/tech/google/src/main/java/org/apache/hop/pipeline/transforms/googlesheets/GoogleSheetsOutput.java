@@ -114,8 +114,8 @@ public class GoogleSheetsOutput
         }
         // If it does not exist & create checkbox is checker create it.
         // log.logBasic("Create if Not exist is :"+meta.getCreate());
-        if (!exists && meta.getCreate()) {
-          if (!meta.getAppend()) { // si append + create alors erreur
+        if (!exists && meta.isCreate()) {
+          if (!meta.isAppend()) { // si append + create alors erreur
             // Init Service
             scope = "https://www.googleapis.com/auth/spreadsheets";
             data.service =
@@ -214,7 +214,7 @@ public class GoogleSheetsOutput
           }
         }
 
-        if (!exists && !meta.getCreate()) {
+        if (!exists && !meta.isCreate()) {
           log.logError("File does not Exist");
           return false;
         }
@@ -246,7 +246,7 @@ public class GoogleSheetsOutput
       meta.getFields(
           data.outputRowMeta, getTransformName(), null, getTransformMeta(), this, metadataProvider);
       data.rows = new ArrayList<>();
-      if (meta.getAppend()) { // If append is checked we do not write the header
+      if (meta.isAppend()) { // If append is checked we do not write the header
         logBasic("Appending lines so skipping the header");
         data.currentRow++;
       } else {
@@ -282,7 +282,7 @@ public class GoogleSheetsOutput
                   .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                   .build();
 
-          if (!meta.getAppend()) // if Append is not checked we clear the sheet and we write content
+          if (!meta.isAppend()) // if Append is not checked we clear the sheet and we write content
           {
             // Clearing existing Sheet
             Sheets.Spreadsheets.Values.Clear request =
