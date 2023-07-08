@@ -1,0 +1,137 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+[[JoinsLookups]]
+:imagesdir: ../../assets/images
+:description: This guide provides an overview of how to use the full power of Apache Hop to work with workflow logging data
+
+:openvar: ${
+:closevar: }
+
+
+= Workflow Log
+
+After your project has gone through the initial development and testing, knowing what is going on in runtime becomes important.
+
+The Workflow Logs in Hop allow workflow logging information to be passed down to a pipeline for processing as JSON objects. The receiving pipeline can process this logging information with all the functionality Hop pipelines have to offer, e.g. write to a relational or NoSQL database, a Kafka topic, etc.
+
+Hop will send the logging information for each workflow you run to the Workflow Log pipeline you specify.
+
+In this post, we'll look at an example of how to configure and use the Workflow Log metadata to write workflow logging information to a relational database.
+
+== Step 1: Create a Workflow Log metadata object
+
+To create a **Workflow Log** click on the **New -> Workflow Log** option or click on the **Metadata -> Workflow Log** option.
+
+The system displays the New Workflow Log view with the following fields to be configured.
+
+image:how-to-guides/logging-workflow-log/workflow-logging-new.jpg[new workflow log, width="65%"]
+
+The Workflow Log can be configured as in the following example:
+
+image:how-to-guides/logging-workflow-log/workflow-logging-config.jpg[configure workflow log, width="65%"]
+
+* Name: the name of the metadata object (workflows-logging).
+* Enabled: (checked).
+* Pipeline executed to capture logging: select or create the pipeline to process the logging information for this Pipeline Log ({openvar}PROJECT_HOME{closevar}/hop/logging/workflows-logging.hpl).
+
+TIP: You should select or create the pipeline to be used for logging the activity.
+
+* Execute at the start of the pipeline?: (checked).
+* Execute at the end of the pipeline?: (checked).
+* Execute periodically during execution?: (unchecked).
+
+Finally, save the workflow log configuration.
+
+TIP: workflow logging will apply to any workflow you run in the current project. That may not be necessary or even not desired. If you want to only work with logging information for a selected number of workflows, you can add a selection of workflows to the table below the configuration options ("Capture output of the following workflows"). The screenshot below shows the single "generate-fake-books.hwf" workflow that logging will be captured for in the default Apache Hop samples project.
+
+image:how-to-guides/logging-workflow-log/workflow-log-selection.png[workflow log selection, width="65%"]
+
+== Step 2: Create a new pipeline with the Workflow Logging transform
+
+To create the pipeline you can go to the perspective area or by clicking on the New button in the New Workflow Log dialog. Then, choose a folder and a name for the pipeline.
+
+A new pipeline is automatically created with a xref:pipeline/transforms/workflow-logging.adoc[Workflow Logging] transform connected to a xref:pipeline/transforms/dummy.adoc[Dummy] transform (Save logging here).
+
+
+image:how-to-guides/logging-workflow-log/workflow-logging.jpg[workflow logging pipeline, width="45%"]
+
+Now it’s time to configure the Workflow Logging transform. This configuration is very simple, open the transform and set your values as in the following example:
+
+image:how-to-guides/logging-workflow-log/config-workflow-logging.jpg[configure workflow loggin, width="45%"]
+
+* Transform name: choose a name for your transform, just remember that the name of the transform should be unique in your pipeline (log).
+* Also log transform: selected by default.
+
+== Step 3: Add and configure a Table output transform
+
+The Table Output transform allows you to load data into a database table. Table Output is equivalent to the DML operator INSERT. This transform provides configuration options for the target table and a lot of housekeeping and/or performance-related options such as Commit Size and Use batch update for inserts.
+
+TIP: In this example, we are going to use a relational database connection to log but you can also use output files. In case you decide to use a database connection, check the installation and availability as a pre-requirement.
+
+Add a Table Output transform by clicking anywhere in the pipeline canvas, then Search 'table output' -> Table Output.
+
+image:how-to-guides/logging-workflow-log/workflow-logging-pipeline.jpg[workflow logging table output, width="65%"]
+
+Now it’s time to configure the Table Output transform. Open the transform and set your values as in the following example:
+
+image:how-to-guides/logging-workflow-log/workflow-logging-table-output.png[workflow logging table output, width="45%"]
+
+* Transform name: choose a name for your transform, just remember that the name of the transform should be unique in your pipeline (workflows logging).
+* Connection: The database connection to which data will be written (logging-connection). The connection was configured by using the logging-connection.json environment file that contains the variables:
+
+image:how-to-guides/logging-workflow-log/workflow-logging-connection.png[workflow log db connection, width="65%"]
+
+* Target table: The name of the table to which data will be written (workflows-logging).
+* Click on the SQL option to generate the SQL to create the output table automatically
+
+image:how-to-guides/logging-workflow-log/workflow-logging-sql.jpg[create logging table DDL statement, width="45%"]
+
+* Execute the SQL statements. In this simple scenario, we'll execute the SQL directly. In real-life projects, consider managing your DDL in version control and through tools like https://www.liquibase.org/[Liquibase^] or https://flywaydb.org/[Flyway^].
+
+image:how-to-guides/logging-workflow-log/workflow-logging-execute-sql.jpg[create table execution, width="45%"]
+
+* Open the created table to see all the logging fields:
+
+image:how-to-guides/logging-workflow-log/workflow-logging-table.jpg[log table fields, width="35%"]
+
+* Close and save the transform.
+
+== Step 4: Run a workflow and check the logs
+
+Finally, run a workflow by clicking on the Run -> Launch option. The Workflow Log pipeline will be executed by any workflow you'll run.
+
+image:how-to-guides/logging-workflow-log/run-workflow.png[run a workflow, width="65%"]
+
+The executed pipeline (generate-rows.hpl) generates a constant and writes the 1000 rows to a CSV file:
+
+image:how-to-guides/logging-workflow-log/pipeline-generate-rows.jpg[generate rows pipeline, width="65%"]
+
+The data of the workflow execution will be recorded in the workflows-logging table.
+
+image:how-to-guides/logging-workflow-log/run-workflow-logging.jpg[run workflow logging, width="65%"]
+
+image:how-to-guides/logging-workflow-log/run-workflow-metrics.jpg[workflow metrics, width="65%"]
+
+Check the data in the table.
+
+image:how-to-guides/logging-workflow-log/workflow-log-table.jpg[workflow metrics in table, width="90%"]
+
+== Next steps
+
+You now know how to use the workflow log metadata type to work with everything Apache Hop has to offer to process your workflow logging information.
+
+Check the related page on xref:how-to-guides/logging-pipeline-log.adoc[pipeline log] to learn how to set up a similar process to work with pipeline logging.
