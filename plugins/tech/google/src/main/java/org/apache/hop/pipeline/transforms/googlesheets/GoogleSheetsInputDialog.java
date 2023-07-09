@@ -551,8 +551,10 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());
     this.wSampleFields.setText(Integer.toString(meta.getSampleFields()));
 
-    for (int i = 0; i < meta.getInputFields().size(); i++) {
-      GoogleSheetsInputField field = meta.getInputFields().get(i);
+    wFields.clearAll();
+    List<GoogleSheetsInputField> fields = meta.getInputFields();
+    for (GoogleSheetsInputField field : fields) {
+//      GoogleSheetsInputField field = fields.get(i);
 //      GoogleSheetsInputFields field = meta.getInputFields()[i];
 
       TableItem item = new TableItem(wFields.table, SWT.NONE);
@@ -618,7 +620,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     int nrNonEmptyFields = wFields.nrNonEmpty();
 //    meta.allocate(nrNonEmptyFields);
 
-    List<GoogleSheetsInputField> googleSheetsInputFields = meta.getInputFields();
+    List<GoogleSheetsInputField> googleSheetsInputFields = new ArrayList<>();
     for (int i = 0; i < nrNonEmptyFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       GoogleSheetsInputField field = new GoogleSheetsInputField();
@@ -633,7 +635,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       field.setDecimalSymbol(item.getText(colnr++));
       field.setGroupSymbol(item.getText(colnr++));
       field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(colnr++)));
-//      googleSheetsInputFields.add(field);
+      googleSheetsInputFields.add(field);
     }
     meta.setInputFields(googleSheetsInputFields);
     wFields.removeEmptyRows();

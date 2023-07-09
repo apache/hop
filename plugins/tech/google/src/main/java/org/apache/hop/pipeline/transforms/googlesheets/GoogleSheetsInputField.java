@@ -19,7 +19,6 @@
 package org.apache.hop.pipeline.transforms.googlesheets;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -33,20 +32,21 @@ import java.util.Calendar;
 import java.util.Date;
 
 /** Describes a single field in a text file */
-public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
+public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*/ {
 
 //  @Injection(name = "INPUT_NAME", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT)NAME", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "name", injectionGroupKey = "INPUT_FIELDS")
   private String name;
 
 //  @Injection(name = "INPUT_POSITION", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_POSITION", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "position", injectionGroupKey = "INPUT_FIELDS")
   private int position;
 
 //  @Injection(name = "INPUT_LENGTH", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_LENGTH", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "length", injectionGroupKey = "INPUT_FIELDS")
   private int length;
 
+  @HopMetadataProperty(key = "type", injectionGroupKey = "INPUT_FIELDS")
   private int type;
 
 //  @Injection(name = "INPUT_IGNORE", group = "INPUT_FIELDS")
@@ -54,26 +54,26 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
   private boolean ignore;
 
 //  @Injection(name = "INPUT_FORMAT", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_FORMAT", injectionGroupKey = "INPUT_FIELDS")
-
+  @HopMetadataProperty(key = "format", injectionGroupKey = "INPUT_FIELDS")
   private String format;
 
-  private int trimtype;
+  @HopMetadataProperty(key = "trim_type", injectionGroupKey = "INPuT_FIELDS")
+  private int trimType;
 
 //  @Injection(name = "INPUT_PRECISION", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_PRECISION", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "precision", injectionGroupKey = "INPUT_FIELDS")
   private int precision;
 
 //  @Injection(name = "INPUT_CURRENCY", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_CURRENCY", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "currency", injectionGroupKey = "INPUT_FIELDS")
   private String currencySymbol;
 
 //  @Injection(name = "INPUT_DECIMAL", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_DECIMAL", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "decimal", injectionGroupKey = "INPUT_FIELDS")
   private String decimalSymbol;
 
 //  @Injection(name = "INPUT_GROUP", group = "INPUT_FIELDS")
-  @HopMetadataProperty(key = "INPUT_GROUP", injectionGroupKey = "INPUT_FIELDS")
+  @HopMetadataProperty(key = "group", injectionGroupKey = "INPUT_FIELDS")
   private String groupSymbol;
 
 //  @Injection(name = "INPUT_REPEAT", group = "INPUT_FIELDS")
@@ -109,26 +109,48 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
         "#####.###############%",
       };
 
-  public GoogleSheetsInputField(String fieldname, int position, int length) {
-    this.name = fieldname;
-    this.position = position;
-    this.length = length;
-    this.type = IValueMeta.TYPE_STRING;
-    this.ignore = false;
-    this.format = "";
-    this.trimtype = IValueMeta.TRIM_TYPE_NONE;
-    this.groupSymbol = "";
-    this.decimalSymbol = "";
-    this.currencySymbol = "";
-    this.precision = -1;
-    this.repeat = false;
-    this.nullString = "";
-    this.ifNullValue = "";
+  public GoogleSheetsInputField(){
+
   }
 
-  public GoogleSheetsInputField() {
-    this(null, -1, -1);
+  public GoogleSheetsInputField(GoogleSheetsInputField field){
+    this.name = field.getName();
+    this.position = field.getPosition();
+    this.length = field.getLength();
+    this.type = field.getType();
+    this.ignore = field.isIgnore();
+    this.format = field.getFormat();
+    this.trimType = field.getTrimType();
+    this.groupSymbol = field.getGroupSymbol();
+    this.decimalSymbol = field.getDecimalSymbol();
+    this.currencySymbol = field.getCurrencySymbol();
+    this.precision = -field.getPrecision();
+    this.repeat = field.isRepeat();
+    this.nullString = field.getNullString();
+    this.ifNullValue = field.getIfNullValue();
   }
+
+
+//  public GoogleSheetsInputField(String fieldname, int position, int length) {
+//    this.name = fieldname;
+//    this.position = position;
+//    this.length = length;
+//    this.type = IValueMeta.TYPE_STRING;
+//    this.ignore = false;
+//    this.format = "";
+//    this.trimtype = IValueMeta.TRIM_TYPE_NONE;
+//    this.groupSymbol = "";
+//    this.decimalSymbol = "";
+//    this.currencySymbol = "";
+//    this.precision = -1;
+//    this.repeat = false;
+//    this.nullString = "";
+//    this.ifNullValue = "";
+//  }
+
+//  public GoogleSheetsInputField() {
+//    this(null, -1, -1);
+//  }
 
   public int compare(Object obj) {
     GoogleSheetsInputField field = (GoogleSheetsInputField) obj;
@@ -136,10 +158,10 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     return position - field.getPosition();
   }
 
-  @Override
-  public int compareTo(ITextFileInputField field) {
-    return position - field.getPosition();
-  }
+//  @Override
+//  public int compareTo(ITextFileInputField field) {
+//    return position - field.getPosition();
+//  }
 
   public boolean equal(Object obj) {
     GoogleSheetsInputField field = (GoogleSheetsInputField) obj;
@@ -157,7 +179,6 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     }
   }
 
-  @Override
   public int getPosition() {
     return position;
   }
@@ -166,17 +187,14 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     this.position = position;
   }
 
-  @Override
   public int getLength() {
     return length;
   }
 
-  @Override
   public void setLength(int length) {
     this.length = length;
   }
 
-  @Override
   public String getName() {
     return name;
   }
@@ -197,11 +215,11 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     this.type = type;
   }
 
-  public boolean isIgnored() {
+  public boolean isIgnore() {
     return ignore;
   }
 
-  public void setIgnored(boolean ignore) {
+  public void setIgnore(boolean ignore) {
     this.ignore = ignore;
   }
 
@@ -225,20 +243,24 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     return this.samples;
   }
 
-  public int getTrimType() {
-    return trimtype;
-  }
+//  public int getTrimType() {
+//    return trimType;
+//  }
 
   public String getTrimTypeCode() {
-    return ValueMetaString.getTrimTypeCode(trimtype);
+    return ValueMetaString.getTrimTypeCode(trimType);
   }
 
   public String getTrimTypeDesc() {
-    return ValueMetaString.getTrimTypeDesc(trimtype);
+    return ValueMetaString.getTrimTypeDesc(trimType);
   }
 
   public void setTrimType(int trimtype) {
-    this.trimtype = trimtype;
+    this.trimType = trimtype;
+  }
+
+  public int getTrimType(){
+    return trimType;
   }
 
   public String getGroupSymbol() {
@@ -301,6 +323,8 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     this.ifNullValue = ifNullValue;
   }
 
+
+
   @Override
   public String toString() {
     return name + "@" + position + ":" + length;
@@ -322,13 +346,13 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
       samples[i] = Const.trim(samples[i]);
     }
 
-    trimtype = IValueMeta.TRIM_TYPE_NONE;
+    trimType = IValueMeta.TRIM_TYPE_NONE;
 
     if (spaces_before) {
-      trimtype |= IValueMeta.TRIM_TYPE_LEFT;
+      trimType |= IValueMeta.TRIM_TYPE_LEFT;
     }
     if (spaces_after) {
-      trimtype |= IValueMeta.TRIM_TYPE_RIGHT;
+      trimType |= IValueMeta.TRIM_TYPE_RIGHT;
     }
   }
 
@@ -634,8 +658,10 @@ public class GoogleSheetsInputField implements Cloneable, ITextFileInputField {
     }
   }
 
+/*
   @Override
   public ITextFileInputField createNewInstance(String newFieldname, int x, int newlength) {
     return new GoogleSheetsInputField(newFieldname, x, newlength);
   }
+*/
 }

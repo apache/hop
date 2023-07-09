@@ -126,21 +126,21 @@ public class GoogleSheetsInputMeta
     this.sampleFields = sampleFields;
   }
 
-  @Override
-  public Object clone() {
-    GoogleSheetsInputMeta retval = (GoogleSheetsInputMeta) super.clone();
-    if (retval != null) {
-      int nrKeys = inputFields.size();
-      retval.setJsonCredentialPath(this.jsonCredentialPath);
-      retval.setSpreadsheetKey(this.spreadsheetKey);
-      retval.setWorksheetId(this.worksheetId);
-      retval.setSampleFields(this.sampleFields);
-      for (int i = 0; i < nrKeys; i++) {
-        retval.inputFields.add((GoogleSheetsInputField) inputFields.get(i).clone());
-      }
-    }
-    return retval;
-  }
+//  @Override
+//  public Object clone() {
+//    GoogleSheetsInputMeta retval = (GoogleSheetsInputMeta) super.clone();
+//    if (retval != null) {
+//      int nrKeys = inputFields.size();
+//      retval.setJsonCredentialPath(this.jsonCredentialPath);
+//      retval.setSpreadsheetKey(this.spreadsheetKey);
+//      retval.setWorksheetId(this.worksheetId);
+//      retval.setSampleFields(this.sampleFields);
+//      for (int i = 0; i < nrKeys; i++) {
+//        retval.inputFields.add((GoogleSheetsInputField) inputFields.get(i));
+//      }
+//    }
+//    return retval;
+//  }
 
 /*
   @Override
