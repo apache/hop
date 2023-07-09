@@ -70,14 +70,14 @@ public class WorkflowActionSNMPTrapTest extends WorkflowActionLoadSaveTestSuppor
         "serverName", "getServerName",
         "port", "getPort",
         "timeout", "getTimeout",
-        "nrretry", "getRetry",
+        "nrretry", "getNrretry",
         "comString", "getComString",
         "message", "getMessage",
-        "oid", "getOID",
-        "targettype", "getTargetType",
+        "oid", "getOid",
+        "targettype", "getTargettype",
         "user", "getUser",
-        "passphrase", "getPassPhrase",
-        "engineid", "getEngineID");
+        "passphrase", "getPassphrase",
+        "engineid", "getEngineid");
   }
 
   @Override
@@ -86,13 +86,13 @@ public class WorkflowActionSNMPTrapTest extends WorkflowActionLoadSaveTestSuppor
         "serverName", "setServerName",
         "port", "setPort",
         "timeout", "setTimeout",
-        "nrretry", "setRetry",
+        "nrretry", "setNrretry",
         "comString", "setComString",
         "message", "setMessage",
-        "oid", "setOID",
-        "targettype", "setTargetType",
+        "oid", "setOid",
+        "targettype", "setTargettype",
         "user", "setUser",
-        "passphrase", "setPassPhrase",
-        "engineid", "setEngineID");
+        "passphrase", "setPassphrase",
+        "engineid", "setEngineid");
   }
 }

@@ -20,14 +20,10 @@ package org.apache.hop.workflow.actions.snmptrap;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.snmp4j.CommunityTarget;
@@ -51,7 +47,6 @@ import org.snmp4j.smi.OctetString;
 import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
-import org.w3c.dom.Node;
 
 import java.net.InetAddress;
 
@@ -67,16 +62,27 @@ import java.net.InetAddress;
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSNMPTrap.class; // For Translator
 
+  @HopMetadataProperty(key = "servername")
   private String serverName;
+  @HopMetadataProperty(key = "port")
   private String port;
+  @HopMetadataProperty(key = "timeout")
   private String timeout;
+  @HopMetadataProperty(key = "nrretry")
   private String nrretry;
+  @HopMetadataProperty(key = "comstring")
   private String comString;
+  @HopMetadataProperty(key = "message")
   private String message;
+  @HopMetadataProperty(key = "oid")
   private String oid;
+  @HopMetadataProperty(key = "targettype")
   private String targettype;
+  @HopMetadataProperty(key = "user")
   private String user;
+  @HopMetadataProperty(key = "passphrase")
   private String passphrase;
+  @HopMetadataProperty(key = "engineid")
   private String engineid;
 
   /** Default retries */
@@ -142,52 +148,6 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(200);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("port", port));
-    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    retval.append("      ").append(XmlHandler.addTagValue("oid", oid));
-    retval.append("      ").append(XmlHandler.addTagValue("comstring", comString));
-    retval.append("      ").append(XmlHandler.addTagValue("message", message));
-    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
-    retval.append("      ").append(XmlHandler.addTagValue("nrretry", nrretry));
-    retval.append("      ").append(XmlHandler.addTagValue("targettype", targettype));
-    retval.append("      ").append(XmlHandler.addTagValue("user", user));
-    retval
-        .append("      ")
-        .append(
-            XmlHandler.addTagValue(
-                "passphrase", Encr.encryptPasswordIfNotUsingVariables(passphrase)));
-    retval.append("      ").append(XmlHandler.addTagValue("engineid", engineid));
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      port = XmlHandler.getTagValue(entrynode, "port");
-      serverName = XmlHandler.getTagValue(entrynode, "servername");
-      oid = XmlHandler.getTagValue(entrynode, "oid");
-      message = XmlHandler.getTagValue(entrynode, "message");
-      comString = XmlHandler.getTagValue(entrynode, "comstring");
-      timeout = XmlHandler.getTagValue(entrynode, "timeout");
-      nrretry = XmlHandler.getTagValue(entrynode, "nrretry");
-      targettype = XmlHandler.getTagValue(entrynode, "targettype");
-      user = XmlHandler.getTagValue(entrynode, "user");
-      passphrase =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "passphrase"));
-      engineid = XmlHandler.getTagValue(entrynode, "engineid");
-
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'SNMPTrap' from XML node", xe);
-    }
-  }
-
   /** @return Returns the serverName. */
   public String getServerName() {
     return serverName;
@@ -199,12 +159,12 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   }
 
   /** @return Returns the OID. */
-  public String getOID() {
+  public String getOid() {
     return oid;
   }
 
   /** @param oid The oid to set. */
-  public void setOID(String oid) {
+  public void setOid(String oid) {
     this.oid = oid;
   }
 
@@ -228,31 +188,31 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     return user;
   }
 
-  /** @param user The passphrase to set. */
-  public void setPassPhrase(String passphrase) {
+  /** @param passphrase The passphrase to set. */
+  public void setPassphrase(String passphrase) {
     this.passphrase = passphrase;
   }
 
   /** @return Returns the passphrase. */
-  public String getPassPhrase() {
+  public String getPassphrase() {
     return passphrase;
   }
 
-  /** @param user The engineid to set. */
-  public void setEngineID(String engineid) {
+  /** @param engineid The engineid to set. */
+  public void setEngineid(String engineid) {
     this.engineid = engineid;
   }
 
   /** @return Returns the engineid. */
-  public String getEngineID() {
+  public String getEngineid() {
     return engineid;
   }
 
-  public String getTargetType() {
+  public String getTargettype() {
     return targettype;
   }
 
-  public void setTargetType(String targettypein) {
+  public void setTargettype(String targettypein) {
     this.targettype = getTargetTypeCode(targettypein);
   }
 
@@ -261,7 +221,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     this.message = message;
   }
 
-  /** @return Returns the comString. */
+  /** @return Returns the message. */
   public String getMessage() {
     return message;
   }
@@ -287,12 +247,12 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   }
 
   /** @param nrretry The nrretry to set. */
-  public void setRetry(String nrretry) {
+  public void setNrretry(String nrretry) {
     this.nrretry = nrretry;
   }
 
   /** @return Returns the nrretry. */
-  public String getRetry() {
+  public String getNrretry() {
     return nrretry;
   }
 
