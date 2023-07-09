@@ -3715,7 +3715,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       FileObject fileObject = HopVfs.getFileObject(filename);
       if (fileObject.exists()) {
-        MessageBox box = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Overwrite?");
         box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
         int answer = box.open();
