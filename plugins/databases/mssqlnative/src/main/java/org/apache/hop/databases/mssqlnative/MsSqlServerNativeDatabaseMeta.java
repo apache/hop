@@ -174,4 +174,14 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
       return '[' + schemaName + ']' + "." + tablePart;
     }
   }
+  
+  @Override
+  public boolean isSupportsTimestampDataType() {
+    return true;
+  }
+
+  @Override
+  public boolean isSupportsBooleanDataType() {
+    return true;
+  }
 }
