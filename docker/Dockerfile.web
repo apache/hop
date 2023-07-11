@@ -58,15 +58,20 @@ ENV CATALINA_OPTS='${HOP_OPTIONS} \
   -DHOP_WEB_THEME="${HOP_WEB_THEME}" \
   -DHOP_GUI_ZOOM_FACTOR="${HOP_GUI_ZOOM_FACTOR}"'
 
+# Create Hop user
+RUN groupadd -r hop -g 501
+RUN useradd -d /home/hop -u 501 -m -s /bin/bash -g hop hop
+
 # Cleanup and create folder
 RUN rm -rf webapps/* \
-    && mkdir "${CATALINA_HOME}"/webapps/ROOT
+    && mkdir "${CATALINA_HOME}"/webapps/ROOT \
+    && mkdir "${HOP_AUDIT_FOLDER}"
 
 # Copy resources
 COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/plugins/dist/target/plugins "${CATALINA_HOME}"/plugins
 
-COPY ./docker/resources/run-web.sh /tmp/
+COPY --chown=hop ./docker/resources/run-web.sh /tmp/
 
 # Fix hop-config.json
 RUN sed -i 's/config\/projects/${HOP_CONFIG_FOLDER}\/projects/g' "${CATALINA_HOME}"/webapps/ROOT/config/hop-config.json
@@ -86,5 +91,9 @@ RUN chmod +x ${CATALINA_HOME}/webapps/ROOT/*.sh
 # point to the plugins folder
 ENV HOP_PLUGIN_BASE_FOLDERS=$CATALINA_HOME/plugins
 
+# Set permissions on project folder
+RUN chown -R hop:hop /usr/local/tomcat
+
+USER hop
 
 CMD ["/bin/bash", "/tmp/run-web.sh"]
