@@ -94,12 +94,12 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
   /** Default port */
   public static final int DEFAULT_PORT = 162;
 
-  public static final String[] targetTypeDesc =
+  protected static final String[] targetTypeDesc =
       new String[] {
         BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.Community"),
         BaseMessages.getString(PKG, "ActionSNMPTrap.TargetType.User")
       };
-  public static final String[] targetTypeCode = new String[] {"community", "user"};
+  protected static final String[] targetTypeCode = new String[] {"community", "user"};
 
   public ActionSNMPTrap(String n) {
     super(n, "");
@@ -118,12 +118,6 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
   public ActionSNMPTrap() {
     this("");
-  }
-
-  @Override
-  public Object clone() {
-    ActionSNMPTrap je = (ActionSNMPTrap) super.clone();
-    return je;
   }
 
   public String getTargetTypeDesc(String tt) {
@@ -264,7 +258,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
     String servername = resolve(serverName);
     int nrPort = Const.toInt(resolve("" + port), DEFAULT_PORT);
-    String oid = resolve(this.oid);
+    String resolvedOid = resolve(this.oid);
     int timeOut = Const.toInt(resolve("" + timeout), DEFAULT_TIME_OUT);
     int retry = Const.toInt(resolve("" + nrretry), 1);
     String messageString = resolve(message);
@@ -301,8 +295,8 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
         // create the PDU
         pdu1.setGenericTrap(6);
         pdu1.setSpecificTrap(PDUv1.ENTERPRISE_SPECIFIC);
-        pdu1.setEnterprise(new OID(oid));
-        pdu1.add(new VariableBinding(new OID(oid), new OctetString(messageString)));
+        pdu1.setEnterprise(new OID(resolvedOid));
+        pdu1.add(new VariableBinding(new OID(resolvedOid), new OctetString(messageString)));
 
         response = snmp.send(pdu1, target);
 
@@ -356,7 +350,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
         // create the PDU
         ScopedPDU pdu = new ScopedPDU();
-        pdu.add(new VariableBinding(new OID(oid), new OctetString(messageString)));
+        pdu.add(new VariableBinding(new OID(resolvedOid), new OctetString(messageString)));
         pdu.setType(PDU.TRAP);
         if (!Utils.isEmpty(engineID)) {
           pdu.setContextEngineID(new OctetString(engineID));
@@ -366,16 +360,14 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
         response = snmp.send(pdu, usertarget);
       }
 
-      if (response != null) {
-        if (log.isDebug()) {
+      if (response != null && log.isDebug()) {
           logDebug("Received response from: " + response.getPeerAddress() + response.toString());
-        }
       }
 
       result.setNrErrors(0);
       result.setResult(true);
     } catch (Exception e) {
-      logError(BaseMessages.getString(PKG, "ActionSNMPTrap.ErrorGetting", e.getMessage()));
+      logError(BaseMessages.getString(PKG, "ActionSNMPTrap.ErrorGetting"), e);
     } finally {
       try {
         if (snmp != null) {

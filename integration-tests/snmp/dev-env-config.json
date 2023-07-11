@@ -1,0 +1,11 @@
+{
+  "variables" : [ {
+    "name" : "sample-var2",
+    "value" : "ProvaDev2",
+    "description" : ""
+  }, {
+    "name" : "sample-var1",
+    "value" : "ProvaDev1",
+    "description" : ""
+  } ]
+}
