@@ -500,15 +500,15 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wName.setText(Const.nullToEmpty(action.getName()));
     wServerName.setText(Const.NVL(action.getServerName(), ""));
     wPort.setText(action.getPort());
-    wOID.setText(Const.NVL(action.getOID(), ""));
+    wOID.setText(Const.NVL(action.getOid(), ""));
     wTimeout.setText("" + action.getTimeout());
-    wRetry.setText("" + action.getRetry());
+    wRetry.setText("" + action.getNrretry());
     wComString.setText(Const.NVL(action.getComString(), ""));
     wMessage.setText(Const.NVL(action.getMessage(), ""));
-    wTargetType.setText(action.getTargetTypeDesc(action.getTargetType()));
+    wTargetType.setText(action.getTargetTypeDesc(action.getTargettype()));
     wUser.setText(Const.NVL(action.getUser(), ""));
-    wPassphrase.setText(Const.NVL(action.getPassPhrase(), ""));
-    wEngineID.setText(Const.NVL(action.getEngineID(), ""));
+    wPassphrase.setText(Const.NVL(action.getPassphrase(), ""));
+    wEngineID.setText(Const.NVL(action.getEngineid(), ""));
 
     wName.selectAll();
     wName.setFocus();
@@ -531,15 +531,15 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     action.setName(wName.getText());
     action.setPort(wPort.getText());
     action.setServerName(wServerName.getText());
-    action.setOID(wOID.getText());
+    action.setOid(wOID.getText());
     action.setTimeout(wTimeout.getText());
-    action.setRetry(wTimeout.getText());
+    action.setNrretry(wTimeout.getText());
     action.setComString(wComString.getText());
     action.setMessage(wMessage.getText());
-    action.setTargetType(wTargetType.getText());
+    action.setTargettype(wTargetType.getText());
     action.setUser(wUser.getText());
-    action.setPassPhrase(wPassphrase.getText());
-    action.setEngineID(wEngineID.getText());
+    action.setPassphrase(wPassphrase.getText());
+    action.setEngineid(wEngineID.getText());
     dispose();
   }
 }
