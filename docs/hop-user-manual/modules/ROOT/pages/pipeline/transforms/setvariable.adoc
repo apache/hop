@@ -57,5 +57,5 @@ Otherwise no formatting is done.
 * Valid in the grand-parent workflow: the variable is valid in the grand-parent workflow and all the child workflows and pipelines.
 * Valid in the root workflow: the variable is valid in the root workflow and all the child workflows and pipelines.
 
-|Default value|Name of the variable to set
+|Default value|Value that will be set for empty rows
 |===
