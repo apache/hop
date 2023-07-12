@@ -1016,7 +1016,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    String[] fieldNames = ConstUi.sortFieldNames(inputFields);
+    fieldNames = ConstUi.sortFieldNames(inputFields);
     colinf[0].setComboValues(fieldNames);
     colinfquery[0].setComboValues(fieldNames);
   }
