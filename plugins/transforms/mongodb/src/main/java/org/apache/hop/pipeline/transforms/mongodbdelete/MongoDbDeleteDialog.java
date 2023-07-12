@@ -18,6 +18,9 @@
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
 import com.mongodb.DBObject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -56,8 +59,6 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -68,10 +69,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /** Dialog class for MongoDbDelete step */
 public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransformDialog {
@@ -84,10 +81,7 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
   private Button wbGetFields;
   private Button wbPreviewDocStruct;
   private CCombo wCollection;
-//  private CCombo wcbWriteConcern;
   private TextVar wtvTimeout;
-//  private Button wcbJournalWritesCheck;
-//  private CCombo wcbReadPreference;
   private TextVar wtvWriteRetries;
   private TextVar wtvWriteRetryDelay;
   private TableView wtvMongoFieldsView;
@@ -494,15 +488,6 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
     wOk.addListener(SWT.Selection, e -> ok());
 
     wTransformName.addListener(SWT.Selection, e -> ok());
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener(
-        new ShellAdapter() {
-          @Override
-          public void shellClosed(ShellEvent e) {
-            cancel();
-          }
-        });
 
     wTabFolder.setSelection(0);
     setSize();
