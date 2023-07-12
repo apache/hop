@@ -129,6 +129,7 @@ Microsoft Access output
 Microsoft Excel input
 Microsoft Excel writer
 MonetDB bulk loader
+MongoDB Delete
 MongoDB input
 MongoDB output
 Multiway merge join
