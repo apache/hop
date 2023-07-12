@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -33,9 +35,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "HttpPost",
@@ -93,6 +92,11 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   @HopMetadataProperty(key = "postafile", injectionKeyDescription = "HTTPPOST.Injection.postAFile")
   private boolean postAFile;
 
+  @HopMetadataProperty(
+      key = "multipartupload",
+      injectionKeyDescription = "HTTPPOST.Injection.multipartupload")
+  private boolean multipartupload;
+
   @HopMetadataProperty(injectionKeyDescription = "HTTPPOST.Injection.proxyHost")
   private String proxyHost;
 
@@ -122,47 +126,65 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
     this.encoding = encoding;
   }
 
-  /** @return Returns the connectionTimeout. */
+  /**
+   * @return Returns the connectionTimeout.
+   */
   public String getConnectionTimeout() {
     return connectionTimeout;
   }
 
-  /** @param connectionTimeout The connectionTimeout to set. */
+  /**
+   * @param connectionTimeout The connectionTimeout to set.
+   */
   public void setConnectionTimeout(String connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
   }
 
-  /** @return Returns the closeIdleConnectionsTime. */
+  /**
+   * @return Returns the closeIdleConnectionsTime.
+   */
   public String getCloseIdleConnectionsTime() {
     return closeIdleConnectionsTime;
   }
 
-  /** @param closeIdleConnectionsTime The connectionTimeout to set. */
+  /**
+   * @param closeIdleConnectionsTime The connectionTimeout to set.
+   */
   public void setCloseIdleConnectionsTime(String closeIdleConnectionsTime) {
     this.closeIdleConnectionsTime = closeIdleConnectionsTime;
   }
 
-  /** @return Returns the socketTimeout. */
+  /**
+   * @return Returns the socketTimeout.
+   */
   public String getSocketTimeout() {
     return socketTimeout;
   }
 
-  /** @param socketTimeout The socketTimeout to set. */
+  /**
+   * @param socketTimeout The socketTimeout to set.
+   */
   public void setSocketTimeout(String socketTimeout) {
     this.socketTimeout = socketTimeout;
   }
 
-  /** @return Returns the procedure. */
+  /**
+   * @return Returns the procedure.
+   */
   public String getUrl() {
     return url;
   }
 
-  /** @param procedure The procedure to set. */
+  /**
+   * @param procedure The procedure to set.
+   */
   public void setUrl(String procedure) {
     this.url = procedure;
   }
 
-  /** @return Is the url coded in a field? */
+  /**
+   * @return Is the url coded in a field?
+   */
   public boolean isUrlInField() {
     return urlInField;
   }
@@ -175,27 +197,45 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
     this.postAFile = postafile;
   }
 
-  /** @param urlInField Is the url coded in a field? */
+  public boolean isMultipartupload() {
+    return multipartupload;
+  }
+
+  public void setMultipartupload(boolean multipartupload) {
+    this.multipartupload = multipartupload;
+  }
+
+  /**
+   * @param urlInField Is the url coded in a field?
+   */
   public void setUrlInField(boolean urlInField) {
     this.urlInField = urlInField;
   }
 
-  /** @return The field name that contains the url. */
+  /**
+   * @return The field name that contains the url.
+   */
   public String getUrlField() {
     return urlField;
   }
 
-  /** @param urlField name of the field that contains the url */
+  /**
+   * @param urlField name of the field that contains the url
+   */
   public void setUrlField(String urlField) {
     this.urlField = urlField;
   }
 
-  /** @param requestEntity the requestEntity to set */
+  /**
+   * @param requestEntity the requestEntity to set
+   */
   public void setRequestEntity(String requestEntity) {
     this.requestEntity = requestEntity;
   }
 
-  /** @return requestEntity */
+  /**
+   * @return requestEntity
+   */
   public String getRequestEntity() {
     return requestEntity;
   }
@@ -227,6 +267,7 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
   public void setDefault() {
     encoding = DEFAULT_ENCODING;
     postAFile = false;
+    multipartupload = false;
     lookupFields.add(new HttpPostLookupField());
     resultFields.add(new HttpPostResultField());
     socketTimeout = String.valueOf(DEFAULT_SOCKET_TIMEOUT);
@@ -254,12 +295,10 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
     }
     if (!Utils.isEmpty(resultFields.get(0).getResponseTimeFieldName())) {
       IValueMeta v =
-          new ValueMetaInteger(
-              variables.resolve(resultFields.get(0).getResponseTimeFieldName()));
+          new ValueMetaInteger(variables.resolve(resultFields.get(0).getResponseTimeFieldName()));
       inputRowMeta.addValueMeta(v);
     }
-    String headerFieldName =
-        variables.resolve(resultFields.get(0).getResponseHeaderFieldName());
+    String headerFieldName = variables.resolve(resultFields.get(0).getResponseHeaderFieldName());
     if (!Utils.isEmpty(headerFieldName)) {
       IValueMeta v = new ValueMetaString(headerFieldName);
       v.setOrigin(name);
@@ -400,7 +439,9 @@ public class HttpPostMeta extends BaseTransformMeta<HttpPost, HttpPostData> {
     this.httpPassword = httpPassword;
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   public String getHttpPassword() {
     return httpPassword;
   }

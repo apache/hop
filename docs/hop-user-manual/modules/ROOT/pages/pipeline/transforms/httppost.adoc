@@ -56,6 +56,7 @@ When enabled, the Post a file option will retrieve the file named in this field,
 |Post a file|If a file is defined in the Request entity field, its contents will be posted if this option is checked.
 Currently "Request entity field" must be filled in order for "Post a file" to work.
 Selecting "Post a file" and specifying a field under "Body parameters" without selecting a value for "Request entity field" (the place for the file name) will fail silently.
+|Use MultiPart Upload|This will send the data to the server in the form of a multipart request, this is useful when posting files
 |Connection timeout|Defines the timeout (defaults to 10000) in Milliseconds when a connection attempt will error out.
 |Socket timeout|Defines the timeout (defaults to 10000) in Milliseconds when a socket will error out.
 |Connection close wait time|Define the wait time after the connection is closed in Milliseconds, the default -1 means the default wait time from the operating system (often 2 minutes).
