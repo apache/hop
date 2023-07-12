@@ -17,7 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
+import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_ENCODING;
+
 import com.google.common.annotations.VisibleForTesting;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -42,6 +52,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
@@ -51,17 +62,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
-
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URLEncoder;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_ENCODING;
 
 /** Make a HTTP Post call */
 public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
@@ -201,6 +201,7 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         MultipartEntityBuilder multipartEntityBuilder = MultipartEntityBuilder.create();
         String tmp = data.inputRowMeta.getString(rowData, data.indexOfRequestEntity);
         HttpEntity entity = null;
+        byte[] bytes = null;
         // Request content will be retrieved directly
         // from the input stream
         // Per default, the request content needs to be buffered
@@ -214,16 +215,19 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
                 "file", HopVfs.getFileObject(resolve(tmp)).getPath().toFile());
           }
         } else {
-          byte[] bytes;
           if ((data.realEncoding != null) && (data.realEncoding.length() > 0)) {
             bytes = tmp.getBytes(data.realEncoding);
           } else {
             bytes = tmp.getBytes();
           }
-          multipartEntityBuilder.addBinaryBody("file", bytes);
+          if (meta.isMultipartupload()) {
+            multipartEntityBuilder.addBinaryBody("file", bytes);
+            entity = multipartEntityBuilder.build();
+            post.setEntity(entity);
+          } else {
+            post.setEntity(new ByteArrayEntity(bytes));
+          }
         }
-        entity = multipartEntityBuilder.build();
-        post.setEntity(entity);
       }
 
       // Execute request
