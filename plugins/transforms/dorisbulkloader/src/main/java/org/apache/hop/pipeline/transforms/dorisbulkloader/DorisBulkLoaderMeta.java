@@ -83,7 +83,7 @@ public class DorisBulkLoaderMeta extends BaseTransformMeta<DorisBulkLoader, Dori
   @HopMetadataProperty private int bufferCount;
 
   /** doris stream load data fieldname */
-  private String dataField;
+  @HopMetadataProperty private String dataField;
 
   public DorisBulkLoaderMeta() {
     super(); // allocate BaseTransformMeta
