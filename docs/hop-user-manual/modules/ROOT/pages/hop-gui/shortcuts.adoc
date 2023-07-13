@@ -34,7 +34,8 @@ Most of the times you can replace ctrl with cmd.
 |Ctr + n |Create a new work item
 |Ctrl + o |Open a work item
 |Ctr + s |Save a work item
-|Ctrl + Shift + F5|Open the Metadata Exlporer Menu
+|Ctrl + Shift + F5|Open the Metadata Explorer Menu
+|Ctrl + Space|Opens the variables popup (**NOTE**: only environment variables and variables with the JVM scope are shown here. Variables that are created in pipeline or workflow with a parent, grant parent or root workflow job need to be entered manually))
 |Ctrl + w |Close a work item
 |Ctrl + q |Quit Hop
 |Ctrl + z |Undo last change

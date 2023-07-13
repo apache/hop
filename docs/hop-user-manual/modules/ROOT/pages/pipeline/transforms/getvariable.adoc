@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Get Variables transform allows you to get the value of a variable and returns rows or adds values to existing input rows.
+:openvar: ${
+:closevar: }
 
 = image:transforms/icons/getvariable.svg[Get variables transform Icon, role="image-doc-icon"] Get variables
 
@@ -27,7 +29,7 @@ under the License.
 
 The Get Variables transform allows you to get the value of a variable and returns rows or adds values to existing input rows.
 
-For example, you can specify: ${java.io.tmpdir}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
+For example, you can specify: ${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
 
 See also the Set Variables transform.
 To convert the Variable into a data type other than String use Select Values - Meta Data tab.
@@ -51,8 +53,12 @@ To get system values, including command line arguments, use the Get System Info 
 |Option|Description
 |transform Name|The name of this transform as it appears in the pipeline workspace.
 |Name|Name of the field.
-|Variable|Allows you to enter variables as complete strings to return rows or add values to input rows.
-For example, you can specify: ${java.io.tmpdir}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
+|Variable a|Allows you to enter variables as complete strings to return rows or add values to input rows.
+For example, you can specify: ${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
+
+// CTRL-space snippet
+include::../../snippets/variables/control-space.adoc[]
+
 |Type|Specifies the field type: String, Date, Number, Boolean, Integer, BigNumber, Serializable, or Binary.
 |Format|Allows you to specify the format of the field after the type has been determined.
 |Length|For Number: Total number of significant figures in a number; For String: total length of string; For Date: length of printed output of the string (for example, entering 4 would only return the year).
