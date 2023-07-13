@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -89,6 +90,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
     JOB,
     START,
     DUMMY,
+    FORMULA,
     OTHER
   };
 
@@ -182,7 +184,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
       documentElement.insertBefore(nameSync, XmlHandler.getSubNode(documentElement, "description"));
     }
 
-    processNode(doc, documentElement, EntryType.OTHER);
+    processNode(doc, documentElement, EntryType.OTHER, 0);
 
     // Align x/y locations with a grid size...
     //
@@ -492,9 +494,12 @@ public class KettleImport extends HopImportBase implements IHopImport {
     doc.renameNode(element, null, newElementName);
   }
 
-  private void processNode(Document doc, Node node, EntryType entryType) {
+  private void processNode(Document doc, Node node, EntryType entryType, int depth) {
     Node nodeToProcess = node;
     NodeList nodeList = nodeToProcess.getChildNodes();
+
+    // Set depth level
+    depth += 1;
 
     // do a first pass to remove repository definitions
     for (int i = 0; i < nodeList.getLength(); i++) {
@@ -516,8 +521,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
       }
     }
 
+    Node firstFormulaNode = null;
+
     for (int i = 0; i < nodeList.getLength(); i++) {
       Node currentNode = nodeList.item(i);
+
       if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
         // Identify if an entry is of type START or DUMMY type because they must be managed properly
         if (currentNode.getNodeName().equals("entry")) {
@@ -548,6 +556,20 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.DUMMY;
                 // Immediately change entry type to DUMMY to not bother about it later on
                 entryTypeNode.getFirstChild().setTextContent("DUMMY");
+              }
+            }
+          }
+        }
+
+        if (currentNode.getNodeName().equals("step")) {
+          entryType = EntryType.OTHER;
+          NodeList currentNodeChildNodes = currentNode.getChildNodes();
+          for (int i1 = 0; i1 < currentNodeChildNodes.getLength(); i1++) {
+            Node childNode = currentNodeChildNodes.item(i1);
+            if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("Formula")) {
+                entryType = EntryType.FORMULA;
               }
             }
           }
@@ -590,6 +612,36 @@ public class KettleImport extends HopImportBase implements IHopImport {
           }
         }
 
+        if (entryType == EntryType.FORMULA && currentNode.getNodeName().equals("formula")) {
+          if (firstFormulaNode == null) {
+            Element formulasElement = doc.createElement("formulas");
+            formulasElement.appendChild(currentNode);
+            firstFormulaNode = formulasElement;
+          } else {
+            // Append new one to collection of new formula nodes
+            firstFormulaNode.appendChild(currentNode);
+          }
+        } else if (entryType == EntryType.FORMULA
+            && !currentNode.getNodeName().equals("formula")
+            && firstFormulaNode != null
+            && depth == 2) {
+          // Always in same steps' nodeset, same depth level and we finished formula definition
+          // nodes
+          // Add new collections to formlua nodeset
+          node.appendChild(firstFormulaNode);
+          // reset the entry type to OTHER because we left the formula nodeset
+          entryType = EntryType.OTHER;
+          firstFormulaNode = null;
+        } else if (entryType == EntryType.FORMULA
+            && currentNode.getNodeName().equals("formula_string")) {
+          String formulaValue = currentNode.getFirstChild().getNodeValue();
+          currentNode.getFirstChild().setNodeValue(formulaValue.replaceAll(";", ","));
+        } else if (entryType == EntryType.FORMULA
+            && currentNode.getNodeName().equals("value_type")) {
+          String formulaType = currentNode.getFirstChild().getNodeValue();
+          currentNode.getFirstChild().setNodeValue(Integer.toString(ValueMetaFactory.getIdForValueMeta(formulaType)));
+        }
+
         if (entryType == EntryType.JOB || entryType == EntryType.TRANS) {
           if (currentNode.getNodeName().equals("run_configuration")) {
             if (entryType == EntryType.JOB)
@@ -598,7 +650,6 @@ public class KettleImport extends HopImportBase implements IHopImport {
               currentNode.setTextContent(defaultPipelineRunConfiguration);
           }
         }
-
 
         // rename Kettle elements to Hop elements
         if (KettleConst.kettleElementReplacements.containsKey(currentNode.getNodeName())) {
@@ -614,7 +665,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
               KettleConst.kettleReplaceContent.get(currentNode.getTextContent()));
         }
 
-        processNode(doc, currentNode, entryType);
+        processNode(doc, currentNode, entryType, depth);
       }
 
       // partial node content replacement
@@ -710,15 +761,28 @@ public class KettleImport extends HopImportBase implements IHopImport {
   @Override
   public String getImportReport() {
     String eol = System.getProperty("line.separator");
-    String messageString = BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.Imported.Label") + eol;
+    String messageString =
+        BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.Imported.Label") + eol;
     if (getKjbCounter() > 0) {
-      messageString += getKjbCounter() + " " + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedJobs.Label") + eol;
+      messageString +=
+          getKjbCounter()
+              + " "
+              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedJobs.Label")
+              + eol;
     }
     if (getKtrCounter() > 0) {
-      messageString += getKtrCounter() + " " + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedTransf.Label") + eol;
+      messageString +=
+          getKtrCounter()
+              + " "
+              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedTransf.Label")
+              + eol;
     }
     if (getOtherCounter() > 0) {
-      messageString += getOtherCounter() + " " + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedOther.Label") + eol;
+      messageString +=
+          getOtherCounter()
+              + " "
+              + BaseMessages.getString(PKG, "KettleImportDialog.ImportSummary.ImportedOther.Label")
+              + eol;
     }
     if (getVariableCounter() > 0) {
       messageString +=
@@ -756,7 +820,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
     return kjbCounter;
   }
 
-  /** @param kjbCounter The kjbCounter to set */
+  /**
+   * @param kjbCounter The kjbCounter to set
+   */
   public void setKjbCounter(int kjbCounter) {
     this.kjbCounter = kjbCounter;
   }
@@ -770,7 +836,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
     return ktrCounter;
   }
 
-  /** @param ktrCounter The ktrCounter to set */
+  /**
+   * @param ktrCounter The ktrCounter to set
+   */
   public void setKtrCounter(int ktrCounter) {
     this.ktrCounter = ktrCounter;
   }
@@ -784,7 +852,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
     return otherCounter;
   }
 
-  /** @param otherCounter The otherCounter to set */
+  /**
+   * @param otherCounter The otherCounter to set
+   */
   public void setOtherCounter(int otherCounter) {
     this.otherCounter = otherCounter;
   }
@@ -798,7 +868,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
     return variablesTargetConfigFile;
   }
 
-  /** @param variablesTargetConfigFile The variablesTargetConfigFile to set */
+  /**
+   * @param variablesTargetConfigFile The variablesTargetConfigFile to set
+   */
   public void setVariablesTargetConfigFile(String variablesTargetConfigFile) {
     this.variablesTargetConfigFile = variablesTargetConfigFile;
   }
@@ -812,7 +884,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
     return connectionsReportFileName;
   }
 
-  /** @param connectionsReportFileName The connectionsReportFileName to set */
+  /**
+   * @param connectionsReportFileName The connectionsReportFileName to set
+   */
   public void setConnectionsReportFileName(String connectionsReportFileName) {
     this.connectionsReportFileName = connectionsReportFileName;
   }
