@@ -80,17 +80,54 @@ The basic installation for Apache Hop couldn't be easier:
 ** `hop-run.bat` (Windows) or `hop-run.sh` (Linux, MacOS): xref:/hop-run/index.adoc[run workflows or pipelines] from the command line.
 ** `hop-server.bat` (Windows) or `hop-server.sh` (Linux, MacOS): start a xref:/hop-server/index.adoc[Hop Server] instance.
 
+== Set (system) environment variables
+
+Apache Hop's installation and configuration are fully self-contained by default.
+
+With the system or environment variables below, you can make your Hop configuration independent of the installed Hop versions. This lets you switch between Hop versions or installations, while keeping your projects and environment lists, last opened files and other settings.
+
+TIP: if you set the environment variables below after you've been using Apache Hop for a while, you can move the contents of your `hop/config/` folder to your new `HOP_CONFIG_FOLDER` location
+
+=== Create environment variables in Windows
+
+There are several ways to access the Environment Variables in Windows. One ways is to search for `environment variable` in the start menu and clicking the "Edit the system environment variables" link (or the corresponding entry for your local language).
+
+image:installation-configuration-windows-env-var-from-start.png[Access environment variables from the start mennu, width="45%"]
+
+In the dialog that pops up, click the `Environment Variables` button, then add a new `HOP_CONFIG_FOLDER` user variable and point it to the folder where you'd like to store your Apache Hop configuration. Repeat the process for any of the other variables list below you want to add to your configuration.
+
+image:installation-configuration-windows-env-var.png[Set environment variables, width="80%"]
+
+Click `Ok` to close the dialogs and (re)start Hop Gui to activate the environment variables.
+
+=== Create environment variables in Mac OS or Linux
+
+Add environment variables to your `~/.bashrc`, `~/.zshrc` or similar configuration file as shown below:
+
+`export HOP_CONFIG_FOLDER=<YOUR_PREFERRED_PATH_TO_HOP_CONFIG_FOLDER>`.
+
+run `source ~/.bashrc` or `source ~/.zshrc` to apply the new variables in your current session.
+
+=== The environment variables to set
+
+include::snippets/variables/hop-config-folder.adoc[]
+
+include::snippets/variables/hop-audit-folder.adoc[]
+
+include::snippets/variables/hop-options.adoc[]
+
+Check the <<envvars, Environment Variables>> section for more system variables that can make your life with multiple Hop versions or installations a lot easier.
+
 == Upgrade
 
 Multiple Hop versions can be installed side by side with the same process as described in the <<basic, Basic Installation>>.
 
 Hop installations are self-contained by default, which means you'll start with the default configuration and project and environment list with after new Hop install.
 
-This can be changed by setting the `HOP_CONFIG_FOLDER` system variable in your operating system to a folder outside any of your Hop installations.
+With the environment variables described in the previous section, all you need to do to upgrade Apache Hop next to your existing hop installation and start Hop Gui from there. Your projects and environment lists, last opened files etc should all be available.
 
-In the default self-contained configuration, Hop keeps your preferences, projects and environment in the `hop/conf` folder. If you have a configuration you'd like to keep in one of your Hop installations, copy the contents of that `hop/conf` folder to the folder your `HOP_CONFIG_FOLDER` points to.
+TIP: Apache Hop releases are tested for smooth upgrades. You can replace your existing installation when a new version is released. If you want to keep multiple Apache Hop versions around, consider renaming your unzipped `hop` folder to `hop-version-number`, e.g. `hop-2.5.0`, `hop-2.60` etc.
 
-Check the <<envvars, Environment Variables>> section for more system variables that can make your life with multiple Hop versions or installations a lot easier.
 
 == Additional configuration
 
