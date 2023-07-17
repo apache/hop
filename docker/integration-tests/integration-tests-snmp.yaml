@@ -33,7 +33,7 @@ services:
       - "1162/udp"
     volumes:
       - type: bind
-        source: /Users/hans/git/hop/integration-tests/snmp/files
+        source: ./../../integration-tests/snmp/files
         target: /var/lib/zabbix/snmptraps
     healthcheck:
       test: [ "CMD-SHELL", "true" ]
