@@ -53,6 +53,10 @@ See also:
 * The xref:workflow/actions/workflow.adoc[Workflow action] that executes a sub-workflow from a workflow.
 * The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
 * The xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
+* The xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] how-to guide.
+
+Samples (samples project)
+* loops/workflow-executor.hpl
 
 == Options
 
@@ -74,7 +78,14 @@ If multiple rows are passed to the workflow, the first row is taken to set the p
 There is a button in the lower right corner of the tab that will insert all the defined parameters of the specified workflow.
 For information the description of the parameter is inserted into the static input value field.
 
-If you enable the "Inherit all variables from the pipeline" option, all the variables defined in the parent pipeline are passed to the workflow.
+TIP: If you leave the "Inherit all variables from pipeline" option checked (it is by default), all the variables defined in the current pipeline are passed to child workflow.
+
+The `Get Parameters` button in the lower right corner of the tab that will insert all the defined parameters with their description for the specified workflow
+
+The `Map Parameters` button in the lower right corner of the tab lets you map fields in the current pipeline to parameters in the child workflow.
+
+
+
 
 === Row Grouping Tab
 
