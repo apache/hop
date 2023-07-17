@@ -52,10 +52,11 @@ See also:
 
 * The xref:workflow/actions/workflow.adoc[Workflow action] that executes a sub-workflow from a workflow.
 * The xref:workflow/actions/pipeline.adoc[Pipeline action] that executes a pipeline from a workflow.
-* The xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
+* The xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor transform] that executes a sub-pipeline from a pipeline.
 * The xref:how-to-guides/loops-in-apache-hop.adoc[Loops in Apache Hop] how-to guide.
 
 Samples (samples project)
+
 * loops/workflow-executor.hpl
 
 == Options

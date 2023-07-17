@@ -98,7 +98,7 @@ All of this combined makes it hard to maintain and debug this type of loops.
 
 ==  Pipeline and Workflow executor
 
-The xref:pipeline/transforms/workflowexecutor.adoc[Workflow executor^] and xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline executor^] offer flexible and elegant ways to run workflows and pipelines from within an existing pipeline.
+The xref:pipeline/transforms/workflow-executor.adoc[Workflow executor^] and xref:pipeline/transforms/pipeline-executor.adoc[Pipeline executor^] offer flexible and elegant ways to run workflows and pipelines from within an existing pipeline.
 
 === Pipeline Executor
 

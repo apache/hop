@@ -21,7 +21,7 @@ under the License.
 Avoid looping in workflows.
 The easiest way to loop over a set of values, rows, files, ... is to use an Executor transform.
 
-* xref:pipeline/transforms/pipelineexecutor.adoc[Pipeline Executor] : run a pipeline for each input row
-* xref:pipeline/transforms/workflowexecutor.adoc[Workflow Executor] : run a workflow for each input row
+* xref:pipeline/transforms/pipeline-executor.adoc[Pipeline Executor] : run a pipeline for each input row
+* xref:pipeline/transforms/workflow-executor.adoc[Workflow Executor] : run a workflow for each input row
 
 You can nicely map field values to parameters of the pipeline or workflow making loops a breeze.
