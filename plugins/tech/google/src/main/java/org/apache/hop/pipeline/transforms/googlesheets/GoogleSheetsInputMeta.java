@@ -21,7 +21,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -43,35 +42,26 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsinput.html")
-//@InjectionSupported(
-//    localizationPrefix = "GoogleSheetsInput.injection.",
-//    groups = {"SHEET", "INPUT_FIELDS"})
 public class GoogleSheetsInputMeta
     extends BaseTransformMeta<GoogleSheetsInput, GoogleSheetsInputData> {
 
   public GoogleSheetsInputMeta() {
     super();
     inputFields = new ArrayList<>();
-//    allocate(0);
   }
 
-//  @Injection(name = "jsonCrendentialPath", group = "SHEET")
   @HopMetadataProperty(key="jsonCrendentialPath", injectionGroupKey = "SHEET")
   private String jsonCredentialPath;
 
-//  @Injection(name = "spreadsheetKey", group = "SHEET")
   @HopMetadataProperty(key="spreadsheetKey", injectionGroupKey = "SHEET")
   private String spreadsheetKey;
 
-//  @Injection(name = "worksheetId", group = "SHEET")
   @HopMetadataProperty(key="worksheetId", injectionGroupKey = "SHEET")
   private String worksheetId;
 
-//  @Injection(name = "sampleFields", group = "INPUT_Fields")
   @HopMetadataProperty(key="sampleFields", injectionGroupKey = "INPUT_Fields")
   private Integer sampleFields;
 
-//  @InjectionDeep
   @HopMetadataProperty(
           groupKey = "fields",
           key="field",
@@ -126,107 +116,6 @@ public class GoogleSheetsInputMeta
     this.sampleFields = sampleFields;
   }
 
-//  @Override
-//  public Object clone() {
-//    GoogleSheetsInputMeta retval = (GoogleSheetsInputMeta) super.clone();
-//    if (retval != null) {
-//      int nrKeys = inputFields.size();
-//      retval.setJsonCredentialPath(this.jsonCredentialPath);
-//      retval.setSpreadsheetKey(this.spreadsheetKey);
-//      retval.setWorksheetId(this.worksheetId);
-//      retval.setSampleFields(this.sampleFields);
-//      for (int i = 0; i < nrKeys; i++) {
-//        retval.inputFields.add((GoogleSheetsInputField) inputFields.get(i));
-//      }
-//    }
-//    return retval;
-//  }
-
-/*
-  @Override
-  public String getXml() throws HopException {
-    StringBuilder xml = new StringBuilder();
-    try {
-      xml.append(XmlHandler.addTagValue("worksheetId", this.worksheetId));
-      xml.append(XmlHandler.addTagValue("spreadsheetKey", this.spreadsheetKey));
-      xml.append(XmlHandler.addTagValue("jsonCredentialPath", this.jsonCredentialPath));
-      String tmp = "100";
-      if (this.sampleFields != null) {
-        xml.append(XmlHandler.addTagValue("sampleFields", this.sampleFields.toString()));
-      } else xml.append(XmlHandler.addTagValue("sampleFields", tmp));
-      xml.append(XmlHandler.openTag("fields"));
-      for (int i = 0; i < inputFields.length; i++) {
-        GoogleSheetsInputFields field = inputFields[i];
-        xml.append("      <field>").append(Const.CR);
-        xml.append("        ").append(XmlHandler.addTagValue("name", field.getName()));
-        xml.append("        ").append(XmlHandler.addTagValue("type", field.getTypeDesc()));
-        xml.append("        ").append(XmlHandler.addTagValue("format", field.getFormat()));
-        xml.append("        ")
-            .append(XmlHandler.addTagValue("currency", field.getCurrencySymbol()));
-        xml.append("        ").append(XmlHandler.addTagValue("decimal", field.getDecimalSymbol()));
-        xml.append("        ").append(XmlHandler.addTagValue("group", field.getGroupSymbol()));
-        xml.append("        ").append(XmlHandler.addTagValue("position", field.getPosition()));
-        xml.append("        ").append(XmlHandler.addTagValue("length", field.getLength()));
-        xml.append("        ").append(XmlHandler.addTagValue("precision", field.getPrecision()));
-        xml.append("        ").append(XmlHandler.addTagValue("trim_type", field.getTrimTypeCode()));
-        xml.append("      </field>").append(Const.CR);
-      }
-      xml.append("    </fields>").append(Const.CR);
-
-    } catch (Exception e) {
-      throw new HopValueException("Unable to write transform to XML", e);
-    }
-    return xml.toString();
-  }
-*/
-
-/*
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-
-      this.worksheetId = XmlHandler.getTagValue(transformNode, "worksheetId");
-      this.spreadsheetKey = XmlHandler.getTagValue(transformNode, "spreadsheetKey");
-      this.jsonCredentialPath = XmlHandler.getTagValue(transformNode, "jsonCredentialPath");
-      String tmp = XmlHandler.getTagValue(transformNode, "sampleField");
-      if (tmp != null && !tmp.isEmpty()) {
-        this.sampleFields = Integer.parseInt(tmp);
-      } else {
-        this.sampleFields = 100;
-      }
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrfields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrfields);
-
-      for (int i = 0; i < nrfields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-        GoogleSheetsInputFields field = new GoogleSheetsInputFields();
-
-        field.setName(XmlHandler.getTagValue(fnode, "name"));
-        field.setType(ValueMetaFactory.getIdForValueMeta(XmlHandler.getTagValue(fnode, "type")));
-        field.setFormat(XmlHandler.getTagValue(fnode, "format"));
-        field.setCurrencySymbol(XmlHandler.getTagValue(fnode, "currency"));
-        field.setDecimalSymbol(XmlHandler.getTagValue(fnode, "decimal"));
-        field.setGroupSymbol(XmlHandler.getTagValue(fnode, "group"));
-        // field.setNullString( XmlHandler.getTagValue( fnode, "nullif" ) );
-        // field.setIfNullValue( XmlHandler.getTagValue( fnode, "ifnull" ) );
-        field.setPosition(Const.toInt(XmlHandler.getTagValue(fnode, "position"), -1));
-        field.setLength(Const.toInt(XmlHandler.getTagValue(fnode, "length"), -1));
-        field.setPrecision(Const.toInt(XmlHandler.getTagValue(fnode, "precision"), -1));
-        field.setTrimType(
-            ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(fnode, "trim_type")));
-        // field.setRepeated( YES.equalsIgnoreCase( XmlHandler.getTagValue( fnode, "repeat" ) ) );
-
-        inputFields[i] = field;
-      }
-      super.loadXml(transformNode, metadataProvider);
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform from XML", e);
-    }
-  }
-*/
 
   @Override
   public void getFields(
@@ -310,8 +199,4 @@ public class GoogleSheetsInputMeta
     }
   }
 
-//  @Override
-//  public String getDialogClassName() {
-//    return GoogleSheetsInputDialog.class.getName();
-//  }
 }

@@ -49,10 +49,9 @@
     <properties>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
         <google-api-sheets.version>v4-rev20230526-2.0.0</google-api-sheets.version>
-<!--        <google-api-drive.version>v3-rev197-1.25.0</google-api-drive.version>-->
         <google-api-drive.version>v3-rev20230610-2.0.0</google-api-drive.version>
-<!--        <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>-->
         <jetty-client.version>6.1.26</jetty-client.version>
+        <google-analytics.version>0.32.0</google-analytics.version>
     </properties>
 
     <dependencies>
@@ -60,7 +59,7 @@
         <dependency>
             <groupId>com.google.analytics</groupId>
             <artifactId>google-analytics-data</artifactId>
-            <version>0.28.0</version>
+            <version>${google-analytics.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>

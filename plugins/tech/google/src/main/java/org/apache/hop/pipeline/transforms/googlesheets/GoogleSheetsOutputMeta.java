@@ -38,9 +38,6 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
         "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsoutput.html")
-//@InjectionSupported(
-//    localizationPrefix = "GoogleSheetsOutput.injection.",
-//    groups = {"SHEET", "INPUT_FIELDS"})
 public class GoogleSheetsOutputMeta
     extends BaseTransformMeta<GoogleSheetsOutput, GoogleSheetsOutputData> {
 

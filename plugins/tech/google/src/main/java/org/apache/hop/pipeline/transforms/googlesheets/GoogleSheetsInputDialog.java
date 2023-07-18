@@ -554,8 +554,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wFields.clearAll();
     List<GoogleSheetsInputField> fields = meta.getInputFields();
     for (GoogleSheetsInputField field : fields) {
-//      GoogleSheetsInputField field = fields.get(i);
-//      GoogleSheetsInputFields field = meta.getInputFields()[i];
 
       TableItem item = new TableItem(wFields.table, SWT.NONE);
 
@@ -576,12 +574,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       if (format != null) {
         item.setText(3, format);
       }
-      /*if ( position != null && !"-1".equals( position ) ) {
-      item.setText( , position );
-       }*/
-      /* if ( length != null && !"-1".equals( length ) ) {
-      item.setText( 4, length );
-       }*/
       if (prec != null && !"-1".equals(prec)) {
         item.setText(5, prec);
       }
@@ -618,7 +610,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     }
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
-//    meta.allocate(nrNonEmptyFields);
 
     List<GoogleSheetsInputField> googleSheetsInputFields = new ArrayList<>();
     for (int i = 0; i < nrNonEmptyFields; i++) {

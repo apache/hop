@@ -34,57 +34,45 @@ import java.util.Date;
 /** Describes a single field in a text file */
 public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*/ {
 
-//  @Injection(name = "INPUT_NAME", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "name", injectionGroupKey = "INPUT_FIELDS")
   private String name;
 
-//  @Injection(name = "INPUT_POSITION", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "position", injectionGroupKey = "INPUT_FIELDS")
   private int position;
 
-//  @Injection(name = "INPUT_LENGTH", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "length", injectionGroupKey = "INPUT_FIELDS")
   private int length;
 
   @HopMetadataProperty(key = "type", injectionGroupKey = "INPUT_FIELDS")
   private int type;
 
-//  @Injection(name = "INPUT_IGNORE", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "INPUT_IGNORE", injectionGroupKey = "INPUT_FIELDS")
   private boolean ignore;
 
-//  @Injection(name = "INPUT_FORMAT", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "format", injectionGroupKey = "INPUT_FIELDS")
   private String format;
 
   @HopMetadataProperty(key = "trim_type", injectionGroupKey = "INPuT_FIELDS")
   private int trimType;
 
-//  @Injection(name = "INPUT_PRECISION", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "precision", injectionGroupKey = "INPUT_FIELDS")
   private int precision;
 
-//  @Injection(name = "INPUT_CURRENCY", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "currency", injectionGroupKey = "INPUT_FIELDS")
   private String currencySymbol;
 
-//  @Injection(name = "INPUT_DECIMAL", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "decimal", injectionGroupKey = "INPUT_FIELDS")
   private String decimalSymbol;
 
-//  @Injection(name = "INPUT_GROUP", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "group", injectionGroupKey = "INPUT_FIELDS")
   private String groupSymbol;
 
-//  @Injection(name = "INPUT_REPEAT", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "INPUT_FIELDS", injectionGroupKey = "INPUT_FIELDS")
   private boolean repeat;
 
-//  @Injection(name = "INPUT_NULL_STRING", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "INPUT_NULL_STRING", injectionGroupKey = "INPUT_FIELDS")
   private String nullString;
 
-//  @Injection(name = "INPUT_IF_NULL", group = "INPUT_FIELDS")
   @HopMetadataProperty(key = "INPUT_IF_NULL", injectionGroupKey = "INPUT_FIELDS")
   private String ifNullValue;
 
@@ -130,38 +118,11 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
     this.ifNullValue = field.getIfNullValue();
   }
 
-
-//  public GoogleSheetsInputField(String fieldname, int position, int length) {
-//    this.name = fieldname;
-//    this.position = position;
-//    this.length = length;
-//    this.type = IValueMeta.TYPE_STRING;
-//    this.ignore = false;
-//    this.format = "";
-//    this.trimtype = IValueMeta.TRIM_TYPE_NONE;
-//    this.groupSymbol = "";
-//    this.decimalSymbol = "";
-//    this.currencySymbol = "";
-//    this.precision = -1;
-//    this.repeat = false;
-//    this.nullString = "";
-//    this.ifNullValue = "";
-//  }
-
-//  public GoogleSheetsInputField() {
-//    this(null, -1, -1);
-//  }
-
   public int compare(Object obj) {
     GoogleSheetsInputField field = (GoogleSheetsInputField) obj;
 
     return position - field.getPosition();
   }
-
-//  @Override
-//  public int compareTo(ITextFileInputField field) {
-//    return position - field.getPosition();
-//  }
 
   public boolean equal(Object obj) {
     GoogleSheetsInputField field = (GoogleSheetsInputField) obj;
@@ -242,10 +203,6 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
   public String[] getSamples() {
     return this.samples;
   }
-
-//  public int getTrimType() {
-//    return trimType;
-//  }
 
   public String getTrimTypeCode() {
     return ValueMetaString.getTrimTypeCode(trimType);
@@ -657,11 +614,4 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
       return;
     }
   }
-
-/*
-  @Override
-  public ITextFileInputField createNewInstance(String newFieldname, int x, int newlength) {
-    return new GoogleSheetsInputField(newFieldname, x, newlength);
-  }
-*/
 }

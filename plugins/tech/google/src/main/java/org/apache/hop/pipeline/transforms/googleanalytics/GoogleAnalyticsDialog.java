@@ -94,8 +94,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
 
     private TextVar wQuMetrics;
 
-    private TextVar wQuMetricAggs;
-
     private TextVar wQuSort;
 
     private Group gConnect;
@@ -117,8 +115,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
             "https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#metrics";
     static final String REFERENCE_DIMENSIONS_URI =
             "https://developers.google.com/analytics/devguides/reporting/data/v1/api-schema#dimensions";
-//    static final String REFERENCE_FILTERS_URI =
-//            "https://developers.google.com/analytics/devguides/reporting/core/v3/reference#filters";
     static final String REFERENCE_DIMENSION_AND_METRIC_URI =
             "https://support.google.com/analytics/answer/9143382?hl=en";
     static final String REFERENCE_METRICAGGS_URI =
@@ -322,42 +318,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
         fdQuDimensionsReference.right = new FormAttachment(100, 0);
         wQuDimensionsReference.setLayoutData(fdQuDimensionsReference);
 
-        // Dimension filters
-//        Label wlQuDimFilters = new Label(gQuery, SWT.RIGHT);
-//        wlQuDimFilters.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.DimFilters.Label"));
-//        props.setLook(wlQuDimFilters);
-//        FormData fdlQuDimFilters = new FormData();
-//        fdlQuDimFilters.top = new FormAttachment(wQuDimensions, margin);
-//        fdlQuDimFilters.left = new FormAttachment(0, 0);
-//        fdlQuDimFilters.right = new FormAttachment(middle, -margin);
-//        wlQuDimFilters.setLayoutData(fdlQuDimFilters);
-//        wQuDimFilters = new TextVar(variables, gQuery, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-//        wQuDimFilters.addModifyListener(lsMod);
-//        wQuDimFilters.setToolTipText(
-//                BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.DimFilters.Tooltip"));
-//        props.setLook(wQuDimFilters);
-
-//        Link wQuDimFiltersReference = new Link(gQuery, SWT.SINGLE);
-//        wQuDimFiltersReference.setText(
-//                BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
-//        props.setLook(wQuDimFiltersReference);
-//        wQuDimFiltersReference.addListener(
-//                SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_FILTERS_URI));
-//
-//        wQuDimFiltersReference.pack(true);
-//
-//        FormData fdQuDimFilters = new FormData();
-//        fdQuDimFilters.top = new FormAttachment(wQuDimensions, margin);
-//        fdQuDimFilters.left = new FormAttachment(middle, 0);
-//        fdQuDimFilters.right = new FormAttachment(100, -wQuDimFiltersReference.getBounds().width - margin);
-//        wQuDimFilters.setLayoutData(fdQuDimFilters);
-//
-//        FormData fdQuDimFiltersReference = new FormData();
-//        fdQuDimFiltersReference.top = new FormAttachment(wQuDimensions, margin);
-//        fdQuDimFiltersReference.left = new FormAttachment(wQuDimFilters, 0);
-//        fdQuDimFiltersReference.right = new FormAttachment(100, 0);
-//        wQuDimFiltersReference.setLayoutData(fdQuDimFiltersReference);
-
         // query Metrics
         Label wlQuMetrics = new Label(gQuery, SWT.RIGHT);
         wlQuMetrics.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Metrics.Label"));
@@ -394,84 +354,12 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
         fdQuMetricsReference.right = new FormAttachment(100, 0);
         wQuMetricsReference.setLayoutData(fdQuMetricsReference);
 
-        // Metric filters
-//        Label wlQuMetricFilters = new Label(gQuery, SWT.RIGHT);
-//        wlQuMetricFilters.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.MetricFilters.Label"));
-//        props.setLook(wlQuMetricFilters);
-//        FormData fdlQuMetricFilters = new FormData();
-//        fdlQuMetricFilters.top = new FormAttachment(wQuMetrics, margin);
-//        fdlQuMetricFilters.left = new FormAttachment(0, 0);
-//        fdlQuMetricFilters.right = new FormAttachment(middle, -margin);
-//        wlQuMetricFilters.setLayoutData(fdlQuMetricFilters);
-//        wQuMetricFilters = new TextVar(variables, gQuery, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-//        wQuMetricFilters.addModifyListener(lsMod);
-//        wQuMetricFilters.setToolTipText(
-//                BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.MetricFilters.Tooltip"));
-//        props.setLook(wQuMetricFilters);
-//
-//        Link wQuMetricFiltersReference = new Link(gQuery, SWT.SINGLE);
-//        wQuMetricFiltersReference.setText(
-//                BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
-//        props.setLook(wQuMetricFiltersReference);
-//        wQuMetricFiltersReference.addListener(
-//                SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_FILTERS_URI));
-//
-//        wQuMetricFiltersReference.pack(true);
-//
-//        FormData fdQuMetricFilters = new FormData();
-//        fdQuMetricFilters.top = new FormAttachment(wQuMetrics, margin);
-//        fdQuMetricFilters.left = new FormAttachment(middle, 0);
-//        fdQuMetricFilters.right = new FormAttachment(100, -wQuMetricFiltersReference.getBounds().width - margin);
-//        wQuMetricFilters.setLayoutData(fdQuMetricFilters);
-//
-//        FormData fdQuMetricFiltersReference = new FormData();
-//        fdQuMetricFiltersReference.top = new FormAttachment(wQuMetrics, margin);
-//        fdQuMetricFiltersReference.left = new FormAttachment(wQuMetricFilters, 0);
-//        fdQuMetricFiltersReference.right = new FormAttachment(100, 0);
-//        wQuMetricFiltersReference.setLayoutData(fdQuMetricFiltersReference);
-
-        // Metric aggregations
-        Label wlQuMetricAggs = new Label(gQuery, SWT.RIGHT);
-        wlQuMetricAggs.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.MetricAggs.Label"));
-        props.setLook(wlQuMetricAggs);
-        FormData fdlQuMetricAggs = new FormData();
-        fdlQuMetricAggs.top = new FormAttachment(wQuMetrics, margin);
-        fdlQuMetricAggs.left = new FormAttachment(0, 0);
-        fdlQuMetricAggs.right = new FormAttachment(middle, -margin);
-        wlQuMetricAggs.setLayoutData(fdlQuMetricAggs);
-        wQuMetricAggs = new TextVar(variables, gQuery, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-        wQuMetricAggs.addModifyListener(lsMod);
-        wQuMetricAggs.setToolTipText(
-                BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.MetricAggs.Tooltip"));
-        props.setLook(wQuMetricAggs);
-
-        Link wQuMetricAggsReference = new Link(gQuery, SWT.SINGLE);
-        wQuMetricAggsReference.setText(
-                BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
-        props.setLook(wQuMetricAggsReference);
-        wQuMetricAggsReference.addListener(
-                SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_METRICAGGS_URI));
-
-        wQuMetricAggsReference.pack(true);
-
-        FormData fdQuMetricAggs = new FormData();
-        fdQuMetricAggs.top = new FormAttachment(wQuMetrics, margin);
-        fdQuMetricAggs.left = new FormAttachment(middle, 0);
-        fdQuMetricAggs.right = new FormAttachment(100, -wQuMetricAggsReference.getBounds().width - margin);
-        wQuMetricAggs.setLayoutData(fdQuMetricAggs);
-
-        FormData fdQuMetricAggsReference = new FormData();
-        fdQuMetricAggsReference.top = new FormAttachment(wQuMetrics, margin);
-        fdQuMetricAggsReference.left = new FormAttachment(wQuMetricAggs, 0);
-        fdQuMetricAggsReference.right = new FormAttachment(100, 0);
-        wQuMetricAggsReference.setLayoutData(fdQuMetricAggsReference);
-
         // query Sort
         Label wlQuSort = new Label(gQuery, SWT.RIGHT);
         wlQuSort.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Sort.Label"));
         props.setLook(wlQuSort);
         FormData fdlQuSort = new FormData();
-        fdlQuSort.top = new FormAttachment(wQuMetricAggs, margin);
+        fdlQuSort.top = new FormAttachment(wQuMetrics, margin);
         fdlQuSort.left = new FormAttachment(0, 0);
         fdlQuSort.right = new FormAttachment(middle, -margin);
         wlQuSort.setLayoutData(fdlQuSort);
@@ -490,13 +378,13 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
         wQuSortReference.pack(true);
 
         FormData fdQuSort = new FormData();
-        fdQuSort.top = new FormAttachment(wQuMetricAggs, margin);
+        fdQuSort.top = new FormAttachment(wQuMetrics, margin);
         fdQuSort.left = new FormAttachment(middle, 0);
         fdQuSort.right = new FormAttachment(100, -wQuSortReference.getBounds().width - margin);
         wQuSort.setLayoutData(fdQuSort);
 
         FormData fdQuSortReference = new FormData();
-        fdQuSortReference.top = new FormAttachment(wQuMetricAggs, margin);
+        fdQuSortReference.top = new FormAttachment(wQuMetrics, margin);
         fdQuSortReference.left = new FormAttachment(wQuSort, 0);
         fdQuSortReference.right = new FormAttachment(100, 0);
         wQuSortReference.setLayoutData(fdQuSortReference);
@@ -513,10 +401,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
                         wQuEndDate,
                         wQuDimensions,
                         wQuMetrics,
-//                        wQuMetricFilters,
-//                        wQuDimFilters,
-//                        wQuDimFilters,
-                        wQuMetricAggs,
                         wQuSort
                 });
 
@@ -755,8 +639,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
 
         meta.setDimensions(wQuDimensions.getText());
         meta.setMetrics(wQuMetrics.getText());
-//        meta.setDimensionFilters(wQuDimFilters.getText());
-//        meta.setMetricFilters(wQuMetricFilters.getText());
         meta.setSort(wQuSort.getText());
 
         int nrFields = getTableView().nrNonEmpty();
@@ -859,14 +741,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog implements ITrans
         if (getInput().getMetrics() != null) {
             wQuMetrics.setText(getInput().getMetrics());
         }
-
-//        if (getInput().getDimensionFilters() != null) {
-//            wQuDimFilters.setText(getInput().getDimensionFilters());
-//        }
-//
-//        if( getInput().getMetricFilters() != null){
-//            wQuMetricFilters.setText(getInput().getMetricFilters());
-//        }
 
         if (getInput().getSort() != null) {
             wQuSort.setText(getInput().getSort());

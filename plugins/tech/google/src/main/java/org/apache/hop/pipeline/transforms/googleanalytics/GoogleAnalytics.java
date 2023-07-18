@@ -111,7 +111,6 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
                     .setProperty("properties/" + meta.getGaProperty())
                     .addAllDimensions(dimensionList)
                     .addAllMetrics(metricList)
-//                    .setMetricAggregations(0, MetricAggregation.valueOf(MetricAggregation.COUNT_VALUE))
                     .addDateRanges(DateRange.newBuilder().setStartDate(meta.getStartDate()).setEndDate(meta.getEndDate()))
                     .setLimit(REQUEST_ROW_SIZE)
                     .setOffset(requestOffset)
