@@ -33,20 +33,24 @@ If for example the database server is different when developing than it is when 
 
 In the Hop user interface all places where you can enter a variable have a '$' symbol to the right of the input field:
 
-image::variable-indicator.png[The variable indicator]
+image::variable-indicator.png[The variable indicatorm, width="65%"]
 
-You can specify a variable by referencing it like this:
+You can specify a variable by referencing it between an opening `{openvar}` and a closing `{closevar}`.
 
 [source]
 ${VARIABLE_NAME}
 
-// CTRL-space snippet
-include::snippets/variables/control-space.adoc[]
+Please note that in the case of a textvar (a text field that supports variables), you don't *have* to specify a variable in these places. You can enter hard-coded values (although we advise to use variables where possible).
 
-Please note that you don't *have* to specify a variable in these places and that you can combine the variable with other information like:
+Combinations of a variable with other free-form text are also possible, like in the example below:
 
 [source]
 ${ENVIRONMENT_HOME}/input/source-file.txt
+
+
+// CTRL-space snippet
+include::snippets/variables/control-space.adoc[]
+
 
 == Hexadecimal values
 
@@ -93,7 +97,9 @@ Variables can be defined and set in all the places where it makes sense:
 == Locality
 
 Variables are local to the place where they are defined.
+
 This means that setting them in a certain place means that it's going to be inherited from that place on.
+
 This also means that's important to know where variables can be set and used and the hierarchy behind it.
 
 == Hierarchy
@@ -110,14 +116,25 @@ This also means that's important to know where variables can be set and used and
 |Metadata objects|Inherited by the place where it is loaded
 |===
 
+== Parameters
+
+Pipeline and workflows can (optionally) accept parameters.
+
+Workflow and pipeline parameters are similar, and are a special type of variable that is only available within the current workflow or pipeline.
+
+Workflow and pipeline parameters can have a default value and a description, and can be passed on from workflows and pipelines to other workflows and pipelines through a variety of workflow actions and pipeline transforms.
+
 === System properties
 
-All system properties defined in the Hop configuration file 'hop-config.json' are available as variables as well as all Java system properties.
-You can define new system properties in the Hop GUI using the system properties editor:
+All system properties are variables that are available in all of your currently running Apache Hop instance. System properties are available as variables as well as all Java system properties.
 
-image::system-properties-menu.png[The system properties menu in Hop GUI]
+System properties get set in the Java Virtual Machine that runs your Apache Hop instance. This means that you should limit yourself to only those variables which are really system specific.
 
-You can also edit the 'hop-config.json' file manually:
+You can define new system properties in the Hop GUI using the system properties editor (using the menu bar or the Hop icon menu):
+
+image::system-properties-menu.png[The system properties menu in Hop GUI, width="65%"]
+
+These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `{openvar}HOP_CONFIG_FOLDER{closevar}` location.
 
 [source,json]
 {
@@ -126,40 +143,41 @@ You can also edit the 'hop-config.json' file manually:
   }
 }
 
+CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
+
 You can also use the hop-config command line tool to define system properties:
 
 [source,bash]
 sh hop-config.sh -s MY_SYSTEM_PROPERTY=SomeValue
 
-System properties get set in Java Virtual Machine that Hop is running.
-This means that you should limit yourself to only those variables which are really system specific.
+
 
 === Environment Variables
 
-As you can read in the documentation regarding environments you can set variables there as well.
-This helps you configure folders and other things which are environment specific.
+You can specify variables in xref:projects/index.adoc[project lifecycle environments] as well.
 
-You can set those in the Environment settings dialog or using the command line:
+This helps you configure folders and other things which are environment specific, and lets you keep a clean separation between code (your project) and configuration (your environment).
+
+You can set those in the xref:projects/projects-environments.adoc#_create_an_environment[environment settings dialog] or using the command line:
 
 [source,bash]
 sh hop-config.sh -e MyEnvironment -em -ev VARIABLE1=value1
 
 === Run Configurations
 
-You can specify variables here to make a pipeline or workflow run in an engine agnostic way.
-As an example you can have the same pipeline run on Hadoop with Spark and specify an input directory using hdfs:// and on Google DataFlow using gs://
+You can specify variables in xref:pipeline/pipeline-run-configurations/pipeline-run-configurations.adoc[pipeline run configurations] and xref:workflow/workflow-run-configurations/workflow-run-configurations.adoc[workflow run configurations] to make a pipeline or workflow run in an engine agnostic way.
+
+For example, you can have the same pipeline run on Hadoop with Spark and specify an input directory using `hdfs://` and on Google DataFlow using `gs://`
 
 === Workflow
 
-You can define variables in a workflow either with the "Set Variables", "JavaScript" actions or by defining parameters.
-Parameters are variables which have a description and can have a default value.
+You can define variables in a workflow either with the xref:workflow/actions/setvariables.adoc[Set Variables], xref:workflow/actions/eval.adoc[JavaScript] actions or by using parameters.
 
 === Pipelines
 
-You can define variables in a pipeline either with the "Set Variables", "JavaScript" transforms or by defining parameters.
-Parameters are variables which have a description and can have a default value.
+You can define variables in a pipeline either with the xref:pipeline/transforms/setvariable.adoc[Set Variables], xref:pipeline/transforms/javascript.adoc[JavaScript] transforms or by defining parameters.
 
-*IMPORTANT* Since in pipelines all transforms run in parallel you should never try to set and use the same variable in the same pipeline.
+*IMPORTANT* As mentioned in the xref:pipeline/transforms/setvariable.adoc[Set Variables] documentation page, you can't set and use variables in the same pipeline, since all transforms in a pipeline run in parallel.
 
 == Available global variables
 
