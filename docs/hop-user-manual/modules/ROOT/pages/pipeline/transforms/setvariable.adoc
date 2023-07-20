@@ -29,6 +29,8 @@ The Set Variables transform allows you to set variables in a workflow or in the 
 
 TIP: This transform accepts one (and only one) row of data to set the value of a variable. If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
 
+WARNING: You can't set and use a variable in the same pipeline. Since all transforms in a pipeline run in parallel, there is no way a transform in a pipeline can use a variable that is set in another transform in that same pipeline.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
