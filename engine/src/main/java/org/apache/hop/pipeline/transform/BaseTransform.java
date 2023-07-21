@@ -1005,13 +1005,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           }
         }
       }
-    }
-    getRowHandler().putRow(rowMeta, row);
+      
+      // Put row only if rowMeta is not null...
+      getRowHandler().putRow(rowMeta, row);
 
-    // This transform is not reading data, only writing
-    //
-    if (firstRowReadDate == null) {
-      firstRowReadDate = new Date();
+      // This transform is not reading data, only writing
+      //
+      if (firstRowReadDate == null) {
+        firstRowReadDate = new Date();
+      }
+    } else {
+      logBasic("WARNING: Trying to perform a putRow with rowMeta NULL!");
     }
   }
 
@@ -1704,7 +1708,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         inputRowMeta = inputRowSet.getRowMeta();
       }
     } else {
-      logBasic("WARNING: Trying to assign inputRowMeta to a NULL reference.");  
+      logBasic("WARNING: Trying to assign inputRowMeta to a NULL reference. PrevTransform: " + inputRowSet.getOriginTransformName());
     }
     
     if (row != null) {
