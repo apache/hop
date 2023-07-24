@@ -102,6 +102,7 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   }
 
   public abstract boolean hasChanged();
+  public abstract void setChanged();
 
   @Override
   public void redraw() {
@@ -213,33 +214,40 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
 
   private void snapToGrid(int size) {
     createSnapAlignDistribute().snapToGrid(size);
+    setChanged();
   }
 
   public void alignLeft() {
     createSnapAlignDistribute().allignleft();
+    setChanged();
   }
 
   public void alignRight() {
     createSnapAlignDistribute().allignright();
+    setChanged();
   }
 
   public void alignTop() {
     createSnapAlignDistribute().alligntop();
+    setChanged();
   }
 
   public void alignBottom() {
     createSnapAlignDistribute().allignbottom();
+    setChanged();
   }
 
   @GuiKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_RIGHT)
   public void distributeHorizontal() {
     createSnapAlignDistribute().distributehorizontal();
+    setChanged();
   }
 
   @GuiOsxKeyboardShortcut(alt = true, key = SWT.ARROW_UP)
   public void distributeVertical() {
     createSnapAlignDistribute().distributevertical();
+    setChanged();
   }
 
   /**

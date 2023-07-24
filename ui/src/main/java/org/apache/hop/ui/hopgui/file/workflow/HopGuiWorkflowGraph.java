@@ -2860,10 +2860,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
     CanvasFacade.setData(canvas, magnification, offset, workflowMeta);
   }
-
+  
   @Override
   public boolean hasChanged() {
     return workflowMeta.hasChanged();
+  }
+
+  @Override
+  public void setChanged() {
+    workflowMeta.setChanged();    
   }
 
   protected void newHop() {
@@ -3163,6 +3168,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return workflowMeta;
   }
 
+  /**
+   * Use method hasChanged()
+   */
+  @Deprecated
   public boolean hasContentChanged() {
     return workflowMeta.hasChanged();
   }
@@ -3635,7 +3644,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           // Attach a listener to notify us that the pipeline has finished.
           //
-          workflow.addWorkflowFinishedListener(workflow -> HopGuiWorkflowGraph.this.jobFinished());
+          workflow.addWorkflowFinishedListener(workflow -> HopGuiWorkflowGraph.this.workflowFinished());
 
           // Show the execution results views
           //
@@ -3688,7 +3697,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   /** This gets called at the very end, when everything is done. */
-  protected void jobFinished() {
+  protected void workflowFinished() {
     // Do a final check to see if it all ended...
     //
     if (workflow != null && workflow.isInitialized() && workflow.isFinished()) {

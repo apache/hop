@@ -3601,6 +3601,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta;
   }
 
+
+  /**
+   * Use method hasChanged()
+   */
+  @Deprecated
   public boolean hasContentChanged() {
     return pipelineMeta.hasChanged();
   }
@@ -3667,6 +3672,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta.hasChanged();
   }
 
+  @Override
+  public void setChanged() {
+    pipelineMeta.setChanged();
+  }
+  
   @Override
   public synchronized void save() throws HopException {
     try {
