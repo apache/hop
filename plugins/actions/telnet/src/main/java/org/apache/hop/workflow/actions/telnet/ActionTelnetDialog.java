@@ -189,7 +189,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     }
 
     wPort.setText(Const.NVL(action.getPort(), String.valueOf(ActionTelnet.DEFAULT_PORT)));
-    wTimeOut.setText(Const.NVL(action.getTimeOut(), String.valueOf(ActionTelnet.DEFAULT_TIME_OUT)));
+    wTimeOut.setText(Const.NVL(action.getTimeout(), String.valueOf(ActionTelnet.DEFAULT_TIME_OUT)));
 
     wName.selectAll();
     wName.setFocus();
@@ -212,7 +212,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     action.setName(wName.getText());
     action.setHostname(wHostname.getText());
     action.setPort(wPort.getText());
-    action.setTimeOut(wTimeOut.getText());
+    action.setTimeout(wTimeOut.getText());
 
     dispose();
   }

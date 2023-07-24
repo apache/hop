@@ -44,7 +44,7 @@ public class WorkflowActionTelnetLoadSaveTest
     return toMap(
         "hostname", "getHostname",
         "port", "getPort",
-        "timeout", "getTimeOut");
+        "timeout", "getTimeout");
   }
 
   @Override
@@ -52,6 +52,6 @@ public class WorkflowActionTelnetLoadSaveTest
     return toMap(
         "hostname", "setHostname",
         "port", "setPort",
-        "timeout", "setTimeOut");
+        "timeout", "setTimeout");
   }
 }
