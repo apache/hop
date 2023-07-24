@@ -213,8 +213,6 @@ public class PropsUi extends Props {
       setProperty(STRING_LINE_WIDTH, "" + getLineWidth());
       setProperty(STRING_MAX_UNDO, "" + getMaxUndo());
     }
-
-    setUseGlobalFileBookmarks(true);
   }
 
   public void setFixedFont(FontData fd) {
