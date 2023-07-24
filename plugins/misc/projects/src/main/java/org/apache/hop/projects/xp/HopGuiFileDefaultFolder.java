@@ -17,42 +17,74 @@
 
 package org.apache.hop.projects.xp;
 
+import java.util.ArrayList;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.history.AuditList;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.IFileDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 
 public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialogExtension> {
+
+  public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
 
   @Override
   public void callExtensionPoint(
       ILogChannel log, IVariables variables, HopGuiFileDialogExtension ext) {
 
-    // Is there an active project?
-    //
+    // return if no projectname
     String projectName = HopNamespace.getNamespace();
     if (StringUtil.isEmpty(projectName)) {
       return;
     }
-    try {
-      ProjectsConfig config = ProjectsConfigSingleton.getConfig();
-      ProjectConfig projectConfig = config.findProjectConfig(projectName);
-      if (projectConfig == null) {
-        return;
-      }
-      String homeFolder = projectConfig.getProjectHome();
-      if (homeFolder != null) {
-        IFileDialog dialog = ext.getFileDialog();
-        dialog.setFilterPath(homeFolder);
-      }
-    } catch (Exception e) {
-      log.logError("Error setting default folder for project " + projectName, e);
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    ProjectConfig projectConfig = config.findProjectConfig(projectName);
+    // return if no projectConfig is found
+    if (projectConfig == null) {
+      return;
     }
+
+    // Get last known location from audit history
+    PropsUi props = PropsUi.getInstance();
+    String usedNamespace;
+    java.util.List<String> navigationHistory;
+    int navigationIndex;
+    String filterPath;
+
+    if (props.useGlobalFileBookmarks()) {
+      usedNamespace = HopGui.DEFAULT_HOP_GUI_NAMESPACE;
+    } else {
+      usedNamespace = HopNamespace.getNamespace();
+    }
+
+    try {
+      AuditList auditList =
+          AuditManager.getActive().retrieveList(usedNamespace, BOOKMARKS_AUDIT_TYPE);
+      navigationHistory = auditList.getNames();
+    } catch (Exception e) {
+      LogChannel.GENERAL.logError("Error loading navigation history", e);
+      navigationHistory = new ArrayList<>();
+    }
+
+    if (!navigationHistory.isEmpty()) {
+      navigationIndex = navigationHistory.size() - 1;
+      filterPath = navigationHistory.get(navigationIndex);
+    } else {
+      filterPath = projectConfig.getProjectHome();
+    }
+
+    IFileDialog dialog = ext.getFileDialog();
+    dialog.setFilterPath(filterPath);
   }
 }
