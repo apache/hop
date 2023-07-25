@@ -111,7 +111,6 @@ import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -959,6 +958,7 @@ public class HopGui
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
     if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
       ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignLeft();
+      activeFileTypeHandler.updateGui();
     }
   }
 
@@ -974,6 +974,7 @@ public class HopGui
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
     if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
       ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignRight();
+      activeFileTypeHandler.updateGui();
     }
   }
 
@@ -989,6 +990,7 @@ public class HopGui
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
     if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
       ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignTop();
+      activeFileTypeHandler.updateGui();
     }
   }
 
@@ -1004,6 +1006,7 @@ public class HopGui
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
     if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
       ((IGraphSnapAlignDistribute) activeFileTypeHandler).alignBottom();
+      activeFileTypeHandler.updateGui();
     }
   }
 
@@ -1019,6 +1022,7 @@ public class HopGui
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
     if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
       ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeHorizontal();
+      activeFileTypeHandler.updateGui();
     }
   }
 
@@ -1034,6 +1038,7 @@ public class HopGui
     IHopFileTypeHandler activeFileTypeHandler = getActiveFileTypeHandler();
     if (activeFileTypeHandler instanceof IGraphSnapAlignDistribute) {
       ((IGraphSnapAlignDistribute) activeFileTypeHandler).distributeVertical();
+      activeFileTypeHandler.updateGui();
     }
   }
 
