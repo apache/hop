@@ -21,12 +21,11 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.SocketUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -36,7 +35,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -51,9 +49,11 @@ import java.util.List;
     documentationUrl = "/workflow/actions/telnet.html")
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTelnet.class; // For Translator
-
+  @HopMetadataProperty(key = "hostname")
   private String hostname;
+  @HopMetadataProperty(key = "port")
   private String port;
+  @HopMetadataProperty(key = "timeout")
   private String timeout;
 
   public static final int DEFAULT_TIME_OUT = 3000;
@@ -74,31 +74,6 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     ActionTelnet je = (ActionTelnet) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(100);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("hostname", hostname));
-    retval.append("      ").append(XmlHandler.addTagValue("port", port));
-    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      hostname = XmlHandler.getTagValue(entrynode, "hostname");
-      port = XmlHandler.getTagValue(entrynode, "port");
-      timeout = XmlHandler.getTagValue(entrynode, "timeout");
-    } catch (HopXmlException xe) {
-      throw new HopXmlException("Unable to load action of type 'Telnet' from XML node", xe);
-    }
   }
 
   public String getPort() {
@@ -125,15 +100,15 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
     return resolve(getHostname());
   }
 
-  public String getTimeOut() {
+  public String getTimeout() {
     return timeout;
   }
 
   public String getRealTimeOut() {
-    return resolve(getTimeOut());
+    return resolve(getTimeout());
   }
 
-  public void setTimeOut(String timeout) {
+  public void setTimeout(String timeout) {
     this.timeout = timeout;
   }
 
