@@ -235,6 +235,10 @@ public class DatabaseMetaInformation {
           // Ignore it to avoid excessive spamming
         }
 
+        
+        // Sort the schemas by names
+        Collections.sort(schemaList, (s1, s2) -> {return s1.getSchemaName()==null ? -1:s1.getSchemaName().compareToIgnoreCase(s2.getSchemaName());});
+        
         // Save for later...
         setSchemas(schemaList.toArray(new Schema[schemaList.size()]));
       }
