@@ -113,10 +113,10 @@ public class ActionWorkflowGuiPlugin {
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
     xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
         .append(Const.CR);
-    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
+    xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS))
         .append(Const.CR);
     xml.append(actionMeta.getXml());
-    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
+    xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS))
         .append(Const.CR);
     xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
         .append(Const.CR);

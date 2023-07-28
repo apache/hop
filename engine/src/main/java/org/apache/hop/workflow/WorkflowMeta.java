@@ -122,6 +122,16 @@ public class WorkflowMeta extends AbstractMeta
    */
   public boolean[] max = new boolean[1];
 
+  /** A constant specifying the tag value for the XML node of the actions. */
+  public static final String XML_TAG_ACTIONS = "actions";
+  
+  /** A constant specifying the tag value for the XML node of the notes. */
+  public static final String XML_TAG_NOTEPADS = "notepads";
+  
+  /** A constant specifying the tag value for the XML node of the hops. */
+  public static final String XML_TAG_HOPS = "hops";
+  
+  /** A constant specifying the tag value for the XML node of the workflow parameters. */
   protected static final String XML_TAG_PARAMETERS = "parameters";
 
   private List<MissingAction> missingActions;
@@ -383,26 +393,26 @@ public class WorkflowMeta extends AbstractMeta
     }
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
 
-    xml.append("  ").append(XmlHandler.openTag("actions")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_ACTIONS)).append(Const.CR);
     for (int i = 0; i < nrActions(); i++) {
       ActionMeta jge = getAction(i);
       xml.append(jge.getXml());
     }
-    xml.append("  ").append(XmlHandler.closeTag("actions")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_ACTIONS)).append(Const.CR);
 
-    xml.append("  ").append(XmlHandler.openTag("hops")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_HOPS)).append(Const.CR);
     for (WorkflowHopMeta hi : workflowHops) {
       // Look at all the hops
       xml.append(hi.getXml());
     }
-    xml.append("  ").append(XmlHandler.closeTag("hops")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_HOPS)).append(Const.CR);
 
-    xml.append("  ").append(XmlHandler.openTag("notepads")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.openTag(XML_TAG_NOTEPADS)).append(Const.CR);
     for (int i = 0; i < nrNotes(); i++) {
       NotePadMeta ni = getNote(i);
       xml.append(ni.getXml());
     }
-    xml.append("  ").append(XmlHandler.closeTag("notepads")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.closeTag(XML_TAG_NOTEPADS)).append(Const.CR);
 
     // Also store the attribute groups
     //
@@ -568,7 +578,7 @@ public class WorkflowMeta extends AbstractMeta
 
       // read the action metadata
       //
-      Node actionsNode = XmlHandler.getSubNode(workflowNode, "actions");
+      Node actionsNode = XmlHandler.getSubNode(workflowNode, XML_TAG_ACTIONS);
       List<Node> actionNodes = XmlHandler.getNodes(actionsNode, ActionMeta.XML_TAG);
       for (Node actionNode : actionNodes) {
         ActionMeta actionMeta = new ActionMeta(actionNode, metadataProvider, variables);
@@ -588,8 +598,8 @@ public class WorkflowMeta extends AbstractMeta
         addAction(actionMeta);
       }
 
-      Node hopsNode = XmlHandler.getSubNode(workflowNode, "hops");
-      List<Node> hopNodes = XmlHandler.getNodes(hopsNode, "hop");
+      Node hopsNode = XmlHandler.getSubNode(workflowNode, XML_TAG_HOPS);
+      List<Node> hopNodes = XmlHandler.getNodes(hopsNode, WorkflowHopMeta.XML_HOP_TAG);
       for (Node hopNode : hopNodes) {
         WorkflowHopMeta hi = new WorkflowHopMeta(hopNode, this);
         workflowHops.add(hi);
@@ -597,7 +607,7 @@ public class WorkflowMeta extends AbstractMeta
 
       // Read the notes...
       //
-      Node notepadsNode = XmlHandler.getSubNode(workflowNode, "notepads");
+      Node notepadsNode = XmlHandler.getSubNode(workflowNode, XML_TAG_NOTEPADS);
       List<Node> nodepadNodes = XmlHandler.getNodes(notepadsNode, NotePadMeta.XML_TAG);
       for (Node notepadNode : nodepadNodes) {
         NotePadMeta ni = new NotePadMeta(notepadNode);

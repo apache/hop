@@ -36,6 +36,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineContext;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardDelegate;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.List;
@@ -111,10 +112,10 @@ public class ActionPipelineGuiPlugin {
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
     xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
         .append(Const.CR);
-    xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
+    xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS))
         .append(Const.CR);
     xml.append(actionMeta.getXml());
-    xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_ACTIONS))
+    xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS))
         .append(Const.CR);
     xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
         .append(Const.CR);

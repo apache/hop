@@ -27,7 +27,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -51,7 +50,6 @@ public class HopGuiWorkflowClipboardDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
 
   public static final String XML_TAG_WORKFLOW_ACTIONS = "workflow-actions";
-  public static final String XML_TAG_ACTIONS = "actions";
 
   private HopGui hopGui;
   private HopGuiWorkflowGraph workflowGraph;
@@ -88,7 +86,7 @@ public class HopGuiWorkflowClipboardDelegate {
     }
   }
 
-  public void pasteXml(WorkflowMeta workflowMeta, String clipboardContent, Point locaction) {
+  public void pasteXml(WorkflowMeta workflowMeta, String clipboardContent, Point location) {
 
     try {
       Document doc = XmlHandler.loadXmlString(clipboardContent);
@@ -96,20 +94,20 @@ public class HopGuiWorkflowClipboardDelegate {
       // De-select all, re-select pasted transforms...
       workflowMeta.unselectAll();
 
-      Node actionsNode = XmlHandler.getSubNode(workflowNode, XML_TAG_ACTIONS);
+      Node actionsNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_ACTIONS);      
       int nr = XmlHandler.countNodes(actionsNode, ActionMeta.XML_TAG);
       ActionMeta[] actions = new ActionMeta[nr];
       ArrayList<String> actionsOldNames = new ArrayList<>(nr);
 
       Point min = new Point(99999999, 99999999);
 
-      // Load the entries...
+      // Load the actions...
       for (int i = 0; i < nr; i++) {
         Node actionNode = XmlHandler.getSubNodeByNr(actionsNode, ActionMeta.XML_TAG, i);
         actions[i] =
             new ActionMeta(actionNode, hopGui.getMetadataProvider(), workflowGraph.getVariables());
 
-        if (locaction != null) {
+        if (location != null) {
           Point p = actions[i].getLocation();
 
           if (min.x > p.x) {
@@ -121,18 +119,41 @@ public class HopGuiWorkflowClipboardDelegate {
         }
       }
 
+      // Load the notes...
+      Node notesNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_NOTEPADS);
+      nr = XmlHandler.countNodes(notesNode, NotePadMeta.XML_TAG);
+      if (log.isDebug()) {
+        log.logDebug(BaseMessages.getString(PKG, "HopGui.Log.FoundNotepads", "" + nr));
+      }
+      NotePadMeta[] notes = new NotePadMeta[nr];
+      for (int i = 0; i < nr; i++) {
+        Node noteNode = XmlHandler.getSubNodeByNr(notesNode, NotePadMeta.XML_TAG, i);
+        notes[i] = new NotePadMeta(noteNode);
+
+        if (location != null) {
+          Point p = notes[i].getLocation();
+
+          if (min.x > p.x) {
+            min.x = p.x;
+          }
+          if (min.y > p.y) {
+            min.y = p.y;
+          }
+        }
+      }
+      
       // Load the hops...
-      Node hopsNode = XmlHandler.getSubNode(workflowNode, "order");
-      nr = XmlHandler.countNodes(hopsNode, "hop");
+      Node hopsNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_HOPS);
+      nr = XmlHandler.countNodes(hopsNode, WorkflowHopMeta.XML_HOP_TAG);
       WorkflowHopMeta[] hops = new WorkflowHopMeta[nr];
 
       for (int i = 0; i < nr; i++) {
-        Node hopNode = XmlHandler.getSubNodeByNr(hopsNode, "hop", i);
+        Node hopNode = XmlHandler.getSubNodeByNr(hopsNode, WorkflowHopMeta.XML_HOP_TAG, i);
         hops[i] = new WorkflowHopMeta(hopNode, Arrays.asList(actions));
       }
 
       // This is the offset:
-      Point offset = new Point(locaction.x - min.x, locaction.y - min.y);
+      Point offset = new Point(location.x - min.x, location.y - min.y);
 
       // Undo/redo object positions...
       int[] position = new int[actions.length];
@@ -156,22 +177,12 @@ public class HopGuiWorkflowClipboardDelegate {
         workflowMeta.addWorkflowHop(hop);
       }
 
-      // Load the notes...
-      Node notesNode = XmlHandler.getSubNode(workflowNode, "notepads");
-      nr = XmlHandler.countNodes(notesNode, "notepad");
-      if (log.isDebug()) {
-        // "I found "+nr+" notepads to paste."
-        log.logDebug(BaseMessages.getString(PKG, "HopGui.Log.FoundNotepads", "" + nr));
-      }
-      NotePadMeta[] notes = new NotePadMeta[nr];
-
-      for (int i = 0; i < notes.length; i++) {
-        Node noteNode = XmlHandler.getSubNodeByNr(notesNode, "notepad", i);
-        notes[i] = new NotePadMeta(noteNode);
-        Point p = notes[i].getLocation();
-        PropsUi.setLocation(notes[i], p.x + offset.x, p.y + offset.y);
-        workflowMeta.addNote(notes[i]);
-        notes[i].setSelected(true);
+      // Add the notes too...
+      for (NotePadMeta note : notes) {
+        Point p = note.getLocation();
+        PropsUi.setLocation(note, p.x + offset.x, p.y + offset.y);
+        workflowMeta.addNote(note);
+        note.setSelected(true);
       }
 
       // Save undo information too...
@@ -192,7 +203,7 @@ public class HopGuiWorkflowClipboardDelegate {
     } catch (HopException e) {
       // See if this was different (non-XML) content
       //
-      pasteNoXmlContent(workflowMeta, clipboardContent, locaction);
+      pasteNoXmlContent(workflowMeta, clipboardContent, location);
     }
 
     workflowGraph.redraw();
@@ -244,6 +255,8 @@ public class HopGuiWorkflowClipboardDelegate {
       } else {
         // Add a notepad
         //
+        shiftLocation(location);
+        
         NotePadMeta notePadMeta =
             new NotePadMeta(
                 clipboardContent,
@@ -256,7 +269,7 @@ public class HopGuiWorkflowClipboardDelegate {
             workflowMeta,
             new NotePadMeta[] {notePadMeta},
             new int[] {workflowMeta.indexOfNote(notePadMeta)});
-        shiftLocation(location);
+
       }
 
     } catch (Exception e) {
@@ -285,19 +298,9 @@ public class HopGuiWorkflowClipboardDelegate {
     return uniqueName;
   }
 
-  private String getUniqueName(PipelineMeta meta, String name) {
-    String uniqueName = name;
-    int nr = 2;
-    while (meta.findTransform(uniqueName) != null) {
-      uniqueName = name + " " + nr;
-      nr++;
-    }
-    return uniqueName;
-  }
-
   public void copySelected(
       WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes) {
-    if (actions == null || actions.size() == 0) {
+    if (actions == null || actions.size()+notes.size() == 0) {
       return;
     }
 
@@ -305,14 +308,14 @@ public class HopGuiWorkflowClipboardDelegate {
     try {
       xml.append(XmlHandler.openTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
 
-      xml.append(XmlHandler.openTag(XML_TAG_ACTIONS)).append(Const.CR);
+      xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
       for (ActionMeta action : actions) {
         xml.append(action.getXml());
       }
-      xml.append(XmlHandler.closeTag(XML_TAG_ACTIONS)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
 
       // Also check for the hops in between the selected transforms...
-      xml.append(XmlHandler.openTag(PipelineMeta.XML_TAG_ORDER)).append(Const.CR);
+      xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_HOPS)).append(Const.CR);
       for (ActionMeta transform1 : actions) {
         for (ActionMeta transform2 : actions) {
           if (!transform1.equals(transform2)) {
@@ -324,15 +327,15 @@ public class HopGuiWorkflowClipboardDelegate {
           }
         }
       }
-      xml.append(XmlHandler.closeTag(PipelineMeta.XML_TAG_ORDER)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_HOPS)).append(Const.CR);
 
-      xml.append(XmlHandler.openTag(PipelineMeta.XML_TAG_NOTEPADS)).append(Const.CR);
+      xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_NOTEPADS)).append(Const.CR);
       if (notes != null) {
         for (NotePadMeta note : notes) {
           xml.append(note.getXml());
         }
       }
-      xml.append(XmlHandler.closeTag(PipelineMeta.XML_TAG_NOTEPADS)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_NOTEPADS)).append(Const.CR);
 
       xml.append(XmlHandler.closeTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
 
@@ -350,11 +353,11 @@ public class HopGuiWorkflowClipboardDelegate {
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
     try {
       xml.append(XmlHandler.openTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
-      xml.append(XmlHandler.openTag(XML_TAG_ACTIONS)).append(Const.CR);
+      xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
       for (ActionMeta action : actions) {
         xml.append(action.getXml());
       }
-      xml.append(XmlHandler.closeTag(XML_TAG_ACTIONS)).append(Const.CR);
+      xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
       xml.append(XmlHandler.closeTag(XML_TAG_WORKFLOW_ACTIONS)).append(Const.CR);
 
       GuiResource.getInstance().toClipboard(xml.toString());
@@ -384,14 +387,14 @@ public class HopGuiWorkflowClipboardDelegate {
    *
    * @return value of workflowGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
+  public HopGuiWorkflowGraph getWorkflowGraph() {
     return workflowGraph;
   }
 
   /**
    * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph(HopGuiWorkflowGraph workflowGraph) {
+  public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
 

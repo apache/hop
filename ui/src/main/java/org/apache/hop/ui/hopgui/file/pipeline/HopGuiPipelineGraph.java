@@ -2752,6 +2752,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
+      id = "pipeline-graph-transform-10110-copy-notepad-to-clipboard",
+      parentId = HopGuiPipelineNoteContext.CONTEXT_ID,
+      type = GuiActionType.Custom,
+      name = "i18n::HopGuiPipelineGraph.PipelineAction.CopyToClipboard.Name",
+      tooltip = "i18n::HopGuiPipelineGraph.PipelineAction.CopyToClipboard.Tooltip",
+      image = "ui/images/copy.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void copyNotePadToClipboard(HopGuiPipelineNoteContext context) {
+    pipelineClipboardDelegate.copySelected(
+        pipelineMeta, Collections.emptyList(), Arrays.asList(context.getNotePadMeta()));
+  }
+  
+  @GuiContextAction(
       id = "pipeline-graph-edit-pipeline",
       parentId = HopGuiPipelineContext.CONTEXT_ID,
       type = GuiActionType.Modify,
@@ -5199,7 +5213,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelineClipboardDelegate.copySelected(
         pipelineMeta, Arrays.asList(context.getTransformMeta()), Collections.emptyList());
   }
-
+  
   @GuiKeyboardShortcut(key = ' ')
   @GuiOsxKeyboardShortcut(key = ' ')
   public void showOutputFields() {
