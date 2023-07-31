@@ -74,9 +74,14 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includePrecisionField;
-
+  
   @HopMetadataProperty private String precisionFieldname;
 
+  @HopMetadataProperty(defaultBoolean = true)
+  private boolean includeMaskField;
+
+  @HopMetadataProperty private String maskFieldname;
+  
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeOriginField;
 
@@ -100,6 +105,8 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
     lengthFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.LengthName");
     includePrecisionField = true;
     precisionFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.PrecisionName");
+    includeMaskField = true;
+    maskFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.MaskName");
     includeOriginField = true;
     originFieldname = BaseMessages.getString(PKG, "TransformMetaStructureMeta.OriginName");
   }
@@ -175,6 +182,12 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
       precisionFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(precisionFieldValue);
     }
+    // Mask
+    if (includeMaskField) {
+      IValueMeta maskFieldValue = new ValueMetaString(maskFieldname);
+      maskFieldValue.setOrigin(name);
+      inputRowMeta.addValueMeta(maskFieldValue);
+    }    
     // Origin
     if (includeOriginField) {
       IValueMeta originFieldValue = new ValueMetaString(originFieldname);
@@ -254,6 +267,14 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
     this.precisionFieldname = precisionFieldname;
   }
 
+  public String getMaskFieldname() {
+    return maskFieldname;
+  }
+
+  public void setMaskFieldname(String name) {
+    this.maskFieldname = name;
+  }
+  
   public String getOriginFieldname() {
     return originFieldname;
   }
@@ -310,6 +331,14 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
     this.includePrecisionField = includePrecisionField;
   }
 
+  public boolean isIncludeMaskField() {
+    return includeMaskField;
+  }
+  
+  public void setIncludeMaskField(boolean include) {
+    this.includeMaskField = include;
+  }
+  
   public boolean isIncludeOriginField() {
     return includeOriginField;
   }

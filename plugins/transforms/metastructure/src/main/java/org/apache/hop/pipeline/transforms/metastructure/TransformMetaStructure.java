@@ -123,6 +123,10 @@ public class TransformMetaStructure
                   vPrecision.convertDataCompatible(vPrecision, Long.valueOf(v.getPrecision())));
         }
 
+        if (meta.isIncludeMaskField()) {
+          outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getConversionMask());
+        }
+        
         if (meta.isIncludeOriginField()) {
           outputRow = RowDataUtil.addValueData(outputRow, pos++, v.getOrigin());
         }
