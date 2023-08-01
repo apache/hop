@@ -17,7 +17,27 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.io.Files;
+import java.io.File;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -42,27 +62,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class ExcelWriterTransformTest {
 
@@ -307,7 +306,7 @@ public class ExcelWriterTransformTest {
   @Test
   public void testValueDate() throws Exception {
 
-    IValueMeta vmi = mock(ValueMetaDate.class, new DefaultAnswerThrowsException());
+    IValueMeta vmi = mock(ValueMetaDate.class);
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_DATE).when(vmi).getType();
     doReturn("value_date").when(vmi).getName();
@@ -367,9 +366,9 @@ public class ExcelWriterTransformTest {
   @Test
   public void testValueTimestamp() throws Exception {
 
-    IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
+    IValueMeta vmi = mock(ValueMetaTimestamp.class);
     Object vObj = new Object();
-    doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
+    doReturn(IValueMeta.TYPE_TIMESTAMP).when(vmi).getType();
     doReturn("value_timestamp").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
@@ -379,10 +378,10 @@ public class ExcelWriterTransformTest {
   @Test
   public void test_Xlsx_Stream_NoTemplate() throws Exception {
 
-    IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
+    IValueMeta vmi = mock(ValueMetaInternetAddress.class, new DefaultAnswerThrowsException());
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
-    doReturn("value_timestamp").when(vmi).getName();
+    doReturn("value_internetAddress").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
     testBaseXlsx(vmi, vObj, true, false);
@@ -391,10 +390,10 @@ public class ExcelWriterTransformTest {
   @Test
   public void test_Xlsx_NoStream_NoTemplate() throws Exception {
 
-    IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
+    IValueMeta vmi = mock(ValueMetaInternetAddress.class, new DefaultAnswerThrowsException());
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
-    doReturn("value_timestamp").when(vmi).getName();
+    doReturn("value_internetAddress").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
     testBaseXlsx(vmi, vObj, false, false);
@@ -403,10 +402,10 @@ public class ExcelWriterTransformTest {
   @Test
   public void test_Xlsx_Stream_Template() throws Exception {
 
-    IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
+    IValueMeta vmi = mock(ValueMetaInternetAddress.class, new DefaultAnswerThrowsException());
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
-    doReturn("value_timestamp").when(vmi).getName();
+    doReturn("value_internetAddress").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
     testBaseXlsx(vmi, vObj, true, true);
@@ -415,10 +414,10 @@ public class ExcelWriterTransformTest {
   @Test
   public void test_Xlsx_NoStream_Template() throws Exception {
 
-    IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
+    IValueMeta vmi = mock(ValueMetaInternetAddress.class, new DefaultAnswerThrowsException());
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
-    doReturn("value_timestamp").when(vmi).getName();
+    doReturn("value_internetAddress").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
     testBaseXlsx(vmi, vObj, false, true);
@@ -430,7 +429,7 @@ public class ExcelWriterTransformTest {
     IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
-    doReturn("value_timestamp").when(vmi).getName();
+    doReturn("value_internetAddress").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
     testBaseXls(vmi, vObj, false);
@@ -442,7 +441,7 @@ public class ExcelWriterTransformTest {
     IValueMeta vmi = mock(ValueMetaTimestamp.class, new DefaultAnswerThrowsException());
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
-    doReturn("value_timestamp").when(vmi).getName();
+    doReturn("value_internetAddress").when(vmi).getName();
     doReturn("127.0.0.1").when(vmi).getString(vObj);
 
     testBaseXls(vmi, vObj, true);

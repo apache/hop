@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -25,9 +30,7 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
@@ -59,12 +62,6 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public class ExcelWriterTransform
     extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
@@ -543,7 +540,7 @@ public class ExcelWriterTransform
                   && excelField != null
                   && Utils.isEmpty(excelField.getFormat())) {
 
-            if (vMeta instanceof ValueMetaDate || vMeta instanceof ValueMetaTimestamp) {
+            if (vMeta.getType() == IValueMeta.TYPE_DATE || vMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
 
               String format = vMeta.getFormatMask();
               if (!Utils.isEmpty(format)) {
@@ -770,7 +767,7 @@ public class ExcelWriterTransform
 
       // clear style cache
       int numOfFields =
-          meta.getOutputFields() != null && meta.getOutputFields().size() > 0
+          meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()
               ? meta.getOutputFields().size()
               : 0;
       if (numOfFields == 0) {
