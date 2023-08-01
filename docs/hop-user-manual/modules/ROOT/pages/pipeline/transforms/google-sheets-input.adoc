@@ -1,0 +1,62 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Google Sheets Input transform reads data from a Google Sheets worksheets.
+
+= image:transforms/icons/google-sheets-input.svg[Google Sheets Input transform Icon, role="image-doc-icon"] Google Sheets Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Google Sheets Input transform reads data from a Google Sheets worksheets.
+
+This transform requires a Google service account (JSON file) and a Google Cloud project with the Sheets API enabled.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+=== Service account tab
+
+Click the `browse` button to pick your google service account client secret json file.
+
+The `Test` button Lets you test your access to the API. On success, you should see a success message.
+
+=== Spreadsheet tab
+
+Lets you specify or browse for spreadsheets existing in the service account drive or for the ones that are shared with the service account email.
+
+===  Fields tab
+
+Lets you select from the fields of the sheet.
+
+Fields name are always defined in the first line of the google spreadsheet.
+
+**Get Fields** lets you get fields and guess their types, format, precision, decimal and group delimiter as well as trim type.
+

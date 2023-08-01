@@ -48,21 +48,25 @@
     -->
     <properties>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <google-api-sheets.version>v4-rev612-1.25.0</google-api-sheets.version>
-        <google-api-drive.version>v3-rev197-1.25.0</google-api-drive.version>
-        <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>
-        <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
+        <google-api-sheets.version>v4-rev20230526-2.0.0</google-api-sheets.version>
+        <google-api-drive.version>v3-rev20230610-2.0.0</google-api-drive.version>
         <jetty-client.version>6.1.26</jetty-client.version>
+        <google-analytics.version>0.32.0</google-analytics.version>
     </properties>
 
     <dependencies>
         <!-- Google Analytics dependencies -->
-
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-analytics</artifactId>
-            <version>${google-api-services-analytics.version}</version>
+            <groupId>com.google.analytics</groupId>
+            <artifactId>google-analytics-data</artifactId>
+            <version>${google-analytics.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.23.3</version>
+        </dependency>
+
         <dependency>
             <groupId>com.google.api-client</groupId>
             <artifactId>google-api-client</artifactId>
@@ -92,7 +96,6 @@
         </dependency>
 
         <!-- Google Sheets dependencies -->
-
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>
@@ -110,7 +113,6 @@
         </dependency>
 
         <!-- Google VFS dependencies -->
-
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-java6</artifactId>
@@ -128,7 +130,6 @@
         </dependency>
 
         <!-- Google Cloud Storage VFS dependencies -->
-
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-storage</artifactId>
@@ -136,7 +137,6 @@
         </dependency>
 
         <!-- Test and Hop dependencies -->
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

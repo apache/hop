@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0010-write-google-sheet</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2023/03/08 16:23:08.688</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2023/03/08 16:23:08.688</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>Data grid</from>
+      <to>Google Sheet Output</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Data grid</name>
+    <type>DataGrid</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <data>
+      <line>
+        <item>a</item>
+        <item>1</item>
+        <item>01/08/2023</item>
+      </line>
+      <line>
+        <item>b</item>
+        <item>2</item>
+        <item>02/08/2023</item>
+      </line>
+      <line>
+        <item>c</item>
+        <item>3</item>
+        <item>01/08/2023</item>
+      </line>
+      <line>
+        <item>d</item>
+        <item>4</item>
+        <item>05/08/2023</item>
+      </line>
+      <line>
+        <item>e</item>
+        <item>5</item>
+        <item>01/08/2023</item>
+      </line>
+      <line>
+        <item>f</item>
+        <item>6</item>
+        <item>31/08/2023</item>
+      </line>
+    </data>
+    <fields>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>a</name>
+        <type>String</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>b</name>
+        <type>Number</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <name>c</name>
+        <format>dd/MM/yyyy</format>
+        <type>Date</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Google Sheet Output</name>
+    <type>GoogleSheetsPluginOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <APPEND>N</APPEND>
+    <CREATE>Y</CREATE>
+    <SHAREDOMAIN/>
+    <SHAREEMAIL/>
+    <jsonCredentialPath>/tmp/google-key-apache-hop-it.json</jsonCredentialPath>
+    <spreadsheetKey>1uTxX_siSLikbHgZm6kSwUGFZlKDzTP0CnfY7TNaZgeE</spreadsheetKey>
+    <worksheetId>Sheet2</worksheetId>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>80</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

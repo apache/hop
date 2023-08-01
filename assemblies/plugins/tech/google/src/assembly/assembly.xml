@@ -54,6 +54,7 @@
                 <include>com.google.api-client:google-api-client:jar</include>
                 <include>com.google.api:gax-httpjson:jar</include>
                 <include>com.google.api:gax:jar</include>
+                <include>com.google.api:gax-grpc:jar</include>
                 <include>com.google.api.grpc:proto-google-common-protos:jar</include>
                 <include>com.google.api.grpc:proto-google-iam-v1:jar</include>
                 <include>com.google.apis:google-api-services-analytics:jar</include>
@@ -82,6 +83,8 @@
                 <include>org.mortbay.jetty:servlet-api:jar</include>
                 <include>org.threeten:threetenbp:jar</include>
                 <include>com.google.code.gson:gson</include>
+                <include>com.google.analytics:google-analytics-data:jar</include>
+                <include>com.google.api.grpc:proto-google-analytics-data-v1beta:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

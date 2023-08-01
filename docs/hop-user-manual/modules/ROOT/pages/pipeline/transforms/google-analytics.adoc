@@ -1,0 +1,84 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Google Analytics Input transform reads data from a Google Analytics 4 account.
+
+= image:transforms/icons/google-analytics.svg[Google Analytics Input transform Icon, role="image-doc-icon"] Google Analytics Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Google Analytics Input transform reads data from a Google Analytics 4 account, using the Google Analytics Data API.
+
+The https://ga-dev-tools.google/ga4/query-explorer/[GA4 Query Explorer] provides a dedicated website to developing and testing queries with the Google Analytics API (outside of Apache Hop).
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+
+== Configuration
+
+* You need a Google Analytics account with access and sufficient permissions to a GA4 property.
+* You need a Google Cloud project with a service account. The Google Analytics api needs to be enabled for this project.
+
+Check the Google Cloud docs for more information on how the https://cloud.google.com/iam/docs/service-accounts-create[create a service account^] and to https://developers.google.com/analytics/devguides/reporting/data/v1/quickstart-client-libraries[set up a project^] for use with the Google Analytics Data API.
+
+
+== Options
+
+=== Google Analytics Connection Settings
+
+[%header, width="90%"]
+|===
+|Option|Description
+|Application name|Enter an application name such as "Apache Hop" or leave the default.
+|OAuth service email|Your Google Developer Service Account's Email Address (e.g. "<random characters@developer.gserviceaccount.com>").
+|Key file|The path to the P12 private key associated with your OAuth Service account.
+|Property Id|the GA4 property to read from
+|===
+
+=== Query Definition
+
+[%header, width="90%"]
+|===
+|Option|Description
+|Start date (YYYY-MM-DD|Specifies the start date associated with the query.  The date must be entered in the following format: YYYY-MM-DD.
+|End date (YYYY-MM-DD|Specifies the end date associated with the query. The date must be entered in the following format: YYYY-MM-DD.
+|Dimension|Specifies the dimension fields for which you want to query.  The Google Analytics Data API documentation provides you with a list of valid inputs and metrics that can be combined.
+|Metrics|Specifies the metrics fields you want returned.  At least one metric must be provided.
+|Sort|Specifies a dimension field on which to sort.
+|===
+
+=== Fields
+
+Click **Get Fields** to retrieve a list of possible fields based on the query you defined.
+Click **Preview** to preview data based on the defined query.
+
+=== Limit Size
+
+Limit the number of rows to retrieve for the specified GA4 property to a number of rows.   

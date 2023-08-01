@@ -1,0 +1,63 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Google Sheets Output transform writes data to a Google Sheets worksheets.
+
+= image:transforms/icons/google-sheets-output.svg[Google Sheets Output transform Icon, role="image-doc-icon"] Google Sheets Output
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Google Sheets Output transform writes data to a Google Sheets worksheets.
+
+This transform requires a Google service account (JSON file) and a Google Cloud project with the Sheets API enabled.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+== Options
+
+=== Service account tab
+
+Click the `browse` button to pick your google service account client secret json file.
+
+The `Test` button Lets you test your access to the API. On success, you should see a success message.
+
+=== Spreadsheet tab
+
+[%header, width="90%"]
+|===
+|Option|Description
+|Spreadsheet key|Lets you specify or browse for spreadsheets existing in the service account drive or for the ones that are shared with the service account email. If you type in a sheet name (that does not exist in the drive) it will attempt to create a sheet it the "create" checkbox is ticked.
+|Worksheet Id|Should be browsed form the selected spreadsheet key. If you want to create a new file, type in any key that will become the name of the worksheet in the created spreadsheet
+|Append to sheet|Appends the lines **without the header** to an existing spreadsheet. This is incompatible with the create option below.
+|Create new sheet if it does not exist|If the checkbox is checked then if the Spreadsheet Key specified in the field Spreadsheet key does not exist it will create a new spreadsheet within the service account drive (note that this account has no UI)
+|Share Full Rights (RW) with|the Share with user email field lets you specify the email of a user who will get full rights on the freshly created file.
+|Domain Wide Permission|Enables to share with your whole domain (if configured in Google Drive).
+|===
+
