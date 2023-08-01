@@ -20,6 +20,7 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -1952,7 +1953,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         workflowClipboardDelegate.fromClipboard(),
         lastMove == null ? new Point(50, 50) : lastMove);
   }
-
+  
   @GuiContextAction(
       id = "workflow-graph-workflow-clipboard-paste",
       parentId = HopGuiWorkflowContext.CONTEXT_ID,
@@ -1965,6 +1966,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void pasteFromClipboard(HopGuiWorkflowContext context) {
     workflowClipboardDelegate.pasteXml(
         workflowMeta, workflowClipboardDelegate.fromClipboard(), context.getClick());
+  }
+
+  @GuiContextAction(
+      id = "workflow-graph-transform-10110-copy-notepad-to-clipboard",
+      parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
+      type = GuiActionType.Custom,
+      name = "i18n::HopGuiWorkflowGraph.ContextualAction.CopyToClipboard.Name",
+      tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.CopyToClipboard.Tooltip",
+      image = "ui/images/copy.svg",
+      category = "Basic",
+      categoryOrder = "1")
+  public void copyNotePadToClipboard(HopGuiWorkflowNoteContext context) {
+    workflowClipboardDelegate.copySelected(
+        workflowMeta, Collections.emptyList(), Arrays.asList(context.getNotePadMeta()));
   }
 
   @GuiContextAction(
@@ -3018,7 +3033,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
+      id = "workflow-graph-action-10010-copy-notepad-to-clipboard",
       parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
       type = GuiActionType.Custom,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.CopyAction.Text",
