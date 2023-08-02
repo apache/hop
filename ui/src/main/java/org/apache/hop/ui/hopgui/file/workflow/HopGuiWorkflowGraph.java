@@ -622,13 +622,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       } else {
         WorkflowHopMeta hop = findWorkflowHop(real.x, real.y);
         if (hop != null) {
-          // User held control and clicked a hop between steps - We want to flip the active state of
+          // Delete hop with on click
+          if (e.button == 1 && shift && control) {
+            // Delete the hop            
+            workflowHopDelegate.delHop(workflowMeta, hop);
+            updateGui();
+          }
+          // User held control and clicked a hop between actions - We want to flip the active state of
           // the hop.
           //
-          if (e.button == 2 || (e.button == 1 && control)) {
+          else if (e.button == 2 || (e.button == 1 && control)) {
             hop.setEnabled(!hop.isEnabled());
             updateGui();
-          } else {
+          }
+          else {
             // A hop: show the hop context menu in the mouseUp() listener
             //
             clickedWorkflowHop = hop;
