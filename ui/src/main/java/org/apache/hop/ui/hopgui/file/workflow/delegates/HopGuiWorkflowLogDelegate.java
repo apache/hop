@@ -55,7 +55,7 @@ public class HopGuiWorkflowLogDelegate {
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
   public static final String TOOLBAR_ICON_SHOW_ERROR_LINES = "ToolbarIcon-10010-ShowErrorLines";
-  public static final String TOOLBAR_ICON_LOG_SETTINGS = "ToolbarIcon-10020-LogSettings";
+  public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD = "ToolbarIcon-10020-LogCopyToClipboard";
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
 
   private HopGui hopGui;
@@ -187,12 +187,11 @@ public class HopGuiWorkflowLogDelegate {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ICON_LOG_SETTINGS,
-      // label = "WorkflowLog.Button.LogSettings",
-      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.LogSettings",
-      image = "ui/images/settings.svg")
-  public void showLogSettings() {
-    // TODO: implement or rethink
+      id = TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:WorkflowLog.Button.LogCopyToClipboard",
+      image = "ui/images/copy.svg")
+  public void copyToClipboard() {
+    GuiResource.getInstance().toClipboard(workflowLogText.getText());
   }
 
   @GuiToolbarElement(
