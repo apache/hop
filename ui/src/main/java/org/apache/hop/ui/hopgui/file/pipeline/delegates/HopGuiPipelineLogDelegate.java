@@ -55,7 +55,7 @@ public class HopGuiPipelineLogDelegate {
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
   public static final String TOOLBAR_ICON_SHOW_ERROR_LINES = "ToolbarIcon-10010-ShowErrorLines";
-  public static final String TOOLBAR_ICON_LOG_SETTINGS = "ToolbarIcon-10020-LogSettings";
+  public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD = "ToolbarIcon-10020-LogCopyToClipboard";
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
 
   private HopGuiPipelineGraph pipelineGraph;
@@ -209,14 +209,14 @@ public class HopGuiPipelineLogDelegate {
 
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ICON_LOG_SETTINGS,
-      // label = "PipelineLog.Button.LogSettings",
-      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.LogSettings",
-      image = "ui/images/settings.svg")
-  public void showLogSettings() {
-    // TODO: implement or rethink
+      id = TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD,
+      toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.LogCopyToClipboard",
+      image = "ui/images/copy.svg") 
+  public void copyToClipboard() {
+    GuiResource.getInstance().toClipboard(pipelineLogText.getText());
   }
-
+  
+  
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_SHOW_ERROR_LINES,
