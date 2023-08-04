@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -57,12 +62,6 @@ import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 public class ExcelWriterTransform
     extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
@@ -536,6 +535,19 @@ public class ExcelWriterTransform
               && !excelField.getFormat().startsWith("Image")) {
             setDataFormat(workbookDefinition, excelField.getFormat(), cell);
           }
+
+          if (!isTitle
+                  && excelField != null
+                  && Utils.isEmpty(excelField.getFormat())) {
+
+            if (vMeta.getType() == IValueMeta.TYPE_DATE || vMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
+
+              String format = vMeta.getFormatMask();
+              if (!Utils.isEmpty(format)) {
+                setDataFormat(workbookDefinition, format, cell);
+              }
+            }
+          }
           // cache it for later runs
           if (!isTitle) {
             workbookDefinition.cacheStyle(fieldNr, cell.getCellStyle());
@@ -755,7 +767,7 @@ public class ExcelWriterTransform
 
       // clear style cache
       int numOfFields =
-          meta.getOutputFields() != null && meta.getOutputFields().size() > 0
+          meta.getOutputFields() != null && !meta.getOutputFields().isEmpty()
               ? meta.getOutputFields().size()
               : 0;
       if (numOfFields == 0) {
