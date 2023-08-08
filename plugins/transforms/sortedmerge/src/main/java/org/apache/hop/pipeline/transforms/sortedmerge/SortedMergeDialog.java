@@ -251,7 +251,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       TableItem ti = wFields.getNonEmpty(i);
       input.getFieldName()[i] = ti.getText(1);
       input.getAscending()[i] =
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(2));
+          !BaseMessages.getString(PKG, "System.Combo.No").equalsIgnoreCase(ti.getText(2));
     }
 
     // Show a warning (optional)

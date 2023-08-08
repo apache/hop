@@ -113,12 +113,45 @@ public abstract class DragViewZoomBase extends Composite {
     redraw();
   }
 
+  /**
+   * Zoom method used when scrolling the mousewheel change canvas position to keep cursor location
+   * in screen
+   *
+   * @param mouseEvent mouse position when scrolling
+   */
+  public void zoomIn(MouseEvent mouseEvent) {
+    double oldZoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+    // get Area
+    Point area = getArea();
+    double oldViewWidth = area.x / oldZoomFactor;
+    double oldViewHeight = area.y / oldZoomFactor;
+
+    magnification += 0.1f;
+    // Maximum 1000%
+    if (magnification > 10f) {
+      magnification = 10f;
+    }
+
+    double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+    double viewWidth = area.x / zoomFactor;
+    double viewHeight = area.y / zoomFactor;
+    offset.x =
+        offset.x
+            + Math.floor(((double) mouseEvent.x / area.x) * 100) / 100 * (viewWidth - oldViewWidth);
+    offset.y =
+        offset.y
+            + Math.floor(((double) mouseEvent.y / area.y) * 100) / 100 * (viewHeight - oldViewHeight);
+
+    setZoomLabel();
+    redraw();
+  }
+
   // Double keyboard shortcut zoom in '+' or '='
   @GuiKeyboardShortcut(control = true, key = '=')
   public void zoomIn2() {
     zoomIn();
   }
-  
+
   @GuiKeyboardShortcut(control = true, key = '-')
   public void zoomOut() {
     magnification -= 0.1f;
@@ -130,19 +163,51 @@ public abstract class DragViewZoomBase extends Composite {
     redraw();
   }
 
-  @GuiKeyboardShortcut(control = true, key = '0' )
+  /**
+   * Zoom method used when scrolling the mousewheel change canvas position to keep cursor location
+   * in screen
+   *
+   * @param mouseEvent mouse position when scrolling
+   */
+  public void zoomOut(MouseEvent mouseEvent) {
+    double oldZoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+    // get Area
+    Point area = getArea();
+    double oldViewWidth = area.x / oldZoomFactor;
+    double oldViewHeight = area.y / oldZoomFactor;
+
+    magnification -= 0.1f;
+    // Minimum 10%
+    if (magnification < 0.1f) {
+      magnification = 0.1f;
+    }
+
+    double zoomFactor = PropsUi.getNativeZoomFactor() * Math.max(0.1, magnification);
+    double viewWidth = area.x / zoomFactor;
+    double viewHeight = area.y / zoomFactor;
+
+    offset.x = offset.x + ((double) mouseEvent.x / area.x) * (viewWidth - oldViewWidth);
+    offset.y = offset.y + ((double) mouseEvent.y / area.y) * (viewHeight - oldViewHeight);
+    offset.x = offset.x > 0 ? 0 : offset.x;
+    offset.y = offset.y > 0 ? 0 : offset.y;
+
+    setZoomLabel();
+    redraw();
+  }
+
+  @GuiKeyboardShortcut(control = true, key = '0')
   public void zoom100Percent() {
     magnification = 1.0f;
     setZoomLabel();
     redraw();
   }
-  
+
   // Double keyboard shortcut zoom 100% '0' or keypad 0
-  @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_0 )
+  @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_0)
   public void zoom100Percent2() {
     zoom100Percent();
   }
-  
+
   @GuiKeyboardShortcut(control = true, key = '*')
   public void zoomFitToScreen() {
     if (maximum.x <= 0 || maximum.y <= 0) {
@@ -170,11 +235,11 @@ public abstract class DragViewZoomBase extends Composite {
   }
 
   // Double keyboard shortcut zoom fit to screen '*' or keypad *
-  @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_MULTIPLY )
+  @GuiKeyboardShortcut(control = true, key = SWT.KEYPAD_MULTIPLY)
   public void zoomFitToScreen2() {
     zoomFitToScreen();
   }
-  
+
   /**
    * There are 2 ways to drag the view-port around. One way is to use the navigation rectangle at
    * the bottom. The other way is to click-drag the background.
@@ -303,7 +368,7 @@ public abstract class DragViewZoomBase extends Composite {
 
     redraw();
   }
-  
+
   protected void mouseScrolled(MouseEvent mouseEvent) {
     // Zoom in or out every time we get an event.
     //
@@ -312,9 +377,9 @@ public abstract class DragViewZoomBase extends Composite {
     // zooming in or out.
     //
     if (mouseEvent.count > 0) {
-      zoomIn();
+      zoomIn(mouseEvent);
     } else {
-      zoomOut();
+      zoomOut(mouseEvent);
     }
   }
 }
