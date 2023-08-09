@@ -711,7 +711,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
               ,
               item.getText(2) // UpdateStream
               ,
-              "Y".equals(item.getText(3))); // DoUpdate
+              !"N".equals(item.getText(3))); // DoUpdate
 
       inf.getInsertUpdateLookupField().getValueFields().add(valueField);
     }
