@@ -239,4 +239,16 @@ public class ConstUi {
     }
     return result;
   }
+  
+  /**
+   * Sort field names if options is enabled
+   * 
+   * @param names
+   */
+  public static String[] sortFieldNames(String[] names) {    
+    if ( PropsUi.getInstance().isSortFieldByName() ) {
+      Arrays.sort(names);
+    }
+    return names;
+  }
 }
