@@ -136,11 +136,14 @@ public class HopGuiFileDelegate {
       if (!fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS)) {
         return null;
       }
+      FileObject file = HopVfs.getFileObject(typeHandler.getFilename());
 
       String filename =
           BaseDialog.presentFileDialog(
               true,
               hopGui.getShell(),
+              null,
+              file,
               fileType.getFilterExtensions(),
               fileType.getFilterNames(),
               true);

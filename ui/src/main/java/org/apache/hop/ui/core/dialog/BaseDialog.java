@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -62,11 +66,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 
 /** A base dialog class containing a body and a configurable button panel. */
 public abstract class BaseDialog extends Dialog {
@@ -121,7 +120,6 @@ public abstract class BaseDialog extends Dialog {
     return presentFileDialog(
         false, shell, null, null, null, filterExtensions, filterNames, folderAndFile);
   }
-
   public static final String presentFileDialog(
       boolean save,
       Shell shell,
@@ -243,12 +241,6 @@ public abstract class BaseDialog extends Dialog {
       dialog.setFilterExtensions(filterExtensions);
       dialog.setFilterNames(filterNames);
     }
-    if (fileObject != null) {
-      dialog.setFileName(HopVfs.getFilename(fileObject));
-    }
-    if (variables != null && textVar != null && textVar.getText() != null) {
-      dialog.setFileName(variables.resolve(textVar.getText()));
-    }
 
     AtomicBoolean doIt = new AtomicBoolean(true);
     try {
@@ -259,6 +251,18 @@ public abstract class BaseDialog extends Dialog {
           new HopGuiFileDialogExtension(doIt, dialog));
     } catch (Exception xe) {
       LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
+    }
+
+    if (fileObject != null) {
+      dialog.setFileName(HopVfs.getFilename(fileObject));
+      try {
+        dialog.setFilterPath(HopVfs.getFilename(fileObject.getParent()));
+      } catch (FileSystemException fse) {
+        // This wasn't a valid filename, ignore the error to reduce spamming
+      }
+    }
+    if (variables != null && textVar != null && textVar.getText() != null) {
+      dialog.setFileName(variables.resolve(textVar.getText()));
     }
 
     String filename = null;
