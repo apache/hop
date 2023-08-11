@@ -72,9 +72,16 @@ As stated above you need to make sure the server has access to the pipeline(s) y
 
 The best way to do this is to set the following option in your XML configuration file:
 
+Linux
 [source,xml]
 ----
 <metadata_folder>/path/to/your/metadata</metadata_folder>
+----
+
+Windows
+[source,xml]
+----
+<metadata_folder>C:\\path\\to\\your\\metadata</metadata_folder>
 ----
 
 A simple example would be:
@@ -94,7 +101,7 @@ A simple example would be:
 
 == Using the service
 
-=== Base request
+=== Base request (ATTENTION: Use the S word capitalized)
 
 [source,http request]
 ----
@@ -106,7 +113,7 @@ http://<hop-server-url>/hop/webService
 |===
 |Parameter |Description
 
-|`execute`
+|`service`
 |The name of the service.
 This corresponds to the Web Service metadata object.
 
