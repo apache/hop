@@ -133,10 +133,13 @@ public class HopGuiFileDelegate {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
+      FileObject file = null;
       if (!fileType.hasCapability(IHopFileType.CAPABILITY_SAVE_AS)) {
         return null;
       }
-      FileObject file = HopVfs.getFileObject(typeHandler.getFilename());
+      if (typeHandler.getFilename() != null) {
+        file = HopVfs.getFileObject(typeHandler.getFilename());
+      }
 
       String filename =
           BaseDialog.presentFileDialog(
