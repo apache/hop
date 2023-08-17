@@ -106,7 +106,6 @@
                 <include>com.google.cloud.bigdataoss:gcsio</include>
                 <include>com.google.cloud.bigdataoss:util</include>
                 <include>com.google.cloud.bigtable:bigtable-client-core</include>
-                <!--<include>com.google.cloud.bigtable:bigtable-hbase-1.x-shaded</include>-->
                 <include>com.google.cloud.bigtable:bigtable-metrics-api</include>
                 <include>com.google.cloud.datastore:datastore-v1-proto-client</include>
                 <include>com.google.cloud:google-cloud-bigquery</include>
@@ -132,7 +131,6 @@
                 <include>commons-cli:commons-cli</include>
                 <include>commons-httpclient:commons-httpclient</include>
                 <include>commons-collections:commons-collections</include>
-                <include>com.squareup.okio:okio</include>
                 <include>com.twitter:chill_2.12</include>
                 <include>com.twitter:chill-java</include>
                 <include>io.confluent:common-utils</include>
@@ -141,9 +139,6 @@
                 <include>io.dropwizard.metrics:metrics-graphite</include>
                 <include>io.dropwizard.metrics:metrics-json</include>
                 <include>io.github.classgraph:classgraph</include>
-                <!--<include>io.netty:netty-codec-socks</include>
-                <include>io.netty:netty-handler-proxy</include>
-                <include>io.netty:netty-tcnative-boringssl-static</include>-->
                 <include>io.opencensus:opencensus-contrib-grpc-util</include>
                 <include>javax.annotation:javax.annotation-api</include>
                 <include>javax.servlet:javax.servlet-api</include>
@@ -159,7 +154,6 @@
                 <include>org.apache.beam:beam-runners-google-cloud-dataflow-java</include>
                 <include>org.apache.beam:beam-runners-java-fn-execution</include>
                 <include>org.apache.beam:beam-runners-spark-3</include>
-                <!--<include>org.apache.beam:beam-sdks-java-core</include>-->
                 <include>org.apache.beam:beam-sdks-java-expansion-service</include>
                 <include>org.apache.beam:beam-sdks-java-extensions-protobuf</include>
                 <include>org.apache.beam:beam-sdks-java-extensions-google-cloud-platform-core</include>
@@ -170,7 +164,6 @@
                 <include>org.apache.beam:beam-sdks-java-io-hadoop-file-system</include>
                 <include>org.apache.beam:beam-sdks-java-io-kafka</include>
                 <include>org.apache.beam:beam-sdks-java-io-synthetic</include>
-                <!--<include>org.apache.hbase:hbase-shaded-client</include>-->
                 <include>org.apache.commons:commons-crypto</include>
                 <include>org.apache.commons:commons-text</include>
                 <include>org.apache.flink:flink-annotations</include>
@@ -195,7 +188,6 @@
                 <include>org.apache.hadoop:hadoop-client-api</include>
                 <include>org.apache.hadoop:hadoop-client-runtime</include>
                 <include>org.apache.hadoop:hadoop-hdfs-client</include>
-                <include>org.apache.htrace:htrace-core4</include>
                 <include>org.apache.ivy:ivy</include>
                 <include>org.apache.kafka:kafka-clients</include>
                 <include>org.apache.logging.log4j:log4j-slf4j-impl</include>
@@ -223,7 +215,6 @@
                 <include>org.roaringbitmap:RoaringBitmap</include>
                 <include>org.roaringbitmap:shims</include>
                 <include>org.scala-lang:scala-compiler</include>
-                <!--<include>org.scala-lang:scala-library</include>-->
                 <include>org.scala-lang:scala-reflect</include>
                 <include>org.scala-lang.modules:scala-collection-compat_2.12</include>
                 <include>org.scala-lang.modules:scala-parser-combinators_2.12</include>
@@ -234,7 +225,6 @@
                 <include>org.springframework:spring-expression</include>
                 <include>org.springframework:spring-jcl</include>
                 <include>org.threeten:threetenbp</include>
-                <include>org.yaml:snakeyaml</include>
                 <include>oro:oro</include>
 
                 <!-- AWS S3 -->
