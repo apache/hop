@@ -60,8 +60,6 @@
                 <include>com.microsoft.azure:azure-client-runtime:jar</include>
                 <include>com.microsoft.rest:client-runtime:jar</include>
                 <include>com.squareup.retrofit2:retrofit:jar</include>
-                <include>com.squareup.okhttp3:okhttp:jar</include>
-                <include>com.squareup.okio:okio:jar</include>
                 <include>com.squareup.okhttp3:logging-interceptor:jar</include>
                 <include>com.squareup.okhttp3:okhttp-urlconnection:jar</include>
                 <include>com.squareup.retrofit2:converter-jackson:jar</include>

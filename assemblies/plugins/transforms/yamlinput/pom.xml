@@ -34,16 +34,8 @@
     <name>Hop Assemblies Plugins Transforms Yaml Input</name>
     <description />
 
-    <properties>
-        <snakeyaml.version>2.0</snakeyaml.version>
-    </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-yamlinput</artifactId>
