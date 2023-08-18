@@ -32,17 +32,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-vendor-grpc-1_48_1</artifactId>
-            <version>0.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
