@@ -36,12 +36,6 @@
     </properties>
 
     <dependencies>
-
-        <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-vendor-grpc-1_48_1</artifactId>
-            <version>0.1</version>
-        </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-core</artifactId>
@@ -107,21 +101,6 @@
             <artifactId>minlog</artifactId>
             <version>${minlog.version}</version>
         </dependency>
-        <!--<dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-handler</artifactId>
-            <version>${netty.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-common</artifactId>
-            <version>${netty.version}</version>
-        </dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
