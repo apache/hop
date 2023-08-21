@@ -41,7 +41,7 @@ limitations under the License.
   </order>
   <transform>
     <name>Google Sheets Input</name>
-    <type>GoogleSheetsPluginInput</type>
+    <type>GoogleSheetsInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>

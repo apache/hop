@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 
 @Transform(
-    id = "GoogleSheetsPluginOutput",
+    id = "GoogleSheetsOutput",
     image = "google-sheets-output.svg",
     name = "i18n::GoogleSheetsOutput.transform.Name",
     description = "i18n::GoogleSheetsOutput.transform.Name",

@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-    id = "GoogleSheetsPluginInput",
+    id = "GoogleSheetsInput",
     image = "google-sheets-input.svg",
     name = "i18n::GoogleSheetsInput.transform.Name",
     description = "i18n::GoogleSheetsInput.transform.Name",

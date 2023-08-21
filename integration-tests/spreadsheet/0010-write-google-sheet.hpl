@@ -119,7 +119,7 @@ limitations under the License.
   </transform>
   <transform>
     <name>Google Sheet Output</name>
-    <type>GoogleSheetsPluginOutput</type>
+    <type>GoogleSheetsOutput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
