@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.googlesheets;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -28,6 +29,7 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -68,6 +70,9 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
   private Label wlTestServiceAccountInfo;
   private TextVar wPrivateKeyStore;
+  private TextVar wAppname;
+  private TextVar wTimeout;
+  private TextVar wImpersonation;
   private TextVar wSpreadSheetKey;
   private TextVar wWorksheetId;
   private TextVar wSampleFields;
@@ -157,14 +162,14 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wlPrivateKeyStore.setLayoutData(fdlPrivateKeyStore);
 
     // privateKey - Button
-    Button wbPrivateKeyStore = new Button(serviceAccountComposite, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbPrivateKeyStore);
-    wbPrivateKeyStore.setText(BaseMessages.getString("System.Button.Browse"));
+    Button wbPrivateKeyButton = new Button(serviceAccountComposite, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbPrivateKeyButton);
+    wbPrivateKeyButton.setText(BaseMessages.getString("System.Button.Browse"));
     FormData fdbPrivateKeyStore = new FormData();
     fdbPrivateKeyStore.top = new FormAttachment(0, margin);
     fdbPrivateKeyStore.right = new FormAttachment(100, 0);
-    wbPrivateKeyStore.setLayoutData(fdbPrivateKeyStore);
-    wbPrivateKeyStore.addListener(SWT.Selection, e -> selectPrivateKeyStoreFile());
+    wbPrivateKeyButton.setLayoutData(fdbPrivateKeyStore);
+    wbPrivateKeyButton.addListener(SWT.Selection, e -> selectPrivateKeyStoreFile());
 
     // privatekey - Text
     wPrivateKeyStore =
@@ -173,8 +178,69 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     FormData fdPrivateKeyStore = new FormData();
     fdPrivateKeyStore.top = new FormAttachment(0, margin);
     fdPrivateKeyStore.left = new FormAttachment(middle, 0);
-    fdPrivateKeyStore.right = new FormAttachment(wbPrivateKeyStore, -margin);
+    fdPrivateKeyStore.right = new FormAttachment(wbPrivateKeyButton, -margin);
     wPrivateKeyStore.setLayoutData(fdPrivateKeyStore);
+
+    // Appname - Label
+    Label appNameLabel = new Label( serviceAccountComposite, SWT.RIGHT );
+    appNameLabel.setText( "Google Application Name :" );
+    props.setLook( appNameLabel );
+    FormData appNameLabelForm = new FormData();
+    appNameLabelForm.top = new FormAttachment( wbPrivateKeyButton, margin );
+    appNameLabelForm.left = new FormAttachment( 0, 0 );
+    appNameLabelForm.right = new FormAttachment( middle, -margin );
+    appNameLabel.setLayoutData( appNameLabelForm );
+
+    // Appname - Text
+    wAppname = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wAppname);
+//    wAppname.addModifyListener(modifiedListener);
+    FormData appNameData = new FormData();
+    appNameData.top = new FormAttachment(wbPrivateKeyButton, margin);
+    appNameData.left = new FormAttachment(middle, 0);
+    appNameData.right = new FormAttachment(wbPrivateKeyButton, -margin);
+    wAppname.setLayoutData(appNameData);
+
+
+    // Timeout - Label
+    Label timeoutLabel = new Label( serviceAccountComposite, SWT.RIGHT );
+    timeoutLabel.setText( "Time out in minutes :" );
+    props.setLook( timeoutLabel );
+    FormData timeoutLabelForm = new FormData();
+    timeoutLabelForm.top = new FormAttachment( appNameLabel, margin );
+    timeoutLabelForm.left = new FormAttachment( 0, 0 );
+    timeoutLabelForm.right = new FormAttachment( middle, -margin );
+    timeoutLabel.setLayoutData( timeoutLabelForm );
+
+    // timeout - Text
+    wTimeout = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wTimeout);
+//    wTimeout.addModifyListener(modifiedListener);
+    FormData timeoutData = new FormData();
+    timeoutData.top = new FormAttachment(appNameLabel, margin);
+    timeoutData.left = new FormAttachment(middle, 0);
+    timeoutData.right = new FormAttachment(wbPrivateKeyButton, -margin);
+    wTimeout.setLayoutData(timeoutData);
+
+    // Impersonation - Label
+    Label impersonationLabel = new Label( serviceAccountComposite, SWT.RIGHT );
+    impersonationLabel.setText( "Inpersonation account :" );
+    props.setLook( impersonationLabel );
+    FormData impersonationLabelForm = new FormData();
+    impersonationLabelForm.top = new FormAttachment( wTimeout, margin );
+    impersonationLabelForm.left = new FormAttachment( 0, 0 );
+    impersonationLabelForm.right = new FormAttachment( middle, -margin );
+    impersonationLabel.setLayoutData( impersonationLabelForm );
+
+    // impersonation - Text
+    wImpersonation = new TextVar(variables,serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    props.setLook(wImpersonation);
+//    wImpersonation.addModifyListener(modifiedListener);
+    FormData impersonationData = new FormData();
+    impersonationData.top = new FormAttachment(wTimeout, margin);
+    impersonationData.left = new FormAttachment(middle, 0);
+    impersonationData.right = new FormAttachment(wbPrivateKeyButton, -margin);
+    wImpersonation.setLayoutData(impersonationData);
 
     // test service - Button
     Button wbTestServiceAccount = new Button(serviceAccountComposite, SWT.PUSH | SWT.CENTER);
@@ -182,7 +248,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wbTestServiceAccount.setText(
         BaseMessages.getString(PKG, "GoogleSheetsDialog.Button.TestConnection"));
     FormData fdbTestServiceAccount = new FormData();
-    fdbTestServiceAccount.top = new FormAttachment(wbPrivateKeyStore, margin);
+    fdbTestServiceAccount.top = new FormAttachment(wbPrivateKeyButton, margin);
     fdbTestServiceAccount.left = new FormAttachment(0, 0);
     wbTestServiceAccount.setLayoutData(fdbTestServiceAccount);
     wbTestServiceAccount.addListener(SWT.Selection, e -> testServiceAccount());
@@ -190,7 +256,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wlTestServiceAccountInfo = new Label(serviceAccountComposite, SWT.LEFT);
     props.setLook(wlTestServiceAccountInfo);
     FormData fdlTestServiceAccountInfo = new FormData();
-    fdlTestServiceAccountInfo.top = new FormAttachment(wbPrivateKeyStore, margin);
+    fdlTestServiceAccountInfo.top = new FormAttachment(wbPrivateKeyButton, margin);
     fdlTestServiceAccountInfo.left = new FormAttachment(middle, 0);
     fdlTestServiceAccountInfo.right = new FormAttachment(100, 0);
     wlTestServiceAccountInfo.setLayoutData(fdlTestServiceAccountInfo);
@@ -415,12 +481,12 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
       // Test by building a drive connection
+      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
       //
       new Drive.Builder(
               HTTP_TRANSPORT,
               JSON_FACTORY,
-              GoogleSheetsCredentials.getCredentialsJson(
-                  scope, variables.resolve(wPrivateKeyStore.getText())))
+              GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
           .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
           .build();
       wlTestServiceAccountInfo.setText("Google Drive API : Success!");
@@ -434,12 +500,13 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
       JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
       String scope = "https://www.googleapis.com/auth/drive.readonly";
+      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
+      //
       Drive service =
-          new Drive.Builder(
-                  HTTP_TRANSPORT,
-                  JSON_FACTORY,
-                  GoogleSheetsCredentials.getCredentialsJson(
-                      scope, variables.resolve(wPrivateKeyStore.getText())))
+      new Drive.Builder(
+              HTTP_TRANSPORT,
+              JSON_FACTORY,
+              GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
               .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
               .build();
 
@@ -494,12 +561,13 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
+      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
+      //
       Sheets service =
           new Sheets.Builder(
                   HTTP_TRANSPORT,
                   JSON_FACTORY,
-                  GoogleSheetsCredentials.getCredentialsJson(
-                      scope, variables.resolve(wPrivateKeyStore.getText())))
+                  GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
               .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
               .build();
       Spreadsheet response1 =
@@ -546,9 +614,24 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
   private void getData(GoogleSheetsInputMeta meta) {
     this.wTransformName.selectAll();
 
-    this.wSpreadSheetKey.setText(meta.getSpreadsheetKey());
-    this.wWorksheetId.setText(meta.getWorksheetId());
-    this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());
+    if(!StringUtils.isEmpty(meta.getSpreadsheetKey())){
+      this.wSpreadSheetKey.setText(meta.getSpreadsheetKey());
+    }
+    if(!StringUtils.isEmpty(meta.getWorksheetId())){
+      this.wWorksheetId.setText(meta.getWorksheetId());
+    }
+    if(!StringUtils.isEmpty(meta.getJsonCredentialPath())){
+      this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());
+    }
+    if(!StringUtils.isEmpty(meta.getTimeout())){
+      this.wTimeout.setText(meta.getTimeout());
+    }
+    if(!StringUtils.isEmpty(meta.getImpersonation())){
+      this.wImpersonation.setText(meta.getImpersonation());
+    }
+    if(!StringUtils.isEmpty(meta.getAppName())){
+      this.wAppname.setText(meta.getAppName());
+    }
     this.wSampleFields.setText(Integer.toString(meta.getSampleFields()));
 
     wFields.clearAll();
@@ -603,6 +686,9 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     meta.setJsonCredentialPath(this.wPrivateKeyStore.getText());
     meta.setSpreadsheetKey(this.wSpreadSheetKey.getText());
     meta.setWorksheetId(this.wWorksheetId.getText());
+    meta.setTimeout(this.wTimeout.getText());
+    meta.setAppName(this.wAppname.getText());
+    meta.setImpersonation(this.wImpersonation.getText());
     if (this.wSampleFields != null && !this.wSampleFields.getText().isEmpty()) {
       meta.setSampleFields(Integer.parseInt(this.wSampleFields.getText()));
     } else {
@@ -676,12 +762,12 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
       wFields.table.removeAll();
 
+      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
       Sheets service =
           new Sheets.Builder(
                   HTTP_TRANSPORT,
                   JSON_FACTORY,
-                  GoogleSheetsCredentials.getCredentialsJson(
-                      scope, variables.resolve(wPrivateKeyStore.getText())))
+                  GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
               .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
               .build();
       // Fill in sample in order to guess types

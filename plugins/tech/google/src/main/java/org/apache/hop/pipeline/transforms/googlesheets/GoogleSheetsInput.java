@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.googlesheets;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -34,6 +35,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.util.EnvironmentUtils;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
@@ -75,12 +77,12 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
 
     if (super.init()) {
       try {
+        HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
         Sheets service =
             new Sheets.Builder(
                     HTTP_TRANSPORT,
                     JSON_FACTORY,
-                    GoogleSheetsCredentials.getCredentialsJson(
-                        scope, resolve(meta.getJsonCredentialPath())))
+                    GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                 .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                 .build();
         String range = resolve(meta.getWorksheetId());

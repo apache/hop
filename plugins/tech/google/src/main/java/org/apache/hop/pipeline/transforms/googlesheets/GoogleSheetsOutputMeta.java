@@ -67,6 +67,15 @@ public class GoogleSheetsOutputMeta
   @HopMetadataProperty(key = "APPEND", injectionGroupKey = "SHEET")
   private Boolean append;
 
+  @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
+  private String timeout;
+
+  @HopMetadataProperty(key = "impersonation", injectionGroupKey = "SHEET")
+  private String impersonation;
+
+  @HopMetadataProperty(key = "appName", injectionGroupKey = "SHEET")
+  private String appName;
+
   @Override
   public void setDefault() {
     this.jsonCredentialPath = "" + "client_secret.json";
@@ -132,6 +141,30 @@ public class GoogleSheetsOutputMeta
 
   public void setWorksheetId(String id) {
     this.worksheetId = id;
+  }
+
+  public String getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(String timeout) {
+    this.timeout = timeout;
+  }
+
+  public String getImpersonation() {
+    return impersonation;
+  }
+
+  public void setImpersonation(String impersonation) {
+    this.impersonation = impersonation;
+  }
+
+  public String getAppName() {
+    return appName;
+  }
+
+  public void setAppName(String appName) {
+    this.appName = appName;
   }
 
   @Override

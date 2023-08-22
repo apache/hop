@@ -52,6 +52,7 @@
         <google-api-drive.version>v3-rev20230610-2.0.0</google-api-drive.version>
         <jetty-client.version>6.1.26</jetty-client.version>
         <google-analytics.version>0.32.0</google-analytics.version>
+        <google-api-sqladmin.version>v1-rev20230721-2.0.0</google-api-sqladmin.version>
     </properties>
 
     <dependencies>
@@ -111,7 +112,11 @@
             <artifactId>google-api-services-drive</artifactId>
             <version>${google-api-drive.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-sqladmin</artifactId>
+            <version>${google-api-sqladmin.version}</version>
+        </dependency>
         <!-- Google VFS dependencies -->
         <dependency>
             <groupId>com.google.oauth-client</groupId>

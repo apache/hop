@@ -62,6 +62,15 @@ public class GoogleSheetsInputMeta
   @HopMetadataProperty(key="sampleFields", injectionGroupKey = "INPUT_Fields")
   private Integer sampleFields;
 
+  @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
+  private String timeout;
+
+  @HopMetadataProperty(key = "impersonation", injectionGroupKey = "SHEET")
+  private String impersonation;
+
+  @HopMetadataProperty(key = "appName", injectionGroupKey = "SHEET")
+  private String appName;
+
   @HopMetadataProperty(
           groupKey = "fields",
           key="field",
@@ -116,6 +125,29 @@ public class GoogleSheetsInputMeta
     this.sampleFields = sampleFields;
   }
 
+  public String getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(String timeout) {
+    this.timeout = timeout;
+  }
+
+  public String getImpersonation() {
+    return impersonation;
+  }
+
+  public void setImpersonation(String impersonation) {
+    this.impersonation = impersonation;
+  }
+
+  public String getAppName() {
+    return appName;
+  }
+
+  public void setAppName(String appName) {
+    this.appName = appName;
+  }
 
   @Override
   public void getFields(

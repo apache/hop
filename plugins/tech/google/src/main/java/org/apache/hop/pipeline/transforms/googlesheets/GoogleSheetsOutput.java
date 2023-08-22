@@ -22,6 +22,7 @@ import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -82,12 +83,13 @@ public class GoogleSheetsOutput
         HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         JSON_FACTORY = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
+
+        HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
         Drive service =
             new Drive.Builder(
                     HTTP_TRANSPORT,
                     JSON_FACTORY,
-                    GoogleSheetsCredentials.getCredentialsJson(
-                        scope, resolve(meta.getJsonCredentialPath())))
+                    GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                 .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                 .build();
         String wsID = resolve(meta.getSpreadsheetKey());
@@ -118,12 +120,12 @@ public class GoogleSheetsOutput
           if (!meta.isAppend()) { // si append + create alors erreur
             // Init Service
             scope = "https://www.googleapis.com/auth/spreadsheets";
+
             data.service =
                 new Sheets.Builder(
                         HTTP_TRANSPORT,
                         JSON_FACTORY,
-                        GoogleSheetsCredentials.getCredentialsJson(
-                            scope, resolve(meta.getJsonCredentialPath())))
+                        GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                     .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                     .build();
 
@@ -273,12 +275,12 @@ public class GoogleSheetsOutput
           NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
           JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
+          HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
           data.service =
               new Sheets.Builder(
                       HTTP_TRANSPORT,
                       JSON_FACTORY,
-                      GoogleSheetsCredentials.getCredentialsJson(
-                          scope, resolve(meta.getJsonCredentialPath())))
+                      GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                   .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                   .build();
 
