@@ -85,6 +85,9 @@ public class GoogleSheetsOutputMeta
     this.shareEmail = "";
     this.create = true;
     this.append = false;
+    this.impersonation = "";
+    this.appName = "";
+    this.timeout = "5";
   }
 
   public String getJsonCredentialPath() {

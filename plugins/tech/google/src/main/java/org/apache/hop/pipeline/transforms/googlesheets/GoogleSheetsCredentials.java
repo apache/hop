@@ -26,6 +26,7 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.*;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.vfs.HopVfs;
 
@@ -54,7 +55,7 @@ public class GoogleSheetsCredentials {
     if (in == null) {
       throw new FileNotFoundException("Resource not found:" + jsonCredentialPath);
     }
-    if(impersonation.isEmpty()){
+    if(StringUtils.isEmpty(impersonation)){
       credential = GoogleCredentials.fromStream(in).createScoped(Collections.singleton(scope));
     }else{
       credential = GoogleCredentials.fromStream(in).createScoped(Collections.singleton(SQLAdminScopes.SQLSERVICE_ADMIN)).createDelegated(impersonation);

@@ -132,8 +132,11 @@ limitations under the License.
     <CREATE>Y</CREATE>
     <SHAREDOMAIN/>
     <SHAREEMAIL/>
+    <appName/>
+    <impersonation/>
     <jsonCredentialPath>/tmp/google-key-apache-hop-it.json</jsonCredentialPath>
     <spreadsheetKey>1uTxX_siSLikbHgZm6kSwUGFZlKDzTP0CnfY7TNaZgeE</spreadsheetKey>
+    <timeout>5</timeout>
     <worksheetId>Sheet2</worksheetId>
     <attributes/>
     <GUI>

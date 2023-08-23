@@ -83,6 +83,8 @@ public class GoogleSheetsInputMeta
     this.spreadsheetKey = "";
     this.worksheetId = "";
     this.jsonCredentialPath = "client_secret.json";
+    this.timeout = "5";
+    this.impersonation = "";
     this.sampleFields = 100;
   }
 

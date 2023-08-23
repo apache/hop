@@ -226,7 +226,6 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     // timeout - Text
     wTimeout = new TextVar(variables,serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTimeout);
-//    wTimeout.addModifyListener(modifiedListener);
     FormData timeoutData = new FormData();
     timeoutData.top = new FormAttachment(appNameLabel, margin);
     timeoutData.left = new FormAttachment(middle, 0);
@@ -246,7 +245,6 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     // impersonation - Text
     wImpersonation = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wImpersonation);
-//    wImpersonation.addModifyListener(modifiedListener);
     FormData impersonationData = new FormData();
     impersonationData.top = new FormAttachment(wTimeout, margin);
     impersonationData.left = new FormAttachment(middle, 0);
@@ -259,7 +257,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     wbTestServiceAccount.setText(
         BaseMessages.getString(PKG, "GoogleSheetsDialog.Button.TestConnection"));
     FormData fdbTestServiceAccount = new FormData();
-    fdbTestServiceAccount.top = new FormAttachment(wbPrivateKey, margin);
+    fdbTestServiceAccount.top = new FormAttachment(wImpersonation, margin);
     fdbTestServiceAccount.left = new FormAttachment(0, 0);
     wbTestServiceAccount.setLayoutData(fdbTestServiceAccount);
     wbTestServiceAccount.addListener(SWT.Selection, e -> testServiceAccount());
@@ -267,7 +265,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
     wlTestServiceAccountInfo = new Label(serviceAccountComposite, SWT.LEFT);
     props.setLook(wlTestServiceAccountInfo);
     FormData fdTestServiceAccountInfo = new FormData();
-    fdTestServiceAccountInfo.top = new FormAttachment(wbPrivateKey, margin);
+    fdTestServiceAccountInfo.top = new FormAttachment(wImpersonation, margin);
     fdTestServiceAccountInfo.left = new FormAttachment(middle, 0);
     fdTestServiceAccountInfo.right = new FormAttachment(100, 0);
     wlTestServiceAccountInfo.setLayoutData(fdTestServiceAccountInfo);

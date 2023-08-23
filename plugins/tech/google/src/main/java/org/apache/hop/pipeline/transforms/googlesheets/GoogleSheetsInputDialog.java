@@ -194,7 +194,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     // Appname - Text
     wAppname = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wAppname);
-//    wAppname.addModifyListener(modifiedListener);
     FormData appNameData = new FormData();
     appNameData.top = new FormAttachment(wbPrivateKeyButton, margin);
     appNameData.left = new FormAttachment(middle, 0);
@@ -215,7 +214,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     // timeout - Text
     wTimeout = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wTimeout);
-//    wTimeout.addModifyListener(modifiedListener);
     FormData timeoutData = new FormData();
     timeoutData.top = new FormAttachment(appNameLabel, margin);
     timeoutData.left = new FormAttachment(middle, 0);
@@ -235,7 +233,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     // impersonation - Text
     wImpersonation = new TextVar(variables,serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wImpersonation);
-//    wImpersonation.addModifyListener(modifiedListener);
     FormData impersonationData = new FormData();
     impersonationData.top = new FormAttachment(wTimeout, margin);
     impersonationData.left = new FormAttachment(middle, 0);
@@ -248,7 +245,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wbTestServiceAccount.setText(
         BaseMessages.getString(PKG, "GoogleSheetsDialog.Button.TestConnection"));
     FormData fdbTestServiceAccount = new FormData();
-    fdbTestServiceAccount.top = new FormAttachment(wbPrivateKeyButton, margin);
+    fdbTestServiceAccount.top = new FormAttachment(wImpersonation, margin);
     fdbTestServiceAccount.left = new FormAttachment(0, 0);
     wbTestServiceAccount.setLayoutData(fdbTestServiceAccount);
     wbTestServiceAccount.addListener(SWT.Selection, e -> testServiceAccount());
@@ -256,7 +253,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wlTestServiceAccountInfo = new Label(serviceAccountComposite, SWT.LEFT);
     props.setLook(wlTestServiceAccountInfo);
     FormData fdlTestServiceAccountInfo = new FormData();
-    fdlTestServiceAccountInfo.top = new FormAttachment(wbPrivateKeyButton, margin);
+    fdlTestServiceAccountInfo.top = new FormAttachment(wImpersonation, margin);
     fdlTestServiceAccountInfo.left = new FormAttachment(middle, 0);
     fdlTestServiceAccountInfo.right = new FormAttachment(100, 0);
     wlTestServiceAccountInfo.setLayoutData(fdlTestServiceAccountInfo);
