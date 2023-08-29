@@ -31,6 +31,9 @@ Depending on which operation you select, different input options will be enabled
 The output of the transform will be different as well.
 This means that this transform always needs input-rows in order to produce output.
 
+**Example to delete 200 Execution Id’s:**
+First use Generate rows to create your fields and values to use (children: Boolean = true) and (limit: Integer = 200). Then use a first transform to get the ids (Operation: Get execution IDs), and a second connected transform to delete them (Operation: Delete execution). Optionally you can also delete by other fields such as date and ID. It can take a while to query the Execution Information, so keep an eye on the Duration column.
+
 | == Supported Engines
 [%noheader,cols="2,1a",frame=none,role="table-supported-engines"]
 
