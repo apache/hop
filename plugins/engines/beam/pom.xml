@@ -50,7 +50,7 @@
     <properties>
 
         <json-simple.version>1.1.1</json-simple.version>
-        <bigtable-hbase-beam.version>2.7.2</bigtable-hbase-beam.version>
+        <bigtable-hbase-beam.version>2.11.0</bigtable-hbase-beam.version>
     </properties>
 
     <dependencies>

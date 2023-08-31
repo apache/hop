@@ -112,7 +112,7 @@
         <akka.version>2.5.32</akka.version>
         <accessors-smart.version>2.4.9</accessors-smart.version>
         <avro.version>1.11.1</avro.version>
-        <apache-beam.version>2.48.0</apache-beam.version>
+        <apache-beam.version>2.50.0</apache-beam.version>
         <apache-spark.version>3.4.0</apache-spark.version>
         <apache-flink.version>1.16.2</apache-flink.version>
         <asm.version>9.3</asm.version>
