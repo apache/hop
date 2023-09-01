@@ -184,4 +184,9 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   public boolean isSupportsBooleanDataType() {
     return true;
   }
+
+  @Override
+  public void addDefaultOptions() {
+    addExtraOption(getPluginId(), "encrypt", "false");
+  }
 }
