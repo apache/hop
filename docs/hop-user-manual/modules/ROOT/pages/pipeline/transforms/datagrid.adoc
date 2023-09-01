@@ -28,6 +28,8 @@ under the License.
 The Data Grid transform allows you to enter a static list of rows in a grid, similar to an in-pipeline spreadsheet.
 This is usually done for testing, reference or demo purposes.
 
+Place a Data grid onto the data orchestration grid. On the Meta tab, add the field names and type and format. Then on the Data tab, add the field values for each data row.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
