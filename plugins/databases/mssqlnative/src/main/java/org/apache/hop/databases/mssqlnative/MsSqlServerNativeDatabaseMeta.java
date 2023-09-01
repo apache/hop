@@ -52,7 +52,9 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   private boolean usingIntegratedSecurity;
 
   @Override
-  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {}
+  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+    // not needed
+  }
 
   @Override
   public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
@@ -66,7 +68,9 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   }
 
   @Override
-  public void persistContents(GuiCompositeWidgets compositeWidgets) {}
+  public void persistContents(GuiCompositeWidgets compositeWidgets) {
+    //not needed
+  }
 
   private void enableField(GuiCompositeWidgets compositeWidgets) {
     List<Control> controls = new ArrayList<>();
@@ -78,7 +82,6 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
           BaseDatabaseMeta.ID_PASSWORD_WIDGET,
         };
     for (String id : ids) {
-      // During creation and so on we get widgets which aren't there. TODO: fix this
       Control control = compositeWidgets.getWidgetsMap().get(id);
       if (control != null) {
         controls.add(control);
@@ -171,7 +174,10 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     if (isUsingDoubleDecimalAsSchemaTableSeparator()) {
       return schemaName + ".." + tablePart;
     } else {
-      return '[' + schemaName + ']' + "." + tablePart;
+      if(!schemaName.startsWith("[") && !schemaName.endsWith("]")){
+        return '[' + schemaName + ']' + "." + tablePart;
+      }
+      return  schemaName + "." + tablePart;
     }
   }
   
@@ -183,5 +189,10 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
   @Override
   public boolean isSupportsBooleanDataType() {
     return true;
+  }
+
+  @Override
+  public void addDefaultOptions() {
+    addExtraOption(getPluginId(), "encrypt", "false");
   }
 }
