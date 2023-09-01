@@ -48,6 +48,8 @@ Usage: <main class> [-ho] [-e=<environmentOption>] [-f=<filename>]
                     [-r=<runConfigurationName>] [-ps=<parametersSeparator] [-p=<parameters>[,
                     <parameters>...]]... [-s=<systemProperties>[,
                     <systemProperties>...]]...
+  -a, --startaction=<startActionName>
+                          The name of the action where to start a workflow
   -e, --environment=<environmentOption>
                           The name of the lifecycle environment to use
   -f, --file=<filename>   The filename of the workflow or pipeline to run
@@ -81,6 +83,10 @@ The available options are listed in more detail in the table below:
 |The name of the environment to use.
 
 Check the xref:projects/projects-environments.adoc[documentation on environments] for more details.
+
+|```-a```
+|```--startaction```
+|The name of the action where to start a workflow
 
 |```-f```
 |```--file```

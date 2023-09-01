@@ -53,6 +53,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
@@ -119,6 +120,11 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       description = "The name of the Run Configuration to use")
   private String runConfigurationName = null;
 
+  @Option(
+      names = {"-a", "--startaction"},
+      description = "The name of the action where to start a workflow")
+  private String startActionName = null;
+  
   @Option(
       names = {"-m", "--metadata-export"},
       description = "A file containing exported metadata in JSON format")
@@ -357,6 +363,10 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         }
       }
 
+      // Start workflow at action
+      //  
+      configuration.setStartActionName(startActionName);      
+      
       // Certain Hop plugins rely on this.  Meh.
       //
       ExtensionPointHandler.callExtensionPoint(
@@ -405,7 +415,19 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Also copy the parameter values over to the variables...
       //
       workflow.activateParameters(workflow);
-
+      
+      // If there is an alternative start action, pass it to the workflow
+      //
+      if (!Utils.isEmpty(configuration.getStartActionName())) {
+        ActionMeta startActionMeta =
+            workflowMeta.findAction(configuration.getStartActionName());
+        
+        if ( startActionMeta==null ) {
+          throw new ExecutionException(cmd, "Error running workflow, specified start action not found");
+        } 
+        workflow.setStartActionMeta(startActionMeta);
+      }
+      
       log.logMinimal("Starting workflow: " + workflowMeta.getFilename());
 
       workflow.startExecution();
