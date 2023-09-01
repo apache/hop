@@ -36,8 +36,7 @@ import java.util.List;
     name = "i18n::GoogleSheetsOutput.transform.Name",
     description = "i18n::GoogleSheetsOutput.transform.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsoutput.html")
+    documentationUrl = "/pipeline/transforms/google-sheets-output.html")
 public class GoogleSheetsOutputMeta
     extends BaseTransformMeta<GoogleSheetsOutput, GoogleSheetsOutputData> {
 

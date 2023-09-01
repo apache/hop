@@ -40,8 +40,7 @@ import java.util.List;
     name = "i18n::GoogleSheetsInput.transform.Name",
     description = "i18n::GoogleSheetsInput.transform.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsinput.html")
+    documentationUrl = "/pipeline/transforms/google-sheets-input.html")
 public class GoogleSheetsInputMeta
     extends BaseTransformMeta<GoogleSheetsInput, GoogleSheetsInputData> {
 
