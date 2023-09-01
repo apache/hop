@@ -130,8 +130,8 @@ public class GoogleSheetsOutput extends BaseTransform<GoogleSheetsOutputMeta, Go
           Spreadsheet spreadSheet = data.service.spreadsheets().get(meta.getSpreadsheetKey()).execute();
           List<Sheet> sheets = spreadSheet.getSheets();
           for(Sheet sheet : sheets){
-            if(sheet.getProperties().getSheetId().equals(meta.getWorksheetId())){
-              worksheetExists = false;
+            if(sheet.getProperties().getTitle().equals(meta.getWorksheetId())){
+              worksheetExists = true;
             }
           }
 
