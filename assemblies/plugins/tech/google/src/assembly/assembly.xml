@@ -59,6 +59,7 @@
                 <include>com.google.api.grpc:proto-google-iam-v1:jar</include>
                 <include>com.google.apis:google-api-services-analytics:jar</include>
                 <include>com.google.apis:google-api-services-drive:jar</include>
+                <include>com.google.apis:google-api-services-sqladmin:jar</include>
                 <include>com.google.apis:google-api-services-sheets:jar</include>
                 <include>com.google.apis:google-api-services-storage:jar</include>
                 <include>com.google.cloud:google-cloud-core-http:jar</include>

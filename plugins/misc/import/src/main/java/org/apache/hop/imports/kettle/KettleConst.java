@@ -151,7 +151,9 @@ public class KettleConst {
                 {"Mapping", "SimpleMapping"},
                 // Text File Input deprecated
                 {"TextFileInput", "TextFileInput2"},
-                {"KettleKafkaConsumerInput", "KafkaConsumer"}
+                {"KettleKafkaConsumerInput", "KafkaConsumer"},
+                {"PentahoGoogleSheetsPluginOutputMeta", "GoogleSheetsOutput"},
+                {"PentahoGoogleSheetsPluginInputMeta", "GoogleSheetsInput"}
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 

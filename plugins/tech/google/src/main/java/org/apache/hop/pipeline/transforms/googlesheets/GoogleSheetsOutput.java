@@ -22,6 +22,7 @@ import com.google.api.client.googleapis.batch.json.JsonBatchCallback;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.googleapis.json.GoogleJsonError;
 import com.google.api.client.http.HttpHeaders;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
@@ -31,11 +32,13 @@ import com.google.api.services.drive.model.FileList;
 import com.google.api.services.drive.model.Permission;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.AddSheetRequest;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.BatchUpdateSpreadsheetRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesRequest;
 import com.google.api.services.sheets.v4.model.ClearValuesResponse;
 import com.google.api.services.sheets.v4.model.Request;
+import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.SheetProperties;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.SpreadsheetProperties;
@@ -53,9 +56,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Describe your transform plugin. */
-public class GoogleSheetsOutput
-    extends BaseTransform<GoogleSheetsOutputMeta, GoogleSheetsOutputData> {
+public class GoogleSheetsOutput extends BaseTransform<GoogleSheetsOutputMeta, GoogleSheetsOutputData> {
+
+  private String spreadsheetID;
 
   public GoogleSheetsOutput(
       TransformMeta transformMeta,
@@ -82,15 +85,16 @@ public class GoogleSheetsOutput
         HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         JSON_FACTORY = JacksonFactory.getDefaultInstance();
         scope = "https://www.googleapis.com/auth/drive";
+
+        HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
         Drive service =
             new Drive.Builder(
                     HTTP_TRANSPORT,
                     JSON_FACTORY,
-                    GoogleSheetsCredentials.getCredentialsJson(
-                        scope, resolve(meta.getJsonCredentialPath())))
+                    GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                 .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                 .build();
-        String wsID = resolve(meta.getSpreadsheetKey());
+        spreadsheetID = resolve(meta.getSpreadsheetKey());
         // "properties has { key='id' and value='"+wsID+"'}";
         String q = "mimeType='application/vnd.google-apps.spreadsheet'";
         FileList result =
@@ -107,32 +111,60 @@ public class GoogleSheetsOutput
 
         for (File spreadsheet : spreadsheets) {
           // log.logBasic(wsID+" VS "+spreadsheet.getId());
-          if (wsID.equals(spreadsheet.getId())) {
+          if (spreadsheetID.equals(spreadsheet.getId())) {
             exists = true; // file exists
-            log.logBasic("Spreadsheet:" + wsID + " exists");
+            log.logBasic("Spreadsheet:" + spreadsheetID + " exists");
           }
         }
+
+        boolean worksheetExists = false;
+        if(exists){
+          data.service =
+                  new Sheets.Builder(
+                          HTTP_TRANSPORT,
+                          JSON_FACTORY,
+                          GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
+                          .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
+                          .build();
+
+          Spreadsheet spreadSheet = data.service.spreadsheets().get(meta.getSpreadsheetKey()).execute();
+          List<Sheet> sheets = spreadSheet.getSheets();
+          for(Sheet sheet : sheets){
+            if(sheet.getProperties().getTitle().equals(meta.getWorksheetId())){
+              worksheetExists = true;
+            }
+          }
+
+          if(!worksheetExists){
+            List<Request> requests = new ArrayList<>();
+            requests.add(new Request().setAddSheet(new AddSheetRequest().setProperties(new SheetProperties().setTitle(meta.getWorksheetId()))));
+            BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
+            data.service.spreadsheets().batchUpdate(meta.getSpreadsheetKey(), body).execute();
+          }
+        }
+
         // If it does not exist & create checkbox is checker create it.
         // log.logBasic("Create if Not exist is :"+meta.getCreate());
         if (!exists && meta.isCreate()) {
           if (!meta.isAppend()) { // si append + create alors erreur
             // Init Service
             scope = "https://www.googleapis.com/auth/spreadsheets";
+
             data.service =
                 new Sheets.Builder(
                         HTTP_TRANSPORT,
                         JSON_FACTORY,
-                        GoogleSheetsCredentials.getCredentialsJson(
-                            scope, resolve(meta.getJsonCredentialPath())))
+                        GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                     .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                     .build();
 
             // If it does not exist create it.
             Spreadsheet spreadsheet =
-                new Spreadsheet().setProperties(new SpreadsheetProperties().setTitle(wsID));
+                new Spreadsheet().setProperties(new SpreadsheetProperties().setTitle(spreadsheetID));
+                //new Spreadsheet().setProperties(new SpreadsheetProperties().setTitle(wsID));
             Sheets.Spreadsheets.Create request = data.service.spreadsheets().create(spreadsheet);
             Spreadsheet response = request.execute();
-            String spreadsheetID = response.getSpreadsheetId();
+            spreadsheetID = response.getSpreadsheetId();
             meta.setSpreadsheetKey(spreadsheetID); //
             // log.logBasic(response);
             // If it does not exist we use the Worksheet ID to rename 'Sheet ID'
@@ -153,65 +185,69 @@ public class GoogleSheetsOutput
               requestBody.setRequests(requests);
               // now you can execute batchUpdate with your sheetsService and SHEET_ID
               data.service.spreadsheets().batchUpdate(spreadsheetID, requestBody).execute();
-              // now if share email is not null we share with R/W with the email given
-              if ((resolve(meta.getShareEmail()) != null
-                      && !resolve(meta.getShareEmail()).isEmpty())
-                  || (resolve(meta.getShareDomain()) != null
-                      && !resolve(meta.getShareDomain()).isEmpty())) {
 
-                String fileId = spreadsheetID;
-                JsonBatchCallback<Permission> callback =
+            }
+          } else {
+            log.logError("Append and Create options cannot be activated altogether");
+            return false;
+          }
+
+          // now if share email is not null we share with R/W with the email given
+          if ((resolve(meta.getShareEmail()) != null
+                  && !resolve(meta.getShareEmail()).isEmpty())
+                  || (resolve(meta.getShareDomain()) != null
+                  && !resolve(meta.getShareDomain()).isEmpty())) {
+
+            String fileId = spreadsheetID;
+            JsonBatchCallback<Permission> callback =
                     new JsonBatchCallback<Permission>() {
                       @Override
                       public void onFailure(GoogleJsonError e, HttpHeaders responseHeaders)
-                          throws IOException {
+                              throws IOException {
                         // Handle error
                         log.logError("Failed sharing file" + e.getMessage());
                       }
 
                       @Override
                       public void onSuccess(Permission permission, HttpHeaders responseHeaders)
-                          throws IOException {
+                              throws IOException {
                         log.logBasic("Shared successfully : Permission ID: " + permission.getId());
                       }
                     };
-                BatchRequest batch = service.batch();
-                if (resolve(meta.getShareEmail()) != null
+            BatchRequest batch = service.batch();
+            if (resolve(meta.getShareEmail()) != null
                     && !resolve(meta.getShareEmail()).isEmpty()) {
-                  log.logBasic("Sharing sheet with:" + resolve(meta.getShareEmail()));
-                  Permission userPermission =
+              log.logBasic("Sharing sheet with:" + resolve(meta.getShareEmail()));
+              Permission userPermission =
                       new Permission()
-                          .setType("user")
-                          .setRole("writer")
-                          .setEmailAddress(resolve(meta.getShareEmail()));
-                  // Using Google drive service here not spreadsheet data.service
-                  service
+                              .setType("user")
+                              .setRole("writer")
+                              .setEmailAddress(resolve(meta.getShareEmail()));
+              // Using Google drive service here not spreadsheet data.service
+              service
                       .permissions()
                       .create(fileId, userPermission)
                       .setFields("id")
                       .queue(batch, callback);
-                }
-                if (resolve(meta.getShareDomain()) != null
+            }
+            if (resolve(meta.getShareDomain()) != null
                     && !resolve(meta.getShareDomain()).isEmpty()) {
-                  log.logBasic("Sharing sheet with domain:" + resolve(meta.getShareDomain()));
-                  Permission domainPermission =
+              log.logBasic("Sharing sheet with domain:" + resolve(meta.getShareDomain()));
+              Permission domainPermission =
                       new Permission()
-                          .setType("domain")
-                          .setRole("reader")
-                          .setDomain(resolve(meta.getShareDomain()));
-                  service
+                              .setType("domain")
+                              .setRole("reader")
+                              .setDomain(resolve(meta.getShareDomain()));
+              service
                       .permissions()
                       .create(fileId, domainPermission)
                       .setFields("id")
                       .queue(batch, callback);
-                }
-                batch.execute();
-              }
             }
-          } else {
-            log.logError("Append and Create options cannot be activated altogether");
-            return false;
+            batch.execute();
           }
+
+
         }
 
         if (!exists && !meta.isCreate()) {
@@ -273,12 +309,12 @@ public class GoogleSheetsOutput
           NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
           JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
           String scope = SheetsScopes.SPREADSHEETS;
+          HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
           data.service =
               new Sheets.Builder(
                       HTTP_TRANSPORT,
                       JSON_FACTORY,
-                      GoogleSheetsCredentials.getCredentialsJson(
-                          scope, resolve(meta.getJsonCredentialPath())))
+                      GoogleSheetsCredentials.setHttpTimeout(credential, resolve(meta.getTimeout())))
                   .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                   .build();
 

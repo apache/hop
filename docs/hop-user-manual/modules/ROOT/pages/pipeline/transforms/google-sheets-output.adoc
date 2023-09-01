@@ -27,7 +27,7 @@ under the License.
 
 The Google Sheets Output transform writes data to a Google Sheets worksheets.
 
-This transform requires a Google service account (JSON file) and a Google Cloud project with the Sheets API enabled.
+This transform requires a Google service account (JSON file) and a Google Cloud project with the Google Drive and Google Sheets API enabled.
 
 |
 == Supported Engines
@@ -44,15 +44,24 @@ This transform requires a Google service account (JSON file) and a Google Cloud 
 
 === Service account tab
 
-Click the `browse` button to pick your google service account client secret json file.
 
-The `Test` button Lets you test your access to the API. On success, you should see a success message.
+[%header, width="90%", cols="1,4"]
+|===
+|option|description
+|JSON credential key file|Lets you specify or browse for spreadsheets existing in the service account drive or for the ones that are shared with the service account email.
+|Application Name|Your application name for the service account in the Google Developer Console.
+|Timeout|lets you specify an https timeout (in minutes, defaults to 5).
+|Impersonation|lets you impersonate your service account. Check the https://cloud.google.com/iam/docs/impersonating-service-accounts[Google docs] for more information.
+|===
+
+Click the `Test Connection` button to verify your specified JSON credential key file for your service account can use the Google Drive and Spreadsheets APIs and has access to your Google Spreadsheets. On success, you will see a `Google Drive API: Success!` message.
+
 
 === Spreadsheet tab
 
-[%header, width="90%"]
+[%header, width="90%", cols="1,4"]
 |===
-|Option|Description
+|option|description
 |Spreadsheet key|Lets you specify or browse for spreadsheets existing in the service account drive or for the ones that are shared with the service account email. If you type in a sheet name (that does not exist in the drive) it will attempt to create a sheet it the "create" checkbox is ticked.
 |Worksheet Id|Should be browsed form the selected spreadsheet key. If you want to create a new file, type in any key that will become the name of the worksheet in the created spreadsheet
 |Append to sheet|Appends the lines **without the header** to an existing spreadsheet. This is incompatible with the create option below.

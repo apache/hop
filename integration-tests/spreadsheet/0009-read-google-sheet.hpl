@@ -41,7 +41,7 @@ limitations under the License.
   </order>
   <transform>
     <name>Google Sheets Input</name>
-    <type>GoogleSheetsPluginInput</type>
+    <type>GoogleSheetsInput</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -50,6 +50,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <appName/>
     <fields>
       <field>
         <INPUT_FIELDS>N</INPUT_FIELDS>
@@ -94,9 +95,11 @@ limitations under the License.
         <type>0</type>
       </field>
     </fields>
+    <impersonation/>
     <jsonCrendentialPath>/tmp/google-key-apache-hop-it.json</jsonCrendentialPath>
     <sampleFields>100</sampleFields>
     <spreadsheetKey>1uTxX_siSLikbHgZm6kSwUGFZlKDzTP0CnfY7TNaZgeE</spreadsheetKey>
+    <timeout>5</timeout>
     <worksheetId>Sheet1</worksheetId>
     <attributes/>
     <GUI>

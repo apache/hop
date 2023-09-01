@@ -31,13 +31,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 
 @Transform(
-    id = "GoogleSheetsPluginOutput",
+    id = "GoogleSheetsOutput",
     image = "google-sheets-output.svg",
     name = "i18n::GoogleSheetsOutput.transform.Name",
     description = "i18n::GoogleSheetsOutput.transform.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsoutput.html")
+    documentationUrl = "/pipeline/transforms/google-sheets-output.html")
 public class GoogleSheetsOutputMeta
     extends BaseTransformMeta<GoogleSheetsOutput, GoogleSheetsOutputData> {
 
@@ -67,6 +66,15 @@ public class GoogleSheetsOutputMeta
   @HopMetadataProperty(key = "APPEND", injectionGroupKey = "SHEET")
   private Boolean append;
 
+  @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
+  private String timeout;
+
+  @HopMetadataProperty(key = "impersonation", injectionGroupKey = "SHEET")
+  private String impersonation;
+
+  @HopMetadataProperty(key = "appName", injectionGroupKey = "SHEET")
+  private String appName;
+
   @Override
   public void setDefault() {
     this.jsonCredentialPath = "" + "client_secret.json";
@@ -76,6 +84,9 @@ public class GoogleSheetsOutputMeta
     this.shareEmail = "";
     this.create = true;
     this.append = false;
+    this.impersonation = "";
+    this.appName = "";
+    this.timeout = "5";
   }
 
   public String getJsonCredentialPath() {
@@ -132,6 +143,30 @@ public class GoogleSheetsOutputMeta
 
   public void setWorksheetId(String id) {
     this.worksheetId = id;
+  }
+
+  public String getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(String timeout) {
+    this.timeout = timeout;
+  }
+
+  public String getImpersonation() {
+    return impersonation;
+  }
+
+  public void setImpersonation(String impersonation) {
+    this.impersonation = impersonation;
+  }
+
+  public String getAppName() {
+    return appName;
+  }
+
+  public void setAppName(String appName) {
+    this.appName = appName;
   }
 
   @Override

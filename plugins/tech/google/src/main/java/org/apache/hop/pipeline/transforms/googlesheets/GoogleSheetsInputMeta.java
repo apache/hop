@@ -35,13 +35,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-    id = "GoogleSheetsPluginInput",
+    id = "GoogleSheetsInput",
     image = "google-sheets-input.svg",
     name = "i18n::GoogleSheetsInput.transform.Name",
     description = "i18n::GoogleSheetsInput.transform.Name",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/googlesheetsinput.html")
+    documentationUrl = "/pipeline/transforms/google-sheets-input.html")
 public class GoogleSheetsInputMeta
     extends BaseTransformMeta<GoogleSheetsInput, GoogleSheetsInputData> {
 
@@ -62,6 +61,15 @@ public class GoogleSheetsInputMeta
   @HopMetadataProperty(key="sampleFields", injectionGroupKey = "INPUT_Fields")
   private Integer sampleFields;
 
+  @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
+  private String timeout;
+
+  @HopMetadataProperty(key = "impersonation", injectionGroupKey = "SHEET")
+  private String impersonation;
+
+  @HopMetadataProperty(key = "appName", injectionGroupKey = "SHEET")
+  private String appName;
+
   @HopMetadataProperty(
           groupKey = "fields",
           key="field",
@@ -74,6 +82,8 @@ public class GoogleSheetsInputMeta
     this.spreadsheetKey = "";
     this.worksheetId = "";
     this.jsonCredentialPath = "client_secret.json";
+    this.timeout = "5";
+    this.impersonation = "";
     this.sampleFields = 100;
   }
 
@@ -116,6 +126,29 @@ public class GoogleSheetsInputMeta
     this.sampleFields = sampleFields;
   }
 
+  public String getTimeout() {
+    return timeout;
+  }
+
+  public void setTimeout(String timeout) {
+    this.timeout = timeout;
+  }
+
+  public String getImpersonation() {
+    return impersonation;
+  }
+
+  public void setImpersonation(String impersonation) {
+    this.impersonation = impersonation;
+  }
+
+  public String getAppName() {
+    return appName;
+  }
+
+  public void setAppName(String appName) {
+    this.appName = appName;
+  }
 
   @Override
   public void getFields(
