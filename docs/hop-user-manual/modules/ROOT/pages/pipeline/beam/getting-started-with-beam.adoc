@@ -52,6 +52,12 @@ Here is the documentation for the relevant plugins:
 |===
 |Hop version |Beam version |Spark version |Flink version
 
+|2.6.0
+|2.50.0
+|3.4.X (scala 2.12)
+|1.16.x
+
+
 |2.5.0
 |2.48.0
 |3.4.X (scala 2.12)
