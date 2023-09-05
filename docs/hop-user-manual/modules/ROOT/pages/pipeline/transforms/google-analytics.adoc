@@ -81,4 +81,4 @@ Click **Preview** to preview data based on the defined query.
 
 === Limit Size
 
-Limit the number of rows to retrieve for the specified GA4 property to a number of rows.   
+Limit the number of rows to retrieve for the specified GA4 property to a number of rows. Set the limit size to 0 to fetch all available rows.
