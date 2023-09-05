@@ -370,10 +370,7 @@ public class OracleDatabaseMetaTest {
             "",
             false));
 
-    String expectedProcSql =
-        "SELECT DISTINCT DECODE(package_name, NULL, '', package_name||'.') || object_name "
-            + "FROM user_arguments "
-            + "ORDER BY 1";
+    String expectedProcSql = "SELECT OWNER||'.'||OBJECT_NAME||NVL2(PROCEDURE_NAME,'.'||PROCEDURE_NAME,NULL) FROM ALL_PROCEDURES ORDER BY 1";
 
     assertEquals(expectedProcSql, nativeMeta.getSqlListOfProcedures());
 

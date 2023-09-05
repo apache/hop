@@ -536,9 +536,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /** @return The SQL on this database to get a list of stored procedures. */
   @Override
   public String getSqlListOfProcedures() {
-    return "SELECT DISTINCT DECODE(package_name, NULL, '', package_name||'.') || object_name "
-        + "FROM user_arguments "
-        + "ORDER BY 1";
+    return "SELECT OWNER||'.'||OBJECT_NAME||NVL2(PROCEDURE_NAME,'.'||PROCEDURE_NAME,NULL) FROM ALL_PROCEDURES ORDER BY 1";
   }
 
   @Override
