@@ -64,6 +64,8 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
     private int REQUEST_ROW_SIZE = 100000;
     private int rowsProcessed = 0;
 
+    private int rowLimit;
+
     public GoogleAnalytics(TransformMeta transformMeta, GoogleAnalyticsMeta meta, GoogleAnalyticsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
         super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
     }
@@ -73,6 +75,11 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
 
         if(super.init()){
             try {
+                if(meta.getRowLimit() == 0) {
+                    rowLimit = Integer.MAX_VALUE;
+                }else{
+                    rowLimit = meta.getRowLimit();
+                }
                 inputStream = new FileInputStream(meta.getOAuthKeyFile());
                 Credentials credentials = ServiceAccountCredentials.fromStream(inputStream);
 
@@ -90,8 +97,8 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
                     metricList.add(Metric.newBuilder().setName(metric).build());
                 }
 
-                if(meta.getRowLimit() < REQUEST_ROW_SIZE){
-                    REQUEST_ROW_SIZE = meta.getRowLimit();
+                if(rowLimit < REQUEST_ROW_SIZE){
+                    REQUEST_ROW_SIZE = rowLimit;
                 }
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
@@ -195,11 +202,11 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
             }
             // check if we're still below the row limit, adjust REQUEST_ROW_SIZE if we're getting close.
             rowsProcessed = (int)getLinesWritten();
-            if(getLinesWritten() + REQUEST_ROW_SIZE > meta.getRowLimit()){
-                REQUEST_ROW_SIZE = meta.getRowLimit() - (int)getLinesWritten();
+            if(getLinesWritten() + REQUEST_ROW_SIZE > rowLimit){
+                REQUEST_ROW_SIZE = rowLimit - (int)getLinesWritten();
             }
             requestOffset = (int)getLinesWritten();
-            if(rowsProcessed < meta.getRowLimit()){
+            if(rowsProcessed < rowLimit){
                 readResponse();
             }
         }
