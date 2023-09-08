@@ -1467,23 +1467,40 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @return the row set
    */
   @VisibleForTesting
-  IRowSet currentInputStream() {
+  IRowSet currentInputStream(String originStep) {
+    Thread t = Thread.currentThread();
     inputRowSetsLock.readLock().lock();
+
     try {
+      logBasic("    currentInputStream() "
+              + " - streams: " + inputRowSets.size() 
+              + " - Returning streams at index: " + currentInputRowSetNr
+              + " - Origin transform: " + originStep + " - Thread Id: " + t.getId());
       return inputRowSets.get(currentInputRowSetNr);
+      } catch (IndexOutOfBoundsException e) {
+      logBasic("    currentInputStream() "
+              + " - IndexOutOfBoundException raised!!"
+              + " - Origin transform: " + originStep + " - Thread Id: " + t.getId());
+      return null;
+
     } finally {
       inputRowSetsLock.readLock().unlock();
     }
   }
 
   /** Find the next not-finished input-stream... in_handling says which one... */
-  private void nextInputStream() {
+  private void nextInputStream(String originStep) {
+    
+    Thread t = Thread.currentThread();
     blockPointer = 0;
 
     int streams = inputRowSets.size();
 
     // No more streams left: exit!
     if (streams == 0) {
+      logBasic("    nextInputStream() "  
+              + " - No more streams left: exit"
+              + " - Origin transform: " + originStep + " - Thread Id: " + t.getId());
       return;
     }
 
@@ -1494,6 +1511,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // If we have some left: take the next!
     currentInputRowSetNr++;
+    logBasic("    nextInputStream() "
+            + " - streams: " + streams
+            + " - currentInputRowSetNr: " + currentInputRowSetNr
+            + " - Origin transform: " + originStep + " - Thread Id: " + t.getId());
     if (currentInputRowSetNr >= streams) {
       currentInputRowSetNr = 0;
     }
@@ -1534,6 +1555,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private Object[] handleGetRow() throws HopException {
 
+    Thread t = Thread.currentThread();
+    
     // Are we pausing the transform? If so, stall forever...
     //
     while (paused.get() && !stopped.get()) {
@@ -1570,14 +1593,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
       // Do we need to switch to the next input stream?
       if (blockPointer >= NR_OF_ROWS_IN_BLOCK) {
-
+        logBasic("Entered if (blockPointer >= NR_OF_ROWS_IN_BLOCK) - blockPointer: " + blockPointer + " - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
         // Take a peek at the next input stream.
         // If there is no data, process another NR_OF_ROWS_IN_BLOCK on the next
         // input stream.
         //
         for (int r = 0; r < inputRowSets.size() && row == null; r++) {
-          nextInputStream();
-          inputRowSet = currentInputStream();
+          nextInputStream(inputRowSet.getOriginTransformName());
+          inputRowSet = currentInputStream(null);
           row = inputRowSet.getRowImmediate();
         }
         if (row != null) {
@@ -1585,7 +1608,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         }
       } else {
         // What's the current input stream?
-        inputRowSet = currentInputStream();
+        inputRowSet = currentInputStream(null);
       }
 
       // To reduce stress on the locking system we are going to allow
@@ -1602,9 +1625,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
       // See if this transform is receiving partitioned data...
       // In that case it might be the case that one input row set is receiving
-      // all data and
-      // the other rowsets nothing. (repartitioning on the same key would do
-      // that)
+      // all data and the other rowsets nothing (repartitioning on the same key would do
+      // that).
       //
       // We never guaranteed that the input rows would be read one by one
       // alternatively.
@@ -1625,12 +1647,22 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         }
         waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
       }
+      
       while (row == null && !isStopped()) {
         // Get a row from the input in row set ...
         // Timeout immediately if nothing is there to read.
         // We will then switch to the next row set to read from...
         //
+        
+        long startTimestamp = (new Date()).getTime();
         row = inputRowSet.getRowWait(waitingTime.get(), TimeUnit.MILLISECONDS);
+        long timeSpent = (new Date()).getTime() - startTimestamp;
+        if (timeSpent > waitingTime.get())
+          logBasic("WARNING: Buffer wait time exceeded! Wait time: " + waitingTime.get() 
+                  + " - Current wait time is: " + timeSpent 
+                  + "ms - Origin transform: " + inputRowSet.getOriginTransformName()
+                  + " - Thread Id: " + t.getId());
+        
         boolean timeout = false;
         if (row != null) {
           incrementLinesRead();
@@ -1643,8 +1675,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           // the input stream and move on to the next one...
           //
           if (inputRowSet.isDone()) {
+            logBasic("  No rows returned from RowSet but current RowSet seems not done. Try another time to get rows - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
             row = inputRowSet.getRowWait(1, TimeUnit.MILLISECONDS);
             if (row == null) {
+              logBasic("  We didn't get any row definitely from RowSet. It means it is defintely done - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
 
               // Must release the read lock before acquisition of the write lock to prevent
               // deadlocks.
@@ -1659,41 +1693,78 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
               inputRowSetsLock.writeLock().lock();
               try {
                 removeRowSetFromInputRowSets(inputRowSet);
+                logBasic("  Current RowSet removed successfully from RowSet collection - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
                 if (inputRowSets.isEmpty()) {
+                  logBasic("    Last RowSet removed successfully. No more rowsets to process, leaving handleGetRow() - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
+                  logBasic("    Last checks before leaving "
+                          + " - Is row not NULL? " + (row != null ? "TRUE" : "FALSE")
+                          + " - Is RowMeta not NULL? " + (inputRowSet.getRowMeta() != null ? "TRUE" : "FALSE")
+                          + " - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
                   return null; // We're completely done.
+                } else {
+                  logBasic("    Current RowSet removed but RowSets collection contains other RowSets to process. Continue loop. - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
                 }
               } finally {
                 inputRowSetsLock.readLock().lock(); // downgrade to read lock
                 inputRowSetsLock.writeLock().unlock();
+                logBasic("    Write lock removed from RowSets collection. Keep read lock - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
               }
             } else {
               incrementLinesRead();
+              logBasic("    RowSet wasn't done and a new row was returned after second inputRowSet.getRowWait(). Updated lines read counter - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
             }
           } else {
+            logBasic("  The RowSet is done. No other rows to process in current RowSet - Origin transform: " + inputRowSet.getOriginTransformName() + " - Thread Id: " + t.getId());
             timeout = true;
           }
-          nextInputStream();
-          inputRowSet = currentInputStream();
+
+          logBasic(
+              "  Entering nextInputStream() - Origin transform: " + inputRowSet.getOriginTransformName()
+                      + " - Thread Id: " + t.getId());
+          nextInputStream(inputRowSet.getOriginTransformName());
+          logBasic(
+              "  Entering inputRowSet = currentInputStream() - Origin transform: " + inputRowSet.getOriginTransformName()
+                      + " - Thread Id: " + t.getId());
+          inputRowSet = currentInputStream(inputRowSet.getOriginTransformName());
+
           // only change delay time when input stream don't switch.
           // else switch active stream and reset min delay time
           waitingTime.adjust(timeout, inputRowSet);
+          logBasic("  After waitingTime.adjust(timeout, inputRowSet) - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
         }
+
+        logBasic("  Last checks at end of loop "
+                + " - Is row not NULL? " + (row != null ? "TRUE" : "FALSE")
+                + " - Is RowMeta not NULL? " + (inputRowSet.getRowMeta() != null ? "TRUE" : "FALSE")
+                + " - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
       }
 
       // This rowSet is perhaps no longer giving back rows?
       //
       while (row == null && !stopped.get()) {
+        logBasic("This rowSet is perhaps no longer giving back rows? - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
         // Try the next input row set(s) until we find a row set that still has
         // rows...
         // The getRowFrom() method removes row sets from the input row sets
         // list.
         //
         if (inputRowSets.isEmpty()) {
+          logBasic("  The RowSets collection is defintely empty. Leaving handleGetRow() - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
+          logBasic("  Last checks before leaving "
+                  + " - Is row not NULL? " + (row != null ? "TRUE" : "FALSE")
+                  + " - Is RowMeta not NULL? " + (inputRowSet.getRowMeta() != null ? "TRUE" : "FALSE")
+                  + " - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
           return null; // We're done.
         }
 
-        nextInputStream();
-        inputRowSet = currentInputStream();
+        logBasic(
+                "  Entering nextInputStream() - Origin transform: " + inputRowSet.getOriginTransformName()
+                        + " - Thread Id: " + t.getId());
+        nextInputStream(inputRowSet.getOriginTransformName());
+        logBasic(
+                "  Entering inputRowSet = currentInputStream() - Origin transform: " + inputRowSet.getOriginTransformName()
+                        + " - Thread Id: " + t.getId());
+        inputRowSet = currentInputStream(inputRowSet.getOriginTransformName());
         row = getRowFrom(inputRowSet);
       }
     } finally {
@@ -1708,7 +1779,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         inputRowMeta = inputRowSet.getRowMeta();
       }
     } else {
-      logBasic("WARNING: Trying to assign inputRowMeta to a NULL reference. PrevTransform: " + inputRowSet.getOriginTransformName());
+      logBasic("WARNING: Trying to assign inputRowMeta to a NULL reference. PrevTransform: " 
+              + inputRowSet.getOriginTransformName() + " - Rows available: " 
+              + (inputRowSet.getRow() != null ? ("Yes" + " - Num rows available: " + inputRowSet.size()) : "No")
+              + " - Rowset name: " + inputRowSet.getName()
+              + " - Origin transform: " + inputRowSet.getOriginTransformName());
     }
     
     if (row != null) {
@@ -1726,6 +1801,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // Check the rejection rates etc. as well.
     verifyRejectionRates();
+    logBasic("Last checks before leaving at end of handleGetRow() "
+            + " - Is row not NULL? " + (row != null ? "TRUE" : "FALSE")
+            + " - Is RowMeta not NULL? " + (inputRowSet.getRowMeta() != null ? "TRUE" : "FALSE")
+            + " - Origin transform: " + inputRowSet.getOriginTransformName()+ " - Thread Id: " + t.getId());
 
     return row;
   }

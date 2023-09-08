@@ -446,7 +446,7 @@ public class BaseTransformTest {
     rowSet.putRow(rowMeta, row);
 
     baseTransformSpy.setInputRowSets(Arrays.asList(rowSet));
-    doReturn(rowSet).when(baseTransformSpy).currentInputStream();
+    doReturn(rowSet).when(baseTransformSpy).currentInputStream("OriginTransform");
 
     baseTransformSpy.getRow();
 
