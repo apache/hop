@@ -328,6 +328,12 @@ public class ExcelWriterTransform
       // This closes the output stream as well
       file.getWorkbook().write(out);
       file.getWorkbook().close();
+
+      // deleting the temporary files
+      if (file.getWorkbook() instanceof SXSSFWorkbook ) {
+        ((SXSSFWorkbook ) file.getWorkbook()).dispose();
+      }
+
     } catch (IOException e) {
       throw new HopException(e);
     } finally {
