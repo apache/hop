@@ -25,7 +25,19 @@ under the License.
 |
 == Description
 
-The Set Variables transform allows you to set variables in a workflow or in the virtual machine.
+Set Variables allows you to set variables from fields. By clicking the Get Fields button it will automatically fill in all the fields from the data row and fill in variable names in all-caps (You may have to change the scope).
+
+This transform accepts one (and only one) row of data to set the value of a variable. It is important to isolate a single row for this transform, a simple way to do this is using the xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
+
+Variables have no type in Hop (casted as strings). If working with formulas for example, it may not have a type so be sure to convert to string if necessary (can use the TEXT function).
+
+*Variables set with Set Variable are not available to use in the current pipeline.* If set values are needed in the current pipeline the values will have to come from fields.
+
+Note that variables cannot be passed upstream between pipelines. Parameters are best passed downstream to avoid threading issues. A nested pipeline is technically the same pipeline, so variables are inherited in the initialization phase.
+
+Though you cannot pass parameters and variables upstream (in nested or sequential pipelines) you can pass data rows back up a pipeline via the following pattern in the samples project: samples/loops/pipeline-executor.hpl
+
+A variable can be set in one pipeline and be available in the next pipeline (named pipeline) that is in the loop of a pipeline executor.  If you are using a pipeline executor child, the parent pipeline does not restart and does not get any set variables. The new variable name to set in a child pipeline is shown below in the second column.
 
 TIP: This transform accepts one (and only one) row of data to set the value of a variable. If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
 
@@ -54,7 +66,7 @@ Otherwise no formatting is done.
 |Variable Name|Name of the variable to set (without ${...} or %%...%% sigils)
 |Variable scope type a|Define the scope of the variable, possible options are:
 
-* Valid in the virtual machine: the complete virtual machine will know about this variable.
+* Valid in the Java Virtual Machine: the complete virtual machine will know about this variable.
 * Valid in the parent workflow: the variable is only valid in the parent workflow.
 * Valid in the grand-parent workflow: the variable is valid in the grand-parent workflow and all the child workflows and pipelines.
 * Valid in the root workflow: the variable is valid in the root workflow and all the child workflows and pipelines.
