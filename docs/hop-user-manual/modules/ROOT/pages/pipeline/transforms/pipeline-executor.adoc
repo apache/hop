@@ -42,7 +42,7 @@ It is similar to the Workflow Executor transform, but works with pipelines.
 |===
 
 == Usage
-The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. Use a Get rows from result transform in the child pipeline to fetch the rows if you're sending more than one row to the child pipeline.
+The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. Use a *Get rows from result transform* in the child pipeline to fetch the rows if you're sending more than one row to the child pipeline.
 
 You can either run the same pipeline for each row by specifying a pipeline name to execute, or accept a pipeline name from an incoming field (from a table for example).
 You can launch multiple copies of the transform to run in parallel.
@@ -50,19 +50,24 @@ You can launch multiple copies of the transform to run in parallel.
 Options include mapping the child pipeline's parameters to fields in your current pipeline. If you enable the "Inherit all variables from pipeline" option, all the variables defined in the parent pipeline are passed to the pipeline.
 
 *Output hop connector options*: If you select the incorrect output option for the pipeline executor, it may not return the data expect
+
 * This output will contain the execution results: Returns stats on the execution and does not limit fields, variables, or parameters in the output. It’s a good idea to at least check if there have been any issues in one of your child pipelines with the ExecutionResult, ExecutionExitStatus or ExecutionNrErrors fields.
+
 * This output will contain the result rows after execution: Outputs a rowset that was copied to memory by the child pipeline, e.g. with a Copy rows to result transform. Use the "Result rows" tab in the pipeline executor transform to specify which fields you expect to receive from the child pipelines. This option is also required for setting variables downstream and working with the variables upstream if valid in the your scope.
+
 * The output will contain result file names after execution: Outputs a rowset that will contain any filenames that were copied to the results, e.g. with the Add filenames to result in the Content tab of the Text file input^ transform.
+
 * The output will contain a copy of the executor transform’s input data: Outputs the rowset as it was received by the pipeline executor transform.
+
 * Main output of transform: Outputs a rowset that mimics the input for the pipeline executor transform.
 
 
 Depending on your requirements, the Pipeline Executor transform can be configured to function in any of the following ways:
 
-You can use the input row to set parameters and variables.
-The executor transform then passes this row to the pipeline in the form of a result row.
-- You can also pass a group of records based on the value in a field, so that when the field value changes dynamically, the specified pipeline is executed.
-In these cases, the first row in the group of rows is used to set parameters or variables in the pipeline.
+You can use the input row to set parameters and variables. +
+The executor transform then passes this row to the pipeline in the form of a result row. +
+- You can also pass a group of records based on the value in a field, so that when the field value changes dynamically, the specified pipeline is executed. +
+In these cases, the first row in the group of rows is used to set parameters or variables in the pipeline. +
 
 
 See also:
