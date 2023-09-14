@@ -31,6 +31,16 @@ Typical use cases are logging specific values or custom logging messages to the 
 
 TIP: be careful when writing variables or fields for (unencrypted) passwords or other sensitive information to the Hop logging system!
 
+If no fields are specified it will write out all fields to the log. However, parameters and variables must be specified in the Log message section.  
+
+Example to print a parameter or variable in the Log Message section: ``COUNTER: ${COUNTER}``
+
+Set the Log detail level to Basic if you want variables to be printed out.
+
+If no fields exist, you may have to use a “Generate rows” transform to create a dummy row in order to print variables or parameters.
+
+TIP: If an error stops anything from being written to the log, then disable the Hops that fail, and add logging just before the failure, and re-run
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
