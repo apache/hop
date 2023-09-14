@@ -25,11 +25,45 @@ under the License.
 |
 == Description
 
-The Table Input transform is used to read information from a database, using a connection and SQL.
+The Table Input transform is used to read information from a database, using a connection and SQL. Basic SQL statements can be generated automatically by clicking Get SQL select statement. SQL queries can be parameterized through variables and can accept input from previous transform fields.
 
-Basic SQL statements can be generated automatically by clicking Get SQL select statement.
+Table input does not pass input data to the output, only fields inside the query are returned to the pipeline so all other variables and data will be lost. You can solve this by adding the variable as a field in the query or put a Get variables transform behind the table input. 
 
-SQL queries can be parameterized through variables and can accept input from previous transform fields.
+To use data fields from a transform, you will have to select it in the dropdown "Insert data from transform". Note that if you are using a parametrized query using question marks, you must limit the stream to exactly the fields you need as input to the table input. This can also be done with a Select values transform.
+
+== Tips
+
+If you are getting unexpected query results, (and on some other action/transforms) there is a clear database cache icon (broom). Or you can use the Hop menu icon: Tools / Clear DB Cache.
+
+A cartesian join transform will combine a different number of fields from multiple table inputs without requiring key join fields.
+
+== Parmeterized Query Examples
+
+*Example to use data row field(s) parameterized query:*
+
+``Select * from table1 where NameId = ? and AddressId = ?``
+
+* Replace variables in script: unchecked
+
+* Insert data from transform: <point to the transform with the fields>
+
+
+*Example to use a variable value parameterized query*:
+
+This examples uses an integer. If you were using a string you most likely will have to use syntax ‘${PRM_NAME}’
+
+``Select * from table1 where id = ${myId}``
+
+* Replace variables in script: checked
+
+* Insert data from transform: <empty>
+
+
+*Example using a date range*:
+
+``SELECT * FROM customers WHERE changed_date BETWEEN ? AND ?``
+
+This SQL statement requests two calendar dates, to create a range, that are read from the Insert data from transform option. The target date range can be provided using the Get System Info transform. For example, if you want to read all customers that have had their data changed yesterday, you can get a target range for yesterday and read the customer data.
 
 |
 == Supported Engines
@@ -59,15 +93,3 @@ The locator where Hop inserts information is indicated with a question mark: ?.
 |Execute for each row?|Enable to perform the data insert for each individual row.
 |Limit size|Sets the number of lines that is read from the database; zero (0) means read all lines.
 |===
-
-== Example
-
-Below is a SQL statement:
-
-``
-SELECT * FROM customers WHERE changed_date BETWEEN ? AND ?
-``
-
-This SQL statement requests two calendar dates, to create a range, that are read from the Insert data from transform option.
-The target date range can be provided using the Get System Info transform.
-For example, if you want to read all customers that have had their data changed yesterday, you can get a target range for yesterday and read the customer data.
