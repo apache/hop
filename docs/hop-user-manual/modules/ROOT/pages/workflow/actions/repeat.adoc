@@ -23,11 +23,20 @@ under the License.
 == Description
 
 The Repeat action repeats the pipeline or workflow of your choice until a certain condition is met.
-
 The condition is either:
 
 * A variable in the workflow is set or set to a certain value
 * The End Repeat action is executed in the specified repeating workflow
+
+In addition to the workflow and pipeline executor transforms, the Repeat and End Repeat actions let you build loops from a workflow. It requires a workflow or pipeline and a run configuration to use. The action will continue to execute the specified workflow or pipeline until a condition is met: either a variable is set or a variable set to an specific optional value, or an End repeat action is triggered in a child workflow.
+
+TIP: If you use a variable name for the file to repeat, ensure a default parameter is set with a file extension so Hop knows if it is a pipeline or a workflow file.
+
+== Example
+The samples project example: ``/loops/repeat-action.hwf`` and ``child-check-set-counter-value.hpl`` runs a pipeline that increments a ${COUNTER} variable with each run. If the variable values exceeds 10, a variable ${END_LOOP} is set. This variable is detected by the Repeat action, and the loop stops. Because the Variable scope of COUNTER in the workflow is set to “Valid in the current workflow”, when you set COUNTER in the child the new value goes upstream.
+
+
+
 
 == Options
 
