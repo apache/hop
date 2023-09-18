@@ -32,7 +32,7 @@
     </parent>
 
     <properties>
-        <dependency.jgit.revision>5.1.13.202002110435-r</dependency.jgit.revision>
+        <dependency.jgit.revision>6.6.1.202309021850-r</dependency.jgit.revision>
     </properties>
 
     <dependencies>
