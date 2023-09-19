@@ -42,12 +42,12 @@ It is similar to the Workflow Executor transform, but works with pipelines.
 |===
 
 == Usage
-The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. Use a *Get rows from result transform* in the child pipeline to fetch the rows if you're sending more than one row to the child pipeline.
+The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. You can use a "Get rows from result" transform in a pipeline to fetch the previous rows from its parent. This is useful if you're sending each row to a child pipeline. You do not need to define any fields in the Get rows transform to retrieve all data row fields.
 
 You can either run the same pipeline for each row by specifying a pipeline name to execute, or accept a pipeline name from an incoming field (from a table for example).
 You can launch multiple copies of the transform to run in parallel.
 
-Options include mapping the child pipeline's parameters to fields in your current pipeline. If you enable the "Inherit all variables from pipeline" option, all the variables defined in the parent pipeline are passed to the pipeline.
+Options include mapping the child pipeline's parameters to fields in your current pipeline. If you enable the "Inherit all variables from pipeline" option, all the variables defined in the parent pipeline are passed to the pipeline. However, only the parameters defined on the Parameters tab are set per data input row to the pipeline.
 
 *Output hop connector options*: If you select the incorrect output option for the pipeline executor, it may not return the data expect
 
