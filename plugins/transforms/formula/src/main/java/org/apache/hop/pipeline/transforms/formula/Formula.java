@@ -78,32 +78,32 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
       return false;
     }
 
-    int tempIndex = getInputRowMeta().size();
 
     if (first) {
       first = false;
-
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
       // Calculate replace indexes...
       //
       data.replaceIndex = new int[meta.getFormulas().size()];
-      for (int i = 0; i < meta.getFormulas().size(); i++) {
-        FormulaMetaFunction fn = meta.getFormulas().get(i);
+      for (int j = 0; j < meta.getFormulas().size(); j++) {
+        FormulaMetaFunction fn = meta.getFormulas().get(j);
         if (!Utils.isEmpty(fn.getReplaceField())) {
-          data.replaceIndex[i] = getInputRowMeta().indexOfValue(fn.getReplaceField());
-          if (data.replaceIndex[i] < 0) {
+          data.replaceIndex[j] = data.outputRowMeta.indexOfValue(fn.getReplaceField());
+          if (data.replaceIndex[j] < 0) {
             throw new HopException(
-                "Unknown field specified to replace with a formula result: ["
-                    + fn.getReplaceField()
-                    + "]");
+                    "Unknown field specified to replace with a formula result: ["
+                            + fn.getReplaceField()
+                            + "]");
           }
         } else {
-          data.replaceIndex[i] = -1;
+          data.replaceIndex[j] = -1;
         }
       }
     }
+    meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    int tempIndex = getInputRowMeta().size();
+
 
     if (log.isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
@@ -120,7 +120,7 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     for (int i = 0; i < meta.getFormulas().size(); i++) {
 
       FormulaMetaFunction formula = meta.getFormulas().get(i);
-      FormulaParser parser = new FormulaParser(formula, getInputRowMeta(), r, sheetRow, variables);
+      FormulaParser parser = new FormulaParser(formula, data.outputRowMeta, r, sheetRow, variables);
       CellValue cellValue = parser.getFormulaValue();
 
       CellType cellType = cellValue.getCellType();
@@ -177,11 +177,14 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
       int realIndex = (data.replaceIndex[i] < 0) ? tempIndex++ : data.replaceIndex[i];
 
+
+
       outputRowData[realIndex] =
           getReturnValue(outputValue, data.returnType[i], realIndex, formula);
     }
 
     putRow(data.outputRowMeta, outputRowData);
+
     if (log.isRowLevel()) {
       logRowlevel("Wrote row #" + getLinesWritten() + " : " + Arrays.toString(r));
     }
