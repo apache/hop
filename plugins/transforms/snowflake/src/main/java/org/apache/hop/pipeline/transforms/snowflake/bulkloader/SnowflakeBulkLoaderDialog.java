@@ -259,7 +259,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     Shell parent = getParent();
     display = parent.getDisplay();
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     PropsUi.setLook(shell);
@@ -342,7 +342,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     wLoaderComp.setLayout(loaderLayout);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(wLoaderComp, wTransformName, input.getConnection(), lsMod);
     if (input.getConnection() == null && pipelineMeta.nrDatabases() == 1) {
       wConnection.select(0);
     }
@@ -481,8 +481,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
             DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
             if (databaseMeta != null) {
-              Database db = new Database(loggingObject, variables, databaseMeta);
-              try {
+              try (Database db = new Database(loggingObject, variables, databaseMeta)) {
                 db.connect();
                 String sql = "show stages";
                 if (!StringUtils.isEmpty(variables.resolve(wSchema.getText()))) {
@@ -510,13 +509,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
               } catch (Exception ex) {
                 logDebug("Error getting stages", ex);
-              } finally {
-                try {
-
-                  db.disconnect();
-                } catch (Exception ex) {
-                  // Nothing more we can do
-                }
               }
             }
           }
@@ -1291,7 +1283,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
 
     int nrfields = wFields.nrNonEmpty();
 
-    List<SnowflakeBulkLoaderField> fields = new ArrayList();
+    List<SnowflakeBulkLoaderField> fields = new ArrayList<>();
 
     for (int i = 0; i < nrfields; i++) {
       SnowflakeBulkLoaderField field = new SnowflakeBulkLoaderField();
@@ -1488,8 +1480,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
@@ -1525,8 +1516,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "SnowflakeBulkLoader.Dialog.ErrorGettingSchemas"),
             e);
-      } finally {
-        database.disconnect();
       }
     }
   }
@@ -1575,14 +1564,13 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
               tableField.setComboValues(new String[] {});
             }
             if (!StringUtils.isEmpty(tableName)) {
-              DatabaseMeta ci = pipelineMeta.findDatabase(connectionName, variables);
-              if (ci != null) {
-                Database db = new Database(loggingObject, variables, ci);
-                try {
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+              if (databaseMeta != null) {
+                try ( Database db = new Database(loggingObject, variables, databaseMeta)) {
                   db.connect();
 
                   String schemaTable =
-                      ci.getQuotedSchemaTableCombination(
+                      databaseMeta.getQuotedSchemaTableCombination(
                           variables, variables.resolve(schemaName), variables.resolve(tableName));
                   IRowMeta r = db.getTableFields(schemaTable);
                   if (null != r) {
@@ -1596,20 +1584,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
                 } catch (Exception e) {
                   for (ColumnInfo tableField : tableFieldColumns) {
                     tableField.setComboValues(new String[] {});
-                  }
-                  // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user
-                } finally {
-                  try {
-                    //noinspection ConstantConditions
-                    if (db != null) {
-                      db.disconnect();
-                    }
-                  } catch (Exception ignored) {
-                    // ignore any errors here. Nothing we can do if
-                    // connection fails to close properly
-                    //noinspection UnusedAssignment
-                    db = null;
                   }
                 }
               }
