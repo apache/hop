@@ -1,0 +1,48 @@
+{
+  "base_filename": "golden-formula-use-fields-created-in-previous-formula.csv",
+  "name": "golden-formula-use-fields-created-in-previous-formula",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "foo",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "bar",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "foobar",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "foobar_added",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "foobar_added_double",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}

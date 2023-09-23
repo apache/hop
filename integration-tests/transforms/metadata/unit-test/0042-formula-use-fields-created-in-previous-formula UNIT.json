@@ -1,0 +1,48 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "foo",
+          "data_set_field": "foo"
+        },
+        {
+          "transform_field": "bar",
+          "data_set_field": "bar"
+        },
+        {
+          "transform_field": "foobar",
+          "data_set_field": "foobar"
+        },
+        {
+          "transform_field": "foobar_added",
+          "data_set_field": "foobar_added"
+        },
+        {
+          "transform_field": "foobar_added_double",
+          "data_set_field": "foobar_added_double"
+        }
+      ],
+      "field_order": [
+        "foo",
+        "bar",
+        "foobar",
+        "foobar_added",
+        "foobar_added_double"
+      ],
+      "data_set_name": "golden-formula-use-fields-created-in-previous-formula",
+      "transform_name": "verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-use-fields-created-in-previous-formula UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0042-formula-use-fields-created-in-previous-formula.hpl",
+  "test_type": "UNIT_TEST"
+}
