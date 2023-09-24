@@ -234,7 +234,7 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
 
     // Impersonation - Label
     Label impersonationLabel = new Label( serviceAccountComposite, SWT.RIGHT );
-    impersonationLabel.setText( "Inpersonation account :" );
+    impersonationLabel.setText(BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.ImpersonationAccount"));
     props.setLook( impersonationLabel );
     FormData impersonationLabelForm = new FormData();
     impersonationLabelForm.top = new FormAttachment( wTimeout, margin );

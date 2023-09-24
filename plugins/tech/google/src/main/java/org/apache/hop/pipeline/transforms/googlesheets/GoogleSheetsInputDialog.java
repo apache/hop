@@ -77,7 +77,6 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
   private TextVar wWorksheetId;
   private TextVar wSampleFields;
   private TableView wFields;
-
   public GoogleSheetsInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String name) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, name);
@@ -222,7 +221,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
 
     // Impersonation - Label
     Label impersonationLabel = new Label( serviceAccountComposite, SWT.RIGHT );
-    impersonationLabel.setText( "Inpersonation account :" );
+    impersonationLabel.setText(BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.ImpersonationAccount"));
     props.setLook( impersonationLabel );
     FormData impersonationLabelForm = new FormData();
     impersonationLabelForm.top = new FormAttachment( wTimeout, margin );
