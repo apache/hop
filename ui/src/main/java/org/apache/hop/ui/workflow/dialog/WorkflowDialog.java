@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.parameters.DuplicateParamException;
@@ -31,6 +32,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -617,6 +619,8 @@ public class WorkflowDialog extends Dialog {
 
   private void ok() {
 
+    boolean allGood = true;
+
     workflowMeta.setName(wWorkflowName.getText());
     workflowMeta.setNameSynchronizedWithFilename(wNameFilenameSync.getSelection());
     workflowMeta.setDescription(wDescription.getText());
@@ -637,7 +641,19 @@ public class WorkflowDialog extends Dialog {
       TableItem item = wParamFields.getNonEmpty(i);
 
       try {
-        workflowMeta.addParameterDefinition(item.getText(1), item.getText(2), item.getText(3));
+        if(StringUtils.isEmpty(item.getText(1)) && (!StringUtils.isEmpty(item.getText(2)) || !StringUtils.isEmpty(item.getText(3)))){
+          allGood = false;
+          MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+          mb.setText(
+                  BaseMessages.getString(
+                          PKG, "WorkflowDialog.NoUnnamedParameters.DialogTitle"));
+          mb.setMessage(
+                  BaseMessages.getString(
+                          PKG, "WorkflowDialog.NoUnnamedParameters.DialogMessage"));
+          mb.open();
+        }else{
+          workflowMeta.addParameterDefinition(item.getText(1), item.getText(2), item.getText(3));
+        }
       } catch (DuplicateParamException e) {
         // Ignore the duplicate parameter.
       }
@@ -649,7 +665,9 @@ public class WorkflowDialog extends Dialog {
 
     workflowMeta.setChanged(changed || workflowMeta.hasChanged());
 
-    dispose();
+    if(allGood){
+      dispose();
+    }
   }
 
   public static final Button setShellImage(Shell shell, IAction action) {

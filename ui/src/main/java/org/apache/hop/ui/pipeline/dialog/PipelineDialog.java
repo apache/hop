@@ -18,6 +18,7 @@
 // CHECKSTYLE:FileLength:OFF
 package org.apache.hop.ui.pipeline.dialog;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -774,7 +775,19 @@ public class PipelineDialog extends Dialog {
       TableItem item = wParamFields.getNonEmpty(i);
 
       try {
-        pipelineMeta.addParameterDefinition(item.getText(1), item.getText(2), item.getText(3));
+        if(StringUtils.isEmpty(item.getText(1)) && (!StringUtils.isEmpty(item.getText(2)) || !StringUtils.isEmpty(item.getText(3)))){
+          ok = false; 
+          MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+          mb.setText(
+                  BaseMessages.getString(
+                          PKG, "PipelineDialog.NoUnnamedParameters.DialogTitle"));
+          mb.setMessage(
+                  BaseMessages.getString(
+                          PKG, "PipelineDialog.NoUnnamedParameters.DialogMessage"));
+          mb.open();
+        }else{
+          pipelineMeta.addParameterDefinition(item.getText(1), item.getText(2), item.getText(3));
+        }
       } catch (DuplicateParamException e) {
         // Ignore the duplicate parameter.
       }
