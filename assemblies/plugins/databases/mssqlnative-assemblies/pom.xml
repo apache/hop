@@ -34,21 +34,11 @@
     <name>Hop Assemblies Plugins Databases MS SQL Server (Native)</name>
     <description />
 
-    <properties>
-        <mssqlnative.version>11.2.3.jre11</mssqlnative.version>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-mssqlnative</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.microsoft.sqlserver</groupId>
-            <artifactId>mssql-jdbc</artifactId>
-            <version>${mssqlnative.version}</version>
         </dependency>
     </dependencies>
 

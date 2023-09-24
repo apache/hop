@@ -46,12 +46,5 @@
                 <include>org.apache.hop:hop-databases-clickhouse:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <useProjectArtifact>false</useProjectArtifact>
-            <includes>
-                <include>com.clickhouse:clickhouse-jdbc:jar:all</include>
-            </includes>
-        </dependencySet>
     </dependencySets>
 </assembly>

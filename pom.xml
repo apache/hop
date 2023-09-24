@@ -802,7 +802,6 @@
                         <exclude>**/target/**</exclude>
                         <exclude>**/*.svg</exclude>
                         <exclude>**/*.json</exclude>
-                        <exclude>**/PUT_JDBC_HERE</exclude>
                         <exclude>**/hop.pwd</exclude>
                         <exclude>**/*.iml</exclude>
                         <exclude>.dockerignore</exclude>

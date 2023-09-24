@@ -34,21 +34,11 @@
     <name>Hop Assemblies Plugins Databases Derby</name>
     <description />
 
-    <properties>
-        <derby.version>10.15.1.3</derby.version>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-derby</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.derby</groupId>
-            <artifactId>derbyclient</artifactId>
-            <version>${derby.version}</version>
         </dependency>
     </dependencies>
 

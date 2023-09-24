@@ -46,12 +46,5 @@
                 <include>org.apache.hop:hop-databases-derby:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>org.apache.derby:derbyclient:jar</include>
-            </includes>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-        </dependencySet>
     </dependencySets>
 </assembly>

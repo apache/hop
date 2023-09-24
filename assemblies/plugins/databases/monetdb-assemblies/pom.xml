@@ -34,35 +34,13 @@
     <name>Hop Assemblies Plugins Databases MonetDB</name>
     <description />
 
-    <properties>
-        <monetdb.version>3.1</monetdb.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-monetdb</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>monetdb</groupId>
-            <artifactId>monetdb-jdbc</artifactId>
-            <version>${monetdb.version}</version>
-        </dependency>
-    </dependencies>
 
-    <repositories>
-        <repository>
-            <id>clojars</id>
-            <url>https://clojars.org/repo/</url>
-            <name>Clojars</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
+    </dependencies>
 
 </project>

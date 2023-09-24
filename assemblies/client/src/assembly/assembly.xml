@@ -63,6 +63,16 @@
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>
+        <!-- hop lib jar files -->
+        <dependencySet>
+            <includes>
+                <include>org.apache.hop:hop-assemblies-libs-jdbc:zip</include>
+            </includes>
+            <unpack>true</unpack>
+            <outputDirectory>lib/jdbc</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
         <!-- swt -->
         <dependencySet>
             <includes>

@@ -51,13 +51,5 @@
                 <include>org.apache.hop:hop-databases-redshift:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.amazon.redshift:redshift-jdbc42:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
     </dependencySets>
 </assembly>

@@ -123,7 +123,7 @@ To execute the containers afterwards, the following environment variables or par
 |HOP_ENVIRONMENT_NAME|Local|Name of the environment with which the container is to be started (e.g. local, prod) - see step 3
 |HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS|/files/config/localTestConfig.json|Comma separated list of all environment files (see step 3)
 |HOP_SERVER_METADATA_FOLDER|/files/metadata|Directory containing the metadata information (in this case, the metadata associated with the web service).
-|HOP_SHARED_JDBC_FOLDER|/files/jdbc|Directory containing all required JDBC drivers (e.g. for MySQL, Oracle) that are not included in the standard delivery.
+|HOP_SHARED_JDBC_FOLDERS|/files/jdbc|Directory containing all required JDBC drivers (e.g. for MySQL, Oracle) that are not included in the standard delivery. This is a comma separated list defaulting to lib/jdbc
 |p|8182:8182|Mapping of the internal Docker port to the port of the Docker host
 |V|/my/path/to/location:/files|Mount path and mapping to a Docker internal path
 |Name||Name of the Docker container
@@ -145,7 +145,7 @@ docker run -it --rm \
   --env HOP_ENVIRONMENT_NAME=Local \
   --env HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS=/files/config/localTestConfig.json \
   --env HOP_SERVER_METADATA_FOLDER=/files/metadata \
-  --env HOP_SHARED_JDBC_FOLDER=/files/jdbc \
+  --env HOP_SHARED_JDBC_FOLDERS=/files/jdbc \
   -p 8182:8182 \
   -v /my/path/to/location:/files \
   --name test-hop-container \
