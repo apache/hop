@@ -127,19 +127,19 @@ public class GoogleSheetsOutput extends BaseTransform<GoogleSheetsOutputMeta, Go
                           .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
                           .build();
 
-          Spreadsheet spreadSheet = data.service.spreadsheets().get(meta.getSpreadsheetKey()).execute();
+          Spreadsheet spreadSheet = data.service.spreadsheets().get(resolve(meta.getSpreadsheetKey())).execute();
           List<Sheet> sheets = spreadSheet.getSheets();
           for(Sheet sheet : sheets){
-            if(sheet.getProperties().getTitle().equals(meta.getWorksheetId())){
+            if(sheet.getProperties().getTitle().equals(resolve(meta.getWorksheetId()))){
               worksheetExists = true;
             }
           }
 
           if(!worksheetExists){
             List<Request> requests = new ArrayList<>();
-            requests.add(new Request().setAddSheet(new AddSheetRequest().setProperties(new SheetProperties().setTitle(meta.getWorksheetId()))));
+            requests.add(new Request().setAddSheet(new AddSheetRequest().setProperties(new SheetProperties().setTitle(resolve(meta.getWorksheetId())))));
             BatchUpdateSpreadsheetRequest body = new BatchUpdateSpreadsheetRequest().setRequests(requests);
-            data.service.spreadsheets().batchUpdate(meta.getSpreadsheetKey(), body).execute();
+            data.service.spreadsheets().batchUpdate(resolve(meta.getSpreadsheetKey()), body).execute();
           }
         }
 
