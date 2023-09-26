@@ -43,8 +43,11 @@ With a formula you are not limited to comparing to three fields like in the Calc
 You have the option of creating a new field (use New field column) or replacing a field (use Replace value column).
 
 Formula Examples using the TEXT function:
+
 *	Int to Text: "size=" & TEXT([RowLimitInteger],"0").
+
 *	DateTime to Text: [StartDateField] & "=" & TEXT([StartDateTime], "yyyy-mm-dd")
+
 *	String to Text: "new_counter=" & TEXT([counter]+1, "0")
 
 |
