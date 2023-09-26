@@ -59,4 +59,9 @@ public @interface Action {
   String suggestion() default "";
 
   String[] keywords() default {};
+
+  /**
+   * @return True if the JDBC drivers have to be loaded for this transform
+   */
+  boolean isIncludeJdbcDrivers() default false;
 }

@@ -26,10 +26,12 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
-/**
- * Contains Generic Database Connection information through static final members
- */
-@DatabaseMetaPlugin(type = "MONETDB", typeDescription = "MonetDB", documentationUrl = "/database/databases/monetdb.html")
+/** Contains Generic Database Connection information through static final members */
+@DatabaseMetaPlugin(
+    type = "MONETDB",
+    typeDescription = "MonetDB",
+    documentationUrl = "/database/databases/monetdb.html",
+    classLoaderGroup = "monetdb")
 @GuiPlugin(id = "GUI-MonetDBDatabaseMeta")
 public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -46,7 +48,9 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @see IDatabase#getDefaultDatabasePort() */
+  /**
+   * @see IDatabase#getDefaultDatabasePort()
+   */
   @Override
   public int getDefaultDatabasePort() {
     if (getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE) {
@@ -56,7 +60,9 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -89,7 +95,9 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return true;

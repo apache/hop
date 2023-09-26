@@ -37,37 +37,59 @@ public interface IPlugin {
    */
   String[] getIds();
 
-  /** @return The type of plugin */
+  /**
+   * @return The type of plugin
+   */
   Class<? extends IPluginType> getPluginType();
 
-  /** @return The main class assigned to this Plugin. */
+  /**
+   * @return The main class assigned to this Plugin.
+   */
   Class<?> getMainType();
 
-  /** @return The libraries (jar file names) that are used by this plugin */
+  /**
+   * @return The libraries (jar file names) that are used by this plugin
+   */
   List<String> getLibraries();
 
-  /** @return The name of the plugin */
+  /**
+   * @return The name of the plugin
+   */
   String getName();
 
-  /** @return The description of the plugin */
+  /**
+   * @return The description of the plugin
+   */
   String getDescription();
 
-  /** @return The location of the image (icon) file for this plugin */
+  /**
+   * @return The location of the image (icon) file for this plugin
+   */
   String getImageFile();
 
-  /** @param imageFile the location of the image (icon) file for this plugin */
+  /**
+   * @param imageFile the location of the image (icon) file for this plugin
+   */
   void setImageFile(String imageFile);
 
-  /** @return The category of this plugin or null if this is not applicable */
+  /**
+   * @return The category of this plugin or null if this is not applicable
+   */
   String getCategory();
 
-  /** @return True if a separate class loader is needed every time this class is instantiated */
+  /**
+   * @return True if a separate class loader is needed every time this class is instantiated
+   */
   boolean isSeparateClassLoaderNeeded();
 
-  /** @return true if this is considered to be a standard native plugin. */
+  /**
+   * @return true if this is considered to be a standard native plugin.
+   */
   boolean isNativePlugin();
 
-  /** @return All the possible class names that can be loaded with this plugin, split up by type. */
+  /**
+   * @return All the possible class names that can be loaded with this plugin, split up by type.
+   */
   Map<Class<?>, String> getClassMap();
 
   /**
@@ -83,33 +105,51 @@ public interface IPlugin {
    */
   String getErrorHelpFile();
 
-  /** @param errorHelpFile the errorHelpFile to set */
+  /**
+   * @param errorHelpFile the errorHelpFile to set
+   */
   void setErrorHelpFile(String errorHelpFile);
 
-  /** @return keywords describing this plugin */
+  /**
+   * @return keywords describing this plugin
+   */
   String[] getKeywords();
 
-  /** @param keywords keywords describing this plugin */
+  /**
+   * @param keywords keywords describing this plugin
+   */
   public void setKeywords(String[] keywords);
 
   URL getPluginDirectory();
 
-  /** @return the documentationUrl */
+  /**
+   * @return the documentationUrl
+   */
   String getDocumentationUrl();
 
-  /** @param documentationUrl the documentationUrl to set */
+  /**
+   * @param documentationUrl the documentationUrl to set
+   */
   void setDocumentationUrl(String documentationUrl);
 
-  /** @return The cases URL of the plugin */
+  /**
+   * @return The cases URL of the plugin
+   */
   String getCasesUrl();
 
-  /** @param casesUrl the cases URL to set for this plugin */
+  /**
+   * @param casesUrl the cases URL to set for this plugin
+   */
   void setCasesUrl(String casesUrl);
 
-  /** @return the forum URL */
+  /**
+   * @return the forum URL
+   */
   String getForumUrl();
 
-  /** @param forumUrl the forum URL to set */
+  /**
+   * @param forumUrl the forum URL to set
+   */
   void setForumUrl(String forumUrl);
 
   /**
@@ -128,7 +168,9 @@ public interface IPlugin {
    */
   void setClassLoaderGroup(String group);
 
-  /** @param fragment A plugin interface to merge with */
+  /**
+   * @param fragment A plugin interface to merge with
+   */
   default void merge(IPlugin fragment) {
     if (fragment != null) {
       Optional.ofNullable(fragment.getClassMap()).ifPresent(this.getClassMap()::putAll);
@@ -148,4 +190,9 @@ public interface IPlugin {
    * @return true if there are extra libraries that need to be included outside the plugin folder
    */
   boolean isUsingLibrariesOutsidePluginFolder();
+
+  /**
+   * @return True if the JDBC drivers have to be loaded for this transform
+   */
+  boolean isIncludeJdbcDrivers();
 }

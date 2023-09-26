@@ -51,7 +51,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::PGBulkLoaderMeta.keyword",
     documentationUrl = "/pipeline/transforms/postgresbulkloader.html",
-    classLoaderGroup = "postgres-db")
+    classLoaderGroup = "postgres-db",
+    isIncludeJdbcDrivers = true)
 public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> implements
         IProvidesDatabaseConnectionInformation {
 

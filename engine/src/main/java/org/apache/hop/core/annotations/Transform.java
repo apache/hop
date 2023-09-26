@@ -45,26 +45,41 @@ public @interface Transform {
 
   String description() default "";
 
-  /** @return The image resource path */
+  /**
+   * @return The image resource path
+   */
   String image() default "";
 
-  /** @return True if a separate class loader is needed every time this class is instantiated */
+  /**
+   * @return True if a separate class loader is needed every time this class is instantiated
+   */
   boolean isSeparateClassLoaderNeeded() default false;
 
   String classLoaderGroup() default "";
 
   String categoryDescription() default "";
 
-  /** @return The documentation url */
+  /**
+   * @return The documentation url
+   */
   String documentationUrl() default "";
 
-  /** @return The cases url */
+  /**
+   * @return The cases url
+   */
   String casesUrl() default "";
 
-  /** @return The forum url */
+  /**
+   * @return The forum url
+   */
   String forumUrl() default "";
 
   String suggestion() default "";
 
   String[] keywords() default {};
+
+  /**
+   * @return True if the JDBC drivers have to be loaded for this transform
+   */
+  boolean isIncludeJdbcDrivers() default false;
 }

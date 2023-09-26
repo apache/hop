@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.apache.hop.core.Const;
-
 import java.net.URL;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.hop.core.Const;
 
 /**
  * This describes the plugin itself, the IDs it listens too, what libraries (jar files) it uses, the
@@ -58,6 +57,8 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
   private String suggestion;
   private String[] keywords;
   private boolean usingLibrariesOutsidePluginFolder;
+
+  private boolean includeJdbcDrivers;
 
   public Plugin(
       String[] ids,
@@ -243,6 +244,52 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
       boolean usingLibrariesOutsidePluginFolder,
       String documentationUrl,
       String casesUrl,
+      String forumUrl,
+      String suggestion,
+      boolean includeJdbcDrivers) {
+    this(
+        ids,
+        pluginType,
+        mainType,
+        category,
+        name,
+        description,
+        imageFile,
+        separateClassLoaderNeeded,
+        classLoaderGroup,
+        nativePlugin,
+        classMap,
+        libraries,
+        errorHelpFile,
+        keywords,
+        pluginFolder,
+        usingLibrariesOutsidePluginFolder,
+        documentationUrl,
+        casesUrl,
+        forumUrl);
+    this.suggestion = suggestion;
+    this.includeJdbcDrivers = includeJdbcDrivers;
+  }
+
+  public Plugin(
+      String[] ids,
+      Class<? extends IPluginType> pluginType,
+      Class<?> mainType,
+      String category,
+      String name,
+      String description,
+      String imageFile,
+      boolean separateClassLoaderNeeded,
+      String classLoaderGroup,
+      boolean nativePlugin,
+      Map<Class<?>, String> classMap,
+      List<String> libraries,
+      String errorHelpFile,
+      String[] keywords,
+      URL pluginFolder,
+      boolean usingLibrariesOutsidePluginFolder,
+      String documentationUrl,
+      String casesUrl,
       String forumUrl) {
     this.ids = ids;
     this.pluginType = pluginType;
@@ -294,124 +341,168 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
     return Const.indexOfString(id, ids) >= 0;
   }
 
-  /** @return the category */
+  /**
+   * @return the category
+   */
   @Override
   public String getCategory() {
     return category;
   }
 
-  /** @param category the category to set */
+  /**
+   * @param category the category to set
+   */
   public void setCategory(String category) {
     this.category = category;
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   @Override
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /** @param description the description to set */
+  /**
+   * @param description the description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** @return the ids */
+  /**
+   * @return the ids
+   */
   @Override
   public String[] getIds() {
     return ids;
   }
 
-  /** @param ids the ids to set */
+  /**
+   * @param ids the ids to set
+   */
   public void setIds(String[] ids) {
     this.ids = ids;
   }
 
-  /** @return the pluginType */
+  /**
+   * @return the pluginType
+   */
   @Override
   public Class<? extends IPluginType> getPluginType() {
     return pluginType;
   }
 
-  /** @param pluginType the pluginType to set */
+  /**
+   * @param pluginType the pluginType to set
+   */
   public void setPluginType(Class<? extends IPluginType> pluginType) {
     this.pluginType = pluginType;
   }
 
-  /** @return the imageFile */
+  /**
+   * @return the imageFile
+   */
   @Override
   public String getImageFile() {
     return imageFile;
   }
 
-  /** @param imageFile the imageFile to set */
+  /**
+   * @param imageFile the imageFile to set
+   */
   @Override
   public void setImageFile(String imageFile) {
     this.imageFile = imageFile;
   }
 
-  /** @return the separateClassLoaderNeeded */
+  /**
+   * @return the separateClassLoaderNeeded
+   */
   @Override
   public boolean isSeparateClassLoaderNeeded() {
     return separateClassLoaderNeeded;
   }
 
-  /** @param separateClassLoaderNeeded the separateClassLoaderNeeded to set */
+  /**
+   * @param separateClassLoaderNeeded the separateClassLoaderNeeded to set
+   */
   public void setSaperateClassLoaderNeeded(boolean separateClassLoaderNeeded) {
     this.separateClassLoaderNeeded = separateClassLoaderNeeded;
   }
 
-  /** @return the nativePlugin */
+  /**
+   * @return the nativePlugin
+   */
   @Override
   public boolean isNativePlugin() {
     return nativePlugin;
   }
 
-  /** @param nativePlugin the nativePlugin to set */
+  /**
+   * @param nativePlugin the nativePlugin to set
+   */
   public void setNativePlugin(boolean nativePlugin) {
     this.nativePlugin = nativePlugin;
   }
 
-  /** @return the classMap */
+  /**
+   * @return the classMap
+   */
   @Override
   public Map<Class<?>, String> getClassMap() {
     return classMap;
   }
 
-  /** @param classMap the classMap to set */
+  /**
+   * @param classMap the classMap to set
+   */
   public void setClassMap(Map<Class<?>, String> classMap) {
     this.classMap = classMap;
   }
 
-  /** @return the libraries */
+  /**
+   * @return the libraries
+   */
   @Override
   public List<String> getLibraries() {
     return libraries;
   }
 
-  /** @param libraries the libraries to set */
+  /**
+   * @param libraries the libraries to set
+   */
   public void setLibraries(List<String> libraries) {
     this.libraries = libraries;
   }
 
-  /** @return the errorHelpFile */
+  /**
+   * @return the errorHelpFile
+   */
   @Override
   public String getErrorHelpFile() {
     return errorHelpFile;
   }
 
-  /** @param errorHelpFile the errorHelpFile to set */
+  /**
+   * @param errorHelpFile the errorHelpFile to set
+   */
   @Override
   public void setErrorHelpFile(String errorHelpFile) {
     this.errorHelpFile = errorHelpFile;
@@ -427,37 +518,49 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
     return this.pluginFolder;
   }
 
-  /** @return the documentationUrl */
+  /**
+   * @return the documentationUrl
+   */
   @Override
   public String getDocumentationUrl() {
     return documentationUrl;
   }
 
-  /** @param documentationUrl the documentationUrl to set */
+  /**
+   * @param documentationUrl the documentationUrl to set
+   */
   @Override
   public void setDocumentationUrl(String documentationUrl) {
     this.documentationUrl = documentationUrl;
   }
 
-  /** @return the casesUrl */
+  /**
+   * @return the casesUrl
+   */
   @Override
   public String getCasesUrl() {
     return casesUrl;
   }
 
-  /** @param casesUrl the casesUrl to set */
+  /**
+   * @param casesUrl the casesUrl to set
+   */
   @Override
   public void setCasesUrl(String casesUrl) {
     this.casesUrl = casesUrl;
   }
 
-  /** @return the forum URL */
+  /**
+   * @return the forum URL
+   */
   @Override
   public String getForumUrl() {
     return forumUrl;
   }
 
-  /** @param forumUrl the forum URL to set */
+  /**
+   * @param forumUrl the forum URL to set
+   */
   @Override
   public void setForumUrl(String forumUrl) {
     this.forumUrl = forumUrl;
@@ -493,7 +596,9 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
     return keywords;
   }
 
-  /** @param keywords The keywords to set */
+  /**
+   * @param keywords The keywords to set
+   */
   @Override
   public void setKeywords(String[] keywords) {
     this.keywords = keywords;
@@ -509,8 +614,18 @@ public class Plugin implements IPlugin, Comparable<Plugin> {
     return usingLibrariesOutsidePluginFolder;
   }
 
-  /** @param usingLibrariesOutsidePluginFolder The usingLibrariesOutsidePluginFolder to set */
+  /**
+   * @param usingLibrariesOutsidePluginFolder The usingLibrariesOutsidePluginFolder to set
+   */
   public void setUsingLibrariesOutsidePluginFolder(boolean usingLibrariesOutsidePluginFolder) {
     this.usingLibrariesOutsidePluginFolder = usingLibrariesOutsidePluginFolder;
+  }
+
+  public boolean isIncludeJdbcDrivers() {
+    return includeJdbcDrivers;
+  }
+
+  public void setIncludeJdbcDrivers(boolean includeJdbcDrivers) {
+    this.includeJdbcDrivers = includeJdbcDrivers;
   }
 }
