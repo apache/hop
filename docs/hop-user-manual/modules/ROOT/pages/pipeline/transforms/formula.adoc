@@ -38,9 +38,12 @@ under the License.
 
 The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
 
+
 With a formula you are not limited to comparing to three fields like in the Calculator. This is where you can set and compare Date and Times as well.
 
+
 You have the option of creating a new field (use New field column) or replacing a field (use Replace value column).
+
 
 Formula Examples using the TEXT function:
 
