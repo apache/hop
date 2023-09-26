@@ -42,8 +42,9 @@ The Formula transform allows you to apply Excel-like formulas and functions on f
 With a formula you are not limited to comparing to three fields like in the Calculator. This is where you can set and compare Date and Times as well.
 
 
-You have the option of creating a new field (use New field column) or replacing a field (use Replace value column).
+You have the option of creating a new field (use New field column) or setting a field value (use Replace value column).
 
+TIP: The formula will not evaluate a field unless the field pre-exists. Either start the execution of that pipeline to create missing fields or check if the field exists by viewing fields in the Replace value dropdown.
 
 Formula Examples using the TEXT function:
 
