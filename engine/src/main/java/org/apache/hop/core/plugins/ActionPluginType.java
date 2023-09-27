@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.plugins;
 
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-
-import java.util.Map;
 
 /** This plugin type handles the actions. */
 @PluginMainClassType(IAction.class)
@@ -114,5 +113,10 @@ public class ActionPluginType extends BasePluginType<Action> {
   @Override
   protected String[] extractKeywords(Action annotation) {
     return annotation.keywords();
+  }
+
+  @Override
+  protected boolean extractincludeJdbcDrivers(Action annotation) {
+    return annotation.isIncludeJdbcDrivers();
   }
 }

@@ -34,20 +34,11 @@
     <name>Hop Assemblies Plugins Databases AS400</name>
     <description />
 
-    <properties>
-        <jt400.version>10.2</jt400.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-as400</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jt400</groupId>
-            <artifactId>jt400</artifactId>
-            <version>${jt400.version}</version>
         </dependency>
     </dependencies>
 

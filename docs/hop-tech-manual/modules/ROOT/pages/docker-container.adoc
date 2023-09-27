@@ -99,9 +99,9 @@ When using an environment a project has to be created too
 | Any JRE options you want to set.
 The `-XX:+AggressiveHeap` option tells the container to use all memory assigned to it.
 
-|```HOP_SHARED_JDBC_FOLDER```
+|```HOP_SHARED_JDBC_FOLDERS```
 |
-| Path to a folder where your JDBC drivers are located.
+| Comma separated list to locations where JDBC drivers live (default is /lib/jdbc).
 
 |```HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH```
 |

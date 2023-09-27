@@ -38,12 +38,5 @@
                 <include>org.apache.hop:hop-databases-postgresql:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>org.postgresql:postgresql:jar</include>
-            </includes>
-        </dependencySet>
     </dependencySets>
 </assembly>

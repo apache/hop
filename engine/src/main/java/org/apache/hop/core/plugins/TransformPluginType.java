@@ -104,4 +104,9 @@ public class TransformPluginType extends BasePluginType<Transform> {
   protected String[] extractKeywords(Transform annotation) {
     return annotation.keywords();
   }
+
+  @Override
+  protected boolean extractincludeJdbcDrivers(Transform annotation) {
+    return annotation.isIncludeJdbcDrivers();
+  }
 }

@@ -39,7 +39,11 @@ import java.util.Map;
  *
  * <p>https://docs.snowflake.net/manuals/sql-reference/info-schema.html
  */
-@DatabaseMetaPlugin(type = "SNOWFLAKE", typeDescription = "Snowflake", documentationUrl = "/database/databases/snowflake.html")
+@DatabaseMetaPlugin(
+    type = "SNOWFLAKE",
+    typeDescription = "Snowflake",
+    documentationUrl = "/database/databases/snowflake.html",
+    classLoaderGroup = "snowflake")
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
 public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 

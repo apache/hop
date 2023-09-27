@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.database;
 
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
-
-import java.util.Map;
 
 /**
  * This class represents the transform plugin type.
@@ -32,9 +31,14 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
   private DatabasePluginType() {
     super(DatabaseMetaPlugin.class, "DATABASE", "Database");
 
-    String sharedJdbcDirectory = System.getProperty(Const.HOP_SHARED_JDBC_FOLDER);
-    if (StringUtils.isNotEmpty(sharedJdbcDirectory)) {
-      getExtraLibraryFolders().add(sharedJdbcDirectory);
+    String sharedJdbcFolders = Const.NVL(
+            System.getProperty(Const.HOP_SHARED_JDBC_FOLDERS),
+            "lib/jdbc"
+    );
+    if (StringUtils.isNotEmpty(sharedJdbcFolders)) {
+      for(String sharedJdbcFolder : sharedJdbcFolders.split(",")){
+        getExtraLibraryFolders().add(sharedJdbcFolder.trim());
+      }
     }
   }
 

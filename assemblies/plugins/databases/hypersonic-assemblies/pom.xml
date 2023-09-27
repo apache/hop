@@ -34,21 +34,13 @@
     <name>Hop Assemblies Plugins Databases Hypersonic</name>
     <description />
 
-    <properties>
-        <hyersonic.version>2.7.1</hyersonic.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-hypersonic</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <version>${hyersonic.version}</version>
-        </dependency>
+
     </dependencies>
 
 </project>

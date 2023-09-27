@@ -34,21 +34,12 @@
     <name>Hop Assemblies Plugins Databases Redshift</name>
     <description />
 
-    <properties>
-        <redshift.version>2.1.0.8</redshift.version>
-    </properties>
-
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-redshift</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.amazon.redshift</groupId>
-            <artifactId>redshift-jdbc42</artifactId>
-            <version>${redshift.version}</version>
         </dependency>
     </dependencies>
 

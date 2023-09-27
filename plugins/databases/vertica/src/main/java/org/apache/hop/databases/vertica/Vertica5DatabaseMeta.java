@@ -17,18 +17,19 @@
 
 package org.apache.hop.databases.vertica;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-/**
- * Vertica Analytic Database version 5 and later (changed driver class name)
- */
-@DatabaseMetaPlugin(type = "VERTICA5", typeDescription = "Vertica 5", documentationUrl = "/database/databases/vertica.html")
+/** Vertica Analytic Database version 5 and later (changed driver class name) */
+@DatabaseMetaPlugin(
+    type = "VERTICA5",
+    typeDescription = "Vertica 5",
+    documentationUrl = "/database/databases/vertica.html",
+    classLoaderGroup = "vertica5")
 @GuiPlugin(id = "GUI-Vertica5DatabaseMeta")
 public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
   @Override
@@ -36,7 +37,9 @@ public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
     return "com.vertica.jdbc.Driver";
   }
 
-  /** @return false as the database does not support timestamp to date conversion. */
+  /**
+   * @return false as the database does not support timestamp to date conversion.
+   */
   @Override
   public boolean isSupportsTimeStampToDateConversion() {
     return false;

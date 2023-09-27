@@ -18,6 +18,22 @@
 package org.apache.hop.core.plugins;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
@@ -35,23 +51,6 @@ import org.jboss.jandex.ClassInfo;
 import org.jboss.jandex.IndexView;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.lang.annotation.Annotation;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
   protected static Class<?> classFromResourcesPackage = BasePluginType.class; // For Translator
@@ -133,7 +132,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   protected void registerNatives() throws HopPluginException {
     try {
-      JarCache cache = JarCache.getInstance();     
+      JarCache cache = JarCache.getInstance();
       for (File jarFile : cache.getNativeJars()) {
         IndexView index = cache.getIndex(jarFile);
 
@@ -178,24 +177,32 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return new FileInputStream(name);
   }
 
-  /** @return the id */
+  /**
+   * @return the id
+   */
   @Override
   public String getId() {
     return id;
   }
 
-  /** @param id the id to set */
+  /**
+   * @param id the id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   @Override
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -393,6 +400,33 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
   }
 
   /**
+   * Return the list of JDBC drivers to be added to the plugin scope
+   *
+   * @return list of JDBC jar files
+   */
+  private List<String> addJdbcDrivers() {
+    List<String> files = new ArrayList<>();
+    String sharedJdbcFolders =
+        Const.NVL(System.getProperty(Const.HOP_SHARED_JDBC_FOLDERS), "lib/jdbc");
+    if (StringUtils.isNotEmpty(sharedJdbcFolders)) {
+      for (String sharedJdbcFolder : sharedJdbcFolders.split(",")) {
+        File folder = new File(sharedJdbcFolder);
+        if (folder.exists()) {
+          Collection<File> jarFiles =
+              FileUtils.listFiles(
+                  folder,
+                  new String[] {
+                    "jar", "JAR",
+                  },
+                  true);
+          jarFiles.stream().forEach(file -> files.add(file.getAbsolutePath()));
+        }
+      }
+    }
+    return files;
+  }
+
+  /**
    * @param input
    * @param localizedMap
    * @return
@@ -511,6 +545,10 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return false;
   }
 
+  protected boolean extractincludeJdbcDrivers(T annotation) {
+    return false;
+  }
+
   protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {}
 
   protected String extractDocumentationUrl(T annotation) {
@@ -600,6 +638,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     String suggestion = getTranslation(extractSuggestion(annotation), packageName, clazz);
     String classLoaderGroup = extractClassLoaderGroup(annotation);
     String[] keywords = getTranslations(extractKeywords(annotation), packageName, clazz);
+    boolean includeJdbcDrivers = extractincludeJdbcDrivers(annotation);
 
     Map<Class<?>, String> classMap = new HashMap<>();
 
@@ -621,15 +660,23 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
           BaseMessages.getString(classFromResourcesPackage, "System.Deprecated").toLowerCase();
       pluginName += " (" + str + ")";
     }
-
     // Add all the jar files in the extra library folders
     //
     List<String> extraJarFiles = addExtraJarFiles();
+    List<String> extraJdbcFiles = new ArrayList<>();
     libraries.addAll(extraJarFiles);
+
+    // If needed add JDBC drivers to the libraries
+    if (includeJdbcDrivers) {
+      extraJdbcFiles = addJdbcDrivers();
+      libraries.addAll(extraJdbcFiles);
+    }
 
     // If there are extra classes somewhere else, don't use a plugin folder
     //
-    boolean usingLibrariesOutsidePluginFolder = !extraJarFiles.isEmpty();
+    boolean usingLibrariesOutsidePluginFolder =
+        !extraJarFiles.isEmpty() || !extraJdbcFiles.isEmpty();
+
     IPlugin plugin =
         new Plugin(
             ids,
@@ -651,7 +698,8 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
             documentationUrl,
             casesUrl,
             forumUrl,
-            suggestion);
+            suggestion,
+            includeJdbcDrivers);
 
     ParentFirst parentFirstAnnotation = clazz.getAnnotation(ParentFirst.class);
     if (parentFirstAnnotation != null) {
@@ -678,7 +726,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return extraLibraryFolders;
   }
 
-  /** @param extraLibraryFolders The extraLibraryFolders to set */
+  /**
+   * @param extraLibraryFolders The extraLibraryFolders to set
+   */
   public void setExtraLibraryFolders(List<String> extraLibraryFolders) {
     this.extraLibraryFolders = extraLibraryFolders;
   }

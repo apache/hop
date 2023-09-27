@@ -51,13 +51,5 @@
                 <include>org.apache.hop:hop-databases-mssqlnative:jar</include>
             </includes>
         </dependencySet>
-        <dependencySet>
-            <includes>
-                <include>com.microsoft.sqlserver:mssql-jdbc:jar</include>
-            </includes>
-            <outputDirectory>lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
     </dependencySets>
 </assembly>

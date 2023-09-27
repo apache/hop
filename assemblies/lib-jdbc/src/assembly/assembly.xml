@@ -18,32 +18,16 @@
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-    <id>hop-assemblies-plugins-databases-monetdb</id>
+    <id>libs-jdbc</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/monetdb</baseDirectory>
-    <files>
-        <file>
-            <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
-            <filtered>true</filtered>
-        </file>
-    </files>
+    <includeBaseDirectory>true</includeBaseDirectory>
+    <baseDirectory>.</baseDirectory>
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${assembly.dir}</directory>
+            <outputDirectory>.</outputDirectory>
         </fileSet>
     </fileSets>
-    <dependencySets>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <includes>
-                <include>org.apache.hop:hop-databases-monetdb:jar</include>
-            </includes>
-        </dependencySet>
-    </dependencySets>
 </assembly>

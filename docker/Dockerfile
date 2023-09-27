@@ -30,7 +30,7 @@ ENV HOP_FILE_PATH=
 # file path to hop log file, e.g. ~/hop.err.log
 ENV HOP_LOG_PATH=$DEPLOYMENT_PATH/hop.err.log
 # path to jdbc drivers
-ENV HOP_SHARED_JDBC_FOLDER=
+ENV HOP_SHARED_JDBC_FOLDERS=
 # name of the Hop project to use
 ENV HOP_PROJECT_NAME=project1
 # path to the home of the Hop project..

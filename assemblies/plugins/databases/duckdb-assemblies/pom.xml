@@ -42,11 +42,6 @@
             <artifactId>hop-databases-duckdb</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.duckdb</groupId>
-            <artifactId>duckdb_jdbc</artifactId>
-            <version>0.7.0</version>
-        </dependency>
     </dependencies>
 
 </project>

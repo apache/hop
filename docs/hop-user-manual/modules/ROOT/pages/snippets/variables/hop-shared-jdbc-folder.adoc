@@ -14,5 +14,5 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 ////
-HOP_SHARED_JDBC_FOLDER::
-The variable which points to a shared folder with JDBC drivers in them.
+HOP_SHARED_JDBC_FOLDERS::
+This is a comma separated list of folder containing JDBC drivers, default value is lib/jdbc. If you still need the default jdbc drivers when changing this you need to include the default folder path.

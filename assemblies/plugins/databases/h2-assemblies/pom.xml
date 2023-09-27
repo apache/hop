@@ -34,21 +34,11 @@
     <name>Hop Assemblies Plugins Databases H2</name>
     <description />
 
-    <properties>
-        <h2.version>2.2.220</h2.version>
-    </properties>
-
-
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-h2</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${h2.version}</version>
         </dependency>
     </dependencies>
 

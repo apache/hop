@@ -34,9 +34,6 @@
     <name>Hop Assemblies Plugins Databases Cache</name>
     <description />
 
-    <properties>
-        <cache.version>3.0.0</cache.version>
-    </properties>
 
     <dependencies>
         <dependency>

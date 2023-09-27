@@ -29,7 +29,7 @@ As an in-process database, DuckDB is easy to configure: specify the path to your
 | Option | Info
 |Type | Relational
 |Driver | https://search.maven.org/artifact/org.duckdb/duckdb_jdbc/0.7.0/jar[Driver Link]
-|Version Included | 0.7.0
+|Version Included | 0.8.1
 |Hop Dependencies | None
 |Documentation | https://duckdb.org/docs/api/java.html
 |JDBC Url | jdbc:duckdb: (in memory) or jdbc:duckdb:<FILE_PATH>

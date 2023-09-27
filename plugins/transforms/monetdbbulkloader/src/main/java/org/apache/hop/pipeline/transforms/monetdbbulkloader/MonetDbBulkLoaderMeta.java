@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -43,8 +44,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "MonetDBBulkLoader",
     image = "monetdbbulkloader.svg",
@@ -52,9 +51,12 @@ import java.util.List;
     description = "i18n::MonetDBBulkLoaderDialog.TypeTooltipDesc.MonetDBBulkLoader",
     documentationUrl = "/pipeline/transforms/monetdbbulkloader.html",
     keywords = "i18n::MonetDbBulkLoaderMeta.keyword",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk")
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
+    isIncludeJdbcDrivers = true,
+    classLoaderGroup = "monetdb")
 @InjectionSupported(localizationPrefix = "MonetDBBulkLoaderDialog.Injection.")
-public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
+public class MonetDbBulkLoaderMeta
+    extends BaseTransformMeta<MonetDbBulkLoader, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
       MonetDbBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -167,47 +169,65 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, 
    */
   private boolean compatibilityDbVersionMode = false;
 
-  /** @return Returns the database. */
+  /**
+   * @return Returns the database.
+   */
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
 
-  /** @return Returns the database. */
+  /**
+   * @return Returns the database.
+   */
   public DatabaseMeta getDatabaseMeta(MonetDbBulkLoader loader) {
     return databaseMeta;
   }
 
-  /** @param database The database to set. */
+  /**
+   * @param database The database to set.
+   */
   public void setDatabaseMeta(DatabaseMeta database) {
     this.databaseMeta = database;
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName The tableName to set. */
+  /**
+   * @param tableName The tableName to set.
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
-  /** @return Returns the fieldTable. */
+  /**
+   * @return Returns the fieldTable.
+   */
   public String[] getFieldTable() {
     return fieldTable;
   }
 
-  /** @param fieldTable The fieldTable to set. */
+  /**
+   * @param fieldTable The fieldTable to set.
+   */
   public void setFieldTable(String[] fieldTable) {
     this.fieldTable = fieldTable;
   }
 
-  /** @return Returns the fieldStream. */
+  /**
+   * @return Returns the fieldStream.
+   */
   public String[] getFieldStream() {
     return fieldStream;
   }
 
-  /** @param fieldStream The fieldStream to set. */
+  /**
+   * @param fieldStream The fieldStream to set.
+   */
   public void setFieldStream(String[] fieldStream) {
     this.fieldStream = fieldStream;
   }
@@ -724,12 +744,16 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, 
     }
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
@@ -774,32 +798,44 @@ public class MonetDbBulkLoaderMeta extends BaseTransformMeta<MonetDbBulkLoader, 
     this.encoding = encoding;
   }
 
-  /** @return the bufferSize */
+  /**
+   * @return the bufferSize
+   */
   public String getBufferSize() {
     return bufferSize;
   }
 
-  /** @param bufferSize the bufferSize to set */
+  /**
+   * @param bufferSize the bufferSize to set
+   */
   public void setBufferSize(String bufferSize) {
     this.bufferSize = bufferSize;
   }
 
-  /** @return the fieldFormatOk */
+  /**
+   * @return the fieldFormatOk
+   */
   public boolean[] getFieldFormatOk() {
     return fieldFormatOk;
   }
 
-  /** @param fieldFormatOk the fieldFormatOk to set */
+  /**
+   * @param fieldFormatOk the fieldFormatOk to set
+   */
   public void setFieldFormatOk(boolean[] fieldFormatOk) {
     this.fieldFormatOk = fieldFormatOk;
   }
 
-  /** @param dbConnectionName connection name to set */
+  /**
+   * @param dbConnectionName connection name to set
+   */
   public void setDbConnectionName(String dbConnectionName) {
     this.dbConnectionName = dbConnectionName;
   }
 
-  /** @return the database connection name */
+  /**
+   * @return the database connection name
+   */
   public String getDbConnectionName() {
     return this.dbConnectionName;
   }

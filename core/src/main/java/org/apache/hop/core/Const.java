@@ -166,11 +166,11 @@ public class Const {
       description = "The variable which points to the alternative location for the Hop metadata.")
   public static final String HOP_METADATA_FOLDER = "HOP_METADATA_FOLDER";
 
-  /** The variable which points to a shared folder with JDBC drivers in them. */
+  /** A comma separated list pointing to folders with JDBC drivers to add. */
   @Variable(
       scope = VariableScope.SYSTEM,
-      description = "The variable which points to a shared folder with JDBC drivers in them.")
-  public static final String HOP_SHARED_JDBC_FOLDER = "HOP_SHARED_JDBC_FOLDER";
+      description = "A comma separated list pointing to folders with JDBC drivers to add.")
+  public static final String HOP_SHARED_JDBC_FOLDERS = "HOP_SHARED_JDBC_FOLDERS";
 
   /** The operating system the hop platform runs on */
   @Variable(
@@ -911,15 +911,12 @@ public class Const {
           "Name of the variable to set so that Nulls are considered while parsing JSON files. If HOP_JSON_INPUT_INCLUDE_NULLS is \"Y\" then nulls will be included (default behavior) otherwise they will not be included")
   public static final String HOP_JSON_INPUT_INCLUDE_NULLS = "HOP_JSON_INPUT_INCLUDE_NULLS";
 
-  /**
-   * This variable is used to disable the strict searching of the context dialog
-   */
+  /** This variable is used to disable the strict searching of the context dialog */
   @Variable(
-          value = "N",
-          description =
-                  "This variable influences how the search is done in the context dialog, when set to Y it will do a strict search (Needed for automated UI testing)")
+      value = "N",
+      description =
+          "This variable influences how the search is done in the context dialog, when set to Y it will do a strict search (Needed for automated UI testing)")
   public static final String HOP_CONTEXT_DIALOG_STRICT_SEARCH = "HOP_CONTEXT_DIALOG_STRICT_SEARCH";
-
 
   /** By default, HOP do consider NULLs while parsing input */
   public static final String JSON_INPUT_INCLUDE_NULLS = "Y";
@@ -1677,20 +1674,20 @@ public class Const {
    */
   public static String getBaseDocUrl() {
     String url = BaseMessages.getString(PKG, "Const.BaseDocUrl");
-        
-    // Get the implementation version:  
+
+    // Get the implementation version:
     // Temporary build: 2.4.0-SNAPSHOT (2023-02-13 08.50.52)
     // Release version: 2.4.0
     String version = Const.class.getPackage().getImplementationVersion();
-    
-    // Check if implementation version is a SNAPHOT build or if version is not known.    
+
+    // Check if implementation version is a SNAPHOT build or if version is not known.
     if (version == null || version.contains("SNAPSHOT")) {
       version = "next";
     } else {
-      //Only keep until first space to remove the build date
+      // Only keep until first space to remove the build date
       version = version.split(" ")[0];
     }
-    
+
     return url + version + "/";
   }
 

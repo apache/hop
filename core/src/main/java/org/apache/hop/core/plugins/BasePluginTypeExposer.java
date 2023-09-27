@@ -80,4 +80,8 @@ public class BasePluginTypeExposer {
   public String extractForumUrl(Annotation annotation) {
     return pluginType.extractForumUrl(annotation);
   }
+
+  public boolean extractincludeJdbcDrivers(Annotation annotation) {
+    return pluginType.extractincludeJdbcDrivers(annotation);
+  }
 }
