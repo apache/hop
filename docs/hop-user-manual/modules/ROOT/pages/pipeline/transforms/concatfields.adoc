@@ -25,8 +25,7 @@ under the License.
 |
 == Description
 
-The Concat Fields transform concatenates multiple fields into one target field.
-The fields can be separated by a separator and an enclosure.
+The Concat Fields transform concatenates multiple fields into one target field. Type in a target field name which always creates a new field. You can optionally use a Separator field or Enclosure between fields and add the fields or free text you would like to concatenate in order.
 
 |
 == Supported Engines
