@@ -29,6 +29,37 @@ It's simply bad form to hardcode host names, user names, passwords, directories 
 Variables allow your solutions to adapt to a changing environment.
 If for example the database server is different when developing than it is when running in production, you set it as a variable.
 
+TIP: Fields, parameters, and variables implicitly are available downstream if in scope. You can pass them again any number of levels, but the "get parameters/variables" button only retrieves from one level above.
+
+== Fields
+Fields are columns in data row(s) and are viewable in some transform field textboxes and columns and you can see the fields in scope and its value when looking at transform row results after executing a workflow/pipeline (click the little grid icon on the bottom-right of a transform to see a preview of the cached results). Field values can be passed upstream for example if you use a pipeline executor and fill in the Result rows tab and use it in conjunction with a “copy rows to result” transform in the child pipeline.
+
+== Parameters
+Think of parameters as function arguments, which turn into variables with the same name. When adding parameters you are basically creating MyPipeline(parameter1, parameter2,..). Parameters (e.g. in pipeline or workflow properties) need to be declared at least once in every pipeline or workflow. 
+
+For example, if you set parameters on a pipeline executor, the pipeline that is being called must declare the same parameter names in its pipeline properties (set to NULL if you want to inherit values). Parameters can not be “sent” upstream, but you can use a Set variables transform, but they become variables in the scope they are defined in.
+
+**Explicit vs Implicit:** If you set a parameter to a default value, it becomes explicit (e.g. when editing a pipeline in pipeline properties), and it will take precedence over the same named implicit variable (a passed-in variable), but not take precedence over the same named explicit parameter. So whenever you see a transform with a column title “Parameters/Variables” that means an explicit parameter is sent to a function that will then set a variable name overriding any previous set parameter with the same name (useful if wanting to override an explicitly set param/variable in the child).
+           
+To change implicit parameter behaviour to explicit, you can also disable “pass all parameters” on the pipeline action. Parameters are simply variables which are explicitly defined in a workflow or pipeline to make them recognizable from outside those objects. They can also have a description and a default value.
+
+You cannot combine implicit variable inheritance with explicit parameter definitions. So, if you add parameters to the pipeline definition (or to a pipeline executor) and you want it set, you must add it to the parameters tab of the child pipeline action/transform even if the same variable already exists.
+
+**Advanced:** there are multiple layers in hop where you can set variables that do or do not get overwritten downstream (Java -> hop environment -> project -> run configuration -> workflow -> pipeline).
+
+== Variables
+Variables are more global and the scope can be targeted (entire Java VM, grandparent workflow, etc.) whereas fields are the data flowing between the transforms. Local variables can be set in a pipeline but should not be used in the same pipeline as they are not thread-safe and can inherit a previous value. It is better to send or return variables to another pipeline/workflow before using them.  Variables can be passed upstream if the variable was set to a larger scope. E.g.: if a variable was set in a parent with "valid in the current workflow".
+
+Think of variables in 2 scopes: runtime variables and environment/workflow variables:
+
+* Runtime variables – Runtime variables depend on pipeline information to generate, so they cannot be set beforehand, you need to declare those differently to be able to use them.
+* Environment/workflow variables or parameters – Environment variables/parameters are set once and used when needed in any downstream workflow/pipeline and there is no need to use Get Variables , you can refer to them directly like ${myVariable} unless you need it in a field/data stream.
+  - E.g.: Define a parameter only once, even just in the Pipeline Executor (no need to define in receiving pipeline)
+
+A pipeline needs to start to get new variables. A running or nested pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor. An alternative is to use parameters.
+
+
+
 == How do I use a variable?
 
 In the Hop user interface all places where you can enter a variable have a '$' symbol to the right of the input field:
