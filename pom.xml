@@ -117,7 +117,7 @@
         <apache-flink.version>1.16.2</apache-flink.version>
         <asm.version>9.3</asm.version>
         <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
-        <batik.version>1.16</batik.version>
+        <batik.version>1.17</batik.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-codec.version>1.15</commons-codec.version>
         <commons-compress.version>1.21</commons-compress.version>
