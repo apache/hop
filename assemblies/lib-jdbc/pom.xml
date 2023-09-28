@@ -37,7 +37,7 @@
         <h2.version>2.2.224</h2.version>
         <hyersonic.version>2.7.2</hyersonic.version>
         <jt400.version>10.2</jt400.version>
-        <monetdb.version>3.3</monetdb.version>
+        <monetdb.version>3.1</monetdb.version>
         <mssqlnative.version>12.4.1.jre11</mssqlnative.version>
         <postgresql.version>42.6.0</postgresql.version>
         <redshift.version>2.1.0.19</redshift.version>
