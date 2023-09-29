@@ -26,13 +26,12 @@ import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,24 +45,46 @@ public class FormulaParser {
   private Object[] dataRow;
   private Row sheetRow;
   private FormulaEvaluator evaluator;
+  private HashMap<String, String> replaceMap;
 
   public FormulaParser(
-      FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow, IVariables variables) {
+      FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow, IVariables variables, HashMap<String, String> replaceMap) {
     this.formulaMetaFunction = formulaMetaFunction;
     this.rowMeta = rowMeta;
     this.dataRow = dataRow;
     this.sheetRow = sheetRow;
     fieldNames = rowMeta.getFieldNames();
+    this.replaceMap = replaceMap;
     formula = variables.resolve(formulaMetaFunction.getFormula());
     evaluator = sheetRow.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator();
 
-    formulaFieldList = new ArrayList<>();
+    formulaFieldList = getFormulaFieldList(formula);
+
+    boolean getNewList = false;
+    for(String formulaField : formulaFieldList){
+      // check if we are working with a field that was replaced earlier.
+      Set<String> replaceKeys = replaceMap.keySet();
+      if(replaceKeys.contains(formulaField)){
+        String realFieldName = replaceMap.get(formulaField);
+        formula = formula.replaceAll("\\[" + formulaField + "\\]", "\\[" + realFieldName + "\\]");
+        getNewList = true;
+      }
+    }
+
+    if(getNewList){
+      formulaFieldList = getFormulaFieldList(formula);
+    }
+  }
+
+  private List<String> getFormulaFieldList(String formula){
+    List<String> theFields = new ArrayList<>();
     Pattern regex = Pattern.compile("\\[(.*?)\\]");
     Matcher regexMatcher = regex.matcher(formula);
 
     while (regexMatcher.find()) {
-      formulaFieldList.add(regexMatcher.group(1));
+      theFields.add(regexMatcher.group(1));
     }
+    return theFields;
   }
 
   public CellValue getFormulaValue() throws HopValueException {
@@ -73,7 +94,10 @@ public class FormulaParser {
     for (String formulaField : formulaFieldList) {
       char s = (char) fieldIndex;
       Cell cell = sheetRow.createCell(colIndex);
+
       int fieldPosition = rowMeta.indexOfValue(formulaField);
+
+      parsedFormula = parsedFormula.replaceAll("\\[" + formulaField + "\\]", s + "1");
 
       IValueMeta fieldMeta = rowMeta.getValueMeta(fieldPosition);
       if (dataRow[fieldPosition] != null) {
@@ -92,9 +116,10 @@ public class FormulaParser {
         } else {
           cell.setCellValue(rowMeta.getString(dataRow, fieldPosition));
         }
+      }else{
+        cell.setBlank();
       }
 
-      parsedFormula = parsedFormula.replaceAll("\\[" + formulaField + "\\]", s + "1");
       fieldIndex++;
       colIndex++;
     }

@@ -1,0 +1,53 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "foo",
+          "data_set_field": "foo"
+        },
+        {
+          "transform_field": "bar",
+          "data_set_field": "bar"
+        },
+        {
+          "transform_field": "foo_numeric",
+          "data_set_field": "foo_numeric"
+        },
+        {
+          "transform_field": "foobar2",
+          "data_set_field": "foobar2"
+        },
+        {
+          "transform_field": "foobar3",
+          "data_set_field": "foobar3"
+        },
+        {
+          "transform_field": "foobar4",
+          "data_set_field": "foobar4"
+        }
+      ],
+      "field_order": [
+        "foo",
+        "bar",
+        "foo_numeric",
+        "foobar2",
+        "foobar3",
+        "foobar4"
+      ],
+      "data_set_name": "golden-formula-nested-replace",
+      "transform_name": "verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0042-formula-nested-replace UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0042-formula-nested-replace.hpl",
+  "test_type": "UNIT_TEST"
+}
