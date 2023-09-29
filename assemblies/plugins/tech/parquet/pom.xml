@@ -32,7 +32,7 @@
     <description />
 
     <properties>
-        <parquet.version>1.12.3</parquet.version>
+        <parquet.version>1.13.1</parquet.version>
     </properties>
 
     <dependencies>
@@ -55,12 +55,12 @@
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java-util</artifactId>
-            <version>3.21.9</version>
+            <version>${protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.21.9</version>
+            <version>${protobuf.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.luben</groupId>
