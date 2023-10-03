@@ -121,7 +121,6 @@
     <module>propertyinput</module>
     <module>propertyoutput</module>
     <module>randomvalue</module>
-    <module>redshift</module>
     <module>regexeval</module>
     <module>replacestring</module>
     <module>reservoirsampling</module>
