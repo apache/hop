@@ -24,8 +24,11 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PipedInputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class RedshiftBulkLoaderData extends BaseTransformData implements ITransformData {
   protected Database db;
@@ -35,6 +38,22 @@ public class RedshiftBulkLoaderData extends BaseTransformData implements ITransf
 
   protected IRowMeta outputRowMeta;
   protected IRowMeta insertRowMeta;
+
+  // A list of table fields mapped to their data type.  String[0] is the field name, String[1] is
+  // the Snowflake
+  // data type
+  public ArrayList<String[]> dbFields;
+
+  // Maps table fields to the location of the corresponding field on the input stream.
+  public Map<String, Integer> fieldnrs;
+
+  protected OutputStream writer;
+  // Byte arrays for constant characters put into output files.
+  public byte[] binarySeparator;
+  public byte[] binaryEnclosure;
+  public byte[] escapeCharacters;
+  public byte[] binaryNewline;
+  public byte[] binaryNullValue;
 
   protected PipedInputStream pipedInputStream;
 

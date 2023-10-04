@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
@@ -44,7 +45,6 @@ import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.widget.CheckBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
@@ -95,6 +95,12 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   private TextVar wSchema;
 
   private TextVar wTable;
+
+  private Button wStreamToS3Csv;
+
+  private ComboVar wLoadFromExistingFileFormat;
+
+  private TextVar wCopyFromFilename;
 
   private Button wSpecifyFields;
 
@@ -173,7 +179,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin);
+    fdlTransformName.top = new FormAttachment(0, margin*2);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
@@ -181,7 +187,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin);
+    fdTransformName.top = new FormAttachment(0, margin*2);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
@@ -362,16 +368,16 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wlStreamToS3Csv.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
     PropsUi.setLook(wlStreamToS3Csv);
     FormData fdlStreamToS3Csv = new FormData();
+    fdlStreamToS3Csv.top = new FormAttachment(0, margin*2);
     fdlStreamToS3Csv.left = new FormAttachment(0, 0);
-    fdlStreamToS3Csv.top = new FormAttachment(0, margin);
     fdlStreamToS3Csv.right = new FormAttachment(middle, -margin);
     wlStreamToS3Csv.setLayoutData(fdlStreamToS3Csv);
 
-    Button wStreamToS3Csv = new Button(wMainComp, SWT.CHECK);
+    wStreamToS3Csv = new Button(wMainComp, SWT.CHECK);
     wStreamToS3Csv.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
     PropsUi.setLook(wStreamToS3Csv);
     FormData fdStreamToS3Csv = new FormData();
-    fdStreamToS3Csv.top = new FormAttachment(0, margin);
+    fdStreamToS3Csv.top = new FormAttachment(0, margin*2);
     fdStreamToS3Csv.left = new FormAttachment(middle, 0);
     fdStreamToS3Csv.right = new FormAttachment(100, 0);
     wStreamToS3Csv.setLayoutData(fdStreamToS3Csv);
@@ -379,9 +385,21 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wStreamToS3Csv.setSelection(true);
     Control lastControl = wStreamToS3Csv;
 
+    wStreamToS3Csv.addSelectionListener(
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                if(wStreamToS3Csv.getSelection()){
+                  wLoadFromExistingFileFormat.setText("");
+                }
+                wLoadFromExistingFileFormat.setEnabled(!wStreamToS3Csv.getSelection());
+              }
+            }
+    );
+
     Label wlLoadFromExistingFile = new Label(wMainComp, SWT.RIGHT);
     wlLoadFromExistingFile.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Label"));
-    wlLoadFromExistingFile.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Label"));
+    wlLoadFromExistingFile.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Tooltip"));
     PropsUi.setLook(wlLoadFromExistingFile);
     FormData fdlLoadFromExistingFile = new FormData();
     fdlLoadFromExistingFile.top = new FormAttachment(lastControl, margin*2);
@@ -389,12 +407,52 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlLoadFromExistingFile.right = new FormAttachment(middle, -margin);
     wlLoadFromExistingFile.setLayoutData(fdlLoadFromExistingFile);
 
-    ComboVar wLoadFromExistingFile = new ComboVar(variables, wMainComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wLoadFromExistingFileFormat = new ComboVar(variables, wMainComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     FormData fdLoadFromExistingFile = new FormData();
-    fdLoadFromExistingFile.top = new FormAttachment(lastControl, margin);
+    fdLoadFromExistingFile.top = new FormAttachment(lastControl, margin*2);
     fdLoadFromExistingFile.left = new FormAttachment(middle, 0);
     fdLoadFromExistingFile.right = new FormAttachment(100, 0);
-    wLoadFromExistingFile.setLayoutData(fdLoadFromExistingFile);
+    wLoadFromExistingFileFormat.setLayoutData(fdLoadFromExistingFile);
+    String[] fileFormats = {"CSV", "Avro", "Parquet"};
+    wLoadFromExistingFileFormat.setItems(fileFormats);
+    lastControl = wLoadFromExistingFileFormat;
+
+    Label wlCopyFromFile = new Label(wMainComp, SWT.RIGHT);
+    wlCopyFromFile.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.CopyFromFile.Label"));
+    PropsUi.setLook(wlCopyFromFile);
+    FormData fdlCopyFromFile = new FormData();
+    fdlCopyFromFile.top = new FormAttachment(lastControl, margin*2);
+    fdlCopyFromFile.left = new FormAttachment(0, 0);
+    fdlCopyFromFile.right = new FormAttachment(middle, -margin);
+    wlCopyFromFile.setLayoutData(fdlCopyFromFile);
+
+    Button wbCopyFromFile = new Button(wMainComp, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbCopyFromFile);
+    wbCopyFromFile.setText(BaseMessages.getString("System.Button.Browse"));
+    FormData fdbCopyFromFile = new FormData();
+    fdbCopyFromFile.top = new FormAttachment(lastControl, margin*2);
+    fdbCopyFromFile.right = new FormAttachment(100, 0);
+    wbCopyFromFile.setLayoutData(fdbCopyFromFile);
+
+    wCopyFromFilename = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCopyFromFilename);
+    wCopyFromFilename.addModifyListener(lsMod);
+    wCopyFromFilename.addFocusListener(lsFocusLost);
+    FormData fdCopyFromFile = new FormData();
+    fdCopyFromFile.top = new FormAttachment(lastControl, margin*2);
+    fdCopyFromFile.left = new FormAttachment(middle, 0);
+    fdCopyFromFile.right = new FormAttachment(wbCopyFromFile, -margin);
+    wCopyFromFilename.setLayoutData(fdCopyFromFile);
+    lastControl = wCopyFromFilename;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -772,14 +830,21 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (input.getSchemaName() != null) {
+    if(!StringUtils.isEmpty(input.getConnection())) {
+      wConnection.setText(input.getConnection());
+    }
+    if(!StringUtils.isEmpty(input.getSchemaName())) {
       wSchema.setText(input.getSchemaName());
     }
-    if (input.getTableName() != null) {
+    if(!StringUtils.isEmpty(input.getTableName())) {
       wTable.setText(input.getTableName());
     }
-    if (input.getConnection() != null) {
-      wConnection.setText(input.getConnection());
+    wStreamToS3Csv.setSelection(input.isStreamToS3Csv());
+    if(!StringUtils.isEmpty(input.getLoadFromExistingFileFormat())){
+      wLoadFromExistingFileFormat.setText(input.getLoadFromExistingFileFormat());
+    }
+    if(!StringUtils.isEmpty(input.getCopyFromFilename())){
+      wCopyFromFilename.setText(input.getCopyFromFilename());
     }
 
     wSpecifyFields.setSelection(input.specifyFields());
@@ -787,11 +852,11 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     for (int i = 0; i < input.getFields().size(); i++) {
       RedshiftBulkLoaderField vbf = input.getFields().get(i);
       TableItem item = wFields.table.getItem(i);
-      if (vbf.getFieldDatabase() != null) {
-        item.setText(1, vbf.getFieldDatabase());
+      if (vbf.getDatabaseField() != null) {
+        item.setText(1, vbf.getDatabaseField());
       }
-      if (vbf.getFieldStream() != null) {
-        item.setText(2, vbf.getFieldStream());
+      if (vbf.getStreamField() != null) {
+        item.setText(2, vbf.getStreamField());
       }
     }
 
@@ -807,12 +872,24 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   }
 
   private void getInfo(RedshiftBulkLoaderMeta info) {
-    info.setSchemaName(wSchema.getText());
-    info.setTablename(wTable.getText());
-    info.setConnection(wConnection.getText());
-
+    if(!StringUtils.isEmpty(wConnection.getText())){
+      info.setConnection(wConnection.getText());
+    }
+    if(!StringUtils.isEmpty(wSchema.getText())){
+      info.setSchemaName(wSchema.getText());
+    }
+    if(!StringUtils.isEmpty(wTable.getText())){
+      info.setTablename(wTable.getText());
+    }
     info.setTruncateTable(wTruncate.getSelection());
     info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
+    info.setStreamToS3Csv(wStreamToS3Csv.getSelection());
+    if(!StringUtils.isEmpty(wLoadFromExistingFileFormat.getText())){
+      info.setLoadFromExistingFileFormat(wLoadFromExistingFileFormat.getText());
+    }
+    if(!StringUtils.isEmpty(wCopyFromFilename.getText())){
+      info.setCopyFromFilename(wCopyFromFilename.getText());
+    }
 
     info.setSpecifyFields(wSpecifyFields.getSelection());
 
@@ -915,17 +992,17 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
         for (int i = 0; i < info.getFields().size(); i++) {
           RedshiftBulkLoaderField vbf = info.getFields().get(i);
-          IValueMeta insValue = prev.searchValueMeta(vbf.getFieldStream());
+          IValueMeta insValue = prev.searchValueMeta(vbf.getStreamField());
           if (insValue != null) {
             IValueMeta insertValue = insValue.clone();
-            insertValue.setName(vbf.getFieldDatabase());
+            insertValue.setName(vbf.getDatabaseField());
             prevNew.addValueMeta(insertValue);
           } else {
             throw new HopTransformException(
                 BaseMessages.getString(
                     PKG,
                     "RedshiftBulkLoaderDialog.FailedToFindField.Message",
-                    vbf.getFieldStream())); // $NON-NLS-1$
+                    vbf.getStreamField())); // $NON-NLS-1$
           }
         }
         prev = prevNew;

@@ -61,6 +61,11 @@ public class RedshiftBulkLoaderMeta
     implements IProvidesModelerMeta {
   private static final Class<?> PKG = RedshiftBulkLoaderMeta.class;
 
+  public static final String CSV_DELIMITER = ",";
+  public static final String CSV_RECORD_DELIMITER = "\n";
+  public static final String CSV_ESCAPE_CHAR = "\\";
+  public static final String ENCLOSURE = "\"";
+
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTIONNAME",
@@ -92,38 +97,49 @@ public class RedshiftBulkLoaderMeta
   private boolean onlyWhenHaveRows;
 
   @HopMetadataProperty(
-      key = "direct",
-      injectionKey = "DIRECT",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.DIRECT")
-  private boolean direct = true;
+          key = "stream_to_s3",
+          injectionKey = "STREAM_TO_S3",
+          injectionKeyDescription = ""
+  )
+  private boolean streamToS3Csv;
+
+  /** CSV: Trim whitespace */
+  @HopMetadataProperty(key = "trim_whitespace", injectionKeyDescription = "")
+  private boolean trimWhitespace;
+
+  /** CSV: Convert column value to null if */
+  @HopMetadataProperty(key = "null_if", injectionKeyDescription = "")
+  private String nullIf;
+
+  /**
+   * CSV: Should the load fail if the column count in the row does not match the column count in the
+   * table
+   */
+  @HopMetadataProperty(key = "error_column_mismatch", injectionKeyDescription = "")
+  private boolean errorColumnMismatch;
+
+  /** JSON: Strip nulls from JSON */
+  @HopMetadataProperty(key = "strip_null", injectionKeyDescription = "")
+  private boolean stripNull;
+
 
   @HopMetadataProperty(
-      key = "abort_on_error",
-      injectionKey = "ABORTONERROR",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.ABORTONERROR")
-  private boolean abortOnError = true;
-
-  @HopMetadataProperty(
-      key = "exceptions_filename",
-      injectionKey = "EXCEPTIONSFILENAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.EXCEPTIONSFILENAME")
-  private String exceptionsFileName;
-
-  @HopMetadataProperty(
-      key = "rejected_data_filename",
-      injectionKey = "REJECTEDDATAFILENAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.REJECTEDDATAFILENAME")
-  private String rejectedDataFileName;
-
-  @HopMetadataProperty(
-      key = "stream_name",
-      injectionKey = "STREAMNAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.STREAMNAME")
-  private String streamName;
+          key = "load_from_existing_file",
+          injectionKey = "LOAD_FROM_EXISTING_FILE",
+          injectionKeyDescription = ""
+  )
+  private String loadFromExistingFileFormat;
 
   /** Do we explicitly select the fields to update in the database */
   @HopMetadataProperty(key = "specify_fields", injectionKeyDescription = "")
   private boolean specifyFields;
+
+  @HopMetadataProperty(
+          key = "load_from_filename",
+          injectionKey = "LOAD_FROM_FILENAME",
+          injectionKeyDescription = ""
+  )
+  private String copyFromFilename;
 
   @HopMetadataProperty(
       groupKey = "fields",
@@ -134,14 +150,6 @@ public class RedshiftBulkLoaderMeta
       injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDSTREAM")
   /** Fields containing the values in the input stream to insert */
   private List<RedshiftBulkLoaderField> fields;
-
-  public List<RedshiftBulkLoaderField> getFields() {
-    return fields;
-  }
-
-  public void setFields(List<RedshiftBulkLoaderField> fields) {
-    this.fields = fields;
-  }
 
   @HopMetadataProperty(
       groupKey = "fields",
@@ -244,51 +252,117 @@ public class RedshiftBulkLoaderMeta
     this.specifyFields = specifyFields;
   }
 
+  public boolean isStreamToS3Csv() {
+    return streamToS3Csv;
+  }
+
+  public void setStreamToS3Csv(boolean streamToS3Csv) {
+    this.streamToS3Csv = streamToS3Csv;
+  }
+
+  /**
+   * CSV:
+   *
+   * @return Should whitespace in the fields be trimmed
+   */
+  public boolean isTrimWhitespace() {
+    return trimWhitespace;
+  }
+
+  /**
+   * CSV: Set if the whitespace in the files should be trimmmed
+   *
+   * @param trimWhitespace true/false
+   */
+  public void setTrimWhitespace(boolean trimWhitespace) {
+    this.trimWhitespace = trimWhitespace;
+  }
+
+  /**
+   * CSV:
+   *
+   * @return Comma delimited list of strings to convert to Null
+   */
+  public String getNullIf() {
+    return nullIf;
+  }
+
+  /**
+   * CSV: Set the string constants to convert to Null
+   *
+   * @param nullIf Comma delimited list of constants
+   */
+  public void setNullIf(String nullIf) {
+    this.nullIf = nullIf;
+  }
+
+  /**
+   * CSV:
+   *
+   * @return Should the load error if the number of columns in the table and in the CSV do not match
+   */
+  public boolean isErrorColumnMismatch() {
+    return errorColumnMismatch;
+  }
+
+  /**
+   * CSV: Set if the load should error if the number of columns in the table and in the CSV do not
+   * match
+   *
+   * @param errorColumnMismatch true/false
+   */
+  public void setErrorColumnMismatch(boolean errorColumnMismatch) {
+    this.errorColumnMismatch = errorColumnMismatch;
+  }
+
+  /**
+   * JSON:
+   *
+   * @return Should null values be stripped out of the JSON
+   */
+  public boolean isStripNull() {
+    return stripNull;
+  }
+
+  /**
+   * JSON: Set if null values should be stripped out of the JSON
+   *
+   * @param stripNull true/false
+   */
+  public void setStripNull(boolean stripNull) {
+    this.stripNull = stripNull;
+  }
+
+
+  public String getLoadFromExistingFileFormat() {
+    return loadFromExistingFileFormat;
+  }
+
+  public void setLoadFromExistingFileFormat(String loadFromExistingFileFormat) {
+    this.loadFromExistingFileFormat = loadFromExistingFileFormat;
+  }
+
+  public String getCopyFromFilename() {
+    return copyFromFilename;
+  }
+
+  public void setCopyFromFilename(String copyFromFilename) {
+    this.copyFromFilename = copyFromFilename;
+  }
+
+  public List<RedshiftBulkLoaderField> getFields() {
+    return fields;
+  }
+
+  public void setFields(List<RedshiftBulkLoaderField> fields) {
+    this.fields = fields;
+  }
+
   /**
    * @return Returns the specify fields flag.
    */
   public boolean specifyFields() {
     return specifyFields;
-  }
-
-  public boolean isDirect() {
-    return direct;
-  }
-
-  public void setDirect(boolean direct) {
-    this.direct = direct;
-  }
-
-  public boolean isAbortOnError() {
-    return abortOnError;
-  }
-
-  public void setAbortOnError(boolean abortOnError) {
-    this.abortOnError = abortOnError;
-  }
-
-  public String getExceptionsFileName() {
-    return exceptionsFileName;
-  }
-
-  public void setExceptionsFileName(String exceptionsFileName) {
-    this.exceptionsFileName = exceptionsFileName;
-  }
-
-  public String getRejectedDataFileName() {
-    return rejectedDataFileName;
-  }
-
-  public void setRejectedDataFileName(String rejectedDataFileName) {
-    this.rejectedDataFileName = rejectedDataFileName;
-  }
-
-  public String getStreamName() {
-    return streamName;
-  }
-
-  public void setStreamName(String streamName) {
-    this.streamName = streamName;
   }
 
   public boolean isSpecifyFields() {
@@ -480,9 +554,9 @@ public class RedshiftBulkLoaderMeta
                     // Specifying the column names explicitly
                     for (int i = 0; i < fields.size(); i++) {
                       RedshiftBulkLoaderField vbf = fields.get(i);
-                      int idx = prev.indexOfValue(vbf.getFieldStream());
+                      int idx = prev.indexOfValue(vbf.getStreamField());
                       if (idx < 0) {
-                        error_message += "\t\t" + vbf.getFieldStream() + Const.CR;
+                        error_message += "\t\t" + vbf.getStreamField() + Const.CR;
                         error_found = true;
                       }
                     }
@@ -767,7 +841,7 @@ public class RedshiftBulkLoaderMeta
     if (specifyFields()) {
       items = new ArrayList<>();
       for (RedshiftBulkLoaderField vbf : fields) {
-        items.add(vbf.getFieldDatabase());
+        items.add(vbf.getDatabaseField());
       }
     }
     return items;
@@ -779,7 +853,7 @@ public class RedshiftBulkLoaderMeta
     if (specifyFields()) {
       items = new ArrayList<>();
       for (RedshiftBulkLoaderField vbf : fields) {
-        items.add(vbf.getFieldStream());
+        items.add(vbf.getStreamField());
       }
     }
     return items;

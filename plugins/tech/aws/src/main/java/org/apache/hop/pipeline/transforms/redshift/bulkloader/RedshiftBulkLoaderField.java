@@ -28,8 +28,8 @@ public class RedshiftBulkLoaderField {
     }
 
     public RedshiftBulkLoaderField(String fieldDatabase, String fieldStream){
-        this.fieldDatabase = fieldDatabase;
-        this.fieldStream = fieldStream;
+        this.databaseField = fieldDatabase;
+        this.streamField = fieldStream;
     }
 
     @HopMetadataProperty(
@@ -37,29 +37,29 @@ public class RedshiftBulkLoaderField {
       injectionKey = "STREAM_FIELDNAME",
       injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDSTREAM"
     )
-    private String fieldStream;
+    private String streamField;
 
     @HopMetadataProperty(
             key = "column_name",
             injectionKey = "DATABASE_FIELDNAME",
             injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDDATABASE"
     )
-    private String fieldDatabase;
+    private String databaseField;
 
-    public String getFieldStream(){
-        return fieldStream;
+    public String getStreamField(){
+        return streamField;
     }
 
-    public void setFieldStream(String fieldStream){
-        this.fieldStream = fieldStream;
+    public void setStreamField(String streamField){
+        this.streamField = streamField;
     }
 
-    public String getFieldDatabase(){
-        return fieldDatabase;
+    public String getDatabaseField(){
+        return databaseField;
     }
 
-    public void setFieldDatabase(String fieldDatabase){
-        this.fieldDatabase = fieldDatabase;
+    public void setDatabaseField(String databaseField){
+        this.databaseField = databaseField;
     }
 
     @Override
@@ -67,12 +67,12 @@ public class RedshiftBulkLoaderField {
         if(this == o) return true;
         if(o == null || getClass() != o.getClass()) return false;
         RedshiftBulkLoaderField that = (RedshiftBulkLoaderField) o;
-        return fieldStream.equals(that.fieldStream) && fieldDatabase.equals(that.fieldDatabase);
+        return streamField.equals(that.streamField) && databaseField.equals(that.databaseField);
     }
 
     @Override
     public int hashCode(){
-        return Objects.hash(fieldStream, fieldDatabase);
+        return Objects.hash(streamField, databaseField);
     }
 
 }
