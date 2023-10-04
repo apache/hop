@@ -179,7 +179,7 @@
         <scala.version>2.12.17</scala.version>
         <slf4j.version>2.0.4</slf4j.version>
         <sshlib.version>2.2.21</sshlib.version>
-        <snappy-java.version>1.1.10.3</snappy-java.version>
+        <snappy-java.version>1.1.10.5</snappy-java.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <woodstox.version>6.4.0</woodstox.version>
         <zookeeper.version>3.8.0</zookeeper.version>
