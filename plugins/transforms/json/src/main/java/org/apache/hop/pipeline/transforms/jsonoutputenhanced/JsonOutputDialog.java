@@ -80,6 +80,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   private TextVar wOutputValue;
 
   private Button wUseArrayWithSingleInstance;
+  private Button wUseSingleItemPerGroup;
 
   private Label wlBlocName;
   private TextVar wBlocName;
@@ -569,13 +570,40 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
             input.setChanged();
           }
         });
+    
+    Label wlUseSingleItemPerGroup = new Label(wSettings, SWT.RIGHT);
+    wlUseSingleItemPerGroup.setText(
+        BaseMessages.getString(PKG, "JsonOutputDialog.UseSingleItemPerGroup.Label"));
+    PropsUi.setLook(wlUseSingleItemPerGroup);
+    FormData fdlUseSingleItemPerGroup = new FormData();
+    fdlUseSingleItemPerGroup.left = new FormAttachment(0, 0);
+    fdlUseSingleItemPerGroup.top = new FormAttachment(wUseArrayWithSingleInstance, margin);
+    fdlUseSingleItemPerGroup.right = new FormAttachment(middle, -margin);
+    wlUseSingleItemPerGroup.setLayoutData(fdlUseSingleItemPerGroup);
+    wUseSingleItemPerGroup = new Button(wSettings, SWT.CHECK);
+    wUseSingleItemPerGroup.setToolTipText(
+        BaseMessages.getString(PKG, "JsonOutputDialog.UseSingleItemPerGroup.Tooltip"));
+    PropsUi.setLook(wUseSingleItemPerGroup);
+    FormData fdUseSingleItemPerGroup = new FormData();
+    fdUseSingleItemPerGroup.left = new FormAttachment(middle, 0);
+    fdUseSingleItemPerGroup.top =
+        new FormAttachment(wlUseSingleItemPerGroup, 0, SWT.CENTER);
+    fdUseSingleItemPerGroup.right = new FormAttachment(100, 0);
+    wUseSingleItemPerGroup.setLayoutData(fdUseSingleItemPerGroup);
+    wUseSingleItemPerGroup.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
     Label wlJSONPrittified = new Label(wSettings, SWT.RIGHT);
     wlJSONPrittified.setText(BaseMessages.getString(PKG, "JsonOutputDialog.JSONPrittified.Label"));
     PropsUi.setLook(wlJSONPrittified);
     FormData fdlJSONPrittified = new FormData();
     fdlJSONPrittified.left = new FormAttachment(0, 0);
-    fdlJSONPrittified.top = new FormAttachment(wUseArrayWithSingleInstance, margin);
+    fdlJSONPrittified.top = new FormAttachment(wUseSingleItemPerGroup, margin);
     fdlJSONPrittified.right = new FormAttachment(middle, -margin);
     wlJSONPrittified.setLayoutData(fdlJSONPrittified);
     wJSONPrittified = new Button(wSettings, SWT.CHECK);
@@ -984,6 +1012,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wEncoding.setText(Const.NVL(input.getEncoding(), ""));
     wOutputValue.setText(Const.NVL(input.getOutputValue(), ""));
     wUseArrayWithSingleInstance.setSelection(input.isUseArrayWithSingleInstance());
+    wUseSingleItemPerGroup.setSelection(input.isUseSingleItemPerGroup());
     wJSONPrittified.setSelection(input.isJsonPrittified());
     wSplitOutputAfter.setText(Integer.toString(input.getSplitOutputAfter()));
     wOperation.setText(JsonOutputMeta.getOperationTypeDesc(input.getOperationType()));
@@ -1061,6 +1090,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     jsometa.setEncoding(wEncoding.getText());
     jsometa.setOutputValue(wOutputValue.getText());
     jsometa.setUseArrayWithSingleInstance(wUseArrayWithSingleInstance.getSelection());
+    jsometa.setUseSingleItemPerGroup(wUseSingleItemPerGroup.getSelection());
     jsometa.setOperationType(JsonOutputMeta.getOperationTypeByDesc(wOperation.getText()));
     jsometa.setJsonPrittified(wJSONPrittified.getSelection());
     jsometa.setSplitOutputAfter(
