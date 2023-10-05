@@ -113,6 +113,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
       try {
         data.close();
+        closeFile();
         String copyStmt = buildCopyStatementSqlString();
         data.db.execStatement(copyStmt);
         setOutputDone();
@@ -213,6 +214,10 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       }
     }
 
+    writeRowToFile(data.outputRowMeta, r);
+    putRow(data.outputRowMeta, r);
+
+
 /*
     try {
       Object[] outputRowData = writeToOutputStream(r);
@@ -241,6 +246,41 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     return true;
   }
 
+  /**
+   * Closes a file so that its file handle is no longer open
+   *
+   * @return true if we successfully closed the file
+   */
+  private boolean closeFile() {
+    boolean returnValue = false;
+
+    try {
+      if (data.writer != null) {
+        data.writer.flush();
+        data.writer.close();
+      }
+      data.writer = null;
+      if (log.isDebug()) {
+        logDebug("Closing normal file ...");
+      }
+/*
+      if (data.out != null) {
+        data.out.close();
+      }
+      if (data.fos != null) {
+        data.fos.close();
+        data.fos = null;
+      }
+*/
+      returnValue = true;
+    } catch (Exception e) {
+      logError("Exception trying to close file: " + e.toString());
+      setErrors(1);
+      returnValue = false;
+    }
+
+    return returnValue;
+  }
 
 /*
   */
@@ -348,12 +388,16 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     final IRowMeta fields = data.insertRowMeta;
     for (int i = 0; i < fields.size(); i++) {
       if (i > 0) {
-        sb.append(", ");
+        sb.append(", " + fields.getValueMeta(i).getName());
+      }else{
+        sb.append(fields.getValueMeta(i).getName());
       }
     }
     sb.append(")");
 
-    sb.append(" FROM " + meta.getCopyFromFilename());
+    sb.append(" FROM '" + meta.getCopyFromFilename() + "'");
+    sb.append(" delimiter ','");
+    sb.append(" CREDENTIALS 'aws_access_key_id=" + System.getenv("AWS_ACCESS_KEY_ID") + ";aws_secret_access_key=" + System.getenv("AWS_SECRET_ACCESS_KEY") + "'");
 
     logDebug("copy stmt: " + sb.toString());
 
@@ -387,34 +431,54 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
   private void getDbFields() throws HopException {
     data.dbFields = new ArrayList<>();
     String sql = "desc table ";
+
+    IRowMeta rowMeta = null;
+
+
     if (!StringUtils.isEmpty(resolve(meta.getSchemaName()))) {
-      sql += resolve(meta.getSchemaName()) + ".";
+//      sql += resolve(meta.getSchemaName()) + ".";
+      rowMeta = data.db.getTableFields(meta.getSchemaName() + "." + meta.getTableName());
+    }else {
+      rowMeta = data.db.getTableFields(meta.getTableName());
     }
-    sql += resolve(meta.getTableName());
-    logDetailed("Executing SQL " + sql);
+//    sql += resolve(meta.getTableName());
+//    logDetailed("Executing SQL " + sql);
     try {
-      try (ResultSet resultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
+//      try (ResultSet resultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
 
-        IRowMeta rowMeta = data.db.getReturnRowMeta();
-        int nameField = rowMeta.indexOfValue("NAME");
-        int typeField = rowMeta.indexOfValue("TYPE");
-        if (nameField < 0 || typeField < 0) {
-          throw new HopException("Unable to get database fields");
-        }
+//        IRowMeta rowMeta = data.db.getReturnRowMeta();
+//        int nameField = rowMeta.indexOfValue("NAME");
+//        int typeField = rowMeta.indexOfValue("TYPE");
+//        if (nameField < 0 || typeField < 0) {
+//          throw new HopException("Unable to get database fields");
+//        }
 
-        Object[] row = data.db.getRow(resultSet);
-        if (row == null) {
+        if(rowMeta.size() == 0) {
           throw new HopException("No fields found in table");
         }
-        while (row != null) {
-          String[] field = new String[2];
-          field[0] = rowMeta.getString(row, nameField).toUpperCase();
-          field[1] = rowMeta.getString(row, typeField);
-          data.dbFields.add(field);
-          row = data.db.getRow(resultSet);
-        }
-        data.db.closeQuery(resultSet);
+
+      for(int i=0; i < rowMeta.size(); i++) {
+        String field[] = new String[2];
+        field[0] = rowMeta.getValueMeta(i).getName().toUpperCase();
+        field[1] = rowMeta.getValueMeta(i).getTypeDesc().toUpperCase();
+        data.dbFields.add(field);
       }
+
+//        Object[] row = data.db.getRow(resultSet);
+//        if (row == null) {
+//          throw new HopException("No fields found in table");
+//        }
+
+
+//        while (row != null) {
+//          String[] field = new String[2];
+//          field[0] = rowMeta.getString(row, nameField).toUpperCase();
+//          field[1] = rowMeta.getString(row, typeField);
+//          data.dbFields.add(field);
+//          row = data.db.getRow(resultSet);
+//        }
+//        data.db.closeQuery(resultSet);
+//      }
     } catch (Exception ex) {
       throw new HopException("Error getting database fields", ex);
     }
