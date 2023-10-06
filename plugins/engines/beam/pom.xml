@@ -51,6 +51,10 @@
 
         <json-simple.version>1.1.1</json-simple.version>
         <bigtable-hbase-beam.version>2.11.0</bigtable-hbase-beam.version>
+<!--        https://github.com/apache/hive/blob/df0a1429d4a67bc180cf1e15ff10432f6723bb1c/pom.xml-->
+        <libfb303.version>0.9.3</libfb303.version>
+        <libthrift.version>0.9.3</libthrift.version>
+        <hive-storage.version>2.7.0</hive-storage.version>
     </properties>
 
     <dependencies>
@@ -395,7 +399,73 @@
         <dependency>
             <groupId>org.apache.hive.hcatalog</groupId>
             <artifactId>hive-hcatalog-core</artifactId>
-            <version>3.1.3</version>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-common</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-exec</artifactId>
+            <classifier>core</classifier>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-cli</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-serde</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-service-rpc</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-standalone-metastore</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-metastore</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-spark-client</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-storage-api</artifactId>
+            <version>${hive-storage.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive.shims</groupId>
+            <artifactId>hive-shims-0.23</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive.shims</groupId>
+            <artifactId>hive-shims-common</artifactId>
+            <version>${hive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>${libthrift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libfb303</artifactId>
+            <version>${libfb303.version}</version>
         </dependency>
 
         <dependency>

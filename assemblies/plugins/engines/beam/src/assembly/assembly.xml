@@ -163,6 +163,20 @@
                 <include>org.apache.beam:beam-sdks-java-io-hadoop-common</include>
                 <include>org.apache.beam:beam-sdks-java-io-hadoop-file-system</include>
                 <include>org.apache.beam:beam-sdks-java-io-kafka</include>
+                <include>org.apache.beam:beam-sdks-java-io-hcatalog</include>
+                <include>org.apache.hive.hcatalog:hive-hcatalog-core</include>
+                <include>org.apache.hive:hive-common</include>
+                <include>org.apache.hive:hive-exec:jar:core</include>
+                <include>org.apache.hive:hive-metastore</include>
+                <include>org.apache.hive:hive-standalone-metastore</include>
+                <include>org.apache.hive:hive-serde</include>
+                <include>org.apache.hive:hive-service-rpc</include>
+                <include>org.apache.hive.shims:hive-shims-common</include>
+                <include>org.apache.hive.shims:hive-shims-0.23</include>
+                <include>org.apache.hive:hive-spark-client</include>
+                <include>org.apache.hive:hive-storage-api</include>
+                <include>org.apache.thrift:libthrift</include>
+                <include>org.apache.thrift:libfb303</include>
                 <include>org.apache.beam:beam-sdks-java-io-synthetic</include>
                 <include>org.apache.commons:commons-crypto</include>
                 <include>org.apache.commons:commons-text</include>

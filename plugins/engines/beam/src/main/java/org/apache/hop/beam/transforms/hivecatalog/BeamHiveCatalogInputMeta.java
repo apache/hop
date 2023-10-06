@@ -21,16 +21,15 @@ import java.util.List;
 import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.transform.BeamInputTransform;
+import org.apache.hop.beam.core.transform.BeamHiveMetastoreInputTransform;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.beam.pipeline.IBeamPipelineTransformHandler;
-import org.apache.hop.beam.transforms.io.BeamInputDialog;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -47,17 +46,14 @@ import org.apache.hop.pipeline.transform.TransformMeta;
         keywords = "i18n::BeamHiveCatalogInputDialog.keyword",
         documentationUrl = "/pipeline/transforms/beamoutput.html")
 public class BeamHiveCatalogInputMeta extends BaseTransformMeta<BeamHiveCatalogInput, BeamHiveCatalogInputData> implements IBeamPipelineTransformHandler {
-    public BeamHiveCatalogInputMeta() {}
-
     @HopMetadataProperty(key = "hive_metastore_uris")
     private String hiveMetastoreUris;
-
     @HopMetadataProperty(key = "hive_metastore_databese")
     private String hiveMetastoreDatabase;
-
     @HopMetadataProperty(key = "hive_metastore_table")
     private String hiveMetastoreTable;
 
+    public BeamHiveCatalogInputMeta() {}
 
     @Override
     public String getDialogClassName() {
@@ -91,6 +87,23 @@ public class BeamHiveCatalogInputMeta extends BaseTransformMeta<BeamHiveCatalogI
             PCollection<HopRow> input,
             String parentLogChannelId)
             throws HopException {
+
+        // Output rows (fields selection)
+        //
+        IRowMeta outputRowMeta = new RowMeta();
+        getFields(outputRowMeta, transformMeta.getName(), null, null, variables, null);
+
+    BeamHiveMetastoreInputTransform beamInputTransform =
+        new BeamHiveMetastoreInputTransform(
+            transformMeta.getName(),
+            transformMeta.getName(),
+            variables.resolve(hiveMetastoreUris),
+            variables.resolve(hiveMetastoreDatabase),
+            variables.resolve(hiveMetastoreTable),
+            JsonRowMeta.toJson(outputRowMeta));
+        PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
+        transformCollectionMap.put(transformMeta.getName(), afterInput);
+        log.logBasic("Handled transform (Hive Catalog INPUT) : " + transformMeta.getName());
     }
 
     public String getHiveMetastoreUris() {
