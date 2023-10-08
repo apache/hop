@@ -17,30 +17,93 @@
 
 version: '2.4'
 services:
-  integration_test_spark:
-    extends:
-      file: integration-tests-base.yaml
-      service: integration_test
-    depends_on:
-      - spark
-    links:
-      - spark
-      - spark-worker
-
-  spark:
-    build:
+  # spark:
+  #   build:
+  #     context: ../../docker/integration-tests/spark/.
+  #     dockerfile: Dockerfile.master
+  #   environment:
+  #     - INIT_DAEMON_STEP=setup_spark
+  #   ports:
+  #     - 8080:8080
+  #     - 7077:7077
+  # spark-worker:
+  #   build:
+  #     context: ../../docker/integration-tests/spark/.
+  #     dockerfile: Dockerfile.worker
+  #   depends_on:
+  #     - spark
+  #   environment:
+  #     - "SPARK_MASTER=spark://spark:7077"
+  #   ports:
+  #     - 8081:8081
+  namenode:
+    build: 
+      dockerfile: Dockerfile.hadoop
       context: ../../docker/integration-tests/spark/.
-      dockerfile: Dockerfile.master
-    environment:
-      - INIT_DAEMON_STEP=setup_spark
+    hostname: namenode
+    command: ["hdfs", "namenode"]
     ports:
-      - "10000"
-      - "10001"
-  spark-worker:
-    build:
-      context: ../../docker/integration-tests/spark/.
-      dockerfile: Dockerfile.worker
-    depends_on:
-      - spark
+      - 9870:9870
+      - 8020:8020
+    env_file:
+      - ./spark/config
     environment:
-      - "SPARK_MASTER=spark://spark:7077"
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+  datanode:
+    build: 
+      dockerfile: Dockerfile.hadoop
+      context: ../../docker/integration-tests/spark/.
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./spark/config
+  datanode2:
+    build: 
+      dockerfile: Dockerfile.hadoop
+      context: ../../docker/integration-tests/spark/.
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./spark/config
+  datanode3:
+    build: 
+      dockerfile: Dockerfile.hadoop
+      context: ../../docker/integration-tests/spark/.
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./spark/config
+  resourcemanager:
+    build: 
+      dockerfile: Dockerfile.hadoop
+      context: ../../docker/integration-tests/spark/.
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
+    ports:
+       - 8088:8088
+    env_file:
+      - ./spark/config
+    volumes:
+      - ./test.sh:/opt/test.sh
+  nodemanager:
+    build: 
+      dockerfile: Dockerfile.hadoop
+      context: ../../docker/integration-tests/spark/.
+    command: ["yarn", "nodemanager"]
+    env_file:
+      - ./spark/config
+  hiveserver:
+    image: apache/hive:4.0.0-beta-1
+    ports:
+      - 10000:10000
+      - 10002:10002
+    depends_on:
+      - hive-metastore
+    environment:
+      - SERVICE_NAME=hiveserver2
+      - SERVICE_OPTS=-Dhive.metastore.uris=thrift://hive-metastore:9083
+    volumes:
+      - ./spark/hive-site.xml:/opt/hive/conf/hive-site.xml
+  hive-metastore:
+    image: apache/hive:4.0.0-beta-1
+    ports:
+      - 9083:9083
+    environment:
+      - SERVICE_NAME=metastore
