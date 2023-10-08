@@ -22,11 +22,15 @@ under the License.
 
 = Running the Apache Beam samples With Apache Spark
 
+== Prerequisites 
+
+Check the xref:pipeline/beam/running-the-beam-samples.adoc#prerequisites[prerequisites] to make sure you have the correct java version, have built your Apache Hop fact jar and have exported your project metadata to a JSON file. 
+
 == Get Spark
 
 Check the xref:pipeline/beam/getting-started-with-beam.adoc#supportedversions[Supported Versions] on the Getting Started With Beam page to find the latest supported Spark version for your Hop version.
 
-For example, for Hop 1.2, the latest currently supported version is 3.1.2.
+For example, for Hop 2.7, the latest currently supported version is 3.4.x.
 
 Download your selected Spark version and unzip to a convenient location.
 
@@ -50,13 +54,13 @@ starting org.apache.spark.deploy.master.Master, logging to <PATH>/spark-3.1.2-bi
 
 You should now be able to access the Spark Master's web ui at http://localhost:8080.
 
-Copy the master's url from the master's page header, e.g. `spark://localhost.localdomain:7077`.
+Copy the master's url from the master's page header, e.g. `spark://<YOUR_HOSTNAME>.localdomain:7077`.
 
 image:beam/beam-spark-master.png[Apache Spark - Master web ui, width="90%"]
 
 With the master in place, we can start a worker (formerly called slave). Similar to the master, this is a single command that takes the master's url that yo
 
-`sbin/start-worker.sh spark://localhost.localdomain:7077`.
+`sbin/start-worker.sh spark://<YOUR_HOSTNAME>.localdomain:7077`.
 
 Your output should look similar to the one below:
 
@@ -69,7 +73,10 @@ starting org.apache.spark.deploy.worker.Worker, logging to <PATH>/spark-3.1.2-bi
 
 Since Spark doesn't support remote execution, we'll be running one of the sample pipelines through Spark Submit.
 
-Use a command like the one below to pass all the information required by `spark-submit`.
+INFO: the sample pipeline we'll run in this example reads variables for file input and output from the `Spark` pipeline run configuration. + 
+Check the `variables` tab for the `Spark` pipeline run configuration in the metadata perspective for more details. 
+
+The command below passes all the required information to run the samples `input-process-output.hpl` pipeline on our local Spark cluster with `spark-submit`.
 
 [source, shell]
 ----
@@ -91,31 +98,38 @@ You should see verbose logging output similar to the output below:
 
 [source, shell]
 ----
-22/02/10 21:19:00 WARN Utils: Your hostname, <HOSTNAME> resolves to a loopback address: 127.0.1.1; using 192.168.86.44 instead (on interface wlp0s20f3)
-22/02/10 21:19:00 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
-22/02/10 21:19:00 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
-Argument 1 : Pipeline filename (.hpl)   : <PATH>/hop/config/projects/samples/beam/pipelines/input-process-output.hpl
-Argument 2 : Metadata filename (.json)  : /opt/spark/hop-metadata.json
-Argument 3 : Pipeline run configuration : Spark
->>>>>> Initializing Hop...
-log4j:WARN No appenders could be found for logger (org.apache.commons.vfs2.impl.DefaultFileSystemManager).
-log4j:WARN Please initialize the log4j system properly.
-log4j:WARN See http://logging.apache.org/log4j/1.2/faq.html#noconfig for more info.
+23/10/08 08:52:35 WARN Utils: Your hostname, knowbi resolves to a loopback address: 127.0.0.1; using 192.168.86.44 instead (on interface wlan0)
+23/10/08 08:52:35 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+>>>>>> Initializing Hop
+Hop configuration file not found, not serializing: /opt/spark/spark-3.4.1-bin-hadoop3/config/hop-config.json
+Argument 1 : Pipeline filename (.hpl)   : /home/bart/projects/tech/hop/projects/hop-tests/code/beam/input-process-output.hpl
+Argument 2 : Environment state filename: (.json)  : /tmp/hop-metadata.json
+Argument 3 : Pipeline run configuration : spark
 >>>>>> Loading pipeline metadata
 >>>>>> Building Apache Beam Pipeline...
->>>>>> Found Beam Input transform plugin class loader
 >>>>>> Pipeline executing starting...
-2022/02/10 21:19:06 - General - Created Apache Beam pipeline with name 'input-process-output'
-2022/02/10 21:19:06 - General - Handled transform (INPUT) : Customers
-2022/02/10 21:19:06 - General - Handled generic transform (TRANSFORM) : Only CA, gets data from 1 previous transform(s), targets=0, infos=0
-2022/02/10 21:19:07 - General - Handled generic transform (TRANSFORM) : Limit fields, re-order, gets data from 1 previous transform(s), targets=0, infos=0
-2022/02/10 21:19:07 - General - Handled transform (OUTPUT) : input-process-output, gets data from Limit fields, re-order
-2022/02/10 21:19:07 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'Spark'
-Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
-22/02/10 21:19:08 INFO SparkContext: Running Spark version 3.1.2
-22/02/10 21:19:08 INFO ResourceUtils: ==============================================================
-22/02/10 21:19:08 INFO ResourceUtils: No custom resources configured for spark.driver.
-22/02/10 21:19:08 INFO ResourceUtils: ==============================================================
+23/10/08 08:52:44 WARN S3FileSystem: You are using a deprecated file system for S3. Please migrate to module 'org.apache.beam:beam-sdks-java-io-amazon-web-services2'.
+2023/10/08 08:52:45 - General - Created Apache Beam pipeline with name 'input-process-output'
+2023/10/08 08:52:46 - General - Handled transform (INPUT) : Customers
+2023/10/08 08:52:46 - General - Handled generic transform (TRANSFORM) : Only CA, gets data from 1 previous transform(s), targets=0, infos=0
+2023/10/08 08:52:46 - General - Handled generic transform (TRANSFORM) : Limit fields, re-order, gets data from 1 previous transform(s), targets=0, infos=0
+2023/10/08 08:52:46 - General - Handled transform (OUTPUT) : input-process-output, gets data from Limit fields, re-order
+2023/10/08 08:52:46 - General - Executing this pipeline using the Beam Pipeline Engine with run configuration 'spark'
+23/10/08 08:52:46 INFO SparkRunner: Executing pipeline using the SparkRunner.
+23/10/08 08:52:47 INFO SparkContextFactory: Creating a brand new Spark Context.
+23/10/08 08:52:47 INFO SparkContext: Running Spark version 3.4.1
+23/10/08 08:52:47 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+23/10/08 08:52:47 INFO ResourceUtils: ==============================================================
+23/10/08 08:52:47 INFO ResourceUtils: No custom resources configured for spark.driver.
+23/10/08 08:52:47 INFO ResourceUtils: ==============================================================
+23/10/08 08:52:47 INFO SparkContext: Submitted application: BeamSparkPipelineRunConfiguration
+23/10/08 08:52:47 INFO ResourceProfile: Default ResourceProfile created, executor resources: Map(memory -> name: memory, amount: 1024, script: , vendor: , offHeap -> name: offHeap, amount: 0, script: , vendor: ), task resources: Map(cpus -> name: cpus, amount: 1.0)
+23/10/08 08:52:47 INFO ResourceProfile: Limiting resource is cpu
+23/10/08 08:52:47 INFO ResourceProfileManager: Added ResourceProfile id: 0
+23/10/08 08:52:47 INFO SecurityManager: Changing view acls to: bart
+23/10/08 08:52:47 INFO SecurityManager: Changing modify acls to: bart
+23/10/08 08:52:47 INFO SecurityManager: Changing view acls groups to: 
+23/10/08 08:52:47 INFO SecurityManager: Changing modify acls groups to: 
 ##
 ##
 
@@ -123,12 +137,16 @@ Lots of output omitted.
 
 ##
 ##
-22/02/10 21:19:20 INFO SparkContext: Successfully stopped SparkContext
-2022/02/10 21:19:20 - General - Beam pipeline execution has finished.
+23/10/08 09:01:07 INFO MemoryStore: MemoryStore cleared
+23/10/08 09:01:07 INFO BlockManager: BlockManager stopped
+23/10/08 09:01:07 INFO BlockManagerMaster: BlockManagerMaster stopped
+23/10/08 09:01:07 INFO OutputCommitCoordinator$OutputCommitCoordinatorEndpoint: OutputCommitCoordinator stopped!
+23/10/08 09:01:07 INFO SparkContext: Successfully stopped SparkContext
+2023/10/08 09:01:07 - General - Beam pipeline execution has finished.
 >>>>>> Execution finished...
-22/02/10 21:19:20 INFO ShutdownHookManager: Shutdown hook called
-22/02/10 21:19:20 INFO ShutdownHookManager: Deleting directory /tmp/spark-42c62ef7-2bea-4d0b-aac0-6882f55b611a
-22/02/10 21:19:20 INFO ShutdownHookManager: Deleting directory /tmp/spark-c75691d8-6a0d-4d07-ac22-31f98a834940
+23/10/08 09:01:07 INFO ShutdownHookManager: Shutdown hook called
+23/10/08 09:01:07 INFO ShutdownHookManager: Deleting directory /tmp/spark-69bffb6a-90e2-415d-b4bc-63fcaf649999
+23/10/08 09:01:07 INFO ShutdownHookManager: Deleting directory /tmp/spark-14f01b28-130c-48b4-93dc-49465cbb1392
 ----
 
 After your pipeline finishes and the spark-submit command ends, your Spark master ui will show a new entry in the 'Finished Applications' list. You can follow up any running applications in the 'Running Applications' and drill down into their execution details while running.
