@@ -20,13 +20,13 @@ package org.apache.hop.beam.core.transform;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
+
 import org.apache.beam.sdk.io.hcatalog.HCatalogIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.transforms.ParDo;
-import org.apache.beam.sdk.values.KV;
 import org.apache.beam.sdk.values.PBegin;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hive.hcatalog.data.HCatRecord;
@@ -34,8 +34,6 @@ import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.StringToHopFn;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.JsonRowMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,12 +89,20 @@ public class BeamHiveMetastoreInputTransform extends PTransform<PBegin, PCollect
                   new DoFn<HCatRecord, String>() {
                     @ProcessElement
                     public void processElement(ProcessContext c) {
-                      c.output(c.element().get(0).toString());
+                      String outputStr = "";
+                      for(int i=0; i < c.element().size(); i++){
+                        if(i < c.element().size()-1) {
+                          outputStr += c.element().get(i).toString() + ";";
+                        }else{
+                          outputStr += c.element().get(i).toString();
+                        }
+                      }
+                      c.output(outputStr);
                     }
                   })
           );
 
-      output = tempOutput.apply(
+       output = tempOutput.apply(
               ParDo.of(new StringToHopFn(transformName, rowMetaJson, ","))
       );
 

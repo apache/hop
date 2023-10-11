@@ -28,8 +28,10 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -128,5 +130,21 @@ public class BeamHiveCatalogInputMeta extends BaseTransformMeta<BeamHiveCatalogI
 
     public void setHiveMetastoreTable(String hiveMetastoreTable) {
         this.hiveMetastoreTable = hiveMetastoreTable;
+    }
+
+    @Override
+    public void getFields(
+            IRowMeta inputRowMeta,
+            String name,
+            IRowMeta[] info,
+            TransformMeta nextTransform,
+            IVariables variables,
+            IHopMetadataProvider metadataProvider
+    ){
+        IValueMeta rowNb = new ValueMetaString();
+        rowNb.setOrigin(name);
+        rowNb.setName("hcatalog_output");
+        inputRowMeta.addValueMeta(rowNb);
+
     }
 }
