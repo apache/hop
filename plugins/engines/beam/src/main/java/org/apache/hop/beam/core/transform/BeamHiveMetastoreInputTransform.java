@@ -19,6 +19,7 @@ package org.apache.hop.beam.core.transform;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 
 import org.apache.beam.sdk.io.hcatalog.HCatalogIO;
@@ -33,6 +34,7 @@ import org.apache.hive.hcatalog.data.HCatRecord;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.StringToHopFn;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,9 +94,17 @@ public class BeamHiveMetastoreInputTransform extends PTransform<PBegin, PCollect
                       String outputStr = "";
                       for(int i=0; i < c.element().size(); i++){
                         if(i < c.element().size()-1) {
-                          outputStr += c.element().get(i).toString() + ";";
+                          var element  = Objects.requireNonNull(c.element()).get(i);
+                          if(element != null){
+                            outputStr += element.toString() + ";";
+                          }else{
+                            outputStr += ";";
+                          }
                         }else{
-                          outputStr += c.element().get(i).toString();
+                          var element  = Objects.requireNonNull(c.element()).get(i);
+                          if(element != null){
+                            outputStr += element.toString();
+                          }
                         }
                       }
                       c.output(outputStr);
