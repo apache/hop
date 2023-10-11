@@ -21,8 +21,8 @@ ENV ENABLE_INIT_DAEMON false
 ENV INIT_DAEMON_BASE_URI http://identifier/init-daemon
 ENV INIT_DAEMON_STEP spark_master_init
 
-ENV BASE_URL=https://archive.apache.org/dist/spark/
-ENV SPARK_VERSION=3.4.0
+ENV BASE_URL=https://dlcdn.apache.org/spark/
+ENV SPARK_VERSION=3.4.1
 ENV HADOOP_VERSION=3
 ENV SPARK_WORKER_WEBUI_PORT 8081
 ENV SPARK_WORKER_LOG /spark/logs

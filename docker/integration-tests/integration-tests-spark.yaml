@@ -17,25 +17,25 @@
 
 version: '2.4'
 services:
-  # spark:
-  #   build:
-  #     context: ../../docker/integration-tests/spark/.
-  #     dockerfile: Dockerfile.master
-  #   environment:
-  #     - INIT_DAEMON_STEP=setup_spark
-  #   ports:
-  #     - 8080:8080
-  #     - 7077:7077
-  # spark-worker:
-  #   build:
-  #     context: ../../docker/integration-tests/spark/.
-  #     dockerfile: Dockerfile.worker
-  #   depends_on:
-  #     - spark
-  #   environment:
-  #     - "SPARK_MASTER=spark://spark:7077"
-  #   ports:
-  #     - 8081:8081
+  spark:
+    build:
+      context: ../../docker/integration-tests/spark/.
+      dockerfile: Dockerfile.master
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+    ports:
+      - 8080:8080
+      - 7077:7077
+  spark-worker:
+    build:
+      context: ../../docker/integration-tests/spark/.
+      dockerfile: Dockerfile.worker
+    depends_on:
+      - spark
+    environment:
+      - "SPARK_MASTER=spark://spark:7077"
+    ports:
+      - 8081:8081
   namenode:
     build: 
       dockerfile: Dockerfile.hadoop
