@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
+import java.util.Objects;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class FileItem {
 
