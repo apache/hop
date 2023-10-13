@@ -75,7 +75,7 @@ image:beam/beam-flink-running.png[Apache Flink Dashboard - width="90%"]
 
 In a real-world setup, you'll run your Flink pipelines from the Flink master through `flink run`.
 
-Set your Flink master to `[auto]` and export your Hop metadata again (see xref:pipeline/beam/running-the-beam-samples.adoc#_prerequisites[prerequisites]).
+Set your Flink master to `[auto]` and export your Hop metadata again (see xref:pipeline/beam/running-the-beam-samples.adoc#prerequisites[prerequisites]).
 
 image:beam/beam-flink-run-config-host.png[Apache Beam - Flink run configuration - master, width="40%"]
 
