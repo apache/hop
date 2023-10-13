@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Metadata Injection transform inserts data from various sources into a pipeline at runtime.
+:description: The ETL metadata injection transform inserts data from various sources into a pipeline at runtime.
 
 :openvar: ${
 :closevar: }
@@ -44,11 +44,19 @@ Metadata injection allows Apache Hop users to provide the required metadata for 
 
 == Usage
 
-The Metadata Injection transform inserts data from various sources into a pipeline at runtime. This is typically used to automate repetitive ETL tasks.
+The Metadata Injection transform (MDI transform) inserts data and transform properties into a pipeline that is dynamically configured at runtime. This is typically used to enhance reusability of a pipeline.
 
-A typical example is the onboarding of large amounts of text file data in a variety of formats. Even though you may have a number of different file layouts to load, the process is always the same: read the file, clean or enrich the data, and finally write the data to a target platform or some other file format. The only difference is the actual layout of the data, the steps to follow are always the same.
+E.g. Use Case: If you have 10 different CSV file definitions and don't want to create 10 pipelines for each separate file, you can  use ETL metadata injection. After the MDI transform is configured (mapping data and properties to the template/target pipeline), at run-time it will dynamically populate any non configured transform properties in the target pipeline. For example, in the template file, if you leave the Table input Database fields empty, and if configured in the MDI transform, it will populate the Table field and Stream fields dynamically.
 
-xref:pipeline/metadata-injection.adoc[Read more]
+Basically, the ETL Metadata Injection transform overrules the default behavior for the named pipeline. Not all incoming streams need to have the same layout. It is perfectly OK to provide input to the metadata injection transform from different streams with different layouts.
+
+*Sample files:*
+
+* *Configure MDI:* read-and-inject-metadata.hpl
+
+* *Read and fill in Template:* read-file-template.hpl
+
+xref:pipeline/metadata-injection.adoc[Read more on metadata injection]
 
 
 == Options
@@ -70,11 +78,12 @@ The ETL Metadata Injection transform features the two tabs with fields.
 Each tab is described below.
 
 === Inject Metadata Tab
+This tab shows transforms and properties on the target/template file that will be modified at run-time.  Map each property to a source that you would like to be populated dynamically.
 
 [options="header"]
 |===
 |Option|Description
-|Target injection transform key| Lists the available fields in each transform of the template pipeline that can be injected with metadata.
+|Target injection transform key| Lists the available fields in each transform of the template pipeline that can be injected with metadata. 
 |Target description|Describes how the target fields relate to their target transforms.
 |Source transform|Lists the transform associated with the fields to be injected into the target fields as metadata.
 |Source field|Lists the fields to be injected into the target fields as metadata.
@@ -122,4 +131,9 @@ The resulting pipeline will be your template pipeline with the metadata already 
 |Run resulting pipeline|Select to inject metadata and run the template pipeline.
 If this option is not selected, metadata injection occurs, but the template pipeline does not run.
 |===
+
+
+*Troubleshooting*
+
+* Enter a pipeline filename in "Optional target file (hpl after injection)" so that a file will be generated after injection. This pipeline will contain all the properties after injection and can be viewed and executed for testing.
 
