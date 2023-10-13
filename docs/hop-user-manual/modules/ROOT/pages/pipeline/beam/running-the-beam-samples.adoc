@@ -22,6 +22,7 @@ under the License.
 
 = Running the Apache Beam samples
 
+[[prerequisites]]
 == Prerequisites
 
 The steps on this page and the detail pages for Spark, Flink and Google Dataflow will set up everything you need to run the pipelines in the Hop samples project.
