@@ -85,6 +85,48 @@ public class RedshiftBulkLoaderMeta
   private String tablename;
 
   @HopMetadataProperty(
+      key = "use_credentials",
+      injectionKey = "USE_CREDENTIALS",
+      injectionKeyDescription = ""
+  )
+  private boolean useCredentials;
+
+  @HopMetadataProperty(
+      key = "use_system_env_vars",
+      injectionKey = "USE_SYSTEM_ENV_VARS",
+      injectionKeyDescription = ""
+  )
+  private boolean useSystemEnvVars;
+
+  @HopMetadataProperty(
+      key = "aws_access_key_id",
+      injectionKey = "AWS_ACCESS_KEY_ID",
+      injectionKeyDescription = ""
+  )
+  private String awsAccessKeyId;
+
+  @HopMetadataProperty(
+      key = "aws_secret_access_key",
+      injectionKey = "AWS_SECRET_ACCESS_KEY",
+      injectionKeyDescription = ""
+  )
+  private String awsSecretAccessKey;
+
+  @HopMetadataProperty(
+      key = "use_aws_iam_role",
+      injectionKey = "USE_AWS_IAM_ROLE",
+      injectionKeyDescription = ""
+  )
+  private boolean useAwsIamRole;
+
+  @HopMetadataProperty(
+      key = "aws_iam_role",
+      injectionKey = "AWS_IAM_ROLE",
+      injectionKeyDescription = ""
+  )
+  private String awsIamRole;
+
+  @HopMetadataProperty(
       key = "truncate",
       injectionKey = "TRUNCATE_TABLE",
       injectionKeyDescription = "RedshiftBulkLoader.Injection.TruncateTable.Field")
@@ -367,6 +409,54 @@ public class RedshiftBulkLoaderMeta
 
   public boolean isSpecifyFields() {
     return specifyFields;
+  }
+
+  public boolean isUseCredentials() {
+    return useCredentials;
+  }
+
+  public void setUseCredentials(boolean useCredentials) {
+    this.useCredentials = useCredentials;
+  }
+
+  public String getAwsAccessKeyId() {
+    return awsAccessKeyId;
+  }
+
+  public void setAwsAccessKeyId(String awsAccessKeyId) {
+    this.awsAccessKeyId = awsAccessKeyId;
+  }
+
+  public String getAwsSecretAccessKey() {
+    return awsSecretAccessKey;
+  }
+
+  public void setAwsSecretAccessKey(String awsSecretAccessKey) {
+    this.awsSecretAccessKey = awsSecretAccessKey;
+  }
+
+  public boolean isUseAwsIamRole() {
+    return useAwsIamRole;
+  }
+
+  public void setUseAwsIamRole(boolean useAwsIamRole) {
+    this.useAwsIamRole = useAwsIamRole;
+  }
+
+  public String getAwsIamRole() {
+    return awsIamRole;
+  }
+
+  public void setAwsIamRole(String awsIamRole) {
+    this.awsIamRole = awsIamRole;
+  }
+
+  public boolean isUseSystemEnvVars() {
+    return useSystemEnvVars;
+  }
+
+  public void setUseSystemEnvVars(boolean useSystemEnvVars) {
+    this.useSystemEnvVars = useSystemEnvVars;
   }
 
   public void setDefault() {

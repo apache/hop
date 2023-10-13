@@ -43,8 +43,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -115,8 +116,14 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         data.close();
         closeFile();
         String copyStmt = buildCopyStatementSqlString();
-        data.db.execStatement(copyStmt);
-        setOutputDone();
+        Connection conn = data.db.getConnection();
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate(copyStmt);
+        conn.commit();
+        stmt.close();
+        conn.close();
+      }catch(SQLException sqle){
+        throw new HopDatabaseException("Error executing COPY statements", sqle);
       } catch (IOException ioe) {
         throw new HopTransformException("Error releasing resources", ioe);
       }
@@ -134,8 +141,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-//      IRowMeta tableMeta = meta.getRequiredFields(variables);
-
       if (!meta.specifyFields()) {
 
         // Just take the whole input row
@@ -143,7 +148,15 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         data.selectedRowFieldIndices = new int[data.insertRowMeta.size()];
 
         data.fieldnrs = new HashMap<>();
-        getDbFields();
+        try{
+          getDbFields();
+        }catch(HopException e){
+          logError("Error getting database fields", e);
+          setErrors(1);
+          stopAll();
+          setOutputDone(); // signal end to receiver(s)
+          return false;
+        }
 
         for (int i = 0; i < meta.getFields().size(); i++) {
           int streamFieldLocation =
@@ -181,7 +194,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
         int numberOfInsertFields = meta.getFields().size();
         data.insertRowMeta = new RowMeta();
-//        data.colSpecs = new ArrayList<>(numberOfInsertFields);
 
         // Cache the position of the selected fields in the row array
         data.selectedRowFieldIndices = new int[numberOfInsertFields];
@@ -217,32 +229,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     writeRowToFile(data.outputRowMeta, r);
     putRow(data.outputRowMeta, r);
 
-
-/*
-    try {
-      Object[] outputRowData = writeToOutputStream(r);
-      if (outputRowData != null) {
-        putRow(data.outputRowMeta, outputRowData); // in case we want it
-        // go further...
-        incrementLinesOutput();
-      }
-
-      if (checkFeedback(getLinesRead())) {
-        if (log.isBasic()) {
-          logBasic("linenr " + getLinesRead());
-        } //$NON-NLS-1$
-      }
-    } catch (HopException e) {
-      logError("Because of an error, this transform can't continue: ", e);
-      setErrors(1);
-      stopAll();
-      setOutputDone(); // signal end to receiver(s)
-      return false;
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-*/
-
     return true;
   }
 
@@ -263,114 +249,15 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       if (log.isDebug()) {
         logDebug("Closing normal file ...");
       }
-/*
-      if (data.out != null) {
-        data.out.close();
-      }
-      if (data.fos != null) {
-        data.fos.close();
-        data.fos = null;
-      }
-*/
+
       returnValue = true;
     } catch (Exception e) {
       logError("Exception trying to close file: " + e.toString());
       setErrors(1);
       returnValue = false;
     }
-
     return returnValue;
   }
-
-/*
-  */
-/**
-   * Runs the commands to put the data to the Snowflake stage, the copy command to load the table,
-   * and finally a commit to commit the transaction.
-   *
-   * @throws HopDatabaseException
-   * @throws HopFileException
-   * @throws HopValueException
-   *//*
-
-  private void loadDatabase() throws HopDatabaseException, HopFileException, HopValueException {
-    boolean endsWithSlash =
-            resolve(meta.getWorkDirectory()).endsWith("\\")
-                    || resolve(meta.getWorkDirectory()).endsWith("/");
-    String sql =
-            "PUT 'file://"
-                    + resolve(meta.getWorkDirectory()).replaceAll("\\\\", "/")
-                    + (endsWithSlash ? "" : "/")
-                    + resolve(meta.getTargetTable())
-                    + "_"
-                    + meta.getFileDate()
-                    + "_*' "
-                    + meta.getStage(this)
-                    + ";";
-
-    logDebug("Executing SQL " + sql);
-    try (ResultSet putResultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
-      IRowMeta putRowMeta = data.db.getReturnRowMeta();
-      Object[] putRow = data.db.getRow(putResultSet);
-      logDebug("=========================Put File Results======================");
-      int fileNum = 0;
-      while (putRow != null) {
-        logDebug("------------------------ File " + fileNum + "--------------------------");
-        for (int i = 0; i < putRowMeta.getFieldNames().length; i++) {
-          logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
-          if (putRowMeta.getFieldNames()[i].equalsIgnoreCase("status")
-                  && putRowMeta.getString(putRow, i).equalsIgnoreCase("ERROR")) {
-            throw new HopDatabaseException(
-                    "Error putting file to Snowflake stage \n"
-                            + putRowMeta.getString(putRow, "message", ""));
-          }
-        }
-        fileNum++;
-
-        putRow = data.db.getRow(putResultSet);
-      }
-      data.db.closeQuery(putResultSet);
-    } catch(SQLException exception) {
-      throw new HopDatabaseException(exception);
-    }
-    String copySQL = meta.getCopyStatement(this, data.getPreviouslyOpenedFiles());
-    logDebug("Executing SQL " + copySQL);
-    try (ResultSet resultSet = data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false)) {
-      IRowMeta rowMeta = data.db.getReturnRowMeta();
-
-      Object[] row = data.db.getRow(resultSet);
-      int rowsLoaded = 0;
-      int rowsLoadedField = rowMeta.indexOfValue("rows_loaded");
-      int rowsError = 0;
-      int errorField = rowMeta.indexOfValue("errors_seen");
-      logBasic("====================== Bulk Load Results======================");
-      int rowNum = 1;
-      while (row != null) {
-        logBasic("---------------------- Row " + rowNum + " ----------------------");
-        for (int i = 0; i < rowMeta.getFieldNames().length; i++) {
-          logBasic(rowMeta.getFieldNames()[i] + " = " + rowMeta.getString(row, i));
-        }
-
-        if (rowsLoadedField >= 0) {
-          rowsLoaded += rowMeta.getInteger(row, rowsLoadedField);
-        }
-
-        if (errorField >= 0) {
-          rowsError += rowMeta.getInteger(row, errorField);
-        }
-
-        rowNum++;
-        row = data.db.getRow(resultSet);
-      }
-      data.db.closeQuery(resultSet);
-      setLinesOutput(rowsLoaded);
-      setLinesRejected(rowsError);
-    } catch(SQLException exception) {
-      throw new HopDatabaseException(exception);
-    }
-    data.db.execStatement("commit");
-  }
-*/
 
   private String buildCopyStatementSqlString() {
     final DatabaseMeta databaseMeta = data.db.getDatabaseMeta();
@@ -397,7 +284,20 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
     sb.append(" FROM '" + meta.getCopyFromFilename() + "'");
     sb.append(" delimiter ','");
-    sb.append(" CREDENTIALS 'aws_access_key_id=" + System.getenv("AWS_ACCESS_KEY_ID") + ";aws_secret_access_key=" + System.getenv("AWS_SECRET_ACCESS_KEY") + "'");
+    if(meta.isUseAwsIamRole()){
+      sb.append(" iam_role '" + meta.getAwsIamRole() + "'");
+    }else if(meta.isUseCredentials()){
+      String awsAccessKeyId = "";
+      String awsSecretAccessKey = "";
+      if(meta.isUseSystemEnvVars()) {
+        awsAccessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
+        awsSecretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
+      }else{
+        awsAccessKeyId = resolve(meta.getAwsAccessKeyId());
+        awsSecretAccessKey = resolve(meta.getAwsSecretAccessKey());
+      }
+      sb.append(" CREDENTIALS 'aws_access_key_id=" + awsAccessKeyId + ";aws_secret_access_key=" + awsSecretAccessKey + "'");
+    }
 
     logDebug("copy stmt: " + sb.toString());
 
@@ -436,26 +336,14 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
 
     if (!StringUtils.isEmpty(resolve(meta.getSchemaName()))) {
-//      sql += resolve(meta.getSchemaName()) + ".";
       rowMeta = data.db.getTableFields(meta.getSchemaName() + "." + meta.getTableName());
     }else {
       rowMeta = data.db.getTableFields(meta.getTableName());
     }
-//    sql += resolve(meta.getTableName());
-//    logDetailed("Executing SQL " + sql);
     try {
-//      try (ResultSet resultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
-
-//        IRowMeta rowMeta = data.db.getReturnRowMeta();
-//        int nameField = rowMeta.indexOfValue("NAME");
-//        int typeField = rowMeta.indexOfValue("TYPE");
-//        if (nameField < 0 || typeField < 0) {
-//          throw new HopException("Unable to get database fields");
-//        }
-
-        if(rowMeta.size() == 0) {
-          throw new HopException("No fields found in table");
-        }
+      if(rowMeta.size() == 0) {
+        throw new HopException("No fields found in table");
+      }
 
       for(int i=0; i < rowMeta.size(); i++) {
         String field[] = new String[2];
@@ -463,22 +351,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         field[1] = rowMeta.getValueMeta(i).getTypeDesc().toUpperCase();
         data.dbFields.add(field);
       }
-
-//        Object[] row = data.db.getRow(resultSet);
-//        if (row == null) {
-//          throw new HopException("No fields found in table");
-//        }
-
-
-//        while (row != null) {
-//          String[] field = new String[2];
-//          field[0] = rowMeta.getString(row, nameField).toUpperCase();
-//          field[1] = rowMeta.getString(row, typeField);
-//          data.dbFields.add(field);
-//          row = data.db.getRow(resultSet);
-//        }
-//        data.db.closeQuery(resultSet);
-//      }
     } catch (Exception ex) {
       throw new HopException("Error getting database fields", ex);
     }
@@ -492,21 +364,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
           BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.Error.NoConnection"));
     }
   }
-
-
-
-/*
-  @Override
-  public void markStop() {
-    // Close the exception/rejected loggers at the end
-    try {
-      closeLogFiles();
-    } catch (HopException ex) {
-      logError(BaseMessages.getString(PKG, "RedshiftBulkLoader.Exception.ClosingLogError", ex));
-    }
-    super.markStop();
-  }
-*/
 
   /**
    * Initialize the binary values of delimiters, enclosures, and escape characters
@@ -534,7 +391,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       throw new HopException("Unexpected error while encoding binary fields", e);
     }
   }
-
 
   /**
    * Writes an individual row of data to a temp file
@@ -616,8 +472,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
                 data.outputRowMeta.getString(row, jsonField).getBytes(StandardCharsets.UTF_8));
         data.writer.write(data.binaryNewline);
       }
-
-//      data.outputCount++;
     } catch (Exception e) {
       throw new HopTransformException("Error writing line", e);
     }
@@ -906,10 +760,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
   @Override
   public void dispose() {
 
-    // allow data to be garbage collected immediately:
-//    data.colSpecs = null;
-//    data.encoder = null;
-
     setOutputDone();
 
     try {
@@ -933,57 +783,4 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     }
     super.dispose();
   }
-
-/*
-  @VisibleForTesting
-  StreamEncoder createStreamEncoder(List<ColumnSpec> colSpecs, PipedInputStream pipedInputStream)
-      throws IOException {
-    return new StreamEncoder(colSpecs, pipedInputStream);
-  }
-
-  @VisibleForTesting
-  VerticaCopyStream createVerticaCopyStream(String dml)
-      throws SQLException, ClassNotFoundException, HopDatabaseException {
-    return new VerticaCopyStream(getVerticaConnection(), dml);
-  }
-
-  @VisibleForTesting
-  VerticaConnection getVerticaConnection()
-      throws SQLException, ClassNotFoundException, HopDatabaseException {
-
-    Connection conn = data.db.getConnection();
-    if (conn != null) {
-      if (conn instanceof VerticaConnection) {
-        return (VerticaConnection) conn;
-      } else {
-        Connection underlyingConn = null;
-        if (conn instanceof DelegatingConnection) {
-          DelegatingConnection pooledConn = (DelegatingConnection) conn;
-          underlyingConn = pooledConn.getInnermostDelegate();
-        } else if (conn instanceof PooledConnection) {
-          PooledConnection pooledConn = (PooledConnection) conn;
-          underlyingConn = pooledConn.getConnection();
-        } else {
-          // Last resort - attempt to use unwrap to get at the connection.
-          try {
-            if (conn.isWrapperFor(VerticaConnection.class)) {
-              VerticaConnection vc = conn.unwrap(VerticaConnection.class);
-              return vc;
-            }
-          } catch (SQLException ignored) {
-            // ignored - the connection doesn't support unwrap or the connection cannot be
-            // unwrapped into a VerticaConnection.
-          }
-        }
-        if ((underlyingConn != null) && (underlyingConn instanceof VerticaConnection)) {
-          return (VerticaConnection) underlyingConn;
-        }
-      }
-      throw new IllegalStateException(
-          "Could not retrieve a RedshiftConnection from " + conn.getClass().getName());
-    } else {
-      throw new IllegalStateException("Could not retrieve a RedshiftConnection from null");
-    }
-  }
-*/
 }
