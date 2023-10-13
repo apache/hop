@@ -40,9 +40,9 @@ The Workflow Executor transform execute a Hop workflow from within a pipeline.
 
 == Usage
 
-By default, the specified workflow will be executed once for each input row.
+By default, the specified workflow will be executed once for each input row (this can be changed in the Row Grouping tab).
 
-This row can be used to set parameters and variables and it is passed to the workflow in the form of a result row.
+Fields from the data row(s) can be used to set parameters and variables and it is passed to the workflow in the form of a result row. Remember that all parameters must be defined at least once in each pipeline or workflow (Edit pipeline/workflow properties). You are passing a parameter when you send a field/parameter/variable to a workflow executor from the Parameters tab.
 
 You can also allow a group of records to be passed based on the value in a field (when the value changes the workflow is executed) or on time. In these cases, the first row of the group or rows is used to set parameters or variables in the workflow.
 
