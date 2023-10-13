@@ -24,17 +24,20 @@ under the License.
 |===
 |
 == Description
-
-The JSON Input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
+The JSON input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows. For example, connect a REST client to a JSON input transform to read JSON into data rows.
 
 JSONPath expressions can use either dot notation or square bracket notation.
 
-To read nested JSON elements, use a sequence of JSON Input transforms, where the first JSON Input transform reads the nested element as a String field. In the second JSON Input transform, use the `Source is from a previous transform` option to select the String field you used in the first JSON Input transform to read the information from the nested element. Check the `json-input-nested-elements.hpl` sample in the Samples project for an example.      
+To read nested JSON elements, use a sequence of JSON Input transforms, where the first JSON Input transform reads the nested element as a String field. In the second JSON Input transform, use the `Source is from a previous transform` option to select the String field you used in the first JSON Input transform to read the information from the nested element. 
 
-Samples (Samples project):
+Check the `json-input-nested-elements.hpl` sample in the Samples project for an example.
+
+*Samples (Samples project):*
 
 * json-input-basic.hpl
+
 * json-input-nested-elements.hpl
+
 
 |
 == Supported Engines
@@ -49,7 +52,7 @@ Samples (Samples project):
 
 == Options
 
-=== General Tab
+=== File Tab
 
 [options="header"]
 |===
@@ -121,7 +124,7 @@ The table in this tab contain the following columns:
 |===
 |Option|Description
 |Name|Name of field that maps to the corresponding field in the JSON input stream.
-|Path|Complete path of the field name in the JSON input stream.
+|Path|Complete path of the field name in the JSON input stream. Hop uses the library JayWay for JSON Path expressions and documentation is at https://github.com/json-path/JsonPath.
 All records can be retrieved by adding the asterisk * in the path.
 For example, $.mydata.*
 |Type|Data type of the input field.
@@ -134,15 +137,36 @@ See Common Formats for information on common valid date and numeric formats you 
 |Group|A grouping can be a , (10,000.00 for example) or . (5.000,00 for example).
 |Trim type|The trim method to apply to a string.
 |Repeat|The corresponding value from the last row repeated if a row is empty.
-|Get fields|Populate the table with fields derived from the source file.
 |===
 
-=== Select fields
+*Select fields*
 
-Click Get Fields in the Fields tab to open the Select Fields window.
+Click Select Fields button in the Fields tab to open the Select Fields window.
 Select the checkbox next to each field in your source file that you want include in your output.
 All the fields selected in this transform are added to the table.
 You can search for a field name by entering the field name in the Search box.
+
+*Select fields from snippet*
+
+Click Select fields from snippet button and paste the entire JSON text and it will populate the Name, Path, Type columns in the Fields tab. Example: This is useful when copying JSON from a previous REST client’s output result.
+
+*Dates and Timestamps*
+
+For Hop types of Date and Timestamp, use the Format column to specify the incoming format. E.g. for Date: yyyy-MM-dd. You can either select a format from the dropdown or enter format text directly. Hop uses SimpleDateFormat (Java Platform SE 8) at https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html
+
+*Examples of Timestamp formats:*
+
+* Format: yyyy-MM-dd'T'HH:mm:ss.SSSZ and Result: 2021-10-26T20:51:43.795+0000
+
+* Format: 2024-04-22T00:00:00.000Z and Result: 2024-04-22T00:00:00.000Z
+
+
+*Regex*
+
+You can use Regex in the Path expression.
+
+*Example Path to filter on those that start with the letter 'a':* $.data[?(@=~/a.*/i)]
+
 
 === Additional output fields tab
 
