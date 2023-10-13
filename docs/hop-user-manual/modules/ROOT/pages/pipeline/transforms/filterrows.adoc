@@ -56,9 +56,12 @@ TIP: Lists also works on numeric values like integers. In this case, the list of
 |Send 'true' data to transform|The rows for which the condition specified is true are sent to this transform
 |Send 'false' data to transform|The rows for which the condition specified are false are sent to this transform
 |The Condition|
-|Add Condition| Click to add conditions.
-Add condition converts the original condition into a sub-level condition.
-Click a sub-condition to edit it by going down one level in the condition tree.
+|Add Condition| Click to add conditions. Add condition converts the original condition into a sub-level condition.
+
+* Click a sub-condition to edit it by going down one level in the condition tree.
+
+* Right-click a condition to edit, delete, move, or add a sub-condition.
+
 |===
 
 == Filtering
@@ -66,12 +69,15 @@ Click a sub-condition to edit it by going down one level in the condition tree.
 === Filtering rows based on values from variables
 
 The filter rows transform detects only fields in the input stream.
-If you want to filter rows based on a variable value, you must modify the previous transform (a table input for example) and include the variable as another field, for example:
 
-[source,bash]
+The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform. For example, a table input transform can include the variable in the SQL as another field such as
+[source,sql]
 ----
-${myvar}=5
+SELECT field1, field2, ${myvar} AS field3 FROM table1
 ----
+, then in the filter row condition you can say field1 = field3. Alternatively, you can use a ‘Get Variables’ transform to set parameters in fields.
+
+You can use a REGEX expression in the "filter row" transform.  
 
 A query:
 
@@ -93,6 +99,9 @@ field1 = field3
 
 *FYI* - instead of the Table Input trick above you can use the simple "Get Variables" transform to set parameters in fields.
 
+Remember that all transforms are executed in parallel, so both true and false paths will run in some cases. 
+In some cases it will be better to use a where filter in a SQL query than use a Filter rows transform. If you need to return input rows for either case (true/false), you can use various SQL query methods that will always return results using IF EXISTS or IS NULL for example.
+
 === Filtering special characters
 
 To filter special characters like explicit EOF (e.g. from old cobol files) Use a REGEX expression in the "filter row" transform with the syntax: "\x{openvar}1A{closevar}" where \x mean HEX representation and 1A into parenthesis is the EOF char to match in HEX.
@@ -101,6 +110,8 @@ To filter special characters like explicit EOF (e.g. from old cobol files) Use a
 
 All fields of this transform support metadata injection.
 You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+
+If you cannot select the field you would like because it does not exist yet because of metadata injection, see this doc: https://hop.apache.org//manual/latest/pipeline/transforms/filterrows.html#_mdi_example and this example in the samples project: metadata-injection/filter-rows-mdi-parent.hpl
 
 == Special considerations for the condition field
 
