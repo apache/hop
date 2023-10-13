@@ -34,8 +34,8 @@
     <name>Hop Assemblies Plugins Transforms for Drools</name>
 
     <properties>
-        <drools.version>7.68.0.Final</drools.version>
-        <kie.version>7.68.0.Final</kie.version>
+        <drools.version>7.74.1.Final</drools.version>
+        <kie.version>7.74.1.Final</kie.version>
         <antlr.version>3.5.3</antlr.version>
         <mvel2.version>2.4.14.Final</mvel2.version>
     </properties>
