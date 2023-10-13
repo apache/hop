@@ -38,13 +38,20 @@ under the License.
 
 The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
 
+
 With a formula you are not limited to comparing to three fields like in the Calculator. This is where you can set and compare Date and Times as well.
 
-You have the option of creating a new field (use New field column) or replacing a field (use Replace value column).
+
+You have the option of creating a new field (use New field column) or setting a field value (use Replace value column).
+
+TIP: The formula will not evaluate a field unless the field pre-exists. Either start the execution of that pipeline to create missing fields or check if the field exists by viewing fields in the Replace value dropdown.
 
 Formula Examples using the TEXT function:
+
 *	Int to Text: "size=" & TEXT([RowLimitInteger],"0").
+
 *	DateTime to Text: [StartDateField] & "=" & TEXT([StartDateTime], "yyyy-mm-dd")
+
 *	String to Text: "new_counter=" & TEXT([counter]+1, "0")
 
 |
@@ -64,13 +71,13 @@ Formula Examples using the TEXT function:
 |===
 |Option|Description
 |transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
-|New Field|the name of the new field that will be created from the formula. The Formula transform requires a data row to create a new field. You can add a row generator with a single row as the first transform in your pipeline.
+|New Field|the name of the new field that will be created from the formula. The Formula transform requires a data row to create a new field. If needed, you can add a row generator with a single row as the first transform in your pipeline.
 |Formula|the formula that will be used to create the new field. Click on the field to open the Formula Editor (see the Formula Editor section for more details). To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax ${param1}. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: CONCATENATE([field1], “${Param1}”)
 * Note: You may have to add quotes around variables in formulas as variables have no type.
 |Value type|the data type for the new formula field
 |Length|field length
 |Precision|field precision
-|Replace value|select a pipeline field from the dropdown to replace that field's value with the formula result. Alteratively, you can pre-create the field with a NULL value in a “Get variables” transform.
+|Replace value|select a pipeline field from the dropdown to replace that field's value with the formula result. It is not recommended to pre-create a field with a NULL value in a "Get variables" transform as that is considered a hack and is not supported behavior.
 |===
 
 == Formula Editor
