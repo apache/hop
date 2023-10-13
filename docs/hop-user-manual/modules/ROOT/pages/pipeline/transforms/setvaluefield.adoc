@@ -44,8 +44,8 @@ The Set Field Value transform replaces the value of a field with the value of an
 |===
 |Option|Description
 |Transform name|Name of the transform this name has to be unique in a single pipeline.
-|Field name|Select the field with values to be replaced
-|Replace by value from field|Select the field whose value will replace the value of the field in the Field name column
+|Field name|Select the field you want to set (value to be replaced)
+|Replace by value from field|Select the field to copy from
 |===
 
 == Metadata Injection Support
