@@ -55,7 +55,7 @@ image:beam/beam-flink-ui.png[Apache Flink Dashboard, width="90%"]
 
 == Flink Run Configuration setup
 
-In Hop Gui's metadata perspective for the Samples project, edit the `Flink` pipeline run configuration and make sure the `Fat jar file location` (the very last option) points to the Hop fat jar you created earlier in the xref:pipeline/beam/running-the-beam-samples.adoc#_prerequisites[prerequisites].
+In Hop Gui's metadata perspective for the Samples project, edit the `Flink` pipeline run configuration and make sure the `Fat jar file location` (the very last option) points to the Hop fat jar you created earlier in the xref:pipeline/beam/running-the-beam-samples.adoc#prerequisites[prerequisites].
 
 image:beam/beam-flink-run-config.png[Apache Beam - Flink run configuration, width="70%"]
 
