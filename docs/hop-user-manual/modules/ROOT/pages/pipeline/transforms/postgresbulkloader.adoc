@@ -40,7 +40,7 @@ TIP: replace boolean fields in your pipeline stream by string fields with "Y" or
 !===
 |===
 
-IMPORTANT: The PostgreSQL Bulk Loader is linked to the database type. It will fetch the JDBC driver from the hop/plugins/databases/postgresql/lib folder. +
+IMPORTANT: The PostgreSQL Bulk Loader is linked to the database type. It will fetch the JDBC driver from the hop/lib/jdbc folder. +
  +
 Valid locations for the JDBC driver for this transform are the database plugin lib and the main hop/lib folder. It will not work in combination with the SHARED_JDBC_FOLDER variable.
 
