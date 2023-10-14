@@ -23,7 +23,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -79,14 +78,16 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         verifyDatabaseConnection();
         data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
-        // get the file output stream to write to S3
-        data.writer = HopVfs.getOutputStream(meta.getCopyFromFilename(), false);
+        if(meta.isStreamToS3Csv()){
+          // get the file output stream to write to S3
+          data.writer = HopVfs.getOutputStream(meta.getCopyFromFilename(), false);
+        }
 
         data.db = new Database(this, this, data.databaseMeta);
         data.db.connect();
 
         if (log.isBasic()) {
-          logBasic("Connected to database [" + data.db.getDatabaseMeta() + "]");
+          logBasic(BaseMessages.getString(PKG, "RedshiftBulkLoader.Connection.Connected", data.db.getDatabaseMeta()));
         }
         initBinaryDataFields();
 
@@ -130,7 +131,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       return false;
     }
 
-    if (first) {
+    if (first && meta.isStreamToS3Csv()) {
 
       first = false;
 
@@ -141,7 +142,10 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (!meta.specifyFields()) {
+      if(meta.isStreamToS3Csv()){
+
+      }
+      if (!meta.specifyFields()){
 
         // Just take the whole input row
         data.insertRowMeta = getInputRowMeta().clone();
@@ -226,8 +230,10 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       }
     }
 
-    writeRowToFile(data.outputRowMeta, r);
-    putRow(data.outputRowMeta, r);
+    if(meta.isStreamToS3Csv()){
+      writeRowToFile(data.outputRowMeta, r);
+      putRow(data.outputRowMeta, r);
+    }
 
     return true;
   }
@@ -271,19 +277,23 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
             data.db.resolve(meta.getSchemaName()),
             data.db.resolve(meta.getTableName())));
 
-    sb.append(" (");
-    final IRowMeta fields = data.insertRowMeta;
-    for (int i = 0; i < fields.size(); i++) {
-      if (i > 0) {
-        sb.append(", " + fields.getValueMeta(i).getName());
-      }else{
-        sb.append(fields.getValueMeta(i).getName());
+    if(meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")){
+      sb.append(" (");
+      final IRowMeta fields = data.insertRowMeta;
+      for (int i = 0; i < fields.size(); i++) {
+        if (i > 0) {
+          sb.append(", " + fields.getValueMeta(i).getName());
+        }else{
+          sb.append(fields.getValueMeta(i).getName());
+        }
       }
+      sb.append(")");
     }
-    sb.append(")");
 
-    sb.append(" FROM '" + meta.getCopyFromFilename() + "'");
-    sb.append(" delimiter ','");
+    sb.append(" FROM '" + resolve(meta.getCopyFromFilename()) + "'");
+    if(meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")){
+      sb.append(" delimiter ','");
+    }
     if(meta.isUseAwsIamRole()){
       sb.append(" iam_role '" + meta.getAwsIamRole() + "'");
     }else if(meta.isUseCredentials()){
@@ -297,6 +307,9 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         awsSecretAccessKey = resolve(meta.getAwsSecretAccessKey());
       }
       sb.append(" CREDENTIALS 'aws_access_key_id=" + awsAccessKeyId + ";aws_secret_access_key=" + awsSecretAccessKey + "'");
+    }
+    if(meta.getLoadFromExistingFileFormat().equals("Parquet")){
+      sb.append(" FORMAT AS PARQUET;");
     }
 
     logDebug("copy stmt: " + sb.toString());

@@ -275,7 +275,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         };
 
     wlAwsAuthentication = new Label(shell, SWT.RIGHT);
-    wlAwsAuthentication.setText("AWS authentication");
+    wlAwsAuthentication.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.Options.Label"));
     PropsUi.setLook(wlAwsAuthentication);
     FormData fdlAwsAuthentication = new FormData();
     fdlAwsAuthentication.top = new FormAttachment(lastControl, margin);
@@ -295,7 +295,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     wlUseSystemVars = new Label(shell, SWT.RIGHT);
     wlUseSystemVars.setText("Use AWS system variables");
-    wlUseSystemVars.setToolTipText("specify whether you want to use the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment (operating system) variables, or specify values for this transform only");
+    wlUseSystemVars.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
     PropsUi.setLook(wlUseSystemVars);
     FormData fdlUseSystemVars = new FormData();
     fdlUseSystemVars.top = new FormAttachment(lastControl, margin);
@@ -546,7 +546,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdLoadFromExistingFile.left = new FormAttachment(middle, 0);
     fdLoadFromExistingFile.right = new FormAttachment(100, 0);
     wLoadFromExistingFileFormat.setLayoutData(fdLoadFromExistingFile);
-    String[] fileFormats = {"CSV", "Avro", "Parquet"};
+    String[] fileFormats = {"CSV", "Parquet"};
     wLoadFromExistingFileFormat.setItems(fileFormats);
     lastControl = wLoadFromExistingFileFormat;
 
