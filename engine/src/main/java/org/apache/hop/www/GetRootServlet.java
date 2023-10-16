@@ -56,6 +56,7 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
             + BaseMessages.getString(PKG, "GetRootServlet.HopHopServer.Title")
             + "</TITLE>");
     out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");    
     out.println("</HEAD>");
     out.println("<BODY>");
     out.println("<H2>" + BaseMessages.getString(PKG, "GetRootServlet.HopServerMenu") + "</H2>");

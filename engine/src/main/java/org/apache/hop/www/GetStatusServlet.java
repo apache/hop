@@ -143,10 +143,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("<HTML>");
       out.println(
           "<HEAD><TITLE>"
-              + BaseMessages.getString(PKG, "GetStatusServlet.HopHopServerStatus")
+              + BaseMessages.getString(PKG, "GetStatusServlet.HopServerStatus")
               + "</TITLE>");
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-
+      out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+      
       int tableBorder = 1;
       if (!useLightTheme) {
         if (isJettyMode()) {

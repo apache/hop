@@ -206,6 +206,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
         if (isJettyMode()) {
           out.println(
               "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />");
+          out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+          
         }
         out.println("</HEAD>");
         out.println("<BODY style=\"overflow: auto;\">");

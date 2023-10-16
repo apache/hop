@@ -94,6 +94,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     out.println(Encode.forHtml(getTitle()));
     out.println("</TITLE>");
     out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
+    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");    
     out.println("</HEAD>");
     out.println("<BODY>");
   }
