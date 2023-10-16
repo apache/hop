@@ -1,0 +1,86 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Redshift Bulk Loader transform loads data from Apache Hop to AWS Redshift using the COPY command.
+
+= image:transforms/icons/redshift.svg[Redshift Bulk Loader transform Icon, role="image-doc-icon"] Redshift Bulk Loader
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Redshift Bulk Loader transform loads data from Apache Hop to AWS Redshift using the https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html[`COPY`^] command.
+
+TIP: make sure your target Redshift table has a layout that is compatible with Parquet data types, e.g. use `int8` instead of `int4` data types.
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+IMPORTANT: The Redshift Bulk Loader is linked to the database type. It will fetch the JDBC driver from the hop/lib/jdbc folder. +
++
+
+== General Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Connection|Name of the database connection on which the target table resides.
+|Target schema|The name of the target schema to write data to.
+|Target table|The name of the target table to write data to.
+|AWS Authentication a|choose which authentication method to use with the `COPY` command. Supported options are `AWS Credentials` and `IAM Role`. +
+
+* check the https://docs.aws.amazon.com/redshift/latest/dg/copy-usage_notes-access-permissions.html#copy-usage_notes-access-key-based[Key-based access control] for more information on the `Credentials` option.
+* check the https://docs.aws.amazon.com/redshift/latest/dg/copy-usage_notes-access-permissions.html#copy-usage_notes-access-role-based[IAM Role] docs for more information on the `IAM Role` option.
+
+|Use AWS system variables|(`Credentials` only!) pick up the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values from your operating system's environment variables.
+|AWS_ACCESS_KEY_ID|(if `Credentials` is selected and `Use AWS system variables` is unchecked) specify a value or variable for your `AWS_ACCESS_KEY_ID`.
+|AWS_SECRET_ACCESS_KEY|(if `Credentials` is selected and `Use AWS system variables` is unchecked) specify a value or variable for your `AWS_SECRET_ACCESS_KEY`.
+|IAM Role|(if `IAM Role` is selected) specify the IAM Role to use, in the syntax `arn:aws:iam::<aws-account-id>:role/<role-name>`
+|Truncate table|Truncate the target table before loading data.
+|Truncate on first row|Truncate the target table before loading data, but only when a first data row is received (will not truncate when a pipeline runs an empty stream (0 rows)).
+|Specify database fields|Specify the database and stream fields mapping
+|===
+
+== Main Options
+
+[options="header"]
+|===
+|Option|Description
+|Stream to S3 CSV|write the current pipeline stream to a CSV file in an S3 bucket before performing the `COPY` load.
+|Load from existing file|do not stream the contents of the current pipeline, but perform the `COPY` load from a pre-existing file in S3. Suppoorted formats are `CSV` (comma delimited) and `Parquet`.
+|Copy into Redshift from existing file|path to the file in S3 to `COPY` load the data from.
+|===
+
+== Database fields
+
+Map the current stream fields to the Redshift table's columns.
+
+== Metadata Injection Support
+
+All fields of this transform support metadata injection.
+You can use this transform with Metadata Injection to pass metadata to your pipeline at runtime.

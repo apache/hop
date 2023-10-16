@@ -57,6 +57,7 @@
                 <include>joda-time:joda-time</include>
                 <include>com.amazonaws:aws-java-sdk-s3</include>
                 <include>com.amazonaws:aws-java-sdk-kms</include>
+                <include>com.amazon.redshift:redshift-jdbc42:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

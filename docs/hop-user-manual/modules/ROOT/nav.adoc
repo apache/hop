@@ -207,6 +207,7 @@ under the License.
 *** xref:pipeline/transforms/processfiles.adoc[Process files]
 *** xref:pipeline/transforms/propertyinput.adoc[Properties file Input]
 *** xref:pipeline/transforms/propertyoutput.adoc[Properties file Output]
+*** xref:pipeline/transforms/redshift-bulkloader.adoc[Redshift Bulk Loader]
 *** xref:pipeline/transforms/regexeval.adoc[Regex Evaluation]
 *** xref:pipeline/transforms/replacestring.adoc[Replace in String]
 *** xref:pipeline/transforms/reservoirsampling.adoc[Reservoir Sampling]
