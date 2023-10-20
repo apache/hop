@@ -1,0 +1,58 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Beam Hive Catalog input transform reads data from an Apache Hive metastore.
+
+= image:transforms/icons/beam-input.svg[Beam Input Icon, role="image-doc-icon"] (EXPERIMENTAL) Beam Hive Catalog Input
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Beam Hive Catalog input transform reads data from an Apache Hive metastore.
+
+WARNING: This transform is in an experimental state, backwards compatibility between versions is not guaranteed
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:cross.svg[Not Supported, 24]
+!Spark! image:check_mark.svg[Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform, this name has to be unique in a single pipeline.
+|Hive Metastore URI|The Thrift metastore URI needs to be in format `thrift://hivemetastore:9083`
+|Database name|Database name used in the metastore.
+|Table name|Table name used in the metastore
+|===
+
+
+== Limitations
+
+At this point in time this transform is still in an experimental phase. +
+It can not yet detect and cast field types, all data is returned in a single string which is separated by the `;` character. Use a xref:pipeline/transforms/splitfields.adoc[split fields] transform to split the data into fields.

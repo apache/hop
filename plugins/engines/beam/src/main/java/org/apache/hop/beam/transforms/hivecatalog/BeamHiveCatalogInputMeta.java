@@ -41,12 +41,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
         id = "BeamHiveCatalogInput",
-        image = "beam-output.svg",
+        image = "beam-input.svg",
         name = "i18n::BeamHiveCatalogInputDialog.DialogTitle",
         description = "i18n::BeamHiveCatalogInputDialog.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Experimental",
         keywords = "i18n::BeamHiveCatalogInputDialog.keyword",
-        documentationUrl = "/pipeline/transforms/beamoutput.html")
+        documentationUrl = "/pipeline/transforms/beamhivecataloginput.html")
 public class BeamHiveCatalogInputMeta extends BaseTransformMeta<BeamHiveCatalogInput, BeamHiveCatalogInputData> implements IBeamPipelineTransformHandler {
     @HopMetadataProperty(key = "hive_metastore_uris")
     private String hiveMetastoreUris;

@@ -17,6 +17,32 @@
 
 version: '2.4'
 services:
+  integration_test_spark:
+    extends:
+      file: integration-tests-base.yaml
+      service: integration_test
+    depends_on:
+      - spark
+      - spark-worker
+      - namenode
+      - datanode
+      - datanode2
+      - datanode3
+      - resourcemanager
+      - nodemanager
+      - hiveserver
+      - hive-metastore
+    links:
+      - spark
+      - spark-worker
+      - namenode
+      - datanode
+      - datanode2
+      - datanode3
+      - resourcemanager
+      - nodemanager
+      - hiveserver
+      - hive-metastore
   spark:
     build:
       context: ../../docker/integration-tests/spark/.
@@ -24,8 +50,8 @@ services:
     environment:
       - INIT_DAEMON_STEP=setup_spark
     ports:
-      - 8080:8080
-      - 7077:7077
+      - 8080
+      - 7077
   spark-worker:
     build:
       context: ../../docker/integration-tests/spark/.
@@ -35,7 +61,7 @@ services:
     environment:
       - "SPARK_MASTER=spark://spark:7077"
     ports:
-      - 8081:8081
+      - 8081
   namenode:
     build: 
       dockerfile: Dockerfile.hadoop
@@ -43,8 +69,8 @@ services:
     hostname: namenode
     command: ["hdfs", "namenode"]
     ports:
-      - 9870:9870
-      - 8020:8020
+      - 9870
+      - 8020
     env_file:
       - ./spark/config
     environment:
@@ -77,7 +103,7 @@ services:
     hostname: resourcemanager
     command: ["yarn", "resourcemanager"]
     ports:
-       - 8088:8088
+       - 8088
     env_file:
       - ./spark/config
     volumes:
@@ -92,8 +118,8 @@ services:
   hiveserver:
     image: apache/hive:4.0.0-beta-1
     ports:
-      - 10000:10000
-      - 10002:10002
+      - 10000
+      - 10002
     depends_on:
       - hive-metastore
     environment:
@@ -104,6 +130,6 @@ services:
   hive-metastore:
     image: apache/hive:4.0.0-beta-1
     ports:
-      - 9083:9083
+      - 9083
     environment:
       - SERVICE_NAME=metastore
