@@ -58,6 +58,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellReference;
+import org.apache.poi.util.IOUtils;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -71,6 +72,13 @@ public class ExcelWriterTransform
   public static final String STREAMER_FORCE_RECALC_PROP_NAME =
       "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
 
+  public static int BYTE_ARRAY_MAX_OVERRIDE = 250000000;
+
+  private InputStream inputStream;
+  private OutputStream out;
+  private static BufferedInputStream fis;
+  private static BufferedOutputStream fos;
+
   public ExcelWriterTransform(
       TransformMeta transformMeta,
       ExcelWriterTransformMeta meta,
@@ -79,6 +87,7 @@ public class ExcelWriterTransform
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+    IOUtils.setByteArrayMaxOverride(BYTE_ARRAY_MAX_OVERRIDE);
   }
 
   @Override
@@ -295,7 +304,7 @@ public class ExcelWriterTransform
   }
 
   private void closeOutputFile(ExcelWriterWorkbookDefinition file) throws HopException {
-    OutputStream out = null;
+    out = null;
     try {
       out = new BufferedOutputStream(HopVfs.getOutputStream(file.getFile(), false));
       // may have to write a footer here
@@ -740,8 +749,9 @@ public class ExcelWriterTransform
    * @throws HopException
    */
   public static void copyFile(FileObject in, FileObject out) throws HopException {
-    try (BufferedInputStream fis = new BufferedInputStream(HopVfs.getInputStream(in));
-        BufferedOutputStream fos = new BufferedOutputStream(HopVfs.getOutputStream(out, false))) {
+    try{
+      fis = new BufferedInputStream(HopVfs.getInputStream(in));
+      fos = new BufferedOutputStream(HopVfs.getOutputStream(out, false));
       byte[] buf = new byte[1024 * 1024]; // copy in chunks of 1 MB
       int i = 0;
       while ((i = fis.read(buf)) != -1) {
@@ -874,11 +884,12 @@ public class ExcelWriterTransform
       }
 
       // Start creating the workbook
-      Workbook wb;
+      Workbook wb = null;
       Sheet sheet;
       // file is guaranteed to be in place now
       if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")) {
-        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file))) {
+        try{
+          inputStream = HopVfs.getInputStream(HopVfs.getFilename(file));
           XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
           if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {
             wb = new SXSSFWorkbook(xssfWorkbook, 100);
@@ -888,11 +899,16 @@ public class ExcelWriterTransform
             // only append.
             wb = xssfWorkbook;
           }
+        }catch(HopException e){
+          logError("Opening input stream for " + file.getName(), e);
         }
       } else {
-        try (InputStream inputStream = HopVfs.getInputStream(file)) {
+//        try{
+          inputStream = HopVfs.getInputStream(file);
           wb = new HSSFWorkbook(inputStream);
-        }
+//        }catch(HopException e){
+//          logError("Opening input stream for " + file.getName(), e);
+//        }
       }
 
       int existingActiveSheetIndex = wb.getActiveSheetIndex();
@@ -1185,5 +1201,27 @@ public class ExcelWriterTransform
       splitNr++;
     }
     return splitNr;
+  }
+
+  @Override
+  public void dispose(){
+    try{
+      closeFiles();
+      if(inputStream != null){
+        inputStream.close();
+      }
+      if(out != null){
+        out.close();
+      }
+      if(fis != null){
+        fis.close();
+      }
+      if(fos != null){
+        fos.close();
+      }
+    }catch(HopException | IOException e){
+      logError("Error closing files on dispose", e);
+    }
+    super.dispose();
   }
 }
