@@ -30,15 +30,10 @@
     <name>Hop Plugins Transforms Formula</name>
 
     <properties>
-        <poi.version>5.2.3</poi.version>
+        <poi.version>5.2.4</poi.version>
     </properties>
 
     <dependencies>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hop</groupId>-->
-<!--            <artifactId>hop-transform-excelinput</artifactId>-->
-<!--            <version>${version}</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
