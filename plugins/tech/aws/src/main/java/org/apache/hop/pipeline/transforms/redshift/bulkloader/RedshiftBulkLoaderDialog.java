@@ -767,9 +767,12 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     // refresh data
     input.setTablename(variables.resolve(wTable.getText()));
-    ITransformMeta transformMetaInterface = transformMeta.getTransform();
+    ITransformMeta transformMeta = this.transformMeta.getTransform();
+    if(StringUtils.isEmpty(input.getConnection())){
+      input.setConnection(wConnection.getText());
+    }
     try {
-      targetFields = transformMetaInterface.getRequiredFields(variables);
+      targetFields = transformMeta.getRequiredFields(variables);
     } catch (HopException e) {
       new ErrorDialog(
           shell,
