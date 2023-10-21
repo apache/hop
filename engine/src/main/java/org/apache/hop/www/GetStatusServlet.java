@@ -747,7 +747,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
       out.println(
           setupAjaxCall(
-              setupJobURI(convertContextPath(StartWorkflowServlet.CONTEXT_PATH)),
+              setupWorkflowURI(convertContextPath(StartWorkflowServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.StartWorkflow.Title"),
               "'"
                   + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
@@ -804,7 +804,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
       out.println(
           setupAjaxCall(
-              setupJobURI(convertContextPath(StopWorkflowServlet.CONTEXT_PATH)),
+              setupWorkflowURI(convertContextPath(StopWorkflowServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.StopWorkflow.Title"),
               "'"
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopWorkflow.Success.Body1")
@@ -1121,7 +1121,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           "    if( removeElement.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
       out.println(
           setupAjaxCall(
-              setupJobURI(convertContextPath(RemoveWorkflowServlet.CONTEXT_PATH)),
+              setupWorkflowURI(convertContextPath(RemoveWorkflowServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.RemoveWorkflow.Title"),
               "'"
                   + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
@@ -1280,7 +1280,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedPipelineRowIndex ).innerHTML";
   }
 
-  private String setupJobURI(String context) {
+  private String setupWorkflowURI(String context) {
     return "'"
         + context
         + "'"
