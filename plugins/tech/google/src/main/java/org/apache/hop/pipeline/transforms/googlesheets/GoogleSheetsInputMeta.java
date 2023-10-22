@@ -49,7 +49,7 @@ public class GoogleSheetsInputMeta
     inputFields = new ArrayList<>();
   }
 
-  @HopMetadataProperty(key="jsonCrendentialPath", injectionGroupKey = "SHEET")
+  @HopMetadataProperty(key="jsonCredentialPath", injectionGroupKey = "SHEET")
   private String jsonCredentialPath;
 
   @HopMetadataProperty(key="spreadsheetKey", injectionGroupKey = "SHEET")
@@ -91,8 +91,8 @@ public class GoogleSheetsInputMeta
     return this.jsonCredentialPath == null ? "" : this.jsonCredentialPath;
   }
 
-  public void setJsonCredentialPath(String key) {
-    this.jsonCredentialPath = key;
+  public void setJsonCredentialPath(String jsonCredentialPath) {
+    this.jsonCredentialPath = jsonCredentialPath;
   }
 
   public List<GoogleSheetsInputField> getInputFields() {
