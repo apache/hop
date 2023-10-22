@@ -91,6 +91,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
     START,
     DUMMY,
     FORMULA,
+    GOOGLE_SHEETS_INPUT,
+    SIMPLE_MAPPING,
     OTHER
   };
 
@@ -510,7 +512,8 @@ public class KettleImport extends HopImportBase implements IHopImport {
           for (int j = 0; j < node.getChildNodes().getLength(); j++) {
             Node childNode = node.getChildNodes().item(j);
             if (childNode.getNodeName().equals("jobname")
-                || childNode.getNodeName().equals("transname")) {
+                || childNode.getNodeName().equals("transname")
+                || childNode.getNodeName().equals("trans_name")) {
               if (!StringUtil.isEmpty(childNode.getTextContent())) {
                 nodeToProcess = processRepositoryNode(node);
               }
@@ -570,6 +573,14 @@ public class KettleImport extends HopImportBase implements IHopImport {
               if (childNode.getNodeName().equals("type")
                   && childNode.getChildNodes().item(0).getNodeValue().equals("Formula")) {
                 entryType = EntryType.FORMULA;
+              }
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("PentahoGoogleSheetsPluginInputMeta")){
+                entryType = EntryType.GOOGLE_SHEETS_INPUT;
+              }
+              if (childNode.getNodeName().equals("type")
+                  && childNode.getChildNodes().item(0).getNodeValue().equals("Mapping")) {
+                entryType = EntryType.SIMPLE_MAPPING;
               }
             }
           }
@@ -675,6 +686,114 @@ public class KettleImport extends HopImportBase implements IHopImport {
           if (currentNode.getTextContent().contains(entry.getKey())) {
             currentNode.setTextContent(
                 currentNode.getTextContent().replace(entry.getKey(), entry.getValue()));
+          }
+        }
+      }
+
+      if(entryType == EntryType.SIMPLE_MAPPING
+              && currentNode.getNodeName().equals("transform")){
+
+        Node filenameNode = null;
+        String transName = "";
+        String directoryPath = "";
+        // get trans name, file name, path, set correct filename when needed.
+        for(int j=0; j <currentNode.getChildNodes().getLength(); j++){
+          if(currentNode.getChildNodes().item(j).getNodeName().equals("directory_path")){
+            directoryPath = currentNode.getChildNodes().item(j).getTextContent();
+            currentNode.removeChild(currentNode.getChildNodes().item(j));
+          }
+          if(currentNode.getChildNodes().item(j).getNodeName().equals("trans_name")){
+            transName = currentNode.getChildNodes().item(j).getTextContent();
+            currentNode.removeChild(currentNode.getChildNodes().item(j));
+          }
+          if(currentNode.getChildNodes().item(j).getNodeName().equals("filename")){
+            filenameNode = currentNode.getChildNodes().item(j);
+          }
+        }
+
+        // if we have a trans name and directory path, use it to update the mapping pipeline filename.
+        if(!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)){
+          filenameNode.setTextContent("${PROJECT_HOME}" + directoryPath + "/" + transName + ".hpl");
+        }
+
+        // add the default pipeline run configuration.
+        Element runConfigElement = doc.createElement("runConfiguration");
+        runConfigElement.appendChild(doc.createTextNode(defaultPipelineRunConfiguration));
+        currentNode.appendChild(runConfigElement);
+      }
+
+      if(entryType == EntryType.GOOGLE_SHEETS_INPUT
+              && currentNode.getNodeName().equals("jsonCredentialPath")){
+        String jsonCredentialKeyPath = currentNode.getTextContent();
+        currentNode.setTextContent(jsonCredentialKeyPath.replace('\\', '/'));
+      }
+      if(entryType == EntryType.GOOGLE_SHEETS_INPUT
+              && currentNode.getNodeName().equals("field")){
+
+        // get the second (1) child node to replace data types
+        for(int j=0; j < currentNode.getChildNodes().getLength(); j++){
+          Node childNode = currentNode.getChildNodes().item(j);
+          if(childNode.getNodeName().equals("type")){
+            String typeNodeValue = childNode.getTextContent();
+            switch(typeNodeValue){
+              case "Avro Record":
+                childNode.setTextContent("20");
+                break;
+              case "BigNumber":
+                childNode.setTextContent("6");
+                break;
+              case "Binary":
+                childNode.setTextContent("8");
+                break;
+              case "Boolean":
+                childNode.setTextContent("4");
+                break;
+              case "Date":
+                childNode.setTextContent("3");
+                break;
+              case "Integer":
+                childNode.setTextContent("5");
+                break;
+              case "Internet Address":
+                childNode.setTextContent("10");
+                break;
+              case "Number":
+                childNode.setTextContent("1");
+                break;
+              case "Serializable":
+                childNode.setTextContent("7");
+                break;
+              case "String":
+                childNode.setTextContent("2");
+                break;
+              case "Timestamp":
+                childNode.setTextContent("9");
+                break;
+              // default to String
+              default:
+                childNode.setTextContent("2");
+                break;
+            }
+          }if(childNode.getNodeName().equals("trim_type")){
+            String trimTypeNode = childNode.getTextContent();
+            switch(trimTypeNode){
+              case "none":
+                childNode.setTextContent("0");
+                break;
+              case "left":
+                childNode.setTextContent("1");
+                break;
+              case "right":
+                childNode.setTextContent("2");
+                break;
+              case "both":
+                childNode.setTextContent("3");
+                break;
+              // don't trim if not known
+              default:
+                childNode.setTextContent("0");
+                break;
+            }
           }
         }
       }
