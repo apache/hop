@@ -216,7 +216,8 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
                   + "\">");
         }
         out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-
+        out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
+        
         if (isJettyMode()) {
           out.println(
               "<link rel=\"stylesheet\" type=\"text/css\" href=\"/static/css/hop-server.css\" />");
