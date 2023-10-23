@@ -70,7 +70,22 @@ public class KettleConst {
                 // ExcelWriter
                 {"extention", "extension"},
                 // Formula
-                {"formula_string", "formula"}
+                {"formula_string", "formula"},
+                // XML Join
+                {"targetXMLstep", "targetXMLTransform"},
+                {"sourceXMLstep", "sourceXMLTransform"},
+                // Multiway Merge Join, 0-9 for simplicity
+                {"step0", "transform0"},
+                // step1 and step2 are already covered earlier in the mapping. left in comments here for clarity.
+                //{"step1", "transform1"},
+                //{"step2", "transform2"},
+                {"step3", "transform3"},
+                {"step4", "transform4"},
+                {"step5", "transform5"},
+                {"step6", "transform6"},
+                {"step7", "transform7"},
+                {"step8", "transform8"},
+                {"step9", "transform9"},
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 
