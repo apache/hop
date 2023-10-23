@@ -44,7 +44,7 @@
         <commons-collections4.version>4.4</commons-collections4.version>
         <commons-lang.version>2.6</commons-lang.version>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <commons-io.version>2.11.0</commons-io.version>
+        <commons-io.version>2.14.0</commons-io.version>
         <commons-dbcp.version>1.4</commons-dbcp.version>
         <commons-pool.version>1.5.7</commons-pool.version>
         <commons-net.version>3.9.0</commons-net.version>
