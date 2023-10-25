@@ -63,7 +63,7 @@ public class RedshiftBulkLoaderMeta
 
   public static final String CSV_DELIMITER = ",";
   public static final String CSV_RECORD_DELIMITER = "\n";
-  public static final String CSV_ESCAPE_CHAR = "\\";
+  public static final String CSV_ESCAPE_CHAR = "\"";
   public static final String ENCLOSURE = "\"";
 
   @HopMetadataProperty(
