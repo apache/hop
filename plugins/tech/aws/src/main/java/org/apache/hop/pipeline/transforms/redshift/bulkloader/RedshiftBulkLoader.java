@@ -52,11 +52,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
   private static final Class<?> PKG =
       RedshiftBulkLoader.class; // for i18n purposes, needed by Translator2!!
 
-  private static final SimpleDateFormat SIMPLE_DATE_FORMAT =
-      new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-  private FileOutputStream exceptionLog;
-  private FileOutputStream rejectedLog;
-
   public RedshiftBulkLoader(
       TransformMeta transformMeta,
       RedshiftBulkLoaderMeta meta,

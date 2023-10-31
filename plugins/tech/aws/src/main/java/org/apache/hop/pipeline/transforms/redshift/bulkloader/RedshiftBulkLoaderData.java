@@ -39,7 +39,7 @@ public class RedshiftBulkLoaderData extends BaseTransformData implements ITransf
   protected IRowMeta insertRowMeta;
 
   // A list of table fields mapped to their data type.  String[0] is the field name, String[1] is
-  // the Snowflake
+  // the Redshift
   // data type
   public ArrayList<String[]> dbFields;
 
