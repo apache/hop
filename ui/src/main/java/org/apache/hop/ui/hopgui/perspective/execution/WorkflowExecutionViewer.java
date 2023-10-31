@@ -613,7 +613,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
               propsUi.getNoteFont().getName(),
               propsUi.getNoteFont().getHeight(),
               propsUi.getZoomFactor(),
-              false);
+              false,
+              null);
 
       // correct the magnification with the overall zoom factor
       //
@@ -682,7 +683,8 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         viewPort = workflowPainter.getViewPort();
         graphPort = workflowPainter.getGraphPort();
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error drawing workflow image", e);
+        new ErrorDialog(
+            hopGui.getDisplay().getActiveShell(), "Error", "Error drawing workflow image", e);
       }
     } finally {
       gc.dispose();

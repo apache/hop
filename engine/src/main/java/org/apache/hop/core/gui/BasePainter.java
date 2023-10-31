@@ -79,6 +79,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected float screenMagnification;
   protected Rectangle graphPort;
   protected Rectangle viewPort;
+  protected String mouseOverName;
 
   public BasePainter(
       IGc gc,
@@ -94,7 +95,8 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       String noteFontName,
       int noteFontHeight,
       double zoomFactor,
-      boolean drawingEditIcons) {
+      boolean drawingEditIcons,
+      String mouseOverName) {
     this.gc = gc;
     this.variables = variables;
     this.subject = subject;
@@ -121,6 +123,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     this.noteFontHeight = noteFontHeight;
 
     this.screenMagnification = 1.0f;
+    this.mouseOverName = mouseOverName;
   }
 
   public static EImage getStreamIconImage(StreamIcon streamIcon, boolean enabled) {
@@ -671,5 +674,23 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
    */
   public void setViewPort(Rectangle viewPort) {
     this.viewPort = viewPort;
+  }
+
+  /**
+   * Gets mouseOverName
+   *
+   * @return value of mouseOverName
+   */
+  public String getMouseOverName() {
+    return mouseOverName;
+  }
+
+  /**
+   * Sets mouseOverName
+   *
+   * @param mouseOverName value of mouseOverName
+   */
+  public void setMouseOverName(String mouseOverName) {
+    this.mouseOverName = mouseOverName;
   }
 }

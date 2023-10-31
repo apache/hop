@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
@@ -39,10 +42,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolTip;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * The beginnings of a common graph object, used by JobGraph and HopGuiPipelineGraph to share common
@@ -72,6 +71,8 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   protected final String id;
 
   protected ToolTip toolTip;
+
+  protected String mouseOverName;
 
   /**
    * This is a state map which can be used by plugins to render extra states on top of pipelines and
@@ -374,5 +375,23 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
         HopGui.ID_MAIN_MENU_EDIT_DISTRIBUTE_VERTICAL,
         IHopFileType.CAPABILITY_DISTRIBUTE_VERTICAL,
         selectedTransform);
+  }
+
+  /**
+   * Gets mouseOverName
+   *
+   * @return value of mouseOverName
+   */
+  public String getMouseOverName() {
+    return mouseOverName;
+  }
+
+  /**
+   * Sets mouseOverName
+   *
+   * @param mouseOverName value of mouseOverName
+   */
+  public void setMouseOverName(String mouseOverName) {
+    this.mouseOverName = mouseOverName;
   }
 }

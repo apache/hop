@@ -712,6 +712,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
               propsUi.getZoomFactor(),
               Collections.emptyMap(),
               false,
+              null,
               Collections.emptyMap());
 
       // correct the magnification with the overall zoom factor
