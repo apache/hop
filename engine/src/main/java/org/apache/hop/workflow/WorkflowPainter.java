@@ -67,7 +67,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       String noteFontName,
       int noteFontHeight,
       double zoomFactor,
-      boolean drawingEditIcons,
+      boolean drawingBorderAroundName,
       String mouseOverName) {
     super(
         gc,
@@ -83,7 +83,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         noteFontName,
         noteFontHeight,
         zoomFactor,
-        drawingEditIcons,
+        drawingBorderAroundName,
         mouseOverName);
     this.workflowMeta = workflowMeta;
 
@@ -276,12 +276,9 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
     //
     Point nameExtent = gc.textExtent(name);
-    if (isDrawingEditIcons()) {
+    if (isDrawingBorderAroundName()) {
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha(230);
-
-      gc.drawImage(EImage.EDIT, xPos - 6, yPos - 2, magnification);
-
       gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
           xPos - 8,

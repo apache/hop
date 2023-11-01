@@ -3337,7 +3337,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               propsUi.isIndicateSlowPipelineTransformsEnabled(),
               propsUi.getZoomFactor(),
               outputRowsMap,
-              !propsUi.useDoubleClick(),
+              propsUi.isBorderDrawnAroundCanvasNames(),
               mouseOverName,
               stateMap);
 

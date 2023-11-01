@@ -99,7 +99,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       boolean slowTransformIndicatorEnabled,
       double zoomFactor,
       Map<String, RowBuffer> outputRowsMap,
-      boolean drawingEditIcons,
+      boolean drawingBorderAroundName,
       String mouseOverName,
       Map<String, Object> stateMap) {
     super(
@@ -116,7 +116,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         noteFontName,
         noteFontHeight,
         zoomFactor,
-        drawingEditIcons,
+        drawingBorderAroundName,
         mouseOverName);
     this.pipelineMeta = pipelineMeta;
 
@@ -809,12 +809,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
     //
-    if (isDrawingEditIcons()) {
+    if (isDrawingBorderAroundName()) {
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha(230);
-
-      gc.drawImage(EImage.EDIT, namePosition.x - 6, namePosition.y - 2, magnification);
-
       gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
           namePosition.x - 8,

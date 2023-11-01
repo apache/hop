@@ -2846,7 +2846,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               propsUi.getNoteFont().getName(),
               propsUi.getNoteFont().getHeight(),
               propsUi.getZoomFactor(),
-              !propsUi.useDoubleClick(),
+              propsUi.isBorderDrawnAroundCanvasNames(),
               mouseOverName);
 
       // correct the magnification with the overall zoom factor

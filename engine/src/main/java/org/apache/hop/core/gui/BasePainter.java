@@ -47,7 +47,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   public static final int CORNER_RADIUS_3 = 6;
   public static final int CORNER_RADIUS_2 = 4;
 
-  protected boolean drawingEditIcons;
+  protected boolean drawingBorderAroundName;
 
   protected double zoomFactor;
 
@@ -95,7 +95,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
       String noteFontName,
       int noteFontHeight,
       double zoomFactor,
-      boolean drawingEditIcons,
+      boolean drawingBorderAroundName,
       String mouseOverName) {
     this.gc = gc;
     this.variables = variables;
@@ -115,7 +115,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     this.magnification = 1.0f;
     this.zoomFactor = zoomFactor;
-    this.drawingEditIcons = drawingEditIcons;
+    this.drawingBorderAroundName = drawingBorderAroundName;
 
     gc.setAntialias(true);
 
@@ -539,17 +539,17 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   /**
    * Gets drawingEditIcons
    *
-   * @return value of drawingEditIcons
+   * @return value of drawingBorderAroundName
    */
-  public boolean isDrawingEditIcons() {
-    return drawingEditIcons;
+  public boolean isDrawingBorderAroundName() {
+    return drawingBorderAroundName;
   }
 
   /**
-   * @param drawingEditIcons The drawingEditIcons to set
+   * @param drawingBorderAroundName The option to set
    */
-  public void setDrawingEditIcons(boolean drawingEditIcons) {
-    this.drawingEditIcons = drawingEditIcons;
+  public void setDrawingBorderAroundName(boolean drawingBorderAroundName) {
+    this.drawingBorderAroundName = drawingBorderAroundName;
   }
 
   /**
