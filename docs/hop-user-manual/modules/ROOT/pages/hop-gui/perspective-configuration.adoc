@@ -80,11 +80,15 @@ TIP: Hops will be shown in bold when a transform or action can be dropped on it
 
 |Show help tooltips|Show help tooltips where available in Hop GUI|yes
 
-|Use double click on canvas
-a|double-click instead of single click on e.g. transform and action dialogs.
+|Use double click on canvas?
+|double-click instead of single click on e.g. transform and action dialogs.
 
 enabled: double-click on a transform or action icon to open its properties. A single click on the icon opens the context dialog.
 disabled (default): (single) click on a transform or action icon to open the context dialog. (single) click on a transform or action name to open its properties
+|no
+
+|Draw border around names on canvas?
+|If this option is enabled, a border will be drawn around the names of transforms and actions on the canvas.
 |no
 
 |Use global bookmarks in the file dialog|Bookmarks in the file dialog are global (across projects) by default. Enable to make them project-specific|yes
