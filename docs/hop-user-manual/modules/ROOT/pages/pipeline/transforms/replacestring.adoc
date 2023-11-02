@@ -50,9 +50,9 @@ It also supports regular expressions and group references. group references are 
 |Option|Description
 |Transform name|Name of the transform.
 |In stream field|The field in which a replacement has to take place.
-|Out stream field|The result field.
+|Out stream field|The result field. If you leave the Out stream field empty, it will replace the value in the In stream field or it will create a new field.
 |use RegEx|Use regular expressions (Y/N).
-|Search|Search for a certain pattern.
+|Search|Search for a certain pattern. Can use a wildcard (*) for searching in the Search column.
 |Replace with|Replace with certain characters.
 |Set empty string?|Turn string into an empty string.
 |Replace with field|Replace the pattern with a field value.
