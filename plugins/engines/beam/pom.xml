@@ -383,16 +383,8 @@
             <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -402,8 +394,8 @@
             <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.pentaho</groupId>
-                    <artifactId>pentaho-aggdesigner-algorithm</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -411,6 +403,12 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-common</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
@@ -419,19 +417,8 @@
             <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.pentaho</groupId>
-                    <artifactId>pentaho-aggdesigner-algorithm</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-cli</artifactId>
-            <version>${hive.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.pentaho</groupId>
-                    <artifactId>pentaho-aggdesigner-algorithm</artifactId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -439,11 +426,23 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-serde</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-service-rpc</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
@@ -451,20 +450,8 @@
             <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jdk.tools</artifactId>
-                    <groupId>jdk.tools</groupId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -474,20 +461,8 @@
             <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>jdk.tools</artifactId>
-                    <groupId>jdk.tools</groupId>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -495,26 +470,56 @@
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-storage-api</artifactId>
             <version>${hive-storage.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive.shims</groupId>
             <artifactId>hive-shims-0.23</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.hive.shims</groupId>
             <artifactId>hive-shims-common</artifactId>
             <version>${hive.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libthrift</artifactId>
             <version>${libthrift.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.apache.thrift</groupId>
             <artifactId>libfb303</artifactId>
             <version>${libfb303.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -595,6 +600,11 @@
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
+            <version>${apache-beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-azure</artifactId>
             <version>${apache-beam.version}</version>
         </dependency>
 

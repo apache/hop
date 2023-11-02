@@ -604,6 +604,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-azure</artifactId>
+            <version>${apache-beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kinesis</artifactId>
             <version>${apache-beam.version}</version>
         </dependency>
