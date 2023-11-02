@@ -28,13 +28,16 @@ under the License.
 |
 == Description
 
-The Filter Rows transform allows you to filter rows based on conditions and comparisons.
+The Filter Rows transform allows you to filter rows based on conditions and comparisons and affects workflow because of the downstream true or false hops (forked workflow options).
 
-Once this transform is connected to a previous transform (one or more and receiving input), you can click on the "<field>", "=" and "<value>" areas to construct a condition.
 
-To enter an IN LIST operator, use a string value separated by semicolons.
+Once this transform is connected to a previous transform (one or more and receiving input), you can click on the "<field>", "=" and "<value>" areas to construct a condition. Downstream transforms can be connected to the True or False hop.
 
-TIP: Lists also works on numeric values like integers. In this case, the list of values must be entered with a string data type, e.g.: 2;3;7;8
+
+TIP: To enter an IN LIST operator, use a string value separated by semicolons.
+
+TIP: Lists also works on numeric values like integers. In this case, the list of values must be entered with a string data type, e.g.: 2;3;7;8.  
+
 
 |
 == Supported Engines
@@ -67,8 +70,6 @@ TIP: Lists also works on numeric values like integers. In this case, the list of
 == Filtering
 
 === Filtering rows based on values from variables
-
-The filter rows transform detects only fields in the input stream.
 
 The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform. For example, a table input transform can include the variable in the SQL as another field such as
 [source,sql]
