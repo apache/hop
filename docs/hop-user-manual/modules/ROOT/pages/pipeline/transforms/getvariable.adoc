@@ -29,9 +29,12 @@ under the License.
 
 The Get Variables transform allows you to get the value of a variable and create field(s) from it or allows you to add values to existing input rows. You could consider it to be a "Set fields” transform. It can retrieve the value of a previous variable and/or retrieves previous rows or you can set static values to a variable or input rows. You only need to use this transform if you need the variable value in a field.
 
+
 Note that workflow/environment variables are set only once. A pipeline needs to start to get any new variables. A running or sequential or nested (nested pipelines are technically the same pipeline) pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor.
 
-You can always refer to variables/parameters using the syntax: ${myVariable}, for example from a previous pipeline.
+
+Refer to parameter/svariables using the syntax: ${myVariable}, for example from a previous pipeline. If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows transform.
+
 
 For example, you can specify: ``${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt`` and it will be expanded to ``/tmp/hop/tempfile.txt`` on Unix-like systems.
 
