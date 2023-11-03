@@ -28,6 +28,8 @@ under the License.
 
 The JavaScript transform provides a user interface for building JavaScript expressions that you can use to modify your data. The code you type in the script area is executed once for each input row.
 
+TIP: The variables you set in the JavaScript transform won’t be usable or testable until you click the “Get variables” button to convert your script variables into fields. Ensure you select the correct Type for the outgoing JavaScript fields.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -48,6 +50,15 @@ The transform allows multiple scripts in a single transform instance.
 The Javascript transform is not an input transform and therefore requires an input stream from the pipeline.
 
 image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
+
+== Examples
+E.g. JavasScript to create 3 new fields:
+```
+var myVar = incomingField1;
+var myTestString = "my test";
+var myDate = str2date("2020-12-31", "yyyy-MM-dd");
+```
+
 
 == Javascript functions Panel
 
