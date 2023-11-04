@@ -101,7 +101,11 @@ public class HopGuiKeyHandler extends KeyAdapter {
     // If this is attached to a perspective, and it's not active, bail out.
     if (parentObject instanceof IHopPerspective) {
       IHopPerspective perspective = (IHopPerspective) parentObject;
-      if (!perspective.isActive()) {
+      try {
+        if (!perspective.isActive()) {
+          return false;
+        }
+      } catch (Exception ex) {
         return false;
       }
     }
