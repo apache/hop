@@ -91,14 +91,16 @@ FROM table
 WHERE field1=xxxx
 ----
 
-Then in the filter row condition, you can have
+Then in the filter row condition, you can have:
 
 [source,bash]
 ----
 field1 = field3
 ----
 
-*FYI* - instead of the Table Input trick above you can use the simple "Get Variables" transform to set parameters in fields.
+*FYI* - instead of adding a field to the Table Input shown above, you can also use a "Get Variables" transform to set fields.
+
+TIP: You can use a REGEX expression in the "filter row" transform.  
 
 Remember that all transforms are executed in parallel, so both true and false paths will run in some cases. 
 In some cases it will be better to use a where filter in a SQL query than use a Filter rows transform. If you need to return input rows for either case (true/false), you can use various SQL query methods that will always return results using IF EXISTS or IS NULL for example.
