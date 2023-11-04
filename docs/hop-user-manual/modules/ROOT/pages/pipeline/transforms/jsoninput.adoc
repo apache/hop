@@ -24,11 +24,17 @@ under the License.
 |===
 |
 == Description
-The JSON input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows. For example, connect a REST client to a JSON input transform to read JSON into data rows.
+The JSON input transform reads data from JSON structures, files, or incoming fields using a JSONPath expression to extract data and output rows.
 
-JSONPath expressions can use either dot notation or square bracket notation.
 
-To read nested JSON elements, use a sequence of JSON Input transforms, where the first JSON Input transform reads the nested element as a String field. In the second JSON Input transform, use the `Source is from a previous transform` option to select the String field you used in the first JSON Input transform to read the information from the nested element. 
+== TIPS
+* JSONPath expressions can use either dot notation or square bracket notation. 
+* You can pass a REST request result field onwards without selecting any fields on the Fields tab if needed.
+
+== Examples
+* For example, connect a REST client to a JSON input transform to read JSON into data rows.
+* To read nested JSON elements, use a sequence of JSON Input transforms, where the first JSON Input transform reads the nested element as a String field. In the second JSON Input transform, use the `Source is from a previous transform` option to select the String field you used in the first JSON Input transform to read the information from the nested element. 
+
 
 Check the `json-input-nested-elements.hpl` sample in the Samples project for an example.
 
@@ -37,7 +43,6 @@ Check the `json-input-nested-elements.hpl` sample in the Samples project for an 
 * json-input-basic.hpl
 
 * json-input-nested-elements.hpl
-
 
 |
 == Supported Engines
