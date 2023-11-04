@@ -25,9 +25,11 @@ under the License.
 |
 == Description
 
-The REST Client transform enables you to consume RESTfull services.
+The REST Client transform enables you to consume RESTfull services. Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
 
-Representational State Transfer (REST) is a key design idiom that embraces a stateless client-server architecture in which the web services are viewed as resources and can be identified by their URLs.
+== Example
+The REST client Transform returns a "result" field (can change the name), and the field is often used in the next transform. For example, it can be read in by a JSON input transform that extracts the fields specified on the Fields tab.
+
 
 |
 == Supported Engines
@@ -56,7 +58,7 @@ The General tab is where you enter basic connection information for accessing a 
 |HTTP method|Indicates how the transform interacts with a resource---options are either GET, PUT, DELETE, POST, HEAD, or OPTIONS
 |Get Method from field|Designates the GET method is defined from a field
 |Method fieldname|Indicates the field from which the GET method is defined
-|Body field|Contains the request body for POST, PUT, and DELETE methods
+|Body field|Contains the request body for POST, PUT, and DELETE methods. Body field only accepts a previous field, not a hard coded value.
 |Application type|Designates what type of application a resource is---options are either TEXT PLAIN, XML, JSON, OCTET STREAM, XHTML, FORM URLENCODED, ATOM XML, SVG XML, or TEXT XML
 |Result fieldname|Designates the name of the result output field
 |HTTP status code fieldname|Designates the name of the HTTP status code field
@@ -66,6 +68,8 @@ The General tab is where you enter basic connection information for accessing a 
 === Authentication Tab
 
 If necessary, enter authentication details for a resource in the Authentication tab.
+
+TIP: Hop allows using NULL parameters/variables for both the HTTP Login and HTTP Password.
 
 [options="header"]
 |===
@@ -90,14 +94,15 @@ The SSL tab is where you provide authentication details for accessing a resource
 
 === Headers Tab
 
-The Headers tab enables you to define the content of any HTTP headers using an existing field.
-Populate the list of fields by clicking the Get fields button.
+The Headers tab enables you to define the content of any HTTP headers using an existing field. Populate the list of fields by clicking the Get fields button.
+
+TIP: To figure out what Headers are required, you can use Postman and remove as many headers as possible for the Request to still work. You should not need to use the Headers with value “<calculated when request is sent>” in Postman. You do not need to manually add an Authorization header if you used the Authentication tab.
 
 [options="header"]
 |===
 |Option|Description
-|Field|The field from incoming Hop stream that contains the header information
-|Name|The name of the outgoing Hop field from this transform
+|Field|The field from incoming Hop stream that contains the header information. Add the header value field name to the Field column.
+|Name|The name of the outgoing Hop field from this transform. Add the header key field name to the Name column.
 |===
 
 === Parameters Tab
