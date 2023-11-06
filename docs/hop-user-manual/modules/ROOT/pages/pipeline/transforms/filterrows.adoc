@@ -28,7 +28,7 @@ under the License.
 |
 == Description
 
-The Filter Rows transform allows you to filter rows based on conditions and comparisons. It affects workflow if connecting the True or False outcome/hop to another transform.
+The Filter Rows transform allows you to filter rows based on conditions and comparisons. It affects workflow if connecting the True or False outcome/hop to another transform. There are 3 path available as outputs (True/False/Main output). The main output follows the True path only.
 
 
 Once this transform is connected to a previous transform (one or more and receiving input), you can click on the "<field>", "=" and "<value>" areas to construct a condition. Downstream transforms can be connected to the True or False hop.
