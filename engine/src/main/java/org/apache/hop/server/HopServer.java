@@ -513,8 +513,8 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service)
       throws Exception {
-    String encoding = Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
-    return buildSendMethod(variables, content, encoding, service, "text/xml");
+    String encoding = Const.XML_ENCODING;
+    return buildSendMethod(variables, content, encoding, service, "text/xml"); 
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
@@ -542,7 +542,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
     String encoding = getXmlEncoding(xml);
     HttpPost method =
-        buildSendMethod(variables, xml.getBytes(encoding), encoding, service, "text/xml");
+        buildSendMethod(variables, xml.getBytes(encoding), encoding, service, "text/xml"); 
     try {
       return executeAuth(variables, method);
     } finally {
@@ -579,7 +579,8 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     if (matcher.find()) {
       return matcher.group();
     }
-    return Const.getEnvironmentVariable("file.encoding", Const.XML_ENCODING);
+
+    return Const.XML_ENCODING;
   }
 
   /** Throws if not ok */
@@ -1348,3 +1349,4 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.propertiesMasterName = propertiesMasterName;
   }
 }
+

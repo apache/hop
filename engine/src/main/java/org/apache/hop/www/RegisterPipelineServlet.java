@@ -24,10 +24,10 @@ import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.json.simple.parser.ParseException;
-
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @HopServerServlet(id = "registerPipeline", name = "Add a pipeline to the server")
 public class RegisterPipelineServlet extends BaseWorkflowServlet {
@@ -48,7 +48,7 @@ public class RegisterPipelineServlet extends BaseWorkflowServlet {
       IVariables variables)
       throws IOException, HopException, HopException, ParseException {
 
-    final String xml = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
+    final String xml = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 
     // Parse the XML, create a pipeline configuration
     PipelineConfiguration pipelineConfiguration = PipelineConfiguration.fromXml(xml);

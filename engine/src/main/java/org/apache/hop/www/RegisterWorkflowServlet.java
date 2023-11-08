@@ -24,10 +24,10 @@ import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.json.simple.parser.ParseException;
-
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @HopServerServlet(id = "registerWorkflow", name = "Add a workflow to the server")
 public class RegisterWorkflowServlet extends BaseWorkflowServlet {
@@ -48,7 +48,7 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
       IVariables variables)
       throws IOException, HopException, HopException, ParseException {
 
-    final String xml = IOUtils.toString(request.getInputStream(), request.getCharacterEncoding());
+    final String xml = IOUtils.toString(request.getInputStream(), StandardCharsets.UTF_8);
 
     // Parse the XML, create a workflow configuration
     WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml(xml, variables);
