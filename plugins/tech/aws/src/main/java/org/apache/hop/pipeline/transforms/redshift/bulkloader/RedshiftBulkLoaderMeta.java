@@ -143,7 +143,7 @@ public class RedshiftBulkLoaderMeta
           injectionKey = "STREAM_TO_S3",
           injectionKeyDescription = ""
   )
-  private boolean streamToS3Csv;
+  private boolean streamToS3Csv = true;
 
   /** CSV: Trim whitespace */
   @HopMetadataProperty(key = "trim_whitespace", injectionKeyDescription = "")

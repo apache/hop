@@ -571,6 +571,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     PropsUi.setLook(wCopyFromFilename);
     wCopyFromFilename.addModifyListener(lsMod);
     wCopyFromFilename.addFocusListener(lsFocusLost);
+    wCopyFromFilename.getTextWidget().setMessage("s3://<FILENAME_IN_BUCKET>");
+
     FormData fdCopyFromFile = new FormData();
     fdCopyFromFile.top = new FormAttachment(lastControl, margin*2);
     fdCopyFromFile.left = new FormAttachment(middle, 0);
