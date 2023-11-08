@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -45,10 +48,6 @@ import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "GetFileNames",
     image = "getfilenames.svg",
@@ -75,6 +74,8 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   @HopMetadataProperty(
       key = "file",
       injectionKeyDescription = "GetFileNames.Injection.File.Label",
+          injectionGroupKey = "FILE",
+          injectionGroupDescription = "GetFileNames.Injection.Group.FileTab.Label",
       inlineListTags = {
         "name",
         "filemask",

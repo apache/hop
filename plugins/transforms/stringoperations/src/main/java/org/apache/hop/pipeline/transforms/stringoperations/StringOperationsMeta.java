@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -37,8 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "StringOperations",
@@ -417,34 +416,34 @@ public class StringOperationsMeta extends BaseTransformMeta<StringOperations, St
 
       retval.append("      <field>").append(Const.CR);
       retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("out_stream_name", fieldOutStream[i]));
 
       retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("trim_type", getTrimTypeCode(trimType[i])));
+            .append("        ")
+            .append(XmlHandler.addTagValue("out_stream_name", (fieldOutStream == null || fieldOutStream.length == 0 || fieldOutStream.length <= i) ? "" : !Utils.isEmpty(fieldOutStream[i]) ? fieldOutStream[i] : ""));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("lower_upper", getLowerUpperCode(lowerUpper[i])));
+          .append(XmlHandler.addTagValue("trim_type", (trimType == null || trimType.length == 0 || trimType.length <= i) ? "" : getTrimTypeCode(trimType[i])));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("padding_type", getPaddingCode(paddingType[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("pad_char", lPadChar));
-      retval.append("        ").append(XmlHandler.addTagValue("pad_len", lPadLen));
+          .append(XmlHandler.addTagValue("lower_upper", (lowerUpper == null || lowerUpper.length == 0 || lowerUpper.length <= i) ? "" : getLowerUpperCode(lowerUpper[i])));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("init_cap", getInitCapCode(initCap[i])));
+          .append(XmlHandler.addTagValue("padding_type", (paddingType == null || paddingType.length == 0 || paddingType.length <= i) ? "" : getPaddingCode(paddingType[i])));
+      retval.append("        ").append(XmlHandler.addTagValue("pad_char", (padChar == null || padChar.length == 0 || padChar.length <= i) ? "" : padChar[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("pad_len", (padLen == null || padLen.length == 0 || padLen.length <= i) ? "" : padLen[i]));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("mask_xml", getMaskXMLCode(maskXML[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("digits", getDigitsCode(digits[i])));
+          .append(XmlHandler.addTagValue("init_cap", (initCap == null || initCap.length == 0 || initCap.length <= i) ? "" : getInitCapCode(initCap[i])));
+      retval
+          .append("        ")
+          .append(XmlHandler.addTagValue("mask_xml", (maskXML == null || maskXML.length == 0 || maskXML.length <= i) ? "" : getMaskXMLCode(maskXML[i])));
+      retval.append("        ").append(XmlHandler.addTagValue("digits", (digits == null || digits.length == 0 || digits.length <= i) ? "" : getDigitsCode(digits[i])));
       retval
           .append("        ")
           .append(
               XmlHandler.addTagValue(
                   "remove_special_characters",
-                  getRemoveSpecialCharactersCode(remove_special_characters[i])));
+                      (remove_special_characters == null || remove_special_characters.length == 0 || remove_special_characters.length <= i) ? "" : getRemoveSpecialCharactersCode(remove_special_characters[i])));
 
       retval.append("      </field>").append(Const.CR);
     }
