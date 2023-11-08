@@ -297,6 +297,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     sb.append(" FROM '" + resolve(meta.getCopyFromFilename()) + "'");
     sb.append(" NULL '' ");
     sb.append(" EMPTYASNULL ");
+    sb.append("DATEFORMAT AS 'YYYY/MM/DD' ");
+    sb.append("TIMEFORMAT AS 'YYYY/MM/DD HH:MI:SS'");
     if(meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")){
       sb.append(" DELIMITER ',' ");
       sb.append(" CSV QUOTE AS '\"'");
@@ -462,7 +464,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
             boolean needConversion = false;
             if (v.getType() == IValueMeta.TYPE_TIMESTAMP) {
               v = new ValueMetaDate();
-              v.setConversionMask("yyyy/MM/dd HH:mm:ss");
+              v.setConversionMask("yyyy/MM/dd HH:mm:ss.SSS");
               needConversion = true;
             } else if (v.getType() == IValueMeta.TYPE_DATE) {
               v = new ValueMetaDate();
