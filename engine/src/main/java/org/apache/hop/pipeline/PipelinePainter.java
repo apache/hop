@@ -99,7 +99,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       boolean slowTransformIndicatorEnabled,
       double zoomFactor,
       Map<String, RowBuffer> outputRowsMap,
-      boolean drawingEditIcons,
+      boolean drawingBorderAroundName,
+      String mouseOverName,
       Map<String, Object> stateMap) {
     super(
         gc,
@@ -115,7 +116,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         noteFontName,
         noteFontHeight,
         zoomFactor,
-        drawingEditIcons);
+        drawingBorderAroundName,
+        mouseOverName);
     this.pipelineMeta = pipelineMeta;
 
     this.candidate = candidate;
@@ -146,6 +148,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       int noteFontHeight,
       double zoomFactor,
       boolean drawingEditIcons,
+      String mouseOverName,
       Map<String, Object> stateMap) {
     this(
         gc,
@@ -166,6 +169,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         zoomFactor,
         new HashMap<>(),
         drawingEditIcons,
+        mouseOverName,
         stateMap);
   }
 
@@ -801,18 +805,13 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
 
     Point namePosition = getNamePosition(name, screen, iconSize);
+    Point nameExtent = gc.textExtent(name);
 
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
     //
-    if (isDrawingEditIcons()) {
-
-      Point nameExtent = gc.textExtent(name);
-
+    if (isDrawingBorderAroundName()) {
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha(230);
-
-      gc.drawImage(EImage.EDIT, namePosition.x - 6, namePosition.y - 2, magnification);
-
       gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
           namePosition.x - 8,
@@ -822,23 +821,35 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           BasePainter.CORNER_RADIUS_5 + 15,
           BasePainter.CORNER_RADIUS_5 + 15);
       gc.setAlpha(tmpAlpha);
-
-      areaOwners.add(
-          new AreaOwner(
-              AreaType.TRANSFORM_NAME,
-              namePosition.x - 8,
-              namePosition.y - 2,
-              nameExtent.x + 15,
-              nameExtent.y + 8,
-              offset,
-              transformMeta,
-              name));
     }
+
+    // Add the area owner for the transform name
+    //
+    areaOwners.add(
+        new AreaOwner(
+            AreaType.TRANSFORM_NAME,
+            namePosition.x - 8,
+            namePosition.y - 2,
+            nameExtent.x + 15,
+            nameExtent.y + 8,
+            offset,
+            transformMeta,
+            name));
 
     gc.setForeground(EColor.BLACK);
     gc.setFont(EFont.GRAPH);
     gc.drawText(name, namePosition.x, namePosition.y + 2, true);
     boolean partitioned = false;
+
+    // See if we need to draw a line under the name to make the name look like a hyperlink.
+    //
+    if (name.equals(mouseOverName)) {
+      gc.drawLine(
+          namePosition.x,
+          namePosition.y + nameExtent.y,
+          namePosition.x + nameExtent.x ,
+          namePosition.y + nameExtent.y);
+    }
 
     TransformPartitioningMeta meta = transformMeta.getTransformPartitioningMeta();
     if (transformMeta.isPartitioned() && meta != null) {

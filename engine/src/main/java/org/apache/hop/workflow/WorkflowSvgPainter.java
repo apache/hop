@@ -43,7 +43,7 @@ public class WorkflowSvgPainter {
               variables,
               workflowMeta,
               maximum,
-              new DPoint(0,0),
+              new DPoint(0, 0),
               null,
               null,
               new ArrayList<>(),
@@ -53,7 +53,8 @@ public class WorkflowSvgPainter {
               "Arial",
               10,
               1.0d,
-              false);
+              false,
+              null);
       workflowPainter.setMagnification(magnification);
       workflowPainter.drawWorkflow();
 

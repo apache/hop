@@ -785,10 +785,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       if (hop != null) {
         // Delete hop with on click
         if (e.button == 1 && shift && control) {
-          // Delete the hop            
+          // Delete the hop
           pipelineHopDelegate.delHop(pipelineMeta, hop);
           updateGui();
-        }        
+        }
         // User held control and clicked a hop between steps - We want to flip the active state of
         // the hop.
         //
@@ -863,6 +863,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     PipelineHopMeta selectedHop = findPipelineHop(e.x, e.y);
     updateErrorMetaForHop(selectedHop);
     boolean singleClick = false;
+    mouseOverName = null;
     viewDrag = false;
     viewDragStart = null;
     SingleClickType singleClickType = null;
@@ -1222,7 +1223,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             previewRowsDialog.setTitleMessage(title, prefix + message);
             previewRowsDialog.open();
           } catch (Exception ex) {
-            new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error showing preview dialog", ex);
+            new ErrorDialog(
+                hopGui.getDisplay().getActiveShell(), "Error", "Error showing preview dialog", ex);
           }
         }
       }
@@ -1368,6 +1370,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     boolean shift = (e.stateMask & SWT.SHIFT) != 0;
     noInputTransform = null;
     mouseMovedSinceClick = true;
+    boolean doRedraw = false;
 
     // disable the tooltip
     //
@@ -1414,6 +1417,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       LogChannel.GENERAL.logError("Error calling PipelineGraphMouseMoved extension point", ex);
     }
 
+    // Mouse over the name of the transform
+    //
+    if (!PropsUi.getInstance().useDoubleClick()) {
+      if (areaOwner != null && areaOwner.getAreaType() == AreaType.TRANSFORM_NAME) {
+        if (mouseOverName == null) {
+          doRedraw = true;
+        }
+        mouseOverName = (String) areaOwner.getOwner();
+      } else {
+        if (mouseOverName != null) {
+          doRedraw = true;
+        }
+        mouseOverName = null;
+      }
+    }
+
     //
     // First see if the icon we clicked on was selected.
     // If the icon was not selected, we should un-select all other
@@ -1425,20 +1444,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       selectedTransforms = new ArrayList<>();
       selectedTransforms.add(selectedTransform);
       previousTransformLocations = new Point[] {selectedTransform.getLocation()};
-      redraw();
+      doRedraw = true;
     } else if (selectedNote != null && !selectedNote.isSelected()) {
       pipelineMeta.unselectAll();
       selectedNote.setSelected(true);
       selectedNotes = new ArrayList<>();
       selectedNotes.add(selectedNote);
       previousNoteLocations = new Point[] {selectedNote.getLocation()};
-      redraw();
+      doRedraw = true;
     } else if (selectionRegion != null && startHopTransform == null) {
       // Did we select a region...?
       //
       selectionRegion.width = real.x - selectionRegion.x;
       selectionRegion.height = real.y - selectionRegion.y;
-      redraw();
+      doRedraw = true;
     } else if (selectedTransform != null
         && lastButton == 1
         && !shift
@@ -1494,7 +1513,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
       }
 
-      redraw();
+      doRedraw = true;
     } else if ((startHopTransform != null && endHopTransform == null)
         || (endHopTransform != null && startHopTransform == null)) {
       // Are we creating a new hop with the middle button or pressing SHIFT?
@@ -1533,11 +1552,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       } else {
         if (candidate != null) {
           candidate = null;
-          redraw();
+          doRedraw = true;
         }
       }
 
-      redraw();
+      doRedraw = true;
     } else {
       // Drag the view around with middle button on the background?
       //
@@ -1579,8 +1598,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           }
         }
 
-        redraw();
+        doRedraw = true;
       }
+    }
+    if (doRedraw) {
+      redraw();
     }
   }
 
@@ -2770,7 +2792,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelineClipboardDelegate.copySelected(
         pipelineMeta, Collections.emptyList(), Arrays.asList(context.getNotePadMeta()));
   }
-  
+
   @GuiContextAction(
       id = "pipeline-graph-edit-pipeline",
       parentId = HopGuiPipelineContext.CONTEXT_ID,
@@ -3315,7 +3337,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               propsUi.isIndicateSlowPipelineTransformsEnabled(),
               propsUi.getZoomFactor(),
               outputRowsMap,
-              !propsUi.useDoubleClick(),
+              propsUi.isBorderDrawnAroundCanvasNames(),
+              mouseOverName,
               stateMap);
 
       pipelinePainter.setMagnification((float) (magnification * PropsUi.getNativeZoomFactor()));
@@ -3354,7 +3377,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
 
       } catch (Exception e) {
-        new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(
+            hopGui.getDisplay().getActiveShell(), "Error", "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();
@@ -3621,10 +3645,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     return pipelineMeta;
   }
 
-
-  /**
-   * Use method hasChanged()
-   */
+  /** Use method hasChanged() */
   @Deprecated
   public boolean hasContentChanged() {
     return pipelineMeta.hasChanged();
@@ -3673,11 +3694,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     Shell shell = hopGui.getDisplay().getActiveShell();
-    if(shell == null){
+    if (shell == null) {
       shell = hopGui.getShell();
     }
-    PipelineDialog tid =
-        new PipelineDialog(shell, SWT.NONE, variables, pipelineMeta, currentTab);
+    PipelineDialog tid = new PipelineDialog(shell, SWT.NONE, variables, pipelineMeta, currentTab);
     if (tid.open() != null) {
       hopGui.setParametersAsVariablesInUI(pipelineMeta, variables);
       updateGui();
@@ -3696,7 +3716,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void setChanged() {
     pipelineMeta.setChanged();
   }
-  
+
   @Override
   public synchronized void save() throws HopException {
     try {
@@ -5229,7 +5249,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelineClipboardDelegate.copySelected(
         pipelineMeta, Arrays.asList(context.getTransformMeta()), Collections.emptyList());
   }
-  
+
   @GuiKeyboardShortcut(key = ' ')
   @GuiOsxKeyboardShortcut(key = ' ')
   public void showOutputFields() {

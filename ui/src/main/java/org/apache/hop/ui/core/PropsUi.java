@@ -81,6 +81,8 @@ public class PropsUi extends Props {
 
   private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
 
+  private static final String DRAW_BORDER_AROUND_CANVAS_NAMES = "DrawBorderAroundCanvasNames";
+
   private static final String USE_GLOBAL_FILE_BOOKMARKS = "UseGlobalFileBookmarks";
 
   private static final String DARK_MODE = "DarkMode";
@@ -777,6 +779,14 @@ public class PropsUi extends Props {
 
   public void setUseDoubleClickOnCanvas(boolean use) {
     setProperty(USE_DOUBLE_CLICK_ON_CANVAS, use ? YES : NO);
+  }
+
+  public boolean isBorderDrawnAroundCanvasNames() {
+    return YES.equalsIgnoreCase(getProperty(DRAW_BORDER_AROUND_CANVAS_NAMES, NO));
+  }
+
+  public void setDrawBorderAroundCanvasNames(boolean draw) {
+    setProperty(DRAW_BORDER_AROUND_CANVAS_NAMES, draw ? YES : NO);
   }
 
   public boolean useGlobalFileBookmarks() {

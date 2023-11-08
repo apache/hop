@@ -62,6 +62,7 @@ public class ConfigGeneralOptionsTab {
   private Button wToolTip;
   private Button wHelpTip;
   private Button wbUseDoubleClick;
+  private Button wbDrawBorderAroundCanvasNames;
   private Button wbUseGlobalFileBookmarks;
   private Button wSortFieldByName;
   private Text wMaxExecutionLoggingTextSize;
@@ -383,7 +384,8 @@ public class ConfigGeneralOptionsTab {
     wHelpTip.addListener(SWT.Selection, this::saveValues);
     lastControl = wlHelpTip;
 
-    // Help tool tips
+    // Use double click on the canvas
+    //
     Label wlUseDoubleClick = new Label(wGeneralComp, SWT.RIGHT);
     wlUseDoubleClick.setText(
         BaseMessages.getString(PKG, "EnterOptionsDialog.UseDoubleClickOnCanvas.Label"));
@@ -403,6 +405,28 @@ public class ConfigGeneralOptionsTab {
     wbUseDoubleClick.setLayoutData(fdbUseDoubleClick);
     wbUseDoubleClick.addListener(SWT.Selection, this::saveValues);
     lastControl = wlUseDoubleClick;
+
+    // Use double click on the canvas
+    //
+    Label wlDrawBorderAroundCanvasNames = new Label(wGeneralComp, SWT.RIGHT);
+    wlDrawBorderAroundCanvasNames.setText(
+            BaseMessages.getString(PKG, "EnterOptionsDialog.DrawBorderAroundCanvasNamesOnCanvas.Label"));
+    PropsUi.setLook(wlDrawBorderAroundCanvasNames);
+    FormData fdlDrawBorderAroundCanvasNames = new FormData();
+    fdlDrawBorderAroundCanvasNames.left = new FormAttachment(0, 0);
+    fdlDrawBorderAroundCanvasNames.top = new FormAttachment(lastControl, margin);
+    fdlDrawBorderAroundCanvasNames.right = new FormAttachment(middle, -margin);
+    wlDrawBorderAroundCanvasNames.setLayoutData(fdlDrawBorderAroundCanvasNames);
+    wbDrawBorderAroundCanvasNames = new Button(wGeneralComp, SWT.CHECK);
+    PropsUi.setLook(wbDrawBorderAroundCanvasNames);
+    wbDrawBorderAroundCanvasNames.setSelection(props.useDoubleClick());
+    FormData fdbDrawBorderAroundCanvasNames = new FormData();
+    fdbDrawBorderAroundCanvasNames.left = new FormAttachment(middle, 0);
+    fdbDrawBorderAroundCanvasNames.top = new FormAttachment(wlDrawBorderAroundCanvasNames, 0, SWT.CENTER);
+    fdbDrawBorderAroundCanvasNames.right = new FormAttachment(100, 0);
+    wbDrawBorderAroundCanvasNames.setLayoutData(fdbDrawBorderAroundCanvasNames);
+    wbDrawBorderAroundCanvasNames.addListener(SWT.Selection, this::saveValues);
+    lastControl = wlDrawBorderAroundCanvasNames;
 
     // Use global file bookmarks?
     Label wlUseGlobalFileBookmarks = new Label(wGeneralComp, SWT.RIGHT);
@@ -505,6 +529,7 @@ public class ConfigGeneralOptionsTab {
     props.setSortFieldByName(wSortFieldByName.getSelection());
     props.setShowingHelpToolTips(wHelpTip.getSelection());
     props.setUseDoubleClickOnCanvas(wbUseDoubleClick.getSelection());
+    props.setDrawBorderAroundCanvasNames(wbDrawBorderAroundCanvasNames.getSelection());
     props.setUseGlobalFileBookmarks(wbUseGlobalFileBookmarks.getSelection());
     props.setMaxExecutionLoggingTextSize(
         Const.toInt(

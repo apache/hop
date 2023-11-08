@@ -65,6 +65,7 @@ public class PipelineSvgPainter {
               10,
               zoomFactor,
               false,
+              null,
               new HashMap<>());
       pipelinePainter.setMagnification(magnification);
       pipelinePainter.drawPipelineImage();

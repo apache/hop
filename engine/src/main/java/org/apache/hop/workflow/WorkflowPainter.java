@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow;
 
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -37,10 +40,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.action.ActionMeta;
-
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
@@ -68,7 +67,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       String noteFontName,
       int noteFontHeight,
       double zoomFactor,
-      boolean drawingEditIcons) {
+      boolean drawingBorderAroundName,
+      String mouseOverName) {
     super(
         gc,
         variables,
@@ -83,7 +83,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
         noteFontName,
         noteFontHeight,
         zoomFactor,
-        drawingEditIcons);
+        drawingBorderAroundName,
+        mouseOverName);
     this.workflowMeta = workflowMeta;
 
     this.candidate = candidate;
@@ -99,7 +100,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     // Draw the pipeline onto the image
     //
     gc.setAlpha(255);
-    gc.setTransform((float)offset.x, (float)offset.y, magnification);
+    gc.setTransform((float) offset.x, (float) offset.y, magnification);
     drawActions();
 
     // Draw the navigation view in native pixels to make calculation a bit easier.
@@ -211,10 +212,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
           round(offset.x + n.x + iconSize + 5),
           round(offset.y + n.y + iconSize + 5));
       gc.drawLine(
-              round(offset.x + n.x - 5),
-              round(offset.y + n.y + iconSize + 5),
-              round(offset.x + n.x + iconSize + 5),
-              round(offset.y + n.y - 5));
+          round(offset.x + n.x - 5),
+          round(offset.y + n.y + iconSize + 5),
+          round(offset.x + n.x + iconSize + 5),
+          round(offset.y + n.y - 5));
     }
 
     try {
@@ -274,15 +275,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
     // Help out the user working in single-click mode by allowing the name to be clicked to edit
     //
-    if (isDrawingEditIcons()) {
-
-      Point nameExtent = gc.textExtent(name);
-
+    Point nameExtent = gc.textExtent(name);
+    if (isDrawingBorderAroundName()) {
       int tmpAlpha = gc.getAlpha();
       gc.setAlpha(230);
-
-      gc.drawImage(EImage.EDIT, xPos - 6, yPos - 2, magnification);
-
       gc.setBackground(EColor.LIGHTGRAY);
       gc.fillRoundRectangle(
           xPos - 8,
@@ -292,20 +288,30 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
           BasePainter.CORNER_RADIUS_5 + 15,
           BasePainter.CORNER_RADIUS_5 + 15);
       gc.setAlpha(tmpAlpha);
-
-      areaOwners.add(
-          new AreaOwner(
-              AreaType.ACTION_NAME,
-              xPos - 8,
-              yPos - 2,
-              nameExtent.x + 15,
-              nameExtent.y + 4,
-              offset,
-              actionMeta,
-              name));
     }
 
+    // Add the area owner for the action name
+    //
+    areaOwners.add(
+        new AreaOwner(
+            AreaType.ACTION_NAME,
+            xPos - 8,
+            yPos - 2,
+            nameExtent.x + 15,
+            nameExtent.y + 4,
+            offset,
+            actionMeta,
+            name));
+
+    gc.setForeground(EColor.BLACK);
+    gc.setFont(EFont.GRAPH);
     gc.drawText(name, xPos, yPos, true);
+
+    // See if we need to draw a line under the name to make the name look like a hyperlink.
+    //
+    if (name.equals(mouseOverName)) {
+      gc.drawLine(xPos, yPos + nameExtent.y, xPos + nameExtent.x, yPos + nameExtent.y);
+    }
 
     if (activeActions != null && activeActions.contains(actionMeta)) {
       gc.setForeground(EColor.BLUE);
@@ -325,10 +331,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     } else {
       gc.setForeground(EColor.BLACK);
     }
-    
+
     // Show an information icon in the upper left corner of the action...
     //
-    if ( !Utils.isEmpty(actionMeta.getDescription()) ) {
+    if (!Utils.isEmpty(actionMeta.getDescription())) {
       int xInfo = x - (miniIconSize / 2) - 1;
       int yInfo = y - (miniIconSize / 2) - 1;
       gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
@@ -642,12 +648,16 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     this.activeActions = activeActions;
   }
 
-  /** @return the actionResults */
+  /**
+   * @return the actionResults
+   */
   public List<ActionResult> getActionResults() {
     return actionResults;
   }
 
-  /** @param actionResults Sets AND sorts the action results by name and number */
+  /**
+   * @param actionResults Sets AND sorts the action results by name and number
+   */
   public void setActionResults(List<ActionResult> actionResults) {
     this.actionResults = actionResults;
     Collections.sort(this.actionResults);
