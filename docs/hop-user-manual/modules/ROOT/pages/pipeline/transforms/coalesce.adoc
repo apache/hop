@@ -49,12 +49,11 @@ The Coalesce transform lets you list multiple fields and returns the first non-n
 |===
 
 == Fields
-
-|Fields|specify the name, type, and value in the form of a string.
-Then, specify the formats to convert the value into the chosen data type.
+Pick a list of fields to evaluate and specify a field name and type for the field output.
 
 [options="header"]
 |===
+|Option|Description
 |Name|The result field name, can overwrite an existing one.
 |Type|The formats to convert the value into the chosen data type.
 |Remove|Remove input fields from the stream.
