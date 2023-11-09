@@ -163,6 +163,20 @@
                 <include>org.apache.beam:beam-sdks-java-io-hadoop-common</include>
                 <include>org.apache.beam:beam-sdks-java-io-hadoop-file-system</include>
                 <include>org.apache.beam:beam-sdks-java-io-kafka</include>
+                <include>org.apache.beam:beam-sdks-java-io-hcatalog</include>
+                <include>org.apache.hive.hcatalog:hive-hcatalog-core</include>
+                <include>org.apache.hive:hive-common</include>
+                <include>org.apache.hive:hive-exec:jar:core</include>
+                <include>org.apache.hive:hive-metastore</include>
+                <include>org.apache.hive:hive-standalone-metastore</include>
+                <include>org.apache.hive:hive-serde</include>
+                <include>org.apache.hive:hive-service-rpc</include>
+                <include>org.apache.hive.shims:hive-shims-common</include>
+                <include>org.apache.hive.shims:hive-shims-0.23</include>
+                <include>org.apache.hive:hive-spark-client</include>
+                <include>org.apache.hive:hive-storage-api</include>
+                <include>org.apache.thrift:libthrift</include>
+                <include>org.apache.thrift:libfb303</include>
                 <include>org.apache.beam:beam-sdks-java-io-synthetic</include>
                 <include>org.apache.commons:commons-crypto</include>
                 <include>org.apache.commons:commons-text</include>
@@ -240,6 +254,31 @@
                 <include>com.amazonaws:aws-java-sdk-sns:jar</include>
                 <include>com.amazonaws:aws-java-sdk-sqs:jar</include>
                 <include>com.amazonaws:aws-java-sdk-sts:jar</include>
+
+
+                <!-- Azure Blob Storage -->
+                <include>com.azure:azure-core-http-netty:jar</include>
+                <include>com.azure:azure-core:jar</include>
+                <include>com.azure:azure-identity:jar</include>
+                <include>com.azure:azure-json:jar</include>
+                <include>com.azure:azure-storage-blob:jar</include>
+                <include>com.azure:azure-storage-common:jar</include>
+                <include>com.azure:azure-storage-internal-avro:jar</include>
+                <include>com.microsoft.azure:azure-keyvault-core:jar</include>
+                <include>com.microsoft.azure:msal4j-persistence-extension:jar</include>
+                <include>com.microsoft.azure:msal4j:jar</include>
+                <include>com.nimbusds:content-type:jar</include>
+                <include>com.nimbusds:lang-tag:jar</include>
+                <include>com.nimbusds:oauth2-oidc-sdk:jar</include>
+                <include>io.projectreactor.netty:reactor-netty-core:jar</include>
+                <include>io.projectreactor.netty:reactor-netty-http:jar</include>
+                <include>io.projectreactor:reactor-core:jar</include>
+                <include>net.minidev:accessors-smart:jar</include>
+                <include>net.minidev:json-smart:jar</include>
+                <include>org.apache.beam:beam-sdks-java-io-azure:jar</include>
+                <include>org.ow2.asm:asm:jar</include>
+                <include>org.reactivestreams:reactive-streams:jar</include>
+
 
                 <!-- AWS Kinesis -->
                 <include>org.apache.beam:beam-sdks-java-io-kinesis:jar</include>

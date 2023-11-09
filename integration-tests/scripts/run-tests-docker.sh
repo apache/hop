@@ -76,7 +76,7 @@ rm -rf "${CURRENT_DIR}"/../surefire-reports
 mkdir -p "${CURRENT_DIR}"/../surefire-reports/
 
 #Build base image only once
-  docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
+  docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml build --build-arg JENKINS_USER=${JENKINS_USER} --build-arg JENKINS_UID=${JENKINS_UID} --build-arg JENKINS_GROUP=${JENKINS_GROUP} --build-arg JENKINS_GID=${JENKINS_GID} --build-arg GCP_KEY_FILE=${GCP_KEY_FILE}
 
 
 #Loop over project folders
@@ -97,10 +97,10 @@ for d in "${CURRENT_DIR}"/../${PROJECT_NAME}/; do
 
       if [ -f "${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml" ]; then
         echo "Project compose exists."
-        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
+        PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-${PROJECT_NAME}.yaml up --abort-on-container-exit
       else
         echo "Project compose does not exists."
-        PROJECT_NAME=${PROJECT_NAME} docker-compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
+        PROJECT_NAME=${PROJECT_NAME} docker compose -f ${DOCKER_FILES_DIR}/integration-tests-base.yaml up --abort-on-container-exit
       fi
     fi
   fi
@@ -119,7 +119,7 @@ echo "Keep images value: ${KEEP_IMAGES}"
 #Cleanup all images
 if [ ! "${KEEP_IMAGES}" == "true" ]; then
   for d in ${DOCKER_FILES_DIR}/integration-tests-*.yaml; do
-    docker-compose --log-level ERROR -f $d down --rmi all --remove-orphans
+    docker compose -f $d down --rmi all --remove-orphans
   done
 fi
 

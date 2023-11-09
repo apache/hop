@@ -1,7 +1,7 @@
 {
   "variables" : [ {
     "name" : "HIVE_HOST",
-    "value" : "spark",
+    "value" : "hiveserver",
     "description" : ""
   }, {
     "name" : "HIVE_USER",

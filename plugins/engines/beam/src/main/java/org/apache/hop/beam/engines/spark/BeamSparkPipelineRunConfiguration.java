@@ -34,7 +34,9 @@
 
 package org.apache.hop.beam.engines.spark;
 
+import java.util.Arrays;
 import org.apache.beam.runners.spark.SparkPipelineOptions;
+import org.apache.beam.sdk.io.azure.options.*;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.commons.lang.StringUtils;
@@ -49,8 +51,6 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-
-import java.util.Arrays;
 
 @GuiPlugin
 public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfiguration
@@ -146,6 +146,33 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   @HopMetadataProperty
   private String sparkAppName;
 
+  @GuiWidgetElement(
+      order = "30010-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::BeamEnginesSpark.OptionsBlobStorageEndpoint.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsBlobStorageEndpoint.ToolTip")
+  @HopMetadataProperty
+  private String azureBlobStorageEndpoint;
+
+  @GuiWidgetElement(
+      order = "300020-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::BeamEnginesSpark.OptionsBlobStorageAccount.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsBlobStorageAccount.ToolTip")
+  @HopMetadataProperty
+  private String azureBlobStorageAccount;
+
+  @GuiWidgetElement(
+      order = "300030-spark-options",
+      parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
+      type = GuiElementType.TEXT,
+      label = "i18n::BeamEnginesSpark.OptionsBlobStorageKey.Label",
+      toolTip = "i18n::BeamEnginesSpark.OptionsBlobStorageKey.ToolTip")
+  @HopMetadataProperty
+  private String azureBlobStorageKey;
+
   @HopMetadataProperty private String sparkStorageLevel;
 
   public BeamSparkPipelineRunConfiguration() {
@@ -166,6 +193,9 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     this.sparkBundleSize = config.sparkBundleSize;
     this.sparkStorageLevel = config.sparkStorageLevel;
     this.sparkAppName = config.sparkAppName;
+    this.azureBlobStorageAccount = config.azureBlobStorageAccount;
+    this.azureBlobStorageKey = config.azureBlobStorageKey;
+    this.azureBlobStorageEndpoint = config.azureBlobStorageEndpoint;
   }
 
   @Override
@@ -236,6 +266,20 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     if (StringUtils.isNotEmpty(getSparkAppName())) {
       options.setAppName(resolve(getSparkAppName()));
+    }
+
+    if (StringUtils.isNotEmpty(getAzureBlobStorageAccount())) {
+      options
+          .as(BlobstoreOptions.class)
+          .setBlobServiceEndpoint(resolve(getAzureBlobStorageEndpoint()));
+    }
+
+    if (StringUtils.isNotEmpty(getAzureBlobStorageAccount())) {
+      options.as(BlobstoreOptions.class).setAccountName(resolve(getAzureBlobStorageAccount()));
+    }
+
+    if (StringUtils.isNotEmpty(getAzureBlobStorageKey())) {
+      options.as(BlobstoreOptions.class).setAccessKey(resolve(getAzureBlobStorageKey()));
     }
 
     return options;
@@ -422,5 +466,29 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
    */
   public void setSparkAppName(String sparkAppName) {
     this.sparkAppName = sparkAppName;
+  }
+
+  public String getAzureBlobStorageEndpoint() {
+    return azureBlobStorageEndpoint;
+  }
+
+  public void setAzureBlobStorageEndpoint(String azureBlobStorageEndpoint) {
+    this.azureBlobStorageEndpoint = azureBlobStorageEndpoint;
+  }
+
+  public String getAzureBlobStorageAccount() {
+    return azureBlobStorageAccount;
+  }
+
+  public void setAzureBlobStorageAccount(String azureBlobStorageAccount) {
+    this.azureBlobStorageAccount = azureBlobStorageAccount;
+  }
+
+  public String getAzureBlobStorageKey() {
+    return azureBlobStorageKey;
+  }
+
+  public void setAzureBlobStorageKey(String azureBlobStorageKey) {
+    this.azureBlobStorageKey = azureBlobStorageKey;
   }
 }
