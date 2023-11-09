@@ -60,8 +60,6 @@ limitations under the License.
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
       <filename>${PROJECT_HOME}/0068-enhanced-json-output-empty-stream.hpl</filename>
-      <logext/>
-      <logfile/>
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -83,8 +81,8 @@ limitations under the License.
       <attributes/>
       <always_log_rows>N</always_log_rows>
       <parallel>N</parallel>
-      <xloc>640</xloc>
-      <yloc>48</yloc>
+      <xloc>736</xloc>
+      <yloc>224</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -93,8 +91,51 @@ limitations under the License.
       <type>DUMMY</type>
       <attributes/>
       <parallel>N</parallel>
-      <xloc>336</xloc>
-      <yloc>160</yloc>
+      <xloc>1264</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0068-enhanced-json-output-grouping.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0068-enhanced-json-output-grouping.hpl</filename>
+      <logext/>
+      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>direct</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>736</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Run Pipeline Unit Tests</name>
+      <description/>
+      <type>RunPipelineTests</type>
+      <attributes/>
+      <test_names>
+        <test_name>
+          <name>0068-enhanced-json-grouping-test</name>
+        </test_name>
+      </test_names>
+      <parallel>N</parallel>
+      <xloc>1040</xloc>
+      <yloc>48</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -114,10 +155,45 @@ limitations under the License.
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>0068-enhanced-json-output-empty-stream.hpl</from>
+      <from>0068-enhanced-json-output-grouping.hpl</from>
+      <to>Run Pipeline Unit Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run Pipeline Unit Tests</from>
       <to>ok</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0068-enhanced-json-output-empty-stream.hpl</from>
+      <to>0068-enhanced-json-output-grouping.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0068-enhanced-json-output-grouping.hpl</from>
+      <to>Run Pipeline Unit Tests</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0068-enhanced-json-output-grouping.hpl</from>
+      <to>not ok</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Run Pipeline Unit Tests</from>
+      <to>not ok</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>

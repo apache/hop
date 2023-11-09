@@ -61,10 +61,10 @@
       "transform_name": "CSV file input"
     }
   ],
-  "name": "0069-enhanced-json-grouping-test",
+  "name": "0068-enhanced-json-grouping-test",
   "description": "",
   "persist_filename": "",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0069-enhanced-json-output-grouping-unit-testing.hpl",
+  "pipeline_filename": "./0068-enhanced-json-output-grouping-unit-testing.hpl",
   "test_type": "UNIT_TEST"
 }
