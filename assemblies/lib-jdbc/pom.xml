@@ -43,7 +43,6 @@
         <redshift.version>2.1.0.19</redshift.version>
         <snowflake.jdbc.version>3.14.1</snowflake.jdbc.version>
         <sqlite.version>3.43.0.0</sqlite.version>
-        <vertica.jdbc.version>23.3.0-0</vertica.jdbc.version>
     </properties>
 
     <dependencies>
@@ -114,11 +113,6 @@
             <groupId>org.xerial</groupId>
             <artifactId>sqlite-jdbc</artifactId>
             <version>${sqlite.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vertica.jdbc</groupId>
-            <artifactId>vertica-jdbc</artifactId>
-            <version>${vertica.jdbc.version}</version>
         </dependency>
     </dependencies>
 
