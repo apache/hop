@@ -1,0 +1,4 @@
+group, result
+A,{"result":{"value":[1;2]}}
+B,{"result":{"value":[3;4]}}
+C,{"result":{"value":[5]}}
