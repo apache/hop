@@ -41,7 +41,7 @@ import picocli.CommandLine;
     description = "Configuration options for Google Cloud",
     category = ConfigPlugin.CATEGORY_CONFIG)
 @GuiPlugin(
-    description = "Google Cloud" // Tab label in options dialog
+    description = "i18n::GoogleCloudPlugin.GuiPlugin.Description" // Tab label in options dialog
     )
 public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
@@ -53,9 +53,9 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.FILENAME,
       variables = true,
-      label = "i18n::GoogleCloudPlugin.ConfigPlugin.Description",
+      label = "i18n::GoogleCloudPlugin.AccountKeyFile.Label",
       toolTip =
-          "i18n::GoogleCloudPlugin.ConfigPlugin.Tooltip")
+          "i18n::GoogleCloudPlugin.AccountKeyFile.Description")
   @CommandLine.Option(
       names = {"-gck", "--google-cloud-service-account-key-file"},
       description = "Configure the path to a Google Cloud service account JSON key file")
