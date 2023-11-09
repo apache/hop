@@ -38,10 +38,10 @@ import picocli.CommandLine;
 
 @ConfigPlugin(
     id = "AzureConfigPlugin",
-    description = "Configuration options for Azure",
+    description = "i18n::AzureConfig.ConfigPlugin.Description",
     category = ConfigPlugin.CATEGORY_CONFIG)
 @GuiPlugin(
-    description = "Azure" // Tab label in options dialog
+    description = "i18n::Azure.GuiPlugin.Description" // Tab label in options dialog
     )
 public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
 
