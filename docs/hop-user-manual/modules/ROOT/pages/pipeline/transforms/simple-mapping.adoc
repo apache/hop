@@ -26,8 +26,8 @@ under the License.
 == Description
 
 The Simple Mapping transform allows you to re-use a series of transforms in the form of a "re-usable pipeline" also known as a "Mapping".
-
-In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform to retrieve rows of data from.
+Think of it as a re-usable function in programming – you pass some data into the function and it returns data back.
+In the Simple Mapping transform you can specify one xref:pipeline/transforms/mapping-input.adoc[Mapping Input] transform to pass data to and one xref:pipeline/transforms/mapping-output.adoc[Mapping Output] transform to retrieve rows of data from, as well as parameters to pass to the mapping.
 
 Use this transform if you find yourself repeating the same logic multiple times over several different pipelines.
 
@@ -57,5 +57,8 @@ You can map (hence the name) field names.
 
 == Sample
 
-In the samples project you can find a small example of the Simple Mapping transform called `mapping-use.hpl'.
+In the samples project you can find two examples of the Simple Mapping transform, the transforms/files/simple-mapping-child.hpl and simple-mapping-parent.hpl pipelines.
+
+In the sample files discussed above, the parent pipeline sends first and last name fields to the child, a calculation is performed and then a field is populated with the calculation and sent back.
+
 
