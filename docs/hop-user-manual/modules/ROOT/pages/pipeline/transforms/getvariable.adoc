@@ -26,29 +26,7 @@ under the License.
 |===
 |
 == Description
-
 The Get Variables transform allows you to get the value of a variable and create field(s) from it. You only need to use this transform if you need the variable value in a field.
-
-
-Note that workflow/environment variables are set only once. A pipeline needs to start to get any new variables. A running or sequential or nested (nested pipelines are technically the same pipeline) pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor.
-
-
-Refer to parameter/svariables using the syntax: ${myVariable}, for example from a previous pipeline. If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows transform.
-
-
-For example, you can specify: ``${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt`` and it will be expanded to ``/tmp/hop/tempfile.txt`` on Unix-like systems.
-
-
-You must always specify the data type or you will have errors like the following:
-
-``2023/07/21 09:30:23 - REST client.0 - ERROR: Because of an error, this transform can't continue: 
-  2023/07/21 09:30:23 - REST client.0 - TOKEN_URL None : Unknown type 0 specified.
-  2023/07/21 09:30:23 - REST client.0 - ERROR: org.apache.hop.core.exception.HopValueException:``
-
-See also the Set Variables transform.
-To convert the Variable into a data type other than String use Select Values - Meta Data tab.
-To get system values, including command line arguments, use the Get System Info transform.
-
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -59,6 +37,22 @@ To get system values, including command line arguments, use the Get System Info 
 !Dataflow! image:question_mark.svg[Maybe Supported, 24]
 !===
 |===
+
+Note that workflow/environment variables are set only once. A pipeline needs to start to get any new variables. A running or sequential or nested (nested pipelines are technically the same pipeline) pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor.
+
+Refer to parameter/svariables using the syntax: ${myVariable}, for example from a previous pipeline. If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows transform.
+
+For example, you can specify: ``${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt`` and it will be expanded to ``/tmp/hop/tempfile.txt`` on Unix-like systems.
+
+You must always specify the data type or you will have errors like the following:
+
+``2023/07/21 09:30:23 - REST client.0 - ERROR: Because of an error, this transform can't continue: 
+  2023/07/21 09:30:23 - REST client.0 - TOKEN_URL None : Unknown type 0 specified.
+  2023/07/21 09:30:23 - REST client.0 - ERROR: org.apache.hop.core.exception.HopValueException:``
+
+See also the Set Variables transform.
+To convert the Variable into a data type other than String use Select Values - Meta Data tab.
+To get system values, including command line arguments, use the Get System Info transform.
 
 == Options
 
