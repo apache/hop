@@ -47,11 +47,12 @@ See also:
 |Option|Description
 |Action name|Name of the action.
 |Pipeline|Specify your pipeline by entering in its path or clicking Browse.
-
 If you select a pipeline that has the same root path as the current pipeline, the variable {openvar}Internal.Action.Current.Directory{closevar} will automatically be inserted in place of the common root path.
 For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl than the path will automatically be converted to {openvar}Internal.Action.Current.Directory{closevar}/path/sub.hpl.
 
 Pipelines previously specified by reference are automatically converted to be specified by name.
+|Run Configuration|The pipeline can run in different types of environment configurations.  
+Specify a run configuration to control how the pipeline is executed.
 |===
 
 === Options Tab
@@ -59,8 +60,6 @@ Pipelines previously specified by reference are automatically converted to be sp
 [options="header"]
 |===
 |Option|Description
-|Run Configuration|The pipeline can run in different types of environment configurations.
-Specify a run configuration to control how the pipeline is executed.
 |Execute for every result row|Runs the pipeline once for every result row from a previous pipeline (or workflow) in the current workflow.
 |Clear results rows before execution|Makes sure the results rows are cleared before the pipeline starts.
 |Clear results files before execution|Makes sure the results files are cleared before the pipeline starts.
@@ -94,24 +93,22 @@ See Logging for more details.
 |Include time in filename|Adds the system time to the filename with format HHMMSS (_235959).
 |===
 
-=== Arguments Tab
-
-[options="header"]
-|===
-|Option|Description
-|Copy results to arguments|Copies the results from a previous pipeline as arguments of the pipeline using the Copy rows to result transform.
-If the 'Execute for every result row' option is selected then each row is a set of command-line arguments to be passed into the pipeline, otherwise only the first row is used to generate the command line arguments.
-|Arguments|Specify which command-line arguments will be passed to the pipeline.
-|===
-
 === Parameters Tab
+
+*Pass params downstream*: On the Parameters tab, select the pipeline transform checkbox to “Pass parameter values to sub pipeline”. The parameter must already exist in the pipeline (in pipeline properties for example) or alternatively, on the Parameters tab, you can specify new parameters. 
+The Parameters tab allows you to override existing parameter values or NULL them by leaving the value empty.
+
+*Pass field values upstream*: The sub pipeline requires a Copy rows to result transform to send a row upstream. This requires a row to exist in the sub pipeline. Note that that rows do not exist in a workflow, but you can use a Get variables in a subsequent sub pipeline to use the first sub pipeline’s field values.
+
+Use Set variables if you want to pass a single value upstream from a pipeline to the workflow and act upon that variable. In this case, you can choose a scope of “valid in the parent workflow”.
+
 
 [options="header"]
 |===
 |Option|Description
 |Copy results to parameters|Copies the results from a previous pipeline as parameters of the pipeline using the Copy rows to result transform.
 |Pass parameter values to sub pipeline|Pass all parameters of the workflow down to the sub-pipeline.
-|Parameters|Specify the parameter name passed to the pipeline.
+|Parameter|Specify the parameter name passed to the pipeline.
 |Stream column name|Specify the field of an incoming record from a previous pipeline as the parameter.
 |Value|Specify pipeline parameter values through one of the following actions: +
 - Manually entering a value (ETL workflow for example). +
