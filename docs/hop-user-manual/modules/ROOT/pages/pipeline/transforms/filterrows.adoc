@@ -131,6 +131,10 @@ This sample transform gives you all the information, such as the values for the 
 Alternatively, you can store the .HPL, and then open the .HPL in a text editor.
 3. Find the <condition> element and its nested elements and modify it accordingly to use it in your MDI scenario.
 
+== Sample
+The samples project demonstrates some concepts in file "filter-rows-basic.hpl".
+
+
 == MDI Example
 
 The example filter condition below injects the following filter conditions into a Filter Rows transform.
