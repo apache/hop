@@ -42,33 +42,35 @@ It is similar to the Workflow Executor transform, but works with pipelines.
 |===
 
 == Usage
-The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. You can use a "Get rows from result" transform in a pipeline to fetch the previous rows from its parent. This is useful if you're sending each row to a child pipeline. You do not need to define any fields in the Get rows transform to retrieve all data row fields.
+The pipeline executor transform by default sends rows to the child pipeline one by one. This default behavior can be changed in the "Row grouping" tab. 
+
+Optionally, you can use a "Get rows from result" transform in a pipeline to fetch the previous rows from a sub pipeline. You do not need to define any fields in the Get rows transform to retrieve all data row fields.
 
 You can either run the same pipeline for each row by specifying a pipeline name to execute, or accept a pipeline name from an incoming field (from a table for example).
 You can launch multiple copies of the transform to run in parallel.
 
-Options include mapping the child pipeline's parameters to fields in your current pipeline. If you enable the "Inherit all variables from pipeline" option, all the variables defined in the parent pipeline are passed to the pipeline. However, only the parameters defined on the Parameters tab are set per data input row to the pipeline.
+*Parameters*: Can map sub pipeline parameters to fields in your current pipeline. If you enable the "Inherit all variables from pipeline" option, all the parameters/variables defined in the parent pipeline are passed to the pipeline. However, only the parameters defined on the Parameters tab are set per data input row to the pipeline.
 
-*Output hop connector options*: If you select the incorrect output option for the pipeline executor, it may not return the data expect
+*Output hop connector options*: If you select the incorrect output option for the pipeline executor, it may not return the data expected.
 
-* This output will contain the execution results: Returns stats on the execution and does not limit fields, variables, or parameters in the output. It’s a good idea to at least check if there have been any issues in one of your child pipelines with the ExecutionResult, ExecutionExitStatus or ExecutionNrErrors fields.
+* *This output will contain the execution results*: Returns stats on the execution and does not limit fields, variables, or parameters in the output. It’s a good idea to at least check if there have been any issues in one of your child pipelines with the ExecutionResult, ExecutionExitStatus or ExecutionNrErrors fields.
 
-* This output will contain the result rows after execution: Outputs a rowset that was copied to memory by the child pipeline, e.g. with a Copy rows to result transform. Use the "Result rows" tab in the pipeline executor transform to specify which fields you expect to receive from the child pipelines. This option is also required for setting variables downstream and working with the variables upstream if valid in the your scope.
+* *This output will contain the result rows after execution*: Outputs a rowset that was copied to memory by the child pipeline, e.g. with a Copy rows to result transform. Use the "Result rows" tab in the pipeline executor transform to specify which fields you expect to receive from the child pipelines. This option is also required for setting variables downstream and working with the variables upstream if valid in the your scope.
 
-* The output will contain result file names after execution: Outputs a rowset that will contain any filenames that were copied to the results, e.g. with the Add filenames to result in the Content tab of the Text file input^ transform.
+* *The output will contain result file names after execution*: Outputs a rowset that will contain any filenames that were copied to the results, e.g. with the Add filenames to result in the Content tab of the Text file input^ transform.
 
-* The output will contain a copy of the executor transform’s input data: Outputs the rowset as it was received by the pipeline executor transform.
+* *The output will contain a copy of the executor transform’s input data*: Outputs the rowset as it was received by the pipeline executor transform.
 
-* Main output of transform: Outputs a rowset that mimics the input for the pipeline executor transform.
+* *Main output of transform*: Outputs a rowset that mimics the input for the pipeline executor transform.
 
 
 Depending on your requirements, the Pipeline Executor transform can be configured to function in any of the following ways:
 
-You can use the input row to set parameters and variables. +
-The executor transform then passes this row to the pipeline in the form of a result row. +
-- You can also pass a group of records based on the value in a field, so that when the field value changes dynamically, the specified pipeline is executed. +
-In these cases, the first row in the group of rows is used to set parameters or variables in the pipeline. +
+* By default, the specified pipeline will be executed once for each input row. You can use the input row to set parameters and variables. The executor transform then passes this row to the pipeline in the form of a result row.
 
+* You can also pass a group of records based on the value in a field, so that when the field value changes dynamically, the specified pipeline is executed. In these cases, the first row in the group of rows is used to set parameters or variables in the pipeline.
+
+* You can launch multiple copies of this transform to assist in parallel pipeline processing.
 
 See also:
 
@@ -101,10 +103,20 @@ The filename may contain variables (for example, you can use the built-in Intern
 
 |===
 
-=== Parameter Tab
+=== Parameters Tab
 
-In this tab you can specify which field to use to set a certain parameter or variable value.
-If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
+In this tab you can specify which field to use to set a certain parameter or variable value. If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
+TIP: If you leave the "Inherit all variables from pipeline" option checked (it is by default), all the variables defined in the current pipeline are passed to the child pipeline.
+
+You can pass *parameters and variables* downstream only. You can’t pass params/variables between pipelines unless they are started new. For example, you can pass params/variables between pipelines, when each named pipeline is started in a pipeline executor – once per row.
+
+Though you cannot pass parameters and variables upstream (in nested or sequential pipelines) you can pass data rows back up a pipeline via the following pattern. See project: samples/loops/pipeline-executor.hpl
+
+* The *parent pipeline executor* specifies the row field name defined in the child pipeline row under the tab “Result rows”. The output of the parent pipeline executor is option “result rows after execution”.
+
+* *Child pipeline*: A data row is generated with the same field name and type that is defined in the parent pipeline executor tab “Results rows” in the child pipeline. The last transform of the child pipeline is “copy rows to result”.
+
+Remember that all parameters must be defined (in edit pipeline/workflow properties) at least once in each pipeline or workflow. 
 
 [options="header"]
 |===
@@ -114,8 +126,6 @@ If multiple rows are passed to the workflow, the first row is taken to set the p
 If you specify an input field to use, the static input value is not used.
 |Static input value|Instead of a field to use you can specify a static value here.
 |===
-
-TIP: If you leave the "Inherit all variables from pipeline" option checked (it is by default), all the variables defined in the current pipeline are passed to the child pipeline.
 
 The `Get Parameters` button in the lower right corner of the tab that will insert all the defined parameters with their description for the specified pipeline.
 
