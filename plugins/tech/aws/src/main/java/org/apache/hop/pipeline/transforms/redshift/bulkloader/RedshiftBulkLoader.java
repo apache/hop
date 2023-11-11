@@ -295,13 +295,13 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     }
 
     sb.append(" FROM '" + resolve(meta.getCopyFromFilename()) + "'");
-    sb.append(" NULL '' ");
-    sb.append(" EMPTYASNULL ");
-    sb.append("DATEFORMAT AS 'YYYY/MM/DD' ");
-    sb.append("TIMEFORMAT AS 'YYYY/MM/DD HH:MI:SS'");
     if(meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")){
       sb.append(" DELIMITER ',' ");
       sb.append(" CSV QUOTE AS '\"'");
+      sb.append(" NULL '' ");
+      sb.append(" EMPTYASNULL ");
+      sb.append("DATEFORMAT AS 'YYYY/MM/DD' ");
+      sb.append("TIMEFORMAT AS 'YYYY/MM/DD HH:MI:SS'");
     }
     if(meta.isUseAwsIamRole()){
       sb.append(" iam_role '" + meta.getAwsIamRole() + "'");
