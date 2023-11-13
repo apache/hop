@@ -209,7 +209,7 @@ For example, to start, examine the following description of an input row.
 
 [source,java]
 ----
-RowMetaInterface inputRowMeta = getInputRowMeta();
+IRowMeta inputRowMeta = getInputRowMeta();
 ----
 
 The inputRowMeta object contains the metadata of the input row.
@@ -219,7 +219,7 @@ For example, if you want to look for a field called customer, you would use the 
 
 [source,java]
 ----
-ValueMetaInterface customer = inputRowMeta.searchValueMeta("year");
+IValueMeta customer = inputRowMeta.searchValueMeta("year");
 ----
 
 Because looking up field names can be slow if you need to do it for every row that passes through a pipeline, you could look up field names in advance in a first block of code, as shown in the following example:
