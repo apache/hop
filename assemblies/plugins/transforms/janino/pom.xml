@@ -35,7 +35,7 @@
     <description />
 
     <properties>
-        <janino-version>3.1.2</janino-version>
+        <janino-version>3.1.7</janino-version>
     </properties>
 
     <dependencies>
