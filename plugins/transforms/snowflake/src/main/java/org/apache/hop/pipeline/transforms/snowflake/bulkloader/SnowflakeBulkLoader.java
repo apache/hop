@@ -775,7 +775,7 @@ public class SnowflakeBulkLoader
       setErrors(1);
     }
 
-    if (!Boolean.parseBoolean(resolve(SnowflakeBulkLoaderMeta.DEBUG_MODE_VAR))) {
+    if (meta.isRemoveFiles() || !Boolean.parseBoolean(resolve(SnowflakeBulkLoaderMeta.DEBUG_MODE_VAR))) {
       for (String filename : data.previouslyOpenedFiles) {
         try {
           HopVfs.getFileObject(filename).delete();
