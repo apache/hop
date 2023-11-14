@@ -29,7 +29,7 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://www.simba.com/products/BigQuery/doc/JDBC_InstallGuide/content/jdbc/d-intro.htm[Documentation Link]
 |JDBC Url | jdbc:bigquery://[Host]:[Port];ProjectId=[Project];OAuthType=[AuthValue]
-|Driver folder | Hop Installation/plugins/databases/googlebigquery/lib
+|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 The Simba driver is packaged as a .zip containing many jars. Only a subset of the jars included with the Driver are necessary to use Bigquery JDBC with Apache Hop. Furthermore, some of the jars may conflict with those packaged with Hop and *must* be excluded.

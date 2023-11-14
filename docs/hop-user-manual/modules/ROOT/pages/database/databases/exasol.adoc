@@ -24,10 +24,10 @@ under the License.
 |===
 | Option | Info
 |Type | Relational
-|Driver | Included
-|Version Included | 6.2.1
+|Driver | https://docs.exasol.com/db/latest/connect_exasol/drivers/jdbc.htm#JDBCDriver
+|Version Included | None
 |Hop Dependencies | None
 |Documentation | https://docs.exasol.com/connect_exasol/drivers/jdbc.htm[Documentation Link]
 |JDBC Url | jdbc:exa:<server>:<port8563>
-|Driver folder | Hop Installation/plugins/databases/exasol4/lib
+|Driver folder | <Hop Installation>/lib/jdbc
 |===

@@ -29,5 +29,5 @@ under the License.
 |Hop Dependencies | Mysql Database plugin
 |Documentation | https://mariadb.com/kb/en/about-mariadb-connector-j/[Documentation Link]
 |JDBC Url | jdbc:mariadb://hostname:port/databaseName
-|Driver folder | Hop Installation/plugins/databases/mariadb/lib
+|Driver folder | <Hop Installation>/lib/jdbc
 |===

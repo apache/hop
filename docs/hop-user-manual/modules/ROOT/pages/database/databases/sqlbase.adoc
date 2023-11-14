@@ -29,5 +29,5 @@ under the License.
 |Hop Dependencies | None
 |Documentation | https://knowledge.opentext.com/knowledge/cs.dll/kcs/kb[Documentation Link]
 |JDBC Url | jdbc:sqlbase://hostname:port/databaseName
-|Driver folder | Hop Installation/plugins/databases/sqlbase/lib
+|Driver folder | <Hop Installation>/lib/jdbc
 |===
