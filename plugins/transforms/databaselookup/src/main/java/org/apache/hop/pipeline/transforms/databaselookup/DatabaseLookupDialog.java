@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -57,9 +59,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
@@ -509,20 +508,27 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   }
 
   private void setInputFieldCombo() {
-    shell.getDisplay().asyncExec(() -> {
-      try {
-        prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
-      } catch (HopException e) {
-        prevFields = new RowMeta();
-        String msg =
-            BaseMessages.getString(PKG, "DatabaseLookupDialog.DoMapping.UnableToFindInput");
-        logError(msg);
-      }
-      String[] fieldNames = Const.sortStrings(prevFields.getFieldNames());
-      for (ColumnInfo colInfo : fieldColumns) {
-        colInfo.setComboValues(fieldNames);
-      }
-    });
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              try {
+                prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
+              } catch (HopException e) {
+                prevFields = null;
+              }
+              if (prevFields == null) {
+                new RowMeta();
+                String msg =
+                    BaseMessages.getString(PKG, "DatabaseLookupDialog.DoMapping.UnableToFindInput");
+                logError(msg);
+              } else {
+                String[] fieldNames = Const.sortStrings(prevFields.getFieldNames());
+                for (ColumnInfo colInfo : fieldColumns) {
+                  colInfo.setComboValues(fieldNames);
+                }
+              }
+            });
   }
 
   private void setTableFieldCombo() {
