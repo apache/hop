@@ -66,5 +66,7 @@ The samples project example: ``/loops/repeat-action.hwf`` and ``child-check-set-
 The values can contain variables themselves which will be resolved before every iteration.
 If the option ```Keep variable values after execution``` is set we evaluate the expression only once before the first execution of the file.
 
+To send Parameters to a Repeat Action, set the parameters/variables name and Value columns. Value can be hard-coded or reference a parameter/variable name. Parameters do not automatically flow through a Repeat Action.
+
 |===
 
