@@ -236,21 +236,6 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
                       PKG, "DatabaseLookup.ERROR0001.FieldRequired6.Exception"));
         }
       }
-
-      final List<ReturnValue> returnFields = meta.getLookup().getReturnValues();
-      final int returnFieldsOffset = getInputRowMeta().size();
-      for (int i = 0; i < returnFields.size(); i++) {
-        ReturnValue returnValue = returnFields.get(i);
-        IValueMeta returnValueMeta = fields.searchValueMeta(returnValue.getTableField());
-        if (returnValueMeta != null) {
-          IValueMeta v = data.outputRowMeta.getValueMeta(returnFieldsOffset + i);
-          if (v.getType() != returnValueMeta.getType()) {
-            IValueMeta clone = returnValueMeta.clone();
-            clone.setName(v.getName());
-            data.outputRowMeta.setValueMeta(returnFieldsOffset + i, clone);
-          }
-        }
-      }
     } else {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "DatabaseLookup.ERROR0002.UnableToDetermineFieldsOfTable")
