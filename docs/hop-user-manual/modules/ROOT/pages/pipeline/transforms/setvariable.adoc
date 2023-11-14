@@ -24,8 +24,17 @@ under the License.
 |===
 |
 == Description
-
-Set Variables allows you to set variables from fields. By clicking the Get Fields button it will automatically fill in all the fields from the data row and fill in variable names in all-caps (You may have to change the scope).
+Set Variables allows you to set variables from fields. By clicking the Get Fields button it will automatically fill in all the fields from the data row and fill in variable names in all-caps. Verify the scope is correct.
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
 
 This transform accepts one (and only one) row of data to set the value of a variable. It is important to isolate a single row for this transform, a simple way to do this is using the xref:pipeline/transforms/blockingtransform.adoc[Blocking transform]
 
@@ -42,17 +51,6 @@ A variable can be set in one pipeline and be available in the next pipeline (nam
 TIP: This transform accepts one (and only one) row of data to set the value of a variable. If you want to set a variable from a pipeline that processes multiple lines of data, make sure you isolate a single row before setting a variable.
 
 WARNING: You can't set and use a variable in the same pipeline. Since all transforms in a pipeline run in parallel, there is no way a transform in a pipeline can use a variable that is set in another transform in that same pipeline.
-
-|
-== Supported Engines
-[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
-!===
-!Hop Engine! image:check_mark.svg[Supported, 24]
-!Spark! image:question_mark.svg[Maybe Supported, 24]
-!Flink! image:question_mark.svg[Maybe Supported, 24]
-!Dataflow! image:question_mark.svg[Maybe Supported, 24]
-!===
-|===
 
 == Options
 
