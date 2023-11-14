@@ -16,7 +16,10 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set.
+:description: The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline or workflow action via an internal result row set. Remember that values or variables will not be copied, only row data.
+
+The Copy Rows To Result transform can be paired with the Get Rows from Result transform to retrieve the result row set in a pipeline. In some cases, the Get rows from Result transform is not required to retrieve the result set such as a pipeline transform in a workflow. Data rows can be passed from and to pipelines on a workflow, but data rows cannot be accessed directly in a workflow.
+
 
 = image:transforms/icons/rowstoresult.svg[Copy rows to result transform Icon, role="image-doc-icon"] Copy rows to result
 
@@ -24,13 +27,7 @@ under the License.
 |===
 |
 == Description
-
 The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set.
-
-This transform can be used by the Get Rows from Result transform and some workflow actions that allow to process the internal result row set.
-
-NOTE: this transform is mainly available for historical reasons. There are newer and better ways to create loops in Hop, check the xref:best-practices/index.adoc[Best Practices] for more information.
-
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -41,6 +38,10 @@ NOTE: this transform is mainly available for historical reasons. There are newer
 !Dataflow! image:cross.svg[Not Supported, 24]
 !===
 |===
+
+This transform can be used by the Get Rows from Result transform and some workflow actions that allow to process the internal result row set.
+
+NOTE: this transform is mainly available for historical reasons. There are newer and better ways to create loops in Hop, check the xref:best-practices/index.adoc[Best Practices] for more information.
 
 == Options
 
