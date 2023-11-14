@@ -17,17 +17,16 @@
 
 package org.apache.hop.core.reflection;
 
-import org.apache.hop.core.Condition;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.plugins.ActionPluginType;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.Condition;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.plugins.ActionPluginType;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
 
 public class StringSearcher {
   private static final String LOCAL_PACKAGE = "org.apache.hop";
@@ -111,10 +110,8 @@ public class StringSearcher {
       //
       if (processThisOne) {
         try {
-          Object obj = field.get(object);
-          if (obj != null) {
-            stringSearchInObject(obj, level, stringList, parentObject, grandParentObject, field);
-          }
+          stringSearchInObject(
+              field.get(object), level, stringList, parentObject, grandParentObject, field);
         } catch (IllegalAccessException e) {
           // OK, it's private, let's see if we can go there later on using
           // getters and setters...
@@ -124,12 +121,9 @@ public class StringSearcher {
 
             Method method = findMethod(baseClass, field.getName());
             if (method != null) {
-
               Object string = method.invoke(object, (Object[]) null);
-              if (string != null) {
-                stringSearchInObject(
-                    string, level, stringList, parentObject, grandParentObject, field);
-              }
+              stringSearchInObject(
+                  string, level, stringList, parentObject, grandParentObject, field);
             }
           } catch (Throwable ex) {
             // Ignore this error silently. If we can't access the method there
@@ -148,7 +142,9 @@ public class StringSearcher {
       Object grandParentObject,
       Field field) {
     String fieldName = field.getName();
-    if (obj instanceof String) {
+    if (obj == null) {
+      stringList.add(new StringSearchResult(null, parentObject, grandParentObject, fieldName));
+    } else if (obj instanceof String) {
       // OK, let's add the String
       stringList.add(
           new StringSearchResult((String) obj, parentObject, grandParentObject, fieldName));

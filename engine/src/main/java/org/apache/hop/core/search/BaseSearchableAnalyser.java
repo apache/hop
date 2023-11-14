@@ -67,7 +67,8 @@ public abstract class BaseSearchableAnalyser<T> {
                 component,
                     stringSearchResult.getString()));
       }
-      if (searchQuery.matches(stringSearchResult.getString())) {
+      String resultString = stringSearchResult.getString();
+      if (resultString!=null && searchQuery.matches(resultString)) {
         searchResults.add(
             new SearchResult(
                 searchable,
