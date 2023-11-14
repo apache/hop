@@ -1,0 +1,70 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "group",
+        "result"
+      ],
+      "data_set_name": "golden-json-grouped-single-item-output",
+      "transform_name": "verify_single_item_grouping"
+    },
+    {
+      "field_mappings": [
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "result",
+          "data_set_field": "result"
+        }
+      ],
+      "field_order": [
+        "group",
+        "result"
+      ],
+      "data_set_name": "golden-json-grouped-output",
+      "transform_name": "verify_grouping"
+    }
+  ],
+  "input_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "group",
+          "data_set_field": "group"
+        },
+        {
+          "transform_field": "value",
+          "data_set_field": "value"
+        }
+      ],
+      "field_order": [
+        "group",
+        "value"
+      ],
+      "data_set_name": "input-enhanced-json-test.csv",
+      "transform_name": "CSV file input"
+    }
+  ],
+  "name": "0068-enhanced-json-grouping-test",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0068-enhanced-json-output-grouping-unit-testing.hpl",
+  "test_type": "UNIT_TEST"
+}

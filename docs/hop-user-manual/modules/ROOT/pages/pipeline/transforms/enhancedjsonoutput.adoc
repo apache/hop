@@ -65,6 +65,7 @@ Can be empty string that will affect output json structure, see detailed descrip
 |Output value|This value will be used as a transform output field.
 Will contain generated json output block depending on transform settings.
 |Force Arrays In JSON| If checked, JSON output will be forced as a single item whose content is an array.
+|Force single grouped Item|Grouped values are stored in an array inside the JSON instead of creating an array of JSONs
 |Pritty Print JSON|If checked, JSON output will be pritty printed.
 |===
 

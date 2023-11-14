@@ -108,6 +108,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
   @Injection(name = "FORCE_JSON_ARRAYS", group = "GENERAL")
   private boolean useArrayWithSingleInstance;
 
+  /** Flag to indicate to force unmarshall to JSON Arrays even with a single occurrence in a list */
+  @Injection(name = "FORCE_SINGLE_ITEM", group = "GENERAL")
+  private boolean useSingleItemPerGroup;
+
   /** Flag: create parent folder if needed */
   @Injection(name = "CREATE_PARENT_FOLDER", group = "GENERAL")
   private boolean createparentfolder;
@@ -352,6 +356,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
           "Y"
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformnode, "use_arrays_with_single_instance"));
+      useSingleItemPerGroup =
+          "Y"
+              .equalsIgnoreCase(
+                  XmlHandler.getTagValue(transformnode, "use_single_item_per_group"));
       jsonPrittified =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "json_prittified"));
 
@@ -495,6 +503,10 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
         .append("    ")
         .append(
             XmlHandler.addTagValue("use_arrays_with_single_instance", useArrayWithSingleInstance));
+    retval
+    .append("    ")
+    .append(
+        XmlHandler.addTagValue("use_single_item_per_group", useSingleItemPerGroup));
     retval.append("    ").append(XmlHandler.addTagValue("json_prittified", jsonPrittified));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
     retval.append("    ").append(XmlHandler.addTagValue("addtoresult", addToResult));
@@ -705,5 +717,13 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
 
   public void setJsonPrittified(boolean jsonPrittified) {
     this.jsonPrittified = jsonPrittified;
+  }
+
+  public boolean isUseSingleItemPerGroup() {
+    return useSingleItemPerGroup;
+  }
+
+  public void setUseSingleItemPerGroup(boolean useSingleItemPerGroup) {
+    this.useSingleItemPerGroup = useSingleItemPerGroup;
   }
 }
