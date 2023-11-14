@@ -30,7 +30,7 @@ under the License.
 |Documentation | https://db.apache.org/derby/derby_downloads.html[Documentation Link]
 |JDBC Url | jdbc:derby:<host>[:<port>]/<database>
 |JDBC Url Embedded | jdbc:derby:<database>
-|Driver folder | Hop Installation/plugins/databases/derby/lib
+|Driver folder | <Hop Installation>/lib/jdbc
 |===
 
 NOTE: Derby JDBC driver has two different modes, if you want to use Derby Embbeded, replace the _derbyclient.jar_ file with _derby.jar_

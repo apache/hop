@@ -35,5 +35,5 @@ For writing it is better to use the Microsoft Access Output transformation.
 |Hop Dependencies | None
 |Documentation | http://http://ucanaccess.sourceforge.net/site.html[Documentation Link]
 |JDBC Url | jdbc:ucanaccess://path.mdb
-|Driver folder | Hop Installation/plugins/databases/msacces/lib
+|Driver folder | <Hop Installation>/plugins/databases/access/lib/
 |===
