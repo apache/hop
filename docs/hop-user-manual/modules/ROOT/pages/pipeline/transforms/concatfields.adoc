@@ -92,36 +92,3 @@ So instead of save 0000001, we write 1, etc.
 String fields will no longer be padded to their specified length.
 |===
 
-=== Advanced Tab
-
-[options="header"]
-|===
-|Remove selected fields|Check this to remove all selected fields from the output stream.
-|Force the enclosure around fields?|This option forces all field names to be enclosed with the character specified in the Enclosure property above.
-|Disable the enclosure fix?|This is for backward compatibility reasons related to enclosures and separators.
-When a string field contains an enclosure it gets enclosed and the enclose itself gets escaped.
-When a string field contains a separator, it gets enclosed.
-Check this option, if this logic is not wanted.
-It has also an extra performance burden since the strings are scanned for enclosures and separators.
-So when you are sure there is no such logic needed since your strings don't have these characters in there and you want to improve performance, un-check this option.
-|Header|Enable this option if you want a header row.
-(First line in the stream).
-Note: All other output stream fields are set to Null when this line is produced.
-|Footer|Enable this option if you want a footer row.
-(Last line in the stream).
-Note: All other output stream fields are set to Null when this line is produced.
-|Encoding|Specify the String encoding to use.
-Leave blank to use the default encoding on your system.
-To use Unicode specify UTF-8 or UTF-16. On first use, Spoon will search your system for available encodings.
-Note: This is needed especially when you concatenate different encoded fields into the target field with a unique encoding.
-This applies also on Binary stored string fields due to Lazy conversion.
-|Right pad fields|Add spaces to the end of the fields (or remove characters at the end) until they have the specified length.
-|Fast data dump (no formatting)|Improves the performance when concatenating large amounts of data by not including any formatting information.
-Please consider setting the "Length of Target Field" option to an approximately maximum of the target field length.
-This improves performance since the internal buffer will be allocated and needs no reallocation when it is not sufficient.
-Note: When then "Length of Target Field" option is "0", the internal buffer size is calculated as 50 times the number of concatenated fields, for instance an internal buffer of 250 is used by default for 5 fields.
-|Split every ... rows|If this number N is larger than zero, split the resulting stream into multiple parts of N rows.
-Note: This is only needed when a Header/Footer is used to be compatible with the result of the Text File Output transform.
-|Add Ending line of file|Allows you to specify an alternate ending row to the output stream.
-Note: All other output stream fields are set to Null when this line is produced.
-|===
