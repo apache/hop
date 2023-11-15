@@ -83,7 +83,7 @@ public class ActionDebugGuiPlugin {
         debugLevel = new ActionDebugLevel();
       }
 
-      ActionDebugLevelDialog dialog = new ActionDebugLevelDialog(hopGui.getDisplay().getActiveShell(), debugLevel);
+      ActionDebugLevelDialog dialog = new ActionDebugLevelDialog(hopGui.getActiveShell(), debugLevel);
       if (dialog.open()) {
         DebugLevelUtil.storeActionDebugLevel(
             debugGroupAttributesMap, action.toString(), debugLevel);
@@ -91,7 +91,7 @@ public class ActionDebugGuiPlugin {
 
       workflowMeta.setChanged();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error changing action log settings", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error changing action log settings", e);
     }
   }
 }

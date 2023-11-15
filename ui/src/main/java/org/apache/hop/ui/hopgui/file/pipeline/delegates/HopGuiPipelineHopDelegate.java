@@ -55,7 +55,7 @@ public class HopGuiPipelineHopDelegate {
   public void newHop(PipelineMeta pipelineMeta, TransformMeta fr, TransformMeta to) {
     PipelineHopMeta hi = new PipelineHopMeta(fr, to);
 
-    PipelineHopDialog hd = new PipelineHopDialog(hopGui.getDisplay().getActiveShell(), SWT.NONE, hi, pipelineMeta);
+    PipelineHopDialog hd = new PipelineHopDialog(hopGui.getActiveShell(), SWT.NONE, hi, pipelineMeta);
     if (hd.open() != null) {
       newHop(pipelineMeta, hi);
     }
@@ -90,7 +90,7 @@ public class HopGuiPipelineHopDelegate {
   public boolean checkIfHopAlreadyExists(PipelineMeta pipelineMeta, PipelineHopMeta newHop) {
     boolean ok = true;
     if (pipelineMeta.findPipelineHop(newHop.getFromTransform(), newHop.getToTransform()) != null) {
-      MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_ERROR);
+      MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
               PKG, "HopGui.Dialog.HopExists.Message")); // "This hop already exists!"
@@ -111,7 +111,7 @@ public class HopGuiPipelineHopDelegate {
     boolean ok = true;
 
     if (pipelineMeta.hasLoop(newHop.getToTransform())) {
-      MessageBox mb = new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.ICON_ERROR);
+      MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesLoop.Message"));
       mb.setText(BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesLoop.Title"));
       mb.open();
@@ -129,7 +129,7 @@ public class HopGuiPipelineHopDelegate {
       } catch (HopRowException re) {
         // Show warning about mixing rows with conflicting layouts...
         new ErrorDialog(
-            hopGui.getDisplay().getActiveShell(),
+            hopGui.getActiveShell(),
             BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesRowMixing.Title"),
             BaseMessages.getString(PKG, "PipelineGraph.Dialog.HopCausesRowMixing.Message"),
             re);
@@ -167,7 +167,7 @@ public class HopGuiPipelineHopDelegate {
           && !transformMeta.getTransform().excludeFromCopyDistributeVerification()) {
         MessageDialogWithToggle md =
             new MessageDialogWithToggle(
-                hopGui.getDisplay().getActiveShell(),
+                hopGui.getActiveShell(),
                 BaseMessages.getString(PKG, "System.Warning"),
                 BaseMessages.getString(
                     PKG,
@@ -275,7 +275,7 @@ public class HopGuiPipelineHopDelegate {
     PipelineHopMeta before = (PipelineHopMeta) pipelineHopMeta.clone();
 
     PipelineHopDialog hd =
-        new PipelineHopDialog(hopGui.getDisplay().getActiveShell(), SWT.NONE, pipelineHopMeta, pipelineMeta);
+        new PipelineHopDialog(hopGui.getActiveShell(), SWT.NONE, pipelineHopMeta, pipelineMeta);
     if (hd.open() != null) {
       // Backup situation for redo/undo:
       PipelineHopMeta after = (PipelineHopMeta) pipelineHopMeta.clone();

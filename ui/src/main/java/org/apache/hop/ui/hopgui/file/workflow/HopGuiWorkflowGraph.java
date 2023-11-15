@@ -1351,7 +1351,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         if (workflowMeta.hasLoop(hopCandidate.getToAction())) {
           MessageBox mb =
               new MessageBox(
-                  hopGui.getDisplay().getActiveShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
+                  hopGui.getActiveShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
           mb.setMessage(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
           mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title"));
           int choice = mb.open();
@@ -1795,7 +1795,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                         ServerPushSessionFacade.stop();
                       } catch (Exception e) {
                         new ErrorDialog(
-                            hopGui.getDisplay().getActiveShell(),
+                            hopGui.getActiveShell(),
                             "Execute workflow",
                             "There was an error during workflow execution",
                             e);
@@ -2813,7 +2813,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     } catch (Exception ex) {
       new ErrorDialog(
-          hopGui.getDisplay().getActiveShell(),
+          hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Header"),
           BaseMessages.getString(PKG, "HopGuiWorkflowGraph.ErrorDialog.WorkflowDrawing.Message"),
           ex);
@@ -3233,7 +3233,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return false;
     }
 
-    Shell shell = hopGui.getDisplay().getActiveShell();
+    Shell shell = hopGui.getActiveShell();
     if (shell == null) {
       shell = hopGui.getShell();
     }
@@ -3300,7 +3300,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if (fileObject.exists()) {
         MessageBox box =
             new MessageBox(
-                hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+                hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Overwrite?");
         box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
         int answer = box.open();

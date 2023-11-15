@@ -369,7 +369,7 @@ public class HopSearchPerspective implements IHopPerspective {
     try {
       searchable.getSearchCallback().callback(searchable, searchResult);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error opening " + searchable.getName(), e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error opening " + searchable.getName(), e);
     }
   }
 
@@ -431,7 +431,7 @@ public class HopSearchPerspective implements IHopPerspective {
       wResults.setRowNums();
       wResults.optWidth(true);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error searching", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error searching", e);
     } finally {
       refreshLastUsedLocation();
       refreshLastUsedSearchStrings();

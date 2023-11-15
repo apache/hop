@@ -1367,6 +1367,15 @@ public class HopGui
     }
   }
 
+  public Shell getActiveShell() {
+    Shell active = display.getActiveShell();
+    if (active!=null) {
+      return active;
+    } else {
+      return shell;
+    }
+  }
+
   /**
    * Gets metadataProvider
    *

@@ -465,7 +465,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
 
       EnterSelectionDialog selectTransformDialog =
           new EnterSelectionDialog(
-              hopGui.getDisplay().getActiveShell(),
+              hopGui.getActiveShell(),
               pipelineMeta.getTransformNames(),
               "Select output transform",
               "Select the transform output for the web service");
@@ -476,7 +476,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
       IRowMeta rowMeta = pipelineMeta.getTransformFields(variables, transformName);
       EnterSelectionDialog selectFieldDialog =
           new EnterSelectionDialog(
-              hopGui.getDisplay().getActiveShell(),
+              hopGui.getActiveShell(),
               rowMeta.getFieldNames(),
               "Select the output field",
               "Select the field to use as output for this web service");
@@ -487,7 +487,7 @@ public class WebServiceEditor extends MetadataEditor<WebService> {
       wTransform.setText(transformName);
       wField.setText(fieldName);
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error selecting output field", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error selecting output field", e);
     }
   }
 }

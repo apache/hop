@@ -63,7 +63,7 @@ public class HopGuiPipelineClipboardDelegate {
       GuiResource.getInstance().toClipboard(clipText);
     } catch (Throwable e) {
       new ErrorDialog(
-          hopGui.getDisplay().getActiveShell(),
+          hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Title"),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionCopyToClipboard.Message"),
           e);
@@ -75,7 +75,7 @@ public class HopGuiPipelineClipboardDelegate {
       return GuiResource.getInstance().fromClipboard();
     } catch (Throwable e) {
       new ErrorDialog(
-          hopGui.getDisplay().getActiveShell(),
+          hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Title"),
           BaseMessages.getString(PKG, "HopGui.Dialog.ExceptionPasteFromClipboard.Message"),
           e);
@@ -273,7 +273,7 @@ public class HopGuiPipelineClipboardDelegate {
       // "Error pasting transforms...",
       // "I was unable to paste transforms to this pipeline"
       new ErrorDialog(
-          hopGui.getDisplay().getActiveShell(),
+          hopGui.getActiveShell(),
           BaseMessages.getString(PKG, "HopGui.Dialog.UnablePasteTransforms.Title"),
           BaseMessages.getString(PKG, "HopGui.Dialog.UnablePasteTransforms.Message"),
           e);
@@ -338,7 +338,7 @@ public class HopGuiPipelineClipboardDelegate {
 
       toClipboard(xml.toString());
     } catch (Exception ex) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error encoding to XML", ex);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error encoding to XML", ex);
     }
   }
 

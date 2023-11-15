@@ -87,7 +87,7 @@ public class HopGuiFileDelegate {
       }
       fileOpen(hopGui.getVariables().resolve(filename));
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error opening file", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error opening file", e);
     }
   }
 
@@ -164,7 +164,7 @@ public class HopGuiFileDelegate {
 
       return filename;
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error saving file", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error saving file", e);
       return null;
     }
   }
@@ -186,7 +186,7 @@ public class HopGuiFileDelegate {
         }
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error saving file", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error saving file", e);
     }
   }
 
@@ -199,7 +199,7 @@ public class HopGuiFileDelegate {
         perspective.remove(typeHandler);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error saving/closing file", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error saving/closing file", e);
     }
     return false;
   }
@@ -288,7 +288,7 @@ public class HopGuiFileDelegate {
         hopGui.fileDelegate.fileOpen(filename);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error getting list of recently opened files", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error getting list of recently opened files", e);
     }
   }
 
@@ -345,7 +345,7 @@ public class HopGuiFileDelegate {
           FileObject file = HopVfs.getFileObject(realFilename);
           if (file.exists()) {
             MessageBox box =
-                new MessageBox(hopGui.getDisplay().getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+                new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
             box.setText("File exists");
             box.setMessage("This file already exists. Do you want to overwrite it?");
             int answer = box.open();
@@ -366,7 +366,7 @@ public class HopGuiFileDelegate {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error exporting to SVG", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error exporting to SVG", e);
     }
   }
 }

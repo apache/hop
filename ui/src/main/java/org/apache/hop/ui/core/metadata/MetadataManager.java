@@ -96,12 +96,12 @@ public class MetadataManager<T extends IHopMetadata> {
       }
       return GuiContextUtil.getInstance()
           .handleActionSelection(
-              hopGui.getDisplay().getActiveShell(),
+              hopGui.getActiveShell(),
               "Select the " + hopMetadata.name() + " to edit",
               new GuiContextHandler("HopGuiMetadataContext", actions));
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error editing metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing metadata", e);
       return false;
     }
   }
@@ -140,7 +140,7 @@ public class MetadataManager<T extends IHopMetadata> {
               new GuiContextHandler("HopGuiMetadaContext", actions));
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error deleting metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error deleting metadata", e);
       return false;
     }
   }
@@ -203,7 +203,7 @@ public class MetadataManager<T extends IHopMetadata> {
       }
 
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error editing metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing metadata", e);
       return false;
     }
   }
@@ -240,7 +240,7 @@ public class MetadataManager<T extends IHopMetadata> {
         perspective.setActiveEditor(editor);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error editing metadata", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error editing metadata", e);
     }
   }
 
@@ -462,7 +462,7 @@ public class MetadataManager<T extends IHopMetadata> {
 
       return element;
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error creating new metadata element", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error creating new metadata element", e);
       return null;
     }
   }

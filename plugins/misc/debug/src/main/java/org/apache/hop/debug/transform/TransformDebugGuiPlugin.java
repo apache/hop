@@ -88,7 +88,7 @@ public class TransformDebugGuiPlugin {
 
       IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
       TransformDebugLevelDialog dialog =
-          new TransformDebugLevelDialog(hopGui.getDisplay().getActiveShell(), debugLevel, inputRowMeta);
+          new TransformDebugLevelDialog(hopGui.getActiveShell(), debugLevel, inputRowMeta);
       if (dialog.open()) {
         DebugLevelUtil.storeTransformDebugLevel(
             debugGroupAttributesMap, transformMeta.getName(), debugLevel);
@@ -96,7 +96,7 @@ public class TransformDebugGuiPlugin {
 
       pipelineMeta.setChanged();
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error changing transform log settings", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error changing transform log settings", e);
     }
   }
 }
