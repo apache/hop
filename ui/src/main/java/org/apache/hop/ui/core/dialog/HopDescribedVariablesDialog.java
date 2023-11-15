@@ -17,7 +17,10 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,8 +40,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /** Allows the user to edit the system settings of the hop.config file. */
 public class HopDescribedVariablesDialog extends Dialog {
@@ -94,11 +95,15 @@ public class HopDescribedVariablesDialog extends Dialog {
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
 
+    Button wEncode = new Button(shell, SWT.PUSH);
+    wEncode.setText(BaseMessages.getString(PKG, "HopDescribedVariablesDialog.Button.EncodeValue"));
+    wEncode.addListener(SWT.Selection, e -> encodeSelectedValue());
+
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, wFields);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wEncode, wCancel}, margin, wFields);
 
     // Message line at the top
     //
@@ -215,5 +220,23 @@ public class HopDescribedVariablesDialog extends Dialog {
     }
 
     dispose();
+  }
+
+  private void encodeSelectedValue() {
+    try {
+      ITwoWayPasswordEncoder encoder = Encr.getEncoder();
+      for (int index : wFields.getSelectionIndices()) {
+        TableItem item = wFields.table.getItem(index);
+        String value = item.getText(2);
+        String encoded = encoder.encode(value, true);
+        item.setText(2, Const.NVL(encoded, ""));
+      }
+      // We can't undo after this operation
+      //
+      wFields.clearUndo();
+      wFields.optimizeTableView();
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error encoding the value on the selected lines", e);
+    }
   }
 }

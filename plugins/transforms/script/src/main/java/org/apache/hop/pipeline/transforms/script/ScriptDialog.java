@@ -298,8 +298,8 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
 
     folder = new CTabFolder(wTop, SWT.BORDER | SWT.RESIZE);
 
-    //This function does not allowed in the web that will lead to error
-    //folder.setSimple(false);
+    // This function does not allowed in the web that will lead to error
+    // folder.setSimple(false);
     folder.setUnselectedImageVisible(true);
     folder.setUnselectedCloseVisible(true);
     FormData fdScript = new FormData();
@@ -572,12 +572,9 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
     StyledTextComp wScript =
         new StyledTextComp(
             variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, false);
-    if ((strScript != null) && strScript.length() > 0) {
-      wScript.setText(strScript);
-    } else {
-      wScript.setText(
-          BaseMessages.getString(PKG, "ScriptDialog.ScriptHere.Label") + Const.CR + Const.CR);
-    }
+
+    wScript.setText(Const.NVL(strScript, ""));
+
     item.setImage(imageInactiveScript);
     PropsUi.setLook(wScript, Props.WIDGET_STYLE_FIXED);
 

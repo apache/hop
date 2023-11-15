@@ -3404,7 +3404,7 @@ public class TableView extends Composite {
     return undo.get(undoPosition + 1);
   }
 
-  private void clearUndo() {
+  public void clearUndo() {
     undo = new ArrayList<>();
     undoPosition = -1;
   }

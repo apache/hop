@@ -58,7 +58,7 @@ The Snowflake Bulk Loader transform utilizes the Snowflake Copy command to load 
 - **On Error**: (Abort, Skip File, Skip File Percent, Continue) The behavior when errors are encountered on a load.
 - **Error limit**: (When On Error = Skip File or Skip File Percent) The error limit before the file should be skipped.  If empty or 0 the file will be skipped on the first error.
 - **Split load every ... rows**: Breaking the temp files into multiple smaller files will allow Snowflake to perform the bulk load in parallel, thus improving performance.  This is the number of rows each file should contain.
-- **Remove files after load**: (Y/N) Should the files be removed from the Snowflake stage after the load.  (Local temp files are always removed.)
+- **Remove files after load**: (Y/N) Should the files be removed from the Snowflake stage after the load?  You also need to set variable `SNOWFLAKE_DEBUG_MODE` to `true` to keep the files.
 
 === Data type tab
 
