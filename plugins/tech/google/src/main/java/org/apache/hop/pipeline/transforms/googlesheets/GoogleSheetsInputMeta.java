@@ -48,6 +48,8 @@ public class GoogleSheetsInputMeta
     super();
     inputFields = new ArrayList<>();
   }
+  @HopMetadataProperty(key="jsonCrendentialPath", injectionGroupKey = "SHEET" ,isExcludedFromInjection = true)
+  private String oldJsonCredentialPath;
 
   @HopMetadataProperty(key="jsonCredentialPath", injectionGroupKey = "SHEET")
   private String jsonCredentialPath;
@@ -88,6 +90,10 @@ public class GoogleSheetsInputMeta
   }
 
   public String getJsonCredentialPath() {
+    if(getOldJsonCredentialPath() != null && this.jsonCredentialPath == null){
+      this.jsonCredentialPath = getOldJsonCredentialPath();
+      setOldJsonCredentialPath(null);
+    }
     return this.jsonCredentialPath == null ? "" : this.jsonCredentialPath;
   }
 
@@ -148,6 +154,15 @@ public class GoogleSheetsInputMeta
 
   public void setAppName(String appName) {
     this.appName = appName;
+  }
+
+
+  public String getOldJsonCredentialPath() {
+    return oldJsonCredentialPath;
+  }
+
+  public void setOldJsonCredentialPath(String oldJsonCredentialPath) {
+    this.oldJsonCredentialPath = oldJsonCredentialPath;
   }
 
   @Override
