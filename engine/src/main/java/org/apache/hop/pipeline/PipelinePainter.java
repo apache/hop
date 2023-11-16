@@ -844,6 +844,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     // See if we need to draw a line under the name to make the name look like a hyperlink.
     //
     if (name.equals(mouseOverName)) {
+      gc.setLineWidth(lineWidth);      
       gc.drawLine(
           namePosition.x,
           namePosition.y + nameExtent.y,
