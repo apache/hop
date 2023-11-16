@@ -129,7 +129,7 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
         logChannelInterface.logBasic("No last projects history found");
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getDisplay().getActiveShell(), "Error", "Error initializing the Projects system", e);
+      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error initializing the Projects system", e);
     }
   }
 }

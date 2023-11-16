@@ -1214,7 +1214,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             PreviewRowsDialog previewRowsDialog =
                 new PreviewRowsDialog(
-                    hopGui.getDisplay().getActiveShell(),
+                    hopGui.getActiveShell(),
                     variables,
                     SWT.NONE,
                     dataTransformMeta.getName(),
@@ -1224,7 +1224,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             previewRowsDialog.open();
           } catch (Exception ex) {
             new ErrorDialog(
-                hopGui.getDisplay().getActiveShell(), "Error", "Error showing preview dialog", ex);
+                hopGui.getActiveShell(), "Error", "Error showing preview dialog", ex);
           }
         }
       }
@@ -3378,7 +3378,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       } catch (Exception e) {
         new ErrorDialog(
-            hopGui.getDisplay().getActiveShell(), "Error", "Error drawing pipeline image", e);
+            hopGui.getActiveShell(), "Error", "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();
@@ -3693,7 +3693,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return false;
     }
 
-    Shell shell = hopGui.getDisplay().getActiveShell();
+    Shell shell = hopGui.getActiveShell();
     if (shell == null) {
       shell = hopGui.getShell();
     }
@@ -3827,7 +3827,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             String filename =
                 BaseDialog.presentFileDialog(
                     true,
-                    hopGui.getDisplay().getActiveShell(),
+                    hopGui.getActiveShell(),
                     fileType.getFilterExtensions(),
                     fileType.getFilterNames(),
                     true);

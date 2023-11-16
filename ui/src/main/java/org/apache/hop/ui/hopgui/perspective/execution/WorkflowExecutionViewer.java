@@ -503,7 +503,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
           }
         } catch (Exception e) {
           new ErrorDialog(
-              hopGui.getDisplay().getActiveShell(),
+              hopGui.getActiveShell(),
               "Error",
               "Hop was unable to invoke @GuiTab method "
                   + tabItem.getMethod().getName()
@@ -684,7 +684,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         graphPort = workflowPainter.getGraphPort();
       } catch (Exception e) {
         new ErrorDialog(
-            hopGui.getDisplay().getActiveShell(), "Error", "Error drawing workflow image", e);
+            hopGui.getActiveShell(), "Error", "Error drawing workflow image", e);
       }
     } finally {
       gc.dispose();
