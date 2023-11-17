@@ -28,8 +28,11 @@ under the License.
 
 The JavaScript transform provides a user interface for building JavaScript expressions that you can use to modify your data. The code you type in the script area is executed once for each input row.
 
-TIP: The variables you set in the JavaScript transform won’t be usable or testable until you click the “Get variables” button to convert your script variables into fields. Ensure you select the correct Type for the outgoing JavaScript fields.
+TIP: Variables won’t be usable or testable until you click the “Get variables” button to convert script variables into fields.
 
+Ensure you select the correct Type for the outgoing JavaScript fields.
+
+Hop uses the Rhino engine which is ECMA 5 and a bit of ECMA 6. See Rhino ES2015/ES6, ES2016 and ES2017 support (mozilla.github.io)
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -49,14 +52,38 @@ The transform allows multiple scripts in a single transform instance.
 
 The Javascript transform is not an input transform and therefore requires an input stream from the pipeline.
 
+Minimizing scripting is very important to keep your data integration solutions maintainable.  Try to avoid it as much as possible. You can manually add variables as the ‘Get variables’ button may not always work.
+
 image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
 
 == Examples
-E.g. JavasScript to create 3 new fields:
+E.g. JavasScript to create 4 new fields:
 ```
-var myVar = incomingField1;
+var myVar = incomingFieldFromHop;
 var myTestString = "my test";
 var myDate = str2date("2020-12-31", "yyyy-MM-dd");
+var myDateTime = new Date("2023-10-01T01:40:26.210");
+```
+E.g. JavaScript to flatten JSON keys:
+```
+//var input_json = {
+//    "c-102": "AIDS Healthcare",
+//    "c-105": "AIDS Healthcare Direct",
+//    "c-75": "Allied Physicians (ALIP)",
+//    "c-59": "Asheville Endocrinology"};
+
+var input_json = JSON.parse(incomingJSONFromHop);
+var output_json = [];
+
+for (var key in input_json) {
+    var value = input_json[key];
+    output_json.push({
+        field1: key,
+        field2: value
+    });
+}
+
+var flattened_json = JSON.stringify(output_json);
 ```
 
 
@@ -132,7 +159,7 @@ The Fields table contains a list of variables from your script, and enables you 
 |Length|Specify the length of the output field.
 |Precision|Specify the precision value of the output field.
 |Replace value ‘Fieldname’ or ‘Rename to’|Specify whether to replace the value of the selected field with another value or to rename a field. The values are Y (Yes) and N (No).
-|Get variables|Retrieve a list of Javascript variables from your script.
+|Get variables|Retrieve a list of Javascript variables from your script. You can manually add variables as the ‘Get variables’ button may not always work.
 |Test Script|Test the syntax of your script, and displays the Generate Rows dialog box with a set of rows for testing.
 |===
 
