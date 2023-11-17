@@ -18,12 +18,52 @@
 package org.apache.hop.pipeline.transforms.getfilenames;
 
 import java.util.Objects;
-import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IEnumHasCode;
 
 public class FileItem {
 
-  private static final String NO = "N";
+  private static final Class<?> PKG = FileItem.class;
+
+  public enum YesNoType implements IEnumHasCode {
+    YES("Y", BaseMessages.getString(PKG, "System.Combo.Yes")),
+    NO("N", BaseMessages.getString(PKG, "System.Combo.No"));
+
+    private String code;
+    private String description;
+
+    YesNoType(String code, String description) {
+      this.code = code;
+      this.description = description;
+    }
+
+
+    public String getCode() {
+      return code;
+    }
+
+    public static final String[] getDescriptions() {
+      String[] items = new String[values().length];
+      for (int i = 0; i < items.length; i++) {
+        items[i] = values()[i].description;
+      }
+      return items;
+    }
+
+    public static YesNoType getType(String value) {
+      for (YesNoType type : values()) {
+        if (value.equalsIgnoreCase(type.description)) {
+          return type;
+        }
+      }
+      return null;
+    }
+    
+    public String getDescription() {
+      return description;
+    }
+  }
 
   /** Array of filenames */
   @HopMetadataProperty(
@@ -46,14 +86,16 @@ public class FileItem {
   /** Array of boolean values as string, indicating if a file is required. */
   @HopMetadataProperty(
       key = "file_required",
+      storeWithCode = true,
       injectionKeyDescription = "GetFileNames.Injection.FileRequired.Label")
-  private String fileRequired;
+  private YesNoType fileRequired;
 
   /** Array of boolean values as string, indicating if we need to fetch sub folders. */
   @HopMetadataProperty(
       key = "include_subfolders",
+      storeWithCode = true,
       injectionKeyDescription = "GetFileNames.Injection.IncludeSubDirs.Label")
-  private String includeSubFolders;
+  private YesNoType includeSubFolders;
 
   public FileItem() {
     setDefault();
@@ -63,18 +105,18 @@ public class FileItem {
       String fileName,
       String fileMask,
       String excludeFileMask,
-      String fileRequired,
-      String includeSubFolders) {
+      YesNoType fileRequired,
+      YesNoType includeSubFolders) {
     this.fileName = fileName;
     this.fileMask = fileMask;
     this.excludeFileMask = excludeFileMask;
-    this.fileRequired = Utils.isEmpty(fileRequired) ? NO : fileRequired;
-    this.includeSubFolders = Utils.isEmpty(includeSubFolders) ? NO : includeSubFolders;
+    this.includeSubFolders = includeSubFolders;
+    this.fileRequired = fileRequired;
   }
 
   protected void setDefault() {
-    this.fileRequired = NO;
-    this.includeSubFolders = NO;
+    this.fileRequired = YesNoType.NO;
+    this.includeSubFolders = YesNoType.NO;
   }
 
   public String getFileName() {
@@ -101,19 +143,19 @@ public class FileItem {
     this.excludeFileMask = excludeFileMask;
   }
 
-  public String getFileRequired() {
+  public YesNoType getFileRequired() {
     return fileRequired;
   }
 
-  public void setFileRequired(String fileRequired) {
+  public void setFileRequired(YesNoType fileRequired) {
     this.fileRequired = fileRequired;
   }
 
-  public String getIncludeSubFolders() {
+  public YesNoType getIncludeSubFolders() {
     return includeSubFolders;
   }
 
-  public void setIncludeSubFolders(String includeSubFolders) {
+  public void setIncludeSubFolders(YesNoType includeSubFolders) {
     this.includeSubFolders = includeSubFolders;
   }
 

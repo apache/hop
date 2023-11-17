@@ -74,8 +74,8 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   @HopMetadataProperty(
       key = "file",
       injectionKeyDescription = "GetFileNames.Injection.File.Label",
-          injectionGroupKey = "FILE",
-          injectionGroupDescription = "GetFileNames.Injection.Group.FileTab.Label",
+      injectionGroupKey = "FILE",
+      injectionGroupDescription = "GetFileNames.Injection.Group.FileTab.Label",
       inlineListTags = {
         "name",
         "filemask",
@@ -516,7 +516,10 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   protected String[] buildFileRequiredArray() {
     String[] required = new String[filesList.size()];
     for (int i = 0; i < filesList.size(); i++) {
-      required[i] = filesList.get(i).getFileRequired();
+      required[i] =
+          filesList.get(i).getFileRequired() == null
+              ? FileItem.YesNoType.NO.getCode()
+              : filesList.get(i).getFileRequired().getCode();
     }
     return required;
   }
@@ -524,7 +527,11 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   private boolean[] includeSubFolderBoolean() {
     boolean[] includeSubFolderBoolean = new boolean[filesList.size()];
     for (int i = 0; i < filesList.size(); i++) {
-      includeSubFolderBoolean[i] = YES.equalsIgnoreCase(filesList.get(i).getIncludeSubFolders());
+      includeSubFolderBoolean[i] =
+          FileItem.YesNoType.YES.equals(
+              filesList.get(i).getIncludeSubFolders() == null
+                  ? FileItem.YesNoType.NO
+                  : filesList.get(i).getIncludeSubFolders());
     }
     return includeSubFolderBoolean;
   }

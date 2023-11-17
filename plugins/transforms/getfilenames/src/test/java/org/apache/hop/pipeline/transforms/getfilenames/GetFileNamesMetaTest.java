@@ -180,11 +180,11 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
           .getFilesList()
           .addAll(
               Arrays.asList(
-                  new FileItem("Filename1", "w1", "ew1", "Y", "N"),
-                  new FileItem("Filename2", "w2", "ew2", "Y", "N"),
-                  new FileItem("Filename3", "w3", "ew3", "Y", "N"),
-                  new FileItem("Filename4", "w4", "ew4", "Y", "N"),
-                  new FileItem("Filename5", "w5", "ew5", "Y", "N")));
+                  new FileItem("Filename1", "w1", "ew1", FileItem.YesNoType.YES, FileItem.YesNoType.NO),
+                  new FileItem("Filename2", "w2", "ew2", FileItem.YesNoType.YES, FileItem.YesNoType.NO),
+                  new FileItem("Filename3", "w3", "ew3", FileItem.YesNoType.YES, FileItem.YesNoType.NO),
+                  new FileItem("Filename4", "w4", "ew4", FileItem.YesNoType.YES, FileItem.YesNoType.NO),
+                  new FileItem("Filename5", "w5", "ew5", FileItem.YesNoType.YES, FileItem.YesNoType.NO)));
       ((GetFileNamesMeta) someMeta).getFilterItemList().clear();
       ((GetFileNamesMeta) someMeta)
           .getFilterItemList()
@@ -234,10 +234,10 @@ public class GetFileNamesMetaTest implements IInitializer<ITransformMeta> {
               UUID.randomUUID().toString(),
               UUID.randomUUID().toString(),
               UUID.randomUUID().toString(),
-              GetFileNamesMeta.RequiredFilesCode[
-                  new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)],
-              GetFileNamesMeta.RequiredFilesCode[
-                  new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)]);
+              FileItem.YesNoType.getType(GetFileNamesMeta.RequiredFilesCode[
+                  new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)]),
+              FileItem.YesNoType.getType(GetFileNamesMeta.RequiredFilesCode[
+                  new Random().nextInt(GetFileNamesMeta.RequiredFilesCode.length)]));
 
       return field;
     }

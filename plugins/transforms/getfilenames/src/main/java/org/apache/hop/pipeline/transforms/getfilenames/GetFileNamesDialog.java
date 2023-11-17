@@ -64,12 +64,6 @@ import org.eclipse.swt.widgets.Text;
 public class GetFileNamesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = GetFileNamesMeta.class; // For Translator
 
-  private static final String[] YES_NO_COMBO =
-      new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
-      };
-
   private Button wDoNotFailIfNoFile;
   private Label wlDoNotFailIfNoFile;
 
@@ -476,11 +470,11 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
           new ColumnInfo(
               BaseMessages.getString(PKG, "GetFileNamesDialog.Required.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO),
+              FileItem.YesNoType.getDescriptions()),
           new ColumnInfo(
               BaseMessages.getString(PKG, "GetFileNamesDialog.IncludeSubDirs.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              YES_NO_COMBO)
+              FileItem.YesNoType.getDescriptions())
         };
 
     colinfo[0].setUsingVariables(true);
@@ -985,7 +979,12 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
       for (int i = 0; i < meta.getFilesList().size(); i++) {
         FileItem fi = meta.getFilesList().get(i);
-        wFilenameList.add(fi.getFileName(), fi.getFileMask(), fi.getExcludeFileMask(), fi.getFileRequired(), fi.getIncludeSubFolders());
+        wFilenameList.add(
+            fi.getFileName(),
+            fi.getFileMask(),
+            fi.getExcludeFileMask(),
+            fi.getFileRequired().getDescription(),
+            fi.getIncludeSubFolders().getDescription());
       }
     }
 
@@ -1049,13 +1048,17 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     for (int i = 0; i < itemsNum; i++) {
 
+      FileItem.YesNoType fileRequired = FileItem.YesNoType.getType(wFilenameList.getItem(i, 4));
+      FileItem.YesNoType includeSubfolders =
+          FileItem.YesNoType.getType(wFilenameList.getItem(i, 5));
+
       FileItem fi =
           new FileItem(
               wFilenameList.getItem(i, 1),
               wFilenameList.getItem(i, 2),
               wFilenameList.getItem(i, 3),
-              wFilenameList.getItem(i, 4),
-              wFilenameList.getItem(i, 5));
+              fileRequired,
+              includeSubfolders);
       in.getFilesList().add(fi);
     }
 
