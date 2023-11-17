@@ -18,6 +18,8 @@
 
 package org.apache.hop.core.row.value;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -27,7 +29,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -166,21 +167,22 @@ public class ValueMetaAvroRecordTest {
 
     JSONObject jValue = new JSONObject();
     valueMeta.storeMetaInJson(jValue);
-
-    String valueJson = jValue.toJSONString();
-    assertEquals(
-        "{\"schema\":{\"name\":\"all_values\",\"namespace\":\"hop.apache.org\",\"doc\":" +
-                "\"No documentation URL for now\",\"type\":\"record\",\"fields\":[{\"name\":\"id\",\"type\":" +
-                "[\"long\",\"null\"]},{\"name\":\"sysdate\",\"type\":[\"string\",\"null\"]}," +
-                "{\"name\":\"num\",\"type\":[\"double\",\"null\"]},{\"name\":\"int\",\"type\":" +
-                "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]}," +
-                "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]},\"precision\":-1,\"name\":" +
-                "\"test\",\"length\":-1,\"conversionMask\":null,\"type\":20}",
-        valueJson);
+    ObjectMapper mapper = new ObjectMapper();
+    JsonNode valueNode = mapper.readTree(jValue.toJSONString());
+    JsonNode expectJsonNode = mapper.readTree(
+            "{\"schema\":{\"name\":\"all_values\",\"namespace\":\"hop.apache.org\",\"doc\":" +
+            "\"No documentation URL for now\",\"type\":\"record\",\"fields\":[{\"name\":\"id\",\"type\":" +
+            "[\"long\",\"null\"]},{\"name\":\"sysdate\",\"type\":[\"string\",\"null\"]}," +
+            "{\"name\":\"num\",\"type\":[\"double\",\"null\"]},{\"name\":\"int\",\"type\":" +
+            "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]}," +
+            "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]},\"precision\":-1,\"name\":" +
+            "\"test\",\"length\":-1,\"conversionMask\":null,\"type\":20}"
+    );
+    assertEquals(valueNode,expectJsonNode);
 
     // Read it back...
     //
-    JSONObject jLoaded = (JSONObject) new JSONParser().parse(valueJson);
+    JSONObject jLoaded = (JSONObject) new JSONParser().parse(valueNode.toString());
 
     ValueMetaAvroRecord loaded = (ValueMetaAvroRecord) ValueMetaFactory.loadValueMetaFromJson(jLoaded);
 
