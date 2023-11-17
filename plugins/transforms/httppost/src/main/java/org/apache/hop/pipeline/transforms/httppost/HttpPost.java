@@ -213,6 +213,8 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
           if (!tmp.isEmpty()) {
             multipartEntityBuilder.addBinaryBody(
                 "file", HopVfs.getFileObject(resolve(tmp)).getPath().toFile());
+            entity = multipartEntityBuilder.build();
+            post.setEntity(entity);
           }
         } else {
           if ((data.realEncoding != null) && (data.realEncoding.length() > 0)) {
