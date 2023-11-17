@@ -28,11 +28,8 @@ under the License.
 
 The JavaScript transform provides a user interface for building JavaScript expressions that you can use to modify your data. The code you type in the script area is executed once for each input row.
 
-TIP: Variables won’t be usable or testable until you click the “Get variables” button to convert script variables into fields.
+TIP: Variables won’t be usable or testable until you create fields. Click the “Get variables” button to convert script variables into fields.
 
-&NewLine;
-
-Hop uses the Rhino engine which is ECMA 5 and a bit of ECMA 6. See Rhino ES2015/ES6, ES2016 and ES2017 support (mozilla.github.io)
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -54,9 +51,13 @@ The Javascript transform is not an input transform and therefore requires an inp
 
 Minimizing scripting is very important to keep your data integration solutions maintainable.  Try to avoid using JavaScript as much as possible. 
 
-*Troubleshooting*: You can manually add variables as the ‘Get variables’ button may not always work. Ensure you select the correct Type for the outgoing JavaScript fields.
-
 image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
+
+== Troubleshooting
+* Hop uses an older version of JavaScript (Rhino engine) which is ECMA 5 and a bit of ECMA 6. See Rhino ES2015/ES6, ES2016 and ES2017 support at https://mozilla.github.io/rhino/compat/engines.html
+* The Get variables button may not always work, so enter variables manually.
+* The JavaScript transform runs better with less whitespace and less line continuations, especially when using GraphQL. You may want to avoid multi-line expressions or statements.
+* Ensure you select the correct Type for the outgoing JavaScript fields.
 
 == Examples
 E.g. JavasScript to create 4 new fields:
