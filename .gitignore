@@ -1,6 +1,7 @@
 .project
 .classpath
 .settings
+.factorypath
 build
 target
 release.properties

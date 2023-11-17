@@ -19,15 +19,16 @@ package org.apache.hop.pipeline.transforms.httppost;
 
 import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_ENCODING;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -62,6 +63,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
+
+import com.google.common.annotations.VisibleForTesting;
 
 /** Make a HTTP Post call */
 public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
@@ -115,8 +118,9 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         logDetailed(BaseMessages.getString(PKG, "HTTPPOST.Log.ConnectingToURL", data.realUrl));
       }
       URIBuilder uriBuilder = new URIBuilder(data.realUrl);
+      URI uri = uriBuilder.build();
       org.apache.http.client.methods.HttpPost post =
-          new org.apache.http.client.methods.HttpPost(uriBuilder.build());
+          new org.apache.http.client.methods.HttpPost(uri);
       String bodyParams = null;
 
       // Specify content type and encoding
@@ -243,21 +247,23 @@ public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {
         long startTime = System.currentTimeMillis();
 
         // Execute the POST method
+        HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
         if (StringUtils.isNotBlank(data.realProxyHost)) {
-          HttpHost target = new HttpHost(data.realProxyHost, data.realProxyPort, "http");
-          // Create AuthCache instance
-          AuthCache authCache = new BasicAuthCache();
-          // Generate BASIC scheme object and add it to the local
-          // auth cache
-          BasicScheme basicAuth = new BasicScheme();
-          authCache.put(target, basicAuth);
-          // Add AuthCache to the execution context
-          HttpClientContext localContext = HttpClientContext.create();
-          localContext.setAuthCache(authCache);
-          httpResponse = httpClient.execute(target, post, localContext);
-        } else {
-          httpResponse = httpClient.execute(post);
+          target = new HttpHost(data.realProxyHost, data.realProxyPort, "http");
         }
+
+        // Create AuthCache instance
+        AuthCache authCache = new BasicAuthCache();
+        // Generate BASIC scheme object and add it to the local
+        // auth cache
+        BasicScheme basicAuth = new BasicScheme();
+        authCache.put(target, basicAuth);
+        // Add AuthCache to the execution context
+        HttpClientContext localContext = HttpClientContext.create();
+        localContext.setAuthCache(authCache);
+
+        httpResponse = httpClient.execute(target, post, localContext);
+
         int statusCode = requestStatusCode(httpResponse);
 
         // calculate the responseTime
