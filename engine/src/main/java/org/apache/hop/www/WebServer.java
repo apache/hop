@@ -17,6 +17,16 @@
 
 package org.apache.hop.www;
 
+import java.awt.GraphicsEnvironment;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.Servlet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.encryption.Encr;
@@ -61,27 +71,14 @@ import org.eclipse.jetty.util.security.Password;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import javax.servlet.Servlet;
-import java.awt.GraphicsEnvironment;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
-
 public class WebServer {
 
-  private static final int DEFAULT_DETECTION_TIMER = 20000;
-  private static final Class<?> PKG = WebServer.class; // For Translator
-
-  private ILogChannel log;
-  private IVariables variables;
   public static final int PORT = 80;
   public static final int SHUTDOWN_PORT = 8079;
-
+  private static final int DEFAULT_DETECTION_TIMER = 20000;
+  private static final Class<?> PKG = WebServer.class; // For Translator
+  private ILogChannel log;
+  private IVariables variables;
   private Server server;
 
   private PipelineMap pipelineMap;
@@ -97,38 +94,6 @@ public class WebServer {
       new DefaultWebServerShutdownHandler();
 
   private SslConfiguration sslConfig;
-
-  private static class MonitorThread extends Thread {
-
-    private ServerSocket socket;
-    private Server server;
-
-    public MonitorThread(Server server, String hostname, int shutdownPort) {
-      this.server = server;
-      setDaemon(true);
-      setName("StopMonitor");
-      try {
-        socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    @Override
-    public void run() {
-      Socket accept;
-      try {
-        accept = socket.accept();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
-        reader.readLine();
-        server.stop();
-        accept.close();
-        socket.close();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
 
   public WebServer(
       ILogChannel log,
@@ -214,6 +179,10 @@ public class WebServer {
 
   public Server getServer() {
     return server;
+  }
+
+  public void setServer(Server server) {
+    this.server = server;
   }
 
   public void startServer() throws Exception {
@@ -328,8 +297,9 @@ public class WebServer {
 
     // Start execution
     createListeners();
-    Thread monitor = new MonitorThread(server, hostname, shutdownPort);
-    monitor.start();
+    // Temp disable shutdown listener #3367
+//    Thread monitor = new MonitorThread(server, hostname, shutdownPort);
+//    monitor.start();
     server.start();
   }
 
@@ -382,9 +352,11 @@ public class WebServer {
     connector.setHost(hostname);
     connector.setName(BaseMessages.getString(PKG, "WebServer.Log.HopHTTPListener", hostname));
     log.logBasic(BaseMessages.getString(PKG, "WebServer.Log.CreateListener", hostname, "" + port));
-    log.logBasic(
-        BaseMessages.getString(
-            PKG, "WebServer.Log.CreateShutDownListener", hostname, "" + shutdownPort));
+
+    // Temp disable shutdown listener #3367
+    //    log.logBasic(
+//        BaseMessages.getString(
+//            PKG, "WebServer.Log.CreateShutDownListener", hostname, "" + shutdownPort));
 
     server.setConnectors(new Connector[] {connector});
   }
@@ -541,10 +513,6 @@ public class WebServer {
     this.port = port;
   }
 
-  public void setServer(Server server) {
-    this.server = server;
-  }
-
   /**
    * Gets variables
    *
@@ -586,5 +554,37 @@ public class WebServer {
     } catch (Error ignored) {
     }
     return false;
+  }
+
+  private static class MonitorThread extends Thread {
+
+    private ServerSocket socket;
+    private Server server;
+
+    public MonitorThread(Server server, String hostname, int shutdownPort) {
+      this.server = server;
+      setDaemon(true);
+      setName("StopMonitor");
+      try {
+        socket = new ServerSocket(shutdownPort, 1, InetAddress.getByName(hostname));
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public void run() {
+      Socket accept;
+      try {
+        accept = socket.accept();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
+        reader.readLine();
+        server.stop();
+        accept.close();
+        socket.close();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 }
