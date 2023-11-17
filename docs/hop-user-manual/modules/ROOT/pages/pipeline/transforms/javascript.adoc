@@ -30,7 +30,7 @@ The JavaScript transform provides a user interface for building JavaScript expre
 
 TIP: Variables won’t be usable or testable until you click the “Get variables” button to convert script variables into fields.
 
-Ensure you select the correct Type for the outgoing JavaScript fields.
+&NewLine;
 
 Hop uses the Rhino engine which is ECMA 5 and a bit of ECMA 6. See Rhino ES2015/ES6, ES2016 and ES2017 support (mozilla.github.io)
 |
@@ -52,7 +52,9 @@ The transform allows multiple scripts in a single transform instance.
 
 The Javascript transform is not an input transform and therefore requires an input stream from the pipeline.
 
-Minimizing scripting is very important to keep your data integration solutions maintainable.  Try to avoid it as much as possible. You can manually add variables as the ‘Get variables’ button may not always work.
+Minimizing scripting is very important to keep your data integration solutions maintainable.  Try to avoid using JavaScript as much as possible. 
+
+*Troubleshooting*: You can manually add variables as the ‘Get variables’ button may not always work. Ensure you select the correct Type for the outgoing JavaScript fields.
 
 image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
 
