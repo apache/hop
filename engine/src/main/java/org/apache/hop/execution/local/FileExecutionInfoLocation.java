@@ -31,6 +31,9 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.FileTypeSelector;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -354,7 +357,8 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       if (!folder.exists()) {
         return Collections.emptyList();
       }
-      for (FileObject child : folder.getChildren()) {
+      FileObject[] childFolders = folder.findFiles(new FileTypeSelector(FileType.FOLDER));
+      for (FileObject child : childFolders) {
         if (child.isFolder()) {
           subFolders.add(child);
         }
