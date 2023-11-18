@@ -17,6 +17,8 @@
 
 package org.apache.hop.core.svg;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import org.apache.commons.lang.SystemUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +59,10 @@ public class HopSvgGraphics2DTest {
   @Test
   public void testNewDocumentXml() throws Exception {
     HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
-    assertEquals(BASIC_SVG_XML, graphics2D.toXml());
+    XmlMapper xmlMapper = new XmlMapper();
+    JsonNode graphic2DNode = xmlMapper.readTree(graphics2D.toXml());
+    JsonNode basicSVGNode = xmlMapper.readTree(BASIC_SVG_XML);
+    assertEquals(basicSVGNode, graphic2DNode);
   }
 
   @Test
@@ -66,6 +71,9 @@ public class HopSvgGraphics2DTest {
 
     graphics2D.drawOval(50, 50, 25, 25);
 
-    assertEquals(BASIC_CIRCLE_XML, graphics2D.toXml());
+    XmlMapper xmlMapper = new XmlMapper();
+    JsonNode graphic2DNode = xmlMapper.readTree(graphics2D.toXml());
+    JsonNode basicSVGNode = xmlMapper.readTree(BASIC_CIRCLE_XML);
+    assertEquals(basicSVGNode, graphic2DNode);
   }
 }
