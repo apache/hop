@@ -34,7 +34,7 @@
     <description />
 
     <properties>
-        <monetdb.version>3.1</monetdb.version>
+        <monetdb.version>3.3</monetdb.version>
     </properties>
 
     <dependencies>

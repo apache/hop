@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -39,10 +42,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.monetdb.mcl.io.BufferedMCLReader;
 import org.monetdb.mcl.io.BufferedMCLWriter;
 import org.monetdb.mcl.net.MapiSocket;
-
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, MonetDbBulkLoaderData> {
   private static final Class<?> PKG =
@@ -99,7 +98,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       data.in = mserver.getReader();
       data.out = mserver.getWriter();
 
-      String error = data.in.waitForPrompt();
+      String error = data.in.discardRemainder();
       if (error != null) {
         throw new HopException("Error while connecting to MonetDB for bulk loading : " + error);
       }
@@ -498,7 +497,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       }
 
       // wait for the prompt
-      String error = data.in.waitForPrompt();
+      String error = data.in.discardRemainder();
       if (error != null) {
         throw new HopException(ERROR_LOADING_DATA + error);
       }
@@ -506,7 +505,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       data.out.writeLine("");
 
       // again...
-      error = data.in.waitForPrompt();
+      error = data.in.discardRemainder();
       if (error != null) {
         throw new HopException(ERROR_LOADING_DATA + error);
       }
@@ -516,7 +515,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         data.out.writeLine("");
 
         // again...
-        error = data.in.waitForPrompt();
+        error = data.in.discardRemainder();
         if (error != null) {
           throw new HopException(ERROR_LOADING_DATA + error);
         }
@@ -700,7 +699,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
       BufferedMCLReader in = mserver.getReader();
       BufferedMCLWriter out = mserver.getWriter();
 
-      String error = in.waitForPrompt();
+      String error = in.discardRemainder();
       if (error != null) {
         throw new Exception("ERROR waiting for input reader: " + error);
       }
@@ -715,23 +714,8 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
 
       out.writeLine("");
 
-      while (in.readLine() != null) {
-        int type = in.getLineType();
-
-        // read till we get back to the prompt
-        if (type == BufferedMCLReader.PROMPT) {
-          break;
-        }
-
-        switch (type) {
-          case BufferedMCLReader.ERROR:
-            break;
-          case BufferedMCLReader.RESULT:
-            break;
-          default:
-            // unknown, header, ...
-            break;
-        }
+      while (in.getLine() != null) {
+        in.advance();
       }
 
     } finally {
