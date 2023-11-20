@@ -90,7 +90,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     int margin = PropsUi.getMargin();
 
     Label wlName = new Label(shell, SWT.RIGHT);
-    wlName.setText("Action name");
+    wlName.setText(BaseMessages.getString(PKG, "RunPipelineTests.Name.Label"));
     PropsUi.setLook(wlName);
     FormData fdlName = new FormData();
     fdlName.left = new FormAttachment(0, 0);
@@ -109,7 +109,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     // TestNames
     //
     Label wlTestNames = new Label(shell, SWT.LEFT);
-    wlTestNames.setText("Names of the tests to execute:");
+    wlTestNames.setText(BaseMessages.getString(PKG, "RunTestsDialog.TestsToExecute.Label"));
     PropsUi.setLook(wlTestNames);
     FormData fdlTestNames = new FormData();
     fdlTestNames.left = new FormAttachment(0, 0);
@@ -142,7 +142,7 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
 
     ColumnInfo[] columnInfos =
         new ColumnInfo[] {
-          new ColumnInfo("Name", ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(BaseMessages.getString(PKG, "RunTestsDialog.TestsTable.Name.Column"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
         };
 
     wTestNames =

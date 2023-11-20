@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -62,9 +66,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SimpleMappingDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
@@ -359,12 +360,18 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     addInputMappingDefinitionTab(inputMapping, 0);
     addOutputMappingDefinitionTab(outputMapping, 1);
 
-    try {
-      loadPipeline();
-    } catch (Throwable t) {
-      // Ignore errors
-    }
+    // Prepare a regexp checker to see if the pipeline name contains a variable
+    // boolean containsVar = Pattern.matches("^[/\\w]*(\\$\\{\\w+})[/.\\w]*", mappingMeta.getFilename());
+    Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
+    Matcher m = p.matcher(mappingMeta.getFilename());
 
+    if (!m.lookingAt()) {
+      try {
+        loadPipeline();
+      } catch (Throwable t) {
+        // Ignore errors
+      }
+    }
     try {
       // Load the run configurations.
       List<PipelineRunConfiguration> runConfigs =
@@ -376,7 +383,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
       }
       wRunConfig.setText(Const.NVL(mappingMeta.getRunConfigurationName(), ""));
     } catch (Exception e) {
-      LogChannel.UI.logError("Error loading piepline run configurations", e);
+      LogChannel.UI.logError("Error loading pipeline run configurations", e);
     }
 
     wTransformName.selectAll();
@@ -761,19 +768,26 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     }
 
     transformName = wTransformName.getText(); // return value
+    String pipelinePath = wPath.getText();
+    // Prepare a regexp checker to see if the pipeline name contains a variable
+    Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
+    Matcher m = p.matcher(mappingMeta.getFilename());
 
-    try {
-      loadPipeline();
-    } catch (HopException e) {
-      new ErrorDialog(
-          shell,
-          BaseMessages.getString(PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Title"),
-          BaseMessages.getString(PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Message"),
-          e);
-      return;
+    if (!m.lookingAt()) {
+      try {
+        loadPipeline();
+      } catch (HopException e) {
+        new ErrorDialog(
+                shell,
+                BaseMessages.getString(PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Title"),
+                BaseMessages.getString(
+                        PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Message"),
+                e);
+        return;
+      }
     }
 
-    mappingMeta.setFilename(wPath.getText());
+    mappingMeta.setFilename(pipelinePath);
     mappingMeta.setRunConfigurationName(wRunConfig.getText());
 
     // Load the information on the tabs, optionally do some
