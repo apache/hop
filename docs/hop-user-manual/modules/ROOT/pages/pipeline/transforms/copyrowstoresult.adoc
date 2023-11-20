@@ -18,9 +18,6 @@ under the License.
 :language: en_US
 :description: The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline or workflow action via an internal result row set. Remember that values or variables will not be copied, only row data.
 
-The Copy Rows To Result transform can be paired with the Get Rows from Result transform to retrieve the result row set in a pipeline. In some cases, the Get rows from Result transform is not required to retrieve the result set such as a pipeline transform in a workflow. Data rows can be passed from and to pipelines on a workflow, but data rows cannot be accessed directly in a workflow.
-
-
 = image:transforms/icons/rowstoresult.svg[Copy rows to result transform Icon, role="image-doc-icon"] Copy rows to result
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
@@ -28,6 +25,9 @@ The Copy Rows To Result transform can be paired with the Get Rows from Result tr
 |
 == Description
 The Copy Rows To Result transform allows you to transfer rows of data (in memory) to the next pipeline (or workflow action) in a workflow via an internal result row set.
+
+The Copy Rows To Result transform can be paired with the Get Rows from Result transform to retrieve the result row set in a pipeline. In some cases, the Get rows from Result transform is not required to retrieve the result set such as a pipeline transform in a workflow. Data rows can be passed from and to pipelines on a workflow, but data rows cannot be accessed directly in a workflow.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]

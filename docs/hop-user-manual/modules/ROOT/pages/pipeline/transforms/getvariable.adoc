@@ -40,9 +40,9 @@ The Get Variables transform allows you to get the value of a variable and create
 
 Note that workflow/environment variables are set only once. A pipeline needs to start to get any new variables. A running or sequential or nested (nested pipelines are technically the same pipeline) pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor.
 
-Refer to parameter/svariables using the syntax: ${myVariable}, for example from a previous pipeline. If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows transform.
+Refer to parameters/variables using the syntax: {openvar}myVariable{closevar}, for example from a previous pipeline. If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows transform.
 
-For example, you can specify: ``${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt`` and it will be expanded to ``/tmp/hop/tempfile.txt`` on Unix-like systems.
+For example, you can specify: `{openvar}java.io.tmpdir{closevar}/hop/tempfile.txt` and it will be expanded to `/tmp/hop/tempfile.txt` on Unix-like systems.
 
 You must always specify the data type or you will have errors like the following:
 

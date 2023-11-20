@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /pipeline/transforms/
 :language: en_US
 :description: The Table Input transform is used to read information from a database, using a connection and SQL.
+:openvar: ${
+:closevar: }
 
 = image:transforms/icons/tableinput.svg[Table Input transform Icon, role="image-doc-icon"] Table Input
 
@@ -56,9 +58,9 @@ TIP: A cartesian join transform will combine a different number of fields from m
 
 *Example to use a variable value parameterized query*:
 
-This examples uses an integer. If you were using a string you most likely will have to use syntax ‘${PRM_NAME}’
+This examples uses an integer. If you were using a string you most likely will have to use syntax ‘${openvar}PRM_NAME${closevar}’
 
-``Select * from table1 where id = ${myId}``
+``Select * from table1 where id = ${openvar}myId${closevar}``
 
 * Replace variables in script: checked
 
