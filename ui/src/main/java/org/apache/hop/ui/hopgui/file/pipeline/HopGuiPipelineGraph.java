@@ -265,7 +265,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "pipeline-graph-transform-10650-rows-copy";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE =
       "pipeline-graph-transform-10600-rows-distribute";
-
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING =
+      "pipeline-graph-transform-10800-error-handling"; 
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO =
       "pipeline-graph-transform-11000-view-execution-info";
 
@@ -2159,7 +2160,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-10800-error-handling",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.TransformAction.ErrorHandling.Name",
@@ -2440,6 +2441,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_COPY)) {
       return context.getTransformMeta().isDistributes();
     }
+    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING)) {
+      return context.getTransformMeta().supportsErrorHandling();
+    }
+
     if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO)) {
       // See if the pipeline is running and that the transform is running in one or more copies.
       // Also disable this if the running pipeline doesn't have a location configured.
