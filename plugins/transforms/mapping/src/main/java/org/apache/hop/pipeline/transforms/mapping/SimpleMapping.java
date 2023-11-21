@@ -127,6 +127,12 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       data.mappingPipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     }
     SimpleMappingData simpleMappingData = getData();
+    // Resolve pipeline full name in case variables are used and pipeline meta is not initialized in advance
+    if (simpleMappingData.mappingPipelineMeta == null) {
+      simpleMappingData.mappingPipelineMeta = new PipelineMeta(variables.resolve(meta.getFilename()), metadataProvider, variables);
+      simpleMappingData.mappingPipelineMeta.clearChanged();
+
+    }
 
     String runConfigName = resolve(meta.getRunConfigurationName());
     if (StringUtils.isEmpty(runConfigName)) {
