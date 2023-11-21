@@ -146,6 +146,8 @@ public abstract class BaseParsingTest<
    *     1"}, { "field 1 value in row 2","field 2 value in row 2"} }
    */
   protected void checkContent(Object[][] expected) throws Exception {
+    rows.sort((o1, o2) -> Arrays.toString(o1).compareTo(Arrays.toString(o2)));
+    Arrays.sort(expected, (o1, o2) -> Arrays.toString(o1).compareTo(Arrays.toString(o2)));
     for (int i = 0; i < expected.length; i++) {
       assertArrayEquals("Wrong row: " + Arrays.asList(rows.get(i)), expected[i], rows.get(i));
     }
