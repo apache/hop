@@ -56,7 +56,7 @@ image:transforms/javascript-dialog.png[Javascript Transform Dialog, width="90%"]
 == Troubleshooting
 * Hop uses an older version of JavaScript (Rhino engine) which is ECMA 5 and a bit of ECMA 6. See Rhino ES2015/ES6, ES2016 and ES2017 support at https://mozilla.github.io/rhino/compat/engines.html
 * The Get variables button may not always work, so enter variables manually.
-* The JavaScript transform runs better with less whitespace and less line continuations, especially when using GraphQL. You may want to avoid multi-line expressions or statements.
+* The JavaScript transform runs better with less whitespace and less line continuations, especially when using GraphQL. Avoid multi-line expressions or statements.
 * Ensure you select the correct Type for the outgoing JavaScript fields.
 
 == Examples
@@ -80,10 +80,7 @@ var output_json = [];
 
 for (var key in input_json) {
     var value = input_json[key];
-    output_json.push({
-        field1: key,
-        field2: value
-    });
+    output_json.push({field1: key, field2: value });
 }
 
 var flattened_json = JSON.stringify(output_json);
