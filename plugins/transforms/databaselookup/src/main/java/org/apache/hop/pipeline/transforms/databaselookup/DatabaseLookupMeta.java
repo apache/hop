@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -444,7 +444,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
 
   @Override
   public List<String> getDatabaseFields() {
-    Set<String> fields = new HashSet<>();
+    Set<String> fields = new LinkedHashSet<>();
     for (KeyField keyField : lookup.getKeyFields()) {
       if (StringUtils.isNotEmpty(keyField.getTableField())) {
         fields.add(keyField.getTableField());
@@ -460,7 +460,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
 
   @Override
   public List<String> getStreamFields() {
-    Set<String> fields = new HashSet<>();
+    Set<String> fields = new LinkedHashSet<>();
     for (KeyField keyField : lookup.getKeyFields()) {
       if (StringUtils.isNotEmpty(keyField.getStreamField1())) {
         fields.add(keyField.getStreamField1());
