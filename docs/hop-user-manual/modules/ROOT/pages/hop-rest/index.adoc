@@ -90,7 +90,7 @@ The metadata services are deployed under sub-path `metadata/`.
 |`GET`
 
 |Path
-|`metadata/list/{key}`
+|`metadata/list/\{key\}`
 
 |Arguments
 |`key` : the key of the metadata type
@@ -115,10 +115,10 @@ The metadata services are deployed under sub-path `metadata/`.
 |`GET`
 
 |Path
-|`metadata/{key}/{name}`
+|`metadata/\{key\}/\{name\}`
 
 |Arguments
-|`key` : the key of the metadata type, `{name}` : the name of the metadata element to get.
+|`key` : the key of the metadata type, `\{name\}` : the name of the metadata element to get.
 
 |Produces
 |`application/json`
@@ -140,7 +140,7 @@ The metadata services are deployed under sub-path `metadata/`.
 |`POST`
 
 |Path
-|`metadata/{key}`
+|`metadata/\{key\}`
 
 |Arguments
 |`key` : the key of the metadata type to save
@@ -164,7 +164,7 @@ The metadata services are deployed under sub-path `metadata/`.
 |`DELETE`
 
 |Path
-|`metadata/{key}/{name}`
+|`metadata/\{key\}/\{name\}`
 
 |Arguments
 |`key` : the key of the metadata type to save. `name` : the name of the metadata element to delete.
@@ -214,7 +214,7 @@ The plugins services are deployed under sub-path `plugins/`.
 |`GET`
 
 |Path
-|`plugins/list/{typeClassName}/`
+|`plugins/list/\{typeClassName\}/`
 
 |Arguments
 |`key` : the class name of the plugin type
@@ -287,7 +287,7 @@ The execution information location services are deployed under sub-path `locatio
 |`POST`
 
 |Path
-|`location/executions/{locationName}`
+|`location/executions/\{locationName\}`
 
 |Arguments
 |`locationName` : the name of the execution information location to query.
@@ -321,7 +321,7 @@ The body to post can contain the following options (see also: the example above)
 |`GET`
 
 |Path
-|`location/executions/{locationName}/{executionId}`
+|`location/executions/\{locationName\}/\{executionId\}`
 
 |Arguments
 |`locationName`: the name of the execution information location to query. `executionId`: the ID of the execution to retrieve.
@@ -347,7 +347,7 @@ The body to post can contain the following options (see also: the example above)
 |`GET`
 
 |Path
-|`location/state/{locationName}/{executionId}`
+|`location/state/\{locationName\}/\{executionId\}`
 
 |Arguments
 |`locationName`: the name of the execution information location to query. `executionId`: the ID of the execution state to retrieve.

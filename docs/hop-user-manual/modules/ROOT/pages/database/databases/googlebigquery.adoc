@@ -17,6 +17,8 @@ under the License.
 [[database-plugins-googlebigquery]]
 :documentationPath: /database/databases/
 :language: en_US
+:openvar: ${
+:closevar: }
 
 = Google BigQuery
 
@@ -34,13 +36,15 @@ under the License.
 
 The Simba driver is packaged as a .zip containing many jars. Only a subset of the jars included with the Driver are necessary to use Bigquery JDBC with Apache Hop. Furthermore, some of the jars may conflict with those packaged with Hop and *must* be excluded.
 
-#### Simba Driver Jars to Exclude (These jars included in the Simba driver conflict with Hop libraries and must be excluded):
+**SIMBA DRIVER JARS TO EXCLUDE (THESE JARS ARE INCLUDED IN THE SIMBA DRIVER, BUT CONFLICT WITH HOP LIBRARIES AND MUST BE EXCLUDED**
+
  grpc-alts-<VERSION>.jar
  grpc-api-<VERSION>.jar  
  grpc-core-<VERSION>.jar
  grpc-netty-shaded-<VERSION>.jar
 
-#### Simba Driver Jars to Include* (Include only these jars for a minimal Bigquery driver install):
+**SIMBA DRIVER JARS TO INCLUDE** (Include only these jars for a minimal Bigquery driver install):
+
  api-common-<VERSION>.jar
  gax-<VERSION>.jar
  gax-grpc-<VERSION>.jar

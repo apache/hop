@@ -53,7 +53,7 @@ Variables are more global and the scope can be targeted (entire Java VM, grandpa
 Think of variables in 2 scopes: runtime variables and environment/workflow variables:
 
 * Runtime variables – Runtime variables depend on pipeline information to generate, so they cannot be set beforehand, you need to declare those differently to be able to use them.
-* Environment/workflow variables or parameters – Environment variables/parameters are set once and used when needed in any downstream workflow/pipeline and there is no need to use Get Variables , you can refer to them directly like ${myVariable} unless you need it in a field/data stream.
+* Environment/workflow variables or parameters – Environment variables/parameters are set once and used when needed in any downstream workflow/pipeline and there is no need to use Get Variables , you can refer to them directly like ${openvar}myVariable${closevar} unless you need it in a field/data stream.
   - E.g.: Define a parameter only once, even just in the Pipeline Executor (no need to define in receiving pipeline)
 
 A pipeline needs to start to get new variables. A running or nested pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor. An alternative is to use parameters.
