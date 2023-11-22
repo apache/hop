@@ -54,7 +54,7 @@ With a formula you are not limited to comparing to three fields like in the Calc
 == Usage
 You have the option of creating a new field (use New field column) or setting a field value (use Replace value column).
 
-TIP: The formula will not evaluate a field unless the field pre-exists. Either start the execution of that pipeline to create missing fields or check if the field exists by viewing fields in the Replace value dropdown.
+TIP: The formula will not evaluate a field unless the field pre-exists. Either start the execution of that pipeline to create missing fields or check if the field exists by viewing fields in the Replace value dropdown. The formula editor will not always open if the pipeline properties parameters are NOT set.
 
 
 == Examples
