@@ -17,7 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -50,11 +55,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
 
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.annotations.VisibleForTesting;
 
 /** Retrieves data from an Http endpoint */
 public class Http extends BaseTransform<HttpMeta, HttpData> {
@@ -152,21 +153,23 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
         long startTime = System.currentTimeMillis();
 
         // Preemptive authentication
+        HttpHost target = new HttpHost(uri.getHost(), uri.getPort(), uri.getScheme());
         if (StringUtils.isNotBlank(data.realProxyHost)) {
-          HttpHost target = new HttpHost(data.realProxyHost, data.realProxyPort, "http");
-          // Create AuthCache instance
-          AuthCache authCache = new BasicAuthCache();
-          // Generate BASIC scheme object and add it to the local
-          // auth cache
-          BasicScheme basicAuth = new BasicScheme();
-          authCache.put(target, basicAuth);
-          // Add AuthCache to the execution context
-          HttpClientContext localContext = HttpClientContext.create();
-          localContext.setAuthCache(authCache);
-          httpResponse = httpClient.execute(target, method, localContext);
-        } else {
-          httpResponse = httpClient.execute(method);
+          target = new HttpHost(data.realProxyHost, data.realProxyPort, "http");
         }
+
+        // Create AuthCache instance
+        AuthCache authCache = new BasicAuthCache();
+        // Generate BASIC scheme object and add it to the local
+        // auth cache
+        BasicScheme basicAuth = new BasicScheme();
+        authCache.put(target, basicAuth);
+        // Add AuthCache to the execution context
+        HttpClientContext localContext = HttpClientContext.create();
+        localContext.setAuthCache(authCache);
+
+        httpResponse = httpClient.execute(target, method, localContext);
+
         // calculate the responseTime
         long responseTime = System.currentTimeMillis() - startTime;
         if (log.isDetailed()) {

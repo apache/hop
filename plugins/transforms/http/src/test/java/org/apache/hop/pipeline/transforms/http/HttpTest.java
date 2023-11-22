@@ -17,23 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.HttpClientManager;
-import org.apache.http.Header;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.entity.BasicHttpEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.ByteArrayInputStream;
-import java.net.HttpURLConnection;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -43,6 +26,25 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.reflect.Whitebox.setInternalState;
+
+import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
+
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.HttpClientManager;
+import org.apache.http.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.entity.BasicHttpEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.protocol.HttpContext;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(HttpClientManager.class)
@@ -72,7 +74,9 @@ public class HttpTest {
     doReturn(client).when(builder).build();
 
     CloseableHttpResponse response = mock(CloseableHttpResponse.class);
-    doReturn(response).when(client).execute(any(HttpGet.class));
+    doReturn(response)
+        .when(client)
+        .execute(any(HttpHost.class), any(HttpRequest.class), any(HttpContext.class));
 
     BasicHttpEntity entity = new BasicHttpEntity();
     entity.setContent(new ByteArrayInputStream(DATA.getBytes()));
