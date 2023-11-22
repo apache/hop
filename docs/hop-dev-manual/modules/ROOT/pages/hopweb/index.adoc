@@ -84,6 +84,8 @@ export CATALINA_OPTS='${HOP_OPTIONS} -DHOP_AES_ENCODER_KEY="${HOP_AES_ENCODER_KE
 
 ----
 
+=== Project settings
+
 If you want to run Hop Web with the `default` and `samples` projects, make sure the project root path in `hop-config.json` is set to `{openvar}HOP_CONFIG_FOLDER{closevar}.
 
 On Linux or Mac, use the following sed command to fix this in one line:
@@ -111,6 +113,32 @@ On Windows, modify `hop-config.json` to make sure `projectsConf` looks like the 
   }
 
 ----
+
+
+=== Script classpaths 
+
+To make sure all hop scripts are accessible and work correctly with Hop Web, update their classpaths: 
+
+This can be done with a couple of `sed` commands on Mac and Linux: 
+
+[source, bash]
+----
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-run.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-conf.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-search.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-encrypt.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-import.sh
+RUN  sed -i 's&lib/core/*&../../lib/*:WEB-INF/lib/*:lib/core/*&g' ${CATALINA_HOME}/webapps/ROOT/hop-search.sh
+----
+
+The `CLASSPATH` lines in the various scripts should look similar to the one below after editing: 
+
+`CLASSPATH="../../lib/*:WEB-INF/lib/*:lib/core/**:lib/beam/*:lib/swt/osx/arm64/*"`
+
+Once the classpaths have been updated, make sure to make the scripts executable: 
+
+`chmod +x ${CATALINA_HOME}/webapps/ROOT/*.sh`
+
 
 === Start Tomcat
 
