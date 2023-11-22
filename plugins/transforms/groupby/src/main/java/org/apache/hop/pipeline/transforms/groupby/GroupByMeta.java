@@ -442,4 +442,9 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
   public void setAggregations(List<Aggregation> aggregations) {
     this.aggregations = aggregations;
   }
+  
+  @Override
+  public boolean supportsMultiCopyExecution() {
+    return false;
+  }  
 }

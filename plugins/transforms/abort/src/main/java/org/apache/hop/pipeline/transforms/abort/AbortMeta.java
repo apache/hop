@@ -204,4 +204,9 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
   public void setAbortOption(AbortOption abortOption) {
     this.abortOption = abortOption;
   }
+
+  @Override
+  public boolean supportsMultiCopyExecution() {
+    return false;
+  }    
 }

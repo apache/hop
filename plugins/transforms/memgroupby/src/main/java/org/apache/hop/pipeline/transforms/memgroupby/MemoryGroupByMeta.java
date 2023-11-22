@@ -475,4 +475,9 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
   public void setAlwaysGivingBackOneRow(boolean alwaysGivingBackOneRow) {
     this.alwaysGivingBackOneRow = alwaysGivingBackOneRow;
   }
+
+  @Override
+  public boolean supportsMultiCopyExecution() {
+    return false;
+  }  
 }

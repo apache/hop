@@ -408,6 +408,11 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
     return false;
   }
 
+  @Override
+  public boolean supportsMultiCopyExecution() {
+    return true;
+  }
+  
   /** This method is added to exclude certain transforms from layout checking. */
   public boolean excludeFromRowLayoutVerification() {
     return false;

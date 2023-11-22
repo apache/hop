@@ -665,6 +665,10 @@ public class TransformMeta
     return null;
   }
 
+  public boolean supportsMultiCopyExecution() {
+    return transform.supportsMultiCopyExecution();
+  }
+  
   public boolean supportsErrorHandling() {
     return transform.supportsErrorHandling();
   }
