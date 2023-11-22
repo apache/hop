@@ -40,7 +40,7 @@ Set JDBC property oracle.jdbc.mapDateToTimestamp=false to avoid data type "Date"
 There are 3 ways to create a connection to an Oracle database in Apache Hop:
 
 * If you have a SID, use this (old) format: `jdbc:oracle:thin:@hostname:PORT:SID`. +
-Put the SID as is in the database name
+Put the SID with `:` prefix in the database name
 
 * If you have a service name, use this (newer) format: `jdbc:oracle:thin:@//HOSTNAME:PORT/SERVICENAME`. +
 Put the service name with `/` prefix in the database name
