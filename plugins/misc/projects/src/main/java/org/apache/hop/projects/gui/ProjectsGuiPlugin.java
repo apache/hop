@@ -134,10 +134,18 @@ public class ProjectsGuiPlugin {
 
     try {
       Project project = projectConfig.loadProject(hopGui.getVariables());
+      String projectFolder = projectConfig.getProjectHome();
+
       ProjectDialog projectDialog =
           new ProjectDialog(hopGui.getActiveShell(), project, projectConfig, hopGui.getVariables(), true);
       if (projectDialog.open() != null) {
         config.addProjectConfig(projectConfig);
+
+        // Project's home changed. Update reference in hop-config.json
+        if (!projectFolder.equals(projectConfig.getProjectHome())) {
+          // Refresh project reference in hop-config.json
+          HopConfig.getInstance().saveToFile();
+        }
 
         if (!projectName.equals(projectConfig.getProjectName())) {
           // Project got renamed

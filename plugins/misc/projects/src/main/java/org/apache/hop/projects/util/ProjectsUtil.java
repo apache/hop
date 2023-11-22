@@ -238,4 +238,34 @@ public class ProjectsUtil {
     }
     return parentProjectReferences;
   }
+
+  public static List<String> changeParentProjectReferences(String currentName, String newName) throws HopException {
+
+    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
+    List<String> prjs = config.listProjectConfigNames();
+
+    HopGui hopGui = HopGui.getInstance();
+    List<String> parentProjectReferences = new ArrayList<>();
+    ProjectConfig currentProjectConfig = config.findProjectConfig(currentName);
+
+    if (currentProjectConfig == null) {
+      parentProjectReferences = Collections.EMPTY_LIST;
+    } else {
+      for (String prj : prjs) {
+        if (!prj.equals(currentName)) {
+          ProjectConfig prjCfg = config.findProjectConfig(prj);
+          Project thePrj = prjCfg.loadProject(hopGui.getVariables());
+          if (thePrj != null) {
+            if (thePrj.getParentProjectName() != null
+                    && thePrj.getParentProjectName().equals(currentName)) {
+              thePrj.setParentProjectName(newName);
+            }
+          } else {
+            hopGui.getLog().logError("Unable to load project '" + prj + "' from its configuration");
+          }
+        }
+      }
+    }
+    return parentProjectReferences;
+  }
 }

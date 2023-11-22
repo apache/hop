@@ -17,6 +17,9 @@
 
 package org.apache.hop.projects.project;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -56,10 +59,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-
 public class ProjectDialog extends Dialog {
   private static final Class<?> PKG = ProjectDialog.class; // For Translator
 
@@ -86,10 +85,8 @@ public class ProjectDialog extends Dialog {
   private TableView wVariables;
 
   private final IVariables variables;
-
   private boolean needingProjectRefresh;
 
-  private final String originalName;
   private final Boolean editMode;
 
   public ProjectDialog(
@@ -108,7 +105,6 @@ public class ProjectDialog extends Dialog {
 
     this.variables = new Variables();
     this.variables.initializeFrom(null);
-    this.originalName = projectConfig.getProjectName();
     try {
       project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
     } catch (Exception e) {
@@ -509,15 +505,34 @@ public class ProjectDialog extends Dialog {
       // Do some extra validations to prevent bad data ending up in the projects configuration
       //
 
+      String oriProjectName = projectConfig.getProjectName();
+      String oriProjectHome = projectConfig.getProjectHome();
+
       String homeFolder = wHome.getText();
+      boolean projectHomeFolderChanged = this.editMode && !oriProjectHome.equals(homeFolder);
+
       if (StringUtils.isEmpty(variables.resolve(homeFolder))) {
         throw new HopException("Please specify a home folder for your project");
       }
 
+      // Manage changing in project's home folder
+      if (projectHomeFolderChanged) {
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText(BaseMessages.getString(PKG, "ProjectDialog.ChangeHome.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(
+                PKG, "ProjectDialog.ChangeHome.Dialog.Message", oriProjectHome, homeFolder));
+        int anwser = box.open();
+        if ((anwser & SWT.NO) != 0) {
+          wHome.setText(oriProjectHome);
+          projectHomeFolderChanged = false;
+        }
+      }
+
       // If the home folder doesn't exist and project is new aks if want it created
-      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists() && !this.editMode) {
-        MessageBox box =
-            new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists()
+          && (!this.editMode || projectHomeFolderChanged)) {
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText(BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Header"));
         box.setMessage(
             BaseMessages.getString(PKG, "ProjectDialog.CreateHome.Dialog.Message", homeFolder));
@@ -525,17 +540,6 @@ public class ProjectDialog extends Dialog {
         if ((anwser & SWT.YES) != 0) {
           HopVfs.getFileObject(homeFolder).createFolder();
         }
-      }
-
-      // Definitely check if home folder exists or not
-      if (!HopVfs.getFileObject(variables.resolve(homeFolder)).exists()) {
-        String msgPre = "Please specify an existing home folder for your project. Folder '";
-        String msgPost = "' doesn't seem to exist.";
-        if (this.editMode) {
-          msgPre = "Project '" + wName.getText() + " is already existing. Changing its home directory to '";
-          msgPost = "' is not supported!";
-        }
-        throw new HopException(msgPre + homeFolder + msgPost);
       }
 
       // Renaming the project is not supported
@@ -553,7 +557,7 @@ public class ProjectDialog extends Dialog {
       }
 
       if (wParentProject.getText() != null
-          && wParentProject.getText().length() > 0
+          && !wParentProject.getText().isEmpty()
           && projectName.equals(wParentProject.getText())) {
         throw new HopException(
             "Project '" + projectName + "' cannot be set as a parent project of itself");
@@ -561,11 +565,10 @@ public class ProjectDialog extends Dialog {
 
       ProjectsConfig prjsCfg = ProjectsConfigSingleton.getConfig();
       List<String> prjs = prjsCfg.listProjectConfigNames();
-      String prevProjectName = projectConfig.getProjectName();
 
       // Check if project name is unique otherwise force the user to change it!
-      if (StringUtils.isEmpty(originalName)
-          || (StringUtils.isNotEmpty(originalName) && !projectName.equals(originalName))) {
+      if (StringUtils.isEmpty(oriProjectName)
+          || (StringUtils.isNotEmpty(oriProjectName) && !projectName.equals(oriProjectName))) {
         for (String prj : prjs) {
           if (projectName.equals(prj)) {
             throw new HopException(
@@ -575,7 +578,7 @@ public class ProjectDialog extends Dialog {
       }
 
       HopGui hopGui = HopGui.getInstance();
-      if (wParentProject.getText() != null && wParentProject.getText().length() > 0) {
+      if (wParentProject.getText() != null && !wParentProject.getText().isEmpty()) {
 
         boolean parentPrjExists = ProjectsUtil.projectExists(wParentProject.getText());
         if (!parentPrjExists)
@@ -596,17 +599,28 @@ public class ProjectDialog extends Dialog {
                   + "' as parent project because we are going to create a circular reference!");
       }
 
-      if (!prevProjectName.equals(projectName)) {
-        List<String> refs = ProjectsUtil.getParentProjectReferences(prevProjectName);
+      // Manage changing in project's home folder
+      if (this.editMode && !oriProjectName.equals(projectName)) {
+        MessageBox box = new MessageBox(shell, SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+        box.setText(BaseMessages.getString(PKG, "ProjectDialog.ChangeProjectName.Dialog.Header"));
+        box.setMessage(
+            BaseMessages.getString(
+                PKG,
+                "ProjectDialog.ChangeProjectName.Dialog.Message",
+                oriProjectName,
+                projectName));
+        int anwser = box.open();
+        if ((anwser & SWT.NO) != 0) {
+          wName.setText(oriProjectName);
+        }
+      }
+
+      // Change references to project's name if it changed
+      if (!oriProjectName.equals(projectName)) {
+        List<String> refs = ProjectsUtil.getParentProjectReferences(oriProjectName);
 
         if (!refs.isEmpty()) {
-          throw new HopException(
-              "Project '"
-                  + prevProjectName
-                  + "' cannot cannot be renamed in '"
-                  + projectName
-                  + "' because is referenced in following projects: "
-                  + String.join(",", refs));
+          ProjectsUtil.changeParentProjectReferences(oriProjectName, projectName);
         }
       }
 
@@ -722,7 +736,9 @@ public class ProjectDialog extends Dialog {
     return needingProjectRefresh;
   }
 
-  /** @param needingProjectRefresh The variablesChanged to set */
+  /**
+   * @param needingProjectRefresh The variablesChanged to set
+   */
   public void setNeedingProjectRefresh(boolean needingProjectRefresh) {
     this.needingProjectRefresh = needingProjectRefresh;
   }
