@@ -79,7 +79,7 @@ The transform requires very little configuration, but provides a lot of informat
 3+|**Action Logging Fields**
 |actionName|String|the name of the action in the logged pipeline
 |actionNr|Integer|the number of the current action
-|actionResult|the result (exit code, Y/N) of the current action
+|actionResult|Boolean|the result (exit code, Y/N) of the current action
 |actionLogChannelId|String|log channel id for the current action
 |actionLoggingText|String|logging text for the current action
 |actionErrors|Integer|number of errors for the current action
