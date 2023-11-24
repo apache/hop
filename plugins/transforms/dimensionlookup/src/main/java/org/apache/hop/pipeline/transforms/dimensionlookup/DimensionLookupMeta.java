@@ -174,6 +174,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   @Override
   public boolean supportsErrorHandling() {
     return true;
+
   }
 
   @Override
