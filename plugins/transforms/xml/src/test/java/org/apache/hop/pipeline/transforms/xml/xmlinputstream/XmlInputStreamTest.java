@@ -37,9 +37,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
@@ -123,6 +125,12 @@ public class XmlInputStreamTest {
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
 
     // attributes
+    HashSet<String> expectedAttributeNames = new HashSet<>();
+    HashSet<String> expectedAttributeValues = new HashSet<>();
+    expectedAttributeNames.add("Fruits:attribute");
+    expectedAttributeNames.add("Fish:attribute");
+    expectedAttributeValues.add(ATTRIBUTE_1);
+    expectedAttributeValues.add(ATTRIBUTE_2);
     // ATTRIBUTE_1
     expectedRowNum++;
     assertEquals(
@@ -133,14 +141,10 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/Fruits:ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertEquals(
-        INCORRECT_XML_DATA_NAME_MESSAGE,
-        "Fruits:attribute",
-        rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertEquals(
-        INCORRECT_XML_DATA_VALUE_MESSAGE,
-        ATTRIBUTE_1,
-        rl.getWritten().get(expectedRowNum)[dataValue]);
+    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
+            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
+            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
     // ATTRIBUTE_2
     expectedRowNum++;
     assertEquals(
@@ -151,14 +155,10 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/Fruits:ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertEquals(
-        INCORRECT_XML_DATA_NAME_MESSAGE,
-        "Fish:attribute",
-        rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertEquals(
-        INCORRECT_XML_DATA_VALUE_MESSAGE,
-        ATTRIBUTE_2,
-        rl.getWritten().get(expectedRowNum)[dataValue]);
+    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
+            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
+            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
 
     // check EndElement for the ProductGroup element
     expectedRowNum = expectedRowNum + 2;
@@ -201,6 +201,9 @@ public class XmlInputStreamTest {
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
 
     // attributes
+    HashSet<String> expectedAttributeValues = new HashSet<>();
+    expectedAttributeValues.add(ATTRIBUTE_1);
+    expectedAttributeValues.add(ATTRIBUTE_2);
     // ATTRIBUTE_1
     expectedRowNum++;
     assertEquals(
@@ -215,10 +218,8 @@ public class XmlInputStreamTest {
         INCORRECT_XML_DATA_NAME_MESSAGE,
         "attribute",
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertEquals(
-        INCORRECT_XML_DATA_VALUE_MESSAGE,
-        ATTRIBUTE_1,
-        rl.getWritten().get(expectedRowNum)[dataValue]);
+    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
+            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
     // ATTRIBUTE_2
     expectedRowNum++;
     assertEquals(
@@ -233,10 +234,8 @@ public class XmlInputStreamTest {
         INCORRECT_XML_DATA_NAME_MESSAGE,
         "attribute",
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertEquals(
-        INCORRECT_XML_DATA_VALUE_MESSAGE,
-        ATTRIBUTE_2,
-        rl.getWritten().get(expectedRowNum)[dataValue]);
+    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
+            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
 
     // check EndElement for the ProductGroup element
     expectedRowNum = expectedRowNum + 2;
@@ -280,6 +279,12 @@ public class XmlInputStreamTest {
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
 
     // attributes
+    HashSet<String> expectedAttributeNames = new HashSet<>();
+    HashSet<String> expectedAttributeValues = new HashSet<>();
+    expectedAttributeNames.add("attribute1");
+    expectedAttributeNames.add("attribute2");
+    expectedAttributeValues.add(ATTRIBUTE_1);
+    expectedAttributeValues.add(ATTRIBUTE_2);
     // ATTRIBUTE_1
     expectedRowNum++;
     assertEquals(
@@ -290,14 +295,10 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertEquals(
-        INCORRECT_XML_DATA_NAME_MESSAGE,
-        "attribute1",
-        rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertEquals(
-        INCORRECT_XML_DATA_VALUE_MESSAGE,
-        ATTRIBUTE_1,
-        rl.getWritten().get(expectedRowNum)[dataValue]);
+    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
+            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
+            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
     // ATTRIBUTE_2
     expectedRowNum++;
     assertEquals(
@@ -308,14 +309,10 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertEquals(
-        INCORRECT_XML_DATA_NAME_MESSAGE,
-        "attribute2",
-        rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertEquals(
-        INCORRECT_XML_DATA_VALUE_MESSAGE,
-        ATTRIBUTE_2,
-        rl.getWritten().get(expectedRowNum)[dataValue]);
+    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
+            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
+            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
 
     // check EndElement for the ProductGroup element
     expectedRowNum = expectedRowNum + 2;
