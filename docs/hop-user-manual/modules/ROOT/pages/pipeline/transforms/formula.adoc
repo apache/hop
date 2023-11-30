@@ -16,7 +16,7 @@ under the License.
 ////
 :documentationPath: /pipeline/transforms/
 :language: en_US
-:description: The Formula transform allows you to apply Excel-like formulas and functions on fields in a pipeline.
+:description: The Formula transform allows you to apply Excel-like formulas (see [Apache POI](https://poi.apache.org/components/spreadsheet/eval-devguide.html)) and functions on fields in a pipeline (Not Java or Javascript Formulas).
 
 :openvar: ${
 :closevar: }
