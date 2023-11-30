@@ -62,7 +62,7 @@ Formula Examples using the TEXT function:
 
 *	Int to Text: "size=" & TEXT([RowLimitInteger],"0").
 
-*	DateTime to Text: [StartDateField] & "=" & TEXT([StartDateTime], "yyyy-mm-dd")
+*	DateTime to Text: [StartDateField] & "=" & TEXT([StartDateTime], "yyyy-MM-dd")
 
 *	String to Text: "new_counter=" & TEXT([counter]+1, "0")
 
