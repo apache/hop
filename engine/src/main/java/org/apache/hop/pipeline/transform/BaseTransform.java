@@ -1577,6 +1577,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           row = inputRowSet.getRowImmediate();
         }
         if (row != null) {
+          obtainInputRowMeta(row, inputRowSet);
           incrementLinesRead();
         }
       } else {
@@ -1629,6 +1630,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         row = inputRowSet.getRowWait(waitingTime.get(), TimeUnit.MILLISECONDS);
         boolean timeout = false;
         if (row != null) {
+          obtainInputRowMeta(row, inputRowSet);
           incrementLinesRead();
           blockPointer++;
           waitingTime.reset();
@@ -1663,6 +1665,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
                 inputRowSetsLock.writeLock().unlock();
               }
             } else {
+              obtainInputRowMeta(row, inputRowSet);
               incrementLinesRead();
             }
           } else {
@@ -1691,15 +1694,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         nextInputStream();
         inputRowSet = currentInputStream();
         row = getRowFrom(inputRowSet);
+        obtainInputRowMeta(row, inputRowSet);
       }
     } finally {
       inputRowSetsLock.readLock().unlock();
-    }
-
-    // Also set the meta data on the first occurrence.
-    // or if prevTransforms.length > 1 inputRowMeta can be changed
-    if (inputRowMeta == null || prevTransforms.length > 1) {
-      inputRowMeta = inputRowSet.getRowMeta();
     }
 
     if (row != null) {
@@ -1719,6 +1717,54 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     verifyRejectionRates();
 
     return row;
+  }
+
+  /**
+   * The first non-null row we get we'll lock in the row metadata.
+   * For scenarios with multiple inputs, we move the metadata around (e.g. Merge Rows).
+   *
+   * @param row The input row (not null!)
+   * @param inputRowSet The row set we're reading from right now
+   */
+  private void obtainInputRowMeta(Object[] row, IRowSet inputRowSet) {
+    if (row==null) {
+      return;
+    }
+
+    // Set the row metadata on the first occurrence.
+    // If prevTransforms.length > 1, inputRowMeta can be changed as well.
+    //
+    if (inputRowMeta == null || prevTransforms.length > 1) {
+      inputRowMeta = inputRowSet.getRowMeta();
+    }
+
+    // Extra sanity check
+    //
+    if (row!=null && inputRowMeta == null) {
+      int nr = 0;
+      for (IRowSet rowSet : inputRowSets) {
+        log.logMinimal(
+                "===> Input row set #"
+                        + nr
+                        + ", done? "
+                        + rowSet.isDone()
+                        + ", size="
+                        + rowSet.size()
+                        + ", metadata? "
+                        + (rowSet.getRowMeta() != null));
+        nr++;
+      }
+      log.logMinimal("===> Current input row set nr=" + currentInputRowSetNr);
+
+      throw new RuntimeException(
+              "No row metadata obtained for row "
+                      + Arrays.toString(row)
+                      + Const.CR
+                      + "inputRowSet.getRowMeta()="
+                      + inputRowSet.getRowMeta()
+                      + ", inputRowSets.size()="
+                      + inputRowSets.size());
+    }
   }
 
   /**
