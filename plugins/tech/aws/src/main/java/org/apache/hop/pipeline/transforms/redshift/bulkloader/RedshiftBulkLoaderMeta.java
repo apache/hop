@@ -52,8 +52,7 @@ import java.util.List;
     name = "i18n::BaseTransform.TypeLongDesc.RedshiftBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.RedshiftBulkLoaderMessage",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/redshiftbulkloader.html",
+    documentationUrl = "/pipeline/transforms/redshift-bulkloader.html",
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "redshift")
 public class RedshiftBulkLoaderMeta
