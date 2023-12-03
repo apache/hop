@@ -107,27 +107,30 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         truncateTable();
       }
 
-      try {
-        data.close();
-        closeFile();
-        String copyStmt = buildCopyStatementSqlString();
-        Connection conn = data.db.getConnection();
-        Statement stmt = conn.createStatement();
-        stmt.executeUpdate(copyStmt);
-        conn.commit();
-        stmt.close();
-        conn.close();
-      }catch(SQLException sqle){
-        setErrors(1);
-        stopAll();
-        setOutputDone(); // signal end to receiver(s)
-        throw new HopDatabaseException("Error executing COPY statements", sqle);
-      } catch (IOException ioe) {
-        setErrors(1);
-        stopAll();
-        setOutputDone(); // signal end to receiver(s)
-        throw new HopTransformException("Error releasing resources", ioe);
+      if(!first){
+        try {
+          data.close();
+          closeFile();
+          String copyStmt = buildCopyStatementSqlString();
+          Connection conn = data.db.getConnection();
+          Statement stmt = conn.createStatement();
+          stmt.executeUpdate(copyStmt);
+          conn.commit();
+          stmt.close();
+          conn.close();
+        }catch(SQLException sqle){
+          setErrors(1);
+          stopAll();
+          setOutputDone(); // signal end to receiver(s)
+          throw new HopDatabaseException("Error executing COPY statements", sqle);
+        } catch (IOException ioe) {
+          setErrors(1);
+          stopAll();
+          setOutputDone(); // signal end to receiver(s)
+          throw new HopTransformException("Error releasing resources", ioe);
+        }
       }
+
       return false;
     }
 
