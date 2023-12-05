@@ -331,6 +331,11 @@ public interface ITransformMeta {
   boolean supportsErrorHandling();
 
   /**
+   * @return true if this transform supports multi-copies execution. By default return true.
+   */
+  boolean supportsMultiCopyExecution();
+  
+  /**
    * Get a list of all the resource dependencies that the transform is depending on.
    *
    * @param transformMeta

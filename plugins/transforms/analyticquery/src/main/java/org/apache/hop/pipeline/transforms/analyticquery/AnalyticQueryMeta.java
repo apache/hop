@@ -178,4 +178,9 @@ public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, Analytic
   public void setQueryFields(List<QueryField> queryFields) {
     this.queryFields = queryFields;
   }
+
+  @Override
+  public boolean supportsMultiCopyExecution() {
+    return false;
+  }
 }

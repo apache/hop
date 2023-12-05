@@ -265,6 +265,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       "pipeline-graph-transform-10650-rows-copy";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE =
       "pipeline-graph-transform-10600-rows-distribute";
+  public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPECIFY_COPIES =
+  "pipeline-graph-transform-10100-copies";   
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING =
       "pipeline-graph-transform-10800-error-handling"; 
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO =
@@ -2279,7 +2281,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-      id = "pipeline-graph-transform-10100-copies",
+      id = ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPECIFY_COPIES,
       parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
       type = GuiActionType.Modify,
       name = "i18n::HopGuiPipelineGraph.TransformAction.SpecifyCopies.Name",
@@ -2440,6 +2442,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_COPY)) {
       return context.getTransformMeta().isDistributes();
+    }
+    if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPECIFY_COPIES)) {
+      return context.getTransformMeta().supportsMultiCopyExecution();
     }
     if (contextActionId.equals(ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING)) {
       return context.getTransformMeta().supportsErrorHandling();
