@@ -27,6 +27,8 @@ under the License.
 |
 == Description
 The Get Variables transform allows you to get the value of a variable and create field(s) from it. You only need to use this transform if you need the variable value in a field.
+
+TIP:  If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows from result transform.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
@@ -38,21 +40,40 @@ The Get Variables transform allows you to get the value of a variable and create
 !===
 |===
 
+== Usage
 Note that workflow/environment variables are set only once. A pipeline needs to start to get any new variables. A running or sequential or nested (nested pipelines are technically the same pipeline) pipeline can't fetch new variable values. A pipeline is considered started when a pipeline starts for every row in a pipeline executor.
 
-Refer to parameters/variables using the syntax: {openvar}myVariable{closevar}, for example from a previous pipeline. If you need to refer to a previous pipeline’s data row(s) fields, then use a Get rows transform.
+Refer to parameters/variables using the syntax: {openvar}myVariable{closevar}, for example from a previous pipeline.
 
-For example, you can specify: `{openvar}java.io.tmpdir{closevar}/hop/tempfile.txt` and it will be expanded to `/tmp/hop/tempfile.txt` on Unix-like systems.
+*Two ways to pass fields, parameters to variables downstream:*
+
+Parameters must be unique per pipeline (case is not a differentiator). The pipeline executor parameter value takes precedence over the pipeline’s properties parameter value. The sending parameter value takes precedence over the default value of the receiving pipeline’s properties parameter.
+
+  * Use a pipeline executor transform or a Repeat action:
+    - Send: add fields on the Parameters tab (parameter name can be same as field name) to send.
+    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: ${myParam}
+  * Edit any upstream pipeline’s properties:
+    - Send: Add a parameter on the parameters tab of a pipeline’s properties (Edit pipeline icon), and optionally give it a default value. The parameter value can be set in a pipeline using various transforms.
+    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: ${myParam}
+
+
+*Other:*
+
+See also the Set Variables transform.
+
+To convert the Variable into a data type other than String use Select Values - Meta Data tab.
+
+To get system values, including command line arguments, use the Get System Info transform.
+
+For example, in the variable column, you can specify: `{openvar}java.io.tmpdir{closevar}/hop/tempfile.txt` and it will be evaluated as `/tmp/hop/tempfile.txt` on Unix-like systems.
+
+== Troubleshooting
 
 You must always specify the data type or you will have errors like the following:
 
 ``2023/07/21 09:30:23 - REST client.0 - ERROR: Because of an error, this transform can't continue: 
   2023/07/21 09:30:23 - REST client.0 - TOKEN_URL None : Unknown type 0 specified.
   2023/07/21 09:30:23 - REST client.0 - ERROR: org.apache.hop.core.exception.HopValueException:``
-
-See also the Set Variables transform.
-To convert the Variable into a data type other than String use Select Values - Meta Data tab.
-To get system values, including command line arguments, use the Get System Info transform.
 
 == Options
 
