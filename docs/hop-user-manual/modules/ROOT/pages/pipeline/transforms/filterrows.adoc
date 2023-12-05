@@ -66,7 +66,7 @@ TIP: Lists also works on numeric values like integers. In this case, the list of
 
 === Filtering rows based on values from variables
 
-The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform. For example, a table input transform can include the variable in the SQL as another field such as
+The filter rows transform detects only fields in the input stream. If you want to filter rows based on a variable value, you can modify the previous transform like a Table input transform. For example, a table input transform can include the variable in the SQL as another field such as
 [source,sql]
 ----
 SELECT field1, field2, ${myvar} AS field3 FROM table1
@@ -93,7 +93,7 @@ Then in the filter row condition, you can have:
 field1 = field3
 ----
 
-*FYI* - instead of adding a field to the Table Input shown above, you can also use a "Get Variables" transform to set fields.
+*FYI* - instead of adding a field to a Table Input as shown above, you can also use a "Get Variables" transform to add fields to the stream.
 
 TIP: You can use a REGEX expression in the "filter row" transform.  
 
