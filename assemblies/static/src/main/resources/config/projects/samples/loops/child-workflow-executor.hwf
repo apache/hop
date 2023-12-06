@@ -59,6 +59,7 @@ limitations under the License.
       <description/>
       <type>WRITE_TO_LOG</type>
       <attributes/>
+      <loglevel>Basic</loglevel>
       <logmessage>#################################
 the vaule for PRM_COUNTER is now ${PRM_COUNTER}
 #################################
