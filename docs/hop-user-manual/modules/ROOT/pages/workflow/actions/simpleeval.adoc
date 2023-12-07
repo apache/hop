@@ -31,6 +31,9 @@ Connect two actions with the output of the Simple Evaluation.
 
 The green (success) hop will be called if the condition was evaluated successfully, the red (failure) one will be called if the condition wasn't evaluated successfully.
 
+== Usage
+The Simple evaluation Action is limited. For more complex conditions see: https://hop.apache.org/manual/latest/workflow/actions/eval.html
+
 == Options
 
 [options="header"]
