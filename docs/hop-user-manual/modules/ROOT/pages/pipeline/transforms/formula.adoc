@@ -68,11 +68,13 @@ TIP: The formula will not evaluate a field unless the field pre-exists. Either s
 
 *	String to Text: "new_counter=" & TEXT([counter]+1, "0")
 
-*Date Examples:*
+*DateTime  Examples:*
 
 * In Excel, dates and times are stored as floating-point numbers, as amount of days since midnight 01/01/1900.
 
 * To add one hour to the current datetime, the formula would be: NOW()+(1/24)
+
+* Set a Null Timestamp with formula: DATEVALUE("0")
 
 == Options
 
