@@ -58,13 +58,17 @@ TIP: The formula will not evaluate a field unless the field pre-exists. Either s
 
 
 == Examples
-Formula Examples using the TEXT function:
+Formula Examples using the *TEXT* function:
 
 *	Int to Text: "size=" & TEXT([RowLimitInteger],"0").
 
 *	DateTime to Text: [StartDateField] & "=" & TEXT([StartDateTime], "yyyy-MM-dd")
 
 *	String to Text: "new_counter=" & TEXT([counter]+1, "0")
+
+Formula Examples using *DateTime* functions:
+
+* Set a Null Timestamp with formula: DATEVALUE("0")
 
 == Options
 
