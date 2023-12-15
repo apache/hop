@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.ftpput;
 
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -557,6 +558,9 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
                           + "' on the FTP server was not successful with reply string: "
                           + ftpclient.getReplyString());
                 }
+              }
+              if(binaryMode){
+                ftpclient.setFileType(FTP.BINARY_FILE_TYPE);
               }
               boolean success = ftpclient.storeFile(file, inputStream);
               if (success) {
