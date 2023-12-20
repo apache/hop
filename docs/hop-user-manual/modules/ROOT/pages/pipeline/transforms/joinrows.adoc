@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-The Join Rows transform allows you to produce combinations (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) of all rows in the input streams.
+The Join Rows transform allows you to produce combinations (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) of all rows in multiple input streams. However, you will need to join on a key. If you want to join input streams without a key, see the "Join rows (cartesian product)" transform.
 
 |
 == Supported Engines
