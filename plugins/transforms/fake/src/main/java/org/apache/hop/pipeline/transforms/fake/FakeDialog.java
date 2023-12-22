@@ -221,7 +221,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
       TableItem item = wFields.table.getItem(row);
       int col = 1;
       item.setText(col++, Const.NVL(fakeField.getName(), ""));
-      item.setText(col++, Const.NVL(fakeField.getType(), ""));
+      item.setText(col++, Const.NVL(FakerType.getTypeUsingName(fakeField.getType()).getDescription(), ""));
       item.setText(col, Const.NVL(fakeField.getTopic(), ""));
     }
     wFields.removeEmptyRows();
