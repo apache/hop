@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
     id = "ExecInfo",
-    image = "ui/images/location.svg",
+    image = "ui/images/execution.svg",
     name = "i18n::ExecInfo.Name",
     description = "i18n::ExecInfo.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",

@@ -28,7 +28,7 @@ Here are the available perspectives:
 
 * image:icons/data_orch.svg[width="24px"] xref:hop-gui/perspective-data-orchestration.adoc[Data Orchestration]
 
-* image:icons/location.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
+* image:icons/execution.svg[width="24px"] xref:hop-gui/perspective-execution-information.adoc[Execution Information]
 
 * image:icons/gear.svg[width="24px"] xref:hop-gui/perspective-configuration.adoc[Configuration]
 

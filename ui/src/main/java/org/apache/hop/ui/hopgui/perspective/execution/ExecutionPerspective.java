@@ -94,7 +94,7 @@ import java.util.Map;
     id = "150-HopExecutionPerspective",
     name = "i18n::ExecutionPerspective.Name",
     description = "i18n::ExecutionPerspective.Description",
-    image = "ui/images/location.svg")
+    image = "ui/images/execution.svg")
 @GuiPlugin
 public class ExecutionPerspective implements IHopPerspective, TabClosable {
 

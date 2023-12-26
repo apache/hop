@@ -131,7 +131,7 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
     fdlOperationType.top = new FormAttachment(lastControl, margin);
     fdlOperationType.right = new FormAttachment(middle, 0);
     wlOperationType.setLayoutData(fdlOperationType);
-    wOperationType = new CCombo(shell, SWT.LEFT);
+    wOperationType = new CCombo(shell, SWT.LEFT | SWT.BORDER);
     wOperationType.setToolTipText(
         BaseMessages.getString(PKG, "ExecInfoDialog.OperationType.Tooltip"));
     PropsUi.setLook(wOperationType);
