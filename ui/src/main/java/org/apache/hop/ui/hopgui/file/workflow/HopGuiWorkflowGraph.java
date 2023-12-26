@@ -4075,7 +4075,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "i18n::HopGuiWorkflowGraph.ContextualAction.NavigateToExecutionInfo.Text",
       tooltip = "i18n::HopGuiWorkflowGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
-      image = "ui/images/location.svg",
+      image = "ui/images/execution.svg",
       category = "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Basic.Text",
       categoryOrder = "1")
   public void navigateToExecutionInfo(HopGuiWorkflowContext context) {
@@ -4087,7 +4087,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
       toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.ToExecutionInfo",
       type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/location.svg")
+      image = "ui/images/execution.svg")
   public void navigateToExecutionInfo() {
     try {
       // Is there an active IWorkflow?
@@ -4184,7 +4184,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "i18n::HopGuiWorkflowGraph.ActionAction.ViewExecutionInfo.Name",
       tooltip = "i18n::HopGuiWorkflowGraph.ActionAction.ViewExecutionInfo.Tooltip",
-      image = "ui/images/location.svg",
+      image = "ui/images/execution.svg",
       category = "Basic",
       categoryOrder = "1")
   public void viewActionExecutionInfo(HopGuiWorkflowActionContext context) {

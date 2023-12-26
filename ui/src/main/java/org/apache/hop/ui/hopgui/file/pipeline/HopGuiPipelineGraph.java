@@ -5336,7 +5336,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Text",
       tooltip = "i18n::HopGuiPipelineGraph.ContextualAction.NavigateToExecutionInfo.Tooltip",
-      image = "ui/images/location.svg",
+      image = "ui/images/execution.svg",
       category = "Basic",
       categoryOrder = "1")
   public void navigateToExecutionInfo(HopGuiPipelineContext context) {
@@ -5348,7 +5348,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       id = TOOLBAR_ITEM_TO_EXECUTION_INFO,
       toolTip = "i18n:org.apache.hop.ui.hopgui:HopGui.Toolbar.ToExecutionInfo",
       type = GuiToolbarElementType.BUTTON,
-      image = "ui/images/location.svg")
+      image = "ui/images/execution.svg")
   public void navigateToExecutionInfo() {
     try {
       // Is there an active IPipeline?
@@ -5468,7 +5468,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       type = GuiActionType.Info,
       name = "i18n::HopGuiPipelineGraph.TransformAction.ViewExecutionInfo.Name",
       tooltip = "i18n::HopGuiPipelineGraph.TransformAction.ViewExecutionInfo.Tooltip",
-      image = "ui/images/location.svg",
+      image = "ui/images/execution.svg",
       category = "Basic",
       categoryOrder = "1")
   public void viewTransformExecutionInfo(HopGuiPipelineTransformContext context) {
