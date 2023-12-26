@@ -33,7 +33,7 @@
     <properties>
         <clickhouse.jdbc.version>0.5.0</clickhouse.jdbc.version>
         <derby.version>10.16.1.1</derby.version>
-        <duckdb.version>0.9.1</duckdb.version>
+        <duckdb.version>0.9.2</duckdb.version>
         <h2.version>2.2.224</h2.version>
         <hyersonic.version>2.7.2</hyersonic.version>
         <jt400.version>20.0.6</jt400.version>
