@@ -116,6 +116,8 @@ Projects:
 
 ====
 
+See the xref:../hop-tools/hop-conf/hop-conf.adoc[Hop Tools -> Hop Conf] documentation for more information.
+
 == Hop Encrypt
 
 include::../snippets/hop-tools/hop-encrypt.adoc[]
@@ -168,6 +170,8 @@ Encrypted 2be98afc86aa79f9dbb18bd63c99dbdde
 --
 
 ====
+
+See the xref:../hop-tools/hop-encrypt.adoc[Hop Tools -> Hop Encrypt] documentation for more information.
 
 == Hop Run
 
@@ -250,7 +254,7 @@ Expected output:
 
 ====
 
-xref::../hop-run/index.adoc[Read more]
+xref::../hop-run/index.adoc[Hop Tools -> Hop Run]
 
 == Hop Search
 
@@ -318,6 +322,8 @@ file://<YOUR_PATH>/hop/config/projects/samples/beam/pipelines/switch-case.hpl : 
 
 ====
 
+See the xref:../hop-tools/hop-search.adoc[Hop Tools -> Hop Search] documentation for more information.
+
 == Hop Server
 
 include::../snippets/hop-tools/hop-server.adoc[]
@@ -384,7 +390,7 @@ Hit `CTRL-C` to stop the server.
 
 ====
 
-xref::../hop-server/index.adoc[Read more]
+Read more about xref::../hop-server/index.adoc[Hop Server]
 
 == Hop Import
 
@@ -419,7 +425,7 @@ Linux, macOS::
 
 ====
 
-xref:tech-manual::hop-vs-kettle/import-kettle-projects.adoc[Read more]
+Read more at xref:tech-manual::hop-vs-kettle/import-kettle-projects.adoc[Technical Manual -> Hop vs Kettle -> Import Kettle Projects]
 
 == Hop Translator
 
@@ -458,4 +464,6 @@ Expected output: the Hop Translator tool starts.
 --
 ====
 
-https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Read more]
+https://hop.apache.org/community/contribution-guides/translation-contribution-guide/[Read more about contributing translations to Hop]
+
+Read more about xref:../hop-tools/hop-translator.adoc[Hop Tools -> Hop Translator]
