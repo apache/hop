@@ -54,11 +54,13 @@ With a formula you are not limited to comparing to three fields like in the Calc
 == Usage
 You have the option of creating a new field (use New field column) or setting a field value (use Replace value column).
 
+Check the Apache POI docs page for a list of supported formulas at https://poi.apache.org/components/spreadsheet/eval-devguide.html#What+functions+are+supported
+
 TIP: The formula will not evaluate a field unless the field pre-exists. Either start the execution of that pipeline to create missing fields or check if the field exists by viewing fields in the Replace value dropdown. The formula editor will not always open if the pipeline properties parameters are NOT set.
 
 
 == Examples
-Formula Examples using the TEXT function:
+*Formula Examples using the TEXT function:*
 
 *	Int to Text: "size=" & TEXT([RowLimitInteger],"0").
 
@@ -66,14 +68,23 @@ Formula Examples using the TEXT function:
 
 *	String to Text: "new_counter=" & TEXT([counter]+1, "0")
 
+*DateTime  Examples:*
+
+* In Excel, dates and times are stored as floating-point numbers, as amount of days since midnight 01/01/1900.
+
+* To add one hour to the current datetime, the formula would be: NOW()+(1/24)
+
+* Set a Null Timestamp with formula: DATEVALUE("0")
+
 == Options
 
 [options="header"]
 |===
 |Option|Description
 |transform name|Change the name of this transform to explain the purpose of the formula fields you're adding.
-|New Field|the name of the new field that will be created from the formula. The Formula transform requires a data row to create a new field. If needed, you can add a row generator with a single row as the first transform in your pipeline.
-|Formula|the formula that will be used to replace or create the new field. Click on the field to open the Formula Editor (see the Formula Editor section for more details). To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax {openvar}Param1{closevar}. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: CONCATENATE([field1], “{openvar}Param1{closevar}”)
+|New Field|the name of the new field that will be created from the formula. The Formula transform requires a data row to create a new field (if using a transform that queries for rows, you will have to preview it first to generate a row). You can add a row generator with a single row as the first transform in your pipeline.
+|Formula|To use a value from a data row field, use square brackets like [field1]. To use a parameter or variable, use the normal syntax ${param1}. If you use a parameter in place of text like with CONCATENATE (see samples) you must put double quotes around it. Example: CONCATENATE([field1], “${Param1}”).
+
 * Note: You may have to add quotes around variables in formulas as variables have no type.
 |Value type|the data type for the new formula field
 |Length|field length
