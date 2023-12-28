@@ -21,6 +21,7 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -82,7 +83,12 @@ public class FakeMeta extends BaseTransformMeta<Fake, FakeData> {
       throws HopTransformException {
     for (FakeField field : fields) {
       if (field.isValid()) {
-        IValueMeta v = new ValueMetaString(field.getName());
+        IValueMeta v = null;
+        if (field.getType().equals("DateAndTime")) {
+          v = new ValueMetaDate(field.getName());
+        } else {
+          v = new ValueMetaString(field.getName());
+        }
         v.setOrigin(name);
         rowMeta.addValueMeta(v);
       }
