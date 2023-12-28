@@ -366,6 +366,10 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    // Clean the row if eventually is dirty
+    row.clear();
+
     for (ExcelInputField field : fields) {
       int type = field.getHopType();
       if (type == IValueMeta.TYPE_NONE) {
