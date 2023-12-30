@@ -465,9 +465,12 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
       Execution execution = iLocation.findLastExecution(executionType, name);
-      ExecutionState executionState = iLocation.getExecutionState(execution.getId());
-      createExecutionViewer(location.getName(), execution, executionState);
-
+      
+      // Ignore if never executed 
+      if ( execution!=null ) {
+        ExecutionState executionState = iLocation.getExecutionState(execution.getId());
+        createExecutionViewer(location.getName(), execution, executionState);
+      }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error opening view on last execution information", e);
     }
