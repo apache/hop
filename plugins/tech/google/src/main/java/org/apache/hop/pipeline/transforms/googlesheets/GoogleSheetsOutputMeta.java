@@ -35,7 +35,7 @@ import java.util.List;
     image = "google-sheets-output.svg",
     name = "i18n::GoogleSheetsOutput.transform.Name",
     description = "i18n::GoogleSheetsOutput.transform.Name",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     documentationUrl = "/pipeline/transforms/google-sheets-output.html")
 public class GoogleSheetsOutputMeta
     extends BaseTransformMeta<GoogleSheetsOutput, GoogleSheetsOutputData> {
