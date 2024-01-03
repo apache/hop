@@ -31,6 +31,11 @@ Connect two actions with the output of the Simple Evaluation.
 
 The green (success) hop will be called if the condition was evaluated successfully, the red (failure) one will be called if the condition wasn't evaluated successfully.
 
+== Usage
+* A Null value is the same as an empty string. For example, to detect a null for any data type, set the Type to String, and the Success condition to "If value is equal to", and have the Value textbox empty.
+
+* The Simple evaluation Action is limited. For more complex conditions see: https://hop.apache.org/manual/latest/workflow/actions/eval.html
+
 == Options
 
 [options="header"]
