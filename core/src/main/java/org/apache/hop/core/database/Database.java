@@ -2143,6 +2143,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     while (columns.next()) {
       IValueMeta valueMeta = null;
       String name = columns.getString("COLUMN_NAME");
+      String comments = columns.getString("REMARKS");
       String type = columns.getString("SOURCE_DATA_TYPE");
       int size = columns.getInt("COLUMN_SIZE");
       if (type.equals("Integer") || type.equals("Long")) {
@@ -2166,7 +2167,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
       if (valueMeta != null) {
         valueMeta.setName(name);
-        valueMeta.setComments(name);
+        valueMeta.setComments(comments);
         valueMeta.setLength(size);
         valueMeta.setOriginalColumnTypeName(type);
 
