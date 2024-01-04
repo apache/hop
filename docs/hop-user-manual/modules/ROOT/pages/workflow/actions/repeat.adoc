@@ -35,9 +35,8 @@ In addition to the workflow and pipeline executor transforms, the Repeat and End
 TIP: If you use a variable name for the file to repeat, ensure a default parameter is set with a file extension so Hop knows if it is a pipeline or a workflow file.
 
 == Example
-The samples project example: ``/loops/repeat-action.hwf`` and ``child-check-set-counter-value.hpl`` runs a pipeline that increments a `{openvar}COUNTER{closevar}` variable with each run. If the variable values exceeds 10, a variable `{openvar}END_LOOP{closevar}` is set. This variable is detected by the Repeat action, and the loop stops. Because the Variable scope of `COUNTER` in the workflow is set to “Valid in the current workflow”, when you set `COUNTER` in the child the new value goes upstream.
-
-
+The samples project example: ``/loops/repeat-action.hwf`` and ``child-check-set-counter-value.hpl`` runs a pipeline that increments a `{openvar}COUNTER{closevar}` variable with each run. If the variable values exceeds 10, a variable `{openvar}END_LOOP{closevar}` is set. 
+This variable is detected by the Repeat action, and the loop stops. Because the Variable scope of `COUNTER` in the workflow is set to “Valid in the current workflow”, when you set `COUNTER` in the child the new value goes upstream.
 
 
 == Options
@@ -56,7 +55,7 @@ The samples project example: ``/loops/repeat-action.hwf`` and ``child-check-set-
 
 |Stop repeating when this variable is set|Specify the variable you want to be checked before stopping the repeat loop
 
-|Optional variable value| Only stop repeating when the above variable is set and contains this exact value
+|Optional variable value| Only stop repeating when the above variable is set and contains this exact value. If you stop the Repeat downstream with a variable value that was set via scope: valid in the Java Virtual Machine, you will have to reset the variable manually in the same way because resetting the stop variable in the Repeat's Parameters/Variables tab will not work.
 
 |Delay variable in seconds| Allow file execution to repeat using specified value in seconds
 
