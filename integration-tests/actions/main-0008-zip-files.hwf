@@ -53,24 +53,22 @@ limitations under the License.
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/0008-zip-action-generate-files-to-zip.hpl</filename>
-      <params_from_previous>N</params_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <loglevel>Basic</loglevel>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
-      <run_configuration>local</run_configuration>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0008-zip-action-generate-files-to-zip.hpl</filename>
+      <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
       </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
       <xloc>288</xloc>
       <yloc>48</yloc>
@@ -118,7 +116,7 @@ limitations under the License.
         </field>
       </fields>
       <parallel>N</parallel>
-      <xloc>736</xloc>
+      <xloc>1024</xloc>
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
@@ -128,10 +126,35 @@ limitations under the License.
       <type>ABORT</type>
       <attributes/>
       <always_log_rows>N</always_log_rows>
-      <message/>
       <parallel>N</parallel>
-      <xloc>560</xloc>
-      <yloc>176</yloc>
+      <xloc>672</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>verify files in zip are valid (#3472)</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0008-zip-action-verify-generated-files-in-zip-are-valid.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>784</xloc>
+      <yloc>48</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -152,13 +175,27 @@ limitations under the License.
     </hop>
     <hop>
       <from>zip file not empty?</from>
+      <to>abort</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>zip file not empty?</from>
+      <to>verify files in zip are valid (#3472)</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>verify files in zip are valid (#3472)</from>
       <to>delete zip files</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>zip file not empty?</from>
+      <from>verify files in zip are valid (#3472)</from>
       <to>abort</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>

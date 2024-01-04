@@ -580,6 +580,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                 }
                 out.flush();
                 out.closeEntry();
+                out.finish();
 
                 // Close the current file input stream
                 in.close();
