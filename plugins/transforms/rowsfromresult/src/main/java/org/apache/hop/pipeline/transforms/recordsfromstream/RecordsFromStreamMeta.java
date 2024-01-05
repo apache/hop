@@ -18,8 +18,17 @@
 package org.apache.hop.pipeline.transforms.recordsfromstream;
 
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
 
+/**
+ * @Deprecated Use RowsFromResultMeta
+ */
+@Deprecated
 @Transform(
     id = "RecordsFromStream",
     image = "recordsfromstream.svg",
@@ -28,4 +37,24 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
     keywords = "i18n::RecordsFromStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/getrecordsfromstream.html")
-public class RecordsFromStreamMeta extends RowsFromResultMeta {}
+public class RecordsFromStreamMeta extends RowsFromResultMeta {
+
+  public RecordsFromStreamMeta() {
+    super();  
+  }
+
+  @Override
+  public ITransform createTransform(
+      TransformMeta transformMeta,
+      ITransformData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    return new RecordsFromStream(transformMeta, this, (RecordsFromStreamData) data, copyNr, pipelineMeta, pipeline);
+  }
+  
+  @Override
+  public ITransformData createTransformData() {
+    return new RecordsFromStreamData();
+  }
+}

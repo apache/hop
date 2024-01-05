@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transform;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -95,10 +95,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
     try {
-      ParameterizedType parameterizedType =
-          (ParameterizedType) this.getClass().getGenericSuperclass();
-      Class<Main> mainClass = (Class<Main>) parameterizedType.getActualTypeArguments()[0];
-      Class<Data> dataClass = (Class<Data>) parameterizedType.getActualTypeArguments()[1];
+      Type[] parameterizedTypes = getParameterizedTypes(getClass());      
+      Class<Main> mainClass = (Class<Main>) parameterizedTypes[0];
+      Class<Data> dataClass = (Class<Data>) parameterizedTypes[1];
 
       // Some tests class use BaseTransformMeta<ITransform,ITransformData>
       if (mainClass.isInterface()) return null;
@@ -115,30 +114,49 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
               });
       return constructor.newInstance(
           new Object[] {transformMeta, this, data, copyNr, pipelineMeta, pipeline});
-    } catch (InstantiationException
-        | IllegalAccessException
-        | IllegalArgumentException
-        | InvocationTargetException
-        | NoSuchMethodException e) {
-      throw new RuntimeException("Error create instance of transform: " + this.getName(), e);
+    } catch (RuntimeException | ReflectiveOperationException e) {
+      throw new RuntimeException("Error create instance of transform: " + getClass().getCanonicalName(), e);
     }
   }
 
   @Override
+  @SuppressWarnings({"unchecked"})
   public ITransformData createTransformData() {
     try {
-      ParameterizedType parameterizedType =
-          (ParameterizedType) this.getClass().getGenericSuperclass();
-      @SuppressWarnings({"unchecked"})
-      Class<Data> dataClass = (Class<Data>) parameterizedType.getActualTypeArguments()[1];
-
+      Type[] parameterizedTypes = getParameterizedTypes(getClass());
+      
+      Class<Data> dataClass = (Class<Data>) parameterizedTypes[1];
+      
       // Some tests class use BaseTransformMeta<ITransform,ITransformData>
       if (dataClass.isInterface()) return null;
 
-      return dataClass.newInstance();
-    } catch (InstantiationException | IllegalAccessException e) {
-      throw new RuntimeException("Error create instance of transform data: " + this.getName(), e);
+      return dataClass.getDeclaredConstructor().newInstance();
+    } catch (RuntimeException | ReflectiveOperationException e) {
+      throw new RuntimeException("Error create instance of transform data: " + getClass().getCanonicalName(), e);
     }
+  }
+
+  protected Type[] getParameterizedTypes(Class<?> clazz) {
+    Type[] types = getGenericType(clazz);
+    if (types.length > 0 && types[0] instanceof ParameterizedType) {
+      return ((ParameterizedType) types[0]).getActualTypeArguments();
+    }
+    return null;
+  }
+
+  protected Type[] getGenericType(Class<?> clazz) {
+    do {
+      Type type = clazz.getGenericSuperclass();
+      if (type != null) {
+        if (type instanceof ParameterizedType) {
+          return new Type[] {type};
+        }
+      }
+      // If the class is not parameterized, try parent class
+      clazz = clazz.getSuperclass();
+    } while (clazz != null);
+
+    return new Type[0];
   }
 
   /*

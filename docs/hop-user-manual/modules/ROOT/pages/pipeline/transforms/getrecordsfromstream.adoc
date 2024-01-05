@@ -31,6 +31,8 @@ The records were passed to this transform using either the Copy rows to result t
 
 You can enter the metadata of the fields you are expecting from the previous pipeline in a workflow.
 
+NOTE: Deprecated use RowsFromResult instead
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
