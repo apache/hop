@@ -41,6 +41,18 @@ A workflow action can be placed several times on the canvas, however it will be 
 |JavaScript|The JavaScript field.
 |===
 
+== Examples
+```
+typeof parent_workflow.getVariable("DETAIL_ID_DATASOURCE_ID") != "undefined" && parent_workflow.getVariable("DETAIL_ID_DATASOURCE_ID").toString() == ""
+```
+
+```
+parent_workflow.getVariable("API_RETRY_COUNTER") != parent_workflow.getVariable("API_RETRY_LIMIT")
+```
+
+== Troubleshooting
+* Remove as many line returns as possible in the JavaScript.
+
 == Evaluation
 
 The result of a JavaScript action is either true or false.
