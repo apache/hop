@@ -32,7 +32,7 @@
     <name>Hop Plugins Transforms Janino</name>
 
     <properties>
-        <janino-version>3.1.2</janino-version>
+        <janino-version>3.1.11</janino-version>
     </properties>
 
     <dependencies>
