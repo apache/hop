@@ -64,9 +64,11 @@ TIP: The formula will not evaluate a field unless the field pre-exists. Either s
 
 *	Int to Text: "size=" & TEXT([RowLimitInteger],"0").
 
+*	Int to Text: "new_counter=" & TEXT([counter]+1, "0")
+
 *	DateTime to Text: [StartDateField] & "=" & TEXT([StartDateTime], "yyyy-MM-dd")
 
-*	String to Text: "new_counter=" & TEXT([counter]+1, "0")
+
 
 *DateTime  Examples:*
 
