@@ -2664,6 +2664,7 @@ public class TableView extends Composite {
       int type = ValueMetaFactory.getIdForValueMeta(row.getText(colinfo.getFieldTypeColumn()));
       switch (type) {
         case IValueMeta.TYPE_DATE:
+        case IValueMeta.TYPE_TIMESTAMP:
           return Const.getDateFormats();
         case IValueMeta.TYPE_INTEGER:
         case IValueMeta.TYPE_BIGNUMBER:
