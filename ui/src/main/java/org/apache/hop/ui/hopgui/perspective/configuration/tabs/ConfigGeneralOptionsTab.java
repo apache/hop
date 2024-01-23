@@ -83,7 +83,7 @@ public class ConfigGeneralOptionsTab {
     int middle = props.getMiddlePct();
 
     CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
-    wGeneralTab.setImage(GuiResource.getInstance().getImageHop());
+    wGeneralTab.setImage(GuiResource.getInstance().getImageOptions());
     PropsUi.setLook(wGeneralTab);
     wGeneralTab.setText(BaseMessages.getString(PKG, "EnterOptionsDialog.General.Label"));
 

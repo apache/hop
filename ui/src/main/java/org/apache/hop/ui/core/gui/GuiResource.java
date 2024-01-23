@@ -273,6 +273,8 @@ public class GuiResource {
   private Image imageDown;
   private Image imageUp;
   private Image imageLocation;
+  private Image imageOptions;
+  private Image imagePalette;
 
   private Map<String, Image> imageMap;
 
@@ -779,6 +781,8 @@ public class GuiResource {
     imageDown = loadAsResource(display, "ui/images/down.svg", ConstUi.SMALL_ICON_SIZE);
     imageUp = loadAsResource(display, "ui/images/up.svg", ConstUi.SMALL_ICON_SIZE);
     imageLocation = loadAsResource(display, "ui/images/location.svg", ConstUi.SMALL_ICON_SIZE);
+    imageOptions = loadAsResource(display, "ui/images/options.svg", ConstUi.SMALL_ICON_SIZE);
+    imagePalette = loadAsResource(display, "ui/images/palette.svg", ConstUi.SMALL_ICON_SIZE);
 
     // Svg image
     //
@@ -2012,6 +2016,14 @@ public class GuiResource {
     return imageLocation;
   }
 
+  public Image getImageOptions() {
+    return imageOptions;
+  }
+  
+  public Image getImagePalette() {
+    return imagePalette;
+  }
+  
   public Image getImageAddAll() {
     return imageAddAll;
   }
