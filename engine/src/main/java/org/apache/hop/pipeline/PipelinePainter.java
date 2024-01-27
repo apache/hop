@@ -309,13 +309,18 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         checkDrawSlowTransformIndicator(transformMeta);
       }
     }
-
-    // Draw transform status indicators (running vs. done)
+ 
+    // Display after slow transform indicator
     for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
       TransformMeta transformMeta = pipelineMeta.getTransform(i);
+      
+      // Draw transform information icon if description is available    
+      drawTransformInformationIndicator(transformMeta);
+      
+      // Draw transform status indicators (running vs. done)
       drawTransformStatusIndicator(transformMeta);
     }
-
+    
     // Draw data grid indicators (output data available)
     if (outputRowsMap != null && !outputRowsMap.isEmpty()) {
       for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
@@ -382,23 +387,29 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               // if the transform can't keep up with its input, mark it by drawing an animation
               boolean isSlow = inputRows * 0.85 > outputRows;
               if (isSlow) {
-                gc.setLineWidth(lineWidth + 1);
+//                gc.setLineWidth(lineWidth + 1);
+                if (transformMeta.isSelected()) {
+                  gc.setLineWidth(lineWidth + 2);
+                } else {
+                  gc.setLineWidth(lineWidth);
+                }
+
                 if (System.currentTimeMillis() % 2000 > 1000) {
                   gc.setForeground(EColor.BACKGROUND);
                   gc.setLineStyle(ELineStyle.SOLID);
-                  gc.drawRectangle(x + 1, y + 1, iconSize - 2, iconSize - 2);
-
+                  gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
+                  
                   gc.setForeground(EColor.DARKGRAY);
                   gc.setLineStyle(ELineStyle.DOT);
-                  gc.drawRectangle(x + 1, y + 1, iconSize - 2, iconSize - 2);
+                  gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
                 } else {
                   gc.setForeground(EColor.DARKGRAY);
-                  gc.setLineStyle(ELineStyle.SOLID);
-                  gc.drawRectangle(x + 1, y + 1, iconSize - 2, iconSize - 2);
-
+                  gc.setLineStyle(ELineStyle.SOLID);                 
+                  gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
+                  
                   gc.setForeground(EColor.BACKGROUND);
                   gc.setLineStyle(ELineStyle.DOT);
-                  gc.drawRectangle(x + 1, y + 1, iconSize - 2, iconSize - 2);
+                  gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
                 }
               }
             }
@@ -576,6 +587,35 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return fields;
   }
 
+  private void drawTransformInformationIndicator(TransformMeta transformMeta) throws HopException {
+    // Show an information icon in the upper left corner of the transform...
+    //
+    if (!Utils.isEmpty(transformMeta.getDescription())) {
+      Point pt = transformMeta.getLocation();
+      if (pt == null) {
+        pt = new Point(50, 50);
+      }
+
+      Point screen = real2screen(pt.x, pt.y);
+      int x = screen.x;
+      int y = screen.y;
+      
+      int xInfo = x - (miniIconSize / 2) - 1;
+      int yInfo = y - (miniIconSize / 2) - 1;
+      gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
+      areaOwners.add(
+          new AreaOwner(
+              AreaType.TRANSFORM_INFO_ICON,
+              xInfo,
+              yInfo,
+              miniIconSize,
+              miniIconSize,
+              offset,
+              pipelineMeta,
+              transformMeta));
+    }
+  }
+  
   private void drawTransformStatusIndicator(TransformMeta transformMeta) throws HopException {
 
     if (transformMeta == null) {
@@ -786,24 +826,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
     gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
 
-    // Show an information icon in the upper left corner of the transform...
-    //
-    if (!Utils.isEmpty(transformMeta.getDescription())) {
-      int xInfo = x - (miniIconSize / 2) - 1;
-      int yInfo = y - (miniIconSize / 2) - 1;
-      gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
-      areaOwners.add(
-          new AreaOwner(
-              AreaType.TRANSFORM_INFO_ICON,
-              xInfo,
-              yInfo,
-              miniIconSize,
-              miniIconSize,
-              offset,
-              pipelineMeta,
-              transformMeta));
-    }
-
     Point namePosition = getNamePosition(name, screen, iconSize);
     Point nameExtent = gc.textExtent(name);
 
@@ -937,9 +959,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return new Point(xpos, ypos);
   }
 
-  private void drawLine(TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean isCandidate)
+  private void drawLine(TransformMeta from, TransformMeta to, PipelineHopMeta hop, boolean isCandidate)
       throws HopException {
-    int[] line = getLine(fs, ts);
+    int[] line = getLine(from, to);
 
     EColor color;
     ELineStyle linestyle = ELineStyle.SOLID;
@@ -950,8 +972,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       color = EColor.BLUE;
       arrow = EImage.ARROW_CANDIDATE;
     } else {
-      if (hi.isEnabled()) {
-        if (fs.isSendingErrorRowsToTransform(ts)) {
+      if (hop.isEnabled()) {
+        if (from.isSendingErrorRowsToTransform(to)) {
           color = EColor.RED;
           linestyle = ELineStyle.DASH;
           arrow = EImage.ARROW_ERROR;
@@ -960,8 +982,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           arrow = EImage.ARROW_DEFAULT;
         }
 
-        ITransformIOMeta ioMeta = fs.getTransform().getTransformIOMeta();
-        IStream targetStream = ioMeta.findTargetStream(ts);
+        ITransformIOMeta ioMeta = from.getTransform().getTransformIOMeta();
+        IStream targetStream = ioMeta.findTargetStream(to);
 
         if (targetStream != null) {
           if (targetStream.getStreamIcon() == StreamIcon.TRUE) {
@@ -977,27 +999,27 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         arrow = EImage.ARROW_DISABLED;
       }
     }
-    if (hi.isSplit()) {
+    if (hop.isSplit()) {
       activeLinewidth = lineWidth + 2;
     }
 
     // Check to see if the source transform is an info transform for the target transform.
     //
-    ITransformIOMeta ioMeta = ts.getTransform().getTransformIOMeta();
+    ITransformIOMeta ioMeta = to.getTransform().getTransformIOMeta();
     List<IStream> infoStreams = ioMeta.getInfoStreams();
     if (!infoStreams.isEmpty()) {
       // Check this situation, the source transform can't run in multiple copies!
       //
       for (IStream stream : infoStreams) {
-        if (fs.getName().equalsIgnoreCase(stream.getTransformName())) {
+        if (from.getName().equalsIgnoreCase(stream.getTransformName())) {
           // This is the info transform over this hop!
           //
 
           // Only valid if both transforms are partitioned
           //
-          if (fs.isPartitioned() && ts.isPartitioned()) {
+          if (from.isPartitioned() && to.isPartitioned()) {
             //
-          } else if (fs.getCopies(variables) > 1) {
+          } else if (from.getCopies(variables) > 1) {
             // This is not a desirable situation, it will always end in error.
             // As such, it's better not to give feedback on it.
             // We do this by drawing an error icon over the hop...
@@ -1013,9 +1035,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     gc.setLineStyle(linestyle);
     gc.setLineWidth(activeLinewidth);
 
-    drawArrow(arrow, line, hi, fs, ts);
+    drawArrow(arrow, line, hop, from, to);
 
-    if (hi.isSplit()) {
+    if (hop.isSplit()) {
       gc.setLineWidth(lineWidth);
     }
 
