@@ -20,6 +20,7 @@ package org.apache.hop.ui.core.widget;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -181,39 +182,47 @@ public class StyledTextComp extends Composite {
   }
 
   private void buildingStyledTextMenu() {
-    new MenuItem(styledTextPopupmenu, SWT.SEPARATOR);
-    MenuItem cutItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
+
+    final MenuItem cutItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
     cutItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Cut")));
+    cutItem.setImage(GuiResource.getInstance().getImage("ui/images/cut.svg",
+        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     cutItem.addListener(SWT.Selection, e -> textWidget.cut());
 
-    MenuItem copyItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
+    final MenuItem copyItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
     copyItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Copy")));
+    copyItem.setImage(GuiResource.getInstance().getImage("ui/images/copy.svg",
+        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     copyItem.addListener(SWT.Selection, e -> textWidget.copy());
 
-    MenuItem pasteItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
+    final MenuItem pasteItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
     pasteItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Paste")));
+    pasteItem.setImage(GuiResource.getInstance().getImage("ui/images/paste.svg",
+        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     pasteItem.addListener(SWT.Selection, e -> textWidget.paste());
 
+    new MenuItem(styledTextPopupmenu, SWT.SEPARATOR);
+
     MenuItem selectAllItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
-    selectAllItem.setText(
-        OsHelper.customizeMenuitemText(
-            BaseMessages.getString(PKG, "WidgetDialog.Styled.SelectAll")));
+    selectAllItem.setText(OsHelper
+        .customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.SelectAll")));
+    selectAllItem.setImage(GuiResource.getInstance().getImage("ui/images/select-all.svg",
+        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     selectAllItem.addListener(SWT.Selection, e -> textWidget.selectAll());
 
-    textWidget.addMenuDetectListener(
-        e -> {
-          styledTextPopupmenu.getItem(2).setEnabled(checkPaste());
-          if (textWidget.getSelectionCount() > 0) {
-            styledTextPopupmenu.getItem(0).setEnabled(true);
-            styledTextPopupmenu.getItem(1).setEnabled(true);
-          } else {
-            styledTextPopupmenu.getItem(0).setEnabled(false);
-            styledTextPopupmenu.getItem(1).setEnabled(false);
-          }
-        });
+    textWidget.addMenuDetectListener(e -> {
+      pasteItem.setEnabled(checkPaste());
+      if (textWidget.getSelectionCount() > 0) {
+        cutItem.setEnabled(true);
+        copyItem.setEnabled(true);
+      } else {
+        cutItem.setEnabled(false);
+        copyItem.setEnabled(false);
+      }
+    });
     textWidget.setMenu(styledTextPopupmenu);
   }
 
