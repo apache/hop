@@ -25,8 +25,7 @@ under the License.
 |
 == Description
 
-The Join Rows (cartesian product) transform allows you to combine/join multiple input streams (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) without joining on keys. It works best with one row from each stream. You can add a condition to only join when a condition is met. If you want to join input streams using a key, see the "Join rows" transform.
-
+The Join Rows (cartesian product) transform allows you to combine/join multiple input streams (https://en.wikipedia.org/wiki/Cartesian_product[Cartesian product^]) without joining on keys. It works best with one row from each stream. You can add a  condition to only join when a condition is met.
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
