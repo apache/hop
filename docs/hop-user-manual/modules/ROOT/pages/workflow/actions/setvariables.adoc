@@ -36,6 +36,6 @@ The Set Variables action sets variables at various scopes.
 * Valid in the current workflow
 * Valid in the parent workflow
 * Valid in the root workflow
-|Variable substitution|Whether or not to substitute variables.
+|Variable substitution|Whether or not to substitute variables. Leave unchecked only if you actually want to set a literal value like "${MyVariable}" in the Value column.
 |Variables|A list of variables to set to a certain value at a certain scope.
 |===
