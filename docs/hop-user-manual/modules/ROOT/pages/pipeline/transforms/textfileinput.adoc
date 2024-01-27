@@ -61,6 +61,7 @@ The table below provides a detailed descriptions of the features available on th
 |Regular expression|Specify the regular expression you want to use to select the files in the directory specified in the previous option.
 For example, you want to process all files that have a .txt extension.
 (See below "Selecting file using Regular Expressions")
+|Exclude Regular expression|Specify a regular expression to exclude filenames within a specified directory.
 |Selected Files|This table contains a list of selected files (or wildcard selections) along with a property specifying if file is required or not.
 If a file is required and it isn't found, an error is generated.
 Otherwise, the filename is skipped.
