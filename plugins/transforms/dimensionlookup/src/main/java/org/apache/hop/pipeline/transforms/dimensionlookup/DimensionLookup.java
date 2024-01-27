@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.INSERT;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.PUNCH_THROUGH;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.COLUMN_VALUE;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NONE;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NULL;
+import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.SYSTEM_DATE;
+
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -53,13 +60,6 @@ import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DL
 import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType;
 import org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.TechnicalKeyCreationMethod;
 
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.INSERT;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.DimensionUpdateType.PUNCH_THROUGH;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.COLUMN_VALUE;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NONE;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.NULL;
-import static org.apache.hop.pipeline.transforms.dimensionlookup.DimensionLookupMeta.StartDateAlternative.SYSTEM_DATE;
-
 /** Manages a slowly changing dimension (lookup or update) */
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> {
 
@@ -79,6 +79,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
   @Override
   public boolean processRow() throws HopException {
+
+    boolean sendToErrorRow = false;
+    String errorMessage = null;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if (r == null) { // no more input to be expected...
@@ -208,14 +211,24 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         logBasic(BaseMessages.getString(PKG, "DimensionLookup.Log.LineNumber") + getLinesRead());
       }
     } catch (HopException e) {
-      logError(
-          BaseMessages.getString(
-              PKG, "DimensionLookup.Log.TransformCanNotContinueForErrors", e.getMessage()));
-      logError(Const.getStackTracker(e));
-      setErrors(1);
-      stopAll();
-      setOutputDone(); // signal end to receiver(s)
-      return false;
+      if (getTransformMeta().isDoingErrorHandling()) {
+        sendToErrorRow = true;
+        errorMessage = e.toString();
+      } else {
+        logError(
+            BaseMessages.getString(
+                PKG, "DimensionLookup.Log.TransformCanNotContinueForErrors", e.getMessage()));
+        logError(Const.getStackTracker(e));
+        setErrors(1);
+        stopAll();
+        setOutputDone(); // signal end to receiver(s)
+        return false;
+      }
+
+      if (sendToErrorRow) {
+        // Simply add this row to the error row
+        putError(getInputRowMeta(), r, 1, errorMessage, null, "ISU001");
+      }
     }
 
     return true;
