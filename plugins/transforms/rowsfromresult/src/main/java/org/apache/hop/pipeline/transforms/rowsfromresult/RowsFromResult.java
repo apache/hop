@@ -26,7 +26,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-/** Reads results from a previous pipeline in a Job */
+/** Reads results from a previous pipeline in a Workflow */
 public class RowsFromResult extends BaseTransform<RowsFromResultMeta, RowsFromResultData> {
 
   private static final Class<?> PKG = RowsFromResult.class; // For Translator
