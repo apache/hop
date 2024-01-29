@@ -87,7 +87,7 @@ pipeline {
         }
         stage('Code Quality') {
             tools{
-                jdk 'jdk_11_latest'
+                jdk 'jdk_17_latest'
             }
             steps {
                 echo 'Checking Code Quality on SonarCloud'
