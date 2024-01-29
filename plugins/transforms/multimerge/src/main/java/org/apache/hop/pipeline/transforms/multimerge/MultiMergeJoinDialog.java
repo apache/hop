@@ -352,6 +352,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
                   inputFields.add(prev.getValueMeta(i).getName());
                 }
                 setComboBoxes();
+                inputFields.clear();
               }
             }
           } catch (HopException e) {
