@@ -576,6 +576,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
       text.selectAll();
       text.setFocus();
+      PropsUi.setLook(text);      
       treeEditor.setEditor(text, item);
     }
   }
