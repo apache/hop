@@ -31,8 +31,6 @@ import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -73,7 +71,6 @@ public class EnterSelectionDialog extends Dialog {
   private int selectionNr;
   private String shellText;
   private String lineText;
-  private PropsUi props;
   private String constant;
   private IVariables variables;
   private String currentValue;
@@ -109,7 +106,6 @@ public class EnterSelectionDialog extends Dialog {
     this.shellText = shellText;
     this.lineText = message;
 
-    props = PropsUi.getInstance();
     selection = null;
     viewOnly = false;
     modal = true;
@@ -173,8 +169,6 @@ public class EnterSelectionDialog extends Dialog {
     shell.setText(shellText);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
-    int margin = props.getMargin();
-
     if (quickSearch) {
       ToolBar treeTb = new ToolBar(shell, SWT.HORIZONTAL | SWT.FLAT);
       PropsUi.setLook(treeTb);
@@ -184,6 +178,8 @@ public class EnterSelectionDialog extends Dialog {
       PropsUi.setLook(searchText);
       searchText.setToolTipText(
           BaseMessages.getString(PKG, "EnterSelectionDialog.FilterString.ToolTip"));
+      searchText.setData(BaseDialog.NO_DEFAULT_HANDLER, true);
+      searchText.addListener(SWT.Modify, e -> updateFilter());
       wfilter.setControl(searchText);
       wfilter.setWidth(120);
 
@@ -194,14 +190,7 @@ public class EnterSelectionDialog extends Dialog {
       ToolItem goSearch = new ToolItem(treeTb, SWT.PUSH);
       goSearch.setImage(GuiResource.getInstance().getImageRefresh());
       goSearch.setToolTipText(BaseMessages.getString(PKG, "EnterSelectionDialog.refresh.Label"));
-
-      goSearch.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent event) {
-              updateFilter();
-            }
-          });
+      goSearch.addListener(SWT.Selection, e -> updateFilter());
 
       FormData fd = new FormData();
       fd.right = new FormAttachment(100);
@@ -214,15 +203,7 @@ public class EnterSelectionDialog extends Dialog {
       FormData fdlFilter = new FormData();
       fdlFilter.top = new FormAttachment(0, 5);
       fdlFilter.right = new FormAttachment(treeTb, -5);
-      wlFilter.setLayoutData(fdlFilter);
-
-      searchText.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-              updateFilter();
-            }
-          });
+      wlFilter.setLayoutData(fdlFilter);      
 
       // From transform line
       wlSelection = new Label(shell, SWT.NONE);
@@ -292,7 +273,7 @@ public class EnterSelectionDialog extends Dialog {
       buttons.add(wCancel);
     }
 
-    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), PropsUi.getMargin(), null);
 
     Control nextControl = wOk;
 
@@ -317,14 +298,7 @@ public class EnterSelectionDialog extends Dialog {
       fdUseConstant.left = new FormAttachment(0, 0);
       fdUseConstant.bottom = new FormAttachment(wConstantValue, -5);
       wbUseConstant.setLayoutData(fdUseConstant);
-      wbUseConstant.addSelectionListener(
-          new SelectionAdapter() {
-            @Override
-            public void widgetSelected(SelectionEvent selectionEvent) {
-              super.widgetSelected(selectionEvent);
-              setActive();
-            }
-          });
+      wbUseConstant.addListener(SWT.Selection, e -> setActive());
 
       setActive();
     }
@@ -440,7 +414,7 @@ public class EnterSelectionDialog extends Dialog {
   }
 
   public void dispose() {
-    props.setScreen(new WindowProperty(shell));
+    PropsUi.getInstance().setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 
