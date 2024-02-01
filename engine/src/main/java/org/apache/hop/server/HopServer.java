@@ -89,6 +89,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -798,7 +799,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   // Method is defined as package-protected in order to be accessible by unit tests
   String getResponseBodyAsString(InputStream is) throws IOException {
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is));
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
     StringBuilder bodyBuffer = new StringBuilder();
     String line;
 
