@@ -206,7 +206,7 @@ public class ValueDataUtil {
     if (dataA == null) {
       return null;
     }
-    return WordUtils.capitalize(dataA.toString(), new char[] {' ', '_', ',', ':', ';', '-'});
+    return WordUtils.capitalizeFully(dataA.toString(), new char[] {' ', '_', ',', ':', ';', '-'});
   }
 
   public static String upperCase(IValueMeta metaA, Object dataA) {
