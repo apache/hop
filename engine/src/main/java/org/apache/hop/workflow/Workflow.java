@@ -655,6 +655,9 @@ public abstract class Workflow extends Variables
       newResult = cloneJei.execute(prevResult, nr);
       log.snap(Metrics.METRIC_ACTION_STOP, cloneJei.toString());
 
+      // Action execution duration
+      newResult.setElapsedTimeMillis(System.currentTimeMillis()-start);
+
       if (interactive) {
         getActiveActions().remove(actionMeta);
       }
