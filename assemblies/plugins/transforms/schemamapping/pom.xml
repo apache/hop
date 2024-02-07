@@ -14,33 +14,31 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
+  ~
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <artifactId>hop-assemblies-plugins</artifactId>
-    <groupId>org.apache.hop</groupId>
-    <version>2.9.0-SNAPSHOT</version>
-  </parent>
-  <packaging>pom</packaging>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins-transforms</artifactId>
+        <version>2.8.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>hop-assemblies-plugins-misc</artifactId>
 
-  <name>Hop Assemblies Plugins Miscellaneous</name>
-  <description />
+    <artifactId>hop-assemblies-plugins-transforms-schemamapping</artifactId>
+    <version>2.8.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
 
-  <modules>
-    <module>async</module>
-    <module>debug</module>
-    <module>git</module>
-    <module>import</module>
-    <module>passwords</module>
-    <module>projects</module>
-    <module>reflection</module>
-    <module>static-schema</module>
-    <module>testing</module>
-  </modules>
+    <name>Hop Assemblies Plugins Transforms Schema Mapping</name>
+    <description />
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-schemamapping</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 </project>
