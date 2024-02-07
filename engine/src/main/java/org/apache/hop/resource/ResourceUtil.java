@@ -31,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -163,7 +164,7 @@ public class ResourceUtil {
         ZipEntry jsonEntry = new ZipEntry("metadata.json");
         jsonEntry.setComment("Export of the client metadata");
         out.putNextEntry(jsonEntry);
-        out.write(new SerializableMetadataProvider(metadataProvider).toJson().getBytes("UTF-8"));
+        out.write(new SerializableMetadataProvider(metadataProvider).toJson().getBytes(StandardCharsets.UTF_8));
         out.closeEntry();
 
         String zipURL = fileObject.getName().toString();

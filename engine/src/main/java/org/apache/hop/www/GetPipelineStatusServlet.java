@@ -45,6 +45,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Date;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "pipelineStatus", name = "Get the status of a pipeline")
 public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -210,9 +211,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               "<META http-equiv=\"Refresh\" content=\"10;url="
                   + convertContextPath(CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "\">");
         }
         out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
@@ -298,9 +299,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&xml=y\">"
                   + "<img src=\""
                   + prefix
@@ -314,9 +315,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&xml=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsXml")
                   + "</a>");
@@ -337,9 +338,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&json=y\">"
                   + "<img src=\""
                   + prefix
@@ -353,9 +354,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&json=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsJson")
                   + "</a>");
@@ -413,16 +414,16 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
                     " <a href=\""
                         + convertContextPath(SniffTransformServlet.CONTEXT_PATH)
                         + "?pipeline="
-                        + URLEncoder.encode(pipelineName, "UTF-8")
+                        + URLEncoder.encode(pipelineName, UTF_8)
                         + "&id="
-                        + URLEncoder.encode(id, "UTF-8")
+                        + URLEncoder.encode(id, UTF_8)
                         + "&lines=50"
                         + "&copynr="
                         + component.getCopyNr()
                         + "&type="
                         + SniffTransformServlet.TYPE_OUTPUT
                         + "&transform="
-                        + URLEncoder.encode(component.getName(), "UTF-8")
+                        + URLEncoder.encode(component.getName(), UTF_8)
                         + "\">"
                         + Encode.forHtml(transformStatus.getTransformName())
                         + "</a>";
@@ -523,9 +524,9 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
                     + "src=\""
                     + convertContextPath(GetPipelineImageServlet.CONTEXT_PATH)
                     + "?name="
-                    + URLEncoder.encode(pipelineName, "UTF-8")
+                    + URLEncoder.encode(pipelineName, UTF_8)
                     + "&id="
-                    + URLEncoder.encode(id, "UTF-8")
+                    + URLEncoder.encode(id, UTF_8)
                     + "\" frameborder=\"0\"></iframe>");
             ;
             out.print("</div>");

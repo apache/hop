@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.List;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "sniffTransform", name = "Sniff test a pipeline transform")
 public class SniffTransformServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -209,9 +210,9 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
               "<META http-equiv=\"Refresh\" content=\"10;url="
                   + convertContextPath(CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "\">");
           out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
           out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");          

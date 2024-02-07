@@ -42,6 +42,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -338,7 +339,7 @@ public class PluginRegistry {
     URL[] urls = new URL[jarFiles.size()];
     for (int i = 0; i < jarFiles.size(); i++) {
       File jarFile = new File(jarFiles.get(i));
-      urls[i] = new URL(URLDecoder.decode(jarFile.toURI().toURL().toString(), "UTF-8"));
+      urls[i] = new URL(URLDecoder.decode(jarFile.toURI().toURL().toString(), StandardCharsets.UTF_8));
     }
     ClassLoader classLoader = getClass().getClassLoader();
     String[] patterns = parentClassloaderPatternMap.get(plugin);
@@ -360,7 +361,7 @@ public class PluginRegistry {
 
     for (String jarFile : plugin.getLibraries()) {
       File jarfile = new File(jarFile);
-      ucl.addURL(new URL(URLDecoder.decode(jarfile.toURI().toURL().toString(), "UTF-8")));
+      ucl.addURL(new URL(URLDecoder.decode(jarfile.toURI().toURL().toString(), StandardCharsets.UTF_8)));
     }
   }
 

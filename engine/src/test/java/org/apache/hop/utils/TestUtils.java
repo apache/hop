@@ -27,6 +27,7 @@ import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import static org.junit.Assert.assertTrue;
@@ -59,7 +60,7 @@ public class TestUtils {
   public static File getInputFile(String prefix, String suffix) throws IOException {
     File inputFile = File.createTempFile(prefix, suffix);
     inputFile.deleteOnExit();
-    FileUtils.writeStringToFile(inputFile, UUID.randomUUID().toString(), "UTF-8");
+    FileUtils.writeStringToFile(inputFile, UUID.randomUUID().toString(), StandardCharsets.UTF_8);
     return inputFile;
   }
 

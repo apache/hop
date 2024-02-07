@@ -89,7 +89,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -98,6 +97,8 @@ import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopMetadata(
     key = "server",
@@ -621,7 +622,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
               + "&"
               + RegisterPackageServlet.PARAMETER_LOAD
               + "="
-              + URLEncoder.encode(load, "UTF-8");
+              + URLEncoder.encode(load, UTF_8);
     }
 
     String urlString = constructUrl(variables, serviceUrl);
@@ -799,7 +800,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   // Method is defined as package-protected in order to be accessible by unit tests
   String getResponseBodyAsString(InputStream is) throws IOException {
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(is, UTF_8));
     StringBuilder bodyBuffer = new StringBuilder();
     String line;
 
@@ -918,7 +919,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     String query =
         GetPipelineStatusServlet.CONTEXT_PATH
             + "/?name="
-            + URLEncoder.encode(pipelineName, "UTF-8")
+            + URLEncoder.encode(pipelineName, UTF_8)
             + "&id="
             + Const.NVL(serverObjectId, "")
             + "&xml=Y&from="
@@ -938,7 +939,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             GetWorkflowStatusServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(workflowName, "UTF-8")
+                + URLEncoder.encode(workflowName, UTF_8)
                 + "&id="
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y&from="
@@ -954,7 +955,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             StopPipelineServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(pipelineName, "UTF-8")
+                + URLEncoder.encode(pipelineName, UTF_8)
                 + "&id="
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y");
@@ -968,7 +969,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             PausePipelineServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(pipelineName, "UTF-8")
+                + URLEncoder.encode(pipelineName, UTF_8)
                 + "&id="
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y");
@@ -982,7 +983,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             RemovePipelineServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(pipelineName, "UTF-8")
+                + URLEncoder.encode(pipelineName, UTF_8)
                 + "&id="
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y");
@@ -996,7 +997,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             RemoveWorkflowServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(workflowName, "UTF-8")
+                + URLEncoder.encode(workflowName, UTF_8)
                 + "&id="
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y");
@@ -1010,7 +1011,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             StopWorkflowServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(pipelineName, "UTF-8")
+                + URLEncoder.encode(pipelineName, UTF_8)
                 + "&xml=Y&id="
                 + Const.NVL(serverObjectId, ""));
     return WebResult.fromXmlString(xml);
@@ -1023,7 +1024,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             StartPipelineServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(pipelineName, "UTF-8")
+                + URLEncoder.encode(pipelineName, UTF_8)
                 + "&id="
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y");
@@ -1037,7 +1038,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             variables,
             StartWorkflowServlet.CONTEXT_PATH
                 + "/?name="
-                + URLEncoder.encode(workflowName, "UTF-8")
+                + URLEncoder.encode(workflowName, UTF_8)
                 + "&xml=Y&id="
                 + Const.NVL(serverObjectId, ""));
     return WebResult.fromXmlString(xml);
@@ -1114,11 +1115,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         variables,
         SniffTransformServlet.CONTEXT_PATH
             + "/?pipeline="
-            + URLEncoder.encode(pipelineName, "UTF-8")
+            + URLEncoder.encode(pipelineName, UTF_8)
             + "&id="
-            + URLEncoder.encode(id, "UTF-8")
+            + URLEncoder.encode(id, UTF_8)
             + "&transform="
-            + URLEncoder.encode(transformName, "UTF-8")
+            + URLEncoder.encode(transformName, UTF_8)
             + "&copynr="
             + copyNr
             + "&type="

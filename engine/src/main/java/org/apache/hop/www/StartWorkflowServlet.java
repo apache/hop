@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.UUID;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "startWorkflow", name = "Start a workflow")
 public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -88,7 +89,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
           "<META http-equiv=\"Refresh\" content=\"2;url="
               + convertContextPath(GetStatusServlet.CONTEXT_PATH)
               + "?name="
-              + URLEncoder.encode(workflowName, "UTF-8")
+              + URLEncoder.encode(workflowName, UTF_8)
               + "\">");
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
       out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");      
@@ -170,9 +171,9 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
               "<a href=\""
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "\">"
                   + BaseMessages.getString(PKG, "WorkflowStatusServlet.BackToWorkflowStatusPage")
                   + "</a><p>");
