@@ -1385,6 +1385,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
       text.selectAll();
       text.setFocus();
+      PropsUi.setLook(text);      
       wBrowserEditor.setEditor(text, item);
     }
   }
