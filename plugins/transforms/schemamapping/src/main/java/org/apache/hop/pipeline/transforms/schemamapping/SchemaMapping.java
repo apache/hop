@@ -17,9 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.schemamapping;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -30,6 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappingData> {
 
   private static final Class<?> PKG = SchemaMapping.class; // For Translator
+
   public SchemaMapping(
       TransformMeta transformMeta,
       SchemaMappingMeta meta,
@@ -49,12 +53,13 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
       setOutputDone();
       return false;
     }
-    
+
     if (first) {
       first = false;
       data.inputRowMeta = getInputRowMeta();
       data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, variables, metadataProvider );
+      meta.getFields(
+          data.outputRowMeta, getTransformName(), null, null, variables, metadataProvider);
 
       data.fieldnrs = new int[meta.getMappingFieldset().size()];
       for (int i = 0; i < data.fieldnrs.length; i++) {
@@ -62,22 +67,58 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
         data.fieldnrs[i] = data.inputRowMeta.indexOfValue(f.getFieldStream());
         if (data.fieldnrs[i] < 0) {
           logError(
-                  BaseMessages.getString(
-                          PKG, "SchemaMapping.Log.CouldNotFindField", f.getFieldStream()));
+              BaseMessages.getString(
+                  PKG, "SchemaMapping.Log.CouldNotFindField", f.getFieldStream()));
           setErrors(1);
           stopAll();
           return false;
         }
-      }
 
+        IValueMeta sourceValueMeta = data.inputRowMeta.getValueMeta(data.fieldnrs[i]);
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(i);
+        alterSourceMetadata(sourceValueMeta, targetValueMeta);
+      }
     } // end if first
 
     // Create a new output row
     Object[] outputData = new Object[data.fieldnrs.length];
+
+    applySchemaToIncomingStream(outputData, r);
+
+    putRow(data.outputRowMeta, outputData);
+    if (log.isRowLevel()) {
+      logRowlevel(
+          BaseMessages.getString(PKG, "SchemaMapping.Log.WroteRowToNextTransform")
+              + data.outputRowMeta.getString(outputData));
+    }
+
+    // Allowed to continue to read in data
+    return true;
+  }
+
+  private void alterSourceMetadata(IValueMeta sourceValueMeta, IValueMeta targetValueMeta) {
+    if (!Utils.isEmpty(targetValueMeta.getConversionMask())) {
+      sourceValueMeta.setConversionMask(targetValueMeta.getConversionMask());
+    }
+    if (!Utils.isEmpty(targetValueMeta.getDecimalSymbol())) {
+      sourceValueMeta.setDecimalSymbol(targetValueMeta.getDecimalSymbol());
+    }
+    if (!Utils.isEmpty(targetValueMeta.getGroupingSymbol())) {
+      sourceValueMeta.setGroupingSymbol(targetValueMeta.getGroupingSymbol());
+    }
+    if (!Utils.isEmpty(targetValueMeta.getCurrencySymbol())) {
+      sourceValueMeta.setCurrencySymbol(targetValueMeta.getCurrencySymbol());
+    }
+  }
+
+  private void applySchemaToIncomingStream(Object[] outputData, Object[] r)
+      throws HopValueException {
     int outputIndex = 0;
 
     // Get the field values
     //
+    int schemaFieldIdx = 0;
+
     for (int idx : data.fieldnrs) {
       // Normally this can't happen, except when streams are mixed with different
       // number of fields.
@@ -85,32 +126,18 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
       if (idx < data.inputRowMeta.size()) {
         IValueMeta valueMeta = data.inputRowMeta.getValueMeta(idx);
 
-        // TODO: Clone might be a 'bit' expensive as it is only needed in case you want to copy a
-        // single field to 2 or
-        // more target fields.
-        // And even then it is only required for the last n-1 target fields.
-        // Perhaps we can consider the requirements for cloning at init(), store it in a boolean[]
-        // and just consider
-        // this at runtime
-        //
-        outputData[outputIndex++] = valueMeta.cloneValueData(r[idx]);
+        // Convert incoming data according to the specified schema
+        IValueMeta targetRowMeta = data.outputRowMeta.getValueMeta(schemaFieldIdx);
+        outputData[outputIndex++] = targetRowMeta.convertData(valueMeta, r[idx]);
       } else {
         if (log.isDetailed()) {
           logDetailed(
-                  BaseMessages.getString(PKG, "SchemaMapping.Log.MixingStreamWithDifferentFields"));
+              BaseMessages.getString(PKG, "SchemaMapping.Log.MixingStreamWithDifferentFields"));
         }
       }
-    }
 
-    putRow(data.outputRowMeta, outputData);
-    if (log.isRowLevel()) {
-      logRowlevel(
-              BaseMessages.getString(PKG, "SelectValues.Log.WroteRowToNextTransform")
-                      + data.outputRowMeta.getString(outputData));
+      schemaFieldIdx++;
     }
-
-    // Allowed to continue to read in data
-    return true;
   }
 
   @Override
