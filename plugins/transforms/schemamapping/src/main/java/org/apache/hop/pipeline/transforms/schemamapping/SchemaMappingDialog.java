@@ -159,10 +159,9 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-    wCancel.addListener(SWT.Selection, e -> cancel());
+
 
     buildMappingTable(lsMod, margin);
 
@@ -512,6 +511,7 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     }
   }
   private void getInfo() {
+
     input.setSchemaName(wSchemaDefinition.getText());
     int nrRows = wMappingFields.nrNonEmpty();
     input.getMappingFieldset().clear();
@@ -522,5 +522,7 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
               new SchemaMappingField(Const.NVL(item.getText(1), ""), Const.NVL(item.getText(2), ""));
       input.getMappingFieldset().add(sf);
     }
+
+    transformName = wTransformName.getText();
   }
 }
