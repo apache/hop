@@ -1234,7 +1234,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           // First call, set to filter path plus saveFilename
           //
           if (StringUtils.isNotEmpty(filterPath)) {
-            wFilename.setText(filterPath + "/" + saveFilename);
+            wFilename.setText(filterPath + Const.FILE_SEPARATOR + saveFilename);
           }
         }
 
