@@ -139,6 +139,7 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
           break;
       }
     }
+
     // digits only or remove digits ?
     if (!Utils.isEmpty(rcode)) {
       switch (digits) {

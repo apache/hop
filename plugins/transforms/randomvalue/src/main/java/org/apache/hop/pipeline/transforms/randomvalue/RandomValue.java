@@ -152,13 +152,6 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
         first = false;
         data.outputRowMeta = getInputRowMeta().clone();
         meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-
-        if (StringUtils.isEmpty(meta.getSeed())) {
-          data.randomGenerator = new Random();
-        } else {
-          long seed = Const.toLong(resolve(meta.getSeed()), 0);
-          data.randomGenerator = new Random(seed);
-        }
       }
     } else {
       row = new Object[] {}; // empty row
@@ -205,12 +198,18 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     if (previous != null && !previous.isEmpty()) {
       data.readsRows = true;
     }
+    boolean random = false;
     boolean genHmacMD5 = false;
     boolean genHmacSHA1 = false;
     boolean uuid4 = false;
 
     for (RandomValueMeta.RVField field : meta.getFields()) {
       switch (field.getType()) {
+        case NUMBER:
+        case INTEGER:
+        case STRING:
+          random = true;
+          break;
         case HMAC_MD5:
           genHmacMD5 = true;
           break;
@@ -222,6 +221,14 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           break;
         default:
           break;
+      }
+    }
+    if (random) {
+      if (StringUtils.isEmpty(meta.getSeed())) {
+        data.randomGenerator = new Random();
+      } else {
+        long seed = Const.toLong(resolve(meta.getSeed()), 0);
+        data.randomGenerator = new Random(seed);
       }
     }
     if (genHmacMD5) {
