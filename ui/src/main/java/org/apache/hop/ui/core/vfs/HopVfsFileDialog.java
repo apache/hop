@@ -264,7 +264,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   @Override
   public String open() {
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.addShellListener(
