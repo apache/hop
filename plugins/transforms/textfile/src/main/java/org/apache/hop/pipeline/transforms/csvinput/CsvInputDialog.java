@@ -44,6 +44,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -51,10 +52,7 @@ import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -65,21 +63,12 @@ import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDia
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -122,6 +111,9 @@ public class CsvInputDialog extends BaseTransformDialog
 
   private AtomicBoolean previewBusy;
 
+  private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+
+
   public CsvInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
@@ -142,6 +134,14 @@ public class CsvInputDialog extends BaseTransformDialog
     ModifyListener lsContent = arg0 -> {};
     initializing = true;
     previewBusy = new AtomicBoolean(false);
+
+    SelectionListener lsSelection =
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                inputMeta.setChanged();
+              }
+            };
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -497,6 +497,32 @@ public class CsvInputDialog extends BaseTransformDialog
             busy.dispose();
           }
         });
+
+    // Add schema definition line
+    wSchemaDefinition =
+            new MetaSelectionLine<>(
+                    variables,
+                    metadataProvider,
+                    SchemaDefinition.class,
+                    shell,
+                    SWT.NONE,
+                    BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Label"),
+                    BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Tooltip"));
+
+    PropsUi.setLook(wSchemaDefinition);
+    FormData fdSchemaDefinition = new FormData();
+    fdSchemaDefinition.left = new FormAttachment(0, 0);
+    fdSchemaDefinition.top = new FormAttachment(wEncoding, margin);
+    fdSchemaDefinition.right = new FormAttachment(100, 0);
+    wSchemaDefinition.setLayoutData(fdSchemaDefinition);
+
+    try {
+      wSchemaDefinition.fillItems();
+    } catch (Exception e) {
+      log.logError("Error getting schema definition items", e);
+    }
+
+    wSchemaDefinition.addSelectionListener(lsSelection);
 
     // Some buttons first, so that the dialog scales nicely...
     //

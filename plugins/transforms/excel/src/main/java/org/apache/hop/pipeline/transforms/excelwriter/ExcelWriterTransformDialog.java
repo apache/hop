@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -37,11 +38,7 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.PasswordTextVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.apache.poi.ss.usermodel.BuiltinFormats;
@@ -50,11 +47,7 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -167,6 +160,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private Button wLeaveExistingStylesUnchanged;
 
   private boolean gotPreviousFields = false;
+
+  private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
 
   private static final String LABEL_FORMATXLSX = "ExcelWriterDialog.FormatXLSX.Label";
   private static final String LABEL_FORMATXLS = "ExcelWriterDialog.FormatXLS.Label";
@@ -1202,6 +1197,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     // / END OF CONTENT GROUP
 
+
     Group writeToExistingGroup = new Group(wContentComp, SWT.SHADOW_NONE);
     PropsUi.setLook(writeToExistingGroup);
     writeToExistingGroup.setText(
@@ -1328,13 +1324,21 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fieldLayout.marginWidth = 3;
     fieldLayout.marginHeight = 3;
 
-    Composite wFieldComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wFieldComp);
-    wFieldComp.setLayout(fieldLayout);
+    SelectionListener lsSelection =
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                input.setChanged();
+              }
+            };
 
-    Group fieldGroup = new Group(wFieldComp, SWT.SHADOW_NONE);
+    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wFieldsComp);
+    wFieldsComp.setLayout(fieldLayout);
+
+    Group fieldGroup = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(fieldGroup);
-    fieldGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.fieldGroup.Label"));
+    fieldGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.ManualSchemaDefinition.Label"));
 
     FormLayout fieldGroupGroupLayout = new FormLayout();
     fieldGroupGroupLayout.marginWidth = 10;
@@ -1363,6 +1367,31 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
         nonReservedFormats.add(format);
       }
     }
+
+    wSchemaDefinition =
+            new MetaSelectionLine<>(
+                    variables,
+                    metadataProvider,
+                    SchemaDefinition.class,
+                    wFieldsComp,
+                    SWT.NONE,
+                    BaseMessages.getString(PKG, "ExcelWriterDialog.SchemaDefinition.Label"),
+                    BaseMessages.getString(PKG, "ExcelWriterDialog.SchemaDefinition.Tooltip"));
+
+    PropsUi.setLook(wSchemaDefinition);
+    FormData fdSchemaDefinition = new FormData();
+    fdSchemaDefinition.left = new FormAttachment(0, 0);
+    fdSchemaDefinition.top = new FormAttachment(0, margin);
+    fdSchemaDefinition.right = new FormAttachment(100, 0);
+    wSchemaDefinition.setLayoutData(fdSchemaDefinition);
+
+    try {
+      wSchemaDefinition.fillItems();
+    } catch (Exception e) {
+      log.logError("Error getting schema definition items", e);
+    }
+
+    wSchemaDefinition.addSelectionListener(lsSelection);
 
     Collections.sort(nonReservedFormats);
     String[] formats = nonReservedFormats.toArray(new String[0]);
@@ -1454,7 +1483,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     FormData fdFieldGroup = new FormData();
     fdFieldGroup.left = new FormAttachment(0, margin);
-    fdFieldGroup.top = new FormAttachment(writeToExistingGroup, margin);
+    fdFieldGroup.top = new FormAttachment(wSchemaDefinition, margin);
     fdFieldGroup.bottom = new FormAttachment(100, 0);
     fdFieldGroup.right = new FormAttachment(100, -margin);
     fieldGroup.setLayoutData(fdFieldGroup);
@@ -1464,10 +1493,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdFieldComp.top = new FormAttachment(0, 0);
     fdFieldComp.right = new FormAttachment(100, 0);
     fdFieldComp.bottom = new FormAttachment(100, 0);
-    wFieldComp.setLayoutData(fdFieldComp);
+    wFieldsComp.setLayoutData(fdFieldComp);
 
-    wFieldComp.layout();
-    wFieldTab.setControl(wFieldComp);
+    wFieldsComp.layout();
+    wFieldTab.setControl(wFieldsComp);
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);

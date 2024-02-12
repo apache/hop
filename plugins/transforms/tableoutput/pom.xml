@@ -31,4 +31,12 @@
 
     <name>Hop Plugins Transforms Table Output</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-static-schema</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

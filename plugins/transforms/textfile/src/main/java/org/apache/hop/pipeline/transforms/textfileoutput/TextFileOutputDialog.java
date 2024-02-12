@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -39,33 +40,20 @@ import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -153,6 +141,8 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
   protected Label wlCreateParentFolder;
   protected Button wCreateParentFolder;
+
+  private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
 
   private ColumnInfo[] colinf;
 
@@ -1017,6 +1007,15 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
     // Fields tab...
     //
+
+    SelectionListener lsSelection =
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                input.setChanged();
+              }
+            };
+
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.FieldsTab.TabTitle"));
@@ -1029,11 +1028,45 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFieldsComp.setLayout(fieldsLayout);
     PropsUi.setLook(wFieldsComp);
 
-    wGet = new Button(wFieldsComp, SWT.PUSH);
+    wSchemaDefinition =
+            new MetaSelectionLine<>(
+                    variables,
+                    metadataProvider,
+                    SchemaDefinition.class,
+                    wFieldsComp,
+                    SWT.NONE,
+                    BaseMessages.getString(PKG, "TextFileOutputDialog.SchemaDefinition.Label"),
+                    BaseMessages.getString(PKG, "TextFileOutputDialog.SchemaDefinition.Tooltip"));
+
+    PropsUi.setLook(wSchemaDefinition);
+    FormData fdSchemaDefinition = new FormData();
+    fdSchemaDefinition.left = new FormAttachment(0, 0);
+    fdSchemaDefinition.top = new FormAttachment(0, margin);
+    fdSchemaDefinition.right = new FormAttachment(100, 0);
+    wSchemaDefinition.setLayoutData(fdSchemaDefinition);
+
+    try {
+      wSchemaDefinition.fillItems();
+    } catch (Exception e) {
+      log.logError("Error getting schema definition items", e);
+    }
+
+    wSchemaDefinition.addSelectionListener(lsSelection);
+
+    Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wManualSchemaDefinition);
+    wManualSchemaDefinition.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.ManualSchemaDefinition.Label"));
+
+    FormLayout manualSchemaDefinitionLayout = new FormLayout();
+    manualSchemaDefinitionLayout.marginWidth = 10;
+    manualSchemaDefinitionLayout.marginHeight = 10;
+    wManualSchemaDefinition.setLayout(manualSchemaDefinitionLayout);
+
+    wGet = new Button(wManualSchemaDefinition, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "System.Button.GetFields"));
     wGet.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.GetFields"));
 
-    Button wMinWidth = new Button(wFieldsComp, SWT.PUSH);
+    Button wMinWidth = new Button(wManualSchemaDefinition, SWT.PUSH);
     wMinWidth.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Button"));
     wMinWidth.setToolTipText(BaseMessages.getString(PKG, "TextFileOutputDialog.MinWidth.Tooltip"));
     wMinWidth.addSelectionListener(
@@ -1105,7 +1138,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFields =
         new TableView(
             variables,
-            wFieldsComp,
+                wManualSchemaDefinition,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -1140,6 +1173,13 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
           }
         };
     new Thread(runnable).start();
+
+    FormData fdManualSchemaDefinitionComp = new FormData();
+    fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
+    fdManualSchemaDefinitionComp.top = new FormAttachment(wSchemaDefinition, 0);
+    fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
+    fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
+    wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
 
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
