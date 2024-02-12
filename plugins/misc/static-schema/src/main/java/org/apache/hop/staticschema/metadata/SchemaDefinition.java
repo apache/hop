@@ -34,8 +34,8 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 @HopMetadata(
     key = "schema-definition",
-    name = "Schema Definition",
-    description = "Describes the layout associated to a static schema to be used in transforms that support the schema definition metadata for format definition",
+    name = "i18n::SchemaDefinition.Name",
+    description = "i18n::SchemaDefinition.Description",
     image = "ui/images/folder.svg",
     documentationUrl = "/metadata-types/staticschema.html")
 public class SchemaDefinition extends HopMetadataBase implements Serializable, IHopMetadata {

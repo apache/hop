@@ -26,6 +26,7 @@ import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.search.ISearchable;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -755,7 +756,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                     ConstUi.SMALL_ICON_SIZE);
 
         TreeItem classItem = new TreeItem(tree, SWT.NONE);
-        classItem.setText(0, Const.NVL(annotation.name(), ""));
+        classItem.setText(0, Const.NVL(TranslateUtil.translate(annotation.name(), metadataClass), ""));
         classItem.setImage(image);
         classItem.setExpanded(true);
         classItem.setData(annotation.key());
