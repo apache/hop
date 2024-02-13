@@ -379,8 +379,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTree(Composite parent) {
-    PropsUi props = PropsUi.getInstance();
-
     // Create composite
     //
     Composite composite = new Composite(parent, SWT.BORDER);
@@ -507,20 +505,23 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
     try {
       TreeItemFolder tif = (TreeItemFolder) item.getData();
       if (tif != null && tif.fileType != null) {
-
+        FileObject fileObject = HopVfs.getFileObject(tif.path);
+        
+        String header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
+        String message = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+        if ( fileObject.isFolder() ) {
+          header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header");
+          message = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message");
+        }
+        
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
-        box.setText(
-            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header"));
-        box.setMessage(
-            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message")
-                + Const.CR
-                + Const.CR
-                + tif.path);
+        box.setText(header);
+        box.setMessage(message + Const.CR + Const.CR + tif.path);
+        
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
-          FileObject fileObject = HopVfs.getFileObject(tif.path);
-          boolean deleted = fileObject.delete();
-          if (deleted) {
+          int deleted = fileObject.deleteAll();
+          if (deleted>0) {
             refresh();
           }
         }
@@ -582,8 +583,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
   }
 
   protected void createTabFolder(Composite parent) {
-    PropsUi props = PropsUi.getInstance();
-
     tabFolder = new CTabFolder(parent, SWT.MULTI | SWT.BORDER);
     tabFolder.addCTabFolder2Listener(
         new CTabFolder2Adapter() {
@@ -708,7 +707,6 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           }
         });
 
-    PropsUi props = PropsUi.getInstance();
     // Create composite for editor and buttons
     //
     Composite composite = new Composite(tabFolder, SWT.NONE);
