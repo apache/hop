@@ -26,6 +26,7 @@ import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -470,7 +471,7 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
       JarCache jarCache = JarCache.getInstance();
 
       String parentFolderName =
-          new File(URLDecoder.decode(jarFileUrl.getFile(), "UTF-8")).getParent();
+          new File(URLDecoder.decode(jarFileUrl.getFile(), StandardCharsets.UTF_8)).getParent();
 
       File libFolder = new File(parentFolderName + Const.FILE_SEPARATOR + "lib");
       if (libFolder.exists()) {

@@ -26,6 +26,7 @@ import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class ConfigurableStreamLoggerTest {
 
@@ -41,7 +42,7 @@ public class ConfigurableStreamLoggerTest {
   @Before
   public void init() throws Exception {
     log = Mockito.mock(LogChannel.class);
-    is = new ByteArrayInputStream(INPUT.getBytes("UTF-8"));
+    is = new ByteArrayInputStream(INPUT.getBytes(StandardCharsets.UTF_8));
   }
 
   @Test

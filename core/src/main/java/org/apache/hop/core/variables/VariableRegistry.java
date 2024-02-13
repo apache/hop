@@ -36,6 +36,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -129,7 +130,7 @@ public class VariableRegistry {
       JarCache jarCache = JarCache.getInstance();
 
       String parentFolderName =
-          new File(URLDecoder.decode(jarFileUrl.getFile(), "UTF-8")).getParent();
+          new File(URLDecoder.decode(jarFileUrl.getFile(), StandardCharsets.UTF_8)).getParent();
 
       File libFolder = new File(parentFolderName + Const.FILE_SEPARATOR + "lib");
       if (libFolder.exists()) {

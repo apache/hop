@@ -83,6 +83,7 @@ import org.apache.hop.www.WebResult;
 import org.w3c.dom.Node;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -378,7 +379,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
               this,
               PrepareExecutionPipelineServlet.CONTEXT_PATH
                   + "/?name="
-                  + URLEncoder.encode(pipelineMeta.getName(), "UTF-8")
+                  + URLEncoder.encode(pipelineMeta.getName(), StandardCharsets.UTF_8)
                   + "&xml=Y&id="
                   + containerId);
       WebResult webResult = WebResult.fromXmlString(reply);
@@ -452,7 +453,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
               this,
               StartExecutionPipelineServlet.CONTEXT_PATH
                   + "/?name="
-                  + URLEncoder.encode(subject.getName(), "UTF-8")
+                  + URLEncoder.encode(subject.getName(), StandardCharsets.UTF_8)
                   + "&xml=Y&id="
                   + containerId);
       WebResult webResult = WebResult.fromXmlString(reply);

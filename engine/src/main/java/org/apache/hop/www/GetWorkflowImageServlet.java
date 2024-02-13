@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 @HopServerServlet(id = "workflowImage", name = "Generate a PNG image of a workflow")
 public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -96,7 +97,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
             WorkflowSvgPainter.generateWorkflowSvg(workflow.getWorkflowMeta(), 1.0f, variables);
         svgStream = new ByteArrayOutputStream();
         try {
-          svgStream.write(svgXml.getBytes("UTF-8"));
+          svgStream.write(svgXml.getBytes(StandardCharsets.UTF_8));
         } finally {
           svgStream.flush();
         }

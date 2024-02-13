@@ -41,6 +41,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "workflowStatus", name = "Get the status of a workflow")
 public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -197,9 +198,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               "<META http-equiv=\"Refresh\" content=\"10;url="
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(Const.NVL(workflowName, ""), "UTF-8")
+                  + URLEncoder.encode(Const.NVL(workflowName, ""), UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "\">");
         }
         out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
@@ -284,9 +285,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&xml=y\">"
                   + "<img src=\""
                   + prefix
@@ -300,9 +301,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&xml=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsXml")
                   + "</a>");
@@ -323,9 +324,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&json=y\">"
                   + "<img src=\""
                   + prefix
@@ -339,9 +340,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               "<a target=\"_blank\" href=\""
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(workflowName, "UTF-8")
+                  + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "&json=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsJson")
                   + "</a>");
@@ -367,9 +368,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                     + "px\" src=\""
                     + convertContextPath(GetWorkflowImageServlet.CONTEXT_PATH)
                     + "?name="
-                    + URLEncoder.encode(workflowName, "UTF-8")
+                    + URLEncoder.encode(workflowName, UTF_8)
                     + "&id="
-                    + URLEncoder.encode(id, "UTF-8")
+                    + URLEncoder.encode(id, UTF_8)
                     + "\"></iframe>");
             out.print("</div>");
           }

@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.UUID;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "startPipeline", name = "Prepare and start the execution of a pipeline")
 public class StartPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -91,7 +92,7 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
           "<META http-equiv=\"Refresh\" content=\"2;url="
               + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
               + "?name="
-              + URLEncoder.encode(pipelineName, "UTF-8")
+              + URLEncoder.encode(pipelineName, UTF_8)
               + "\">");
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
       out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");      
@@ -146,9 +147,9 @@ public class StartPipelineServlet extends BaseHttpServlet implements IHopServerP
               "<a href=\""
                   + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                   + "?name="
-                  + URLEncoder.encode(pipelineName, "UTF-8")
+                  + URLEncoder.encode(pipelineName, UTF_8)
                   + "&id="
-                  + URLEncoder.encode(id, "UTF-8")
+                  + URLEncoder.encode(id, UTF_8)
                   + "\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
                   + "</a><p>");

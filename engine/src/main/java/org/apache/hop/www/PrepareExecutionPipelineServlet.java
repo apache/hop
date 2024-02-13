@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "prepareExec", name = "Prepare the execution of a pipeline")
 public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -88,7 +89,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
           "<META http-equiv=\"Refresh\" content=\"2;url="
               + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
               + "?name="
-              + URLEncoder.encode(pipelineName, "UTF-8")
+              + URLEncoder.encode(pipelineName, UTF_8)
               + "\">");
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
       out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");      
@@ -145,9 +146,9 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
                 "<a href=\""
                     + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                     + "?name="
-                    + URLEncoder.encode(pipelineName, "UTF-8")
+                    + URLEncoder.encode(pipelineName, UTF_8)
                     + "&id="
-                    + URLEncoder.encode(id, "UTF-8")
+                    + URLEncoder.encode(id, UTF_8)
                     + "\">"
                     + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToPipelineStatusPage")
                     + "</a><p>");
@@ -187,7 +188,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
                 "<a href=\""
                     + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                     + "?name="
-                    + URLEncoder.encode(pipelineName, "UTF-8")
+                    + URLEncoder.encode(pipelineName, UTF_8)
                     + "&id="
                     + id
                     + "\">"
