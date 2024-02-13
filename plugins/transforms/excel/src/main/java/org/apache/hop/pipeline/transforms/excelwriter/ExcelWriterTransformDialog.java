@@ -20,9 +20,12 @@ package org.apache.hop.pipeline.transforms.excelwriter;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -31,6 +34,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -1328,6 +1332,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
             new SelectionAdapter() {
               @Override
               public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
                 input.setChanged();
               }
             };
@@ -1621,6 +1626,52 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     return transformName;
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+
+                    item.setText(1, valueMeta.getName());
+                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
   private void activeFileNameField() {
     wlFileNameField.setEnabled(wFileNameInField.getSelection());
     wFileNameField.setEnabled(wFileNameInField.getSelection());
@@ -1708,6 +1759,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       wFileNameField.setText(file.getFileNameField());
     }
 
+    wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
     wStreamData.setSelection(file.isStreamingData());
     wSplitEvery.setText("" + file.getSplitEvery());
     wEmptyRows.setText("" + input.getAppendEmpty());
@@ -1853,6 +1905,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     ExcelWriterFileField file = tfoi.getFile();
     ExcelWriterTemplateField template = tfoi.getTemplate();
 
+    tfoi.setSchemaDefinition(wSchemaDefinition.getText());
     file.setFileName(wFilename.getText());
     file.setCreateParentFolder(wCreateParentFolder.getSelection());
     file.setStreamingData(wStreamData.getSelection());

@@ -228,6 +228,10 @@ public class TextFileInputMeta
   @Injection(name = "ERROR_LINES_SKIPPED")
   public boolean errorLineSkipped;
 
+  /** Reference to schema definition. If any */
+  @Injection(name = "SCHEMA_DEFINITION")
+  public String schemaDefinition;
+
   /** The transform to accept filenames from */
   private TransformMeta acceptingTransform;
 
@@ -235,6 +239,14 @@ public class TextFileInputMeta
     additionalOutputFields = new BaseFileInputAdditionalField();
     inputFiles = new BaseFileInputFiles();
     inputFields = new BaseFileField[0];
+  }
+
+  public String getSchemaDefinition() {
+    return schemaDefinition;
+  }
+
+  public void setSchemaDefinition(String schemaDefinition) {
+    this.schemaDefinition = schemaDefinition;
   }
 
   /** @return Returns the fileName. */
@@ -415,6 +427,7 @@ public class TextFileInputMeta
       errorCountField = XmlHandler.getTagValue(transformNode, "error_count_field");
       errorFieldsField = XmlHandler.getTagValue(transformNode, "error_fields_field");
       errorTextField = XmlHandler.getTagValue(transformNode, "error_text_field");
+      schemaDefinition = XmlHandler.getTagValue(transformNode, "schema_definition");
       errorHandling.warningFilesDestinationDirectory =
           XmlHandler.getTagValue(transformNode, "bad_line_files_destination_directory");
       errorHandling.warningFilesExtension =
@@ -842,6 +855,7 @@ public class TextFileInputMeta
     retval.append("    ").append(XmlHandler.addTagValue("error_count_field", errorCountField));
     retval.append("    ").append(XmlHandler.addTagValue("error_fields_field", errorFieldsField));
     retval.append("    ").append(XmlHandler.addTagValue("error_text_field", errorTextField));
+    retval.append("    ").append(XmlHandler.addTagValue("schema_definition", schemaDefinition));
 
     retval
         .append("    ")

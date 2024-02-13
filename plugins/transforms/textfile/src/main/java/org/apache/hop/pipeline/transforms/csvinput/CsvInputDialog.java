@@ -17,16 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -45,11 +53,13 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.*;
@@ -69,13 +79,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CsvInputDialog extends BaseTransformDialog
     implements ITransformDialog,
@@ -139,6 +142,7 @@ public class CsvInputDialog extends BaseTransformDialog
             new SelectionAdapter() {
               @Override
               public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
                 inputMeta.setChanged();
               }
             };
@@ -663,6 +667,65 @@ public class CsvInputDialog extends BaseTransformDialog
     return transformName;
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    final TableItem item = getTableItem(valueMeta.getName(), true);
+                    int colnr = 1;
+                    item.setText(colnr++, valueMeta.getName());
+                    item.setText(colnr++, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(colnr++, Const.NVL(valueMeta.getConversionMask(), ""));
+                    item.setText(
+                        colnr++,
+                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                    item.setText(
+                        colnr++,
+                        valueMeta.getPrecision() >= 0
+                            ? Integer.toString(valueMeta.getPrecision())
+                            : "");
+                    item.setText(colnr++, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                    item.setText(colnr++, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                    item.setText(colnr++, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                    item.setText(colnr++, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
   protected void setFlags() {
     // In case there are newlines in fields, we can't load data in parallel
     //
@@ -738,6 +801,7 @@ public class CsvInputDialog extends BaseTransformDialog
     wRowNumField.setText(Const.NVL(inputMeta.getRowNumField(), ""));
     wAddResult.setSelection(inputMeta.isAddResultFile());
     wEncoding.setText(Const.NVL(inputMeta.getEncoding(), ""));
+    wSchemaDefinition.setText(Const.NVL(inputMeta.getSchemaDefinition(), ""));
 
     final List<String> fieldName =
         newFieldNames == null
@@ -797,6 +861,7 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setRunningInParallel(wRunningInParallel.getSelection());
     inputMeta.setNewlinePossibleInFields(wNewlinePossible.getSelection());
     inputMeta.setEncoding(wEncoding.getText());
+    inputMeta.setSchemaDefinition(wSchemaDefinition.getText());
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
     inputMeta.allocate(nrNonEmptyFields);

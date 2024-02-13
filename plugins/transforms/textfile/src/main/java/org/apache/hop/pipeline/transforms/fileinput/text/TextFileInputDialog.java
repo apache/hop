@@ -1930,6 +1930,7 @@ public class TextFileInputDialog extends BaseTransformDialog
             new SelectionAdapter() {
               @Override
               public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
                 input.setChanged();
               }
             };
@@ -2102,6 +2103,64 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFieldsTab.setControl(wFieldsComp);
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "TextFileInputDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    final TableItem item = getTableItem(valueMeta.getName(), true);
+                    item.setText(1, valueMeta.getName());
+                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
+                    item.setText(
+                            5,
+                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                    item.setText(
+                            6,
+                            valueMeta.getPrecision() >= 0
+                                    ? Integer.toString(valueMeta.getPrecision())
+                                    : "");
+                    item.setText(7, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                    item.setText(8, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                    item.setText(9, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                    item.setText(12, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
   public void setFlags() {
     boolean accept = wAccFilenames.getSelection();
     wlPassThruFields.setEnabled(accept);
@@ -2208,6 +2267,8 @@ public class TextFileInputDialog extends BaseTransformDialog
     if (meta.getAcceptingTransform() != null) {
       wAccTransform.setText(meta.getAcceptingTransform().getName());
     }
+
+    wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
 
     if (meta.getFileName() != null) {
       wFilenameList.removeAll();
@@ -2555,6 +2616,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     meta.allocate(nrfiles, nrFields, nrfilters);
 
     meta.setFileName(wFilenameList.getItems(0));
+    meta.setSchemaDefinition(wSchemaDefinition.getText());
     meta.inputFiles.fileMask = wFilenameList.getItems(1);
     meta.inputFiles.excludeFileMask = wFilenameList.getItems(2);
     meta.inputFiles_fileRequired(wFilenameList.getItems(3));

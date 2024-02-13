@@ -107,6 +107,12 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
       injectionKeyDescription = "The cell-range starts with a header-row?")
   private boolean startsWithHeader;
 
+  @HopMetadataProperty(
+          key = "schema_definition",
+          injectionKeyDescription = "The fields schema definition")
+  private String schemaDefinition;
+
+
   /** Stop reading when you hit an empty row. */
   @HopMetadataProperty(
       key = "stoponempty",
@@ -299,6 +305,7 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
     this.fileField = m.fileField;
     this.sheetField = m.sheetField;
     this.startsWithHeader = m.startsWithHeader;
+    this.schemaDefinition = m.schemaDefinition;
     this.stopOnEmpty = m.stopOnEmpty;
     this.ignoreEmptyRows = m.ignoreEmptyRows;
     this.rowNumberField = m.rowNumberField;
@@ -1416,6 +1423,14 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
    */
   public void setSizeFieldName(String sizeFieldName) {
     this.sizeFieldName = sizeFieldName;
+  }
+
+  public String getSchemaDefinition() {
+    return schemaDefinition;
+  }
+
+  public void setSchemaDefinition(String schemaDefinition) {
+    this.schemaDefinition = schemaDefinition;
   }
 
   /**

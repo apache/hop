@@ -21,6 +21,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -33,6 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -1012,6 +1015,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
             new SelectionAdapter() {
               @Override
               public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
                 input.setChanged();
               }
             };
@@ -1243,6 +1247,64 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     return transformName;
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "TextFileOutputDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+
+                    item.setText(1, valueMeta.getName());
+                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
+                    item.setText(
+                            4,
+                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                    item.setText(
+                            5,
+                            valueMeta.getPrecision() >= 0
+                                    ? Integer.toString(valueMeta.getPrecision())
+                                    : "");
+                    item.setText(6, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                    item.setText(7, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                    item.setText(8, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                    item.setText(9, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
   protected String getDialogTitle() {
     return BaseMessages.getString(PKG, "TextFileOutputDialog.DialogTitle");
   }
@@ -1395,6 +1457,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
       wFilename.setText(input.getFileName());
     }
     wServletOutput.setSelection(input.isServletOutput());
+    wSchemaDefinition.setText(Const.NVL(input.getSchemaDefinition(), ""));
     setFlagsServletOption();
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
     wCreateParentFolder.setSelection(input.isCreateParentFolder());
@@ -1498,6 +1561,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
   protected void saveInfoInMeta(TextFileOutputMeta tfoi) {
     tfoi.setFileName(wFilename.getText());
+    tfoi.setSchemaDefinition(wSchemaDefinition.getText());
     tfoi.setServletOutput(wServletOutput.getSelection());
     tfoi.setCreateParentFolder(wCreateParentFolder.getSelection());
     tfoi.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());

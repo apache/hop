@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
@@ -848,6 +849,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             new SelectionAdapter() {
               @Override
               public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
                 input.setChanged();
               }
             };
@@ -1106,6 +1108,65 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     return transformName;
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+
+                    item.setText(1, valueMeta.getName());
+                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(
+                            3,
+                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                    item.setText(
+                            4,
+                            valueMeta.getPrecision() >= 0
+                                    ? Integer.toString(valueMeta.getPrecision())
+                                    : "");
+                    item.setText(5, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+                    item.setText(7, Const.NVL(valueMeta.getConversionMask(), ""));
+                    item.setText(8, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                    item.setText(9, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                    item.setText(10, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
+
   public void setFlags() {
     wbGetFields.setEnabled(wHeader.getSelection());
 
@@ -1176,7 +1237,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFilenameList.optimizeTableView();
 
     wAccFilenames.setSelection(meta.isAcceptingFilenames());
-
+    wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
     if (meta.getAcceptingField() != null && !meta.getAcceptingField().equals("")) {
       wAccField.select(wAccField.indexOf(meta.getAcceptingField()));
     }
@@ -1296,6 +1357,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // copy info to Meta class (input)
     meta.setRowLimit(Const.toLong(wLimit.getText(), 0));
     meta.setEncoding(wEncoding.getText());
+    meta.setSchemaDefinition(wSchemaDefinition.getText());
     meta.setSpreadSheetType(SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()]);
     meta.setFileField(wInclFilenameField.getText());
     meta.setSheetField(wInclSheetNameField.getText());

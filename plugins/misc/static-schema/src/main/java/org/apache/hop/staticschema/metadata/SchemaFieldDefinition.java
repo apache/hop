@@ -62,8 +62,10 @@ public class SchemaFieldDefinition implements Serializable {
         || valueMeta.getType() == IValueMeta.TYPE_INTEGER
         || valueMeta.getType() == IValueMeta.TYPE_DATE
         || valueMeta.getType() == IValueMeta.TYPE_BIGNUMBER
-        || valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP)
+        || valueMeta.getType() == IValueMeta.TYPE_TIMESTAMP) {
+
       valueMeta.setConversionMask(formatMask);
+    }
 
     if (valueMeta.getType() == IValueMeta.TYPE_NUMBER
         || valueMeta.getType() == IValueMeta.TYPE_BIGNUMBER) {
@@ -72,6 +74,7 @@ public class SchemaFieldDefinition implements Serializable {
       valueMeta.setCurrencySymbol(currencySymbol);
     }
 
+    valueMeta.setTrimType(trimType);
     valueMeta.setComments(comment);
 
     return valueMeta;
