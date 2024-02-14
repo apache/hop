@@ -49,7 +49,7 @@ When you read other file types like OpenOffice ODS and using special functions l
 [options="header"]
 |===
 |Option|Description
-|transform Name|Name of the transform; the name has to be unique in a single transform.
+|Transform Name|Name of the transform; the name has to be unique in a single transform.
 |Spread sheet type (engine) a|This field allows you to specify the spreadsheet type.
 Currently the following are supported:
 
@@ -108,8 +108,9 @@ The name of that file is <errorline dir>/filename.<date_time>.<errorline extensi
 
 === Fields tab
 
-The fields tab is for specifying the fields that must be read from the Excel files.
-Use Get fields from header row to fill in the available fields if the sheets have a header row automatically.
+The fields tab is for specifying the fields that must be read from the Excel files. You can choose to use a xref:metadata-types/schema-file-definition.adoc[Schema Definition] or to define the required fields' layout manually.
+
+Use _Get fields from header_ row to fill in the available fields if the sheets have a header row automatically.
 
 The Type column performs type conversions for a given field.
 For example, if you want to read a date and you have a String value in the Excel file, specify the conversion mask.
@@ -117,6 +118,7 @@ Note: In the case of Number to Date conversion (for example, 20051028--> October
 
 |===
 |Option|Description
+|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we want to reference.
 |Name|The name of the field.
 |Type|The field's data type; String, Date or Number.
 |Length|The length option depends on the field type.

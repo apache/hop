@@ -25,7 +25,7 @@ under the License.
 |
 == Description
 
-The CSV File Input transform reads data from a delimited file.
+The CSV File Input transform reads data from a delimited file. You can choose to use a xref:metadata-types/schema-file-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
 The CSV label for this transform is a misnomer because you can define whatever separator you want to use, such as pipes, tabs, and semicolons; you are not constrained to using commas.
 Internal processing allows this transform to process data quickly.
@@ -76,6 +76,7 @@ When reading multiple files, the total size of all files is taken into considera
 In that specific case, make sure that ALL transform copies receive all files that need to be read, otherwise, the parallel algorithm will not work correctly (for obvious reasons).
 WARNING: For technical reasons, parallel reading of CSV files is only supported on files that don't have fields with line breaks or carriage returns in them.
 |File Encoding|Specify the encoding of the file being read.
+|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we want to reference.
 |Fields Table|This table contains an ordered list of fields to be read from the target file.
 |Preview button|Click to preview the data coming from the target file.
 |Get Fields button|Click to return a list of fields from the target file based on the current settings (i.e. Delimiter, Enclosure, etc.).

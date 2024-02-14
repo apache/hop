@@ -1,0 +1,54 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The Schema Mapping transform maps fields from and incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition.
+
+= image:transforms/icons/schemamapping.svg[Schema Mapping transform Icon, role="image-doc-icon"] Schema Mapping
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The Schema Mapping transform maps fields from and incoming stream over a specified Schema Definition. The result of this transform is an output stream that conforms to the mapped Schema Definition
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+Schema mapping is a useful mapping transform to precede transforms like xref:pipeline/transforms/textfileoutput.adoc[Text File Output] or xref:pipeline/transforms/excelwriter.adoc[Excel Writer] when we decide to refer to a xref:metadata-types/schema-file-definition.adoc[Schema Definition] to map the output layout of the file. By preceding these transforms with the Schema Mapping, the incoming stream will be already setup according to the expected output layout definition.
+
+== Options
+
+[options="header"]
+|===
+|Option|Description
+|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we are going to map to the incoming stream.
+|Schema Fields|The set of schema fields that are mapped to stream fields.
+|Stream Fields name|The set of stream fields that are mapped to schema fields.
+|===
+
+* Use _Get fields_ button to fill in the available fields from the incoming stream.
+* Use the _Mapping_ button to show a Mapping Dialog that will support the mapping process between the stream's fields and the schema fields.

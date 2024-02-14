@@ -1,0 +1,60 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:imagesdir: ../../assets/images/
+:page-pagination:
+:description: A Schema File Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout that can be reused around multiple pipelines by making the things easier by nit requiring the user to redefine if multiple times.
+
+= Schema Definition
+
+== Description
+
+image:icons/folder.svg[]
+
+A Schema Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout, that can be reused in multiple pipelines. This simplify the development by making the things easier because it saves the user to redefine the same set of fields and its associated attributes multiple times in multiple pipelines.
+
+
+== Related Plugins
+
+Transforms:
+
+* xref:pipeline/transforms/textfileinput.adoc[Text File Input]
+* xref:pipeline/transforms/textfileoutput.adoc[Text File Output]
+* xref:pipeline/transforms/csvinput.adoc[CSV Input]
+* xref:pipeline/transforms/excelinput.adoc[Excel Input]
+* xref:pipeline/transforms/excelwriter.adoc[Excel Writer]
+
+== Options
+
+[options="header"]
+|===
+|Option |Description
+|Name|The name to be used for this Beam file definition
+|Description|The description to be used for this Beam file definition
+|Field Separator|separator used between fields in the file definition
+|Enclosure|field enclosure used for fields in the file definition
+|Field Definitions|List of field's attributes that describes the file layout for this field definition.
+|===
+
+////
+== Samples
+
+* beam/pipelines/complex.hpl
+* beam/pipelines/generate-synthetic-data.hpl
+* beam/pipelines/input-process-output.hpl
+* beam/pipelines/switch-case.hpl
+* beam/pipelines/unbounded-synthetic-data.hpl
+////

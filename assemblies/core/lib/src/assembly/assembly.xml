@@ -30,4 +30,12 @@
             <outputDirectory>.</outputDirectory>
         </fileSet>
     </fileSets>
+    <dependencySets>
+        <dependencySet>
+            <useProjectArtifact>false</useProjectArtifact>
+            <includes>
+                <include>org.apache.hop:hop-plugins-static-schema:jar</include>
+            </includes>
+        </dependencySet>
+    </dependencySets>
 </assembly>

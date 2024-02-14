@@ -184,12 +184,14 @@ If you specify a value below zero (0) here, the filter string is searched for in
 
 === Fields Tab
 
-The fields tab allows you to specify the information about the name and format of the fields being read from the text file.
+The fields tab allows you to specify the information about the name and format of the fields being read from the text file. You can choose to use a xref:metadata-types/schema-file-definition.adoc[Schema Definition] or to define the required fields' layout manually.
+
 Available options include:
 
 [options="header"]
 |===
 |Option|Description
+|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we want to reference.
 |Name|Name of the field
 |Type|Type of the field can be either String, Date or Number
 |Format|See Number Formats for a complete description of format symbols.
