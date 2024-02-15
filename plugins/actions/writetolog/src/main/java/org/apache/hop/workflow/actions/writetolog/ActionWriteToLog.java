@@ -56,6 +56,7 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
   public ActionWriteToLog(String n) {
     super(n, "");
+    actionLogLevel = LogLevel.BASIC;
     logMessage = null;
     logSubject = null;
   }
