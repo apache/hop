@@ -41,6 +41,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
@@ -50,7 +51,6 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -162,32 +162,30 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-
     buildMappingTable(lsMod, margin);
-
 
     //
     // Search the fields in the background
     //
 
     final Runnable runnable =
-            () -> {
-              TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-              if (transformMeta != null) {
-                try {
-                  IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+        () -> {
+          TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+          if (transformMeta != null) {
+            try {
+              IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-                  // Remember these fields...
-                  for (int i = 0; i < row.size(); i++) {
-                    inputFields.add(row.getValueMeta(i).getName());
-                  }
-
-                  setComboBoxes();
-                } catch (HopException e) {
-                  logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-                }
+              // Remember these fields...
+              for (int i = 0; i < row.size(); i++) {
+                inputFields.add(row.getValueMeta(i).getName());
               }
-            };
+
+              setComboBoxes();
+            } catch (HopException e) {
+              logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+            }
+          }
+        };
     new Thread(runnable).start();
 
     setSchemaFieldCombo();
@@ -202,7 +200,6 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
 
     return transformName;
   }
-
 
   private void buildMappingTable(ModifyListener lsMod, int margin) {
 
@@ -278,14 +275,14 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
       if (r != null && !r.isEmpty()) {
         BaseTransformDialog.getFieldsFromPrevious(
-                r, wMappingFields, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
+            r, wMappingFields, 1, new int[] {1, 2}, new int[] {}, -1, -1, null);
       }
     } catch (HopException ke) {
       new ErrorDialog(
-              shell,
-              BaseMessages.getString(PKG, "SchemaMappingDialog.FailedToGetFields.DialogTitle"),
-              BaseMessages.getString(PKG, "SchemaMappingDialog.FailedToGetFields.DialogMessage"),
-              ke);
+          shell,
+          BaseMessages.getString(PKG, "SchemaMappingDialog.FailedToGetFields.DialogTitle"),
+          BaseMessages.getString(PKG, "SchemaMappingDialog.FailedToGetFields.DialogMessage"),
+          ke);
     }
   }
 
@@ -350,132 +347,143 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
       sourceFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
     } catch (HopException e) {
       new ErrorDialog(
-              shell,
-              BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.UnableToFindSourceFields.Title"),
-              BaseMessages.getString(
-                      PKG, "SchemaMappingDialog.DoMapping.UnableToFindSourceFields.Message"),
-              e);
+          shell,
+          BaseMessages.getString(
+              PKG, "SchemaMappingDialog.DoMapping.UnableToFindSourceFields.Title"),
+          BaseMessages.getString(
+              PKG, "SchemaMappingDialog.DoMapping.UnableToFindSourceFields.Message"),
+          e);
       return;
     }
 
     String schemaName = variables.resolve(wSchemaDefinition.getText());
-    try {
-      SchemaDefinition schemaDefinition =
-              (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+    if (!Utils.isEmpty(schemaName)) {
+      try {
+        SchemaDefinition schemaDefinition =
+            (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
         targetFields = schemaDefinition.getRowMeta();
-    } catch (HopException e) {
-      new ErrorDialog(
-              shell,
-              BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.UnableToFindSchemaFields.Title"),
-              BaseMessages.getString(
-                      PKG, "SchemaMappingDialog.DoMapping.UnableToFindSchemaFields.Message"),
-              e);
-      return;
-    }
-
-    String[] inputNames = new String[sourceFields.size()];
-    for (int i = 0; i < sourceFields.size(); i++) {
-      IValueMeta value = sourceFields.getValueMeta(i);
-      inputNames[i] = value.getName();
-    }
-
-    // Create the existing mapping list...
-    //
-    List<SourceToTargetMapping> mappings = new ArrayList<>();
-    StringBuilder missingSourceFields = new StringBuilder();
-    StringBuilder missingTargetFields = new StringBuilder();
-
-    int nrFields = wMappingFields.nrNonEmpty();
-    for (int i = 0; i < nrFields; i++) {
-      TableItem item = wMappingFields.getNonEmpty(i);
-      String source = item.getText(2);
-      String target = item.getText(1);
-
-      int sourceIndex = sourceFields.indexOfValue(source);
-      if (sourceIndex < 0) {
-        missingSourceFields
-                .append(Const.CR)
-                .append("   ")
-                .append(source)
-                .append(" --> ")
-                .append(target);
-      }
-      int targetIndex = targetFields.indexOfValue(target);
-      if (targetIndex < 0) {
-        missingTargetFields
-                .append(Const.CR)
-                .append("   ")
-                .append(source)
-                .append(" --> ")
-                .append(target);
-      }
-      if (sourceIndex < 0 || targetIndex < 0) {
-        continue;
-      }
-
-      SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
-      mappings.add(mapping);
-    }
-
-    // show a confirm dialog if some missing field was found
-    //
-    if (missingSourceFields.length() > 0 || missingTargetFields.length() > 0) {
-
-      String message = "";
-      if (missingSourceFields.length() > 0) {
-        message +=
-                BaseMessages.getString(
-                        PKG,
-                        "SchemaMappingDialog.DoMapping.SomeSourceFieldsNotFound",
-                        missingSourceFields.toString())
-                        + Const.CR;
-      }
-      if (missingTargetFields.length() > 0) {
-        message +=
-                BaseMessages.getString(
-                        PKG,
-                        "SchemaMappingDialog.DoMapping.SomeTargetFieldsNotFound",
-                        missingSourceFields.toString())
-                        + Const.CR;
-      }
-      message += Const.CR;
-      message +=
-              BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SomeFieldsNotFoundContinue")
-                      + Const.CR;
-      int answer =
-              BaseDialog.openMessageBox(
-                      shell,
-                      BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SomeFieldsNotFoundTitle"),
-                      message,
-                      SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-      boolean goOn = (answer & SWT.YES) != 0;
-      if (!goOn) {
+      } catch (HopException e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(
+                PKG, "SchemaMappingDialog.DoMapping.UnableToFindSchemaFields.Title"),
+            BaseMessages.getString(
+                PKG, "SchemaMappingDialog.DoMapping.UnableToFindSchemaFields.Message"),
+            e);
         return;
       }
-    }
-    EnterMappingDialog d =
-            new EnterMappingDialog(
-                    SchemaMappingDialog.this.shell,
-                    sourceFields.getFieldNames(),
-                    targetFields.getFieldNames(),
-                    mappings);
-    mappings = d.open();
 
-    // mappings == null if the user pressed cancel
-    //
-    if (mappings != null) {
-      // Clear and re-populate!
-      //
-      wMappingFields.table.removeAll();
-      wMappingFields.table.setItemCount(mappings.size());
-      for (int i = 0; i < mappings.size(); i++) {
-        SourceToTargetMapping mapping = mappings.get(i);
-        TableItem item = wMappingFields.table.getItem(i);
-        item.setText(2, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
-        item.setText(1, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
+      String[] inputNames = new String[sourceFields.size()];
+      for (int i = 0; i < sourceFields.size(); i++) {
+        IValueMeta value = sourceFields.getValueMeta(i);
+        inputNames[i] = value.getName();
       }
-      wMappingFields.setRowNums();
-      wMappingFields.optWidth(true);
+
+      // Create the existing mapping list...
+      //
+      List<SourceToTargetMapping> mappings = new ArrayList<>();
+      StringBuilder missingSourceFields = new StringBuilder();
+      StringBuilder missingTargetFields = new StringBuilder();
+
+      int nrFields = wMappingFields.nrNonEmpty();
+      for (int i = 0; i < nrFields; i++) {
+        TableItem item = wMappingFields.getNonEmpty(i);
+        String source = item.getText(2);
+        String target = item.getText(1);
+
+        int sourceIndex = sourceFields.indexOfValue(source);
+        if (sourceIndex < 0) {
+          missingSourceFields
+              .append(Const.CR)
+              .append("   ")
+              .append(source)
+              .append(" --> ")
+              .append(target);
+        }
+        int targetIndex = targetFields.indexOfValue(target);
+        if (targetIndex < 0) {
+          missingTargetFields
+              .append(Const.CR)
+              .append("   ")
+              .append(source)
+              .append(" --> ")
+              .append(target);
+        }
+        if (sourceIndex < 0 || targetIndex < 0) {
+          continue;
+        }
+
+        SourceToTargetMapping mapping = new SourceToTargetMapping(sourceIndex, targetIndex);
+        mappings.add(mapping);
+      }
+
+      // show a confirm dialog if some missing field was found
+      //
+      if (missingSourceFields.length() > 0 || missingTargetFields.length() > 0) {
+
+        String message = "";
+        if (missingSourceFields.length() > 0) {
+          message +=
+              BaseMessages.getString(
+                      PKG,
+                      "SchemaMappingDialog.DoMapping.SomeSourceFieldsNotFound",
+                      missingSourceFields.toString())
+                  + Const.CR;
+        }
+        if (missingTargetFields.length() > 0) {
+          message +=
+              BaseMessages.getString(
+                      PKG,
+                      "SchemaMappingDialog.DoMapping.SomeTargetFieldsNotFound",
+                      missingSourceFields.toString())
+                  + Const.CR;
+        }
+        message += Const.CR;
+        message +=
+            BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SomeFieldsNotFoundContinue")
+                + Const.CR;
+        int answer =
+            BaseDialog.openMessageBox(
+                shell,
+                BaseMessages.getString(
+                    PKG, "SchemaMappingDialog.DoMapping.SomeFieldsNotFoundTitle"),
+                message,
+                SWT.ICON_QUESTION | SWT.YES | SWT.NO);
+        boolean goOn = (answer & SWT.YES) != 0;
+        if (!goOn) {
+          return;
+        }
+      }
+      EnterMappingDialog d =
+          new EnterMappingDialog(
+              SchemaMappingDialog.this.shell,
+              sourceFields.getFieldNames(),
+              targetFields.getFieldNames(),
+              mappings);
+      mappings = d.open();
+
+      // mappings == null if the user pressed cancel
+      //
+      if (mappings != null) {
+        // Clear and re-populate!
+        //
+        wMappingFields.table.removeAll();
+        wMappingFields.table.setItemCount(mappings.size());
+        for (int i = 0; i < mappings.size(); i++) {
+          SourceToTargetMapping mapping = mappings.get(i);
+          TableItem item = wMappingFields.table.getItem(i);
+          item.setText(2, sourceFields.getValueMeta(mapping.getSourcePosition()).getName());
+          item.setText(1, targetFields.getValueMeta(mapping.getTargetPosition()).getName());
+        }
+        wMappingFields.setRowNums();
+        wMappingFields.optWidth(true);
+      }
+    } else {
+      MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SchemaNameNotProvided.Message"));
+      mb.setText(BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SchemaNameNotProvided.Title"));
+      mb.open();
     }
   }
 
@@ -496,20 +504,22 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if (!Utils.isEmpty(input.getSchemaName()))
-      wSchemaDefinition.setText(input.getSchemaName());
+    if (!Utils.isEmpty(input.getSchemaName())) wSchemaDefinition.setText(input.getSchemaName());
 
-    for (int i = 0; i < input.getMappingFieldset().size(); i++) {
-      SchemaMappingField mf = input.getMappingFieldset().get(i);
-      TableItem item = wMappingFields.table.getItem(i);
-      if (mf.getFieldSchemaDefinition() != null) {
-        item.setText(1, mf.getFieldSchemaDefinition());
-      }
-      if (mf.getFieldStream() != null) {
-        item.setText(2, mf.getFieldStream());
+    if (input.getMappingFieldset() != null) {
+      for (int i = 0; i < input.getMappingFieldset().size(); i++) {
+        SchemaMappingField mf = input.getMappingFieldset().get(i);
+        TableItem item = wMappingFields.table.getItem(i);
+        if (mf.getFieldSchemaDefinition() != null) {
+          item.setText(1, mf.getFieldSchemaDefinition());
+        }
+        if (mf.getFieldStream() != null) {
+          item.setText(2, mf.getFieldStream());
+        }
       }
     }
   }
+
   private void getInfo() {
 
     input.setSchemaName(wSchemaDefinition.getText());
@@ -519,7 +529,7 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wMappingFields.getNonEmpty(i);
       SchemaMappingField sf =
-              new SchemaMappingField(Const.NVL(item.getText(1), ""), Const.NVL(item.getText(2), ""));
+          new SchemaMappingField(Const.NVL(item.getText(1), ""), Const.NVL(item.getText(2), ""));
       input.getMappingFieldset().add(sf);
     }
 
