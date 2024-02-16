@@ -23,7 +23,9 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -49,6 +51,7 @@ import java.util.List;
  */
 public class MetadataManager<T extends IHopMetadata> {
 
+  private static final Class<?> PKG = MetadataManager.class; // For i18n
   private final Shell parentShell;
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;
@@ -456,7 +459,7 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
-      editor.setTitle("New " + this.getManagedName());
+      editor.setTitle(BaseMessages.getString(PKG, "MetadataManager.New.Label", TranslateUtil.translate(this.getManagedName(), managedClass)));
 
       MetadataPerspective.getInstance().addEditor(editor);
 

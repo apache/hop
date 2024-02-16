@@ -24,6 +24,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -81,7 +82,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     // Initialize editor
     this.setTitle(metadata.getName());
 
-    String titleToolTip = annotation.name();
+    String titleToolTip = TranslateUtil.translate(annotation.name(), managedClass);
     if (StringUtils.isNotEmpty(metadata.getMetadataProviderName())) {
       titleToolTip += Const.CR + "Source: " + metadata.getMetadataProviderName();
     }
