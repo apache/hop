@@ -984,33 +984,33 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wName.setText(Const.nullToEmpty(action.getName()));
     wZipFilename.setText(Const.nullToEmpty(action.getZipFilename()));
 
-    if (action.compressionRate >= 0) {
-      wCompressionRate.select(action.compressionRate);
+    if (action.getCompressionRate() >= 0) {
+      wCompressionRate.select(action.getCompressionRate());
     } else {
       wCompressionRate.select(1); // DEFAULT
     }
 
-    if (action.ifZipFileExists >= 0) {
-      wIfFileExists.select(action.ifZipFileExists);
+    if (action.getIfZipFileExists() >= 0) {
+      wIfFileExists.select(action.getIfZipFileExists());
     } else {
       wIfFileExists.select(2); // NOTHING
     }
 
-    wWildcard.setText(Const.NVL(action.getWildcard(), ""));
-    wWildcardExclude.setText(Const.NVL(action.getWildcardExclude(), ""));
+    wWildcard.setText(Const.NVL(action.getWildCard(), ""));
+    wWildcardExclude.setText(Const.NVL(action.getExcludeWildCard(), ""));
     wSourceDirectory.setText(Const.NVL(action.getSourceDirectory(), ""));
     wMovetoDirectory.setText(Const.NVL(action.getMoveToDirectory(), ""));
-    if (action.afterZip >= 0) {
-      wAfterZip.select(action.afterZip);
+    if (action.getAfterZip() >= 0) {
+      wAfterZip.select(action.getAfterZip());
     } else {
       wAfterZip.select(0); // NOTHING
     }
 
     wAddFileToResult.setSelection(action.isAddFileToResult());
-    wGetFromPrevious.setSelection(action.getDatafromprevious());
-    wCreateParentFolder.setSelection(action.getcreateparentfolder());
-    wAddDate.setSelection(action.isDateInFilename());
-    wAddTime.setSelection(action.isTimeInFilename());
+    wGetFromPrevious.setSelection(action.isFromPrevious());
+    wCreateParentFolder.setSelection(action.isCreateParentFolder());
+    wAddDate.setSelection(action.isAddDate());
+    wAddTime.setSelection(action.isAddTime());
 
     wDateTimeFormat.setText(Const.NVL(action.getDateTimeFormat(), ""));
     wSpecifyFormat.setSelection(action.isSpecifyFormat());
@@ -1040,22 +1040,22 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     action.setName(wName.getText());
     action.setZipFilename(wZipFilename.getText());
 
-    action.compressionRate = wCompressionRate.getSelectionIndex();
-    action.ifZipFileExists = wIfFileExists.getSelectionIndex();
+    action.setCompressionRate(wCompressionRate.getSelectionIndex());
+    action.setIfZipFileExists(wIfFileExists.getSelectionIndex());
 
-    action.setWildcard(wWildcard.getText());
-    action.setWildcardExclude(wWildcardExclude.getText());
+    action.setWildCard(wWildcard.getText());
+    action.setExcludeWildCard(wWildcardExclude.getText());
     action.setSourceDirectory(wSourceDirectory.getText());
 
     action.setMoveToDirectory(wMovetoDirectory.getText());
 
-    action.afterZip = wAfterZip.getSelectionIndex();
+    action.setAfterZip(wAfterZip.getSelectionIndex());
 
     action.setAddFileToResult(wAddFileToResult.getSelection());
-    action.setDatafromprevious(wGetFromPrevious.getSelection());
-    action.setcreateparentfolder(wCreateParentFolder.getSelection());
-    action.setDateInFilename(wAddDate.getSelection());
-    action.setTimeInFilename(wAddTime.getSelection());
+    action.setFromPrevious(wGetFromPrevious.getSelection());
+    action.setCreateParentFolder(wCreateParentFolder.getSelection());
+    action.setAddDate(wAddDate.getSelection());
+    action.setAddTime(wAddTime.getSelection());
     action.setSpecifyFormat(wSpecifyFormat.getSelection());
     action.setDateTimeFormat(wDateTimeFormat.getText());
     action.setCreateMoveToDirectory(wCreateMoveToDirectory.getSelection());

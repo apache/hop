@@ -157,6 +157,24 @@ limitations under the License.
       <yloc>48</yloc>
       <attributes_hac/>
     </action>
+    <action>
+      <name>delete txt files</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${java.io.tmpdir}/zip-action</name>
+          <filemask>.*.txt</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>1168</xloc>
+      <yloc>48</yloc>
+      <attributes_hac/>
+    </action>
   </actions>
   <hops>
     <hop>
@@ -199,6 +217,13 @@ limitations under the License.
       <to>abort</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>delete zip files</from>
+      <to>delete txt files</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>

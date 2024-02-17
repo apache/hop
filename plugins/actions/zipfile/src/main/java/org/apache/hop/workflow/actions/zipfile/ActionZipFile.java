@@ -17,6 +17,25 @@
 
 package org.apache.hop.workflow.actions.zipfile;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.DecimalFormat;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -30,13 +49,12 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
@@ -47,26 +65,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.FileDoesNotExistValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.w3c.dom.Node;
-
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.Deflater;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 /**
  * This defines a 'zip file' action. Its main use would be to zip files in a directory and process
@@ -83,23 +81,58 @@ import java.util.zip.ZipOutputStream;
 public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionZipFile.class; // For Translator
 
+  @HopMetadataProperty(key = "zipfilename")
   private String zipFilename;
-  public int compressionRate;
-  public int ifZipFileExists;
-  public int afterZip;
+
+  @HopMetadataProperty(key = "compressionrate")
+  private int compressionRate;
+
+  @HopMetadataProperty(key = "ifzipfileexists")
+  private int ifZipFileExists;
+
+  @HopMetadataProperty(key = "afterzip")
+  private int afterZip;
+
+  @HopMetadataProperty(key = "wildcard")
   private String wildCard;
+
+  @HopMetadataProperty(key = "wildcardexclude")
   private String excludeWildCard;
+
+  @HopMetadataProperty(key = "sourcedirectory")
   private String sourceDirectory;
-  private String movetoDirectory;
+
+  @HopMetadataProperty(key = "movetodirectory")
+  private String moveToDirectory;
+
+  @HopMetadataProperty(key = "addfiletoresult")
   private boolean addFileToResult;
-  private boolean isFromPrevious;
+
+  @HopMetadataProperty(key = "isfromprevious")
+  private boolean fromPrevious;
+
+  @HopMetadataProperty(key = "createparentfolder")
   private boolean createParentFolder;
+
+  @HopMetadataProperty(key = "adddate")
   private boolean addDate;
+
+  @HopMetadataProperty(key = "addtime")
   private boolean addTime;
+
+  @HopMetadataProperty(key = "SpecifyFormat")
   private boolean specifyFormat;
+
+  @HopMetadataProperty(key = "date_time_format")
   private String dateTimeFormat;
+
+  @HopMetadataProperty(key = "createMoveToDirectory")
   private boolean createMoveToDirectory;
+
+  @HopMetadataProperty(key = "include_subfolders")
   private boolean includingSubFolders;
+
+  @HopMetadataProperty(key = "stored_source_path_depth")
   private String storedSourcePathDepth;
 
   /** Default constructor. */
@@ -113,9 +146,9 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     wildCard = null;
     excludeWildCard = null;
     sourceDirectory = null;
-    movetoDirectory = null;
+    moveToDirectory = null;
     addFileToResult = false;
-    isFromPrevious = false;
+    fromPrevious = false;
     createParentFolder = false;
     addDate = false;
     addTime = false;
@@ -133,73 +166,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   public Object clone() {
     ActionZipFile je = (ActionZipFile) super.clone();
     return je;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(500);
-
-    retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("zipfilename", zipFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("compressionrate", compressionRate));
-    retval.append("      ").append(XmlHandler.addTagValue("ifzipfileexists", ifZipFileExists));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildCard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcardexclude", excludeWildCard));
-    retval.append("      ").append(XmlHandler.addTagValue("sourcedirectory", sourceDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("movetodirectory", movetoDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("afterzip", afterZip));
-    retval.append("      ").append(XmlHandler.addTagValue("addfiletoresult", addFileToResult));
-    retval.append("      ").append(XmlHandler.addTagValue("isfromprevious", isFromPrevious));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("createparentfolder", createParentFolder));
-    retval.append("      ").append(XmlHandler.addTagValue("adddate", addDate));
-    retval.append("      ").append(XmlHandler.addTagValue("addtime", addTime));
-    retval.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    retval.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("createMoveToDirectory", createMoveToDirectory));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("include_subfolders", includingSubFolders));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("stored_source_path_depth", storedSourcePathDepth));
-
-    return retval.toString();
-  }
-
-  @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      zipFilename = XmlHandler.getTagValue(entrynode, "zipfilename");
-      compressionRate = Const.toInt(XmlHandler.getTagValue(entrynode, "compressionrate"), -1);
-      ifZipFileExists = Const.toInt(XmlHandler.getTagValue(entrynode, "ifzipfileexists"), -1);
-      afterZip = Const.toInt(XmlHandler.getTagValue(entrynode, "afterzip"), -1);
-      wildCard = XmlHandler.getTagValue(entrynode, "wildcard");
-      excludeWildCard = XmlHandler.getTagValue(entrynode, "wildcardexclude");
-      sourceDirectory = XmlHandler.getTagValue(entrynode, "sourcedirectory");
-      movetoDirectory = XmlHandler.getTagValue(entrynode, "movetodirectory");
-      addFileToResult = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addfiletoresult"));
-      isFromPrevious = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "isfromprevious"));
-      createParentFolder =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createparentfolder"));
-      addDate = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "adddate"));
-      addTime = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "addtime"));
-      specifyFormat = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "SpecifyFormat"));
-      dateTimeFormat = XmlHandler.getTagValue(entrynode, "date_time_format");
-      createMoveToDirectory =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "createMoveToDirectory"));
-      includingSubFolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-      storedSourcePathDepth = XmlHandler.getTagValue(entrynode, "stored_source_path_depth");
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionZipFile.UnableLoadActionXML"), xe);
-    }
   }
 
   private boolean createParentFolder(String filename) {
@@ -251,55 +217,39 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   public boolean processRowFile(
       IWorkflowEngine<WorkflowMeta> parentWorkflow,
       Result result,
-      String realZipfilename,
-      String realWildcard,
-      String realWildcardExclude,
+      String realZipFilename,
+      String realWildCard,
+      String realExcludeWildcard,
       String realSourceDirectoryOrFile,
-      String realMovetodirectory,
-      boolean createparentfolder) {
-    boolean fileexists = false;
+      String realMoveToDirectory,
+      boolean createParentFolder)
+      throws HopException {
+    boolean fileExists = false;
     File tempFile = null;
     File fileZip;
-    boolean resultat = false;
+    boolean successResult = true;
     boolean renameOk = false;
-    boolean orginExist = false;
+    boolean orginExist;
 
     // Check if target file/folder exists!
-    FileObject originFile = null;
-    ZipInputStream zin = null;
-    byte[] buffer;
-    OutputStream dest = null;
-    BufferedOutputStream buff = null;
-    ZipOutputStream out = null;
-    ZipEntry entry;
-    String localSourceFilename = realSourceDirectoryOrFile;
+    String localSourceFilename;
 
-    try {
-      originFile = HopVfs.getFileObject(realSourceDirectoryOrFile);
+    try (FileObject originFile = HopVfs.getFileObject(realSourceDirectoryOrFile)) {
       localSourceFilename = HopVfs.getFilename(originFile);
       orginExist = originFile.exists();
     } catch (Exception e) {
-      // Ignore errors
-    } finally {
-      if (originFile != null) {
-        try {
-          originFile.close();
-        } catch (IOException ex) {
-          logError("Error closing file '" + originFile.toString() + "'", ex);
-        }
-      }
+      throw new HopException(
+          "Error finding source file or directory: " + realSourceDirectoryOrFile, e);
     }
 
-    String localrealZipfilename = realZipfilename;
-    if (realZipfilename != null && orginExist) {
+    String localrealZipfilename = realZipFilename;
+    if (realZipFilename != null && orginExist) {
 
-      FileObject fileObject = null;
-      try {
-        fileObject = HopVfs.getFileObject(localrealZipfilename);
+      try (FileObject fileObject = HopVfs.getFileObject(localrealZipfilename)) {
         localrealZipfilename = HopVfs.getFilename(fileObject);
         // Check if Zip File exists
         if (fileObject.exists()) {
-          fileexists = true;
+          fileExists = true;
           if (log.isDebug()) {
             logDebug(
                 BaseMessages.getString(PKG, "ActionZipFile.Zip_FileExists1.Label")
@@ -308,15 +258,15 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
           }
         }
         // Let's see if we need to create parent folder of destination zip filename
-        if (createparentfolder) {
+        if (createParentFolder) {
           createParentFolder(localrealZipfilename);
         }
 
         // Let's start the process now
-        if (ifZipFileExists == 3 && fileexists) {
-          // the zip file exists and user want to Fail
-          resultat = false;
-        } else if (ifZipFileExists == 2 && fileexists) {
+        if (ifZipFileExists == 3 && fileExists) {
+          // the zip file exists and user wants this to fail.
+          successResult = false;
+        } else if (ifZipFileExists == 2 && fileExists) {
           // the zip file exists and user want to do nothing
           if (addFileToResult) {
             // Add file to result files name
@@ -328,10 +278,9 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     toString());
             result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
           }
-          resultat = true;
-        } else if (afterZip == 2 && realMovetodirectory == null) {
+        } else if (afterZip == 2 && realMoveToDirectory == null) {
           // After Zip, Move files..User must give a destination Folder
-          resultat = false;
+          successResult = false;
           logError(
               BaseMessages.getString(
                   PKG, "ActionZipFile.AfterZip_No_DestinationFolder_Defined.Label"));
@@ -344,21 +293,21 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
           FileObject sourceFileOrFolder = HopVfs.getFileObject(localSourceFilename);
           boolean isSourceDirectory = sourceFileOrFolder.getType().equals(FileType.FOLDER);
           final Pattern pattern;
-          final Pattern patternExclude;
+          final Pattern excludePattern;
 
           if (isSourceDirectory) {
             // Let's prepare the pattern matcher for performance reasons.
             // We only do this if the target is a folder !
             //
-            if (!Utils.isEmpty(realWildcard)) {
-              pattern = Pattern.compile(realWildcard);
+            if (!Utils.isEmpty(realWildCard)) {
+              pattern = Pattern.compile(realWildCard);
             } else {
               pattern = null;
             }
-            if (!Utils.isEmpty(realWildcardExclude)) {
-              patternExclude = Pattern.compile(realWildcardExclude);
+            if (!Utils.isEmpty(realExcludeWildcard)) {
+              excludePattern = Pattern.compile(realExcludeWildcard);
             } else {
-              patternExclude = null;
+              excludePattern = null;
             }
 
             // Target is a directory
@@ -367,30 +316,30 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             if (includingSubFolders) {
               fileList =
                   sourceFileOrFolder.findFiles(
-                      new ZipJobEntryPatternFileSelector(pattern, patternExclude));
+                      new ZipJobEntryPatternFileSelector(pattern, excludePattern));
             } else {
               fileList = sourceFileOrFolder.getChildren();
             }
           } else {
             pattern = null;
-            patternExclude = null;
+            excludePattern = null;
 
             // Target is a file
             fileList = new FileObject[] {sourceFileOrFolder};
           }
 
           if (fileList.length == 0) {
-            resultat = false;
+            successResult = false;
             logError(
                 BaseMessages.getString(
                     PKG, "ActionZipFile.Log.FolderIsEmpty", localSourceFilename));
           } else if (!checkContainsFile(localSourceFilename, fileList, isSourceDirectory)) {
-            resultat = false;
+            successResult = false;
             logError(
                 BaseMessages.getString(
                     PKG, "ActionZipFile.Log.NoFilesInFolder", localSourceFilename));
           } else {
-            if (ifZipFileExists == 0 && fileexists) {
+            if (ifZipFileExists == 0 && fileExists) {
               // the zip file exists and user want to create new one with unique name
               // Format Date
 
@@ -408,14 +357,16 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                         + localrealZipfilename
                         + BaseMessages.getString(PKG, "ActionZipFile.Zip_FileNameChange1.Label"));
               }
-            } else if (ifZipFileExists == 1 && fileexists) {
+            } else if (ifZipFileExists == 1 && fileExists) {
               // the zip file exists and user want to append
               // get a temp file
               fileZip = getFile(localrealZipfilename);
               tempFile = File.createTempFile(fileZip.getName(), null);
 
               // delete it, otherwise we cannot rename existing zip to it.
-              tempFile.delete();
+              if (!tempFile.delete()) {
+                throw new HopException("Unable to delete temporary file " + tempFile);
+              }
 
               renameOk = fileZip.renameTo(tempFile);
 
@@ -444,238 +395,146 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                       + BaseMessages.getString(PKG, "ActionZipFile.Files_Found3.Label"));
             }
 
+            // Keep track of the files added to the zip archive.
+            //
+            List<FileObject> zippedFiles = new ArrayList<>();
+
             // Prepare Zip File
-            buffer = new byte[18024];
-            dest = HopVfs.getOutputStream(localrealZipfilename, false);
-            buff = new BufferedOutputStream(dest);
-            out = new ZipOutputStream(buff);
+            try (OutputStream dest = HopVfs.getOutputStream(localrealZipfilename, false)) {
+              try (BufferedOutputStream buff = new BufferedOutputStream(dest)) {
+                try (ZipOutputStream out = new ZipOutputStream(buff)) {
 
-            HashSet<String> fileSet = new HashSet<>();
+                  HashSet<String> fileSet = new HashSet<>();
 
-            if (renameOk) {
-              // User want to append files to existing Zip file
-              // The idea is to rename the existing zip file to a temporary file
-              // and then adds all entries in the existing zip along with the new files,
-              // excluding the zip entries that have the same name as one of the new files.
-
-              zin = new ZipInputStream(new FileInputStream(tempFile));
-              entry = zin.getNextEntry();
-
-              while (entry != null) {
-                String name = entry.getName();
-
-                if (!fileSet.contains(name)) {
-
-                  // Add ZIP entry to output stream.
-                  out.putNextEntry(new ZipEntry(name));
-                  // Transfer bytes from the ZIP file to the output file
-                  int len;
-                  while ((len = zin.read(buffer)) > 0) {
-                    out.write(buffer, 0, len);
+                  if (renameOk) {
+                    // User want to append files to existing Zip file
+                    // The idea is to rename the existing zip file to a temporary file
+                    // and then adds all entries in the existing zip along with the new files,
+                    // excluding the zip entries that have the same name as one of the new files.
+                    //
+                    moveRenameZipArchive(tempFile, fileSet, out);
                   }
 
-                  fileSet.add(name);
-                }
-                entry = zin.getNextEntry();
-              }
-              // Close the streams
-              zin.close();
-            }
-
-            // Set the method
-            out.setMethod(ZipOutputStream.DEFLATED);
-            // Set the compression level
-            if (compressionRate == 0) {
-              out.setLevel(Deflater.NO_COMPRESSION);
-            } else if (compressionRate == 1) {
-              out.setLevel(Deflater.DEFAULT_COMPRESSION);
-            }
-            if (compressionRate == 2) {
-              out.setLevel(Deflater.BEST_COMPRESSION);
-            }
-            if (compressionRate == 3) {
-              out.setLevel(Deflater.BEST_SPEED);
-            }
-            // Specify Zipped files (After that we will move,delete them...)
-            FileObject[] zippedFiles = new FileObject[fileList.length];
-            int fileNum = 0;
-
-            // Get the files in the list...
-            for (int i = 0; i < fileList.length && !parentWorkflow.isStopped(); i++) {
-              boolean getIt = true;
-              boolean getItexclude = false;
-
-              // First see if the file matches the regular expression!
-              // ..only if target is a folder !
-              if (isSourceDirectory) {
-                // If we include sub-folders, we match on the whole name, not just the basename
-                //
-                String filename;
-                if (includingSubFolders) {
-                  filename = fileList[i].getName().getPath();
-                } else {
-                  filename = fileList[i].getName().getBaseName();
-                }
-                if (pattern != null) {
-                  // Matches the base name of the file (backward compatible!)
-                  //
-                  Matcher matcher = pattern.matcher(filename);
-                  getIt = matcher.matches();
-                }
-
-                if (patternExclude != null) {
-                  Matcher matcherexclude = patternExclude.matcher(filename);
-                  getItexclude = matcherexclude.matches();
-                }
-              }
-
-              // Get processing File
-              String targetFilename = HopVfs.getFilename(fileList[i]);
-              if (sourceFileOrFolder.getType().equals(FileType.FILE)) {
-                targetFilename = localSourceFilename;
-              }
-
-              FileObject file = HopVfs.getFileObject(targetFilename);
-              boolean isTargetDirectory = file.exists() && file.getType().equals(FileType.FOLDER);
-
-              if (getIt
-                  && !getItexclude
-                  && !isTargetDirectory
-                  && !fileSet.contains(targetFilename)) {
-                // We can add the file to the Zip Archive
-                if (log.isDebug()) {
-                  logDebug(
-                      BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip1.Label")
-                          + fileList[i]
-                          + BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip2.Label")
-                          + localSourceFilename
-                          + BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip3.Label"));
-                }
-
-                // Associate a file input stream for the current file
-                InputStream in = HopVfs.getInputStream(file);
-
-                // Add ZIP entry to output stream.
-                //
-                String relativeName;
-                String fullName = fileList[i].getName().getPath();
-                String basePath = sourceFileOrFolder.getName().getPath();
-                if (isSourceDirectory) {
-                  if (fullName.startsWith(basePath)) {
-                    relativeName = fullName.substring(basePath.length() + 1);
-                  } else {
-                    relativeName = fullName;
+                  // Set the method
+                  out.setMethod(ZipOutputStream.DEFLATED);
+                  // Set the compression level
+                  if (compressionRate == 0) {
+                    out.setLevel(Deflater.NO_COMPRESSION);
+                  } else if (compressionRate == 1) {
+                    out.setLevel(Deflater.DEFAULT_COMPRESSION);
                   }
-                } else if (isFromPrevious) {
-                  int depth = determineDepth(resolve(storedSourcePathDepth));
-                  relativeName = determineZipfilenameForDepth(fullName, depth);
-                } else {
-                  relativeName = fileList[i].getName().getBaseName();
+                  if (compressionRate == 2) {
+                    out.setLevel(Deflater.BEST_COMPRESSION);
+                  }
+                  if (compressionRate == 3) {
+                    out.setLevel(Deflater.BEST_SPEED);
+                  }
+                  // Specify Zipped files (After that we will move,delete them...)
+                  int fileNum = 0;
+
+                  // Get the files in the list...
+                  for (int i = 0; i < fileList.length && !parentWorkflow.isStopped(); i++) {
+                    boolean getIt = true;
+                    boolean getItexclude = false;
+
+                    // First see if the file matches the regular expression.
+                    // Do this only if the target is a folder.
+                    //
+                    if (isSourceDirectory) {
+                      // If we include sub-folders, we match on the whole name, not just the
+                      // basename
+                      //
+                      String filename;
+                      if (includingSubFolders) {
+                        filename = fileList[i].getName().getPath();
+                      } else {
+                        filename = fileList[i].getName().getBaseName();
+                      }
+                      if (pattern != null) {
+                        // Matches the base name of the file (backward compatible!)
+                        //
+                        Matcher matcher = pattern.matcher(filename);
+                        getIt = matcher.matches();
+                      }
+
+                      if (excludePattern != null) {
+                        Matcher excludeMatcher = excludePattern.matcher(filename);
+                        getItexclude = excludeMatcher.matches();
+                      }
+                    }
+
+                    // Get processing File
+                    //
+                    String targetFilename = HopVfs.getFilename(fileList[i]);
+                    if (sourceFileOrFolder.getType().equals(FileType.FILE)) {
+                      targetFilename = localSourceFilename;
+                    }
+
+                    try (FileObject file = HopVfs.getFileObject(targetFilename)) {
+                      boolean isTargetDirectory =
+                          file.exists() && file.getType().equals(FileType.FOLDER);
+
+                      if (getIt
+                          && !getItexclude
+                          && !isTargetDirectory
+                          && !fileSet.contains(targetFilename)) {
+                        // We can add the file to the Zip Archive
+                        if (log.isDebug()) {
+                          logDebug(
+                              BaseMessages.getString(PKG, "ActionZipFile.Add_FilesToZip1.Label")
+                                  + fileList[i]
+                                  + BaseMessages.getString(
+                                      PKG, "ActionZipFile.Add_FilesToZip2.Label")
+                                  + localSourceFilename
+                                  + BaseMessages.getString(
+                                      PKG, "ActionZipFile.Add_FilesToZip3.Label"));
+                        }
+
+                        // Associate a file input stream for the current file.
+                        //
+                        addFileToZip(file, fileList, i, sourceFileOrFolder, isSourceDirectory, out);
+
+                        // Get Zipped File
+                        zippedFiles.add(fileList[i]);
+                        fileNum = fileNum + 1;
+                      }
+                    }
+                  }
                 }
-                out.putNextEntry(new ZipEntry(relativeName));
-
-                int len;
-                while ((len = in.read(buffer)) > 0) {
-                  out.write(buffer, 0, len);
-                }
-                out.flush();
-                out.closeEntry();
-                out.finish();
-
-                // Close the current file input stream
-                in.close();
-
-                // Get Zipped File
-                zippedFiles[fileNum] = fileList[i];
-                fileNum = fileNum + 1;
               }
             }
-            // Close the ZipOutPutStream
-            buff.close();
-            out.close();
-            dest.close();
 
             if (log.isBasic()) {
               logBasic(
                   BaseMessages.getString(
-                      PKG, "ActionZipFile.Log.TotalZippedFiles", "" + zippedFiles.length));
+                      PKG, "ActionZipFile.Log.TotalZippedFiles", "" + zippedFiles.size()));
             }
             // Delete Temp File
             if (tempFile != null) {
-              tempFile.delete();
+              if (!tempFile.delete()) {
+                throw new HopException("Unable to delete temporary file " + tempFile);
+              }
             }
 
             // -----Get the list of Zipped Files and Move or Delete Them
             if (afterZip == 1 || afterZip == 2) {
               // iterate through the array of Zipped files
-              for (int i = 0; i < zippedFiles.length; i++) {
-                if (zippedFiles[i] != null) {
-                  // Delete, Move File
-                  FileObject fileObjectd = zippedFiles[i];
-                  if (!isSourceDirectory) {
-                    fileObjectd = HopVfs.getFileObject(localSourceFilename);
-                  }
-
-                  // Here we can move, delete files
-                  if (afterZip == 1) {
-                    // Delete File
-                    boolean deleted = fileObjectd.delete();
-                    if (!deleted) {
-                      resultat = false;
-                      logError(
-                          BaseMessages.getString(PKG, "ActionZipFile.Cant_Delete_File1.Label")
-                              + localSourceFilename
-                              + Const.FILE_SEPARATOR
-                              + zippedFiles[i]
-                              + BaseMessages.getString(
-                                  PKG, "ActionZipFile.Cant_Delete_File2.Label"));
-                    }
-                    // File deleted
-                    if (log.isDebug()) {
-                      logDebug(
-                          BaseMessages.getString(PKG, "ActionZipFile.File_Deleted1.Label")
-                              + localSourceFilename
-                              + Const.FILE_SEPARATOR
-                              + zippedFiles[i]
-                              + BaseMessages.getString(PKG, "ActionZipFile.File_Deleted2.Label"));
-                    }
-                  } else if (afterZip == 2) {
-                    // Move File
-                    FileObject fileObjectm = null;
-                    try {
-                      fileObjectm =
-                          HopVfs.getFileObject(
-                              realMovetodirectory
-                                  + Const.FILE_SEPARATOR
-                                  + fileObjectd.getName().getBaseName());
-                      fileObjectd.moveTo(fileObjectm);
-                    } catch (IOException e) {
-                      logError(
-                          BaseMessages.getString(PKG, "ActionZipFile.Cant_Move_File1.Label")
-                              + zippedFiles[i]
-                              + BaseMessages.getString(PKG, "ActionZipFile.Cant_Move_File2.Label")
-                              + e.getMessage());
-                      resultat = false;
-                    } finally {
-                      try {
-                        if (fileObjectm != null) {
-                          fileObjectm.close();
-                        }
-                      } catch (Exception e) {
-                        if (fileObjectm != null) {
-                          logError("Error closing file '" + fileObjectm.toString() + "'", e);
-                        }
-                      }
-                    }
-                    // File moved
-                    if (log.isDebug()) {
-                      logDebug(
-                          BaseMessages.getString(PKG, "ActionZipFile.File_Moved1.Label")
-                              + zippedFiles[i]
-                              + BaseMessages.getString(PKG, "ActionZipFile.File_Moved2.Label"));
-                    }
-                  }
+              for (FileObject fileObjectd : zippedFiles) {
+                // Delete, Move File
+                if (!isSourceDirectory) {
+                  fileObjectd = HopVfs.getFileObject(localSourceFilename);
                 }
+
+                // Here we can move, delete files
+                if (afterZip == 1) {
+                  successResult = deleteFile(successResult, fileObjectd, localSourceFilename);
+                } else if (afterZip == 2) {
+                  successResult = moveFile(successResult, fileObjectd, realMoveToDirectory);
+                }
+
+                // We no longer need this file, close it.
+                //
+                fileObjectd.close();
               }
             }
 
@@ -690,7 +549,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
               result.getResultFiles().put(resultFile.getFile().toString(), resultFile);
             }
 
-            resultat = true;
+            successResult = true;
           }
         }
       } catch (Exception e) {
@@ -699,37 +558,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                 + localrealZipfilename
                 + BaseMessages.getString(PKG, "ActionZipFile.Cant_CreateZipFile2.Label"),
             e);
-        resultat = false;
-      } finally {
-        if (fileObject != null) {
-          try {
-            fileObject.close();
-            fileObject = null;
-          } catch (IOException ex) {
-            logError("Error closing file '" + fileObject.toString() + "'", ex);
-          }
-        }
-
-        try {
-          if (out != null) {
-            out.close();
-          }
-          if (buff != null) {
-            buff.close();
-          }
-          if (dest != null) {
-            dest.close();
-          }
-          if (zin != null) {
-            zin.close();
-          }
-
-        } catch (IOException ex) {
-          logError("Error closing zip file entry for file '" + originFile.toString() + "'", ex);
-        }
+        successResult = false;
       }
     } else {
-      resultat = false;
+      successResult = false;
       if (localrealZipfilename == null) {
         logError(BaseMessages.getString(PKG, "ActionZipFile.No_ZipFile_Defined.Label"));
       }
@@ -740,7 +572,129 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       }
     }
     // return a verifier
-    return resultat;
+    return successResult;
+  }
+
+  private static void moveRenameZipArchive(
+      File tempFile, HashSet<String> fileSet, ZipOutputStream out) throws IOException {
+    ZipEntry entry;
+    try (ZipInputStream zin = new ZipInputStream(new FileInputStream(tempFile))) {
+      entry = zin.getNextEntry();
+
+      while (entry != null) {
+        String name = entry.getName();
+
+        if (!fileSet.contains(name)) {
+
+          // Add ZIP entry to output stream.
+          out.putNextEntry(new ZipEntry(name));
+          // Transfer bytes from the ZIP file to the output file
+          int len;
+          byte[] buffer = new byte[18024];
+          while ((len = zin.read(buffer)) > 0) {
+            out.write(buffer, 0, len);
+          }
+
+          fileSet.add(name);
+        }
+        entry = zin.getNextEntry();
+      }
+    }
+  }
+
+  private void addFileToZip(
+      FileObject file,
+      FileObject[] fileList,
+      int i,
+      FileObject sourceFileOrFolder,
+      boolean isSourceDirectory,
+      ZipOutputStream out)
+      throws IOException, HopException {
+    try (InputStream in = HopVfs.getInputStream(file)) {
+      // Add ZIP entry to output stream.
+      //
+      String relativeName;
+      String fullName = fileList[i].getName().getPath();
+      String basePath = sourceFileOrFolder.getName().getPath();
+      if (isSourceDirectory) {
+        if (fullName.startsWith(basePath)) {
+          relativeName = fullName.substring(basePath.length() + 1);
+        } else {
+          relativeName = fullName;
+        }
+      } else if (fromPrevious) {
+        int depth = determineDepth(resolve(storedSourcePathDepth));
+        relativeName = determineZipfilenameForDepth(fullName, depth);
+      } else {
+        relativeName = fileList[i].getName().getBaseName();
+      }
+      out.putNextEntry(new ZipEntry(relativeName));
+
+      int len;
+      byte[] buffer = new byte[18024];
+      while ((len = in.read(buffer)) > 0) {
+        out.write(buffer, 0, len);
+      }
+      out.flush();
+      out.closeEntry();
+      // out.finish();
+
+      // Close the current file input stream
+    }
+  }
+
+  private boolean moveFile(
+      boolean successResult, FileObject fileObjectd, String realMoveToDirectory) {
+    // Move File
+    boolean success = successResult;
+    try (FileObject fileObjectm =
+        HopVfs.getFileObject(
+            realMoveToDirectory + Const.FILE_SEPARATOR + fileObjectd.getName().getBaseName())) {
+
+      fileObjectd.moveTo(fileObjectm);
+    } catch (Exception e) {
+      logError(
+          BaseMessages.getString(PKG, "ActionZipFile.Cant_Move_File1.Label")
+              + fileObjectd
+              + BaseMessages.getString(PKG, "ActionZipFile.Cant_Move_File2.Label")
+              + e.getMessage());
+      success = false;
+    }
+    // File moved
+    if (log.isDebug()) {
+      logDebug(
+          BaseMessages.getString(PKG, "ActionZipFile.File_Moved1.Label")
+              + fileObjectd
+              + BaseMessages.getString(PKG, "ActionZipFile.File_Moved2.Label"));
+    }
+    return success;
+  }
+
+  private boolean deleteFile(
+      boolean successResult, FileObject fileObjectd, String localSourceFilename)
+      throws FileSystemException {
+    // Delete File
+    boolean success = successResult;
+    boolean deleted = fileObjectd.delete();
+    if (!deleted) {
+      success = false;
+      logError(
+          BaseMessages.getString(PKG, "ActionZipFile.Cant_Delete_File1.Label")
+              + localSourceFilename
+              + Const.FILE_SEPARATOR
+              + fileObjectd
+              + BaseMessages.getString(PKG, "ActionZipFile.Cant_Delete_File2.Label"));
+    }
+    // File deleted
+    if (log.isDebug()) {
+      logDebug(
+          BaseMessages.getString(PKG, "ActionZipFile.File_Deleted1.Label")
+              + localSourceFilename
+              + Const.FILE_SEPARATOR
+              + fileObjectd
+              + BaseMessages.getString(PKG, "ActionZipFile.File_Deleted2.Label"));
+    }
+    return success;
   }
 
   private int determineDepth(String depthString) throws HopException {
@@ -835,7 +789,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     String realWildcard = null;
     String realWildcardExclude = null;
     String realTargetdirectory;
-    String realMovetodirectory = resolve(movetoDirectory);
+    String realMovetodirectory = resolve(moveToDirectory);
 
     // Sanity check
     boolean sanityControlOK = true;
@@ -909,14 +863,14 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
     // arguments from previous
 
-    if (isFromPrevious) {
+    if (fromPrevious) {
       if (log.isDetailed()) {
         logDetailed(
             BaseMessages.getString(
                 PKG, "ActionZipFile.ArgFromPrevious.Found", (rows != null ? rows.size() : 0) + ""));
       }
     }
-    if (isFromPrevious && rows != null) {
+    if (fromPrevious && rows != null) {
       try {
         for (int iteration = 0;
             iteration < rows.size() && !parentWorkflow.isStopped();
@@ -961,7 +915,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         result.setResult(false);
         result.setNrErrors(1);
       }
-    } else if (!isFromPrevious) {
+    } else if (!fromPrevious) {
       if (!Utils.isEmpty(sourceDirectory)) {
         // get values from action
         realZipfilename =
@@ -970,16 +924,22 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
         realWildcardExclude = resolve(excludeWildCard);
         realTargetdirectory = resolve(sourceDirectory);
 
-        boolean success =
-            processRowFile(
-                parentWorkflow,
-                result,
-                realZipfilename,
-                realWildcard,
-                realWildcardExclude,
-                realTargetdirectory,
-                realMovetodirectory,
-                createParentFolder);
+        boolean success;
+        try {
+          success =
+              processRowFile(
+                  parentWorkflow,
+                  result,
+                  realZipfilename,
+                  realWildcard,
+                  realWildcardExclude,
+                  realTargetdirectory,
+                  realMovetodirectory,
+                  createParentFolder);
+        } catch (HopException e) {
+          logError("Error zipping data", e);
+          success = false;
+        }
         if (success) {
           result.setResult(true);
         } else {
@@ -1045,115 +1005,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public boolean isEvaluation() {
-    return true;
-  }
-
-  public void setZipFilename(String zipFilename) {
-    this.zipFilename = zipFilename;
-  }
-
-  public void setWildcard(String wildcard) {
-    this.wildCard = wildcard;
-  }
-
-  public void setWildcardExclude(String wildcardExclude) {
-    this.excludeWildCard = wildcardExclude;
-  }
-
-  public void setSourceDirectory(String sourcedirectory) {
-    this.sourceDirectory = sourcedirectory;
-  }
-
-  public void setMoveToDirectory(String movetodirectory) {
-    this.movetoDirectory = movetodirectory;
-  }
-
-  public String getSourceDirectory() {
-    return sourceDirectory;
-  }
-
-  public String getMoveToDirectory() {
-    return movetoDirectory;
-  }
-
-  public String getZipFilename() {
-    return zipFilename;
-  }
-
-  public boolean isCreateMoveToDirectory() {
-    return createMoveToDirectory;
-  }
-
-  public void setCreateMoveToDirectory(boolean createMoveToDirectory) {
-    this.createMoveToDirectory = createMoveToDirectory;
-  }
-
-  public String getWildcard() {
-    return wildCard;
-  }
-
-  public String getWildcardExclude() {
-    return excludeWildCard;
-  }
-
-  public void setAddFileToResult(boolean addfiletoresultin) {
-    this.addFileToResult = addfiletoresultin;
-  }
-
-  public boolean isAddFileToResult() {
-    return addFileToResult;
-  }
-
-  public void setcreateparentfolder(boolean createparentfolder) {
-    this.createParentFolder = createparentfolder;
-  }
-
-  public void setDateInFilename(boolean adddate) {
-    this.addDate = adddate;
-  }
-
-  public boolean isDateInFilename() {
-    return addDate;
-  }
-
-  public void setTimeInFilename(boolean addtime) {
-    this.addTime = addtime;
-  }
-
-  public boolean isTimeInFilename() {
-    return addTime;
-  }
-
-  public boolean isSpecifyFormat() {
-    return specifyFormat;
-  }
-
-  public void setSpecifyFormat(boolean specifyFormat) {
-    this.specifyFormat = specifyFormat;
-  }
-
-  public String getDateTimeFormat() {
-    return dateTimeFormat;
-  }
-
-  public void setDateTimeFormat(String dateTimeFormat) {
-    this.dateTimeFormat = dateTimeFormat;
-  }
-
-  public boolean getcreateparentfolder() {
-    return createParentFolder;
-  }
-
-  public void setDatafromprevious(boolean isfromprevious) {
-    this.isFromPrevious = isfromprevious;
-  }
-
-  public boolean getDatafromprevious() {
-    return isFromPrevious;
-  }
-
-  @Override
   public void check(
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
@@ -1187,27 +1038,6 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             "sourceDirectory",
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notBlankValidator()));
-  }
-
-  /** @return true if the search for files to zip in a folder include sub-folders */
-  public boolean isIncludingSubFolders() {
-    return includingSubFolders;
-  }
-
-  /**
-   * @param includesSubFolders Set to true if the search for files to zip in a folder needs to
-   *     include sub-folders
-   */
-  public void setIncludingSubFolders(boolean includesSubFolders) {
-    this.includingSubFolders = includesSubFolders;
-  }
-
-  public String getStoredSourcePathDepth() {
-    return storedSourcePathDepth;
-  }
-
-  public void setStoredSourcePathDepth(String storedSourcePathDepth) {
-    this.storedSourcePathDepth = storedSourcePathDepth;
   }
 
   /** Helper class providing pattern restrictions for file names to be zipped */
@@ -1248,5 +1078,329 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       }
       return include;
     }
+  }
+
+  /**
+   * Gets zipFilename
+   *
+   * @return value of zipFilename
+   */
+  public String getZipFilename() {
+    return zipFilename;
+  }
+
+  /**
+   * Sets zipFilename
+   *
+   * @param zipFilename value of zipFilename
+   */
+  public void setZipFilename(String zipFilename) {
+    this.zipFilename = zipFilename;
+  }
+
+  /**
+   * Gets compressionRate
+   *
+   * @return value of compressionRate
+   */
+  public int getCompressionRate() {
+    return compressionRate;
+  }
+
+  /**
+   * Sets compressionRate
+   *
+   * @param compressionRate value of compressionRate
+   */
+  public void setCompressionRate(int compressionRate) {
+    this.compressionRate = compressionRate;
+  }
+
+  /**
+   * Gets ifZipFileExists
+   *
+   * @return value of ifZipFileExists
+   */
+  public int getIfZipFileExists() {
+    return ifZipFileExists;
+  }
+
+  /**
+   * Sets ifZipFileExists
+   *
+   * @param ifZipFileExists value of ifZipFileExists
+   */
+  public void setIfZipFileExists(int ifZipFileExists) {
+    this.ifZipFileExists = ifZipFileExists;
+  }
+
+  /**
+   * Gets afterZip
+   *
+   * @return value of afterZip
+   */
+  public int getAfterZip() {
+    return afterZip;
+  }
+
+  /**
+   * Sets afterZip
+   *
+   * @param afterZip value of afterZip
+   */
+  public void setAfterZip(int afterZip) {
+    this.afterZip = afterZip;
+  }
+
+  /**
+   * Gets wildCard
+   *
+   * @return value of wildCard
+   */
+  public String getWildCard() {
+    return wildCard;
+  }
+
+  /**
+   * Sets wildCard
+   *
+   * @param wildCard value of wildCard
+   */
+  public void setWildCard(String wildCard) {
+    this.wildCard = wildCard;
+  }
+
+  /**
+   * Gets excludeWildCard
+   *
+   * @return value of excludeWildCard
+   */
+  public String getExcludeWildCard() {
+    return excludeWildCard;
+  }
+
+  /**
+   * Sets excludeWildCard
+   *
+   * @param excludeWildCard value of excludeWildCard
+   */
+  public void setExcludeWildCard(String excludeWildCard) {
+    this.excludeWildCard = excludeWildCard;
+  }
+
+  /**
+   * Gets sourceDirectory
+   *
+   * @return value of sourceDirectory
+   */
+  public String getSourceDirectory() {
+    return sourceDirectory;
+  }
+
+  /**
+   * Sets sourceDirectory
+   *
+   * @param sourceDirectory value of sourceDirectory
+   */
+  public void setSourceDirectory(String sourceDirectory) {
+    this.sourceDirectory = sourceDirectory;
+  }
+
+  /**
+   * Gets movetoDirectory
+   *
+   * @return value of moveToDirectory
+   */
+  public String getMoveToDirectory() {
+    return moveToDirectory;
+  }
+
+  /**
+   * Sets moveToDirectory
+   *
+   * @param moveToDirectory value of moveToDirectory
+   */
+  public void setMoveToDirectory(String moveToDirectory) {
+    this.moveToDirectory = moveToDirectory;
+  }
+
+  /**
+   * Gets addFileToResult
+   *
+   * @return value of addFileToResult
+   */
+  public boolean isAddFileToResult() {
+    return addFileToResult;
+  }
+
+  /**
+   * Sets addFileToResult
+   *
+   * @param addFileToResult value of addFileToResult
+   */
+  public void setAddFileToResult(boolean addFileToResult) {
+    this.addFileToResult = addFileToResult;
+  }
+
+  /**
+   * Gets isFromPrevious
+   *
+   * @return value of isFromPrevious
+   */
+  public boolean isFromPrevious() {
+    return fromPrevious;
+  }
+
+  /**
+   * Sets isFromPrevious
+   *
+   * @param fromPrevious value of isFromPrevious
+   */
+  public void setFromPrevious(boolean fromPrevious) {
+    this.fromPrevious = fromPrevious;
+  }
+
+  /**
+   * Gets createParentFolder
+   *
+   * @return value of createParentFolder
+   */
+  public boolean isCreateParentFolder() {
+    return createParentFolder;
+  }
+
+  /**
+   * Sets createParentFolder
+   *
+   * @param createParentFolder value of createParentFolder
+   */
+  public void setCreateParentFolder(boolean createParentFolder) {
+    this.createParentFolder = createParentFolder;
+  }
+
+  /**
+   * Gets addDate
+   *
+   * @return value of addDate
+   */
+  public boolean isAddDate() {
+    return addDate;
+  }
+
+  /**
+   * Sets addDate
+   *
+   * @param addDate value of addDate
+   */
+  public void setAddDate(boolean addDate) {
+    this.addDate = addDate;
+  }
+
+  /**
+   * Gets addTime
+   *
+   * @return value of addTime
+   */
+  public boolean isAddTime() {
+    return addTime;
+  }
+
+  /**
+   * Sets addTime
+   *
+   * @param addTime value of addTime
+   */
+  public void setAddTime(boolean addTime) {
+    this.addTime = addTime;
+  }
+
+  /**
+   * Gets specifyFormat
+   *
+   * @return value of specifyFormat
+   */
+  public boolean isSpecifyFormat() {
+    return specifyFormat;
+  }
+
+  /**
+   * Sets specifyFormat
+   *
+   * @param specifyFormat value of specifyFormat
+   */
+  public void setSpecifyFormat(boolean specifyFormat) {
+    this.specifyFormat = specifyFormat;
+  }
+
+  /**
+   * Gets dateTimeFormat
+   *
+   * @return value of dateTimeFormat
+   */
+  public String getDateTimeFormat() {
+    return dateTimeFormat;
+  }
+
+  /**
+   * Sets dateTimeFormat
+   *
+   * @param dateTimeFormat value of dateTimeFormat
+   */
+  public void setDateTimeFormat(String dateTimeFormat) {
+    this.dateTimeFormat = dateTimeFormat;
+  }
+
+  /**
+   * Gets createMoveToDirectory
+   *
+   * @return value of createMoveToDirectory
+   */
+  public boolean isCreateMoveToDirectory() {
+    return createMoveToDirectory;
+  }
+
+  /**
+   * Sets createMoveToDirectory
+   *
+   * @param createMoveToDirectory value of createMoveToDirectory
+   */
+  public void setCreateMoveToDirectory(boolean createMoveToDirectory) {
+    this.createMoveToDirectory = createMoveToDirectory;
+  }
+
+  /**
+   * Gets includingSubFolders
+   *
+   * @return value of includingSubFolders
+   */
+  public boolean isIncludingSubFolders() {
+    return includingSubFolders;
+  }
+
+  /**
+   * Sets includingSubFolders
+   *
+   * @param includingSubFolders value of includingSubFolders
+   */
+  public void setIncludingSubFolders(boolean includingSubFolders) {
+    this.includingSubFolders = includingSubFolders;
+  }
+
+  /**
+   * Gets storedSourcePathDepth
+   *
+   * @return value of storedSourcePathDepth
+   */
+  public String getStoredSourcePathDepth() {
+    return storedSourcePathDepth;
+  }
+
+  /**
+   * Sets storedSourcePathDepth
+   *
+   * @param storedSourcePathDepth value of storedSourcePathDepth
+   */
+  public void setStoredSourcePathDepth(String storedSourcePathDepth) {
+    this.storedSourcePathDepth = storedSourcePathDepth;
   }
 }
