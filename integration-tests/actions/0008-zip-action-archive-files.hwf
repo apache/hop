@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>zip-action-archive-files</name>
+  <name>0008-zip-action-archive-files</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -59,24 +59,24 @@ limitations under the License.
       <description/>
       <type>ZIP_FILE</type>
       <attributes/>
-      <zipfilename>${java.io.tmpdir}/zip-action-archive/${PRM_YEAR}.zip</zipfilename>
+      <SpecifyFormat>N</SpecifyFormat>
+      <adddate>N</adddate>
+      <addfiletoresult>N</addfiletoresult>
+      <addtime>N</addtime>
+      <afterzip>0</afterzip>
       <compressionrate>1</compressionrate>
-      <ifzipfileexists>2</ifzipfileexists>
+      <createMoveToDirectory>N</createMoveToDirectory>
+      <createparentfolder>Y</createparentfolder>
+      <date_time_format/>
+      <ifzipfileexists>0</ifzipfileexists>
+      <include_subfolders>N</include_subfolders>
+      <isfromprevious>N</isfromprevious>
+      <movetodirectory/>
+      <sourcedirectory>${java.io.tmpdir}/zip-action/</sourcedirectory>
+      <stored_source_path_depth>0 : /project-hop/work/transfer/input/project/file.txt</stored_source_path_depth>
       <wildcard>${PRM_YEAR}.*.txt</wildcard>
       <wildcardexclude/>
-      <sourcedirectory>${java.io.tmpdir}/zip-action/</sourcedirectory>
-      <movetodirectory/>
-      <afterzip>0</afterzip>
-      <addfiletoresult>N</addfiletoresult>
-      <isfromprevious>N</isfromprevious>
-      <createparentfolder>Y</createparentfolder>
-      <adddate>N</adddate>
-      <addtime>N</addtime>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <createMoveToDirectory>N</createMoveToDirectory>
-      <include_subfolders>N</include_subfolders>
-      <stored_source_path_depth>2 : project/file.txt</stored_source_path_depth>
+      <zipfilename>${java.io.tmpdir}/zip-action-archive/${PRM_YEAR}.zip</zipfilename>
       <parallel>N</parallel>
       <xloc>224</xloc>
       <yloc>48</yloc>

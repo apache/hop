@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.checkfilelocked;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -71,8 +72,8 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
   private Label wlFields;
   private TableView wFields;
 
-  private Label wlFilemask;
-  private TextVar wFilemask;
+  private Label wlFileMask;
+  private TextVar wFileMask;
 
   private Button wbdFilename; // Delete
   private Button wbeFilename; // Edit
@@ -169,13 +170,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     fdIncludeSubfolders.top = new FormAttachment(wlIncludeSubfolders, 0, SWT.CENTER);
     fdIncludeSubfolders.right = new FormAttachment(100, 0);
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
-    wIncludeSubfolders.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            action.setChanged();
-          }
-        });
+    wIncludeSubfolders.addListener(SWT.Selection, e -> action.setChanged());
 
     Label wlPrevious = new Label(wSettings, SWT.RIGHT);
     wlPrevious.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Previous.Label"));
@@ -187,7 +182,6 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wPrevious);
-    wPrevious.setSelection(action.argFromPrevious);
     wPrevious.setToolTipText(
         BaseMessages.getString(PKG, "ActionCheckFilesLocked.Previous.Tooltip"));
     FormData fdPrevious = new FormData();
@@ -195,13 +189,11 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     fdPrevious.top = new FormAttachment(wlPrevious, 0, SWT.CENTER);
     fdPrevious.right = new FormAttachment(100, 0);
     wPrevious.setLayoutData(fdPrevious);
-    wPrevious.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            setPrevious();
-            action.setChanged();
-          }
+    wPrevious.addListener(
+        SWT.Selection,
+        e -> {
+          setPrevious();
+          action.setChanged();
         });
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, margin);
@@ -272,27 +264,27 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
                 shell, wFilename, variables, new String[] {"*"}, FILETYPES, true));
 
     // Filemask
-    wlFilemask = new Label(shell, SWT.RIGHT);
-    wlFilemask.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Label"));
-    PropsUi.setLook(wlFilemask);
+    wlFileMask = new Label(shell, SWT.RIGHT);
+    wlFileMask.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Label"));
+    PropsUi.setLook(wlFileMask);
     FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment(0, 0);
     fdlFilemask.top = new FormAttachment(wFilename, margin);
     fdlFilemask.right = new FormAttachment(middle, -margin);
-    wlFilemask.setLayoutData(fdlFilemask);
-    wFilemask =
+    wlFileMask.setLayoutData(fdlFilemask);
+    wFileMask =
         new TextVar(
             variables,
             shell,
             SWT.SINGLE | SWT.LEFT | SWT.BORDER,
             BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Tooltip"));
-    PropsUi.setLook(wFilemask);
-    wFilemask.addModifyListener(lsMod);
+    PropsUi.setLook(wFileMask);
+    wFileMask.addModifyListener(lsMod);
     FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment(middle, 0);
     fdFilemask.top = new FormAttachment(wFilename, margin);
     fdFilemask.right = new FormAttachment(wbaFilename, -margin);
-    wFilemask.setLayoutData(fdFilemask);
+    wFileMask.setLayoutData(fdFilemask);
 
     wlFields = new Label(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Label"));
@@ -300,7 +292,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.right = new FormAttachment(middle, -margin);
-    fdlFields.top = new FormAttachment(wFilemask, margin);
+    fdlFields.top = new FormAttachment(wFileMask, margin);
     wlFields.setLayoutData(fdlFields);
 
     // Buttons to the right of the screen...
@@ -326,11 +318,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     fdbeFilename.top = new FormAttachment(wbdFilename, margin);
     wbeFilename.setLayoutData(fdbeFilename);
 
-    int rows =
-        action.arguments == null ? 1 : (action.arguments.length == 0 ? 0 : action.arguments.length);
-    final int FieldsRows = rows;
-
-    ColumnInfo[] colinf =
+    ColumnInfo[] fileFields =
         new ColumnInfo[] {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Argument.Label"),
@@ -342,18 +330,18 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
               false),
         };
 
-    colinf[0].setUsingVariables(true);
-    colinf[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Column"));
-    colinf[1].setUsingVariables(true);
-    colinf[1].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Column"));
+    fileFields[0].setUsingVariables(true);
+    fileFields[0].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Fields.Column"));
+    fileFields[1].setUsingVariables(true);
+    fileFields[1].setToolTip(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Wildcard.Column"));
 
     wFields =
         new TableView(
             variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
-            colinf,
-            FieldsRows,
+            fileFields,
+            action.getCheckedFiles().size(),
             lsMod,
             props);
 
@@ -364,17 +352,17 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     fdFields.bottom = new FormAttachment(wOk, -2 * margin);
     wFields.setLayoutData(fdFields);
 
-    wlFields.setEnabled(!action.argFromPrevious);
-    wFields.setEnabled(!action.argFromPrevious);
+    wlFields.setEnabled(!action.isArgFromPrevious());
+    wFields.setEnabled(!action.isArgFromPrevious());
 
     // Add the file to the list of files...
     SelectionAdapter selA =
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            wFields.add(new String[] {wFilename.getText(), wFilemask.getText()});
+            wFields.add(wFilename.getText(), wFileMask.getText());
             wFilename.setText("");
-            wFilemask.setText("");
+            wFileMask.setText("");
             wFields.removeEmptyRows();
             wFields.setRowNums();
             wFields.optWidth(true);
@@ -404,7 +392,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
             if (idx >= 0) {
               String[] string = wFields.getItem(idx);
               wFilename.setText(string[0]);
-              wFilemask.setText(string[1]);
+              wFileMask.setText(string[1]);
               wFields.remove(idx);
             }
             wFields.removeEmptyRows();
@@ -429,8 +417,8 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     wlFilename.setEnabled(!wPrevious.getSelection());
     wbFilename.setEnabled(!wPrevious.getSelection());
 
-    wlFilemask.setEnabled(!wPrevious.getSelection());
-    wFilemask.setEnabled(!wPrevious.getSelection());
+    wlFileMask.setEnabled(!wPrevious.getSelection());
+    wFileMask.setEnabled(!wPrevious.getSelection());
 
     wbdFilename.setEnabled(!wPrevious.getSelection());
     wbeFilename.setEnabled(!wPrevious.getSelection());
@@ -444,21 +432,17 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
       wName.setText(action.getName());
     }
 
-    if (action.arguments != null) {
-      for (int i = 0; i < action.arguments.length; i++) {
-        TableItem ti = wFields.table.getItem(i);
-        if (action.arguments[i] != null) {
-          ti.setText(1, action.arguments[i]);
-        }
-        if (action.filemasks[i] != null) {
-          ti.setText(2, action.filemasks[i]);
-        }
-      }
-      wFields.setRowNums();
-      wFields.optWidth(true);
+    for (int i = 0; i < action.getCheckedFiles().size(); i++) {
+      ActionCheckFilesLocked.CheckedFile checkedFile = action.getCheckedFiles().get(i);
+      TableItem ti = wFields.table.getItem(i);
+
+      ti.setText(1, Const.NVL(checkedFile.getName(), ""));
+      ti.setText(2, Const.NVL(checkedFile.getWildcard(), ""));
     }
-    wPrevious.setSelection(action.argFromPrevious);
-    wIncludeSubfolders.setSelection(action.includeSubfolders);
+    wFields.setRowNums();
+    wFields.optWidth(true);
+    wPrevious.setSelection(action.isArgFromPrevious());
+    wIncludeSubfolders.setSelection(action.isIncludeSubfolders());
 
     wName.selectAll();
     wName.setFocus();
@@ -480,27 +464,13 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     }
     action.setName(wName.getText());
     action.setIncludeSubfolders(wIncludeSubfolders.getSelection());
-    action.setargFromPrevious(wPrevious.getSelection());
+    action.setArgFromPrevious(wPrevious.getSelection());
 
-    int nrItems = wFields.nrNonEmpty();
-    int nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      if (arg != null && arg.length() != 0) {
-        nr++;
-      }
-    }
-    action.arguments = new String[nr];
-    action.filemasks = new String[nr];
-    nr = 0;
-    for (int i = 0; i < nrItems; i++) {
-      String arg = wFields.getNonEmpty(i).getText(1);
-      String wild = wFields.getNonEmpty(i).getText(2);
-      if (arg != null && arg.length() != 0) {
-        action.arguments[nr] = arg;
-        action.filemasks[nr] = wild;
-        nr++;
-      }
+    action.getCheckedFiles().clear();
+    for (TableItem item : wFields.getNonEmptyItems()) {
+      String name = item.getText(1);
+      String wildcard = item.getText(2);
+      action.getCheckedFiles().add(new ActionCheckFilesLocked.CheckedFile(name, wildcard));
     }
     dispose();
   }

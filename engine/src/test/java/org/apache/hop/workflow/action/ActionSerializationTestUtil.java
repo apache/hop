@@ -18,6 +18,8 @@
 
 package org.apache.hop.workflow.action;
 
+import java.lang.reflect.InvocationTargetException;
+import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -27,8 +29,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class ActionSerializationTestUtil {
-  public static final <T extends IAction> T testSerialization(
-      String filename, Class<T> clazz) throws Exception {
+  public static final <T extends IAction> T testSerialization(String filename, Class<T> clazz)
+      throws Exception {
     return testSerialization(filename, clazz, ActionMeta.XML_TAG, new MemoryMetadataProvider());
   }
 
@@ -44,14 +46,30 @@ public class ActionSerializationTestUtil {
     Node node = XmlHandler.getSubNode(document, xmlTag);
     T meta = clazz.getConstructor().newInstance();
     XmlMetadataUtil.deSerializeFromXml(null, node, clazz, meta, metadataProvider);
-    String xml = XmlHandler.openTag(xmlTag) + meta.getXml() + XmlHandler.closeTag(xmlTag);
+    String xml = getXml(meta);
 
+    testXmlStringSerialization(clazz, xmlTag, metadataProvider, xml, meta);
+
+    return meta;
+  }
+
+  public static <T extends IAction> void testXmlStringSerialization(
+      Class<T> clazz, String xmlTag, IHopMetadataProvider metadataProvider, String xml, T meta)
+      throws HopXmlException,
+          InstantiationException,
+          IllegalAccessException,
+          InvocationTargetException,
+          NoSuchMethodException {
     Document copyDocument = XmlHandler.loadXmlString(xml);
     Node copyNode = XmlHandler.getSubNode(copyDocument, xmlTag);
     T copy = clazz.getConstructor().newInstance();
     XmlMetadataUtil.deSerializeFromXml(null, copyNode, clazz, copy, metadataProvider);
     Assert.assertEquals(meta.getXml(), copy.getXml());
+  }
 
-    return meta;
+  public static String getXml(IAction action) {
+    return XmlHandler.openTag(ActionMeta.XML_TAG)
+        + action.getXml()
+        + XmlHandler.closeTag(ActionMeta.XML_TAG);
   }
 }
