@@ -17,36 +17,25 @@
 
 package org.apache.hop.workflow.actions.checkfilelocked;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AbstractFileValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a 'check files locked' action. */
 @Action(
@@ -60,20 +49,19 @@ import java.util.regex.Pattern;
 public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCheckFilesLocked.class; // For Translator
 
-  public boolean argFromPrevious;
+  @HopMetadataProperty(key = "arg_from_previous")
+  private boolean argFromPrevious;
 
-  public boolean includeSubfolders;
+  @HopMetadataProperty(key = "include_subfolders")
+  private boolean includeSubfolders;
 
-  public String[] arguments;
-
-  public String[] filemasks;
-
-  private boolean oneFileLocked;
+  @HopMetadataProperty(key = "field", groupKey = "fields")
+  private List<CheckedFile> checkedFiles;
 
   public ActionCheckFilesLocked(String n) {
     super(n, "");
     argFromPrevious = false;
-    arguments = null;
+    checkedFiles = new ArrayList<>();
 
     includeSubfolders = false;
   }
@@ -83,162 +71,129 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
   }
 
   @Override
-  public Object clone() {
-    ActionCheckFilesLocked je = (ActionCheckFilesLocked) super.clone();
-    if (arguments != null) {
-      int nrFields = arguments.length;
-      je.allocate(nrFields);
-      System.arraycopy(arguments, 0, je.arguments, 0, nrFields);
-      System.arraycopy(filemasks, 0, je.filemasks, 0, nrFields);
-    }
-    return je;
+  public ActionCheckFilesLocked clone() {
+    return new ActionCheckFilesLocked(this);
   }
 
-  public void allocate(int nrFields) {
-    arguments = new String[nrFields];
-    filemasks = new String[nrFields];
+  public ActionCheckFilesLocked(ActionCheckFilesLocked a) {
+    this();
+    this.argFromPrevious = a.argFromPrevious;
+    this.includeSubfolders = a.includeSubfolders;
+    for (CheckedFile checkedFile : a.checkedFiles) {
+      this.checkedFiles.add(new CheckedFile(checkedFile));
+    }
   }
 
   @Override
-  public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
-
-    xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    xml.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubfolders));
-
-    xml.append("      <fields>").append(Const.CR);
-    if (arguments != null) {
-      for (int i = 0; i < arguments.length; i++) {
-        xml.append("        <field>").append(Const.CR);
-        xml.append("          ").append(XmlHandler.addTagValue("name", arguments[i]));
-        xml.append("          ").append(XmlHandler.addTagValue("filemask", filemasks[i]));
-        xml.append("        </field>").append(Const.CR);
-      }
-    }
-    xml.append("      </fields>").append(Const.CR);
-
-    return xml.toString();
+  public boolean equals(Object obj) {
+    return super.equals(obj);
   }
 
   @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {
-    try {
-      super.loadXml(entrynode);
-      argFromPrevious =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "arg_from_previous"));
-      includeSubfolders =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "include_subfolders"));
-
-      Node fields = XmlHandler.getSubNode(entrynode, "fields");
-
-      // How many field arguments?
-      int nrFields = XmlHandler.countNodes(fields, "field");
-      allocate(nrFields);
-
-      // Read them all...
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        arguments[i] = XmlHandler.getTagValue(fnode, "name");
-        filemasks[i] = XmlHandler.getTagValue(fnode, "filemask");
-      }
-    } catch (HopXmlException xe) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "ActionCheckFilesLocked.UnableToLoadFromXml"), xe);
-    }
+  public int hashCode() {
+    return super.hashCode();
   }
 
   @Override
   public Result execute(Result previousResult, int nr) {
-
-    Result result = previousResult;
-    List<RowMetaAndData> rows = result.getRows();
-    RowMetaAndData resultRow = null;
-
-    oneFileLocked = false;
-    result.setResult(true);
+    List<RowMetaAndData> rows = previousResult.getRows();
+    boolean oneFileLocked = false;
+    previousResult.setResult(true);
 
     try {
-      if (argFromPrevious) {
-        if (isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(
-                  PKG,
-                  "ActionCheckFilesLocked.FoundPreviousRows",
-                  String.valueOf((rows != null ? rows.size() : 0))));
-        }
+      if (argFromPrevious && isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionCheckFilesLocked.FoundPreviousRows",
+                String.valueOf((rows != null ? rows.size() : 0))));
       }
 
       if (argFromPrevious && rows != null) {
-        // Copy the input row to the (command line) arguments
-        for (int iteration = 0;
-            iteration < rows.size() && !parentWorkflow.isStopped();
-            iteration++) {
-          resultRow = rows.get(iteration);
-
-          // Get values from previous result
-          String fileFolderPrevious = resultRow.getString(0, "");
-          String fileMasksPrevious = resultRow.getString(1, "");
-
-          // ok we can process this file/folder
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG,
-                    "ActionCheckFilesLocked.ProcessingRow",
-                    fileFolderPrevious,
-                    fileMasksPrevious));
-          }
-
-          ProcessFile(fileFolderPrevious, fileMasksPrevious);
-        }
-      } else if (arguments != null) {
-
-        for (int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++) {
-          // ok we can process this file/folder
-          if (isDetailed()) {
-            logDetailed(
-                BaseMessages.getString(
-                    PKG, "ActionCheckFilesLocked.ProcessingArg", arguments[i], filemasks[i]));
-          }
-
-          ProcessFile(arguments[i], filemasks[i]);
-        }
+        oneFileLocked = isOneArgumentsFileLocked(rows);
+      } else if (!checkedFiles.isEmpty()) {
+        oneFileLocked = isOneSpecifiedFileLocked();
+      } else {
+        log.logBasic(
+            "This action didn't execute any locking checks "
+                + "as there were no lines to check and no arguments provided.");
       }
 
       if (oneFileLocked) {
-        result.setResult(false);
-        result.setNrErrors(1);
+        previousResult.setResult(false);
+        previousResult.setNrErrors(1);
       }
     } catch (Exception e) {
       logError(BaseMessages.getString(PKG, "ActionCheckFilesLocked.ErrorRunningAction", e));
     }
 
-    return result;
+    return previousResult;
   }
 
-  private void ProcessFile(String filename, String wildcard) {
+  private boolean isOneSpecifiedFileLocked() {
+    boolean oneFileLocked = false;
+    for (int i = 0; i < checkedFiles.size() && !parentWorkflow.isStopped() && !oneFileLocked; i++) {
+      CheckedFile checkedFile = checkedFiles.get(i);
+      // ok we can process this file/folder
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionCheckFilesLocked.ProcessingArg",
+                checkedFile.getName(),
+                checkedFile.getWildcard()));
+      }
 
-    FileObject filefolder = null;
-    String realFilefoldername = resolve(filename);
-    String realwilcard = resolve(wildcard);
+      oneFileLocked = processCheckedFilesLine(checkedFile.getName(), checkedFile.getWildcard());
+    }
+    return oneFileLocked;
+  }
 
-    try {
-      filefolder = HopVfs.getFileObject(realFilefoldername);
-      FileObject[] files = new FileObject[] {filefolder};
-      if (filefolder.exists()) {
+  private boolean isOneArgumentsFileLocked(List<RowMetaAndData> rows) throws HopValueException {
+    boolean oneFileLocked = false;
+    // Copy the input row to the (command line) arguments
+    for (int iteration = 0;
+        iteration < rows.size() && !parentWorkflow.isStopped() && !oneFileLocked;
+        iteration++) {
+      RowMetaAndData resultRow = rows.get(iteration);
+
+      // Get values from previous result
+      String fileFolderPrevious = resultRow.getString(0, "");
+      String fileMasksPrevious = resultRow.getString(1, "");
+
+      // ok we can process this file/folder
+      if (isDetailed()) {
+        logDetailed(
+            BaseMessages.getString(
+                PKG,
+                "ActionCheckFilesLocked.ProcessingRow",
+                fileFolderPrevious,
+                fileMasksPrevious));
+      }
+
+      oneFileLocked = processCheckedFilesLine(fileFolderPrevious, fileMasksPrevious);
+    }
+    return oneFileLocked;
+  }
+
+  private boolean processCheckedFilesLine(String name, String wildcard) {
+    boolean locked = false;
+    String realFileFolderName = resolve(name);
+    String realWildcard = resolve(wildcard);
+
+    try (FileObject fileFolder = HopVfs.getFileObject(realFileFolderName)) {
+      FileObject[] files = new FileObject[] {fileFolder};
+      if (fileFolder.exists()) {
         // the file or folder exists
-        if (filefolder.getType() == FileType.FOLDER) {
+        if (fileFolder.getType() == FileType.FOLDER) {
           // It's a folder
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
-                    PKG, "ActionCheckFilesLocked.ProcessingFolder", realFilefoldername));
+                    PKG, "ActionCheckFilesLocked.ProcessingFolder", realFileFolderName));
           }
           // Retrieve all files
-          files = filefolder.findFiles(new TextFileSelector(filefolder.toString(), realwilcard));
+          files = fileFolder.findFiles(new TextFileSelector(fileFolder.toString(), realWildcard));
 
           if (isDetailed()) {
             logDetailed(
@@ -250,33 +205,26 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
           if (isDetailed()) {
             logDetailed(
                 BaseMessages.getString(
-                    PKG, "ActionCheckFilesLocked.ProcessingFile", realFilefoldername));
+                    PKG, "ActionCheckFilesLocked.ProcessingFile", realFileFolderName));
           }
         }
         // Check files locked
-        checkFilesLocked(files);
+        locked = checkFilesLocked(files);
       } else {
         // We can not find thsi file
         logBasic(
-            BaseMessages.getString(PKG, "ActionCheckFilesLocked.FileNotExist", realFilefoldername));
+            BaseMessages.getString(PKG, "ActionCheckFilesLocked.FileNotExist", realFileFolderName));
       }
     } catch (Exception e) {
       logError(
           BaseMessages.getString(
-              PKG, "ActionCheckFilesLocked.CouldNotProcess", realFilefoldername, e.getMessage()));
-    } finally {
-      if (filefolder != null) {
-        try {
-          filefolder.close();
-        } catch (IOException ex) {
-          // Ignore
-        }
-      }
+              PKG, "ActionCheckFilesLocked.CouldNotProcess", realFileFolderName, e.getMessage()));
     }
+    return locked;
   }
 
-  private void checkFilesLocked(FileObject[] files) throws HopException {
-
+  private boolean checkFilesLocked(FileObject[] files) throws HopException {
+    boolean oneFileLocked = false;
     for (int i = 0; i < files.length && !oneFileLocked; i++) {
       FileObject file = files[i];
       String filename = HopVfs.getFilename(file);
@@ -291,6 +239,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
         }
       }
     }
+    return oneFileLocked;
   }
 
   private class TextFileSelector implements FileSelector {
@@ -310,45 +259,35 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
 
     @Override
     public boolean includeFile(FileSelectInfo info) {
-      boolean returncode = false;
-      FileObject filename = null;
+      boolean includeFile = false;
       try {
-
-        if (!info.getFile().toString().equals(sourceFolder)) {
-          // Pass over the Base folder itself
-
-          String shortFilename = info.getFile().getName().getBaseName();
-
-          if (!info.getFile().getParent().equals(info.getBaseFolder())) {
-
-            // Not in the Base Folder..Only if include sub folders
-            if (includeSubfolders
-                && (info.getFile().getType() == FileType.FILE)
-                && GetFileWildcard(shortFilename, fileWildcard)) {
-              if (isDetailed()) {
-                logDetailed(
-                    BaseMessages.getString(
-                        PKG, "ActionCheckFilesLocked.CheckingFile", info.getFile().toString()));
-              }
-
-              returncode = true;
-            }
-          } else {
-            // In the Base Folder...
-
-            if ((info.getFile().getType() == FileType.FILE)
-                && GetFileWildcard(shortFilename, fileWildcard)) {
-              if (isDetailed()) {
-                logDetailed(
-                    BaseMessages.getString(
-                        PKG, "ActionCheckFilesLocked.CheckingFile", info.getFile().toString()));
-              }
-
-              returncode = true;
-            }
-          }
+        // Skip the Base folder itself.
+        //
+        if (info.getFile().toString().equals(sourceFolder)) {
+          return false;
+        }
+        if (isDetailed()) {
+          logDetailed(
+              BaseMessages.getString(
+                  PKG, "ActionCheckFilesLocked.CheckingFile", info.getFile().toString()));
         }
 
+        String shortFilename = info.getFile().getName().getBaseName();
+
+        if (!info.getFile().getParent().equals(info.getBaseFolder())) {
+          // Not in the Base Folder. Only if include sub folders
+          //
+          includeFile =
+              (includeSubfolders
+                  && (info.getFile().getType() == FileType.FILE)
+                  && getFileWildcard(shortFilename, fileWildcard));
+        } else {
+          // In the Base Folder...
+          //
+          includeFile =
+              (info.getFile().getType() == FileType.FILE)
+                  && getFileWildcard(shortFilename, fileWildcard);
+        }
       } catch (Exception e) {
         logError(
             BaseMessages.getString(PKG, "ActionCheckFilesLocked.Error.Exception.ProcessError"),
@@ -357,19 +296,27 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
                 "JobCheckFilesLocked.Error.Exception.Process",
                 info.getFile().toString(),
                 e.getMessage()));
-        returncode = false;
-      } finally {
-        if (filename != null) {
-          try {
-            filename.close();
-
-          } catch (IOException ex) {
-            /* Ignore */
-          }
-        }
       }
 
-      return returncode;
+      return includeFile;
+    }
+
+    /**
+     * @param selectedFile The selected file or folder name
+     * @param wildcard The wildcard
+     * @return True if the selected file matches the wildcard
+     */
+    private boolean getFileWildcard(String selectedFile, String wildcard) {
+      boolean getIt = true;
+
+      if (!Utils.isEmpty(wildcard)) {
+        Pattern pattern = Pattern.compile(wildcard);
+        // First see if the file matches the regular expression!
+        Matcher matcher = pattern.matcher(selectedFile);
+        getIt = matcher.matches();
+      }
+
+      return getIt;
     }
 
     @Override
@@ -378,34 +325,8 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     }
   }
 
-  /**********************************************************
-   *
-   * @param selectedfile
-   * @param wildcard
-   * @return True if the selectedfile matches the wildcard
-   **********************************************************/
-  private boolean GetFileWildcard(String selectedfile, String wildcard) {
-    Pattern pattern = null;
-    boolean getIt = true;
-
-    if (!Utils.isEmpty(wildcard)) {
-      pattern = Pattern.compile(wildcard);
-      // First see if the file matches the regular expression!
-      if (pattern != null) {
-        Matcher matcher = pattern.matcher(selectedfile);
-        getIt = matcher.matches();
-      }
-    }
-
-    return getIt;
-  }
-
   public void setIncludeSubfolders(boolean includeSubfolders) {
     this.includeSubfolders = includeSubfolders;
-  }
-
-  public void setargFromPrevious(boolean argFromPrevious) {
-    this.argFromPrevious = argFromPrevious;
   }
 
   @Override
@@ -413,47 +334,105 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     return true;
   }
 
+  /**
+   * Gets argFromPrevious
+   *
+   * @return value of argFromPrevious
+   */
   public boolean isArgFromPrevious() {
     return argFromPrevious;
   }
 
-  public String[] getArguments() {
-    return arguments;
+  /**
+   * Sets argFromPrevious
+   *
+   * @param argFromPrevious value of argFromPrevious
+   */
+  public void setArgFromPrevious(boolean argFromPrevious) {
+    this.argFromPrevious = argFromPrevious;
   }
 
-  public String[] getFilemasks() {
-    return filemasks;
-  }
-
+  /**
+   * Gets includeSubfolders
+   *
+   * @return value of includeSubfolders
+   */
   public boolean isIncludeSubfolders() {
     return includeSubfolders;
   }
 
-  @Override
-  public void check(
-      List<ICheckResult> remarks,
-      WorkflowMeta workflowMeta,
-      IVariables variables,
-      IHopMetadataProvider metadataProvider) {
-    boolean res =
-        ActionValidatorUtils.andValidator()
-            .validate(
-                this,
-                "arguments",
-                remarks,
-                AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
+  /**
+   * Gets checkedFiles
+   *
+   * @return value of checkedFiles
+   */
+  public List<CheckedFile> getCheckedFiles() {
+    return checkedFiles;
+  }
 
-    if (res == false) {
-      return;
+  /**
+   * Sets checkedFiles
+   *
+   * @param checkedFiles value of checkedFiles
+   */
+  public void setCheckedFiles(List<CheckedFile> checkedFiles) {
+    this.checkedFiles = checkedFiles;
+  }
+
+  public static class CheckedFile {
+    @HopMetadataProperty(key = "name")
+    private String name;
+
+    @HopMetadataProperty(key = "filemask")
+    private String wildcard;
+
+    public CheckedFile() {}
+
+    public CheckedFile(CheckedFile f) {
+      this();
+      this.name = f.name;
+      this.wildcard = f.wildcard;
     }
 
-    ValidatorContext ctx = new ValidatorContext();
-    AbstractFileValidator.putVariableSpace(ctx, getVariables());
-    AndValidator.putValidators(
-        ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
+    public CheckedFile(String name, String wildcard) {
+      this.name = name;
+      this.wildcard = wildcard;
+    }
 
-    for (int i = 0; i < arguments.length; i++) {
-      ActionValidatorUtils.andValidator().validate(this, "arguments[" + i + "]", remarks, ctx);
+    /**
+     * Gets name
+     *
+     * @return value of name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Sets name
+     *
+     * @param name value of name
+     */
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    /**
+     * Gets wildcard
+     *
+     * @return value of wildcard
+     */
+    public String getWildcard() {
+      return wildcard;
+    }
+
+    /**
+     * Sets wildcard
+     *
+     * @param wildcard value of wildcard
+     */
+    public void setWildcard(String wildcard) {
+      this.wildcard = wildcard;
     }
   }
 }
