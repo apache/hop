@@ -29,6 +29,8 @@ The Row Normaliser transform converts the columns of an input stream into rows.
 
 You can use this transform to normalize repeating groups of columns.
 
+*Important*: When combining multiple columns with different meta types (e.g., String and Integer) into a new field, no automatic type conversion is performed. Instead the first meta type is set. This lack of conversion may lead to issues with subsequent transformations on the resulting data rows. It is strongly advised to ensure that the data types of values being put into the same field are aligned before normalization.
+
 |
 == Supported Engines
 [%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
