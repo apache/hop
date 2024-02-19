@@ -58,9 +58,9 @@ TIP: A cartesian join transform will combine a different number of fields from m
 
 *Example to use a variable value parameterized query*:
 
-This examples uses an integer. If you were using a string you most likely will have to use syntax ‘${openvar}PRM_NAME${closevar}’
+This examples uses an integer. If you were using a string you most likely will have to use syntax ``{openvar}PRM_NAME{closevar}``
 
-``Select * from table1 where id = ${openvar}myId${closevar}``
+``Select * from table1 where id = {openvar}myId{closevar}``
 
 * Replace variables in script: checked
 
