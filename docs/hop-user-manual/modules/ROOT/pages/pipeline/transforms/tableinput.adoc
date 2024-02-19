@@ -46,6 +46,8 @@ TIP: If you are getting unexpected query results, use the clear database cache i
 
 TIP: A cartesian join transform will combine a different number of fields from multiple table inputs without requiring key join fields.
 
+TIP: Using the "insert data from transform" drop down will block until the transform selected has completed.
+
 == Examples
 
 *Example to use data row field(s) parameterized query:*
