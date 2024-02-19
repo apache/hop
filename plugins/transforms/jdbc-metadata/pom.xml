@@ -29,6 +29,6 @@
     <artifactId>hop-transform-jdbc-metadata</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins JDBC Metadata</name>
+    <name>Hop Plugins Transforms JDBC Metadata</name>
 
 </project>
