@@ -32,7 +32,7 @@
     <name>Hop Plugins Transforms PostgreSQL bulk loader</name>
 
     <properties>
-        <postgresql.version>42.4.3</postgresql.version>
+        <postgresql.version>42.7.2</postgresql.version>
     </properties>
 
     <dependencies>
