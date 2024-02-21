@@ -477,6 +477,7 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
         }
         wMappingFields.setRowNums();
         wMappingFields.optWidth(true);
+        input.setChanged(changed);
       }
     } else {
       MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
@@ -524,7 +525,9 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
 
     input.setSchemaName(wSchemaDefinition.getText());
     int nrRows = wMappingFields.nrNonEmpty();
-    input.getMappingFieldset().clear();
+
+    if (input.getMappingFieldset() != null)
+      input.getMappingFieldset().clear();
 
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wMappingFields.getNonEmpty(i);

@@ -93,6 +93,9 @@ public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMa
 
       for (SchemaMappingField mappingField : mappingFieldset) {
         IValueMeta v = sdRowMeta.searchValueMeta(mappingField.getFieldSchemaDefinition());
+        IValueMeta vInputItem = inputRowMeta.searchValueMeta(mappingField.getFieldStream());
+        v.setOrigin(vInputItem.getOrigin());
+
         selectedSchemaRowMeta.addValueMeta(v);
       }
       inputRowMeta.clear();
