@@ -21,8 +21,10 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -69,26 +71,37 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       //
       if (data.chosesTargetTransforms) {
         List<IStream> targetStreams = meta.getTransformIOMeta().getTargetStreams();
-        data.trueRowSet =
-            findOutputRowSet(
-                getTransformName(), getCopy(), targetStreams.get(0).getTransformName(), 0);
-        if (data.trueRowSet == null) {
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  "JavaFilter.Log.TargetTransformInvalid",
-                  targetStreams.get(0).getTransformName()));
+
+        if (!Utils.isEmpty(targetStreams.get(0).getTransformName())) {
+          TransformMeta to = targetStreams.get(0).getTransformMeta();
+          PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
+          if (hop != null && hop.isEnabled()) {
+            data.trueRowSet = findOutputRowSet(getTransformName(), getCopy(),
+                targetStreams.get(0).getTransformName(), 0);
+            if (data.trueRowSet == null) {
+              throw new HopException(
+                  BaseMessages.getString(PKG, "JavaFilter.Log.TargetTransformInvalid",
+                      targetStreams.get(0).getTransformName()));
+            }
+          }
+        } else {
+          data.trueRowSet = null;
         }
 
-        data.falseRowSet =
-            findOutputRowSet(
-                getTransformName(), getCopy(), targetStreams.get(1).getTransformName(), 0);
-        if (data.falseRowSet == null) {
-          throw new HopException(
-              BaseMessages.getString(
-                  PKG,
-                  "JavaFilter.Log.TargetTransformInvalid",
-                  targetStreams.get(1).getTransformName()));
+        if (!Utils.isEmpty(targetStreams.get(1).getTransformName())) {
+          TransformMeta to = targetStreams.get(1).getTransformMeta();
+          PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
+          if (hop != null && hop.isEnabled()) {
+            data.falseRowSet = findOutputRowSet(getTransformName(), getCopy(),
+                targetStreams.get(1).getTransformName(), 0);
+            if (data.falseRowSet == null) {
+              throw new HopException(
+                  BaseMessages.getString(PKG, "JavaFilter.Log.TargetTransformInvalid",
+                      targetStreams.get(1).getTransformName()));
+            }
+          }
+        } else {
+          data.falseRowSet = null;
         }
       }
     }
@@ -105,23 +118,27 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
       }
     } else {
       if (keep) {
-        if (log.isRowLevel()) {
-          logRowlevel(
+        if (data.trueRowSet != null) {
+          if (log.isRowLevel()) {
+            logRowlevel(
               "Sending row to true  :"
                   + data.trueTransformName
                   + " : "
                   + getInputRowMeta().getString(r));
+          }
+          putRowTo(data.outputRowMeta, r, data.trueRowSet);
         }
-        putRowTo(data.outputRowMeta, r, data.trueRowSet);
       } else {
-        if (log.isRowLevel()) {
-          logRowlevel(
+        if (data.falseRowSet != null) {
+          if (log.isRowLevel()) {
+            logRowlevel(
               "Sending row to false :"
                   + data.falseTransformName
                   + " : "
                   + getInputRowMeta().getString(r));
+          }
+          putRowTo(data.outputRowMeta, r, data.falseRowSet);
         }
-        putRowTo(data.outputRowMeta, r, data.falseRowSet);
       }
     }
 
