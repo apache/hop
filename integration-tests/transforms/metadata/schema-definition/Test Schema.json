@@ -1,0 +1,60 @@
+{
+  "enclosure": "",
+  "name": "Test Schema",
+  "description": "",
+  "fieldDefinitions": [
+    {
+      "decimalSymbol": "",
+      "ifNullValue": "",
+      "hopType": "String",
+      "precision": -1,
+      "length": -1,
+      "name": "SchemaCompany",
+      "currencySymbol": "",
+      "comment": "",
+      "formatMask": "",
+      "groupingSymbol": "",
+      "trimType": 0
+    },
+    {
+      "decimalSymbol": "",
+      "ifNullValue": "",
+      "hopType": "String",
+      "precision": -1,
+      "length": -1,
+      "name": "SchemaAccount",
+      "currencySymbol": "",
+      "comment": "",
+      "formatMask": "",
+      "groupingSymbol": "",
+      "trimType": 0
+    },
+    {
+      "decimalSymbol": "",
+      "ifNullValue": "",
+      "hopType": "Date",
+      "precision": -1,
+      "length": -1,
+      "name": "SchemaReportDate",
+      "currencySymbol": "",
+      "comment": "",
+      "formatMask": "yyyy/MM/dd",
+      "groupingSymbol": "",
+      "trimType": 0
+    },
+    {
+      "decimalSymbol": "",
+      "ifNullValue": "",
+      "hopType": "Number",
+      "precision": -1,
+      "length": -1,
+      "name": "SchemaAmount",
+      "currencySymbol": "",
+      "comment": "",
+      "formatMask": "#.##",
+      "groupingSymbol": "",
+      "trimType": 0
+    }
+  ],
+  "separator": ""
+}
