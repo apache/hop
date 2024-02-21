@@ -167,6 +167,8 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           if (((meta.isOverwriteTargetFile() && data.targetFile.exists())
                   || !data.targetFile.exists())
               && !meta.simulate) {
+            // Better to delete the file before because. sometime, it's not properly overwritten
+            data.targetFile.delete();
             data.targetFile.copyFrom(data.sourceFile, new TextOneToOneFileSelector());
             if (log.isDetailed()) {
               logDetailed(
