@@ -1618,6 +1618,11 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return false;
   }
 
+  /** @return true if the database is a DuckDb variant. */
+  public boolean isDuckDbVariant() {
+    return false;
+  }
+
   /**
    * @return true if the database is a Informix variant.
    */

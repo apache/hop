@@ -771,7 +771,10 @@ public interface IDatabase extends Cloneable {
   /** @return true if the database is a neoview variant. */
   boolean isNeoviewVariant();
 
-  /** @return true if the database is a Exasol variant. */
+  /** @return true if the database is a neoview variant. */
+  boolean isDuckDbVariant();
+
+  /** @return true if the database is a DuckDB variant. */
   boolean isExasolVariant();
 
   /** @return true if the database is a Informix variant. */
