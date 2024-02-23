@@ -56,6 +56,8 @@
                 <include>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor</include>
                 <include>joda-time:joda-time</include>
                 <include>com.amazonaws:aws-java-sdk-s3</include>
+                <include>com.amazonaws:aws-java-sdk-sns:jar</include>
+                <include>com.amazonaws:aws-java-sdk-sqs:jar</include>
                 <include>com.amazonaws:aws-java-sdk-kms</include>
                 <include>com.amazon.redshift:redshift-jdbc42:jar</include>
             </includes>
