@@ -24,6 +24,13 @@ DuckDB is an in-process SQL OLAP database management system.
 
 As an in-process database, DuckDB is easy to configure: specify the path to your DuckDB filename as the database name, e.g. `<PATH_TO_YOUR_DUCKDB_FILE>/duckdb`.
 
+One thing to remember is about how DuckDB manages concurrency. The things to remember are summarized below:
+
+* Only one process at a time can both read and write to the database.
+* Multiple processes can read from the database, but no processes can write. To set this behavior, remember to specify in the connection's options the property duckdb.read_only = true
+
+For details, please refer to https://duckdb.org/docs/api/java[DuckDB Java API documentation].
+
 [cols="2*",options="header"]
 |===
 | Option | Info
