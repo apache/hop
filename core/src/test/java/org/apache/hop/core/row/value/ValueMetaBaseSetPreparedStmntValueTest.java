@@ -17,7 +17,9 @@
 
 package org.apache.hop.core.row.value;
 
+import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -52,7 +54,9 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
   @Before
   public void setUp() {
     dbMeta = mock(DatabaseMeta.class);
+    IDatabase iDb = mock(BaseDatabaseMeta.class);
     when(dbMeta.supportsTimeStampToDateConversion()).thenReturn(true);
+    when(dbMeta.getIDatabase()).thenReturn(iDb);
     ps = mock(PreparedStatement.class);
     date = new Date(System.currentTimeMillis());
     ts = new Timestamp(System.currentTimeMillis());
