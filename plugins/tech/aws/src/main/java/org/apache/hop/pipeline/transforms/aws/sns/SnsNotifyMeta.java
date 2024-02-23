@@ -314,6 +314,7 @@ public class SnsNotifyMeta extends BaseTransformMeta<SnsNotify, SnsNotifyData> {
      * @param space				the variable space for resolving variables
      * @param metadataProvider	the metadataProvider to optionally read from
      */
+    @Override
     public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables space, IHopMetadataProvider metadataProvider) throws HopTransformException {
 
         /*
