@@ -23,7 +23,9 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabaseMetaPlugin;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 
 @DatabaseMetaPlugin(
@@ -164,4 +166,8 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         return true;
     }
 
+    @Override
+    public boolean isSupportsOptionsInURL() {
+        return false;
+    }
 }
