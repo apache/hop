@@ -727,7 +727,7 @@ public interface IDatabase extends Cloneable {
   /**
    * Generate a column alias given the column index and suggested name.
    *
-   * @param columnIndex Index of column in query
+   * @param columnIndex Index of the column in the query
    * @param suggestedName Suggested column name
    * @return Column alias that is valid for this database
    */
@@ -757,7 +757,7 @@ public interface IDatabase extends Cloneable {
   boolean isMySqlVariant();
 
   /**
-   * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift and so
+   * @return true if the database is a Postgres variant like Postgres, Greenplum, Redshift, and so
    *     on.
    */
   boolean isPostgresVariant();
@@ -771,13 +771,13 @@ public interface IDatabase extends Cloneable {
   /** @return true if the database is a neoview variant. */
   boolean isNeoviewVariant();
 
-  /** @return true if the database is a neoview variant. */
+  /** @return true if the database is a DuckDB variant. */
   boolean isDuckDbVariant();
 
   /** @return true if the database is a DuckDB variant. */
   boolean isExasolVariant();
 
-  /** @return true if the database is a Informix variant. */
+  /** @return true if the database is an Informix variant. */
   boolean isInformixVariant();
 
   /** @return true if the database is a MS SQL Server (native) variant. */
@@ -789,7 +789,7 @@ public interface IDatabase extends Cloneable {
   /** @return true if the database is an Oracle variant. */
   boolean isOracleVariant();
 
-  /** @return true if the database is an Netezza variant. */
+  /** @return true if the database is a Netezza variant. */
   boolean isNetezzaVariant();
 
   /** @return true if the database is a SQLite variant. */
@@ -799,7 +799,7 @@ public interface IDatabase extends Cloneable {
   boolean isTeradataVariant();
 
   /**
-   * Returns a true of savepoints can be release, false if not.
+   * Returns a true if savepoints can be released, false if not.
    *
    * @return
    */
@@ -819,7 +819,7 @@ public interface IDatabase extends Cloneable {
   String getDataTablespaceDDL(IVariables variables, DatabaseMeta databaseMeta);
 
   /**
-   * Returns the tablespace DDL fragment for a "Index" tablespace.
+   * Returns the tablespace DDL fragment for an "Index" tablespace.
    *
    * @param variables variables used for possible substitution
    * @param databaseMeta databaseMeta the database meta used for possible string enclosure of the
