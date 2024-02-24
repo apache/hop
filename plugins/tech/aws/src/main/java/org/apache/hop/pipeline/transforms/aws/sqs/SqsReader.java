@@ -24,17 +24,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
@@ -51,19 +44,6 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
      *	{the package of the class specified}/messages/messages_{locale}.properties
      */
     private static Class<?> PKG = SqsReaderMeta.class; // for i18n purposes
-
-    private String awsCredChain;
-    private String awsKey;
-    private String awsKeySecret;
-    private String awsRegion;
-    private String sqsQueue;
-    private String tFldMessageID;
-    private String tFldMessageBody;
-    private String tFldReceiptHandle;
-    private String tFldBodyMD5;
-    private String tFldSNSMessage;
-    private String tFldMessageDelete;
-    private String tFldMaxMessages;
 
     public SqsReader(
             TransformMeta transformMeta,
@@ -143,7 +123,7 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
             // clone the input row structure and place it in our data object
             data.outputRowMeta = new RowMeta();
             // use meta.getFields() to change it, so it reflects the output row structure
-            meta.getFields(data.outputRowMeta, getTransformName(), null, null, null, null);
+            meta.getFields(data.outputRowMeta, getTransformName(), null, null, variables, null);
 
             logBasic ("Start reading from queue");
         }

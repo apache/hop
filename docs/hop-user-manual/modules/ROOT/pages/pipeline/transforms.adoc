@@ -35,6 +35,7 @@ The pages nested under this topic contain information on how to use the transfor
 * xref:pipeline/transforms/avro-encode.adoc[Avro Encode]
 * xref:pipeline/transforms/avro-file-input.adoc[Avro File Input]
 * xref:pipeline/transforms/aws-sns-notify.adoc[AWS SNS Notify]
+* xref:pipeline/transforms/aws-sqs-reader.adoc[AWS SQS Reader]
 * xref:pipeline/transforms/azure-event-hubs-listener.adoc[Azure Event Hubs Listener]
 * xref:pipeline/transforms/azure-event-hubs-writer.adoc[Azure Event Hubs Writer]
 * xref:pipeline/transforms/beambigqueryinput.adoc[Beam BigQuery Input]
