@@ -235,6 +235,7 @@ public class ValueMetaBase implements IValueMeta {
     BaseMessages.getString(PKG, "ValueMeta.TrimType.Right"),
     BaseMessages.getString(PKG, "ValueMeta.TrimType.Both")
   };
+
   // endregion
 
   public ValueMetaBase() {
@@ -5619,30 +5620,53 @@ public class ValueMetaBase implements IValueMeta {
               // Convert to DATE!
               long dat = getInteger(data).longValue(); // converts using Date.getTime()
               java.sql.Date ddate = new java.sql.Date(dat);
-              if (this.getDateFormatTimeZone() == null) {
+              if (databaseMeta.getIDatabase().isDuckDbVariant()) {
+                // As of DuckDB JDBC 0.10.0
+                // setDate(int parameterIndex, Date x, Calendar cal)
+                // is not yet implemented
                 preparedStatement.setDate(index, ddate);
               } else {
-                preparedStatement.setDate(
-                    index, ddate, Calendar.getInstance(this.getDateFormatTimeZone()));
+                if (this.getDateFormatTimeZone() == null) {
+                  preparedStatement.setDate(index, ddate);
+                } else {
+                  preparedStatement.setDate(
+                      index, ddate, Calendar.getInstance(this.getDateFormatTimeZone()));
+                }
               }
             } else {
               if (data instanceof Timestamp) {
                 // Preserve ns precision!
                 //
-                if (this.getDateFormatTimeZone() == null) {
+                if (databaseMeta.getIDatabase().isDuckDbVariant()) {
+                  // As of DuckDB JDBC 0.10.0
+                  // setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
+                  // is not yet implemented
                   preparedStatement.setTimestamp(index, (Timestamp) data);
                 } else {
-                  preparedStatement.setTimestamp(
-                      index, (Timestamp) data, Calendar.getInstance(this.getDateFormatTimeZone()));
+                  if (this.getDateFormatTimeZone() == null) {
+                    preparedStatement.setTimestamp(index, (Timestamp) data);
+                  } else {
+                    preparedStatement.setTimestamp(
+                        index,
+                        (Timestamp) data,
+                        Calendar.getInstance(this.getDateFormatTimeZone()));
+                  }
                 }
               } else {
                 long dat = getInteger(data).longValue(); // converts using Date.getTime()
                 Timestamp sdate = new Timestamp(dat);
-                if (this.getDateFormatTimeZone() == null) {
+                if (databaseMeta.getIDatabase().isDuckDbVariant()) {
+                  // As of DuckDB JDBC 0.10.0
+                  // setTimestamp(int parameterIndex, Timestamp x, Calendar cal)
+                  // is not yet implemented
                   preparedStatement.setTimestamp(index, sdate);
                 } else {
-                  preparedStatement.setTimestamp(
-                      index, sdate, Calendar.getInstance(this.getDateFormatTimeZone()));
+                  if (this.getDateFormatTimeZone() == null) {
+                    preparedStatement.setTimestamp(index, sdate);
+                  } else {
+                    preparedStatement.setTimestamp(
+                        index, sdate, Calendar.getInstance(this.getDateFormatTimeZone()));
+                  }
                 }
               }
             }

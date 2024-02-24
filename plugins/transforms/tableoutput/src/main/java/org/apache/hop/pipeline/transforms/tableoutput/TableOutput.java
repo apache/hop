@@ -384,6 +384,15 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
               dbe);
         }
       }
+    } finally {
+      try {
+        if (insertStatement != null) {
+          insertStatement.close();
+        }
+      } catch (SQLException e) {
+        throw new HopException("unable to close statement's handle for insertStatement",
+                e);
+      }
     }
 
     // We need to add a key

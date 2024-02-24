@@ -136,6 +136,11 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
 
     @Override
+    public boolean isDuckDbVariant() {
+        return true;
+    }
+
+    @Override
     public String getURL(String hostname, String port, String databaseName) throws HopDatabaseException {
         return "jdbc:duckdb:" + databaseName;
     }
