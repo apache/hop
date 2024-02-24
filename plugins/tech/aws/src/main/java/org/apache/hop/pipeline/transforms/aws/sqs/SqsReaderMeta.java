@@ -241,14 +241,20 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
      * row-stream.
      *
      * @param inputRowMeta		the row structure coming in to the step
-     * @param name 				the name of the step making the changes
+     * @param origin 				the origin of the step making the changes
      * @param info				row structures of any info steps coming in
      * @param nextTransform		the description of a step this step is passing rows to
-     * @param space				the variable space for resolving variables
+     * @param variables				the variable variables for resolving variables
      * @param metadataProvider	the metadataProvider to optionally read from
      */
     @Override
-    public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables space, IHopMetadataProvider metadataProvider) throws HopTransformException {
+    public void getFields(
+            IRowMeta inputRowMeta,
+            String origin,
+            IRowMeta[] info,
+            TransformMeta nextTransform,
+            IVariables variables,
+            IHopMetadataProvider metadataProvider) throws HopTransformException {
 
         /*
          * This implementation appends the outputField to the row-stream
@@ -256,47 +262,47 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
 
         try {
             if (tFldMessageID != null && !tFldMessageID.equals("")) {
-                String realMessageIDFieldName = space.resolve(tFldMessageID);
+                String realMessageIDFieldName = variables.resolve(tFldMessageID);
                 IValueMeta valueMeta = ValueMetaFactory.createValueMeta(realMessageIDFieldName, IValueMeta.TYPE_STRING );
                 valueMeta.setName(realMessageIDFieldName.toUpperCase());
                 valueMeta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-                valueMeta.setOrigin(name);
+                valueMeta.setOrigin(origin);
                 inputRowMeta.addValueMeta(valueMeta);
             }
 
             if (tFldMessageBody != null && !tFldMessageBody.equals("")) {
-                String realMessageBodyFieldName = space.resolve(tFldMessageBody);
+                String realMessageBodyFieldName = variables.resolve(tFldMessageBody);
                 IValueMeta valueMeta = ValueMetaFactory.createValueMeta(realMessageBodyFieldName, IValueMeta.TYPE_STRING );
                 valueMeta.setName(realMessageBodyFieldName.toUpperCase());
                 valueMeta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-                valueMeta.setOrigin(name);
+                valueMeta.setOrigin(origin);
                 inputRowMeta.addValueMeta(valueMeta);
             }
 
             if (tFldReceiptHandle != null && !tFldReceiptHandle.equals("")) {
-                String realReceiptHandleFieldName = space.resolve(tFldReceiptHandle);
+                String realReceiptHandleFieldName = variables.resolve(tFldReceiptHandle);
                 IValueMeta valueMeta = ValueMetaFactory.createValueMeta(realReceiptHandleFieldName, IValueMeta.TYPE_STRING );
                 valueMeta.setName(realReceiptHandleFieldName.toUpperCase());
                 valueMeta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-                valueMeta.setOrigin(name);
+                valueMeta.setOrigin(origin);
                 inputRowMeta.addValueMeta(valueMeta);
             }
 
             if (tFldBodyMD5 != null && !tFldBodyMD5.equals("")) {
-                String realBodyMD5FieldName = space.resolve(tFldBodyMD5);
+                String realBodyMD5FieldName = variables.resolve(tFldBodyMD5);
                 IValueMeta valueMeta = ValueMetaFactory.createValueMeta(realBodyMD5FieldName, IValueMeta.TYPE_STRING );
                 valueMeta.setName(realBodyMD5FieldName.toUpperCase());
                 valueMeta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-                valueMeta.setOrigin(name);
+                valueMeta.setOrigin(origin);
                 inputRowMeta.addValueMeta(valueMeta);
             }
 
             if (tFldSNSMessage != null && !tFldSNSMessage.equals("")) {
-                String realSNSMessageFieldName = space.resolve(tFldSNSMessage);
+                String realSNSMessageFieldName = variables.resolve(tFldSNSMessage);
                 IValueMeta valueMeta = ValueMetaFactory.createValueMeta(realSNSMessageFieldName, IValueMeta.TYPE_STRING );
                 valueMeta.setName(realSNSMessageFieldName.toUpperCase());
                 valueMeta.setTrimType(IValueMeta.TRIM_TYPE_BOTH);
-                valueMeta.setOrigin(name);
+                valueMeta.setOrigin(origin);
                 inputRowMeta.addValueMeta(valueMeta);
             }
 
