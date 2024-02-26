@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
         image = "aws-sqs.svg",
         name= "i18n::SQSReaderTransform.Name",
         description = "i18n::SQSReaderTransform.TooltipDesc",
-        categoryDescription="i18n:org.pentaho.di.trans.step:BaseStep.Category.Input",
+        categoryDescription="i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         keywords = "",
         documentationUrl="/pipeline/transforms/aws-sqs-reader.html"
 )
@@ -116,8 +116,8 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
     }
 
     /**
-     * This method is called every time a new step is created and should allocate/set the step configuration
-     * to sensible defaults. The values set here will be used by Spoon when a new step is created.
+     * This method is called every time a new transform is created and should allocate/set the transform configuration
+     * to sensible defaults. The values set here will be used by Hop Gui when a new transform is created.
      */
     public void setDefault() {
         // outputField = "demo_field";
@@ -220,11 +220,11 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
     }
 
     /**
-     * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
-     * step meta object. Be sure to create proper deep copies if the step configuration is stored in
+     * This method is used when a transform is duplicated in Hop Gui. It needs to return a deep copy of this
+     * transform meta object. Be sure to create proper deep copies if the transform configuration is stored in
      * modifiable objects.
      *
-     * See org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta.clone() for an example on creating
+     * See org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta.clone() for an example on creating
      * a deep copy.
      *
      * @return a deep copy of this
@@ -235,15 +235,15 @@ public class SqsReaderMeta extends BaseTransformMeta<SqsReader, SqsReaderData> {
     }
 
     /**
-     * This method is called to determine the changes the step is making to the row-stream.
+     * This method is called to determine the changes the transform is making to the row-stream.
      * To that end a RowMetaInterface object is passed in, containing the row-stream structure as it is when entering
-     * the step. This method must apply any changes the step makes to the row stream. Usually a step adds fields to the
+     * the transform. This method must apply any changes the transform makes to the row stream. Usually a transform adds fields to the
      * row-stream.
      *
-     * @param inputRowMeta		the row structure coming in to the step
-     * @param origin 				the origin of the step making the changes
-     * @param info				row structures of any info steps coming in
-     * @param nextTransform		the description of a step this step is passing rows to
+     * @param inputRowMeta		the row structure coming in to the transform
+     * @param origin 				the origin of the transform making the changes
+     * @param info				row structures of any info transforms coming in
+     * @param nextTransform		the description of a transform this transform is passing rows to
      * @param variables				the variable variables for resolving variables
      * @param metadataProvider	the metadataProvider to optionally read from
      */

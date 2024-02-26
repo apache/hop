@@ -67,7 +67,7 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
      */
     private static Class<?> PKG = SqsReaderMeta.class; // for i18n purposes
 
-    // this is the object the stores the step's settings
+    // this is the object the stores the transform's settings
     // the dialog reads the settings from it when opening
     // the dialog writes the settings to it when confirmed
     private SqsReaderMeta meta;
@@ -115,27 +115,27 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
      * from/to it.
      *
      * @param parent 	the SWT shell to open the dialog in
-     * @param in		the meta object holding the step's settings
-     * @param transMeta	transformation description
-     * @param sname		the step name
+     * @param in		the meta object holding the transform's settings
+     * @param pipelineMeta	pipeline description
+     * @param sname		the transform name
      */
-    public SqsReaderDialog(Shell parent, IVariables variables, Object in, PipelineMeta transMeta, String sname) {
-        super(parent, variables, (BaseTransformMeta) in, transMeta, sname);
+    public SqsReaderDialog(Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+        super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
         meta = (SqsReaderMeta) in;
     }
 
     /**
-     * This method is called by Spoon when the user opens the settings dialog of the step.
+     * This method is called by Hop Gui when the user opens the settings dialog of the transform.
      * It should open the dialog and return only once the dialog has been closed by the user.
      *
      * If the user confirms the dialog, the meta object (passed in the constructor) must
-     * be updated to reflect the new step settings. The changed flag of the meta object must
-     * reflect whether the step configuration was changed by the dialog.
+     * be updated to reflect the new transform settings. The changed flag of the meta object must
+     * reflect whether the transform configuration was changed by the dialog.
      *
      * If the user cancels the dialog, the meta object must not be updated, and its changed flag
      * must remain unaltered.
      *
-     * The open() method must return the name of the step after the user has confirmed the dialog,
+     * The open() method must return the name of the transform after the user has confirmed the dialog,
      * or null if the user cancelled the dialog.
      */
     public String open() {
@@ -151,7 +151,7 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
 
         // Save the value of the changed flag on the meta object. If the user cancels
         // the dialog, it will be restored to this saved value.
-        // The "changed" variable is inherited from BaseStepDialog
+        // The "changed" variable is inherited from BaseTransformDialog
         changed = meta.hasChanged();
 
         // The ModifyListener used on all controls. It will update the meta object to
@@ -602,7 +602,7 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
         });
 
         // Set/Restore the dialog size based on last position on screen
-        // The setSize() method is inherited from BaseStepDialog
+        // The setSize() method is inherited from BaseTransformDialog
         setSize();
 
         // populate the dialog with the values from the meta object
@@ -691,7 +691,7 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
     }
 
     /**
-     * This helper method puts the step configuration stored in the meta object
+     * This helper method puts the transform configuration stored in the meta object
      * and puts it into the dialog controls.
      */
     private void populateDialog() {
@@ -732,7 +732,7 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
      */
     private void ok() {
         // The "transformName" variable will be the return value for the open() method.
-        // Setting to step name from the dialog control
+        // Setting to transform name from the dialog control
         transformName = wTransformName.getText();
 
         // Setting the  settings to the meta object
