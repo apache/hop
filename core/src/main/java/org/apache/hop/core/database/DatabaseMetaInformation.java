@@ -205,8 +205,16 @@ public class DatabaseMetaInformation {
             ArrayList<String> schemaTables = new ArrayList<>();
 
             try {
-              ResultSet schemaTablesResultSet =
-                  dbmd.getTables(null, schema.getSchemaName(), null, null);
+              ResultSet schemaTablesResultSet = null;
+              String schemaName = null;
+              String catalogName = null;
+              if (!schema.getSchemaName().contains(".")) {
+                schemaTablesResultSet = dbmd.getTables(null, schema.getSchemaName(), null, null);
+              } else {
+                catalogName = schema.getSchemaName().substring(0, schema.getSchemaName().indexOf('.'));
+                schemaName = schema.getSchemaName().substring(schema.getSchemaName().indexOf('.') + 1);
+                schemaTablesResultSet = dbmd.getTables(catalogName, schemaName, null, null);
+              }
               while (schemaTablesResultSet.next()) {
                 String tableName = schemaTablesResultSet.getString(3);
                 if (!db.isSystemTable(tableName)) {
@@ -216,6 +224,7 @@ public class DatabaseMetaInformation {
               // Immediately close the schema tables ResultSet
               //
               schemaTablesResultSet.close();
+              schemaTablesResultSet = null;
 
               // Sort the tables by names
               Collections.sort(schemaTables);

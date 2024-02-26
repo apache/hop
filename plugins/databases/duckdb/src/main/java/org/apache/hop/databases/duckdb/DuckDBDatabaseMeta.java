@@ -175,4 +175,15 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     public boolean isSupportsOptionsInURL() {
         return false;
     }
+
+    @Override
+    public String getSqlListOfSchemas() {
+        return "SELECT CONCAT(catalog_name, '.', schema_name) AS name FROM information_schema.schemata ORDER BY catalog_name, schema_name";
+    }
+
+    @Override
+    public String[] getTableTypes() {
+        return new String[] {"BASE TABLE", "LOCAL TEMPORARY"};
+    }
+
 }
