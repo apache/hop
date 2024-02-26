@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -67,6 +68,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -780,11 +782,19 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void showTable(String tableName) {
-    String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
-    String sql = dbMeta.getSqlQueryFields(realTableName);
-    GetQueryFieldsProgressDialog pd =
-        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
-    IRowMeta result = pd.open();
+    String sql = dbMeta.getSqlQueryFields(tableName);
+//    GetQueryFieldsProgressDialog pd =
+//        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
+//    IRowMeta result = pd.open();
+    IRowMeta result = null;
+    Database db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
+    try {
+       db.connect();
+      result = db.getQueryFields(sql, false);
+    } catch (Exception e) {}
+    finally {
+      db.disconnect();
+    }
     if (result != null) {
       TransformFieldsDialog sfd =
           new TransformFieldsDialog(shell, variables, SWT.NONE, tableName, result);
