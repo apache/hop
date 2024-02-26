@@ -40,7 +40,7 @@ public class AwsSqsReader {
     private String awsRegion;
     private String awsKeySecret;
     private BaseTransform baseTransform;
-    private PipelineMeta transMeta;
+    private PipelineMeta pipelineMeta;
     private String awsCredChain;
     private String deleteMessage;
 
@@ -56,7 +56,7 @@ public class AwsSqsReader {
 
         this.meta = transformMeta;
         this.baseTransform = bst;
-        this.transMeta = t;
+        this.pipelineMeta = t;
 
         this.awsCredChain = this.baseTransform.resolve(meta.getAwsCredChain());
         this.awsKey = this.baseTransform.resolve(meta.getAwsKey());

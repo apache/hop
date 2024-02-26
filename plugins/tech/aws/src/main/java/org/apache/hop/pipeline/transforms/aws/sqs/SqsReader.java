@@ -94,27 +94,27 @@ public class SqsReader extends BaseTransform<SqsReaderMeta, SqsReaderData> {
     }
 
     /**
-     * Once the transformation starts executing, the processRow() method is called repeatedly
-     * by PDI for as long as it returns true. To indicate that a step has finished processing rows
+     * Once the pipeline starts executing, the processRow() method is called repeatedly
+     * by Hop for as long as it returns true. To indicate that a transform has finished processing rows
      * this method must call setOutputDone() and return false;
      *
-     * Steps which process incoming rows typically call getRow() to read a single row from the
+     * Transforms which process incoming rows typically call getRow() to read a single row from the
      * input stream, change or add row content, call putRow() to pass the changed row on
      * and return true. If getRow() returns null, no more rows are expected to come in,
      * and the processRow() implementation calls setOutputDone() and returns false to
      * indicate that it is done too.
      *
-     * Steps which generate rows typically construct a new row Object[] using a call to
+     * Transforms which generate rows typically construct a new row Object[] using a call to
      * RowDataUtil.allocateRowData(numberOfFields), add row content, and call putRow() to
      * pass the new row on. Above process may happen in a loop to generate multiple rows,
      * at the end of which processRow() would call setOutputDone() and return false;
      *
-     * @return true to indicate that the function should be called again, false if the step is done
+     * @return true to indicate that the function should be called again, false if the transform is done
      */
     @Override
     public boolean processRow() throws HopException {
 
-        // the "first" flag is inherited from the base step implementation
+        // the "first" flag is inherited from the base transform implementation
         // it is used to guard some processing tasks, like figuring out field indexes
         // in the row structure that only need to be done once
 
