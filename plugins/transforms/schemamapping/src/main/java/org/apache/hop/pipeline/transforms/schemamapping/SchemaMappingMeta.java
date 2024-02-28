@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.schemamapping;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -104,5 +105,10 @@ public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMa
     } catch (HopPluginException e) {
       throw new HopTransformException(e);
     }
+  }
+
+  @Override
+  public void setDefault() {
+    this.mappingFieldset = new ArrayList<SchemaMappingField>();
   }
 }
