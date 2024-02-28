@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -98,6 +99,7 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
           @Override
           public void widgetSelected(SelectionEvent e) {
             input.setChanged();
+            fillStaticSchemaFieldset();
           }
         };
 
@@ -200,6 +202,33 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
 
     return transformName;
   }
+
+  private void fillStaticSchemaFieldset() {
+    String schemaName = wSchemaDefinition.getText();
+    if (!Utils.isEmpty(schemaName)) {
+      try {
+        SchemaDefinition schemaDefinition =
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+        if (schemaDefinition != null) {
+          List<SchemaFieldDefinition> fieldDefinitions = schemaDefinition.getFieldDefinitions();
+
+          wMappingFields.table.removeAll();
+          wMappingFields.table.setItemCount(fieldDefinitions.size());
+          for (int i = 0; i < fieldDefinitions.size(); i++) {
+            SchemaFieldDefinition sfd = fieldDefinitions.get(i);
+            TableItem item = wMappingFields.table.getItem(i);
+            if (sfd.getName() != null) {
+              item.setText(1, sfd.getName());
+            }
+          }
+        }
+      } catch (HopTransformException e) {
+        // ignore any errors here. drop downs will not be
+        // filled, but no problem for the user
+      }
+    }
+  }
+
 
   private void buildMappingTable(ModifyListener lsMod, int margin) {
 
