@@ -190,7 +190,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
                     + "?name="
                     + URLEncoder.encode(pipelineName, UTF_8)
                     + "&id="
-                    + id
+                    + URLEncoder.encode(id, UTF_8)
                     + "\">"
                     + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToPipelineStatusPage")
                     + "</a><p>");
