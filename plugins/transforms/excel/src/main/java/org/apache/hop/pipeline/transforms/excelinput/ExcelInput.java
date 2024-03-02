@@ -317,6 +317,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
     }
     switch (cell.getType()) {
       case BOOLEAN:
+      case BOOLEAN_FORMULA:
         if (!(v.getType() == IValueMeta.TYPE_STRING
             || v.getType() == IValueMeta.TYPE_NONE
             || v.getType() == IValueMeta.TYPE_BOOLEAN)) {
@@ -327,6 +328,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         break;
 
       case DATE:
+      case DATE_FORMULA:
         if (!(v.getType() == IValueMeta.TYPE_STRING
             || v.getType() == IValueMeta.TYPE_NONE
             || v.getType() == IValueMeta.TYPE_DATE)) {
@@ -340,6 +342,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         break;
 
       case LABEL:
+      case STRING_FORMULA:
         if (v.getType() == IValueMeta.TYPE_BOOLEAN
             || v.getType() == IValueMeta.TYPE_DATE
             || v.getType() == IValueMeta.TYPE_INTEGER
@@ -358,6 +361,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         break;
 
       case NUMBER:
+      case NUMBER_FORMULA:
         if (!(v.getType() == IValueMeta.TYPE_STRING
             || v.getType() == IValueMeta.TYPE_NONE
             || v.getType() == IValueMeta.TYPE_INTEGER
@@ -371,6 +375,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
                   v.getTypeDesc()));
         }
         break;
+
 
       default:
         throw new HopException(
