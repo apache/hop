@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.schemamapping;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -555,14 +556,38 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     input.setSchemaName(wSchemaDefinition.getText());
     int nrRows = wMappingFields.nrNonEmpty();
 
-    if (input.getMappingFieldset() != null)
-      input.getMappingFieldset().clear();
-
+    HashMap<String, SchemaMappingField> smfMap = new HashMap<>();
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wMappingFields.getNonEmpty(i);
       SchemaMappingField sf =
-          new SchemaMappingField(Const.NVL(item.getText(1), ""), Const.NVL(item.getText(2), ""));
-      input.getMappingFieldset().add(sf);
+          new SchemaMappingField(item.getText(1), Const.NVL(item.getText(2), ""));
+      smfMap.put(item.getText(1), sf);
+    }
+
+    String schemaName = variables.resolve(wSchemaDefinition.getText());
+    if (!Utils.isEmpty(schemaName)) {
+      try {
+        SchemaDefinition schemaDefinition =
+            (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+
+        if (input.getMappingFieldset() != null) input.getMappingFieldset().clear();
+        ArrayList<SchemaFieldDefinition> staticFieldset = (ArrayList<SchemaFieldDefinition>) schemaDefinition.getFieldDefinitions();
+        for (int i = 0; i < staticFieldset.size(); i++) {
+          SchemaFieldDefinition sfItem = staticFieldset.get(i);
+          if (smfMap.get(sfItem.getName()) != null)
+            input.getMappingFieldset().add(smfMap.get(sfItem.getName()));
+        }
+
+      } catch (HopException e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(
+                PKG, "SchemaMappingDialog.DoMapping.UnableToFindSchemaFields.Title"),
+            BaseMessages.getString(
+                PKG, "SchemaMappingDialog.DoMapping.UnableToFindSchemaFields.Message"),
+            e);
+        return;
+      }
     }
 
     transformName = wTransformName.getText();

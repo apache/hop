@@ -22,12 +22,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+
+import java.util.HashMap;
 
 /** Sample rows. Filter rows based on line number */
 public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappingData> {
@@ -57,31 +60,27 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
     if (first) {
       first = false;
       data.inputRowMeta = getInputRowMeta();
-      data.outputRowMeta = getInputRowMeta().clone();
+      data.outputRowMeta = new RowMeta();
       meta.getFields(
           data.outputRowMeta, getTransformName(), null, null, variables, metadataProvider);
 
-      data.fieldnrs = new int[meta.getMappingFieldset().size()];
-      for (int i = 0; i < data.fieldnrs.length; i++) {
+      data.positionsMap = new HashMap<String, Integer>();
+      for (int i = 0; i < meta.getMappingFieldset().size(); i++) {
         SchemaMappingField f = meta.getMappingFieldset().get(i);
-        data.fieldnrs[i] = data.inputRowMeta.indexOfValue(f.getFieldStream());
-        if (data.fieldnrs[i] < 0) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "SchemaMapping.Log.CouldNotFindField", f.getFieldStream()));
-          setErrors(1);
-          stopAll();
-          return false;
+        if (data.inputRowMeta.searchValueMeta(f.getFieldStream()) != null) {
+          data.positionsMap.put(
+              f.getFieldSchemaDefinition(), data.inputRowMeta.indexOfValue(f.getFieldStream()));
         }
 
-        IValueMeta sourceValueMeta = data.inputRowMeta.getValueMeta(data.fieldnrs[i]);
+        IValueMeta sourceValueMeta =
+            data.inputRowMeta.getValueMeta(data.inputRowMeta.indexOfValue(f.getFieldStream()));
         IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(i);
         alterSourceMetadata(sourceValueMeta, targetValueMeta);
       }
     } // end if first
 
     // Create a new output row
-    Object[] outputData = new Object[data.fieldnrs.length];
+    Object[] outputData = new Object[data.outputRowMeta.size()];
 
     applySchemaToIncomingStream(outputData, r);
 
@@ -113,30 +112,19 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
 
   private void applySchemaToIncomingStream(Object[] outputData, Object[] r)
       throws HopValueException {
+
     int outputIndex = 0;
+    for (int i = 0; i < outputData.length; i++) {
 
-    // Get the field values
-    //
-    int schemaFieldIdx = 0;
+      IValueMeta targetRowMeta = data.outputRowMeta.getValueMeta(i);
+      Integer pos = data.positionsMap.get(targetRowMeta.getName());
 
-    for (int idx : data.fieldnrs) {
-      // Normally this can't happen, except when streams are mixed with different
-      // number of fields.
-      //
-      if (idx < data.inputRowMeta.size()) {
-        IValueMeta valueMeta = data.inputRowMeta.getValueMeta(idx);
-
-        // Convert incoming data according to the specified schema
-        IValueMeta targetRowMeta = data.outputRowMeta.getValueMeta(schemaFieldIdx);
-        outputData[outputIndex++] = targetRowMeta.convertData(valueMeta, r[idx]);
+      if (pos != null) {
+        IValueMeta valueMeta = data.inputRowMeta.getValueMeta(pos);
+        outputData[outputIndex++] = targetRowMeta.convertData(valueMeta, r[pos]);
       } else {
-        if (log.isDetailed()) {
-          logDetailed(
-              BaseMessages.getString(PKG, "SchemaMapping.Log.MixingStreamWithDifferentFields"));
-        }
+        outputData[outputIndex++] = null;
       }
-
-      schemaFieldIdx++;
     }
   }
 

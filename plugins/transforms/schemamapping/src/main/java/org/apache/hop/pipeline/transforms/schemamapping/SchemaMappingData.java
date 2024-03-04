@@ -23,11 +23,13 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+import java.util.HashMap;
+
 public class SchemaMappingData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;
   public IRowMeta inputRowMeta;
-  public int[] fieldnrs;
+  public HashMap<String, Integer> positionsMap;
 
   public SchemaMappingData() {
     super();

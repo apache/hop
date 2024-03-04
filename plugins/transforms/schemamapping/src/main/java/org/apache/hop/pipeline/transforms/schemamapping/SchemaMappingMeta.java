@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.schemamapping;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -31,6 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 
 @Transform(
@@ -88,20 +90,28 @@ public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMa
     SchemaDefinition sd =
         (new SchemaDefinitionUtil().loadSchemaDefinition(metadataProvider, schemaName));
 
+    HashMap<String, String> mappingsMap = new HashMap<>();
+    for (SchemaMappingField smf : mappingFieldset) {
+      mappingsMap.put(smf.getFieldSchemaDefinition(), smf.getFieldStream());
+    }
+
     try {
-      IRowMeta sdRowMeta = sd.getRowMeta();
       IRowMeta selectedSchemaRowMeta = new RowMeta();
 
-      for (SchemaMappingField mappingField : mappingFieldset) {
-        IValueMeta v = sdRowMeta.searchValueMeta(mappingField.getFieldSchemaDefinition());
-        IValueMeta vInputItem = inputRowMeta.searchValueMeta(mappingField.getFieldStream());
-        v.setOrigin(vInputItem.getOrigin());
-
+      for (int i=0; i<sd.getRowMeta().size(); i++) {
+        IValueMeta v = sd.getRowMeta().getValueMeta(i);
+        if (mappingsMap.get(v.getName()) != null) {
+          IValueMeta vInputItem = inputRowMeta.searchValueMeta(mappingsMap.get(v.getName()));
+          if (vInputItem != null) {
+            v.setOrigin(vInputItem.getOrigin());
+          }
+        } else {
+          v.setOrigin(name);
+        }
         selectedSchemaRowMeta.addValueMeta(v);
       }
       inputRowMeta.clear();
       inputRowMeta.addRowMeta(selectedSchemaRowMeta);
-
     } catch (HopPluginException e) {
       throw new HopTransformException(e);
     }
