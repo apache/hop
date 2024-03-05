@@ -29,8 +29,6 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -43,8 +41,8 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 
   private TextVar wFilename;
+  private Button wCreatingParentFolders;
   private Button wAddToResult;
-
   private Button wDoNotOpenNewFileInit;
 
   private final CubeOutputMeta input;
@@ -66,6 +64,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
+    shell.setMinimumSize(400, 200);
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
@@ -80,7 +79,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     shell.setText(BaseMessages.getString(PKG, "CubeOutputDialog.Shell.Text"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -127,14 +126,37 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     fdFilename.right = new FormAttachment(wbFilename, -margin);
     wFilename.setLayoutData(fdFilename);
 
+    // Creating parent folders
+    //
+    Label wlCreatingParentFolders = new Label(shell, SWT.RIGHT);
+    wlCreatingParentFolders.setText(
+        BaseMessages.getString(PKG, "CubeOutputDialog.CreatingParentFolders.Label"));
+    PropsUi.setLook(wlCreatingParentFolders);
+    FormData fdlCreatingParentFolders = new FormData();
+    fdlCreatingParentFolders.left = new FormAttachment(0, 0);
+    fdlCreatingParentFolders.top = new FormAttachment(wFilename, 2 * margin);
+    fdlCreatingParentFolders.right = new FormAttachment(middle, -margin);
+    wlCreatingParentFolders.setLayoutData(fdlCreatingParentFolders);
+    wCreatingParentFolders = new Button(shell, SWT.CHECK);
+    wCreatingParentFolders.setToolTipText(
+        BaseMessages.getString(PKG, "CubeOutputDialog.CreatingParentFolders.Tooltip"));
+    PropsUi.setLook(wDoNotOpenNewFileInit);
+    FormData fdCreatingParentFolders = new FormData();
+    fdCreatingParentFolders.left = new FormAttachment(middle, 0);
+    fdCreatingParentFolders.top = new FormAttachment(wlCreatingParentFolders, 0, SWT.CENTER);
+    fdCreatingParentFolders.right = new FormAttachment(100, 0);
+    wCreatingParentFolders.setLayoutData(fdCreatingParentFolders);
+    wCreatingParentFolders.addListener(SWT.Selection, e ->  input.setChanged());
+    
     // Open new File at Init
+    //
     Label wlDoNotOpenNewFileInit = new Label(shell, SWT.RIGHT);
     wlDoNotOpenNewFileInit.setText(
         BaseMessages.getString(PKG, "CubeOutputDialog.DoNotOpenNewFileInit.Label"));
     PropsUi.setLook(wlDoNotOpenNewFileInit);
     FormData fdlDoNotOpenNewFileInit = new FormData();
     fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
-    fdlDoNotOpenNewFileInit.top = new FormAttachment(wFilename, 2 * margin);
+    fdlDoNotOpenNewFileInit.top = new FormAttachment(wCreatingParentFolders, margin);
     fdlDoNotOpenNewFileInit.right = new FormAttachment(middle, -margin);
     wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit = new Button(shell, SWT.CHECK);
@@ -146,15 +168,10 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     fdDoNotOpenNewFileInit.top = new FormAttachment(wlDoNotOpenNewFileInit, 0, SWT.CENTER);
     fdDoNotOpenNewFileInit.right = new FormAttachment(100, 0);
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
-    wDoNotOpenNewFileInit.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            input.setChanged();
-          }
-        });
+    wDoNotOpenNewFileInit.addListener(SWT.Selection, e ->  input.setChanged());
 
     // Add File to the result files name
+    //
     Label wlAddToResult = new Label(shell, SWT.RIGHT);
     wlAddToResult.setText(BaseMessages.getString(PKG, "CubeOutputDialog.AddFileToResult.Label"));
     PropsUi.setLook(wlAddToResult);
@@ -172,21 +189,14 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     fdAddToResult.top = new FormAttachment(wlAddToResult, 0, SWT.CENTER);
     fdAddToResult.right = new FormAttachment(100, 0);
     wAddToResult.setLayoutData(fdAddToResult);
-    SelectionAdapter lsSelR =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            input.setChanged();
-          }
-        };
-    wAddToResult.addSelectionListener(lsSelR);
+    wAddToResult.addListener(SWT.Selection, e ->  input.setChanged());
 
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    setButtonPositions(new Button[] {wOk, wCancel}, margin, wAddToResult);
+    setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
     wOk.addListener(SWT.Selection, e -> ok());
@@ -218,6 +228,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     if (input.getFilename() != null) {
       wFilename.setText(input.getFilename());
     }
+    wCreatingParentFolders.setSelection(input.isFilenameCreatingParentFolders());
     wDoNotOpenNewFileInit.setSelection(input.isDoNotOpenNewFileInit());
     wAddToResult.setSelection(input.isAddToResultFilenames());
 
@@ -238,6 +249,7 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
     }
 
     transformName = wTransformName.getText(); // return value
+    input.setFilenameCreatingParentFolders(wCreatingParentFolders.getSelection());
     input.setAddToResultFilenames(wAddToResult.getSelection());
     input.setDoNotOpenNewFileInit(wDoNotOpenNewFileInit.getSelection());
     input.setFilename(wFilename.getText());

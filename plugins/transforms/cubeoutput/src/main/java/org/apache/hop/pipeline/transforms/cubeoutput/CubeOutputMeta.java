@@ -53,6 +53,9 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
   @HopMetadataProperty(key = "name")
   private String filename;
 
+  @HopMetadataProperty(key = "filename_create_parent_folders")
+  private boolean filenameCreatingParentFolders;
+  
   /** Flag: add the filenames to result filenames */
   @HopMetadataProperty(key = "add_to_result_filenames")
   private boolean addToResultFilenames;
@@ -67,6 +70,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
 
   public CubeOutputMeta(CubeOutputMeta m) {
     this.filename = m.filename;
+    this.filenameCreatingParentFolders = m.filenameCreatingParentFolders;    
     this.addToResultFilenames = m.addToResultFilenames;
     this.doNotOpenNewFileInit = m.doNotOpenNewFileInit;
   }
@@ -169,6 +173,18 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
    */
   public void setFilename(String filename) {
     this.filename = filename;
+  }
+
+  /**
+   * Gets filename creating parent folders
+   */
+  public boolean isFilenameCreatingParentFolders() {
+    return filenameCreatingParentFolders;
+  }
+
+  /** @param filenameCreatingParentFolders The filenameCreatingParentFolders to set */
+  public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
+    this.filenameCreatingParentFolders = filenameCreatingParentFolders;
   }
 
   /**
