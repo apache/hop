@@ -56,6 +56,7 @@ A basic project metadata folder will look similar to the one below:
 │   └── Spark.json
 ├── rdbms
 │   └── crm.json
+├── schema-definition
 ├── server
 ├── splunk
 ├── unit-test

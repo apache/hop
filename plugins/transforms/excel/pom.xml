@@ -94,6 +94,11 @@
             <version>${objenesis.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-static-schema</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

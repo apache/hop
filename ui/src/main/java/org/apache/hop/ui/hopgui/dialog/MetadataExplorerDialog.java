@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.TranslateUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
@@ -415,7 +416,7 @@ public class MetadataExplorerDialog {
         elementTypeItem.setImage(image);
 
         elementTypeItem.setText(0, Const.NVL(hopMetadata.key(), ""));
-        elementTypeItem.setText(1, Const.NVL(hopMetadata.name(), ""));
+        elementTypeItem.setText(1, Const.NVL(TranslateUtil.translate(hopMetadata.name(), metadataClass), ""));
 
         // level 1: object names
         //

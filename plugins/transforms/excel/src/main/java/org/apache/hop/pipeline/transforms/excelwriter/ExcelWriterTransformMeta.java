@@ -81,6 +81,9 @@ public class ExcelWriterTransformMeta
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendEmpty.Field")
   private int appendEmpty = 0;
 
+  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.SchemaDefinition.Field")
+  private String schemaDefinition;
+
   @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.AppendOmitHeader.Field")
   private boolean appendOmitHeader = false;
 
@@ -136,6 +139,14 @@ public class ExcelWriterTransformMeta
     file = new ExcelWriterFileField();
     template = new ExcelWriterTemplateField();
     outputFields = new ArrayList<>();
+  }
+
+  public String getSchemaDefinition() {
+    return schemaDefinition;
+  }
+
+  public void setSchemaDefinition(String schemaDefinition) {
+    this.schemaDefinition = schemaDefinition;
   }
 
   public ExcelWriterFileField getFile() {

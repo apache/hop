@@ -1,0 +1,63 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "Position",
+          "data_set_field": "Position"
+        },
+        {
+          "transform_field": "Fieldname",
+          "data_set_field": "Fieldname"
+        },
+        {
+          "transform_field": "Comments",
+          "data_set_field": "Comments"
+        },
+        {
+          "transform_field": "Type",
+          "data_set_field": "Type"
+        },
+        {
+          "transform_field": "Length",
+          "data_set_field": "Length"
+        },
+        {
+          "transform_field": "Precision",
+          "data_set_field": "Precision"
+        },
+        {
+          "transform_field": "FormatMask",
+          "data_set_field": "FormatMask"
+        },
+        {
+          "transform_field": "Origin",
+          "data_set_field": "Origin"
+        }
+      ],
+      "field_order": [
+        "Position",
+        "Fieldname",
+        "Comments",
+        "Type",
+        "Length",
+        "Precision",
+        "FormatMask",
+        "Origin"
+      ],
+      "data_set_name": "golden-schemadefinition-schemamapping",
+      "transform_name": "Verify"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0070-schema-mapping UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0070-schema-mapping.hpl",
+  "test_type": "UNIT_TEST"
+}

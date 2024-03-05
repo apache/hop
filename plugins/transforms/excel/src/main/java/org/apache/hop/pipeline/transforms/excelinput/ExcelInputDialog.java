@@ -31,6 +31,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
@@ -46,6 +47,7 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonListenerFactory;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterListDialog;
@@ -56,10 +58,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.core.widget.VariableButtonListenerFactory;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -69,6 +68,7 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -81,6 +81,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
 
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
 import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
@@ -163,6 +165,9 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Button wErrorIgnored;
 
   private Label wlSkipErrorLines;
+
+  private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+
   private Button wSkipErrorLines;
 
   // New entries for intelligent error handling AKA replay functionality
@@ -840,6 +845,15 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
     wFieldsTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FieldsTab.TabTitle"));
 
+    SelectionListener lsSelection =
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
+                input.setChanged();
+              }
+            };
+
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = PropsUi.getFormMargin();
     fieldsLayout.marginHeight = PropsUi.getFormMargin();
@@ -847,7 +861,41 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout(fieldsLayout);
 
-    wbGetFields = new Button(wFieldsComp, SWT.PUSH | SWT.CENTER);
+    wSchemaDefinition =
+            new MetaSelectionLine<>(
+                    variables,
+                    metadataProvider,
+                    SchemaDefinition.class,
+                    wFieldsComp,
+                    SWT.NONE,
+                    BaseMessages.getString(PKG, "ExcelInputDialog.SchemaDefinition.Label"),
+                    BaseMessages.getString(PKG, "ExcelInputDialog.SchemaDefinition.Tooltip"));
+
+    PropsUi.setLook(wSchemaDefinition);
+    FormData fdSchemaDefinition = new FormData();
+    fdSchemaDefinition.left = new FormAttachment(0, 0);
+    fdSchemaDefinition.top = new FormAttachment(0, margin);
+    fdSchemaDefinition.right = new FormAttachment(100, 0);
+    wSchemaDefinition.setLayoutData(fdSchemaDefinition);
+
+    try {
+      wSchemaDefinition.fillItems();
+    } catch (Exception e) {
+      log.logError("Error getting schema definition items", e);
+    }
+
+    wSchemaDefinition.addSelectionListener(lsSelection);
+
+    Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(wManualSchemaDefinition);
+    wManualSchemaDefinition.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ManualSchemaDefinition.Label"));
+
+    FormLayout manualSchemaDefinitionLayout = new FormLayout();
+    manualSchemaDefinitionLayout.marginWidth = 10;
+    manualSchemaDefinitionLayout.marginHeight = 10;
+    wManualSchemaDefinition.setLayout(manualSchemaDefinitionLayout);
+
+    wbGetFields = new Button(wManualSchemaDefinition, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbGetFields);
     wbGetFields.setText(BaseMessages.getString(PKG, "ExcelInputDialog.GetFields.Button"));
 
@@ -904,7 +952,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFields =
         new TableView(
             variables,
-            wFieldsComp,
+                wManualSchemaDefinition,
             SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -928,6 +976,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFieldsComp.setLayoutData(fdFieldsComp);
 
     wFieldsComp.layout();
+
+    FormData fdManualSchemaDefinitionComp = new FormData();
+    fdManualSchemaDefinitionComp.left = new FormAttachment(0, 0);
+    fdManualSchemaDefinitionComp.top = new FormAttachment(wSchemaDefinition, 0);
+    fdManualSchemaDefinitionComp.right = new FormAttachment(100, 0);
+    fdManualSchemaDefinitionComp.bottom = new FormAttachment(100, 0);
+    wManualSchemaDefinition.setLayoutData(fdManualSchemaDefinitionComp);
+
     wFieldsTab.setControl(wFieldsComp);
     PropsUi.setLook(wFieldsComp);
 
@@ -1052,6 +1108,65 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     return transformName;
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+
+                    item.setText(1, valueMeta.getName());
+                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(
+                            3,
+                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                    item.setText(
+                            4,
+                            valueMeta.getPrecision() >= 0
+                                    ? Integer.toString(valueMeta.getPrecision())
+                                    : "");
+                    item.setText(5, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+                    item.setText(7, Const.NVL(valueMeta.getConversionMask(), ""));
+                    item.setText(8, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                    item.setText(9, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                    item.setText(10, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
+
   public void setFlags() {
     wbGetFields.setEnabled(wHeader.getSelection());
 
@@ -1122,7 +1237,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFilenameList.optimizeTableView();
 
     wAccFilenames.setSelection(meta.isAcceptingFilenames());
-
+    wSchemaDefinition.setText(Const.NVL(meta.getSchemaDefinition(), ""));
     if (meta.getAcceptingField() != null && !meta.getAcceptingField().equals("")) {
       wAccField.select(wAccField.indexOf(meta.getAcceptingField()));
     }
@@ -1242,6 +1357,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     // copy info to Meta class (input)
     meta.setRowLimit(Const.toLong(wLimit.getText(), 0));
     meta.setEncoding(wEncoding.getText());
+    meta.setSchemaDefinition(wSchemaDefinition.getText());
     meta.setSpreadSheetType(SpreadSheetType.values()[wSpreadSheetType.getSelectionIndex()]);
     meta.setFileField(wInclFilenameField.getText());
     meta.setSheetField(wInclSheetNameField.getText());

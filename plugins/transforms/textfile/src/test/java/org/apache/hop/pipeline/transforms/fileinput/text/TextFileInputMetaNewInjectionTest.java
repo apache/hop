@@ -199,5 +199,6 @@ public class TextFileInputMetaNewInjectionTest
     check("ERROR_FIELDS_FIELD", () -> meta.errorFieldsField);
     check("ERROR_TEXT_FIELD", () -> meta.errorTextField);
     check("ERROR_LINES_SKIPPED", () -> meta.errorLineSkipped);
+    check("SCHEMA_DEFINITION", () -> meta.schemaDefinition);
   }
 }

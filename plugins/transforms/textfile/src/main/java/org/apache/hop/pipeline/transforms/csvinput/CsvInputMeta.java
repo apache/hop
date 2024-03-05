@@ -116,9 +116,20 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
   @Injection(name = "NEWLINES_IN_FIELDS")
   private boolean newlinePossibleInFields;
 
+  @Injection(name = "SCHEMA_DEFINITION")
+  private String schemaDefinition;
+
   public CsvInputMeta() {
     super();
     allocate(0);
+  }
+
+  public String getSchemaDefinition() {
+    return schemaDefinition;
+  }
+
+  public void setSchemaDefinition(String schemaDefinition) {
+    this.schemaDefinition = schemaDefinition;
   }
 
   @Override
@@ -157,6 +168,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
       delimiter = XmlHandler.getTagValue(transformNode, "separator");
       enclosure = XmlHandler.getTagValue(transformNode, "enclosure");
       bufferSize = XmlHandler.getTagValue(transformNode, "buffer_size");
+      schemaDefinition = XmlHandler.getTagValue(transformNode, "schemaDefinition");
       headerPresent = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "header"));
       lazyConversionActive =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "lazy_conversion"));
@@ -218,6 +230,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));
     retval.append("    ").append(XmlHandler.addTagValue("header", headerPresent));
     retval.append("    ").append(XmlHandler.addTagValue("buffer_size", bufferSize));
+    retval.append("    ").append(XmlHandler.addTagValue("schemaDefinition", schemaDefinition));
     retval.append("    ").append(XmlHandler.addTagValue("lazy_conversion", lazyConversionActive));
     retval.append("    ").append(XmlHandler.addTagValue("add_filename_result", isaddresult));
     retval.append("    ").append(XmlHandler.addTagValue("parallel", runningInParallel));

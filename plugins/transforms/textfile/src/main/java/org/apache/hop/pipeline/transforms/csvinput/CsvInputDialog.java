@@ -17,16 +17,24 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -44,17 +52,17 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
+import org.apache.hop.staticschema.metadata.SchemaDefinition;
+import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.dialog.MessageDialogWithToggle;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.core.widget.*;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
@@ -65,28 +73,12 @@ import org.apache.hop.ui.pipeline.transform.common.IGetFieldsCapableTransformDia
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.eclipse.swt.widgets.*;
 
 public class CsvInputDialog extends BaseTransformDialog
     implements ITransformDialog,
@@ -122,6 +114,9 @@ public class CsvInputDialog extends BaseTransformDialog
 
   private AtomicBoolean previewBusy;
 
+  private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
+
+
   public CsvInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
@@ -142,6 +137,15 @@ public class CsvInputDialog extends BaseTransformDialog
     ModifyListener lsContent = arg0 -> {};
     initializing = true;
     previewBusy = new AtomicBoolean(false);
+
+    SelectionListener lsSelection =
+            new SelectionAdapter() {
+              @Override
+              public void widgetSelected(SelectionEvent e) {
+                fillFieldsLayoutFromSchema();
+                inputMeta.setChanged();
+              }
+            };
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -498,6 +502,32 @@ public class CsvInputDialog extends BaseTransformDialog
           }
         });
 
+    // Add schema definition line
+    wSchemaDefinition =
+            new MetaSelectionLine<>(
+                    variables,
+                    metadataProvider,
+                    SchemaDefinition.class,
+                    shell,
+                    SWT.NONE,
+                    BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Label"),
+                    BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Tooltip"));
+
+    PropsUi.setLook(wSchemaDefinition);
+    FormData fdSchemaDefinition = new FormData();
+    fdSchemaDefinition.left = new FormAttachment(0, 0);
+    fdSchemaDefinition.top = new FormAttachment(wEncoding, margin);
+    fdSchemaDefinition.right = new FormAttachment(100, 0);
+    wSchemaDefinition.setLayoutData(fdSchemaDefinition);
+
+    try {
+      wSchemaDefinition.fillItems();
+    } catch (Exception e) {
+      log.logError("Error getting schema definition items", e);
+    }
+
+    wSchemaDefinition.addSelectionListener(lsSelection);
+
     // Some buttons first, so that the dialog scales nicely...
     //
     wOk = new Button(shell, SWT.PUSH);
@@ -637,6 +667,65 @@ public class CsvInputDialog extends BaseTransformDialog
     return transformName;
   }
 
+  private void fillFieldsLayoutFromSchema() {
+
+    if (!wSchemaDefinition.isDisposed()) {
+      final String schemaName = wSchemaDefinition.getText();
+
+      MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
+      mb.setMessage(
+              BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Message", schemaName));
+      mb.setText(BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Title"));
+      int answer = mb.open();
+
+      if (answer == SWT.YES) {
+        if (!Utils.isEmpty(schemaName)) {
+          try {
+            SchemaDefinition schemaDefinition =
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            if (schemaDefinition != null) {
+              IRowMeta r = schemaDefinition.getRowMeta();
+              if (r != null) {
+                String[] fieldNames = r.getFieldNames();
+                if (fieldNames != null) {
+                  wFields.clearAll();
+                  for (int i = 0; i < fieldNames.length; i++) {
+                    IValueMeta valueMeta = r.getValueMeta(i);
+                    final TableItem item = getTableItem(valueMeta.getName(), true);
+                    int colnr = 1;
+                    item.setText(colnr++, valueMeta.getName());
+                    item.setText(colnr++, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                    item.setText(colnr++, Const.NVL(valueMeta.getConversionMask(), ""));
+                    item.setText(
+                        colnr++,
+                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                    item.setText(
+                        colnr++,
+                        valueMeta.getPrecision() >= 0
+                            ? Integer.toString(valueMeta.getPrecision())
+                            : "");
+                    item.setText(colnr++, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                    item.setText(colnr++, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                    item.setText(colnr++, Const.NVL(valueMeta.getGroupingSymbol(), ""));
+                    item.setText(colnr++, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+
+                  }
+                }
+              }
+            }
+          } catch (HopTransformException | HopPluginException e) {
+
+            // ignore any errors here.
+          }
+
+          wFields.removeEmptyRows();
+          wFields.setRowNums();
+          wFields.optWidth(true);
+        }
+      }
+    }
+  }
+
   protected void setFlags() {
     // In case there are newlines in fields, we can't load data in parallel
     //
@@ -712,6 +801,7 @@ public class CsvInputDialog extends BaseTransformDialog
     wRowNumField.setText(Const.NVL(inputMeta.getRowNumField(), ""));
     wAddResult.setSelection(inputMeta.isAddResultFile());
     wEncoding.setText(Const.NVL(inputMeta.getEncoding(), ""));
+    wSchemaDefinition.setText(Const.NVL(inputMeta.getSchemaDefinition(), ""));
 
     final List<String> fieldName =
         newFieldNames == null
@@ -771,6 +861,7 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setRunningInParallel(wRunningInParallel.getSelection());
     inputMeta.setNewlinePossibleInFields(wNewlinePossible.getSelection());
     inputMeta.setEncoding(wEncoding.getText());
+    inputMeta.setSchemaDefinition(wSchemaDefinition.getText());
 
     int nrNonEmptyFields = wFields.nrNonEmpty();
     inputMeta.allocate(nrNonEmptyFields);

@@ -215,8 +215,18 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
   @Injection(name = "DO_NOT_CREATE_FILE_AT_STARTUP")
   private boolean doNotOpenNewFileInit;
 
+  private String schemaDefinition;
+
   public TextFileOutputMeta() {
     super(); // allocate BaseTransformMeta
+  }
+
+  public String getSchemaDefinition() {
+    return schemaDefinition;
+  }
+
+  public void setSchemaDefinition(String schemaDefinition) {
+    this.schemaDefinition = schemaDefinition;
   }
 
   public boolean isServletOutput() {
@@ -641,6 +651,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
         }
       }
       encoding = XmlHandler.getTagValue(transformNode, "encoding");
+      schemaDefinition = XmlHandler.getTagValue(transformNode, "schema_definition");
 
       endedLine = XmlHandler.getTagValue(transformNode, "endedLine");
       if (endedLine == null) {
@@ -855,6 +866,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
   public String getXml() {
     StringBuilder retval = new StringBuilder(800);
 
+    retval.append("    ").append(XmlHandler.addTagValue("schema_definition", schemaDefinition));
     retval.append("    ").append(XmlHandler.addTagValue("separator", separator));
     retval.append("    ").append(XmlHandler.addTagValue("enclosure", enclosure));
     retval.append("    ").append(XmlHandler.addTagValue("enclosure_forced", enclosureForced));

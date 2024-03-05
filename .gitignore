@@ -16,6 +16,7 @@ bin
 .DS_Store
 routes.yml
 *.tgf
+.vscode
 
 rebel.xml
 rebel-remote.xml

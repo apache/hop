@@ -162,6 +162,7 @@
                 <module>samplerows</module>
                 <module>salesforce</module>
                 <module>sasinput</module>
+                <module>schemamapping</module>
                 <module>script</module>
                 <module>selectvalues</module>
                 <module>serverstatus</module>

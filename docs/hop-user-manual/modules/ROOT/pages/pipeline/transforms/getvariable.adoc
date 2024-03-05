@@ -80,7 +80,7 @@ You must always specify the data type or you will have errors like the following
 [options="header"]
 |===
 |Option|Description
-|transform Name|The name of this transform as it appears in the pipeline workspace.
+|Transform Name|The name of this transform as it appears in the pipeline workspace.
 |Name|Name of the field.
 |Variable a|Allows you to enter variables as complete strings to return rows or add values to input rows.
 For example, you can specify: ${openvar}java.io.tmpdir{closevar}/hop/tempfile.txt and it will be expanded to /tmp/hop/tempfile.txt on Unix-like systems.
