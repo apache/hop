@@ -328,7 +328,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
           if (connection != null) {
 
             // User has specified a connection, We can continue ...
-            if (!"MSSQL".equals(connection.getPluginId())) {
+            String pluginId = connection.getPluginId();
+            if (!("MSSQL".equals(pluginId) || "MSSQLNATIVE".equals(pluginId))) {
 
               logError(
                   BaseMessages.getString(
