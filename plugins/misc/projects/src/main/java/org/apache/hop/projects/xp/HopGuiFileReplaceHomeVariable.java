@@ -60,10 +60,10 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
       if (StringUtils.isNotEmpty(homeFolder)) {
 
         FileObject file = HopVfs.getFileObject(ext.filename);
-        String absoluteFile = file.getName().getURI();
+        String absoluteFile = file.getName().getPath();
 
         FileObject home = HopVfs.getFileObject(homeFolder);
-        String absoluteHome = home.getName().getURI();
+        String absoluteHome = home.getName().getPath();
         // Make the URI always end with a /
         if (!absoluteHome.endsWith("/")) {
           absoluteHome += "/";
