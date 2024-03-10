@@ -74,7 +74,7 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
 
         IValueMeta sourceValueMeta =
             data.inputRowMeta.getValueMeta(data.inputRowMeta.indexOfValue(f.getFieldStream()));
-        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(i);
+        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(data.outputRowMeta.indexOfValue(f.getFieldSchemaDefinition()));
         alterSourceMetadata(sourceValueMeta, targetValueMeta);
       }
     } // end if first

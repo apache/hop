@@ -1,4 +1,5 @@
 Position,Fieldname,Comments,Type,Length,Precision,FormatMask,Origin
-1,SchemaCompany,,String,-1,-1,,files/static-schema-testfile1.csv
-2,SchemaReportDate,,Date,-1,-1,yyyy/MM/dd,files/static-schema-testfile1.csv
-3,SchemaAmount,,Number,-1,-1,"#.##",files/static-schema-testfile1.csv
+1,SchemaCompany,,String,-1,-1,,
+2,SchemaAccount,,String,-1,-1,,Schema Mapping
+3,SchemaReportDate,,Date,-1,-1,yyyy/MM/dd,
+4,SchemaAmount,,Number,-1,-1,"#.##",
