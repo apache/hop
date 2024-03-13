@@ -254,7 +254,13 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     areaOwners.add(
         new AreaOwner(AreaType.ACTION_ICON, x, y, iconSize, iconSize, offset, subject, actionMeta));
 
-    if (actionMeta.isMissing()) {
+    boolean actionError = false;
+    ActionResult actionResult = findActionResult(actionMeta);
+    if ( actionResult!=null && !actionResult.isCheckpoint() ) {      
+      actionError = !actionResult.getResult().getResult();
+    }
+    
+    if (actionError || actionMeta.isMissing()) {
       gc.setForeground(EColor.RED);
     } else if (actionMeta.isDeprecated()) {
       gc.setForeground(EColor.DEPRECATED);
@@ -350,7 +356,6 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
               actionMeta));
     }
 
-    ActionResult actionResult = findActionResult(actionMeta);
     if (actionResult != null) {
       Result result = actionResult.getResult();
       int iconX = (x + iconSize) - (miniIconSize / 2) + 1;
