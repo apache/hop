@@ -35,6 +35,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +82,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
           String stringValue = field.getValue();
 
           // If the value is empty: consider it to be NULL.
-          if (stringValue == null || stringValue.length() == 0) {
+          if (stringValue == null || stringValue.isEmpty() ) {
             rowData[i] = null;
 
             if (value.getType() == IValueMeta.TYPE_NONE) {
@@ -205,7 +206,18 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                   remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
                 }
                 break;
-
+              
+              case IValueMeta.TYPE_INET:
+                try {
+                  rowData[i] = InetAddress.getByName(stringValue);
+                } catch (Exception e) {
+                  String message =
+                      BaseMessages.getString(PKG, "Constant.BuildRow.Error.Parsing.InternetAddress",
+                          value.getName(), stringValue, e.toString());
+                  remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
+                }
+                break;
+                
               default:
                 String message =
                     BaseMessages.getString(
