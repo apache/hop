@@ -18,7 +18,6 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.microsoft.azure.storage.Constants;
 import com.microsoft.azure.storage.StorageException;
 import com.microsoft.azure.storage.blob.*;
 import org.apache.commons.vfs2.FileObject;
@@ -27,12 +26,7 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.commons.vfs2.provider.UriParser;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,15 +40,14 @@ import java.util.List;
 import java.util.Map;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
-  public static final int DEFAULT_BLOB_SIZE = 1024;
 
-  public class BlockBlobOutputStream extends OutputStream {
+  public class AppendBlobOutputStream extends OutputStream {
 
     private CloudAppendBlob ab;
     private final OutputStream outputStream;
     long written = 0;
 
-    public BlockBlobOutputStream(CloudAppendBlob ab, OutputStream outputStream) {
+    public AppendBlobOutputStream(CloudAppendBlob ab, OutputStream outputStream) {
       this.ab = ab;
       this.outputStream = outputStream;
     }
@@ -397,10 +390,10 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
       if (type == FileType.IMAGINARY) {
         type = FileType.FILE;
-        return new BlockBlobOutputStream(
+        return new AppendBlobOutputStream(
             cab, cab.openWriteNew());
       } else {
-        return new BlockBlobOutputStream(
+        return new AppendBlobOutputStream(
             cab, cab.openWriteExisting());
       }
     } else {
