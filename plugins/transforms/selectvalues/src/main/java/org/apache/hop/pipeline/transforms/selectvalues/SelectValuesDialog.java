@@ -795,7 +795,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
             break;
           case 2:
             BaseTransformDialog.getFieldsFromPrevious(
-                r, wMeta, 1, new int[] {1}, new int[] {}, 4, 5, null);
+                r, wMeta, 1, new int[] {1}, new int[] {3}, 4, 5, null);
             break;
           default:
             break;
