@@ -282,8 +282,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
         // cache the position of the Authentication password field
         if (data.indexOfAuthenticationPass < 0) {
-          String realAuthenticationPassword =
-              Utils.resolvePassword(variables, meta.getAuthenticationPassword());
+          String realAuthenticationPassword =  meta.getAuthenticationPassword();
           data.indexOfAuthenticationPass =
               data.previousRowMeta.indexOfValue(realAuthenticationPassword);
           if (data.indexOfAuthenticationPass < 0) {
@@ -500,7 +499,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
       String authpass = null;
       if (data.indexOfAuthenticationPass > -1) {
-        authpass = data.previousRowMeta.getString(r, data.indexOfAuthenticationPass);
+        authpass = Utils.resolvePassword(variables, data.previousRowMeta.getString( r, data.indexOfAuthenticationPass ));
       }
 
       String subject = null;
