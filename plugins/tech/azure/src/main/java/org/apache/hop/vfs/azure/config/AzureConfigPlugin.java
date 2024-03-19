@@ -74,17 +74,7 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       description = "The key to use for the Azure VFS")
   private String key;
 
-  @GuiWidgetElement(
-      id = WIDGET_ID_AZURE_BLOCK_INCREMENT,
-      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
-      type = GuiElementType.TEXT,
-      variables = true,
-      label = "i18n::AzureVFS.FileBlockSize.Label",
-      toolTip = "i18n::AzureVFS.FileBlockSize.Description")
-  @CommandLine.Option(
-      names = {"-azi", "--azure-block-increment"},
-      description = "The block increment size for new files on Azure, multiples of 512 only.")
-  private String blockIncrement;
+
   /**
    * Gets instance
    *
@@ -96,7 +86,6 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     AzureConfig config = AzureConfigSingleton.getConfig();
     instance.account = config.getAccount();
     instance.key = config.getKey();
-    instance.blockIncrement = config.getBlockIncrement();
 
     return instance;
   }
@@ -118,12 +107,6 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       if (key != null) {
         config.setKey(key);
         log.logBasic("The Azure key is set to '" + key + "'");
-        changed = true;
-      }
-
-      if (blockIncrement != null) {
-        config.setBlockIncrement(blockIncrement);
-        log.logBasic("The Azure file block increment is set to '" + blockIncrement + "'");
         changed = true;
       }
 
@@ -162,10 +145,6 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
         case WIDGET_ID_AZURE_KEY:
           key = ((TextVar) control).getText();
           AzureConfigSingleton.getConfig().setKey(key);
-          break;
-        case WIDGET_ID_AZURE_BLOCK_INCREMENT:
-          blockIncrement = ((TextVar) control).getText();
-          AzureConfigSingleton.getConfig().setKey(blockIncrement);
           break;
       }
     }
@@ -210,19 +189,4 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     this.key = key;
   }
 
-  /**
-   * Gets blockIncrement
-   *
-   * @return value of blockIncrement
-   */
-  public String getBlockIncrement() {
-    return blockIncrement;
-  }
-
-  /**
-   * @param blockIncrement The blockIncrement to set
-   */
-  public void setBlockIncrement(String blockIncrement) {
-    this.blockIncrement = blockIncrement;
-  }
 }
