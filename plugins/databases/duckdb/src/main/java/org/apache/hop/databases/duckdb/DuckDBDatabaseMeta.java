@@ -39,6 +39,11 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     private static final Class<?> PKG = DuckDBDatabaseMeta.class; // For Translator
 
     @Override
+    public String getCreateTableStatement() {
+        return super.getCreateTableStatement();
+    }
+
+    @Override
     public String getFieldDefinition(IValueMeta v, String tk, String pk, boolean useAutoIncrement, boolean addFieldName, boolean addCr) {
         // https://duckdb.org/docs/sql/data_types/overview.html
         String retval = "";
@@ -47,9 +52,11 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         int length = v.getLength();
         int precision = v.getPrecision();
 
-        if (addFieldName) {
-            retval += fieldname + " ";
-        }
+      if (addFieldName) {
+        retval += fieldname + " ";
+      } else {
+        retval += fieldname + " TYPE ";
+      }
 
         int type = v.getType();
         switch (type) {
@@ -142,7 +149,7 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
     @Override
     public String getURL(String hostname, String port, String databaseName) throws HopDatabaseException {
-        return "jdbc:duckdb:" + databaseName;
+        return "jdbc:duckdb:" + (databaseName.equals("memory") ? "" : databaseName);
     }
 
     @Override
@@ -158,7 +165,7 @@ public class DuckDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         return "ALTER TABLE "
                 + tableName
                 + " ALTER COLUMN "
-                + getFieldDefinition(v, tk, pk, useAutoIncrement,true, false);
+                + getFieldDefinition(v, tk, pk, useAutoIncrement,false, false);
     }
 
     @Override
