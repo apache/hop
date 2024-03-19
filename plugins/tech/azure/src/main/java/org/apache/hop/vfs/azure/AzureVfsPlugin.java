@@ -26,7 +26,7 @@ import org.apache.hop.core.vfs.plugin.VfsPlugin;
 public class AzureVfsPlugin implements IVfs {
   @Override
   public String[] getUrlSchemes() {
-    return new String[] {"azure"};
+    return new String[] {"azure", "azfs"};
   }
 
   @Override

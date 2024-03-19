@@ -404,7 +404,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected InputStream doGetInputStream() throws Exception {
     if (container != null && !containerPath.equals("") && type == FileType.FILE) {
-      return new PageBlobInputStream(cloudBlob.openInputStream(), size);
+      return new AppendBlobInputStream(cloudBlob.openInputStream(), size);
     } else {
       throw new UnsupportedOperationException();
     }

@@ -23,13 +23,13 @@ import com.microsoft.azure.storage.blob.BlobInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PageBlobInputStream extends InputStream {
+public class AppendBlobInputStream extends InputStream {
 
   private BlobInputStream inputStream;
   private long fileSize;
   private long totalRead = 0;
 
-  public PageBlobInputStream(BlobInputStream inputStream, long fileSize) {
+  public AppendBlobInputStream(BlobInputStream inputStream, long fileSize) {
     this.inputStream = inputStream;
     this.fileSize = fileSize;
   }
