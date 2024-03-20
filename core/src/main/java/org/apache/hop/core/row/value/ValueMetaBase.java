@@ -1115,7 +1115,7 @@ public class ValueMetaBase implements IValueMeta {
     return new Date(number.longValue());
   }
 
-  public synchronized String convertNumberToString(Double number) throws HopValueException {
+  public synchronized String convertNumberToString(Number number) throws HopValueException {
     if (number == null) {
       if (!outputPaddingEnabled || length < 1) {
         return null;
@@ -2009,17 +2009,17 @@ public class ValueMetaBase implements IValueMeta {
         case TYPE_NUMBER:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
-              string = convertNumberToString((Double) object);
+              string = convertNumberToString((Number) object);
               break;
             case STORAGE_TYPE_BINARY_STRING:
               string =
-                  convertNumberToString((Double) convertBinaryStringToNativeType((byte[]) object));
+                  convertNumberToString((Number) convertBinaryStringToNativeType((byte[]) object));
               break;
             case STORAGE_TYPE_INDEXED:
               string =
                   object == null
                       ? null
-                      : convertNumberToString((Double) index[((Integer) object).intValue()]);
+                      : convertNumberToString((Number) index[((Integer) object).intValue()]);
               break;
             default:
               throw new HopValueException(
@@ -2741,14 +2741,14 @@ public class ValueMetaBase implements IValueMeta {
         case TYPE_NUMBER:
           switch (storageType) {
             case STORAGE_TYPE_NORMAL:
-              return convertStringToBinaryString(convertNumberToString((Double) object));
+              return convertStringToBinaryString(convertNumberToString((Number) object));
             case STORAGE_TYPE_BINARY_STRING:
               String string =
-                  convertNumberToString((Double) convertBinaryStringToNativeType((byte[]) object));
+                  convertNumberToString((Number) convertBinaryStringToNativeType((byte[]) object));
               return convertStringToBinaryString(string);
             case STORAGE_TYPE_INDEXED:
               return convertStringToBinaryString(
-                  convertNumberToString((Double) index[((Integer) object).intValue()]));
+                  convertNumberToString((Number) index[((Integer) object).intValue()]));
             default:
               throw new HopValueException(
                   toString() + MSG_UNKNOWN_STORAGE_TYPE + storageType + MSG_SPECIFIED);
@@ -5402,9 +5402,6 @@ public class ValueMetaBase implements IValueMeta {
         case Types.LONGVARBINARY:
           valtype = IValueMeta.TYPE_BINARY;
 
-          IDatabase db = databaseMeta.getIDatabase();
-          boolean isOracle = db.isOracleVariant();
-
           if (databaseMeta.isDisplaySizeTwiceThePrecision()
               && (2 * originalPrecision) == originalColumnDisplaySize) {
             // set the length for "CHAR(X) FOR BIT DATA"
@@ -5764,6 +5761,7 @@ public class ValueMetaBase implements IValueMeta {
     throw new HopValueException(getTypeDesc() + " does not implement this method");
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void storeMetaInJson(JSONObject jValue) throws HopException {
     jValue.put("name", getName());
