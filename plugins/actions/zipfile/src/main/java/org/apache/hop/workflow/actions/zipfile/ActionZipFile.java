@@ -168,6 +168,11 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
+  @Override
+  public boolean isEvaluation() {
+    return true;
+  }
+
   private boolean createParentFolder(String filename) {
     // Check for parent folder
     FileObject parentfolder = null;
