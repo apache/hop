@@ -18,27 +18,15 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.microsoft.azure.storage.Constants;
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudBlob;
-import com.microsoft.azure.storage.blob.CloudBlobClient;
-import com.microsoft.azure.storage.blob.CloudBlobContainer;
-import com.microsoft.azure.storage.blob.CloudBlobDirectory;
-import com.microsoft.azure.storage.blob.CloudBlockBlob;
-import com.microsoft.azure.storage.blob.CloudPageBlob;
-import com.microsoft.azure.storage.blob.ListBlobItem;
+import com.microsoft.azure.storage.blob.*;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
 import org.apache.commons.vfs2.provider.UriParser;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -52,30 +40,20 @@ import java.util.List;
 import java.util.Map;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
-  public static final int DEFAULT_BLOB_SIZE = 1024;
 
-  private class PageBlobOutputStream extends OutputStream {
+  public class AppendBlobOutputStream extends OutputStream {
+
+    private CloudAppendBlob ab;
     private final OutputStream outputStream;
     long written = 0;
-    private CloudPageBlob pb;
-    private int blockIncrement;
-    private long blobSize;
 
-    private PageBlobOutputStream(
-        CloudPageBlob pb, OutputStream outputStream, int blockIncrement, long blobSize) {
-      if (blockIncrement % Constants.PAGE_SIZE != 0)
-        throw new IllegalArgumentException("Block increment must be in multiple of 512.");
-      if (blobSize % Constants.PAGE_SIZE != 0)
-        throw new IllegalArgumentException("Block increment must be in multiple of 512.");
-      this.blockIncrement = blockIncrement;
-      this.outputStream = new BufferedOutputStream(outputStream, blockIncrement);
-      this.pb = pb;
-      this.blobSize = blobSize;
+    public AppendBlobOutputStream(CloudAppendBlob ab, OutputStream outputStream) {
+      this.ab = ab;
+      this.outputStream = outputStream;
     }
 
     @Override
     public void write(int b) throws IOException {
-      checkBlobSize(1);
       outputStream.write(b);
       written(1);
     }
@@ -85,26 +63,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       write(b, 0, b.length);
     }
 
-    @Override
-    public void write(byte[] b, int off, int len) throws IOException {
-      checkBlobSize(len);
-      outputStream.write(b, off, len);
-      written(len);
-    }
-
-    private void checkBlobSize(int length) throws IOException {
-      if (written + length > blobSize) {
-        while (written + length > blobSize) {
-          blobSize += blockIncrement;
-        }
-        try {
-          pb.resize(blobSize);
-        } catch (StorageException e) {
-          throw new IOException("Failed to resize blob.", e);
-        }
-      }
-    }
-
     protected void written(int len) {
       written += len;
       lastModified = System.currentTimeMillis();
@@ -112,39 +70,31 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
 
     @Override
-    public void flush() throws IOException {}
+    public void write(byte[] b, int off, int len) throws IOException {
+      outputStream.write(b, off, len);
+      written(len);
+    }
+
+    @Override
+    public void flush() throws IOException {
+      super.flush();
+    }
 
     @Override
     public void close() throws IOException {
-      HashMap<String, String> md = new HashMap<>(pb.getMetadata());
+
+      HashMap<String, String> md = new HashMap<>(ab.getMetadata());
       md.put("ActualLength", String.valueOf(written));
-      pb.getProperties().setContentDisposition("vfs ; length=\"" + written + "\"");
-      pb.setMetadata(md);
+      ab.getProperties().setContentDisposition("vfs ; length=\"" + written + "\"");
+      ab.setMetadata(md);
       try {
-        pb.uploadProperties();
+        ab.uploadProperties();
       } catch (StorageException e) {
         throw new IOException("Failed to update meta-data.", e);
       }
-      checkPageBoundary();
-      outputStream.close();
-      URI uri = pb.getUri();
-      try {
-        uri = pb.getServiceClient().getCredentials().transformUri(uri);
-      } catch (URISyntaxException e) {
-        throw new IOException(e);
-      } catch (StorageException e) {
-        throw new IOException(e);
-      }
-      closeBlob();
-    }
 
-    private void checkPageBoundary() throws IOException {
-      long spare = written % Constants.PAGE_SIZE;
-      if (spare != 0) {
-        byte[] b = new byte[Constants.PAGE_SIZE - (int) spare];
-        write(b);
-        outputStream.flush();
-      }
+      outputStream.close();
+      closeBlob();
     }
   }
 
@@ -436,21 +386,15 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
     if (container != null && !containerPath.equals("")) {
       if (bAppend) throw new UnsupportedOperationException();
-      final CloudPageBlob pb = container.getPageBlobReference(removeLeadingSlash(containerPath));
-
-      // Get the block increment...
-      //
-      IVariables variables = Variables.getADefaultVariableSpace();
-      String configBlockIncrement = AzureConfigSingleton.getConfig().getBlockIncrement();
-      int blockIncrement = Const.toInt(variables.resolve(configBlockIncrement), 4096);
+      final CloudAppendBlob cab = container.getAppendBlobReference(removeLeadingSlash(containerPath));
 
       if (type == FileType.IMAGINARY) {
         type = FileType.FILE;
-        return new PageBlobOutputStream(
-            pb, pb.openWriteNew(DEFAULT_BLOB_SIZE), blockIncrement, DEFAULT_BLOB_SIZE);
+        return new AppendBlobOutputStream(
+            cab, cab.openWriteNew());
       } else {
-        return new PageBlobOutputStream(
-            pb, pb.openWriteExisting(), blockIncrement, pb.getProperties().getLength());
+        return new AppendBlobOutputStream(
+            cab, cab.openWriteExisting());
       }
     } else {
       throw new UnsupportedOperationException();
@@ -460,7 +404,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected InputStream doGetInputStream() throws Exception {
     if (container != null && !containerPath.equals("") && type == FileType.FILE) {
-      return new PageBlobInputStream(cloudBlob.openInputStream(), size);
+      return new AppendBlobInputStream(cloudBlob.openInputStream(), size);
     } else {
       throw new UnsupportedOperationException();
     }

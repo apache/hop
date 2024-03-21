@@ -38,40 +38,57 @@ public class AzureFileNameParser extends HostFileNameParser {
   }
 
   @Override
-  public FileName parseUri(final VfsComponentContext context, FileName base, String filename)
+  public FileName parseUri(final VfsComponentContext context, FileName base, String uri)
       throws FileSystemException {
-    final StringBuilder name = new StringBuilder();
-    Authority auth = null;
-    String path = null;
-    FileType fileType;
 
-    int eidx = filename.indexOf("@/");
-    if (eidx != -1)
-      filename =
-          filename.substring(0, eidx + 1) + "windowsazure.com" + filename.substring(eidx + 1);
+    StringBuilder sb = new StringBuilder(uri);
 
-    String scheme;
-    try {
-      auth = extractToPath(filename, name);
-      if (auth.getUserName() == null) {
-        scheme = UriParser.extractScheme(filename, name);
-        UriParser.canonicalizePath(name, 0, name.length(), this);
-        UriParser.fixSeparators(name);
-      } else {
-        scheme = auth.getScheme();
+    UriParser.normalisePath(sb);
+
+    String normalizedUri = sb.toString();
+    String scheme = normalizedUri.substring(0, normalizedUri.indexOf(':'));
+    String absPath = "/";
+    FileType fileType = FileType.IMAGINARY;
+    String[] s = normalizedUri.split("/");
+
+    if (s.length > 1) {
+      if (scheme.equals("azure")) {
+
+        String container = s[1];
+        for (int i = 1; i < s.length; i++) {
+          absPath += s[i];
+
+          if (s.length > 1 && i != s.length - 1) {
+            absPath += "/";
+          }
+        }
+
+        if (uri.endsWith("/")) {
+          fileType = FileType.FOLDER;
+        } else if (!absPath.endsWith("/")) {
+          fileType = FileType.FILE;
+        }
+
+      } else if (scheme.equals("azfs")) {
+
+        String account = s[1];
+        String container = s[2];
+
+        for (int i = 2; i < s.length; i++) {
+          absPath += s[i];
+
+          if (s.length > 1 && i != s.length - 1) {
+            absPath += "/";
+          }
+        }
+
+        if (uri.endsWith("/")) {
+          fileType = FileType.FOLDER;
+        } else if (!absPath.endsWith("/")) {
+          fileType = FileType.FILE;
+        }
       }
-      fileType = UriParser.normalisePath(name);
-      path = name.toString();
-      if (path.equals("")) {
-        path = "/";
-      }
-    } catch (FileSystemException fse) {
-      scheme = UriParser.extractScheme(filename, name);
-      UriParser.canonicalizePath(name, 0, name.length(), this);
-      UriParser.fixSeparators(name);
-      fileType = UriParser.normalisePath(name);
-      path = name.toString();
     }
-    return new AzureFileName(scheme, path, fileType);
+    return new AzureFileName(scheme, absPath, fileType);
   }
 }
