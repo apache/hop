@@ -115,7 +115,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
                   "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=%s",
                   account, key, AZURE_ENDPOINT_SUFFIX)
               : String.format(
-                  "AccountName=%s;AccountKey=%s;DefaultEndpointsProtocol=http;BlobEndpoint=%s/devstoreaccount1;QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;TableEndpoint=http://127.0.0.1:10002/devstoreaccount1",
+                  "AccountName=%s;AccountKey=%s;DefaultEndpointsProtocol=http;BlobEndpoint=%s/devstoreaccount1",
                   account, key, url);
       CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
 
