@@ -234,7 +234,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
             for (ListBlobItem item :
                 relpath.equals("") ? container.listBlobs() : container.listBlobs(relpath + "/")) {
               String itemPath = removeTrailingSlash(item.getUri().getPath());
-              if (itemPath.equals(thisPath)) {
+              if (pathsMatch(itemPath, thisPath)) {
                 if (item instanceof CloudBlob) {
                   cloudBlob = (CloudBlob) item;
                 } else {
@@ -284,7 +284,11 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
   }
 
-  @Override
+    private boolean pathsMatch(String path, String currentPath) {
+        return path.replace("/" + ((AzureFileSystem) getFileSystem()).getAccount(), "").equals(currentPath);
+    }
+
+    @Override
   protected void doDetach() throws Exception {
     if (this.attached) {
       this.attached = false;

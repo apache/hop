@@ -63,6 +63,8 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
       };
 
+  public static final String AZURE_ENDPOINT_SUFFIX = "core.windows.net";
+
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 
   public static FileSystemOptions getDefaultFileSystemOptions() {
@@ -84,6 +86,9 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         fileSystemOptions != null ? fileSystemOptions : getDefaultFileSystemOptions();
     UserAuthenticationData authData = null;
     CloudBlobClient service;
+
+    String account;
+
     try {
       authData = UserAuthenticatorUtils.authenticate(fsOptions, AUTHENTICATOR_TYPES);
 
@@ -101,16 +106,21 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
       }
       IVariables variables = Variables.getADefaultVariableSpace();
 
-      String account = variables.resolve(config.getAccount());
+      account = variables.resolve(config.getAccount());
 
       String key = variables.resolve(config.getKey());
 
-      String storageConnectionString =
-          String.format(
-              "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=core.windows.net",
-              account, key);
-      CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
+      String url = variables.resolve(config.getEmulatorUrl());
 
+      String storageConnectionString =
+          StringUtils.isBlank(url)
+              ? String.format(
+                  "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=%s",
+                  account, key, AZURE_ENDPOINT_SUFFIX)
+              : String.format(
+                  "AccountName=%s;AccountKey=%s;DefaultEndpointsProtocol=http;BlobEndpoint=%s/%s",
+                  account, key, url, account);
+      CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
       service = storageAccount.createCloudBlobClient();
 
     } catch (InvalidKeyException e) {
@@ -121,7 +131,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
       UserAuthenticatorUtils.cleanup(authData);
     }
 
-    return new AzureFileSystem((AzureFileName) fileName, service, fsOptions);
+    return new AzureFileSystem((AzureFileName) fileName, service, fsOptions, account);
   }
 
   @Override
