@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0071-concurrent-scripts-3729</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2024/03/23 11:24:08.233</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2024/03/23 11:24:08.233</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>ECMAScript</from>
+      <to>preview</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Groovy</from>
+      <to>preview</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Python</from>
+      <to>preview</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>generate 10k rows</from>
+      <to>ECMAScript</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>generate 10k rows</from>
+      <to>Groovy</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>generate 10k rows</from>
+      <to>Python</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>ECMAScript</name>
+    <type>SuperScript</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>10</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>id</name>
+        <precision>-1</precision>
+        <rename>id</rename>
+        <replace>N</replace>
+        <scriptResult>N</scriptResult>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <rename>name</rename>
+        <replace>N</replace>
+        <scriptResult>N</scriptResult>
+        <type>String</type>
+      </field>
+    </fields>
+    <scriptLanguage>ECMAScript</scriptLanguage>
+    <scripts>
+      <script>
+        <scriptBody>
+var Long = Packages.java.lang.Long;
+var RowDataUtil = Packages.org.apache.hop.core.row.RowDataUtil;
+
+var START=100000;
+var COUNT=10;
+var END=START+COUNT;
+var id=START;
+
+for (var id=START;id&lt;END;id++) {
+  var outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+  outputRow[0] = new Long(id);
+  outputRow[1] = "Apache Hop "+id;
+  transform.putRow(outputRowMeta, outputRow);
+}
+
+pipeline_status=SKIP_PIPELINE;</scriptBody>
+        <scriptName>script1</scriptName>
+        <scriptType>0</scriptType>
+      </script>
+    </scripts>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>96</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Groovy</name>
+    <type>SuperScript</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>10</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>id</name>
+        <precision>-1</precision>
+        <rename>id</rename>
+        <replace>N</replace>
+        <scriptResult>N</scriptResult>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <rename>name</rename>
+        <replace>N</replace>
+        <scriptResult>N</scriptResult>
+        <type>String</type>
+      </field>
+    </fields>
+    <scriptLanguage>Groovy</scriptLanguage>
+    <scripts>
+      <script>
+        <scriptBody>def COUNT=10;
+
+id = 100000L;
+(1..COUNT).each {
+ outputRow = RowDataUtil.allocateRowData(rowMeta.size());
+ outputRow[0] = id;
+ outputRow[1] = "Apache Hop "+id
+ transform.putRow(outputRowMeta, outputRow);
+
+ id++;
+}
+
+pipeline_status=SKIP_PIPELINE;</scriptBody>
+        <scriptName>script1</scriptName>
+        <scriptType>0</scriptType>
+      </script>
+    </scripts>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Python</name>
+    <type>SuperScript</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>10</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <length>-1</length>
+        <name>id</name>
+        <precision>-1</precision>
+        <rename>id</rename>
+        <replace>N</replace>
+        <scriptResult>N</scriptResult>
+        <type>Integer</type>
+      </field>
+      <field>
+        <length>-1</length>
+        <name>name</name>
+        <precision>-1</precision>
+        <rename>name</rename>
+        <replace>N</replace>
+        <scriptResult>N</scriptResult>
+        <type>String</type>
+      </field>
+    </fields>
+    <scriptLanguage>python</scriptLanguage>
+    <scripts>
+      <script>
+        <scriptBody>import java.lang.Long as Long
+
+START=100000
+COUNT=10
+END=START+COUNT
+id=START
+
+for id in range(START,END):
+	outputRow = RowDataUtil.allocateRowData(rowMeta.size())
+	outputRow[0] = Long(id)
+	outputRow[1] = "Apache Hop "+str(id)
+	transform.putRow(outputRowMeta, outputRow)
+
+pipeline_status=SKIP_PIPELINE</scriptBody>
+        <scriptName>script1</scriptName>
+        <scriptType>0</scriptType>
+      </script>
+    </scripts>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>320</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>generate 10k rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <limit>10000</limit>
+    <never_ending>N</never_ending>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>192</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>preview</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>576</xloc>
+      <yloc>208</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>

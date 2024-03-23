@@ -236,7 +236,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
     fdlEngines.top = new FormAttachment(wTransformName, margin);
     wlEngines.setLayoutData(fdlEngines);
     wEngines = new CCombo(shell, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER);
-    List<String> scriptEngineNames = ScriptUtils.getScriptLanguageNames();
+    List<String> scriptEngineNames = ScriptUtils.getInstance().getScriptLanguageNames();
     if (scriptEngineNames != null) {
       Collections.sort(scriptEngineNames);
 
@@ -775,7 +775,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
   public void getData() {
     String engineName = input.getLanguageName();
     if (StringUtils.isEmpty(engineName)
-        || !ScriptUtils.getScriptLanguageNames().contains(engineName)) {
+        || !ScriptUtils.getInstance().getScriptLanguageNames().contains(engineName)) {
       wEngines.select(0);
     } else {
       wEngines.setText(engineName);

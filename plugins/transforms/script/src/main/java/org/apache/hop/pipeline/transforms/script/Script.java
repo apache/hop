@@ -688,7 +688,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       }
     }
     try {
-      data.engine = ScriptUtils.createNewScriptEngineByLanguage(meta.getLanguageName());
+      data.engine = ScriptUtils.getInstance().getScriptEngineByName(meta.getLanguageName());
     } catch (Exception e) {
       log.logError("Error obtaining scripting engine for language " + meta.getLanguageName(), e);
     }
