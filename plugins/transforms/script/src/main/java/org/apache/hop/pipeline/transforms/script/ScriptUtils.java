@@ -19,9 +19,9 @@
 package org.apache.hop.pipeline.transforms.script;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentSkipListMap;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -31,8 +31,26 @@ public class ScriptUtils {
 
   private static ScriptEngineManager scriptEngineManager;
 
-  private static final Map<String, List<ScriptEngineFactory>> languageFactoryMap = new HashMap<>();
+  private static ScriptUtils instance;
+  private static final Map<String, List<ScriptEngineFactory>> languageFactoryMap = new ConcurrentSkipListMap<>();
   private static List<ScriptEngineFactory> engineFactories = null;
+
+  private ScriptUtils(){
+    scriptEngineManager = getScriptEngineManager();
+    List<String> scriptLanguageNames = getScriptLanguageNames();
+    for(String scriptLanguageName : scriptLanguageNames){
+      createNewScriptEngine(scriptLanguageName);
+    }
+
+    populateEngineFactoryMap();
+  }
+
+  public static ScriptUtils getInstance(){
+    if(instance == null){
+      instance = new ScriptUtils();
+    }
+    return instance;
+  }
 
   /**
    * Instantiates the right scripting language interpreter, falling back to Groovy for backward
@@ -41,23 +59,20 @@ public class ScriptUtils {
    * @param engineName
    * @return the desired ScriptEngine, or null if none can be found
    */
-  public static ScriptEngine createNewScriptEngine(String engineName) {
+  private static ScriptEngine createNewScriptEngine(String engineName) {
 
     ScriptEngine scriptEngine = getScriptEngineManager().getEngineByName(engineName);
     if (scriptEngine == null) {
       // falls back to Groovy
-      scriptEngine = getScriptEngineManager().getEngineByName("groovy");
+      scriptEngine = scriptEngineManager.getEngineByName("groovy");
     }
     return scriptEngine;
   }
 
-  public static ScriptEngine createNewScriptEngineByLanguage(String languageName)
+  private static ScriptEngine createNewScriptEngineByLanguage(String languageName)
       throws HopException {
     ScriptEngine scriptEngine = null;
 
-    if (engineFactories == null) {
-      populateEngineFactoryMap();
-    }
     List<ScriptEngineFactory> factories = languageFactoryMap.get(languageName);
     if (factories != null) {
       for (ScriptEngineFactory factory : factories) {
@@ -84,14 +99,13 @@ public class ScriptUtils {
     return scriptEngine;
   }
 
-  public static ScriptEngineManager getScriptEngineManager() {
+  private static ScriptEngineManager getScriptEngineManager() {
     if (scriptEngineManager == null) {
       System.setProperty(
           "org.jruby.embed.localvariable.behavior",
           "persistent"); // required for JRuby, transparent
       // for others
       scriptEngineManager = new ScriptEngineManager(ScriptUtils.class.getClassLoader());
-      populateEngineFactoryMap();
     }
     return scriptEngineManager;
   }
@@ -118,5 +132,9 @@ public class ScriptUtils {
         languageFactories.add(factory);
       }
     }
+  }
+
+  public ScriptEngine getScriptEngineByName(String scriptLanguegeName){
+    return scriptEngineManager.getEngineByName(scriptLanguegeName);
   }
 }
