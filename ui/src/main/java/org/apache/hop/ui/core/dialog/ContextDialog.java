@@ -122,7 +122,7 @@ public class ContextDialog extends Dialog {
 
   private GuiAction selectedAction;
 
-  private List<AreaOwner<OwnerType, Object>> areaOwners = new ArrayList<>();
+  private List<AreaOwner> areaOwners = new ArrayList<>();
 
   private final Color highlightColor;
 
@@ -228,7 +228,7 @@ public class ContextDialog extends Dialog {
     private final GuiAction action;
     private final Image image;
     private boolean selected;
-    private AreaOwner<OwnerType, Object> areaOwner;
+    private AreaOwner areaOwner;
 
     public Item(GuiAction action, Image image) {
       this.action = action;
@@ -752,12 +752,14 @@ public class ContextDialog extends Dialog {
   }
 
   private void onMouseUp(Event event) {
-    AreaOwner<OwnerType, Object> areaOwner =
+    AreaOwner areaOwner =
         AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
     if (areaOwner == null) {
       return;
     }
-    switch (areaOwner.getParent()) {
+    
+    OwnerType ownerType = (OwnerType) areaOwner.getParent();
+    switch (ownerType) {
       case CATEGORY:
         // Clicked on a category header: expand or unfold
         //
@@ -871,7 +873,7 @@ public class ContextDialog extends Dialog {
           org.eclipse.swt.graphics.Point categoryExtent = gc.textExtent(categoryAndOrder.category);
           gc.drawText(categoryAndOrder.category, x, y);
           areaOwners.add(
-              new AreaOwner<>(
+              new AreaOwner(
                   AreaOwner.AreaType.CUSTOM,
                   x,
                   y,
@@ -963,8 +965,8 @@ public class ContextDialog extends Dialog {
 
             // The drawn area is the complete rectangle
             //
-            AreaOwner<OwnerType, Object> areaOwner =
-                new AreaOwner<>(
+            AreaOwner areaOwner =
+                new AreaOwner(
                     AreaOwner.AreaType.CUSTOM,
                     x,
                     y,

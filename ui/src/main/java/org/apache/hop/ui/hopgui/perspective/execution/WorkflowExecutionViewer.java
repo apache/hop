@@ -812,14 +812,14 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
   }
 
   @Override
-  public void mouseDown(MouseEvent e) {
+  public void mouseDown(MouseEvent event) {
     workflowMeta.unselectAll();
-    Point real = screen2real(e.x, e.y);
+    Point real = screen2real(event.x, event.y);
 
     lastClick = new Point(real.x, real.y);
-    boolean control = (e.stateMask & SWT.MOD1) != 0;
+    boolean control = (event.stateMask & SWT.MOD1) != 0;
 
-    if (setupDragView(e.button, control, new Point(e.x, e.y))) {
+    if (setupDragView(event.button, control, new Point(event.x, event.y))) {
       return;
     }
 
@@ -830,9 +830,15 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
 
     switch (areaOwner.getAreaType()) {
       case ACTION_ICON:
-        // Show the data for this transform
+        // Show the data for this action
         //
         selectedAction = (ActionMeta) areaOwner.getOwner();
+        refreshActionData();
+        break;
+      case ACTION_NAME:
+        // Show the data for this action
+        //
+        selectedAction = (ActionMeta) areaOwner.getParent();
         refreshActionData();
         break;
     }

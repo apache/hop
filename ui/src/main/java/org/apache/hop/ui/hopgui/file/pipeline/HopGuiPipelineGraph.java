@@ -191,6 +191,7 @@ import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
@@ -684,7 +685,30 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           candidateHopType = null;
           startErrorHopTransform = false;
           break;
+        
+        case TRANSFORM_INFO_ICON:
+          // Click on the transform info icon means: Edit transformation description
+          //
+          this.editDescription((TransformMeta) areaOwner.getOwner());
+          break;
 
+        case HOP_INFO_ICON:
+          // Click on the hop info icon means: Edit transform that use info
+          //
+          pipelineTransformDelegate.editTransform(pipelineMeta, (TransformMeta) areaOwner.getOwner());
+          break;
+
+        case TRANSFORM_TARGET_HOP_ICON:
+          // Click on the hop target icon means: Edit transform that dispatch row
+          //
+          pipelineTransformDelegate.editTransform(pipelineMeta, (TransformMeta) areaOwner.getParent());
+          break;
+
+          
+        case HOP_COPY_ICON:
+         // clickedPipelineHop = (PipelineHopMeta) areaOwner.getOwner();          
+          break;
+          
         case HOP_ERROR_ICON:
           // Click on the error icon means: Edit error handling
           //
@@ -694,19 +718,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         case TRANSFORM_TARGET_HOP_ICON_OPTION:
           // Below, see showTransformTargetOptions()
-          break;
-
-        case TRANSFORM_EDIT_ICON:
-          clearSettings();
-          currentTransform = (TransformMeta) areaOwner.getParent();
-          editTransform();
-          break;
-
-        case TRANSFORM_INJECT_ICON:
-          modalMessageDialog(
-              BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Title"),
-              BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Tooltip"),
-              SWT.OK | SWT.ICON_INFORMATION);
           break;
 
         case TRANSFORM_ICON:
@@ -854,11 +865,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // RAP does not support certain mouse events.
       mouseMove(e);
     }
+    
+    // Default cursor
+    setCursor(null);
 
     if (viewPortNavigation || viewDrag) {
       viewDrag = false;
       viewPortNavigation = false;
       viewPortStart = null;
+      setCursor(null);
       return;
     }
 
@@ -1369,12 +1384,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @Override
-  public void mouseMove(MouseEvent e) {
-    boolean shift = (e.stateMask & SWT.SHIFT) != 0;
+  public void mouseMove(MouseEvent event) {
+    boolean shift = (event.stateMask & SWT.SHIFT) != 0;
     noInputTransform = null;
     mouseMovedSinceClick = true;
     boolean doRedraw = false;
-
+    PipelineHopMeta hop = null;
+    
     // disable the tooltip
     //
     toolTip.setVisible(false);
@@ -1382,11 +1398,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Check to see if we're navigating with the view port
     //
     if (viewPortNavigation) {
-      dragViewPort(new Point(e.x, e.y));
+      dragViewPort(new Point(event.x, event.y));
       return;
     }
 
-    Point real = screen2real(e.x, e.y);
+    Point real = screen2real(event.x, event.y);
 
     currentMouseX = real.x;
     currentMouseY = real.y;
@@ -1408,9 +1424,15 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Moved over an area?
     //
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
-
+    
+    // Moved over an hop?
+    //
+    if ( areaOwner==null ) {
+      hop = this.findPipelineHop(real.x, real.y);
+    }
+    
     try {
-      HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
+      HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, event, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.PipelineGraphMouseMoved.id, ext);
       if (ext.isPreventingDefault()) {
@@ -1564,7 +1586,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Drag the view around with middle button on the background?
       //
       if (viewDrag && lastClick != null) {
-        dragView(viewDragStart, new Point(e.x, e.y));
+        dragView(viewDragStart, new Point(event.x, event.y));
       }
     }
 
@@ -1604,21 +1626,37 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         doRedraw = true;
       }
     }
+    
+    Cursor cursor = null; 
+    // Change cursor when dragging view or view port
+    if (viewDrag || viewPortNavigation) {
+      cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
+    }
+    // Change cursor when selecting a region
+    else if (selectionRegion != null) {
+      cursor = getDisplay().getSystemCursor(SWT.CURSOR_CROSS);
+    }
+    // Change cursor when hover an hop or an area that support hover
+    else if (hop != null || ( areaOwner != null && areaOwner.getAreaType() != null && areaOwner.getAreaType().isSupportHover())) {     
+      cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
+    }     
+    setCursor(cursor);
+    
     if (doRedraw) {
       redraw();
     }
   }
 
   @Override
-  public void mouseHover(MouseEvent e) {
+  public void mouseHover(MouseEvent event) {
     boolean tip = true;
 
     toolTip.setVisible(false);
-    Point real = screen2real(e.x, e.y);
+    Point real = screen2real(event.x, event.y);
 
     // Show a tool tip upon mouse-over of an object on the canvas
     if (tip) {
-      setToolTip(real.x, real.y, e.x, e.y);
+      setToolTip(real.x, real.y, event.x, event.y);
     }
   }
 
@@ -3011,26 +3049,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     PKG, "PipelineGraph.TransformDoesNotSupportsErrorHandling.Tooltip"));
           }
           tipImage = GuiResource.getInstance().getImageError();
-          break;
-        case TRANSFORM_EDIT_ICON:
-          tip.append(BaseMessages.getString(PKG, "PipelineGraph.EditTransform.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageEdit();
-          break;
-        case TRANSFORM_INJECT_ICON:
-          Object injection = areaOwner.getOwner();
-          if (injection != null) {
-            tip.append(
-                BaseMessages.getString(PKG, "PipelineGraph.TransformInjectionSupported.Tooltip"));
-          } else {
-            tip.append(
-                BaseMessages.getString(
-                    PKG, "PipelineGraph.TransformInjectionNotSupported.Tooltip"));
-          }
-          tipImage = GuiResource.getInstance().getImageInject();
-          break;
-        case TRANSFORM_MENU_ICON:
-          tip.append(BaseMessages.getString(PKG, "PipelineGraph.ShowMenu.Tooltip"));
-          tipImage = GuiResource.getInstance().getImageContextMenu();
           break;
 
         case TRANSFORM_INFO_ICON:

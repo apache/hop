@@ -256,7 +256,8 @@ public abstract class DragViewZoomBase extends Composite {
     if (viewPort != null && viewPort.contains(screenClick)) {
       viewPortNavigation = true;
       viewPortStart = new Point(screenClick);
-      viewDragBaseOffset = new DPoint(offset);
+      viewDragBaseOffset = new DPoint(offset);  
+      setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
       return true;
     }
 
@@ -267,6 +268,7 @@ public abstract class DragViewZoomBase extends Composite {
     if (viewDrag) {
       viewDragStart = screenClick;
       viewDragBaseOffset = new DPoint(offset);
+      setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
       return true;
     }
     return false;
