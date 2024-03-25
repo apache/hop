@@ -48,6 +48,7 @@ import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -67,6 +68,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -781,9 +783,18 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void showTable(String tableName) {
     String sql = dbMeta.getSqlQueryFields(tableName);
-    GetQueryFieldsProgressDialog pd =
-        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
-    IRowMeta result = pd.open();
+//    GetQueryFieldsProgressDialog pd =
+//        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
+//    IRowMeta result = pd.open();
+    IRowMeta result = null;
+    Database db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
+    try {
+       db.connect();
+      result = db.getQueryFields(sql, false);
+    } catch (Exception e) {}
+    finally {
+      db.disconnect();
+    }
     if (result != null) {
       TransformFieldsDialog sfd =
           new TransformFieldsDialog(shell, variables, SWT.NONE, tableName, result);
@@ -792,8 +803,9 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void showCount(String tableName) {
+    String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
     GetTableSizeProgressDialog pd =
-        new GetTableSizeProgressDialog(shell, variables, dbMeta, tableName);
+        new GetTableSizeProgressDialog(shell, variables, dbMeta, realTableName);
     Long size = pd.open();
     if (size != null) {
       MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
@@ -810,7 +822,9 @@ public class DatabaseExplorerDialog extends Dialog {
     try {
       db.connect();
       IRowMeta r = db.getTableFields(tableName);
-      String sql = db.getCreateTableStatement(tableName, r, null, false, null, true);
+      String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
+
+      String sql = db.getCreateTableStatement(realTableName, r, null, false, null, true);
       SqlEditor se = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
       se.open();
     } catch (HopDatabaseException dbe) {
@@ -825,12 +839,14 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getDDLForOther(String tableName) {
+
     if (databases != null) {
       Database database = new Database(loggingObject, variables, dbMeta);
       try {
         database.connect();
 
-        IRowMeta rowMeta = database.getTableFields(tableName);
+        String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
+        IRowMeta rowMeta = database.getTableFields(realTableName);
 
         // Now select the other connection...
 
@@ -880,8 +896,9 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getSql(String tableName) {
+    String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
     SqlEditor sqlEditor =
-        new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, "SELECT * FROM " + tableName);
+        new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, "SELECT * FROM " + realTableName);
     sqlEditor.open();
   }
 
