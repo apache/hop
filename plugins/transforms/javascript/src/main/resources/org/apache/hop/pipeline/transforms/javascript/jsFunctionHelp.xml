@@ -351,17 +351,15 @@
     </jsFunction>
     <jsFunction name="LoadScriptFile">
         <help>Loads a *.js file for further use.</help>
-        <sample>// Load's a JavaScript File into your actual running Context.
-            // This function should called from your defined StartScript
+        <sample>// Loads a JavaScript File into your actual running Context.
+            // This function should be called from your defined StartScript
             // otherwise your JavaScript-File is loaded on each processing
             // Row.
             //
             // Usage:
             // LoadScriptFile(var);
             //
-            // 2006-11-15
-            //
-            var xPfad = "Your Filename, with Path";
+            var xPfad = 'Your Filename, with Path';
             LoadScriptFile(xPfad);
         </sample>
         <type>4</type>
