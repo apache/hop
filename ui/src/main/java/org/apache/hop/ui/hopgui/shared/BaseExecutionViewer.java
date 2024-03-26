@@ -144,35 +144,63 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   public abstract void drillDownOnLocation(Point location);
 
   @Override
-  public void mouseDoubleClick(MouseEvent mouseEvent) {
-    drillDownOnLocation(screen2real(mouseEvent.x, mouseEvent.y));
+  public void mouseDoubleClick(MouseEvent event) {
+    drillDownOnLocation(screen2real(event.x, event.y));
   }
 
   @Override
-  public void mouseMove(MouseEvent e) {
+  public void mouseMove(MouseEvent event) {
     // Check to see if we're navigating with the view port
     //
     if (viewPortNavigation) {
-      dragViewPort(new Point(e.x, e.y));
+      dragViewPort(new Point(event.x, event.y));
     }
 
     // Drag the view around with middle button on the background?
     //
     if (viewDrag && lastClick != null) {
-      dragView(viewDragStart, new Point(e.x, e.y));
+      dragView(viewDragStart, new Point(event.x, event.y));
     }
+    
+    Point real = screen2real(event.x, event.y);
+    
+    // Moved over an area?
+    //
+    AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
+
+    Cursor cursor = null;
+    // Change cursor when dragging view or view port
+    if (viewDrag || viewPortNavigation) {
+      cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
+    }
+    // Change cursor when hover an action or transform icon
+    else if (areaOwner != null && areaOwner.getAreaType() != null && areaOwner.getAreaType().isSupportHover()) {     
+      switch(areaOwner.getAreaType()) {
+        case ACTION_ICON:
+        case ACTION_NAME:
+        case TRANSFORM_ICON:
+        case TRANSFORM_NAME:
+          cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
+          break;  
+        default:
+      }
+    }         
+    setCursor(cursor);  
   }
 
   @Override
-  public void mouseUp(MouseEvent e) {
+  public void mouseUp(MouseEvent event) {
     if (viewPortNavigation || viewDrag) {
       viewDrag = false;
       viewPortNavigation = false;
       viewPortStart = null;
     }
+    
+    // Default cursor
+    setCursor(null);  
   }
 
-  public void mouseHover(MouseEvent e) {
+  public void mouseHover(MouseEvent event) {
     // don't do anything for now
   }
 

@@ -855,19 +855,19 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
   }
 
   @Override
-  public void mouseDown(MouseEvent e) {
+  public void mouseDown(MouseEvent event) {
     pipelineMeta.unselectAll();
 
     if (EnvironmentUtils.getInstance().isWeb()) {
       // RAP does not support certain mouse events.
-      mouseHover(e);
+      mouseHover(event);
     }
 
-    Point real = screen2real(e.x, e.y);
+    Point real = screen2real(event.x, event.y);
     lastClick = new Point(real.x, real.y);
-    boolean control = (e.stateMask & SWT.MOD1) != 0;
+    boolean control = (event.stateMask & SWT.MOD1) != 0;
 
-    if (setupDragView(e.button, control, new Point(e.x, e.y))) {
+    if (setupDragView(event.button, control, new Point(event.x, event.y))) {
       return;
     }
 
@@ -882,10 +882,17 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           // Show the data for this transform
           //
           selectedTransform = (TransformMeta) areaOwner.getOwner();
+          refreshTransformData();
+          break;
+        case TRANSFORM_NAME:
+          // Show the data for this transform
+          //
+          selectedTransform = (TransformMeta) areaOwner.getParent();
+          refreshTransformData();
           break;
       }
     }
-    refreshTransformData();
+    
     redraw();
   }
 
