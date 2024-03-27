@@ -33,7 +33,7 @@
     <description />
 
     <properties>
-        <azure-storage.version>8.6.6</azure-storage.version>
+        <azure-storage.version>12.25.3</azure-storage.version>
         <azure-eventhubs.version>3.3.0</azure-eventhubs.version>
     </properties>
 
@@ -90,10 +90,11 @@
         <!-- Azure VFS -->
 
         <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-storage</artifactId>
+            <groupId>com.azure</groupId>
+            <artifactId>azure-storage-blob</artifactId>
             <version>${azure-storage.version}</version>
         </dependency>
+
 
         <!-- Azure Event Hubs -->
 
