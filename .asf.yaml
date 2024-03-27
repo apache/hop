@@ -30,8 +30,12 @@ github:
   labels:
     - hop
     - java
+    - ETL
+    - orchestration
+    - data-integration
     - streaming
-    - pipelines
+    - pipeline
+    - workflow
     - apache
   features:
     # Enable issues management
