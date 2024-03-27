@@ -30,7 +30,7 @@ github:
   labels:
     - hop
     - java
-    - ETL
+    - etl
     - orchestration
     - data-integration
     - streaming
