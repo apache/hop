@@ -234,7 +234,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
             for (ListBlobItem item :
                 relpath.equals("") ? container.listBlobs() : container.listBlobs(relpath + "/")) {
               String itemPath = removeTrailingSlash(item.getUri().getPath());
-              if (itemPath.equals(thisPath)) {
+              if (itemPath.replace("/devstoreaccount1", "").equals(thisPath)) {
                 if (item instanceof CloudBlob) {
                   cloudBlob = (CloudBlob) item;
                 } else {
