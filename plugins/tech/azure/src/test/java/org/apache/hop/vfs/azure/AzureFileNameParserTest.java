@@ -58,10 +58,11 @@ public class AzureFileNameParserTest {
     @Parameterized.Parameters
     public static Collection azureUris() {
         return Arrays.asList(new Object[][] {
-            { "azfs:/hopsa/container/folder1/parquet-test-delo2-azfs-00-0001.parquet","azfs", "container","/folder1/parquet-test-delo2-azfs-00-0001.parquet", FileType.FILE },
+            { "azfs://hopsa/container/folder1/parquet-test-delo2-azfs-00-0001.parquet","azfs", "container","/folder1/parquet-test-delo2-azfs-00-0001.parquet", FileType.FILE },
             { "azfs:/hopsa/container/folder1/", "azfs", "container","/folder1", FileType.FOLDER },
             { "azure://test/folder1/", "azure", "test", "/folder1", FileType.FOLDER },
             { "azure://mycontainer/folder1/parquet-test-delo2-azfs-00-0001.parquet","azure", "mycontainer","/folder1/parquet-test-delo2-azfs-00-0001.parquet", FileType.FILE },
+            { "azfs://devstoreaccount1/delo/delo3-azfs-00-0001.parquet", "azfs", "delo", "/delo3-azfs-00-0001.parquet", FileType.FILE}
         });
     }
 

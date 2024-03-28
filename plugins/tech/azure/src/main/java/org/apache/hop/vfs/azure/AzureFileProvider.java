@@ -63,6 +63,8 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
         UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
       };
 
+  public static final String AZURE_ENDPOINT_SUFFIX = "core.windows.net";
+
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 
   public static FileSystemOptions getDefaultFileSystemOptions() {
@@ -105,10 +107,17 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
       String key = variables.resolve(config.getKey());
 
+      String url = variables.resolve(config.getEmulatorUrl());
+
       String storageConnectionString =
-          String.format(
-              "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=core.windows.net",
-              account, key);
+          url.isEmpty()
+              ? String.format(
+                  "DefaultEndpointsProtocol=https;AccountName=%s;AccountKey=%s;EndpointSuffix=%s",
+                  account, key, AZURE_ENDPOINT_SUFFIX)
+              : String.format(
+                  "AccountName=%s;AccountKey=%s;DefaultEndpointsProtocol=http;BlobEndpoint=%s/%s",
+                  // DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://127.0.0.1:10000/devstoreaccount1;
+                  account, key, url, account);
       CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
 
       service = storageAccount.createCloudBlobClient();
