@@ -1768,9 +1768,9 @@ public class TableView extends Composite {
     }
     row.setText(colNr, textData);
     if (usingVariables) {
-      comboVar.setVisible(false);
+      safelyDisposeControl(comboVar);
     } else {
-      combo.setVisible(false);
+      safelyDisposeControl(combo);
     }
 
     String[] afterEdit = getItemText(row);
