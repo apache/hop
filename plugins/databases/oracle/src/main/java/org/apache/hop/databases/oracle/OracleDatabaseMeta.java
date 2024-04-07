@@ -643,7 +643,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    */
   @Override
   public boolean isSupportsPreparedStatementMetadataRetrieval() {
-    return false;
+    return true;
   }
 
   /** @return The maximum number of columns in a database, <=0 means: no known limit */

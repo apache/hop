@@ -222,7 +222,7 @@ public class OracleDatabaseMetaTest {
         "http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/urls.htm#i1006362",
         nativeMeta.getExtraOptionsHelpText());
     assertTrue(nativeMeta.isRequiresCreateTablePrimaryKeyAppend());
-    assertFalse(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
+    assertTrue(nativeMeta.isSupportsPreparedStatementMetadataRetrieval());
     String quoteTest1 = "FOO 'BAR' \r TEST \n";
     String quoteTest2 = "FOO 'BAR' \\r TEST \\n";
     assertEquals(
