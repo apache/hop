@@ -74,6 +74,15 @@ To define and use multiple parameters, list the fields in order you want them to
 |Option|Description
 |Transform name|Name of the transform; This name has to be unique in a single pipeline
 |Connection|The database connection to use for the query.
+|Enable cache?|Enables caching of database lookups.
+This means that once a key (or group of key) has been looked up, the looked up values are stored, and returned again the next time this key (or group of key) is being looked up (without incurring the cost of a database call).
+
+*Important*: If other processes are changing values in the table where you perform a lookup, do not cache values.
+In all other instances, caching values increases the performance substantially because database lookups are relatively slow.
+If you can't use the cache, consider launching several copies of the simultaneously.
+A simultaneous launch keeps the database busy through different connections.
+See Launching several copies of a transform.
+|Cache size in rows|The size of the cache (number of rows), 0 means cache everything.
 |SQL|SQL query to form the join; use question marks as parameter placeholders
 |Number of rows to return|Zero (0) returns all rows; any other number limits the number of rows returned.
 |Outer join?|Enable to always return a result, even if the query did not return a result
