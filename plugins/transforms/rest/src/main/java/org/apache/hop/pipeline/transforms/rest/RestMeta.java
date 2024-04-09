@@ -775,7 +775,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     if (Utils.isEmpty(method)) {
       return false;
     }
-    return (method.equals(HTTP_METHOD_POST)
+    return (method.equals(HTTP_METHOD_GET)
+        || method.equals(HTTP_METHOD_POST)
         || method.equals(HTTP_METHOD_PUT)
         || method.equals(HTTP_METHOD_PATCH)
         || method.equals(HTTP_METHOD_DELETE));
