@@ -32,11 +32,14 @@ public class AzureFileSystem extends AbstractFileSystem {
 
   private CloudBlobClient client;
 
+  private String account;
+
   public AzureFileSystem(
-      AzureFileName fileName, CloudBlobClient service, FileSystemOptions fileSystemOptions)
+      AzureFileName fileName, CloudBlobClient service, FileSystemOptions fileSystemOptions, String account)
       throws FileSystemException {
     super(fileName, null, fileSystemOptions);
     this.client = service;
+    this.account = account;
   }
 
   @Override
@@ -48,4 +51,8 @@ public class AzureFileSystem extends AbstractFileSystem {
   protected FileObject createFile(AbstractFileName name) throws Exception {
     return new AzureFileObject(name, this, client);
   }
+
+    public String getAccount() {
+        return account;
+    }
 }
