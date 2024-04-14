@@ -19,7 +19,11 @@ package org.apache.pipeline.transform.jdbcmetadata;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.sql.*;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;

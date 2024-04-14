@@ -17,23 +17,18 @@
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
-import com.google.api.client.auth.oauth2.Credential;
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.services.sqladmin.*;
-
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestInitializer;
+import com.google.api.services.sqladmin.SQLAdminScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.*;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.vfs.HopVfs;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.vfs.HopVfs;
 
 /** Describe your transform plugin. */
 public class GoogleSheetsCredentials {
