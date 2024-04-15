@@ -74,12 +74,12 @@ pipeline {
         }
         stage ('Start Website build') {
             when {
-                branch 'master'
+                branch 'main'
                 changeset 'docs/**'
             }
             steps {
                 echo 'Trigger Documentation Build'
-                build job: 'Hop/Hop-website/master', wait: false
+                build job: 'Hop/Hop-website/main', wait: false
             }
         }
         stage('Get POM Version') {
@@ -133,7 +133,7 @@ pipeline {
         }
         stage('Build Hop Docker Image') {
             when {
-                branch 'master'
+                branch 'main'
                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
@@ -150,7 +150,7 @@ pipeline {
         }
         stage('Build Hop Web Docker Image (base)') {
             when {
-                branch 'master'
+                branch 'main'
                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
@@ -169,7 +169,7 @@ pipeline {
         }
         stage('Build Image (DataFlowTemplate)') {
             when {
-                branch 'master'
+                branch 'main'
                 anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps {
@@ -185,7 +185,7 @@ pipeline {
         }
         stage('Deploy'){
             when {
-                branch 'master'
+                branch 'main'
                anyOf { changeset pattern: "^(?!docs).*^(?!integration-tests).*" , comparator: "REGEXP" ; equals expected: true, actual: params.FORCE_BUILD }
             }
             steps{
