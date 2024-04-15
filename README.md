@@ -20,7 +20,7 @@ under the License.
 The Hop Orchestration Platform aims to facilitate all aspects of data and metadata orchestration.
 
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=apache_hop&metric=ncloc)](https://sonarcloud.io/dashboard?id=apache_hop)
-[![Jenkins Status](https://ci-builds.apache.org/buildStatus/icon?job=Hop%2FHop%2Fmaster)](https://ci-builds.apache.org/buildStatus/icon?job=Hop%2FHop%2Fmaster)
+[![Jenkins Status](https://ci-builds.apache.org/buildStatus/icon?job=Hop%2FHop%2Fmain)](https://ci-builds.apache.org/buildStatus/icon?job=Hop%2FHop%2Fmain)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/apache/hop/graphs/commit-activity)
 [![Twitter Follow](https://img.shields.io/twitter/follow/ApacheHop?style=social)](https://twitter.com/ApacheHop)
 [![Facebook](https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white)](https://www.facebook.com/projhop/)
