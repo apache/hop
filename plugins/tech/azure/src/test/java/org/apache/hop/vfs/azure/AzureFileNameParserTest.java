@@ -17,19 +17,17 @@
 
 package org.apache.hop.vfs.azure;
 
+import java.util.Arrays;
+import java.util.Collection;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mockito;
-
-import java.util.Arrays;
-import java.util.Collection;
-
-import static org.junit.Assert.*;
 @RunWith(Parameterized.class)
 public class AzureFileNameParserTest {
 

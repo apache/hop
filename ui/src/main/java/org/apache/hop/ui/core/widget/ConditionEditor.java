@@ -17,7 +17,13 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.ArrayList;
 import org.apache.hop.core.Condition;
+import static org.apache.hop.core.Condition.Function.NOT_NULL;
+import static org.apache.hop.core.Condition.Function.NULL;
+import static org.apache.hop.core.Condition.Operator.AND;
+import static org.apache.hop.core.Condition.Operator.NONE;
+import static org.apache.hop.core.Condition.Operator.lookupType;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -56,12 +62,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-
-import static org.apache.hop.core.Condition.Function.NOT_NULL;
-import static org.apache.hop.core.Condition.Function.NULL;
-import static org.apache.hop.core.Condition.Operator.*;
 
 /** Widget that allows you to edit a Condition in a graphical way. */
 public class ConditionEditor extends Canvas implements MouseMoveListener {
