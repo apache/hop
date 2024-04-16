@@ -187,9 +187,9 @@ git commit -m "#12345 : My work description" .
 == Updating your fork
 
 After a while it's likely your "origin" fork will be lagging behind with the main "upstream" Hop codebase.
-You can develop against the ```master``` branch of the codebase or you can create different branches for the features you're building or the GitHub issue you're fixing.
-In the commands below we assume you want to update your ```master``` branch.
-If this is not the case, replace ```master``` with the branch you're interested in and later want to generate a pull request for.
+You can develop against the ```main``` branch of the codebase or you can create different branches for the features you're building or the GitHub issue you're fixing.
+In the commands below we assume you want to update your ```main``` branch.
+If this is not the case, replace ```main``` with the branch you're interested in and later want to generate a pull request for.
 
 To update it you can add "upstream" to your local configuration:
 
@@ -199,17 +199,17 @@ git remote add upstream git@github.com:apache/hop.git
 Then you can fetch all the changes from "upstream":
 
 [source]
-git fetch upstream master
+git fetch upstream main
 
 We now want to catch up by pulling all the changes from "upstream" and by doing a rebase at the same time.
 
 [source]
-git pull --rebase upstream master
+git pull --rebase upstream main
 
 Now of-course we want to update our "origin" fork as well:
 
 [source]
-git push --force-with-lease origin master
+git push --force-with-lease origin main
 
 == Generating a pull request
 
