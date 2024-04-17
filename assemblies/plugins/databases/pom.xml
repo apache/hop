@@ -36,6 +36,7 @@
     <module>cache-assemblies</module>
     <module>clickhouse-assemblies</module>
     <module>cockroachdb-assemblies</module>
+    <module>cratedb-assemblies</module>
     <module>db2-assemblies</module>
     <module>derby-assemblies</module>
     <module>doris-assemblies</module>

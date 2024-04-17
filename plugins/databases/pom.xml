@@ -105,6 +105,7 @@
                 <module>cockroachdb</module>
                 <module>hive</module>
                 <module>duckdb</module>
+                <module>cratedb</module>
             </modules>
         </profile>
 
