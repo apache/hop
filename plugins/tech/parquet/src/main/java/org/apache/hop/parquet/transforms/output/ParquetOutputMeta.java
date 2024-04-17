@@ -63,6 +63,15 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
   @HopMetadataProperty(key = "filename_split_size")
   private String fileSplitSize;
 
+  @HopMetadataProperty(key = "filename_in_field")
+  private boolean filenameInField;
+
+  @HopMetadataProperty(key = "filename_field")
+  private String filenameField;
+
+  @HopMetadataProperty(key = "add_to_result_filenames")
+  private boolean addToResultFilenames;
+
   @HopMetadataProperty(key = "filename_create_parent_folders")
   private boolean filenameCreatingParentFolders;
 
@@ -94,9 +103,11 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     dictionaryPageSize = Integer.toString(ParquetProperties.DEFAULT_DICTIONARY_PAGE_SIZE);
     fields = new ArrayList<>();
     filenameIncludingCopyNr = true;
-    filenameIncludingSplitNr = true;
+    filenameIncludingSplitNr = false;
     filenameCreatingParentFolders = true;
-    fileSplitSize = "1000000";
+
+    addToResultFilenames = false;
+    filenameInField = false;
   }
 
   public ParquetOutputMeta(ParquetOutputMeta m) {
@@ -115,7 +126,34 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     this.rowGroupSize = m.rowGroupSize;
     this.dataPageSize = m.dataPageSize;
     this.dictionaryPageSize = m.dictionaryPageSize;
+    this.filenameInField = m.filenameInField;
+    this.filenameField = m.filenameField;
+    this.addToResultFilenames = m.addToResultFilenames;
     this.fields = m.fields;
+  }
+
+  public Boolean isFilenameInField() {
+    return filenameInField;
+  }
+
+  public void setFilenameInField(boolean filenameInField) {
+    this.filenameInField = this.filenameInField;
+  }
+
+  public String getFilenameField() {
+    return filenameField;
+  }
+
+  public void setFilenameField(String filenameField) {
+    this.filenameField = filenameField;
+  }
+
+  public boolean isAddToResultFilenames() {
+    return addToResultFilenames;
+  }
+
+  public void setAddToResultFilenames(boolean addToResultFilenames) {
+    this.addToResultFilenames = addToResultFilenames;
   }
 
   /**
