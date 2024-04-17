@@ -78,6 +78,7 @@
                 <module>combinationlookup</module>
                 <module>concatfields</module>
                 <module>constant</module>
+                <module>cratedbbulkloader</module>
                 <module>creditcardvalidator</module>
                 <module>cubeinput</module>
                 <module>cubeoutput</module>

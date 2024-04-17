@@ -41,7 +41,7 @@ public class CrateDBDatabaseMetaIT {
 
   private static Connection connection;
 
-  private CrateDbDatabaseMeta nativeMeta = new CrateDbDatabaseMeta();
+  private CrateDBDatabaseMeta nativeMeta = new CrateDBDatabaseMeta();
 
   @BeforeClass
   public static void setup() throws Exception {
@@ -83,14 +83,13 @@ public class CrateDBDatabaseMetaIT {
   public void sqlStatements() throws Exception {
     executeUpdate(
         "INSERT INTO foo (id, name, description) VALUES (1, 'Alice', 'test_description');");
-    Thread.sleep(1500); // need a break to make sure the data is there: unfortunately,
-    // CrateDB does not support transactions, rather it promote eventual consistency.
-    // Using an async lib for assertions like awaitility would be a better approach
+    executeUpdate("REFRESH TABLE foo;");
+
     int counter = 0;
     ResultSet rs = executeQuery(nativeMeta.getSqlQueryFields("foo"));
     while (rs.next()) {
       counter++;
-      assertTrue("Alice".equals(rs.getString("name")));
+      assertEquals("Alice", rs.getString("name"));
     }
     assertTrue(counter > 0);
 
@@ -98,7 +97,7 @@ public class CrateDBDatabaseMetaIT {
     rs = executeQuery(nativeMeta.getSqlTableExists("foo"));
     while (rs.next()) {
       counter++;
-      assertTrue("Alice".equals(rs.getString("name")));
+      assertEquals("Alice", rs.getString("name"));
     }
     assertTrue(counter > 0);
 
@@ -106,7 +105,7 @@ public class CrateDBDatabaseMetaIT {
     rs = executeQuery(nativeMeta.getSqlQueryColumnFields("name", "foo"));
     while (rs.next()) {
       counter++;
-      assertTrue("Alice".equals(rs.getString("name")));
+      assertEquals("Alice", rs.getString("name"));
     }
     assertTrue(counter > 0);
 
@@ -114,7 +113,7 @@ public class CrateDBDatabaseMetaIT {
     rs = executeQuery(nativeMeta.getSqlColumnExists("name", "foo"));
     while (rs.next()) {
       counter++;
-      assertTrue("Alice".equals(rs.getString("name")));
+      assertEquals("Alice", rs.getString("name"));
     }
     assertTrue(counter > 0);
   }

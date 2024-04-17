@@ -1,0 +1,98 @@
+////
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+////
+:documentationPath: /pipeline/transforms/
+:language: en_US
+:description: The CrateDB Bulk Loader transform loads data from Apache Hop to CrateDB both with HTTP endpoint and COPY command.
+
+= image:transforms/icons/cratedb.svg[CrateDB Bulk Loader transform Icon, role="image-doc-icon"] CrateDB Bulk Loader
+
+[%noheader,cols="3a,1a", role="table-no-borders" ]
+|===
+|
+== Description
+
+The CrateDB Bulk Loader transform loads data from Apache Hop to CrateDB using two different approaches:
+
+* the https://cratedb.com/docs/crate/reference/en/5.7/sql/statements/copy-from.html#copy-from[`COPY FROM`^] command.
+* The https://cratedb.com/docs/crate/reference/en/latest/interfaces/http.html#bulk-operations[CrateDB HTTP endpoint] for bulk operations.
+
+
+|
+== Supported Engines
+[%noheader,cols="2,1a",frame=none, role="table-supported-engines"]
+!===
+!Hop Engine! image:check_mark.svg[Supported, 24]
+!Spark! image:question_mark.svg[Maybe Supported, 24]
+!Flink! image:question_mark.svg[Maybe Supported, 24]
+!Dataflow! image:question_mark.svg[Maybe Supported, 24]
+!===
+|===
+
+IMPORTANT: The CrateDB Bulk Loader is linked to the database type. When the COPY mode is used, it will fetch the JDBC driver from the hop/lib/jdbc folder. +
+
+
+== General Options
+
+[options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Target schema|The name of the target schema to write data to. This is a mandatory field because CrateDB needs to know which of the default schemas write to (`doc` and `blob` are the default schemas in CrateDB).
+|Target table|The name of the target table to write data to.
+|===
+
+== Main Options
+
+[options="header"]
+|===
+|Option|Description
+|Connection|Name of the database connection on which the target table resides.
+|Use HTTP Endpoint|Choose the mode to use to load data into CrateDB. Supported options are `HTTP Endpoint` and `COPY`; when `HTTP Endpoint` is selected, the `COPY` options are disabled and vice versa.
+|Batch size| HTTP mode works writing in batch. The number of rows to send in a single batch to CrateDB must be set as there's no default value.
+|Specify database fields|Specify the database and stream fields mapping
+|Stream to file|Write the current pipeline stream to a file in the local filesystem or in S3 before performing the `COPY` load.
+|Local folder|Local folder where to store files that will be used by the `COPY` command.
+
+As per documentation, CrateDB retrieves files from its nodes filesystem (scheme `file://`). However, in most cases, Hop is executed in a different machine than the CrateDB one, so the most adopted solution with such scenarios is mapping the remote folder (CrateDB) with a local one (Hop) via volumes, for example.
+
+In the `Local folder` field, you can specify the local folder where the file will be written. The file will be written in the local filesystem, which is linked to the remote filesystem (for e.g. Docker Volume).
+
+Leave it empty otherwise in other scenarios (i.e.: writing to S3).
+|Read from file|Do not stream the contents of the current pipeline, but perform the `COPY` load from a pre-existing file in the local filesystem or in S3. Supported formats are `CSV` (comma delimited).
+|===
+
+== AWS Authentication
+[options="header"]
+|===
+|Option|Description
+|Use AWS system variables| When selected, picks up the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values from your operating system's environment variables.
+|AWS_ACCESS_KEY_ID|(if `Use AWS system variables` is unchecked) specify a value or variable for your `AWS_ACCESS_KEY_ID`.
+|AWS_SECRET_ACCESS_KEY|(if `Use AWS system variables` is unchecked)  specify a value or variable for your `AWS_SECRET_ACCESS_KEY`.
+|===
+
+== HTTP Authentication
+At the moment, Hop only supports the `Basic` and `Bearer` authentication methods.
+[options="header"]
+|===
+|Option|Description
+|HTTP Login|Insert the username for the HTTP authentication
+|HTTP password|Insert the password for the HTTP authentication
+
+== Fields
+
+Map the current stream fields to the CrateDB table's columns.
+
