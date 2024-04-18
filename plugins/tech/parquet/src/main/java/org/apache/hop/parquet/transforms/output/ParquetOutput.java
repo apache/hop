@@ -23,6 +23,7 @@ import org.apache.avro.SchemaBuilder;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -105,7 +106,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     //
     if (meta.isFilenameIncludingSplitNr()
         && data.maxSplitSizeRows > 0
-        && data.splitRowCount >= data.maxSplitSizeRows) {
+        && data.splitRowCount >= data.maxSplitSizeRows && !meta.isFilenameInField()) {
       // Close file and start a new one...
       //
       closeFile();
@@ -148,6 +149,69 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
     data.props = builder.build();
 
+    createParquetFileSchema();
+
+    // Convert from Avro to Parquet schema
+    //
+    MessageType messageType = new AvroSchemaConverter().convert(data.avroSchema);
+
+    // Calculate the filename...
+    //
+    data.filename = buildFilename(getPipeline().getExecutionStartDate());
+
+    try {
+      FileObject fileObject = HopVfs.getFileObject(data.filename);
+
+      // See if we need to create the parent folder(s)...
+      //
+      if (meta.isFilenameCreatingParentFolders()) {
+        FileObject parentFolder = fileObject.getParent();
+        if (parentFolder != null && !parentFolder.exists()) {
+          // Try to create the parent folder...
+          //
+          parentFolder.createFolder();
+        }
+      }
+
+      // adding filename to result
+      if (meta.isAddToResultFilenames()) {
+        // Add this to the result file names...
+        ResultFile resultFile =
+                new ResultFile(
+                        ResultFile.FILE_TYPE_GENERAL,
+                        fileObject,
+                        getPipelineMeta().getName(),
+                        getTransformName());
+        resultFile.setComment(
+                "This file was created with a Parquet Output transform by Hop");
+        addResultFile(resultFile);
+      }
+
+      data.outputStream = HopVfs.getOutputStream(data.filename, false);
+      data.outputFile = new ParquetOutputFile(data.outputStream);
+
+      data.writer =
+          new ParquetWriterBuilder(
+                  messageType,
+                  data.avroSchema,
+                  data.outputFile,
+                  data.sourceFieldIndexes,
+                  meta.getFields())
+              .withPageSize(data.pageSize)
+              .withDictionaryPageSize(data.dictionaryPageSize)
+              .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
+              .withCompressionCodec(meta.getCompressionCodec())
+              .withRowGroupSize(data.rowGroupSize)
+              .withWriterVersion(data.props.getWriterVersion())
+              .withWriteMode(ParquetFileWriter.Mode.CREATE)
+              .build();
+
+    } catch (Exception e) {
+      throw new HopException("Unable to create output file '" + data.filename + "'", e);
+    }
+  }
+
+  private void createParquetFileSchema() throws HopException {
     SchemaBuilder.FieldAssembler<Schema> fieldAssembler =
         SchemaBuilder.record("ApacheHopParquetSchema").fields();
 
@@ -204,51 +268,6 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       }
     }
     data.avroSchema = fieldAssembler.endRecord();
-
-    // Convert from Avro to Parquet schema
-    //
-    MessageType messageType = new AvroSchemaConverter().convert(data.avroSchema);
-
-    // Calculate the filename...
-    //
-    data.filename = buildFilename(getPipeline().getExecutionStartDate());
-
-    try {
-      FileObject fileObject = HopVfs.getFileObject(data.filename);
-
-      // See if we need to create the parent folder(s)...
-      //
-      if (meta.isFilenameCreatingParentFolders()) {
-        FileObject parentFolder = fileObject.getParent();
-        if (parentFolder != null && !parentFolder.exists()) {
-          // Try to create the parent folder...
-          //
-          parentFolder.createFolder();
-        }
-      }
-
-      data.outputStream = HopVfs.getOutputStream(data.filename, false);
-      data.outputFile = new ParquetOutputFile(data.outputStream);
-
-      data.writer =
-          new ParquetWriterBuilder(
-                  messageType,
-                  data.avroSchema,
-                  data.outputFile,
-                  data.sourceFieldIndexes,
-                  meta.getFields())
-              .withPageSize(data.pageSize)
-              .withDictionaryPageSize(data.dictionaryPageSize)
-              .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
-              .withCompressionCodec(meta.getCompressionCodec())
-              .withRowGroupSize(data.rowGroupSize)
-              .withWriterVersion(data.props.getWriterVersion())
-              .withWriteMode(ParquetFileWriter.Mode.CREATE)
-              .build();
-
-    } catch (Exception e) {
-      throw new HopException("Unable to create output file '" + data.filename + "'", e);
-    }
   }
 
   private String buildFilename(Date date) {
