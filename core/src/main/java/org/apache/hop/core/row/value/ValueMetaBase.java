@@ -1046,7 +1046,8 @@ public class ValueMetaBase implements IValueMeta {
     if (date == null) {
       return null;
     }
-    return compatibleDateFormat.format(date);
+    // If a date format already exists use it otherwise use the compatible date format
+    return (getDateFormat() != null ? getDateFormat().format(date) : compatibleDateFormat.format(date));
   }
 
   public synchronized Date convertStringToDate(String string) throws HopValueException {
