@@ -74,7 +74,6 @@ public class BaseHopServerPluginTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
   public void testDoGet() throws Exception {
     baseHopServerPlugin.doGet(req, resp);
     // doGet should delegate to .service

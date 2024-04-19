@@ -69,7 +69,6 @@ public class KerberosInvocationHandler implements InvocationHandler {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T wrap(Class<T> iface, AuthContext authContext, Object delegate) {
     return (T)
         Proxy.newProxyInstance(

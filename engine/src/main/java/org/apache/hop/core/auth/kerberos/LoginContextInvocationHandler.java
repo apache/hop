@@ -47,7 +47,6 @@ public class LoginContextInvocationHandler<T> implements InvocationHandler {
     this.interfacesToDelegate = interfacesToDelegate;
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T forObject(
       T delegate, LoginContext loginContext, Set<Class<?>> interfacesToDelegate) {
     return (T)

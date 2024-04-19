@@ -31,7 +31,6 @@ public class MetricsDurationTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
-  @SuppressWarnings("deprecation")
   public void test() {
     Date startDate = new Date((2016 - 1900), Calendar.JANUARY, 10);
     Long duration = Long.valueOf(4L);

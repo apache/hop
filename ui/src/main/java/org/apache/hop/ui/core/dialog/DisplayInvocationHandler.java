@@ -37,7 +37,6 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
     private volatile Object result = null;
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T forObject(
       Class<T> iface, T delegate, Display display, ILogChannel log, boolean asyncForVoid) {
     return (T)

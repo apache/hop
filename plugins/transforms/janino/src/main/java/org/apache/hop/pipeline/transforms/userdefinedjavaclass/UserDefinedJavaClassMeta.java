@@ -238,7 +238,6 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaC
     return rtn;
   }
 
-  @SuppressWarnings("unchecked")
   public void cookClasses() {
     cookErrors.clear();
     ClassLoader clsloader = UserDefinedJavaClass.class.getClassLoader();

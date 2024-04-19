@@ -319,7 +319,6 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData> impl
     assignSortingCriteria(inputRowMeta);
   }
 
-  @SuppressWarnings("WeakerAccess")
   public void assignSortingCriteria(IRowMeta inputRowMeta) {
     for (int i = 0; i < fieldName.length; i++) {
       int idx = inputRowMeta.indexOfValue(fieldName[i]);

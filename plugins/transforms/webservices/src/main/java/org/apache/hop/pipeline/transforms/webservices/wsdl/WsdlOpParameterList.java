@@ -158,7 +158,6 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
    *
    * @param responseParam Parameter to process.
    */
-  @SuppressWarnings("unchecked")
   private void addOutputParameter(WsdlOpParameter responseParam) {
     List<String> parameterOrder = _operation.getParameterOrdering();
     if (parameterOrder != null) {

@@ -513,7 +513,6 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   }
 
   // Namespaces: put an extra row out for each namespace
-  @SuppressWarnings("unchecked")
   private Object[] parseNamespaces(Object[] outputRowData, XMLEvent e)
       throws HopValueException, HopTransformException {
     Iterator<Namespace> iter = e.asStartElement().getNamespaces();
@@ -547,7 +546,6 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   }
 
   // Attributes: put an extra row out for each attribute
-  @SuppressWarnings("unchecked")
   private Object[] parseAttributes(Object[] outputRowData, XMLEvent e)
       throws HopValueException, HopTransformException {
     Iterator<Attribute> iter = e.asStartElement().getAttributes();

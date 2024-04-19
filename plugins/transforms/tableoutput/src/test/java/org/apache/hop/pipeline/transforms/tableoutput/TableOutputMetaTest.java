@@ -54,7 +54,6 @@ public class TableOutputMetaTest {
   private IHopMetadataProvider metadataProvider;
   Class<TableOutputMeta> testMetaClass = TableOutputMeta.class;
 
-  @SuppressWarnings("unchecked")
   @Before
   public void setUp() {
     variables = mock(IVariables.class);

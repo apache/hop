@@ -236,7 +236,6 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
    * @param r
    * @throws HopException
    */
-  @SuppressWarnings("unchecked")
   void addToAggregate(Object[] r) throws HopException {
 
     Object[] groupData = new Object[data.groupMeta.size()];
@@ -518,7 +517,6 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           if (agg.getType() == Percentile) {
             percentile = Double.parseDouble(agg.getValueField());
           }
-          @SuppressWarnings("unchecked")
           List<Double> valuesList = (List<Double>) aggregate.agg[i];
           double[] values = new double[valuesList.size()];
           for (int v = 0; v < values.length; v++) {

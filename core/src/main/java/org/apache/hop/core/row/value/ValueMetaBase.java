@@ -4909,7 +4909,6 @@ public class ValueMetaBase implements IValueMeta {
     this.ignoreWhitespace = ignoreWhitespace;
   }
 
-  @SuppressWarnings("fallthrough")
   @Override
   public IValueMeta getValueFromSqlType(
       IVariables variables,

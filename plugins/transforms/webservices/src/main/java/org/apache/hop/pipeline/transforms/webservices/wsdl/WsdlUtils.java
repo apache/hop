@@ -254,7 +254,6 @@ final class WsdlUtils {
    * @param elementType Name of the extensiblity element to find.
    * @return ExtensibilityElement The ExtensiblityElement, if not found return null.
    */
-  @SuppressWarnings("unchecked")
   protected static ExtensibilityElement findExtensibilityElement(
       ElementExtensible extensibleElement, String elementType) {
 
@@ -276,7 +275,6 @@ final class WsdlUtils {
    * @param elementType Name of the extensibility element to find.
    * @return List of ExtensibilityElements, may be empty.
    */
-  @SuppressWarnings("unchecked")
   protected static List<ExtensibilityElement> findExtensibilityElements(
       ElementExtensible extensibleElement, String elementType) {
 

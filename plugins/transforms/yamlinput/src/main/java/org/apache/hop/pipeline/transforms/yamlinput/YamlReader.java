@@ -125,7 +125,6 @@ public class YamlReader {
     return this.useMap;
   }
 
-  @SuppressWarnings("unchecked")
   public Object[] getRow(IRowMeta rowMeta) throws HopException {
 
     Object[] retval = null;
@@ -275,7 +274,6 @@ public class YamlReader {
     return o;
   }
 
-  @SuppressWarnings("unchecked")
   private void getNextDocument() {
     // See if we have another document
     if (this.documenti.hasNext()) {
@@ -288,7 +286,6 @@ public class YamlReader {
     }
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   private String setMap(Object value) {
     String result = value.toString();
     if (value instanceof Map) {
@@ -314,7 +311,6 @@ public class YamlReader {
     return result;
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   public RowMeta getFields() {
     RowMeta rowMeta = new RowMeta();
 

@@ -25,7 +25,6 @@ import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
 public class DefaultAuthenticationPerformerFactory implements IAuthenticationPerformerFactory {
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public <ReturnType, CreateArgType, ConsumedType>
       IAuthenticationPerformer<ReturnType, CreateArgType> create(

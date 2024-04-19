@@ -409,7 +409,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
    * @param row
    * @throws HopValueException
    */
-  @SuppressWarnings("unchecked")
   void calcAggregate(Object[] row) throws HopValueException {
     for (int i = 0; i < data.subjectnrs.length; i++) {
       Aggregation aggregation = meta.getAggregations().get(i);
@@ -740,7 +739,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           if (aggType == Aggregation.TYPE_GROUP_PERCENTILE) {
             percentile = Double.parseDouble(aggregation.getValue());
           }
-          @SuppressWarnings("unchecked")
           List<Double> valuesList = (List<Double>) data.agg[i];
           double[] values = new double[valuesList.size()];
           for (int v = 0; v < values.length; v++) {
@@ -753,7 +751,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           if (aggType == Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK) {
             percentileValue = Double.parseDouble(aggregation.getValue());
           }
-          @SuppressWarnings("unchecked")
           List<Double> latenciesList = (List<Double>) data.agg[i];
           Collections.sort(latenciesList);
           Double[] latencies = new Double[latenciesList.size()];

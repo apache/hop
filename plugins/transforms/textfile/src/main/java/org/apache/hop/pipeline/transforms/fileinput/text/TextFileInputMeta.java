@@ -63,7 +63,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-@SuppressWarnings("deprecation")
 @Transform(
     id = "TextFileInput2",
     image = "textfileinput.svg",

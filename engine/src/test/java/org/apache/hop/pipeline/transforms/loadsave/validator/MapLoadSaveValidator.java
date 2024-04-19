@@ -59,7 +59,6 @@ public class MapLoadSaveValidator<KeyObjectType, ValueObjectType>
   @Override
   public boolean validateTestObject(Map<KeyObjectType, ValueObjectType> original, Object actual) throws HopException {
     if (actual instanceof Map) {
-      @SuppressWarnings("unchecked")
       Map<KeyObjectType, ValueObjectType> actualMap = (Map<KeyObjectType, ValueObjectType>) actual;
       if (original.size() != actualMap.size()) {
         return false;

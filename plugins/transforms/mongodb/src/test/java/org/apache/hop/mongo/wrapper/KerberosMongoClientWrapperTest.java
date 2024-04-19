@@ -37,7 +37,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class KerberosMongoClientWrapperTest {
-  @SuppressWarnings("unchecked")
   @Test
   public void testWrapProperlyWrapsCollection() throws MongoDbException, PrivilegedActionException {
     MongoClient client = mock(MongoClient.class);

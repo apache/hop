@@ -51,7 +51,6 @@ import java.util.HashMap;
 import java.util.List;
 
 /** Bulk loads data to Snowflake */
-@SuppressWarnings({"UnusedAssignment", "ConstantConditions"})
 public class SnowflakeBulkLoader
     extends BaseTransform<SnowflakeBulkLoaderMeta, SnowflakeBulkLoaderData> {
   private static final Class<?> PKG =
@@ -74,7 +73,6 @@ public class SnowflakeBulkLoader
    * @return Was the row successfully processed.
    * @throws HopException
    */
-  @SuppressWarnings("deprecation")
   @Override
   public synchronized boolean processRow() throws HopException {
 
@@ -799,7 +797,6 @@ public class SnowflakeBulkLoader
    * @param escape The escape character(s)
    * @return True if the string contains separators or enclosures
    */
-  @SuppressWarnings("Duplicates")
   private boolean containsSeparatorOrEnclosure(
       byte[] source, byte[] separator, byte[] enclosure, byte[] escape) {
     boolean result = false;
@@ -871,7 +868,6 @@ public class SnowflakeBulkLoader
    * @return The file handle
    * @throws HopFileException
    */
-  @SuppressWarnings("unused")
   protected FileObject getFileObject(String vfsFilename) throws HopFileException {
     return HopVfs.getFileObject(vfsFilename);
   }
@@ -884,7 +880,6 @@ public class SnowflakeBulkLoader
    * @return The file handle
    * @throws HopFileException
    */
-  @SuppressWarnings("unused")
   protected FileObject getFileObject(String vfsFilename, IVariables variables)
       throws HopFileException {
     return HopVfs.getFileObject(vfsFilename);

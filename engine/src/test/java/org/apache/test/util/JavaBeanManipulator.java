@@ -63,7 +63,6 @@ public class JavaBeanManipulator<T> {
     return prefix + name;
   }
 
-  @SuppressWarnings("rawtypes")
   private void populateGetters(List<String> attributes) {
     for (String attribute : attributes) {
       String getterMethodName = getterMap.get(attribute);
@@ -89,7 +88,6 @@ public class JavaBeanManipulator<T> {
     }
   }
 
-  @SuppressWarnings("rawtypes")
   private void populateSetters(List<String> attributes) {
     for (String attribute : attributes) {
       String setterMethodName = setterMap.get(attribute);

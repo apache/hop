@@ -107,7 +107,6 @@ public class RowMetaConcurrencyTest {
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised(shufflers, searchers, condition);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void addRemoveSearch() throws Exception {
     final int addersAmount = 5;

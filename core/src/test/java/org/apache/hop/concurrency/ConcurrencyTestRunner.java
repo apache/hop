@@ -60,7 +60,6 @@ class ConcurrencyTestRunner<M, B> {
    * @param condition stop condition
    * @throws Exception exception
    */
-  @SuppressWarnings("unchecked")
   static void runAndCheckNoExceptionRaised(
       List<? extends Callable<?>> monitoredTasks,
       List<? extends Callable<?>> backgroundTasks,

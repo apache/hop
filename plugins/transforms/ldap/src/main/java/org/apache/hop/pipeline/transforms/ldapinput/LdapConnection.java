@@ -536,7 +536,6 @@ public class LdapConnection {
     }
   }
 
-  @SuppressWarnings("rawtypes")
   private void getPaths(String rootName, Map<String, Attributes> childs, List<String> paths)
       throws Exception {
     NamingEnumeration ne = getInitialContext().list(rootName);

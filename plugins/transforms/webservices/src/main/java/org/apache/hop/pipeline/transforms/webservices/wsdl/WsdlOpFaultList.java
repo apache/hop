@@ -59,7 +59,6 @@ public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {
    * @param fault Fault to process.
    * @return WsdlOpFault Result of processing.
    */
-  @SuppressWarnings("unchecked")
   private WsdlOpFault getFault(Fault fault) throws HopTransformException {
     Message m = fault.getMessage();
 

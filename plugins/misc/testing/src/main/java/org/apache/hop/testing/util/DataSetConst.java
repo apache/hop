@@ -106,7 +106,6 @@ public class DataSetConst {
 
     ILogChannel log = pipeline.getLogChannel();
 
-    @SuppressWarnings("unchecked")
     Map<String, RowCollection> collectionMap =
         (Map<String, RowCollection>)
             pipeline.getExtensionDataMap().get(DataSetConst.ROW_COLLECTION_MAP);

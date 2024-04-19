@@ -27,7 +27,6 @@ public class FieldGetter<T> implements IGetter<T> {
     this.field = field;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public T get(Object obj) {
     try {
@@ -37,7 +36,6 @@ public class FieldGetter<T> implements IGetter<T> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Class<T> getType() {
     return (Class<T>) field.getType();

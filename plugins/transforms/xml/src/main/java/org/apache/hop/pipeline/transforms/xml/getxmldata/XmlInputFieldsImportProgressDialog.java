@@ -140,7 +140,6 @@ public class XmlInputFieldsImportProgressDialog {
     return fields;
   }
 
-  @SuppressWarnings("unchecked")
   private RowMetaAndData[] doScan(IProgressMonitor monitor) throws Exception {
     monitor.beginTask(
         BaseMessages.getString(
@@ -241,7 +240,6 @@ public class XmlInputFieldsImportProgressDialog {
     return listFields;
   }
 
-  @SuppressWarnings("unchecked")
   private void setNodeField(Node node, IProgressMonitor monitor) {
     Element e = (Element) node;
     // get all attributes

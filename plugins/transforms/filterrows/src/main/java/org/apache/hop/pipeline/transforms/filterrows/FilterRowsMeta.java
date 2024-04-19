@@ -84,7 +84,6 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
     compare = new FRCompare();
   }
 
-  @SuppressWarnings("CopyConstructorMissesField")
   public FilterRowsMeta(FilterRowsMeta m) {
     this.compare = m.compare == null ? new FRCompare() : new FRCompare(m.compare);
     this.setTrueTransformName(m.getTrueTransformName());

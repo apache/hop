@@ -268,7 +268,6 @@ public class SnowflakeBulkLoaderMeta
    * @param locationType The location type code from @LOCATION_TYPE_CODES
    * @throws HopException Invalid location type
    */
-  @SuppressWarnings("unused")
   public void setLocationType(String locationType) throws HopException {
     for (String LOCATION_TYPE_CODE : LOCATION_TYPE_CODES) {
       if (LOCATION_TYPE_CODE.equals(locationType)) {
@@ -307,7 +306,6 @@ public class SnowflakeBulkLoaderMeta
    *
    * @return The name of the Snowflake stage
    */
-  @SuppressWarnings("unused")
   public String getStageName() {
     return stageName;
   }
@@ -317,7 +315,6 @@ public class SnowflakeBulkLoaderMeta
    *
    * @param stageName The name of the Snowflake stage
    */
-  @SuppressWarnings("unused")
   public void setStageName(String stageName) {
     this.stageName = stageName;
   }
@@ -351,7 +348,6 @@ public class SnowflakeBulkLoaderMeta
    * @param onError The error code from @ON_ERROR_CODES
    * @throws HopException
    */
-  @SuppressWarnings("unused")
   public void setOnError(String onError) throws HopException {
     for (String ON_ERROR_CODE : ON_ERROR_CODES) {
       if (ON_ERROR_CODE.equals(onError)) {
@@ -465,7 +461,6 @@ public class SnowflakeBulkLoaderMeta
    * @param dataType The data type code from @DATA_TYPE_CODES
    * @throws HopException Invalid value
    */
-  @SuppressWarnings("unused")
   public void setDataType(String dataType) throws HopException {
     for (String DATA_TYPE_CODE : DATA_TYPE_CODES) {
       if (DATA_TYPE_CODE.equals(dataType)) {
@@ -682,7 +677,6 @@ public class SnowflakeBulkLoaderMeta
    *
    * @param snowflakeBulkLoaderFields The array containing the stream to table field mapping
    */
-  @SuppressWarnings("unused")
   public void setSnowflakeBulkLoaderFields(
       List<SnowflakeBulkLoaderField> snowflakeBulkLoaderFields) {
     this.snowflakeBulkLoaderFields = snowflakeBulkLoaderFields;

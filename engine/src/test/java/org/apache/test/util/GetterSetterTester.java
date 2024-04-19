@@ -48,10 +48,8 @@ public class GetterSetterTester<T> {
             clazz, new ArrayList<>(objectTesterMap.keySet()), getterMap, setterMap);
     for (Entry<String, IObjectTester<?>> entry : objectTesterMap.entrySet()) {
       String attribute = entry.getKey();
-      @SuppressWarnings("unchecked")
       IObjectTester<Object> tester = (IObjectTester<Object>) entry.getValue();
       for (Object testObject : tester.getTestObjects()) {
-        @SuppressWarnings("unchecked")
         ISetter<Object> setter = (ISetter<Object>) manipulator.getSetter(attribute);
         setter.set(objectUnderTest, testObject);
         tester.validate(testObject, manipulator.getGetter(attribute).get(objectUnderTest));

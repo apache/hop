@@ -107,7 +107,6 @@ public class HopServerServlet extends HttpServlet {
     }
 
     // Servlets configured in web.xml take precedence to those discovered during plugin scan
-    @SuppressWarnings("unchecked")
     Enumeration<String> initParameterNames = config.getInitParameterNames();
     while (initParameterNames.hasMoreElements()) {
       final String paramName = initParameterNames.nextElement();

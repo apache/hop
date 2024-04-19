@@ -226,7 +226,6 @@ public class SwitchCaseTest {
      *
      * @return
      */
-    @SuppressWarnings("unused")
     public String getInputDataOverview() {
       StringBuilder sb = new StringBuilder();
       for (Object[] row : input) {

@@ -91,7 +91,6 @@ public class AuthenticationManager {
     for (Entry<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> entry :
         createTypeMap.entrySet()) {
       for (IAuthenticationProvider provider : authenticationProviders) {
-        @SuppressWarnings("unchecked")
         IAuthenticationPerformer<ReturnType, CreateArgType> authenticationPerformer =
             (IAuthenticationPerformer<ReturnType, CreateArgType>)
                 authenticationPerformerFactory.create(provider, entry.getValue());

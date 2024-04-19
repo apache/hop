@@ -369,7 +369,6 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
    * Constructor should call super() to make sure the base class has a chance to initialize
    * properly.
    */
-  @SuppressWarnings("unchecked")
   public JdbcMetadataMeta() {
     super();
     if (JdbcMetadataMeta.databaseMetaDataClass == null) {

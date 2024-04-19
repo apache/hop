@@ -33,7 +33,6 @@ import java.util.Map;
 public class ExecutionDataSetMetaDeserializer
     extends JsonDeserializer<Map<String, ExecutionDataSetMeta>> {
   @Override
-  @SuppressWarnings("unchecked")
   public Map<String, ExecutionDataSetMeta> deserialize(
       JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
     JsonDeserializer<Object> deserializer =

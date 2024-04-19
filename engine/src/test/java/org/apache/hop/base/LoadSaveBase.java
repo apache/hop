@@ -148,14 +148,12 @@ public abstract class LoadSaveBase<T> {
     }
   }
 
-  @SuppressWarnings({"unchecked"})
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters(
       List<String> attributes, T metaToSave) {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<>();
     metadataProvider = new MemoryMetadataProvider();
     for (String attribute : attributes) {
       IGetter<?> getter = manipulator.getGetter(attribute);
-      @SuppressWarnings("rawtypes")
       ISetter setter = manipulator.getSetter(attribute);
       IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator(getter);
       try {

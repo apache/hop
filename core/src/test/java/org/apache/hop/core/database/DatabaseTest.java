@@ -65,7 +65,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SuppressWarnings("deprecation")
 public class DatabaseTest {
 
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

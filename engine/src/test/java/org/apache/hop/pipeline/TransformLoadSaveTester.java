@@ -78,7 +78,6 @@ public class TransformLoadSaveTester<T extends ITransformMeta> extends LoadSaveB
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
         createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
-    @SuppressWarnings("unchecked")
     T metaLoaded = (T) metaToSave.clone();
     validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }

@@ -660,7 +660,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
    * @param escape The escape character(s)
    * @return True if the string contains separators or enclosures
    */
-  @SuppressWarnings("Duplicates")
   private boolean containsSeparatorOrEnclosure(
           byte[] source, byte[] separator, byte[] enclosure, byte[] escape) {
     boolean result = false;

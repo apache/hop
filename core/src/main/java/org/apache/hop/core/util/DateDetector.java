@@ -27,7 +27,6 @@ public class DateDetector {
 
   private static final String LOCALE_en_US = "en_US";
 
-  @SuppressWarnings("serial")
   static final BidiMap<String, String> DATE_FORMAT_TO_REGEXPS_US =
       new DualHashBidiMap<String, String>() {
         {
@@ -109,7 +108,6 @@ public class DateDetector {
         }
       };
 
-  @SuppressWarnings("serial")
   static final BidiMap DATE_FORMAT_TO_REGEXPS =
       new DualHashBidiMap() {
         {

@@ -555,7 +555,6 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     }
   }
 
-  @SuppressWarnings("unused")
   public static Object fireToDB(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
 
@@ -2583,7 +2582,6 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     }
   }
 
-  @SuppressWarnings("fallthrough")
   public static Object truncDate(
       Context actualContext, Scriptable actualObject, Object[] argList, Function functionContext) {
     // 2 arguments: truncation of dates to a certain precision

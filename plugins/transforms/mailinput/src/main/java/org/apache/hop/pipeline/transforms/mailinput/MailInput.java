@@ -240,7 +240,6 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
     return r;
   }
 
-  @SuppressWarnings("unchecked")
   private boolean openNextFolder() {
     try {
       if (!meta.isDynamicFolder()) {

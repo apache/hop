@@ -140,7 +140,6 @@ public class InjectDataSetIntoTransformExtensionPoint
 
             // Create a row collection map if it's missing...
             //
-            @SuppressWarnings("unchecked")
             Map<String, RowCollection> collectionMap =
                 (Map<String, RowCollection>)
                     pipeline.getExtensionDataMap().get(DataSetConst.ROW_COLLECTION_MAP);

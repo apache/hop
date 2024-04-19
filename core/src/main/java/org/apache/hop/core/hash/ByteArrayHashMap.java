@@ -117,7 +117,6 @@ public class ByteArrayHashMap extends AbstractHashedMap {
     }
   }
 
-  @SuppressWarnings("unchecked")
   public List<byte[]> getKeys() {
     List<byte[]> rtn = new ArrayList<>(this.size());
     Set<byte[]> kSet = this.keySet();

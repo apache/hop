@@ -1558,7 +1558,6 @@ public class Const {
     String mac = "none";
     String os = getSystemOs();
     String s = "";
-    @SuppressWarnings("unused")
     boolean errorOccured = false;
     if (os.equalsIgnoreCase("Windows NT")
         || os.equalsIgnoreCase("Windows 2000")

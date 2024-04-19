@@ -200,7 +200,6 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @param row row entries
    * @throws HopException ...
    */
-  @SuppressWarnings("ArrayToString")
   public void writeToDataFile(IRowMeta iRowMeta, Object[] row) throws HopException {
     // Write the data to the output
     IValueMeta valueMeta = null;

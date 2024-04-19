@@ -111,7 +111,6 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
     tester.testSerialization();
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public void modify(ITransformMeta arg0) {
     if (arg0 instanceof JsonInputMeta) {

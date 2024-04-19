@@ -58,7 +58,6 @@ import org.eclipse.swt.widgets.Text;
 
 import java.sql.ResultSet;
 
-@SuppressWarnings("FieldCanBeLocal")
 public class WarehouseManagerDialog extends ActionDialog implements IActionDialog {
 
   private static final Class<?> PKG =
@@ -564,7 +563,6 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
            *
            * @param focusEvent The event
            */
-          @SuppressWarnings("Duplicates")
           @Override
           public void focusGained(FocusEvent focusEvent) {
             getResourceMonitors();
@@ -920,7 +918,6 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
            *
            * @param focusEvent The event
            */
-          @SuppressWarnings("Duplicates")
           @Override
           public void focusGained(FocusEvent focusEvent) {
             getResourceMonitors();

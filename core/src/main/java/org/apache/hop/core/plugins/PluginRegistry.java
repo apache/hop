@@ -402,7 +402,6 @@ public class PluginRegistry {
    * @return The instantiated class
    * @throws HopPluginException In case there was a class loading problem somehow
    */
-  @SuppressWarnings("unchecked")
   public <T> T loadClass(IPlugin plugin, Class<T> pluginClass) throws HopPluginException {
     if (plugin == null) {
       throw new HopPluginException(
@@ -795,7 +794,6 @@ public class PluginRegistry {
    * @return the name of the class
    * @throws HopPluginException In case there is something wrong
    */
-  @SuppressWarnings("unchecked")
   public <T> T getClass(IPlugin plugin, String className) throws HopPluginException {
     try {
       if (plugin.isNativePlugin()) {
@@ -843,7 +841,6 @@ public class PluginRegistry {
    * @return the name of the class
    * @throws HopPluginException In case there is something wrong
    */
-  @SuppressWarnings("unchecked")
   public <T> T getClass(IPlugin plugin, T classType) throws HopPluginException {
     String className = plugin.getClassMap().get(classType);
     if (className == null) {

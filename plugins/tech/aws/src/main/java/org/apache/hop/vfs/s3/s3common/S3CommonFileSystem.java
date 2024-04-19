@@ -51,7 +51,6 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected void addCapabilities(Collection caps) {
     caps.addAll(S3CommonFileProvider.capabilities);
   }

@@ -77,7 +77,6 @@ public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValid
     typeMap.putAll(fieldLoadSaveValidatorTypeMap);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T> IFieldLoadSaveValidator<T> createValidator(IGetter<T> getter) {
     try {

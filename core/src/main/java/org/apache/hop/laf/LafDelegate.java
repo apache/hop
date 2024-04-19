@@ -59,7 +59,6 @@ public class LafDelegate<E extends IHandler> {
    * @param classname
    * @return
    */
-  @SuppressWarnings("unchecked")
   public E newHandlerInstance(String classname) throws ClassNotFoundException {
     E h = null;
     Class<E> c = null;

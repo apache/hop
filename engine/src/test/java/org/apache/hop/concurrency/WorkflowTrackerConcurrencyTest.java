@@ -60,7 +60,6 @@ public class WorkflowTrackerConcurrencyTest {
 
   private static final int jobsLimit = 20;
 
-  @SuppressWarnings("ConstantConditions")
   @BeforeClass
   public static void setUp() {
     // a guarding check for tests' parameters
