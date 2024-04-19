@@ -51,6 +51,7 @@ Notes:
 This happens when all rows are written.
 To not run out of memory make sure to specify a split size.
 
+== General
 [options="header"]
 |===
 |Option|Description
@@ -71,6 +72,12 @@ Write to a local folder : `/my/folder/customer-data`
 |This is the extension of the file.
 Usually this is simply `snappy`
 
+|Accept file name from field?
+|Enable to specify the file name(s) in a field in the input stream
+
+|File name field
+|When the previous option is enabled, you can specify the field that will contain the filename(s) at runtime.
+
 |Include date?
 |Check this box if you want to include the date in the filename with mask `yyyMMdd`
 
@@ -90,6 +97,16 @@ Specify a split size larger than 0 and this is then the number of rows per file.
 The file part (split) number will be included in the filename to make sure that the same file is not being overwritten.
 The split number is formatted with mask `0000`
 
+|Add filenames to result
+|This adds all processed filenames to the internal result filename set to allow for further processing.
+
+|===
+
+== Options
+[options="header"]
+|===
+|Option|Description
+
 |Compression codec
 |Here you can indicate which compression codec you want to use.
 The default is SNAPPY for Apache Snappy compression.
@@ -105,6 +122,12 @@ The default is SNAPPY for Apache Snappy compression.
 
 |Dictionary page size
 |The data dictionary page size on a 1kB boundary (default is 1048576)
+|===
+
+== Fields
+[options="header"]
+|===
+|Option|Description
 
 |Fields
 |You can specify which fields to write and in which order.
