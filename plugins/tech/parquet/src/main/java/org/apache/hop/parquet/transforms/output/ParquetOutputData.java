@@ -27,15 +27,22 @@ import org.apache.parquet.hadoop.ParquetWriter;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ParquetOutputData extends BaseTransformData implements ITransformData {
   public ArrayList<Integer> sourceFieldIndexes;
+
+  public int filenameFieldIndex;
+
   public Configuration conf;
   public ParquetProperties props;
-  public String filename;
-  public OutputStream outputStream;
-  public ParquetOutputFile outputFile;
-  public ParquetWriter<RowMetaAndData> writer;
+//  public String filename;
+//  public OutputStream outputStream;
+//  public ParquetOutputFile outputFile;
+  public HashMap<String, ParquetWriter<RowMetaAndData>> writers = new HashMap<>();
+
+  public String currentFilename;
+
   public int split = 0;
   public long splitRowCount;
   public long maxSplitSizeRows;

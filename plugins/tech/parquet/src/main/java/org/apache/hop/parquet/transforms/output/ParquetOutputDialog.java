@@ -19,6 +19,7 @@ package org.apache.hop.parquet.transforms.output;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -96,6 +97,8 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
   private Label wlFilenameIncludeTime;
   private Label wlFilenameIncludeDate;
   private Label wlFilenameIncludeSplitNr;
+  private Label wlFilenameIncludeCopyNr;
+  private boolean gotPreviousFields = false;
 
   public ParquetOutputDialog(
       Shell parent,
@@ -171,6 +174,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
+    activateFilenameField();
     wTabFolder.setSelection(0);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -304,8 +308,8 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
               public void focusGained(FocusEvent e) {
                 Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
                 shell.setCursor(busy);
-                // TODO getFields
-                // getFields();
+
+                getPrevFields();
                 shell.setCursor(null);
                 busy.dispose();
               }
@@ -387,7 +391,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wFilenameDateTimeFormat.setLayoutData(fdFilenameDateTimeFormat);
     lastControl = wFilenameDateTimeFormat;
 
-    Label wlFilenameIncludeCopyNr = new Label(wGeneralComp, SWT.RIGHT);
+    wlFilenameIncludeCopyNr = new Label(wGeneralComp, SWT.RIGHT);
     wlFilenameIncludeCopyNr.setText(
             BaseMessages.getString(PKG, "ParquetOutputDialog.FilenameIncludeCopyNr.Label"));
     PropsUi.setLook(wlFilenameIncludeCopyNr);
@@ -484,6 +488,28 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
 
   }
 
+  private void getPrevFields() {
+    if (!gotPreviousFields) {
+      try {
+        String field = wFilenameField.getText();
+        IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
+        if (r != null) {
+          wFilenameField.setItems(r.getFieldNames());
+        }
+        if (field != null) {
+          wFilenameField.setText(field);
+        }
+      } catch (HopException ke) {
+        new ErrorDialog(
+                shell,
+                BaseMessages.getString(PKG, "ParquetOutputDialog.FailedToGetFields.DialogTitle"),
+                BaseMessages.getString(PKG, "ParquetOutputDialog.FailedToGetFields.DialogMessage"),
+                ke);
+      }
+      gotPreviousFields = true;
+    }
+  }
+
   private void activateFilenameField() {
 
     wlFilenameField.setEnabled(wFilenameInField.getSelection());
@@ -502,6 +528,8 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wFilenameIncludeSplitNr.setEnabled(!wFilenameInField.getSelection());
     wlFilenameSplitSize.setEnabled(!wFilenameInField.getSelection());
     wFilenameSplitSize.setEnabled(!wFilenameInField.getSelection());
+    wlFilenameIncludeCopyNr.setEnabled(!wFilenameInField.getSelection());
+    wFilenameIncludeCopyNr.setEnabled(!wFilenameInField.getSelection());
 
   }
 
@@ -733,10 +761,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wFilenameIncludeTime.setSelection(input.isFilenameIncludingTime());
 
     wFilenameInField.setSelection(input.isFilenameInField());
-    if (input.getFilenameField() != null) {
-      wFilenameField.setText(input.getFilenameField());
-    }
-
+    wFilenameField.setText(Const.NVL(input.getFilenameField(), ""));
     wFilenameIncludeDateTime.setSelection(input.isFilenameIncludingDateTime());
     wFilenameDateTimeFormat.setText(Const.NVL(input.getFilenameDateTimeFormat(), ""));
     wFilenameIncludeCopyNr.setSelection(input.isFilenameIncludingCopyNr());

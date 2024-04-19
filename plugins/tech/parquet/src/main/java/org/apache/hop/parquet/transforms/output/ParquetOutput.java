@@ -38,10 +38,12 @@ import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
 
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData> {
 
@@ -89,6 +91,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
 
     if (first) {
+
       first = false;
       data.sourceFieldIndexes = new ArrayList<>();
       for (int i = 0; i < meta.getFields().size(); i++) {
@@ -99,26 +102,42 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         }
         data.sourceFieldIndexes.add(index);
       }
-      openNewFile();
+
+      if (meta.isFilenameInField()) {
+        data.filenameFieldIndex = getInputRowMeta().indexOfValue(meta.getFilenameField());
+        if (data.filenameFieldIndex < 0) {
+          throw new HopException("Unable to find filename field '" + meta.getFilenameField());
+        }
+      }
+
+      if (!meta.isFilenameInField()) {
+        openNewFile(row);
+      }
     }
 
     // See if we don't need to create a new file split into parts...
     //
     if (meta.isFilenameIncludingSplitNr()
         && data.maxSplitSizeRows > 0
-        && data.splitRowCount >= data.maxSplitSizeRows && !meta.isFilenameInField()) {
+        && data.splitRowCount >= data.maxSplitSizeRows
+        && !meta.isFilenameInField()) {
       // Close file and start a new one...
       //
       closeFile();
-      openNewFile();
+      openNewFile(row);
+    } else if (meta.isFilenameInField()) {
+      openNewFile(row);
     }
 
     // Write the row, handled by class ParquetWriteSupport
     //
     try {
-      data.writer.write(new RowMetaAndData(getInputRowMeta(), row));
+      data.writers.get(data.currentFilename).write(new RowMetaAndData(getInputRowMeta(), row));
       incrementLinesOutput();
-      data.splitRowCount++;
+
+      if (!meta.isFilenameInField())
+        data.splitRowCount++;
+
     } catch (Exception e) {
       throw new HopException("Error writing row to parquet file", e);
     }
@@ -127,88 +146,91 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     return true;
   }
 
-  private void openNewFile() throws HopException {
-
-    data.splitRowCount = 0;
-    data.split++;
-
-    // Hadoop configuration
-    //
-    data.conf = new Configuration();
-
-    // Parquet Properties
-    //
-    ParquetProperties.Builder builder = ParquetProperties.builder();
-    switch (meta.getVersion()) {
-      case Version1:
-        builder = builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_1_0);
-        break;
-      case Version2:
-        builder = builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_2_0);
-        break;
-    }
-    data.props = builder.build();
-
-    createParquetFileSchema();
-
-    // Convert from Avro to Parquet schema
-    //
-    MessageType messageType = new AvroSchemaConverter().convert(data.avroSchema);
+  private void openNewFile(Object[] row) throws HopException {
 
     // Calculate the filename...
     //
-    data.filename = buildFilename(getPipeline().getExecutionStartDate());
+    String filename = buildFilename(row, getPipeline().getExecutionStartDate());
+    // TODO Da terminare per gestire i casi in cui ci sono situazioni da non gestire in caso il nome del file sia in un campo
+    if (!data.writers.containsKey(filename)) {
+      data.splitRowCount = 0;
+      data.split++;
 
-    try {
-      FileObject fileObject = HopVfs.getFileObject(data.filename);
-
-      // See if we need to create the parent folder(s)...
+      // Hadoop configuration
       //
-      if (meta.isFilenameCreatingParentFolders()) {
-        FileObject parentFolder = fileObject.getParent();
-        if (parentFolder != null && !parentFolder.exists()) {
-          // Try to create the parent folder...
-          //
-          parentFolder.createFolder();
+      data.conf = new Configuration();
+
+      // Parquet Properties
+      //
+      ParquetProperties.Builder builder = ParquetProperties.builder();
+      switch (meta.getVersion()) {
+        case Version1:
+          builder = builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_1_0);
+          break;
+        case Version2:
+          builder = builder.withWriterVersion(ParquetProperties.WriterVersion.PARQUET_2_0);
+          break;
+      }
+      data.props = builder.build();
+
+      createParquetFileSchema();
+
+      // Convert from Avro to Parquet schema
+      //
+      MessageType messageType = new AvroSchemaConverter().convert(data.avroSchema);
+
+      try {
+        FileObject fileObject = HopVfs.getFileObject(filename);
+
+        // See if we need to create the parent folder(s)...
+        //
+        if (meta.isFilenameCreatingParentFolders()) {
+          FileObject parentFolder = fileObject.getParent();
+          if (parentFolder != null && !parentFolder.exists()) {
+            // Try to create the parent folder...
+            //
+            parentFolder.createFolder();
+          }
         }
+
+        // adding filename to result
+        if (meta.isAddToResultFilenames()) {
+          // Add this to the result file names...
+          ResultFile resultFile =
+              new ResultFile(
+                  ResultFile.FILE_TYPE_GENERAL,
+                  fileObject,
+                  getPipelineMeta().getName(),
+                  getTransformName());
+          resultFile.setComment("This file was created with a Parquet Output transform by Hop");
+          addResultFile(resultFile);
+        }
+
+        OutputStream outputStream = HopVfs.getOutputStream(filename, false);
+        ParquetOutputFile outputFile = new ParquetOutputFile(outputStream);
+
+        data.writers.put(
+            filename,
+            new ParquetWriterBuilder(
+                    messageType,
+                    data.avroSchema,
+                    outputFile,
+                    data.sourceFieldIndexes,
+                    meta.getFields())
+                .withPageSize(data.pageSize)
+                .withDictionaryPageSize(data.dictionaryPageSize)
+                .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
+                .withCompressionCodec(meta.getCompressionCodec())
+                .withRowGroupSize(data.rowGroupSize)
+                .withWriterVersion(data.props.getWriterVersion())
+                .withWriteMode(ParquetFileWriter.Mode.CREATE)
+                .build());
+
+      } catch (Exception e) {
+        throw new HopException("Unable to create output file '" + filename + "'", e);
       }
-
-      // adding filename to result
-      if (meta.isAddToResultFilenames()) {
-        // Add this to the result file names...
-        ResultFile resultFile =
-                new ResultFile(
-                        ResultFile.FILE_TYPE_GENERAL,
-                        fileObject,
-                        getPipelineMeta().getName(),
-                        getTransformName());
-        resultFile.setComment(
-                "This file was created with a Parquet Output transform by Hop");
-        addResultFile(resultFile);
-      }
-
-      data.outputStream = HopVfs.getOutputStream(data.filename, false);
-      data.outputFile = new ParquetOutputFile(data.outputStream);
-
-      data.writer =
-          new ParquetWriterBuilder(
-                  messageType,
-                  data.avroSchema,
-                  data.outputFile,
-                  data.sourceFieldIndexes,
-                  meta.getFields())
-              .withPageSize(data.pageSize)
-              .withDictionaryPageSize(data.dictionaryPageSize)
-              .withValidation(ParquetWriter.DEFAULT_IS_VALIDATING_ENABLED)
-              .withCompressionCodec(meta.getCompressionCodec())
-              .withRowGroupSize(data.rowGroupSize)
-              .withWriterVersion(data.props.getWriterVersion())
-              .withWriteMode(ParquetFileWriter.Mode.CREATE)
-              .build();
-
-    } catch (Exception e) {
-      throw new HopException("Unable to create output file '" + data.filename + "'", e);
     }
+    data.currentFilename = filename;
   }
 
   private void createParquetFileSchema() throws HopException {
@@ -270,37 +292,49 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     data.avroSchema = fieldAssembler.endRecord();
   }
 
-  private String buildFilename(Date date) {
-    String filename = resolve(meta.getFilenameBase());
-    if (meta.isFilenameIncludingDate()) {
-      filename += "-" + new SimpleDateFormat("yyyyMMdd").format(date);
+  private String buildFilename(Object[] row, Date date) {
+
+    String filename = null;
+
+    if (!meta.isFilenameInField()) {
+      filename = resolve(meta.getFilenameBase());
+      if (meta.isFilenameIncludingDate()) {
+        filename += "-" + new SimpleDateFormat("yyyyMMdd").format(date);
+      }
+      if (meta.isFilenameIncludingTime()) {
+        filename += "-" + new SimpleDateFormat("HHmmss").format(date);
+      }
+      if (meta.isFilenameIncludingDateTime()) {
+        filename +=
+            "-" + new SimpleDateFormat(resolve(meta.getFilenameDateTimeFormat())).format(date);
+      }
+      if (meta.isFilenameIncludingCopyNr()) {
+        filename += "-" + new DecimalFormat("00").format(getCopyNr());
+      }
+      if (meta.isFilenameIncludingSplitNr()) {
+        filename += "-" + new DecimalFormat("0000").format(data.split);
+      }
+      if (data.isBeamContext()) {
+        filename += "_" + log.getLogChannelId() + "_" + data.getBeamBundleNr();
+      }
+      filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
+      filename += meta.getCompressionCodec().getExtension();
+    } else {
+      filename = (String) row[data.filenameFieldIndex]  + "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
     }
-    if (meta.isFilenameIncludingTime()) {
-      filename += "-" + new SimpleDateFormat("HHmmss").format(date);
-    }
-    if (meta.isFilenameIncludingDateTime()) {
-      filename +=
-          "-" + new SimpleDateFormat(resolve(meta.getFilenameDateTimeFormat())).format(date);
-    }
-    if (meta.isFilenameIncludingCopyNr()) {
-      filename += "-" + new DecimalFormat("00").format(getCopyNr());
-    }
-    if (meta.isFilenameIncludingSplitNr()) {
-      filename += "-" + new DecimalFormat("0000").format(data.split);
-    }
-    if (data.isBeamContext()) {
-      filename+= "_"+log.getLogChannelId()+"_"+data.getBeamBundleNr();
-    }
-    filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
-    filename += meta.getCompressionCodec().getExtension();
     return filename;
   }
 
   private void closeFile() throws HopException {
-    try {
-      data.writer.close();
-    } catch (Exception e) {
-      throw new HopException("Error closing file " + data.filename, e);
+
+    Set<String> filesToClose = data.writers.keySet();
+    for (String file : filesToClose) {
+      try {
+        // Close connections of any managed writer
+        data.writers.get(file).close();
+      } catch (Exception e) {
+        throw new HopException("Error closing file " + file, e);
+      }
     }
   }
 
@@ -313,8 +347,10 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
   @Override
   public void startBundle() throws HopException {
+    Object[] row = getRow();
+
     if (!first) {
-      openNewFile();
+      openNewFile(row);
     }
   }
 

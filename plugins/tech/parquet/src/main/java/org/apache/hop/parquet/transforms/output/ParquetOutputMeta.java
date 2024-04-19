@@ -105,7 +105,6 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     filenameIncludingCopyNr = true;
     filenameIncludingSplitNr = false;
     filenameCreatingParentFolders = true;
-
     addToResultFilenames = false;
     filenameInField = false;
   }
@@ -132,12 +131,12 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     this.fields = m.fields;
   }
 
-  public Boolean isFilenameInField() {
+  public boolean isFilenameInField() {
     return filenameInField;
   }
 
   public void setFilenameInField(boolean filenameInField) {
-    this.filenameInField = this.filenameInField;
+    this.filenameInField = filenameInField;
   }
 
   public String getFilenameField() {
