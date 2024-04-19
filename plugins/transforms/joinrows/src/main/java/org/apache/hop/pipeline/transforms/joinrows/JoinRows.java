@@ -56,7 +56,6 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
   /*
    * Allocate input streams and create the temporary files...
    */
-  @SuppressWarnings("unchecked")
   public void initialize() throws HopException {
     // Since we haven't called getRow() yet we need to wait until we have all input row sets
     // available to us.

@@ -103,13 +103,11 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters(
       List<String> attributes, T metaToSave) {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<>();
     for (String attribute : attributes) {
       IGetter<?> getter = manipulator.getGetter(attribute);
-      @SuppressWarnings("rawtypes")
       ISetter setter = manipulator.getSetter(attribute);
       IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator(getter);
       try {
@@ -131,7 +129,6 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
     testClone();
   }
 
-  @SuppressWarnings({"deprecation", "unchecked"})
   protected void testClone() throws HopException {
     T metaToSave = createMeta();
     if (initializer != null) {

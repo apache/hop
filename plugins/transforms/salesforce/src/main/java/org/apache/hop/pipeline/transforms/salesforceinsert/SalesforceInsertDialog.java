@@ -713,7 +713,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     meta.allocate(nrFields);
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       meta.getUpdateLookup()[i] = item.getText(1);

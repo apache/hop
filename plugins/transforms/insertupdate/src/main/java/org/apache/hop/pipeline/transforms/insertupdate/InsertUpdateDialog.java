@@ -683,7 +683,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
 
     inf.getInsertUpdateLookupField().getLookupKeys().clear();
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       InsertUpdateKeyField keyField =

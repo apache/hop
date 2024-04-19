@@ -129,7 +129,6 @@ public class LoopNodesImportProgressDialog {
     return xpaths;
   }
 
-  @SuppressWarnings("unchecked")
   private String[] doScan(IProgressMonitor monitor) throws Exception {
     monitor.beginTask(
         BaseMessages.getString(

@@ -58,7 +58,6 @@ public class RowOutputConverter {
     String nodevalue = null;
     if (jo != null) {
       if (jo instanceof Map) {
-        @SuppressWarnings("unchecked")
         Map<String, ?> asStrMap = (Map<String, ?>) jo;
         nodevalue = JSONObject.toJSONString(asStrMap);
       } else {

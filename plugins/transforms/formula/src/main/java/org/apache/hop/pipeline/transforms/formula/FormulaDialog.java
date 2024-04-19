@@ -343,7 +343,6 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
       int valuePrecision = Const.toInt(item.getText(5), -1);
       String replaceField = item.getText(6);
 
-      // CHECKSTYLE:Indentation:OFF
       currentMeta
           .getFormulas()
           .add(

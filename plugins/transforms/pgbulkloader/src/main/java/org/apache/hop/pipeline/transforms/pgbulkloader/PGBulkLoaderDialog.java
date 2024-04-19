@@ -681,7 +681,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     inf.setDbNameOverride(wDbNameOverride.getText());
 
     logDebug(BaseMessages.getString(PKG, "PGBulkLoaderDialog.Log.FoundFields", "" + nrFields));
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       PGBulkLoaderMappingMeta mapping = new PGBulkLoaderMappingMeta();

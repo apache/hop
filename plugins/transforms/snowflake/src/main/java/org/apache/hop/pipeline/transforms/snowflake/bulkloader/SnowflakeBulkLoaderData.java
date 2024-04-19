@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("WeakerAccess")
 public class SnowflakeBulkLoaderData extends BaseTransformData implements ITransformData {
 
   // When the meta.splitSize is exceeded the file being written is closed and a new file is created.

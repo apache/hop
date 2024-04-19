@@ -36,7 +36,6 @@ public class ArrayLoadSaveValidator<ObjectType> implements IFieldLoadSaveValidat
     this.elements = elements;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ObjectType[] getTestObject() {
     int max = elements == null ? new Random().nextInt(100) + 50 : elements;
@@ -61,7 +60,6 @@ public class ArrayLoadSaveValidator<ObjectType> implements IFieldLoadSaveValidat
       return false;
     }
     if (original.getClass().isAssignableFrom(actual.getClass())) {
-      @SuppressWarnings("unchecked")
       ObjectType[] otherList = (ObjectType[]) actual;
       if (original.length != otherList.length) {
         return false;

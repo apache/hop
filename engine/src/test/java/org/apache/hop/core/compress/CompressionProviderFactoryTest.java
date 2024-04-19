@@ -104,7 +104,6 @@ public class CompressionProviderFactoryTest {
    */
   @Test
   public void getCoreProviderNames() {
-    @SuppressWarnings("serial")
     final HashMap<String, Boolean> foundProvider =
         new HashMap<String, Boolean>() {
           {
@@ -134,7 +133,6 @@ public class CompressionProviderFactoryTest {
   /** Test that all core compression plugins (None, Zip, GZip) are available via the factory */
   @Test
   public void getCoreProviders() {
-    @SuppressWarnings("serial")
     final HashMap<String, Boolean> foundProvider =
         new HashMap<String, Boolean>() {
           {

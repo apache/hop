@@ -400,7 +400,6 @@ public class MailConnection {
       }
       if (log.isDebug()) {
         // display some infos on folder
-        // CHECKSTYLE:LineLength:OFF
         log.logDebug(
             BaseMessages.getString(
                 PKG, "ActionGetMailsFromPOP.FolderOpened.Name", getFolderName()));

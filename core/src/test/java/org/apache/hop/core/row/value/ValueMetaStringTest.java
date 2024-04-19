@@ -960,7 +960,6 @@ public class ValueMetaStringTest {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private static class ConfigurableMeta extends ValueMetaString {
     private boolean nullsAndEmptyAreDifferent;
 

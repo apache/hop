@@ -87,7 +87,6 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   }
 
   @Override
-  @SuppressWarnings({"unchecked"})
   public ITransform createTransform(
       TransformMeta transformMeta,
       ITransformData data,
@@ -120,7 +119,6 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   }
 
   @Override
-  @SuppressWarnings({"unchecked"})
   public ITransformData createTransformData() {
     try {
       Type[] parameterizedTypes = getParameterizedTypes(getClass());

@@ -96,7 +96,6 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     testClone();
   }
 
-  @SuppressWarnings("deprecation")
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();
     if (initializer != null) {
@@ -115,7 +114,6 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }
 
-  @SuppressWarnings("deprecation")
   protected void testClone() {
     T metaToSave = createMeta();
     if (initializer != null) {
@@ -124,7 +122,6 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
         createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
-    @SuppressWarnings("unchecked")
     T metaLoaded = (T) metaToSave.clone();
     validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }

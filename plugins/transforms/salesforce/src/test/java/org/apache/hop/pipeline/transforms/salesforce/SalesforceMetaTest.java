@@ -56,7 +56,6 @@ public class SalesforceMetaTest {
     return Arrays.asList("targetUrl", "username", "password", "timeout", "compression", "module");
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testBaseCheck() {
     SalesforceTransformMeta meta = mock(SalesforceTransformMeta.class, Mockito.CALLS_REAL_METHODS);

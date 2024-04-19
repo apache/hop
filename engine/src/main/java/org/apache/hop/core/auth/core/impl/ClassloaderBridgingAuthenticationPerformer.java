@@ -40,7 +40,6 @@ public class ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgTyp
     this.authenticationConsumerFactory = authenticationConsumerFactory;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ReturnType perform(CreateArgType consumerCreateArg)
       throws AuthenticationConsumptionException {

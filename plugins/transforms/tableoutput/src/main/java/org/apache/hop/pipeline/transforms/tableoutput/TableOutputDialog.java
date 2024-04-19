@@ -1341,7 +1341,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     int nrRows = wFields.nrNonEmpty();
     info.getFields().clear();
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrRows; i++) {
       TableItem item = wFields.getNonEmpty(i);
       TableOutputField tf =

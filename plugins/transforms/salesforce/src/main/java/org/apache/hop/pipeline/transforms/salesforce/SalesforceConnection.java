@@ -652,7 +652,6 @@ public class SalesforceConnection {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   private String buildJsonQueryResult(QueryResult queryResult) throws HopException {
     JSONArray list = new JSONArray();
     for (SObject sobject : queryResult.getRecords()) {
@@ -667,7 +666,6 @@ public class SalesforceConnection {
     return sw.toString();
   }
 
-  @SuppressWarnings("unchecked")
   private JSONObject buildJSONSObject(SObject sobject) {
     JSONObject jsonObject = new JSONObject();
     for (XmlObject element : getChildren(sobject)) {

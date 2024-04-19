@@ -1978,8 +1978,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       field.setHyperlinkField(item.getText(8));
       field.setCommentField(item.getText(9));
       field.setCommentAuthorField(item.getText(10));
-
-      // CHECKSTYLE:Indentation:OFF
       tfoi.getOutputFields().add(field);
     }
   }

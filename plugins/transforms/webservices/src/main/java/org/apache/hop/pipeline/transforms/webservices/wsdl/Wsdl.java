@@ -221,7 +221,6 @@ public final class Wsdl implements java.io.Serializable {
    *
    * @return List of WsdlOperations.
    */
-  @SuppressWarnings("unchecked")
   public List<WsdlOperation> getOperations() throws HopTransformException {
 
     List<WsdlOperation> opList = new ArrayList<>();

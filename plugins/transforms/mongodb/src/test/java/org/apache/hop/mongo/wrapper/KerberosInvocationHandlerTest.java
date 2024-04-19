@@ -33,7 +33,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class KerberosInvocationHandlerTest {
-  @SuppressWarnings("unchecked")
   @Test
   public void testInvocationHandlerCallsDoAsWhichCallsDelegate()
       throws MongoDbException, PrivilegedActionException {

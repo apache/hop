@@ -280,7 +280,6 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   }
 
   public void prepareNSMap(Element l) {
-    @SuppressWarnings("unchecked")
     List<Namespace> namespacesList = l.declaredNamespaces();
     for (Namespace ns : namespacesList) {
       if (ns.getPrefix().trim().length() == 0) {
@@ -306,7 +305,6 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       }
     }
 
-    @SuppressWarnings("unchecked")
     List<Element> elementsList = l.elements();
     for (Element e : elementsList) {
       prepareNSMap(e);
@@ -558,7 +556,6 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     return path;
   }
 
-  @SuppressWarnings("unchecked")
   private boolean applyXPath() {
     try {
       XPath xpath = data.document.createXPath(data.PathValue);

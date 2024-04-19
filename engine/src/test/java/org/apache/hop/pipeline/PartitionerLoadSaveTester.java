@@ -71,7 +71,6 @@ public class PartitionerLoadSaveTester<T extends IPartitioner> extends LoadSaveB
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
         createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
-    @SuppressWarnings("unchecked")
     T metaLoaded = (T) metaToSave.clone();
     validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }

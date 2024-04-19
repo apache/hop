@@ -174,7 +174,7 @@ public class SwitchCaseTest {
               Mockito.anyString(),
               Mockito.anyInt()))
           .thenAnswer(
-              // CHECKSTYLE:Indentation:OFF
+        
               invocation -> {
                 Object[] objArr = invocation.getArguments();
                 return (objArr != null && objArr.length > 1) ? objArr[0] : null;
@@ -226,7 +226,6 @@ public class SwitchCaseTest {
      *
      * @return
      */
-    @SuppressWarnings("unused")
     public String getInputDataOverview() {
       StringBuilder sb = new StringBuilder();
       for (Object[] row : input) {

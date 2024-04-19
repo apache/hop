@@ -63,7 +63,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
 
     for (int i = 0; i < meta.getValue().length; i++) {
       if (meta.getValueDefaultType()[i] < 0) {
-        // CHECKSTYLE:Indentation:OFF
+  
         meta.getValueDefaultType()[i] = IValueMeta.TYPE_STRING;
       }
       data.nullIf[i] = null;

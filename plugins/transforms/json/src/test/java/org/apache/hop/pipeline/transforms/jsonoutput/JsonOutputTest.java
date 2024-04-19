@@ -406,7 +406,6 @@ public class JsonOutputTest extends TestCase {
     verify(transform, times(0)).closeFile();
   }
 
-  @SuppressWarnings("unchecked")
   public void testWriteToFile() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
         new TransformMockHelper<>("jsonOutput", JsonOutputMeta.class, JsonOutputData.class);

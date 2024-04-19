@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.core.database;
 
 import org.apache.commons.lang.StringUtils;

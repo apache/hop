@@ -469,7 +469,6 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
 
   /** Needed for the Vector coming from sshclient.ls() * */
   @Override
-  @SuppressWarnings("unchecked")
   public Result execute(Result previousResult, int nr) {
     log.logBasic(BaseMessages.getString(PKG, "ActionFTPDelete.Started", serverName));
     RowMetaAndData resultRow = null;

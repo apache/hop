@@ -258,7 +258,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
           BaseMessages.getString(PKG, "StringCutDialog.Log.FoundFields", String.valueOf(nrkeys)));
     }
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wFields.getNonEmpty(i);
       StringCutField scf =

@@ -473,8 +473,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
 
     input.allocate(nrFields);
 
-    // CHECKSTYLE:Indentation:OFF
-    // CHECKSTYLE:LineLength:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
       input.getFieldName()[i] = ti.getText(1);

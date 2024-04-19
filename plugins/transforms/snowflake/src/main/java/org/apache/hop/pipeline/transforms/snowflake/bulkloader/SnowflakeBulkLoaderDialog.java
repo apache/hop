@@ -81,7 +81,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-@SuppressWarnings({"FieldCanBeLocal", "WeakerAccess", "unused"})
 public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG =
@@ -242,7 +241,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   /** List of ColumnInfo that should have the field names of the selected database table */
   private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  @SuppressWarnings("unused")
   public SnowflakeBulkLoaderDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);

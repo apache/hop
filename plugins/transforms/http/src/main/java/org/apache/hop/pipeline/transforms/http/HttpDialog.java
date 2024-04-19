@@ -1057,7 +1057,6 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
       logDebug(
           BaseMessages.getString(PKG, "HTTPDialog.Log.FoundArguments", String.valueOf(nrargs)));
     }
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrargs; i++) {
       TableItem item = wFields.getNonEmpty(i);
       input.getArgumentField()[i] = item.getText(1);
@@ -1068,7 +1067,6 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
       logDebug(
           BaseMessages.getString(PKG, "HTTPDialog.Log.FoundHeaders", String.valueOf(nrheaders)));
     }
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrheaders; i++) {
       TableItem item = wHeaders.getNonEmpty(i);
       input.getHeaderField()[i] = item.getText(1);

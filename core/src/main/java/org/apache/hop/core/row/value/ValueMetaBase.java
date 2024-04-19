@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -4911,7 +4910,6 @@ public class ValueMetaBase implements IValueMeta {
     this.ignoreWhitespace = ignoreWhitespace;
   }
 
-  @SuppressWarnings("fallthrough")
   @Override
   public IValueMeta getValueFromSqlType(
       IVariables variables,

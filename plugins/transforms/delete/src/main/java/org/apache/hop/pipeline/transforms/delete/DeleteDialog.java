@@ -461,7 +461,6 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "DeleteDialog.Log.FoundKeys", String.valueOf(nrkeys)));
     }
-    // CHECKSTYLE:Indentation:OFF
     List<DeleteKeyField> keyFields = inf.getLookup().getFields();
     keyFields.clear();
 

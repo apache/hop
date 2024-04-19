@@ -53,7 +53,6 @@ public final class WsdlTypes implements Serializable {
    *
    * @param wsdlDefinition The WSDL definition.
    */
-  @SuppressWarnings("unchecked")
   protected WsdlTypes(Definition wsdlDefinition) {
 
     Types = wsdlDefinition.getTypes();

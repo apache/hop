@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline.transform;
 
 import com.google.common.annotations.VisibleForTesting;

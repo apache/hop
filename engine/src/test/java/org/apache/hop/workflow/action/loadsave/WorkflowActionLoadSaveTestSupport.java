@@ -84,7 +84,6 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
     return Collections.emptyMap();
   }
 
-  @SuppressWarnings("unchecked")
   protected static <T1, T2> Map<T1, T2> toMap(Object... pairs) {
     Map<T1, T2> result = new HashMap<>(pairs.length);
     for (int i = 0; i < pairs.length; i += 2) {

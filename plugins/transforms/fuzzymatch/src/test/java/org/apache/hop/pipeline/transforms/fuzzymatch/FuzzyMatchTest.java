@@ -115,7 +115,6 @@ public class FuzzyMatchTest {
     mockHelper.cleanUp();
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testProcessRow() throws Exception {
     fuzzyMatch =

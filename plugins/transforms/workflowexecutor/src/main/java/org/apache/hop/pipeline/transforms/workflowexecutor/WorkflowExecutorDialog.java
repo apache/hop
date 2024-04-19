@@ -1205,7 +1205,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     workflowExecutorMeta.setResultRowsLength(new int[nrFields]);
     workflowExecutorMeta.setResultRowsPrecision(new int[nrFields]);
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wResultRowsFields.getNonEmpty(i);
       workflowExecutorMeta.getResultRowsField()[i] = item.getText(1);

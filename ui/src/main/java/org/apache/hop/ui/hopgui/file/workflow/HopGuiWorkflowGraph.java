@@ -3030,7 +3030,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     int y2 = line[3];
 
     // Not in the square formed by these 2 points: ignore!
-    // CHECKSTYLE:LineLength:OFF
     if (!(((x >= x1 && x <= x2) || (x >= x2 && x <= x1))
         && ((y >= y1 && y <= y2) || (y >= y2 && y <= y1)))) {
       return false;

@@ -1,4 +1,3 @@
-// CHECKSTYLE:Indentation:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -30,7 +29,6 @@ import org.antlr.runtime.NoViableAltException;
 import org.antlr.runtime.RecognitionException;
 import org.antlr.runtime.RecognizerSharedState;
 
-@SuppressWarnings({"all", "warnings", "unchecked"})
 public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
   public static final int EOF = -1;
   public static final int T__9 = 9;

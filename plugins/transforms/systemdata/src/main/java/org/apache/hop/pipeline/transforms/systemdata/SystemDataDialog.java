@@ -246,7 +246,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
     int count = wFields.nrNonEmpty();
     in.allocate(count);
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
       in.getFieldName()[i] = item.getText(1);

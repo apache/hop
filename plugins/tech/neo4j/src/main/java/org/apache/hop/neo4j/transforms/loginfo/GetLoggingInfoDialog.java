@@ -258,7 +258,6 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
     int count = wFields.nrNonEmpty();
     in.allocate(count);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);
       in.getFieldName()[i] = item.getText(1);

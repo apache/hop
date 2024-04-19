@@ -1244,7 +1244,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(YamlInputField.getTrimTypeByDesc(item.getText(10)));
 
-      // CHECKSTYLE:Indentation:OFF
+
       in.getInputFields()[i] = field;
     }
   }

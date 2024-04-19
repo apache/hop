@@ -56,7 +56,6 @@ public class SystemDataTest {
       super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
     }
 
-    @SuppressWarnings("unused")
     public void setRow(Object[] row) {
       this.row = row;
     }

@@ -840,7 +840,6 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
       URL u = new URL("jar:file:" + strJar + "!/");
       // We never know what else the script wants to load with the class loader, so lets not close
       // it just like that.
-      @SuppressWarnings("resource")
       HopURLClassLoader kl = new HopURLClassLoader(new URL[] {u}, cl);
       Class<?> toRun = kl.loadClass(strClassName);
       return toRun;

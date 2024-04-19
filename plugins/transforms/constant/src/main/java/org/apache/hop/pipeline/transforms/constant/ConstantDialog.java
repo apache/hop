@@ -275,8 +275,6 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     List<ConstantField> fields = input.getFields();
     fields.clear();
 
-    // CHECKSTYLE:Indentation:OFF
-    // CHECKSTYLE:LineLength:OFF
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       boolean isEmptyStringFlag =

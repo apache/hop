@@ -1397,7 +1397,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(11)));
 
-      // CHECKSTYLE:Indentation:OFF
+
       in.getInputFields()[i] = field;
     }
     in.setShortFileNameField(wShortFileFieldName.getText());

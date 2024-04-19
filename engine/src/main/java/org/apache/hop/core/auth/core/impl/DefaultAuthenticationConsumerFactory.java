@@ -33,7 +33,6 @@ public class DefaultAuthenticationConsumerFactory
   private final Class<Object> returnType;
   private final Class<Object> createArgType;
 
-  @SuppressWarnings("unchecked")
   public DefaultAuthenticationConsumerFactory(Class<?> consumerClass)
       throws AuthenticationFactoryException {
     Constructor<?>[] constructors = consumerClass.getConstructors();
@@ -97,7 +96,6 @@ public class DefaultAuthenticationConsumerFactory
     return createArgType;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public IAuthenticationConsumer<Object, Object> create(Object createArg) {
     try {

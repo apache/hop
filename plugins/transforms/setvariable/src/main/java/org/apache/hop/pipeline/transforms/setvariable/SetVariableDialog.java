@@ -282,7 +282,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
 
     int count = wFields.nrNonEmpty();
 
-    // CHECKSTYLE:Indentation:OFF
+
     input.getVariables().clear();
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);

@@ -48,7 +48,6 @@ public class LafFactory {
     }
   }
 
-  @SuppressWarnings("unchecked")
   protected static synchronized <V extends IHandler> LafDelegate<V> getDelegate(Class<V> handler) {
     LafDelegate<V> l = (LafDelegate<V>) delegateRegistry.get(handler);
     if (l == null) {

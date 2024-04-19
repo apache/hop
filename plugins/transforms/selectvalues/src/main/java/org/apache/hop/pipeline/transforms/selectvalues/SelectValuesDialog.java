@@ -707,7 +707,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     input.allocate(nrFields, nrremove, nrmeta);
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       input.getSelectFields()[i].setName(item.getText(1));

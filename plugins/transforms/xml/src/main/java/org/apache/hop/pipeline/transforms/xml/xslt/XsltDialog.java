@@ -707,13 +707,13 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
       logDebug(
           BaseMessages.getString(PKG, "HTTPDialog.Log.FoundArguments", String.valueOf(nrparams)));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrparams; i++) {
       TableItem item = wFields.getNonEmpty(i);
       input.getParameterField()[i] = item.getText(1);
       input.getParameterName()[i] = item.getText(2);
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nroutputprops; i++) {
       TableItem item = wOutputProperties.getNonEmpty(i);
       input.getOutputPropertyName()[i] = item.getText(1);

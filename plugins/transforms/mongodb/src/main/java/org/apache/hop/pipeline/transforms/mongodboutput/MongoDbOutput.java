@@ -289,9 +289,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
               BaseMessages.getString(PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
           try {
             Thread.sleep(writeRetryDelay * 1000);
-            // CHECKSTYLE:OFF
+            
           } catch (InterruptedException e) {
-            // CHECKSTYLE:ON
+            
           }
         }
       }
@@ -394,9 +394,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           }
           try {
             Thread.sleep(writeRetryDelay * 1000);
-            // CHECKSTYLE:OFF
+            
           } catch (InterruptedException e) {
-            // CHECKSTYLE:ON
+            
           }
         }
       }

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.workflow;
 
 import org.apache.commons.vfs2.FileName;

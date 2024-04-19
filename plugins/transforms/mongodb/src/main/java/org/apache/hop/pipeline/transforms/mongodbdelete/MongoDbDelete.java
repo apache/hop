@@ -282,9 +282,7 @@ public class MongoDbDelete extends BaseTransform<MongoDbDeleteMeta, MongoDbDelet
           logBasic(BaseMessages.getString(PKG, "MongoDbDelete.Message.Retry", writeRetryDelay));
           try {
             Thread.sleep(writeRetryDelay * 1000);
-            // CHECKSTYLE:OFF
           } catch (InterruptedException e) {
-            // CHECKSTYLE:ON
             // Restore interrupted state...
             Thread.currentThread().interrupt();
           }

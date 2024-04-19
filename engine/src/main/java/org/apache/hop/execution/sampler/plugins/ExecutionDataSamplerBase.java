@@ -66,7 +66,6 @@ public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSampl
   @Override
   public abstract Store createSamplerStore(ExecutionDataSamplerMeta samplerMeta);
 
-  @SuppressWarnings("rawtypes")
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;

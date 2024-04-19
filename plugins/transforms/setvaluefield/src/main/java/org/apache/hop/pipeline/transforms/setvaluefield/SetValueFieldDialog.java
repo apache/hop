@@ -238,7 +238,7 @@ public class SetValueFieldDialog extends BaseTransformDialog implements ITransfo
 
     int count = wFields.nrNonEmpty();
 
-    // CHECKSTYLE:Indentation:OFF
+
     List<SetField> fields = new ArrayList<>(count);
     for (int i = 0; i < count; i++) {
       TableItem item = wFields.getNonEmpty(i);

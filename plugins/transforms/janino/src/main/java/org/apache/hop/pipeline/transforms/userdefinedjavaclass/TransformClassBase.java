@@ -481,7 +481,6 @@ public abstract class TransformClassBase {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public static void getFields(
       boolean clearResultFields,
       IRowMeta row,

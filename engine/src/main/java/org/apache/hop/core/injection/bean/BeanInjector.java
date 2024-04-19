@@ -73,7 +73,6 @@ public class BeanInjector<Meta extends Object> {
     return getPropVal(root, propName, beanInfos);
   }
 
-  @SuppressWarnings("unchecked")
   private Object getPropVal(Object obj, String propName, Queue<BeanLevelInfo> beanInfos) {
     BeanLevelInfo info = beanInfos.remove();
     if (beanInfos.isEmpty()) {
@@ -423,7 +422,6 @@ public class BeanInjector<Meta extends Object> {
   }
 
   private List<Object> extendList(BeanLevelInfo s, Object obj, int newSize) throws Exception {
-    @SuppressWarnings("unchecked")
     List<Object> existList = (List<Object>) s.field.get(obj);
     if (existList == null) {
       existList = new ArrayList<>();
@@ -437,7 +435,6 @@ public class BeanInjector<Meta extends Object> {
   }
 
   private List<Object> checkList(BeanLevelInfo s, Object obj, int index) throws Exception {
-    @SuppressWarnings("unchecked")
     List<Object> existList = (List<Object>) s.field.get(obj);
     if (existList == null) {
       return null;

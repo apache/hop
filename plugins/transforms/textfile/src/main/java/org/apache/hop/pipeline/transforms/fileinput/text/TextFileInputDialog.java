@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
+
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import java.io.InputStream;
@@ -2645,14 +2645,14 @@ public class TextFileInputDialog extends BaseTransformDialog
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
 
-      // CHECKSTYLE:Indentation:OFF
+
       meta.inputFields[i] = field;
     }
 
     for (int i = 0; i < nrfilters; i++) {
       TableItem item = wFilter.getNonEmpty(i);
       TextFileFilter filter = new TextFileFilter();
-      // CHECKSTYLE:Indentation:OFF
+
       meta.getFilter()[i] = filter;
 
       filter.setFilterString(item.getText(1));

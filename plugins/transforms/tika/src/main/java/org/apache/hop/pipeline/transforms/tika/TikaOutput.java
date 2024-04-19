@@ -209,7 +209,6 @@ public class TikaOutput {
     };
   }
 
-  @SuppressWarnings("serial")
   public Map<String, OutputType> getFileOutputTypeCodes() {
     Map<String, OutputType> outputTypeMap = new HashMap<>();
     outputTypeMap.put("Plain text", getTEXT());

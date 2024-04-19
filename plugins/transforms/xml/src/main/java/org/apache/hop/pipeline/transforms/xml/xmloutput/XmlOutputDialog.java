@@ -1008,7 +1008,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
       field.setGroupingSymbol(item.getText(index++));
       field.setNullString(item.getText(index++));
 
-      // CHECKSTYLE:Indentation:OFF
+
       xmlOutputMeta.getOutputFields()[i] = field;
     }
   }

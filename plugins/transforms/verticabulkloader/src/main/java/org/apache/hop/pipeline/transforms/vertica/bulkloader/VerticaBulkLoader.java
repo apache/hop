@@ -612,9 +612,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
           try {
             data.workerThread.interrupt();
             data.workerThread.join();
-          } catch (InterruptedException e) { // Checkstyle:OFF:
+          } catch (InterruptedException e) {
+            // ignore this and continue processing rows
           }
-          // Checkstyle:ONN:
         }
       }
     }
@@ -648,9 +648,9 @@ public class VerticaBulkLoader extends BaseTransform<VerticaBulkLoaderMeta, Vert
     if (data.workerThread != null) {
       try {
         data.workerThread.join();
-      } catch (InterruptedException e) { // Checkstyle:OFF:
+      } catch (InterruptedException e) {
+        // ignore this and continue processing rows
       }
-      // Checkstyle:ONN:
     }
 
     if (data.db != null) {

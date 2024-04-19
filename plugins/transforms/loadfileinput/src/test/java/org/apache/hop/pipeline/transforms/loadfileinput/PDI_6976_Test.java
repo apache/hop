@@ -53,7 +53,6 @@ public class PDI_6976_Test {
     doReturn(files).when(fileInputList).getFiles();
     doReturn(fileInputList).when(spy).getFiles(any(IVariables.class));
 
-    @SuppressWarnings("unchecked")
     List<ICheckResult> validationResults = mock(List.class);
 
     // Check we do not get validation errors

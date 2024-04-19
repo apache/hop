@@ -930,7 +930,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
       logDebug(
           BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Log.FoundFields", "" + nrfields));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrfields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       inf.getFieldTable()[i] = item.getText(1);

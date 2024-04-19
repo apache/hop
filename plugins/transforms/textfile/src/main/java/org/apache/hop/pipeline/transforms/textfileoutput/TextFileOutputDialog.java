@@ -1627,7 +1627,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
       field.setGroupingSymbol(item.getText(8));
       field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(9)));
       field.setNullString(item.getText(10));
-      // CHECKSTYLE:Indentation:OFF
+
       tfoi.getOutputFields()[i] = field;
     }
   }

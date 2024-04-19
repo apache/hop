@@ -189,7 +189,6 @@ public final class WsdlOperation implements java.io.Serializable {
    *
    * @param op Operation
    */
-  @SuppressWarnings("unchecked")
   private void loadFaults(Operation op) throws HopTransformException {
     Map<?, Fault> faultMap = op.getFaults();
     for (Fault fault : faultMap.values()) {
@@ -203,7 +202,6 @@ public final class WsdlOperation implements java.io.Serializable {
    * @param op Operation.
    * @throws HopTransformException
    */
-  @SuppressWarnings("unchecked")
   private void loadParameters(Operation op) throws HopTransformException {
 
     Input input = op.getInput();

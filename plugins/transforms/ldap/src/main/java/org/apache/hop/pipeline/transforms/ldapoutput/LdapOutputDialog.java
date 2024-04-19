@@ -1245,7 +1245,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
     in.allocate(nrFields);
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       in.getUpdateLookup()[i] = item.getText(1);

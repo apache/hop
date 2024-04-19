@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
+
 package org.apache.hop.pipeline.transforms.mail;
 
 import org.apache.hop.core.Const;

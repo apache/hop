@@ -1333,7 +1333,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     pipelineExecutorMeta.setOutputRowsLength(new int[nrFields]);
     pipelineExecutorMeta.setOutputRowsPrecision(new int[nrFields]);
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wOutputFields.getNonEmpty(i);
       pipelineExecutorMeta.getOutputRowsField()[i] = item.getText(1);

@@ -52,7 +52,6 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
     this(fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<>(), new HashMap<>());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public T getTestObject() {
     try {
