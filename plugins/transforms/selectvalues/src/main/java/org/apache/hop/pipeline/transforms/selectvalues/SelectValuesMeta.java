@@ -237,7 +237,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     System.arraycopy(deleteName, 0, retval.deleteName, 0, nrremove);
 
     for (int i = 0; i < nrmeta; i++) {
-      // CHECKSTYLE:Indentation:OFF
+
       retval.getMeta()[i] = meta[i].clone();
     }
 

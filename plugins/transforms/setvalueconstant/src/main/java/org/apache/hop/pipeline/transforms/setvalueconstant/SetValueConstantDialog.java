@@ -302,7 +302,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     int count = wFields.nrNonEmpty();
     List<SetValueConstantMeta.Field> fields = new ArrayList<>();
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < count; i++) {
       TableItem ti = wFields.getNonEmpty(i);
       SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();

@@ -534,14 +534,12 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     input.setPassAllRows(wAllRows.getSelection());
 
     input.getGroupingFields().clear();
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < sizegroup; i++) {
       TableItem item = wGroup.getNonEmpty(i);
       input.getGroupingFields().add(new GroupingField(item.getText(1)));
     }
 
     input.getAggregations().clear();
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wAgg.getNonEmpty(i);
       String aggField = item.getText(1);

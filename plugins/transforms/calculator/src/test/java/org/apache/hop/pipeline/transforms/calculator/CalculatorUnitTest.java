@@ -775,7 +775,6 @@ public class CalculatorUnitTest {
       final Long precision,
       final Long roundingMode)
       throws HopException {
-    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       final double resultValue = expectedResult.doubleValue();
       assertRoundGeneral(
@@ -805,7 +804,6 @@ public class CalculatorUnitTest {
             IValueMeta.TYPE_NUMBER);
       }
     }
-    // CHECKSTYLE IGNORE AvoidNestedBlocks FOR NEXT 3 LINES
     {
       final BigDecimal resultValue = BigDecimal.valueOf(expectedResult.doubleValue());
       assertRoundGeneral(

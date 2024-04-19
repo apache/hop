@@ -1818,7 +1818,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(12)));
 
-      // CHECKSTYLE:Indentation:OFF
+
       meta.getInputFields()[i] = field;
     }
   }

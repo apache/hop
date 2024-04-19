@@ -399,7 +399,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
 
     for (int i = 0; i < sizegroup; i++) {
       TableItem item = wGroup.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
       DenormaliserGroupField groupfield = new DenormaliserGroupField();
       groupfield.setName(item.getText(1));
       input.getGroupFields().add(groupfield);
@@ -423,7 +422,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
       field.setTargetAggregationType(
           DenormaliserTargetField.DenormaliseAggregation.getTypeWithDescription(item.getText(12)));
 
-      // CHECKSTYLE:Indentation:OFF
       input.getDenormaliserTargetFields().add(field);
     }
 

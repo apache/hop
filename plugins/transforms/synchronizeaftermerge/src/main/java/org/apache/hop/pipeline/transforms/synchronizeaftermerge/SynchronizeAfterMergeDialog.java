@@ -1112,7 +1112,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       logDebug(
           BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Log.FoundKeys", nrkeys + ""));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       inf.getKeyLookup()[i] = item.getText(1);

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
+
 package org.apache.hop.ui.core.widget;
 
 import org.apache.commons.lang.ArrayUtils;

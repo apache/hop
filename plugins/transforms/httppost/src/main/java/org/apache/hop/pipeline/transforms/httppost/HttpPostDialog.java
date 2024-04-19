@@ -1195,7 +1195,6 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
       logDebug(
           BaseMessages.getString(PKG, "HTTPPOSTDialog.Log.FoundArguments", String.valueOf(nrargs)));
     }
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrargs; i++) {
       TableItem item = wFields.getNonEmpty(i);
       HttpPostArgumentField argumentField =
@@ -1210,7 +1209,6 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
           BaseMessages.getString(
               PKG, "HTTPPOSTDialog.Log.FoundQueryParameters", String.valueOf(nrqueryparams)));
     }
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrqueryparams; i++) {
       TableItem item = wQuery.getNonEmpty(i);
       input.getLookupFields().get(0).getQueryField().clear();

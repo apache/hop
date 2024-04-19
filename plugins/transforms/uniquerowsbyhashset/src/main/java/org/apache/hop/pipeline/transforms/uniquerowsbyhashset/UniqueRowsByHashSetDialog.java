@@ -338,7 +338,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
 
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
+
       input.getCompareFields()[i] = item.getText(1);
     }
 

@@ -1482,7 +1482,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
       field.setName(item.getText(1));
       field.setColumn(MailInputField.getColumnByDesc(item.getText(2)));
-      // CHECKSTYLE:Indentation:OFF
+
       in.getInputFields()[i] = field;
     }
 

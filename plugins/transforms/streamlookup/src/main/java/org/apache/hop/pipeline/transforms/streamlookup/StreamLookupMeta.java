@@ -173,15 +173,14 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
 
       for (int i = 0; i < nrkeys; i++) {
         Node knode = XmlHandler.getSubNodeByNr(lookup, "key", i);
-        // CHECKSTYLE:Indentation:OFF
+  
         getKeystream()[i] = XmlHandler.getTagValue(knode, "name");
         getKeylookup()[i] = XmlHandler.getTagValue(knode, "field");
-        // CHECKSTYLE:Indentation:ON
       }
 
       for (int i = 0; i < nrvalues; i++) {
         Node vnode = XmlHandler.getSubNodeByNr(lookup, "value", i);
-        // CHECKSTYLE:Indentation:OFF
+  
         getValue()[i] = XmlHandler.getTagValue(vnode, "name");
         getValueName()[i] = XmlHandler.getTagValue(vnode, "rename");
         if (getValueName()[i] == null) {
@@ -191,7 +190,6 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
         getValueDefault()[i] = XmlHandler.getTagValue(vnode, "default");
         dtype = XmlHandler.getTagValue(vnode, "type");
         getValueDefaultType()[i] = ValueMetaFactory.getIdForValueMeta(dtype);
-        // CHECKSTYLE:Indentation:ON
       }
     } catch (Exception e) {
       throw new HopXmlException(

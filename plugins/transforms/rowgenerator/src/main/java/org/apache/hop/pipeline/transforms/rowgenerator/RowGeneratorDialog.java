@@ -411,7 +411,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     meta.getFields().clear();
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (TableItem item : wFields.getNonEmptyItems()) {
       GeneratorField field = new GeneratorField();
       field.setName(item.getText(1));

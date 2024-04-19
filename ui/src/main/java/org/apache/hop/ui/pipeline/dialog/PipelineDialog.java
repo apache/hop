@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
+
 package org.apache.hop.ui.pipeline.dialog;
 
 import org.apache.commons.lang.StringUtils;

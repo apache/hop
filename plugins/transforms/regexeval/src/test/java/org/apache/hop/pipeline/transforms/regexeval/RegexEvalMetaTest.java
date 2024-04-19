@@ -112,7 +112,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
     String name = "TEST_NAME";
     regexEvalMeta.allocate(1);
     String fieldName = "fieldname";
-    // CHECKSTYLE:Indentation:OFF
+
     regexEvalMeta.getFieldName()[0] = fieldName;
     when(mockInputRowMeta.indexOfValue(fieldName)).thenReturn(0);
     IValueMeta mockValueMeta = mock(IValueMeta.class);

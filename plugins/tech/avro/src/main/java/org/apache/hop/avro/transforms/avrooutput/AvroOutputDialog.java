@@ -1119,7 +1119,6 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
       }
       field.setNullable(nullable);
 
-      // CHECKSTYLE:Indentation:OFF
       tfoi.getOutputFields().add(field);
     }
   }

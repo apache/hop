@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
+
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
 import org.apache.hop.core.Const;
@@ -1929,7 +1929,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
 
-      // CHECKSTYLE:Indentation:OFF
+
       in.getInputFields()[i] = field;
     }
     in.setShortFileNameField(wShortFileFieldName.getText());

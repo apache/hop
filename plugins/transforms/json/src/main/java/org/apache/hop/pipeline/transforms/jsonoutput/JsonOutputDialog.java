@@ -866,7 +866,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       TableItem item = wFields.getNonEmpty(i);
       field.setFieldName(item.getText(1));
       field.setElementName(item.getText(2));
-      // CHECKSTYLE:Indentation:OFF
       jsometa.getOutputFields().add(field);
     }
   }

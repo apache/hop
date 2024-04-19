@@ -409,7 +409,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     input.allocate(nrFields);
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
+
       input.getFieldName()[i] = ti.getText(1);
     }
     dispose();

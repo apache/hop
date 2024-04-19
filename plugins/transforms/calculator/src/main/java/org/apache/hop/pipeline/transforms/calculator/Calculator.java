@@ -84,7 +84,6 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       // Calculate the indexes of the values and arguments in the target data or temporary data
       // We do this in advance to save time later on.
       //
-      // CHECKSTYLE:Indentation:OFF
       for (int i = 0; i < meta.getFunctions().size(); i++) {
         CalculatorMetaFunction function = meta.getFunctions().get(i);
         data.getFieldIndexes()[i] = new FieldIndexes();

@@ -704,7 +704,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     inf.getLookupField().getLookupKeys().clear();
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       UpdateKeyField keyItem =
@@ -714,7 +714,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     logDebug(BaseMessages.getString(PKG, "UpdateDialog.Log.FoundFields", nrFields + ""));
-    // CHECKSTYLE:Indentation:OFF
+
     inf.getLookupField().getUpdateFields().clear();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);

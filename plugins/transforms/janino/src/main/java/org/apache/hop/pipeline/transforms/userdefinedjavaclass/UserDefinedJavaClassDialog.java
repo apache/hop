@@ -1315,7 +1315,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
         if (genMeta == null) {
           genMeta = new RowGeneratorMeta();
           genMeta.setRowLimit("10");
-          // CHECKSTYLE:Indentation:OFF
           for (int i = 0; i < rowMeta.size(); i++) {
             IValueMeta valueMeta = rowMeta.getValueMeta(i);
             if (valueMeta.isStorageBinaryString()) {

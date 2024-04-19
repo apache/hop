@@ -270,7 +270,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     int nrFields = wFields.nrNonEmpty();   
     input.getNormaliserFields().clear();
 
-    // CHECKSTYLE:Indentation:OFF
+
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       NormaliserField field = new NormaliserField();

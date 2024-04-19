@@ -347,7 +347,6 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     List<FieldsChangeSequenceField> fieldName = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
       fieldName.add(new FieldsChangeSequenceField(ti.getText(1)));
     }
     input.setFields(fieldName);

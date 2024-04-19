@@ -44,7 +44,6 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
-  // CHECKSTYLE:Indentation:OFF
   @Override
   public boolean processRow() throws HopException {
 

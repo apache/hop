@@ -771,9 +771,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
           try {
             data.workerThread.interrupt();
             data.workerThread.join();
-          } catch (InterruptedException e) { // Checkstyle:OFF:
+          } catch (InterruptedException e) {
           }
-          // Checkstyle:ONN:
         }
       }
     }
@@ -803,9 +802,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     if (data.workerThread != null) {
       try {
         data.workerThread.join();
-      } catch (InterruptedException e) { // Checkstyle:OFF:
+      } catch (InterruptedException e) {
       }
-      // Checkstyle:ONN:
     }
 
     if (data.db != null) {

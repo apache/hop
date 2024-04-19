@@ -882,7 +882,7 @@ public class CsvInputDialog extends BaseTransformDialog
 
     for (int i = 0; i < nrNonEmptyFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
+
       inputMeta.getInputFields()[i] = new TextFileInputField();
 
       int colnr = 1;

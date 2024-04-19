@@ -480,7 +480,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.FoundKeys", nrkeys + ""));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       input.getKeystream()[i] = item.getText(1);
@@ -490,7 +490,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.FoundFields", nrvalues + ""));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrvalues; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       input.getValue()[i] = item.getText(1);

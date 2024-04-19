@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline.transforms.javascript;
 
 import org.apache.hop.core.Const;
@@ -866,7 +865,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     meta.setOptimizationLevel(wOptimizationLevel.getText());
     int nrFields = wFields.nrNonEmpty();
     meta.allocate(nrFields);
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       meta.getFieldname()[i] = item.getText(1);
@@ -964,7 +962,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
           genMeta = new RowGeneratorMeta();
           genMeta.setRowLimit("10");
 
-          // CHECKSTYLE:Indentation:OFF
           for (int i = 0; i < rowMeta.size(); i++) {
             IValueMeta valueMeta = rowMeta.getValueMeta(i);
             if (valueMeta.isStorageBinaryString()) {

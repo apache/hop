@@ -1138,7 +1138,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
           BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(4)));
       field.setRemoveIfBlank(
           BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(5)));
-      // CHECKSTYLE:Indentation:OFF
       jsometa.getOutputFields()[i] = field;
     }
   }

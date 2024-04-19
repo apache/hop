@@ -196,7 +196,7 @@ public class RowsFromResultDialog extends BaseTransformDialog implements ITransf
     transformName = wTransformName.getText(); // return value
     int nrFields = wFields.nrNonEmpty();
     input.allocate(nrFields);
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       input.getFieldname()[i] = item.getText(1);

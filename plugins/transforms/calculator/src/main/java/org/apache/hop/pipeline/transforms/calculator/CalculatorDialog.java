@@ -407,7 +407,6 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
       String groupingSymbol = item.getText(12);
       String currencySymbol = item.getText(13);
 
-      // CHECKSTYLE:Indentation:OFF
       currentMeta
           .getFunctions()
           .add(

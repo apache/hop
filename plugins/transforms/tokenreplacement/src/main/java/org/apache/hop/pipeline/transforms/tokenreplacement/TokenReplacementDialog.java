@@ -1502,7 +1502,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
       TableItem item = wFields.getNonEmpty(i);
       field.setName(item.getText(2));
       field.setTokenName(item.getText(1));
-      // CHECKSTYLE:Indentation:OFF
+
       tfoi.getTokenReplacementFields()[i] = field;
     }
   }

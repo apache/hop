@@ -105,7 +105,6 @@ public abstract class BaseParsingTest<
 
   /** Process all rows. */
   protected void process() throws Exception {
-    // CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
     while (transform.processRow()) {
       // nothing here - just make sure the rows process
     }

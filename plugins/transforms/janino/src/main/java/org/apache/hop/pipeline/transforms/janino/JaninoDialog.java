@@ -275,7 +275,6 @@ public class JaninoDialog extends BaseTransformDialog implements ITransformDialo
       int valuePrecision = Const.toInt(item.getText(5), -1);
       String replaceField = item.getText(6);
 
-      // CHECKSTYLE:Indentation:OFF
       currentMeta.getFormula()[i] =
           new JaninoMetaFunction(
               fieldName, formula, valueType, valueLength, valuePrecision, replaceField);
