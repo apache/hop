@@ -617,36 +617,11 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       // we need to truncate
       String tmp = string.substring(0, length);
       return tmp.getBytes(StandardCharsets.UTF_8);
-
     } else {
+      // no need to truncate
       byte[] text;
       text = string.getBytes(StandardCharsets.UTF_8);
-
-      if (length > string.length()) {
-        // we need to pad this
-
-        int size = 0;
-        byte[] filler;
-        filler = " ".getBytes(StandardCharsets.UTF_8);
-        size = text.length + filler.length * (length - string.length());
-
-        byte[] bytes = new byte[size];
-        System.arraycopy(text, 0, bytes, 0, text.length);
-        if (filler.length == 1) {
-          java.util.Arrays.fill(bytes, text.length, size, filler[0]);
-        } else {
-          int currIndex = text.length;
-          for (int i = 0; i < (length - string.length()); i++) {
-            for (byte aFiller : filler) {
-              bytes[currIndex++] = aFiller;
-            }
-          }
-        }
-        return bytes;
-      } else {
-        // do not need to pad or truncate
-        return text;
-      }
+      return text;
     }
   }
 
