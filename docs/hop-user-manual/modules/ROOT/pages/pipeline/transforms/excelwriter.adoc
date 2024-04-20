@@ -119,14 +119,14 @@ Negative numbers may be useful if you need to append to a sheet, but still prese
 
 *Fields section*
 
-The fields section is for specifying the fields that must be written to the Excel file. You can choose to use a xref:metadata-types/schema-file-definition.adoc[Schema Definition] or to define the required fields' layout manually.
+The fields section is for specifying the fields that must be written to the Excel file. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
-If you decide to define the fields layout by using a xref:metadata-types/schema-file-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema Mapping] transform to adjust the incoming stream according to the choosen xref:metadata-types/schema-file-definition.adoc[Schema Definition]
+If you decide to define the fields layout by using a xref:metadata-types/static-schema-definition.adoc[Schema Definition], use the xref:pipeline/transforms/schemamapping.adoc[Schema Mapping] transform to adjust the incoming stream according to the choosen xref:metadata-types/static-schema-definition.adoc[Schema Definition]
 
 [options="header"]
 |===
 |Option|Description
-|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we want to reference.
+|Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|The field to write
 |Type|The type of data
 |Format|The Excel format to use in the sheet.
