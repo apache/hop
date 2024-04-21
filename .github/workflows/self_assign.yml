@@ -25,7 +25,22 @@ jobs:
     if: ${{ !github.event.issue.pull_request }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/github-script@v6
+      - name: Get project milestones
+        id: milestones
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const list = await github.rest.issues.listMilestones({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'due_on',
+              direction: 'asc'
+            })
+            const milestone = list.data
+            return milestone.length == 0 ? null : milestone[0].number
+      - uses: actions/github-script@v7
         with:
           script: |
             const body = context.payload.comment.body.replace( /\r\n/g, " " ).replace( /\n/g, " " ).split(' ');
@@ -45,6 +60,12 @@ jobs:
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   name: 'awaiting triage'
+                });
+                github.rest.issues.update({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  milestone: ${{ steps.milestones.outputs.result }}
                 });
               } else if (bodyString == '.close-issue') {
                 console.log('Closing issue');
