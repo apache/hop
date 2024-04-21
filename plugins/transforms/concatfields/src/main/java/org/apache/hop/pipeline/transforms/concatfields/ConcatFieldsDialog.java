@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -54,9 +56,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * ConcatFieldsDialog
@@ -191,7 +190,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdlSeparator.top = new FormAttachment(lastControl, margin);
     fdlSeparator.right = new FormAttachment(middle, -margin);
     wlSeparator.setLayoutData(fdlSeparator);
-    
+
     Button wbSeparator = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbSeparator);
     wbSeparator.setText(BaseMessages.getString(PKG, "ConcatFieldsDialog.Separator.Button"));

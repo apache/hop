@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.vfs2.FileChangeEvent;
 import org.apache.commons.vfs2.FileListener;
 import org.apache.commons.vfs2.impl.DefaultFileMonitor;
@@ -24,9 +26,6 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class HopGuiFileRefreshDelegate {
 

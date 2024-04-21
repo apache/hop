@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -29,8 +30,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 @Transform(
     id = "ReservoirSampling",
     image = "reservoirsampling.svg",
@@ -40,7 +39,7 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
     keywords = "i18n::ReservoirSamplingMeta.keyword",
     documentationUrl = "/pipeline/transforms/reservoirsampling.html")
-@HopMetadataWrapper(tag="reservoir_sampling")
+@HopMetadataWrapper(tag = "reservoir_sampling")
 public class ReservoirSamplingMeta
     extends BaseTransformMeta<ReservoirSampling, ReservoirSamplingData> {
 

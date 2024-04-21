@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -25,8 +26,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-
-import java.util.List;
 
 /** Utils for file-based input transforms. */
 public class BaseFileInputTransformUtils {

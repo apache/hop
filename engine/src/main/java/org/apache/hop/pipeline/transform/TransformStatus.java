@@ -18,6 +18,13 @@
 package org.apache.hop.pipeline.transform;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -27,14 +34,6 @@ import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.owasp.encoder.Encode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 
 @XmlRootElement
 public class TransformStatus {
@@ -321,152 +320,212 @@ public class TransformStatus {
     return fields;
   }
 
-  /** @return the copy */
+  /**
+   * @return the copy
+   */
   public int getCopy() {
     return copy;
   }
 
-  /** @param copy the copy to set */
+  /**
+   * @param copy the copy to set
+   */
   public void setCopy(int copy) {
     this.copy = copy;
   }
 
-  /** @return the errors */
+  /**
+   * @return the errors
+   */
   public long getErrors() {
     return errors;
   }
 
-  /** @param errors the errors to set */
+  /**
+   * @param errors the errors to set
+   */
   public void setErrors(long errors) {
     this.errors = errors;
   }
 
-  /** @return the linesInput */
+  /**
+   * @return the linesInput
+   */
   public long getLinesInput() {
     return linesInput;
   }
 
-  /** @param linesInput the linesInput to set */
+  /**
+   * @param linesInput the linesInput to set
+   */
   public void setLinesInput(long linesInput) {
     this.linesInput = linesInput;
   }
 
-  /** @return the linesOutput */
+  /**
+   * @return the linesOutput
+   */
   public long getLinesOutput() {
     return linesOutput;
   }
 
-  /** @param linesOutput the linesOutput to set */
+  /**
+   * @param linesOutput the linesOutput to set
+   */
   public void setLinesOutput(long linesOutput) {
     this.linesOutput = linesOutput;
   }
 
-  /** @return the linesRead */
+  /**
+   * @return the linesRead
+   */
   public long getLinesRead() {
     return linesRead;
   }
 
-  /** @param linesRead the linesRead to set */
+  /**
+   * @param linesRead the linesRead to set
+   */
   public void setLinesRead(long linesRead) {
     this.linesRead = linesRead;
   }
 
-  /** @return the linesUpdated */
+  /**
+   * @return the linesUpdated
+   */
   public long getLinesUpdated() {
     return linesUpdated;
   }
 
-  /** @param linesUpdated the linesUpdated to set */
+  /**
+   * @param linesUpdated the linesUpdated to set
+   */
   public void setLinesUpdated(long linesUpdated) {
     this.linesUpdated = linesUpdated;
   }
 
-  /** @return the linesWritten */
+  /**
+   * @return the linesWritten
+   */
   public long getLinesWritten() {
     return linesWritten;
   }
 
-  /** @param linesWritten the linesWritten to set */
+  /**
+   * @param linesWritten the linesWritten to set
+   */
   public void setLinesWritten(long linesWritten) {
     this.linesWritten = linesWritten;
   }
 
-  /** @return the priority */
+  /**
+   * @return the priority
+   */
   public String getPriority() {
     return priority;
   }
 
-  /** @param priority the priority to set */
+  /**
+   * @param priority the priority to set
+   */
   public void setPriority(String priority) {
     this.priority = priority;
   }
 
-  /** @return the seconds */
+  /**
+   * @return the seconds
+   */
   public double getSeconds() {
     return seconds;
   }
 
-  /** @param seconds the seconds to set */
+  /**
+   * @param seconds the seconds to set
+   */
   public void setSeconds(double seconds) {
     this.seconds = seconds;
   }
 
-  /** @return the speed */
+  /**
+   * @return the speed
+   */
   public String getSpeed() {
     return speed;
   }
 
-  /** @param speed the speed to set */
+  /**
+   * @param speed the speed to set
+   */
   public void setSpeed(String speed) {
     this.speed = speed;
   }
 
-  /** @return the statusDescription */
+  /**
+   * @return the statusDescription
+   */
   public String getStatusDescription() {
     return statusDescription;
   }
 
-  /** @param statusDescription the statusDescription to set */
+  /**
+   * @param statusDescription the statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /** @return the transformName */
+  /**
+   * @return the transformName
+   */
   public String getTransformName() {
     return transformName;
   }
 
-  /** @param transformName the transformName to set */
+  /**
+   * @param transformName the transformName to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
-  /** @return the linesRejected */
+  /**
+   * @return the linesRejected
+   */
   public long getLinesRejected() {
     return linesRejected;
   }
 
-  /** @param linesRejected the linesRejected to set */
+  /**
+   * @param linesRejected the linesRejected to set
+   */
   public void setLinesRejected(long linesRejected) {
     this.linesRejected = linesRejected;
   }
 
-  /** @return the stopped */
+  /**
+   * @return the stopped
+   */
   public boolean isStopped() {
     return stopped;
   }
 
-  /** @param stopped the stopped to set */
+  /**
+   * @param stopped the stopped to set
+   */
   public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
 
-  /** @return the paused */
+  /**
+   * @return the paused
+   */
   public boolean isPaused() {
     return paused;
   }
 
-  /** @param paused the paused to set */
+  /**
+   * @param paused the paused to set
+   */
   public void setPaused(boolean paused) {
     this.paused = paused;
   }
@@ -496,7 +555,9 @@ public class TransformStatus {
     return inputBufferSize;
   }
 
-  /** @param inputBufferSize The inputBufferSize to set */
+  /**
+   * @param inputBufferSize The inputBufferSize to set
+   */
   public void setInputBufferSize(long inputBufferSize) {
     this.inputBufferSize = inputBufferSize;
   }
@@ -510,7 +571,9 @@ public class TransformStatus {
     return outputBufferSize;
   }
 
-  /** @param outputBufferSize The outputBufferSize to set */
+  /**
+   * @param outputBufferSize The outputBufferSize to set
+   */
   public void setOutputBufferSize(long outputBufferSize) {
     this.outputBufferSize = outputBufferSize;
   }

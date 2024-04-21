@@ -17,13 +17,14 @@
 
 package org.apache.hop.core.metrics;
 
-import org.apache.hop.core.logging.IMetrics;
-
 import java.util.Date;
+import org.apache.hop.core.logging.IMetrics;
 
 public interface IMetricsSnapshot {
 
-  /** @return The metric that is being recorded, includes type, code and description */
+  /**
+   * @return The metric that is being recorded, includes type, code and description
+   */
   IMetrics getMetric();
 
   Date getDate();

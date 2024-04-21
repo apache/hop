@@ -33,7 +33,9 @@ public interface ISearchable<T> {
    */
   String getName();
 
-  /** @return The type of searchable: pipeline, workflow, type of metadata object, ... */
+  /**
+   * @return The type of searchable: pipeline, workflow, type of metadata object, ...
+   */
   String getType();
 
   /**
@@ -43,7 +45,9 @@ public interface ISearchable<T> {
    */
   String getFilename();
 
-  /** @return The object to search itself */
+  /**
+   * @return The object to search itself
+   */
   T getSearchableObject();
 
   /**

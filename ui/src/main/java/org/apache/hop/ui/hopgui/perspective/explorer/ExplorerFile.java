@@ -18,14 +18,13 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.apache.hop.core.listeners.IContentChangedListener;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.eclipse.swt.graphics.Image;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class ExplorerFile {
 
@@ -81,7 +80,9 @@ public class ExplorerFile {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -95,7 +96,9 @@ public class ExplorerFile {
     return tabImage;
   }
 
-  /** @param tabImage The tabImage to set */
+  /**
+   * @param tabImage The tabImage to set
+   */
   public void setTabImage(Image tabImage) {
     this.tabImage = tabImage;
   }
@@ -109,7 +112,9 @@ public class ExplorerFile {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -123,7 +128,9 @@ public class ExplorerFile {
     return fileType;
   }
 
-  /** @param fileType The fileType to set */
+  /**
+   * @param fileType The fileType to set
+   */
   public void setFileType(IExplorerFileType fileType) {
     this.fileType = fileType;
   }
@@ -137,7 +144,9 @@ public class ExplorerFile {
     return fileTypeHandler;
   }
 
-  /** @param fileTypeHandler The fileTypeHandler to set */
+  /**
+   * @param fileTypeHandler The fileTypeHandler to set
+   */
   public void setFileTypeHandler(IExplorerFileTypeHandler fileTypeHandler) {
     this.fileTypeHandler = fileTypeHandler;
   }

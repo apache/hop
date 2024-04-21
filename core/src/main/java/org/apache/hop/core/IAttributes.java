@@ -28,7 +28,9 @@ public interface IAttributes {
    */
   void setAttributesMap(Map<String, Map<String, String>> attributesMap);
 
-  /** @return All attributes for all attribute groups in one single map. */
+  /**
+   * @return All attributes for all attribute groups in one single map.
+   */
   Map<String, Map<String, String>> getAttributesMap();
 
   /**

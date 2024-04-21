@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.setvariable;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -46,9 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetVariableMeta.class; // For Translator
@@ -281,7 +280,6 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     transformName = wTransformName.getText(); // return value
 
     int count = wFields.nrNonEmpty();
-
 
     input.getVariables().clear();
     for (int i = 0; i < count; i++) {

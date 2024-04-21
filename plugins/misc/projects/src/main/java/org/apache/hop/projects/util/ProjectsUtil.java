@@ -17,6 +17,10 @@
 
 package org.apache.hop.projects.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -34,11 +38,6 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 public class ProjectsUtil {
 
@@ -239,7 +238,8 @@ public class ProjectsUtil {
     return parentProjectReferences;
   }
 
-  public static List<String> changeParentProjectReferences(String currentName, String newName) throws HopException {
+  public static List<String> changeParentProjectReferences(String currentName, String newName)
+      throws HopException {
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     List<String> prjs = config.listProjectConfigNames();
@@ -257,7 +257,7 @@ public class ProjectsUtil {
           Project thePrj = prjCfg.loadProject(hopGui.getVariables());
           if (thePrj != null) {
             if (thePrj.getParentProjectName() != null
-                    && thePrj.getParentProjectName().equals(currentName)) {
+                && thePrj.getParentProjectName().equals(currentName)) {
               thePrj.setParentProjectName(newName);
             }
           } else {

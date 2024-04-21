@@ -17,6 +17,17 @@
 
 package org.apache.hop.core.database;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
@@ -40,18 +51,6 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
 /**
  * This class defines the database specific parameters for a certain database type. It also provides
@@ -187,7 +186,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     replaceMeta(databaseMeta);
   }
 
-  /** @return the system dependend database interface for this database metadata definition */
+  /**
+   * @return the system dependend database interface for this database metadata definition
+   */
   public IDatabase getIDatabase() {
     return iDatabase;
   }
@@ -319,12 +320,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     iDatabase = (IDatabase) info.iDatabase.clone();
   }
 
-  /** @return The plugin ID of the database interface */
+  /**
+   * @return The plugin ID of the database interface
+   */
   public String getPluginId() {
     return iDatabase.getPluginId();
   }
 
-  /** @return The name of the database plugin type */
+  /**
+   * @return The name of the database plugin type
+   */
   public String getPluginName() {
     return iDatabase.getPluginName();
   }
@@ -458,12 +463,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     iDatabase.setPassword(password);
   }
 
-  /** @param servername the Informix servername */
+  /**
+   * @param servername the Informix servername
+   */
   public void setServername(String servername) {
     iDatabase.setServername(servername);
   }
 
-  /** @return the Informix servername */
+  /**
+   * @return the Informix servername
+   */
   public String getServername() {
     return iDatabase.getServername();
   }
@@ -500,7 +509,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     iDatabase.setChanged(false);
   }
 
-  /** @return A manually entered URL which will be used over the internally generated one */
+  /**
+   * @return A manually entered URL which will be used over the internally generated one
+   */
   public String getManualUrl() {
     return iDatabase.getManualUrl();
   }
@@ -517,7 +528,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return getName();
   }
 
-  /** @return The extra attributes for this database connection */
+  /**
+   * @return The extra attributes for this database connection
+   */
   public Map<String, String> getAttributes() {
     return iDatabase.getAttributes();
   }
@@ -690,7 +703,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return getIDatabase().getExtraOptionValueSeparator();
   }
 
-  /** @return all the extra JDBC options, in their original form, for this specific database type */
+  /**
+   * @return all the extra JDBC options, in their original form, for this specific database type
+   */
   public Map<String, String> getExtraOptionsMap() {
     Map<String, String> optionsMap = new HashMap<>();
 
@@ -764,12 +779,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.isSupportsSetLong();
   }
 
-  /** @return true if the database supports schemas */
+  /**
+   * @return true if the database supports schemas
+   */
   public boolean supportsSchemas() {
     return iDatabase.isSupportsSchemas();
   }
 
-  /** @return true if the database supports catalogs */
+  /**
+   * @return true if the database supports catalogs
+   */
   public boolean supportsCatalogs() {
     return iDatabase.isSupportsCatalogs();
   }
@@ -1040,7 +1059,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadConnectionName"));
     }
 
-    if (getIDatabase().isRequiresName() && getIDatabase().getManualUrl().isEmpty()
+    if (getIDatabase().isRequiresName()
+        && getIDatabase().getManualUrl().isEmpty()
         && (getDatabaseName() == null || getDatabaseName().length() == 0)) {
       remarks.add(BaseMessages.getString(PKG, "DatabaseMeta.BadDatabaseName"));
     }
@@ -1166,22 +1186,30 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return retval;
   }
 
-  /** @return an array of reserved words for the database type... */
+  /**
+   * @return an array of reserved words for the database type...
+   */
   public String[] getReservedWords() {
     return iDatabase.getReservedWords();
   }
 
-  /** @return true if reserved words need to be double quoted ("password", "select", ...) */
+  /**
+   * @return true if reserved words need to be double quoted ("password", "select", ...)
+   */
   public boolean quoteReservedWords() {
     return iDatabase.isQuoteReservedWords();
   }
 
-  /** @return The start quote sequence, mostly just double quote, but sometimes [, ... */
+  /**
+   * @return The start quote sequence, mostly just double quote, but sometimes [, ...
+   */
   public String getStartQuote() {
     return iDatabase.getStartQuote();
   }
 
-  /** @return The end quote sequence, mostly just double quote, but sometimes ], ... */
+  /**
+   * @return The end quote sequence, mostly just double quote, but sometimes ], ...
+   */
   public String getEndQuote() {
     return iDatabase.getEndQuote();
   }
@@ -1377,17 +1405,23 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return nrReservedWords;
   }
 
-  /** @return a list of types to get the available tables */
+  /**
+   * @return a list of types to get the available tables
+   */
   public String[] getTableTypes() {
     return iDatabase.getTableTypes();
   }
 
-  /** @return a list of types to get the available views */
+  /**
+   * @return a list of types to get the available views
+   */
   public String[] getViewTypes() {
     return iDatabase.getViewTypes();
   }
 
-  /** @return a list of types to get the available synonyms */
+  /**
+   * @return a list of types to get the available synonyms
+   */
   public String[] getSynonymTypes() {
     return iDatabase.getSynonymTypes();
   }
@@ -1400,17 +1434,23 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.useSchemaNameForTableList();
   }
 
-  /** @return true if the database supports views */
+  /**
+   * @return true if the database supports views
+   */
   public boolean supportsViews() {
     return iDatabase.isSupportsViews();
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   public boolean supportsSynonyms() {
     return iDatabase.isSupportsSynonyms();
   }
 
-  /** @return The SQL on this database to get a list of stored procedures. */
+  /**
+   * @return The SQL on this database to get a list of stored procedures.
+   */
   public String getSqlListOfProcedures() {
     return iDatabase.getSqlListOfProcedures();
   }
@@ -1451,7 +1491,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.getSqlUnlockTables(tableNames);
   }
 
-  /** @return a feature list for the chosen database type. */
+  /**
+   * @return a feature list for the chosen database type.
+   */
   public List<RowMetaAndData> getFeatureSummary(IVariables variables) {
     List<RowMetaAndData> list = new ArrayList<>();
     RowMetaAndData r = null;
@@ -1739,12 +1781,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.isSupportsBatchUpdates();
   }
 
-  /** @return true if the database supports a boolean, bit, logical, ... datatype */
+  /**
+   * @return true if the database supports a boolean, bit, logical, ... datatype
+   */
   public boolean supportsBooleanDataType() {
     return iDatabase.isSupportsBooleanDataType();
   }
 
-  /** @param b Set to true if the database supports a boolean, bit, logical, ... datatype */
+  /**
+   * @param b Set to true if the database supports a boolean, bit, logical, ... datatype
+   */
   public void setSupportsBooleanDataType(boolean b) {
     iDatabase.setSupportsBooleanDataType(b);
   }
@@ -1764,12 +1810,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     iDatabase.setSupportsTimestampDataType(b);
   }
 
-  /** @return true if reserved words' case should be preserved */
+  /**
+   * @return true if reserved words' case should be preserved
+   */
   public boolean preserveReservedCase() {
     return iDatabase.isPreserveReservedCase();
   }
 
-  /** @return true if reserved words' case should be preserved */
+  /**
+   * @return true if reserved words' case should be preserved
+   */
   public void setPreserveReservedCase(boolean b) {
     iDatabase.setPreserveReservedCase(b);
   }
@@ -1786,7 +1836,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
   }
 
-  /** @return a map of all the extra URL options you want to set. */
+  /**
+   * @return a map of all the extra URL options you want to set.
+   */
   public Map<String, String> getExtraOptions() {
     return iDatabase.getExtraOptions();
   }
@@ -1799,7 +1851,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.isSupportsOptionsInURL();
   }
 
-  /** @return extra help text on the supported options on the selected database platform. */
+  /**
+   * @return extra help text on the supported options on the selected database platform.
+   */
   public String getExtraOptionsHelpText() {
     return iDatabase.getExtraOptionsHelpText();
   }
@@ -1812,12 +1866,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.isSupportsGetBlob();
   }
 
-  /** @return The SQL to execute right after connecting */
+  /**
+   * @return The SQL to execute right after connecting
+   */
   public String getConnectSql() {
     return iDatabase.getConnectSql();
   }
 
-  /** @param sql The SQL to execute right after connecting */
+  /**
+   * @param sql The SQL to execute right after connecting
+   */
   public void setConnectSql(String sql) {
     iDatabase.setConnectSql(sql);
   }
@@ -1904,32 +1962,44 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     iDatabase.setStreamingResults(useStreaming);
   }
 
-  /** @return true if all fields should always be quoted in db */
+  /**
+   * @return true if all fields should always be quoted in db
+   */
   public boolean isQuoteAllFields() {
     return iDatabase.isQuoteAllFields();
   }
 
-  /** @param quoteAllFields true if all fields in DB should be quoted. */
+  /**
+   * @param quoteAllFields true if all fields in DB should be quoted.
+   */
   public void setQuoteAllFields(boolean quoteAllFields) {
     iDatabase.setQuoteAllFields(quoteAllFields);
   }
 
-  /** @return true if all identifiers should be forced to lower case */
+  /**
+   * @return true if all identifiers should be forced to lower case
+   */
   public boolean isForcingIdentifiersToLowerCase() {
     return iDatabase.isForcingIdentifiersToLowerCase();
   }
 
-  /** @param forceLowerCase true if all identifiers should be forced to lower case */
+  /**
+   * @param forceLowerCase true if all identifiers should be forced to lower case
+   */
   public void setForcingIdentifiersToLowerCase(boolean forceLowerCase) {
     iDatabase.setForcingIdentifiersToLowerCase(forceLowerCase);
   }
 
-  /** @return true if all identifiers should be forced to upper case */
+  /**
+   * @return true if all identifiers should be forced to upper case
+   */
   public boolean isForcingIdentifiersToUpperCase() {
     return iDatabase.isForcingIdentifiersToUpperCase();
   }
 
-  /** @param forceUpperCase true if all identifiers should be forced to upper case */
+  /**
+   * @param forceUpperCase true if all identifiers should be forced to upper case
+   */
   public void setForcingIdentifiersToUpperCase(boolean forceUpperCase) {
     iDatabase.setForcingIdentifiersToUpperCase(forceUpperCase);
   }
@@ -1970,7 +2040,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return -1;
   }
 
-  /** @return the SQL Server instance */
+  /**
+   * @return the SQL Server instance
+   */
   public String getSqlServerInstance() {
     // This is also covered/persisted by JDBC option MS SQL Server / instancename / <somevalue>
     // We want to return <somevalue>
@@ -1978,7 +2050,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return getExtraOptions().get(getPluginId() + ".instance");
   }
 
-  /** @param instanceName the SQL Server instance */
+  /**
+   * @param instanceName the SQL Server instance
+   */
   public void setSqlServerInstance(String instanceName) {
     // This is also covered/persisted by JDBC option MS SQL Server / instancename / <somevalue>
     // We want to return set <somevalue>
@@ -2158,7 +2232,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.isExplorable();
   }
 
-  /** @return The SQL on this database to get a list of sequences. */
+  /**
+   * @return The SQL on this database to get a list of sequences.
+   */
   public String getSqlListOfSequences() {
     return iDatabase.getSqlListOfSequences();
   }
@@ -2167,7 +2243,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.quoteSqlString(string);
   }
 
-  /** @see IDatabase#generateColumnAlias(int, String) */
+  /**
+   * @see IDatabase#generateColumnAlias(int, String)
+   */
   public String generateColumnAlias(int columnIndex, String suggestedName) {
     return iDatabase.generateColumnAlias(columnIndex, suggestedName);
   }
@@ -2205,7 +2283,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     return iDatabase.getSequenceNoMaxValueOption();
   }
 
-  /** @return true if the database supports autoGeneratedKeys */
+  /**
+   * @return true if the database supports autoGeneratedKeys
+   */
   public boolean supportsAutoGeneratedKeys() {
     return iDatabase.isSupportsAutoGeneratedKeys();
   }

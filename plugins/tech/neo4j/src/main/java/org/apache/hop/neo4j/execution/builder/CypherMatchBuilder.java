@@ -31,7 +31,7 @@ public class CypherMatchBuilder extends BaseCypherBuilder {
   }
 
   public CypherMatchBuilder withMatch(String label, String alias, String id1, Object value1) {
-    String key1=alias+"_"+id1;
+    String key1 = alias + "_" + id1;
     cypher
         .append("MATCH(")
         .append(alias)

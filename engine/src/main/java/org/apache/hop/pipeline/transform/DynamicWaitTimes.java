@@ -17,17 +17,16 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.util.Assert;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.util.Assert;
 
 final class DynamicWaitTimes {
 
-
-  static SingleStreamStatus build(List<IRowSet> rowSets, Supplier<Integer> supplier, Integer waitTime) {
+  static SingleStreamStatus build(
+      List<IRowSet> rowSets, Supplier<Integer> supplier, Integer waitTime) {
     if (rowSets.size() == 1) {
       return new SingleStreamStatus(waitTime);
     }

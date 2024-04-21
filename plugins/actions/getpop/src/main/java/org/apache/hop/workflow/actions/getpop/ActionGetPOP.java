@@ -18,6 +18,12 @@
 package org.apache.hop.workflow.actions.getpop;
 
 import jakarta.mail.Flags.Flag;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -45,13 +51,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /** This defines an get pop action. */
 @Action(
@@ -374,7 +373,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     this.sslport = sslport;
   }
 
-  public void setUseXOAUTH2( boolean usexoauth2 ) {
+  public void setUseXOAUTH2(boolean usexoauth2) {
     this.usexoauth2 = usexoauth2;
   }
 
@@ -618,7 +617,9 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.proxyusername;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
@@ -643,12 +644,16 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     this.attachmentfolder = folderName;
   }
 
-  /** @param delete The delete to set. */
+  /**
+   * @param delete The delete to set.
+   */
   public void setDelete(boolean delete) {
     this.delete = delete;
   }
 
-  /** @return Returns the delete. */
+  /**
+   * @return Returns the delete.
+   */
   public boolean getDelete() {
     return delete;
   }
@@ -677,17 +682,23 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return attachmentwildcard;
   }
 
-  /** @param usessl The usessl to set. */
+  /**
+   * @param usessl The usessl to set.
+   */
   public void setUseSSL(boolean usessl) {
     this.usessl = usessl;
   }
 
-  /** @return Returns the usessl. */
+  /**
+   * @return Returns the usessl.
+   */
   public boolean isUseSSL() {
     return this.usessl;
   }
 
-  /** @return Returns the useproxy. */
+  /**
+   * @return Returns the useproxy.
+   */
   public boolean isUseProxy() {
     return this.useproxy;
   }
@@ -728,7 +739,9 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return this.usedifferentfolderforattachment;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
@@ -1097,8 +1110,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
               // Get next message
               mailConn.fetchNext();
               int messagenumber = mailConn.getMessage().getMessageNumber();
-              boolean okPOP3 =
-                  usePOP3 ? true : false;
+              boolean okPOP3 = usePOP3 ? true : false;
               boolean okIMAP = !usePOP3;
 
               if (okPOP3 || okIMAP) {

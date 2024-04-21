@@ -120,7 +120,9 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
     return graphFieldName;
   }
 
-  /** @param graphFieldName The graphFieldName to set */
+  /**
+   * @param graphFieldName The graphFieldName to set
+   */
   public void setGraphFieldName(String graphFieldName) {
     this.graphFieldName = graphFieldName;
   }
@@ -134,7 +136,9 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
     return baseFolder;
   }
 
-  /** @param baseFolder The baseFolder to set */
+  /**
+   * @param baseFolder The baseFolder to set
+   */
   public void setBaseFolder(String baseFolder) {
     this.baseFolder = baseFolder;
   }
@@ -148,7 +152,9 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
     return uniquenessStrategy;
   }
 
-  /** @param uniquenessStrategy The nodeUniquenessStrategy to set */
+  /**
+   * @param uniquenessStrategy The nodeUniquenessStrategy to set
+   */
   public void setUniquenessStrategy(UniquenessStrategy uniquenessStrategy) {
     this.uniquenessStrategy = uniquenessStrategy;
   }
@@ -162,7 +168,9 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
     return filesPrefix;
   }
 
-  /** @param filesPrefix The filesPrefix to set */
+  /**
+   * @param filesPrefix The filesPrefix to set
+   */
   public void setFilesPrefix(String filesPrefix) {
     this.filesPrefix = filesPrefix;
   }
@@ -176,7 +184,9 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
     return filenameField;
   }
 
-  /** @param filenameField The filenameField to set */
+  /**
+   * @param filenameField The filenameField to set
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
@@ -190,7 +200,9 @@ public class GenerateCsvMeta extends BaseTransformMeta<GenerateCsv, GenerateCsvD
     return fileTypeField;
   }
 
-  /** @param fileTypeField The fileTypeField to set */
+  /**
+   * @param fileTypeField The fileTypeField to set
+   */
   public void setFileTypeField(String fileTypeField) {
     this.fileTypeField = fileTypeField;
   }

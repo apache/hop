@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -38,8 +39,6 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 /**
  * This class takes care of deleting values in a table using a certain condition and values for
@@ -84,7 +83,9 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     this.connection = connection;
   }
 
-  /** @return Returns the commitSize. */
+  /**
+   * @return Returns the commitSize.
+   */
   public String getCommitSizeVar() {
     return commitSize;
   }
@@ -112,7 +113,9 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
     return Integer.parseInt(vs.resolve(commitSize));
   }
 
-  /** @param commitSize The commitSize to set. */
+  /**
+   * @param commitSize The commitSize to set.
+   */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
   }

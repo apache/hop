@@ -49,42 +49,58 @@ public class StringEvaluationResult {
             : conversionMeta.isDate() ? conversionMeta.getConversionMask() : "");
   }
 
-  /** @return the conversionMeta */
+  /**
+   * @return the conversionMeta
+   */
   public IValueMeta getConversionMeta() {
     return conversionMeta;
   }
 
-  /** @param conversionMeta the conversionMeta to set */
+  /**
+   * @param conversionMeta the conversionMeta to set
+   */
   public void setConversionMeta(IValueMeta conversionMeta) {
     this.conversionMeta = conversionMeta;
   }
 
-  /** @return the min */
+  /**
+   * @return the min
+   */
   public Object getMin() {
     return min;
   }
 
-  /** @param min the min to set */
+  /**
+   * @param min the min to set
+   */
   public void setMin(Object min) {
     this.min = min;
   }
 
-  /** @return the max */
+  /**
+   * @return the max
+   */
   public Object getMax() {
     return max;
   }
 
-  /** @param max the max to set */
+  /**
+   * @param max the max to set
+   */
   public void setMax(Object max) {
     this.max = max;
   }
 
-  /** @return The number of null values encountered */
+  /**
+   * @return The number of null values encountered
+   */
   public int getNrNull() {
     return nrNull;
   }
 
-  /** @param nrNull Set the number of null values to set */
+  /**
+   * @param nrNull Set the number of null values to set
+   */
   public void setNrNull(int nrNull) {
     this.nrNull = nrNull;
   }
@@ -104,22 +120,30 @@ public class StringEvaluationResult {
     nrFailures++;
   }
 
-  /** @return the nrSuccesses */
+  /**
+   * @return the nrSuccesses
+   */
   public int getNrSuccesses() {
     return nrSuccesses;
   }
 
-  /** @param nrSuccesses the nrSuccesses to set */
+  /**
+   * @param nrSuccesses the nrSuccesses to set
+   */
   public void setNrSuccesses(int nrSuccesses) {
     this.nrSuccesses = nrSuccesses;
   }
 
-  /** @return the nrFailures */
+  /**
+   * @return the nrFailures
+   */
   public int getNrFailures() {
     return nrFailures;
   }
 
-  /** @param nrFailures the nrFailures to set */
+  /**
+   * @param nrFailures the nrFailures to set
+   */
   public void setNrFailures(int nrFailures) {
     this.nrFailures = nrFailures;
   }

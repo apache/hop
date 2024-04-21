@@ -18,6 +18,9 @@
 package org.apache.hop.ui.core.dialog;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.function.Function;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -35,10 +38,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.function.Function;
 
 public class ErrorDialog extends Dialog {
   private static final Class<?> PKG = ErrorDialog.class; // For Translator

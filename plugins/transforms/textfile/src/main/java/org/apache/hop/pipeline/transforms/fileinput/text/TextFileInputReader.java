@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.CompressionProviderFactory;
@@ -31,9 +33,6 @@ import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputTransformControl;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
-
-import java.io.BufferedInputStream;
-import java.io.InputStreamReader;
 
 /** Reader for one text file. */
 public class TextFileInputReader implements IBaseFileInputReader {

@@ -17,6 +17,10 @@
 
 package org.apache.hop.projects.project;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
@@ -35,11 +39,6 @@ import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
-
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
 
 @ConfigPlugin(
     id = "ManageProjectsOptionPlugin",
@@ -424,7 +423,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return createProject;
   }
 
-  /** @param createProject The createProject to set */
+  /**
+   * @param createProject The createProject to set
+   */
   public void setCreateProject(boolean createProject) {
     this.createProject = createProject;
   }
@@ -438,7 +439,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectName;
   }
 
-  /** @param projectName The projectName to set */
+  /**
+   * @param projectName The projectName to set
+   */
   public void setProjectName(String projectName) {
     this.projectName = projectName;
   }
@@ -452,7 +455,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectHome;
   }
 
-  /** @param projectHome The projectHome to set */
+  /**
+   * @param projectHome The projectHome to set
+   */
   public void setProjectHome(String projectHome) {
     this.projectHome = projectHome;
   }
@@ -466,7 +471,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectConfigFile;
   }
 
-  /** @param projectConfigFile The projectConfigFile to set */
+  /**
+   * @param projectConfigFile The projectConfigFile to set
+   */
   public void setProjectConfigFile(String projectConfigFile) {
     this.projectConfigFile = projectConfigFile;
   }
@@ -480,7 +487,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectDescription;
   }
 
-  /** @param projectDescription The projectDescription to set */
+  /**
+   * @param projectDescription The projectDescription to set
+   */
   public void setProjectDescription(String projectDescription) {
     this.projectDescription = projectDescription;
   }
@@ -494,7 +503,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectCompany;
   }
 
-  /** @param projectCompany The projectCompany to set */
+  /**
+   * @param projectCompany The projectCompany to set
+   */
   public void setProjectCompany(String projectCompany) {
     this.projectCompany = projectCompany;
   }
@@ -508,7 +519,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectDepartment;
   }
 
-  /** @param projectDepartment The projectDepartment to set */
+  /**
+   * @param projectDepartment The projectDepartment to set
+   */
   public void setProjectDepartment(String projectDepartment) {
     this.projectDepartment = projectDepartment;
   }
@@ -522,7 +535,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectMetadataBaseFolder;
   }
 
-  /** @param projectMetadataBaseFolder The projectMetadataBaseFolder to set */
+  /**
+   * @param projectMetadataBaseFolder The projectMetadataBaseFolder to set
+   */
   public void setProjectMetadataBaseFolder(String projectMetadataBaseFolder) {
     this.projectMetadataBaseFolder = projectMetadataBaseFolder;
   }
@@ -536,7 +551,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectUnitTestsBasePath;
   }
 
-  /** @param projectUnitTestsBasePath The projectUnitTestsBasePath to set */
+  /**
+   * @param projectUnitTestsBasePath The projectUnitTestsBasePath to set
+   */
   public void setProjectUnitTestsBasePath(String projectUnitTestsBasePath) {
     this.projectUnitTestsBasePath = projectUnitTestsBasePath;
   }
@@ -550,7 +567,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectDataSetsCsvFolder;
   }
 
-  /** @param projectDataSetsCsvFolder The projectDataSetsCsvFolder to set */
+  /**
+   * @param projectDataSetsCsvFolder The projectDataSetsCsvFolder to set
+   */
   public void setProjectDataSetsCsvFolder(String projectDataSetsCsvFolder) {
     this.projectDataSetsCsvFolder = projectDataSetsCsvFolder;
   }
@@ -564,7 +583,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectEnforceExecutionInHome;
   }
 
-  /** @param projectEnforceExecutionInHome The projectEnforceExecutionInHome to set */
+  /**
+   * @param projectEnforceExecutionInHome The projectEnforceExecutionInHome to set
+   */
   public void setProjectEnforceExecutionInHome(String projectEnforceExecutionInHome) {
     this.projectEnforceExecutionInHome = projectEnforceExecutionInHome;
   }
@@ -578,7 +599,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectVariables;
   }
 
-  /** @param projectVariables The projectVariables to set */
+  /**
+   * @param projectVariables The projectVariables to set
+   */
   public void setProjectVariables(String[] projectVariables) {
     this.projectVariables = projectVariables;
   }
@@ -592,7 +615,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return modifyProject;
   }
 
-  /** @param modifyProject The modifyProject to set */
+  /**
+   * @param modifyProject The modifyProject to set
+   */
   public void setModifyProject(boolean modifyProject) {
     this.modifyProject = modifyProject;
   }
@@ -606,7 +631,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return deleteProject;
   }
 
-  /** @param deleteProject The deleteProject to set */
+  /**
+   * @param deleteProject The deleteProject to set
+   */
   public void setDeleteProject(boolean deleteProject) {
     this.deleteProject = deleteProject;
   }
@@ -620,7 +647,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return listProjects;
   }
 
-  /** @param listProjects The listProjects to set */
+  /**
+   * @param listProjects The listProjects to set
+   */
   public void setListProjects(boolean listProjects) {
     this.listProjects = listProjects;
   }
@@ -634,7 +663,9 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     return projectParent;
   }
 
-  /** @param projectParent The projectParent to set */
+  /**
+   * @param projectParent The projectParent to set
+   */
   public void setProjectParent(String projectParent) {
     this.projectParent = projectParent;
   }

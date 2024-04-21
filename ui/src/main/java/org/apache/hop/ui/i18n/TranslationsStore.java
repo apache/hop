@@ -17,10 +17,9 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.hop.core.logging.ILogChannel;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.logging.ILogChannel;
 
 /**
  * This class contains and handles all the translations for the keys specified in the Java source
@@ -79,7 +78,9 @@ public class TranslationsStore {
     bundleStore.addTranslation(sourceFolder, messagesPackage, locale, key, value);
   }
 
-  /** @return the list of changed messages stores. */
+  /**
+   * @return the list of changed messages stores.
+   */
   public List<BundleFile> getChangedBundleFiles() {
     return bundleStore.getChangedBundleFiles();
   }
@@ -102,22 +103,30 @@ public class TranslationsStore {
     return bundlesFiles.get(0);
   }
 
-  /** @return the localeList */
+  /**
+   * @return the localeList
+   */
   public List<String> getLocaleList() {
     return localeList;
   }
 
-  /** @param localeList the localeList to set */
+  /**
+   * @param localeList the localeList to set
+   */
   public void setLocaleList(List<String> localeList) {
     this.localeList = localeList;
   }
 
-  /** @return the mainLocale */
+  /**
+   * @return the mainLocale
+   */
   public String getMainLocale() {
     return mainLocale;
   }
 
-  /** @param mainLocale the mainLocale to set */
+  /**
+   * @param mainLocale the mainLocale to set
+   */
   public void setMainLocale(String mainLocale) {
     this.mainLocale = mainLocale;
   }
@@ -149,7 +158,9 @@ public class TranslationsStore {
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }

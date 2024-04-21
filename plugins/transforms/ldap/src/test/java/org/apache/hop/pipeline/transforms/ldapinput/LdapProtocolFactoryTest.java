@@ -16,13 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.Collections;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.Collections;
 
 public class LdapProtocolFactoryTest {
 

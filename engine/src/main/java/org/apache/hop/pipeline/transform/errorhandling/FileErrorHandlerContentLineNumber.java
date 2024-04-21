@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transform.errorhandling;
 
+import java.util.Date;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
-
-import java.util.Date;
 
 public class FileErrorHandlerContentLineNumber extends AbstractFileErrorHandler {
   private static final Class<?> PKG = FileErrorHandlerContentLineNumber.class; // For Translator

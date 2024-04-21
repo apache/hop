@@ -17,19 +17,6 @@
 
 package org.apache.hop.core.variables;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.plugins.HopURLClassLoader;
-import org.apache.hop.core.plugins.JarCache;
-import org.apache.hop.core.util.TranslateUtil;
-import org.apache.hop.core.xml.XmlHandler;
-import org.jboss.jandex.AnnotationInstance;
-import org.jboss.jandex.FieldInfo;
-import org.jboss.jandex.IndexView;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.MalformedURLException;
@@ -43,17 +30,27 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.HopURLClassLoader;
+import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.core.util.TranslateUtil;
+import org.apache.hop.core.xml.XmlHandler;
+import org.jboss.jandex.AnnotationInstance;
+import org.jboss.jandex.FieldInfo;
+import org.jboss.jandex.IndexView;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 
-/**
- * This singleton provides access to all the described variables in the Hop universe.
- */
+/** This singleton provides access to all the described variables in the Hop universe. */
 public class VariableRegistry {
 
   private static VariableRegistry instance;
-  
+
   private final Map<VariableScope, List<DescribedVariable>> variableScopes;
   private final List<String> deprecatedNames;
-  
+
   private VariableRegistry() {
     variableScopes = new EnumMap<>(VariableScope.class);
     variableScopes.put(VariableScope.SYSTEM, new ArrayList<>());
@@ -67,14 +64,14 @@ public class VariableRegistry {
   }
 
   /**
-   * Search described variables with the <code>@Variable<code> annotation 
-   * and detect deprecated variables with the <code>@Deprecated</code> annotation. 
+   * Search described variables with the <code>@Variable<code> annotation
+   * and detect deprecated variables with the <code>@Deprecated</code> annotation.
    */
   public static void init() throws HopException {
 
     instance = new VariableRegistry();
-    
-    // Search variable with the <code>@Variable<code> annotations    
+
+    // Search variable with the <code>@Variable<code> annotations
     try {
       JarCache cache = JarCache.getInstance();
 
@@ -90,37 +87,41 @@ public class VariableRegistry {
       for (File jarFile : cache.getPluginJars()) {
         IndexView index = cache.getIndex(jarFile);
         for (AnnotationInstance info : index.getAnnotations(Variable.class)) {
-            register(jarFile, info.target().asField());
+          register(jarFile, info.target().asField());
         }
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logDetailed("Unable to find variable definitions", e);
     }
   }
-  
+
   protected static void register(File jarFile, FieldInfo fieldInfo)
-      throws ClassNotFoundException, SecurityException, NoSuchFieldException, MalformedURLException {
-    URLClassLoader urlClassLoader =  createUrlClassLoader(jarFile.toURI().toURL(), FieldInfo.class.getClassLoader());
+      throws ClassNotFoundException,
+          SecurityException,
+          NoSuchFieldException,
+          MalformedURLException {
+    URLClassLoader urlClassLoader =
+        createUrlClassLoader(jarFile.toURI().toURL(), FieldInfo.class.getClassLoader());
     Class<?> clazz = urlClassLoader.loadClass(fieldInfo.declaringClass().name().toString());
     Field field = clazz.getDeclaredField(fieldInfo.name());
-    
+
     // Register described variable with annotation
     Variable variable = field.getAnnotation(Variable.class);
     String description = TranslateUtil.translate(variable.description(), clazz);
-    DescribedVariable describedVariable = new DescribedVariable(field.getName(), variable.value(), description);            
-    List<DescribedVariable> list = instance.variableScopes.get(variable.scope());    
-    if ( list!=null ) {
+    DescribedVariable describedVariable =
+        new DescribedVariable(field.getName(), variable.value(), description);
+    List<DescribedVariable> list = instance.variableScopes.get(variable.scope());
+    if (list != null) {
       list.add(describedVariable);
     }
-    
-    // Keep list of described variables with <code>@Deprecated</code> annotation 
+
+    // Keep list of described variables with <code>@Deprecated</code> annotation
     Deprecated deprecated = field.getAnnotation(Deprecated.class);
-    if ( deprecated!=null ) {
+    if (deprecated != null) {
       instance.deprecatedNames.add(field.getName());
     }
   }
-  
-  
+
   protected static URLClassLoader createUrlClassLoader(URL jarFileUrl, ClassLoader classLoader) {
     List<URL> urls = new ArrayList<>();
 
@@ -167,10 +168,7 @@ public class VariableRegistry {
       }
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
-          "Unexpected error searching for variable in file '"
-              + jarFileUrl
-              + "'",
-          e);
+          "Unexpected error searching for variable in file '" + jarFileUrl + "'", e);
     }
 
     urls.add(jarFileUrl);
@@ -207,7 +205,7 @@ public class VariableRegistry {
    * Gets described variable names in the specified scopes
    *
    * @return list of described variable names
-   */ 
+   */
   public Set<String> getVariableNames(final VariableScope... scopes) {
     Set<String> names = new TreeSet<>();
     for (VariableScope scope : scopes) {
@@ -217,7 +215,7 @@ public class VariableRegistry {
     }
     return names;
   }
-  
+
   /**
    * Gets all described variables
    *
@@ -226,14 +224,14 @@ public class VariableRegistry {
   public List<DescribedVariable> getDescribedVariables() {
     return getDescribedVariables(VariableScope.values());
   }
-  
+
   /**
    * Gets described variables in the specified scopes
    *
    * @return list of described variables
-   */ 
+   */
   public List<DescribedVariable> getDescribedVariables(final VariableScope... scopes) {
-    List<DescribedVariable> list = new ArrayList<>();    
+    List<DescribedVariable> list = new ArrayList<>();
     for (VariableScope scope : scopes) {
       for (DescribedVariable variable : variableScopes.get(scope)) {
         list.add(variable);
@@ -241,15 +239,13 @@ public class VariableRegistry {
     }
     return list;
   }
-  
+
   /**
    * Gets deprecated variable names.
-   * 
-   * Deprecated variables will be detected with the <code>@Deprecated</code> annotation.
    *
+   * <p>Deprecated variables will be detected with the <code>@Deprecated</code> annotation.
    */
   public List<String> getDeprecatedVariableNames() {
     return deprecatedNames;
   }
-  
 }

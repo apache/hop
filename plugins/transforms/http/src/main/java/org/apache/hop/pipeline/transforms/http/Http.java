@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -54,8 +54,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
-
-import com.google.common.annotations.VisibleForTesting;
 
 /** Retrieves data from an Http endpoint */
 public class Http extends BaseTransform<HttpMeta, HttpData> {

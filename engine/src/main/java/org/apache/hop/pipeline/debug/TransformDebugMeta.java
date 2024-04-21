@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.debug;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class is used to define debugging meta data for a certain transform. Basically it defines
@@ -60,22 +59,30 @@ public class TransformDebugMeta {
     this.transformMeta = transformMeta;
   }
 
-  /** @return the transformMeta */
+  /**
+   * @return the transformMeta
+   */
   public TransformMeta getTransformMeta() {
     return transformMeta;
   }
 
-  /** @param transformMeta the transformMeta to set */
+  /**
+   * @param transformMeta the transformMeta to set
+   */
   public void setTransformMeta(TransformMeta transformMeta) {
     this.transformMeta = transformMeta;
   }
 
-  /** @return the condition */
+  /**
+   * @return the condition
+   */
   public Condition getCondition() {
     return condition;
   }
 
-  /** @param condition the condition to set */
+  /**
+   * @param condition the condition to set
+   */
   public void setCondition(Condition condition) {
     this.condition = condition;
   }
@@ -106,62 +113,86 @@ public class TransformDebugMeta {
     numberOfHits++;
   }
 
-  /** @return the rowCount */
+  /**
+   * @return the rowCount
+   */
   public int getRowCount() {
     return rowCount;
   }
 
-  /** @param rowCount the rowCount to set */
+  /**
+   * @param rowCount the rowCount to set
+   */
   public void setRowCount(int rowCount) {
     this.rowCount = rowCount;
   }
 
-  /** @return the readingFirstRows */
+  /**
+   * @return the readingFirstRows
+   */
   public boolean isReadingFirstRows() {
     return readingFirstRows;
   }
 
-  /** @param readingFirstRows the readingFirstRows to set */
+  /**
+   * @param readingFirstRows the readingFirstRows to set
+   */
   public void setReadingFirstRows(boolean readingFirstRows) {
     this.readingFirstRows = readingFirstRows;
   }
 
-  /** @return the pausingOnBreakPoint */
+  /**
+   * @return the pausingOnBreakPoint
+   */
   public boolean isPausingOnBreakPoint() {
     return pausingOnBreakPoint;
   }
 
-  /** @param pausingOnBreakPoint the pausingOnBreakPoint to set */
+  /**
+   * @param pausingOnBreakPoint the pausingOnBreakPoint to set
+   */
   public void setPausingOnBreakPoint(boolean pausingOnBreakPoint) {
     this.pausingOnBreakPoint = pausingOnBreakPoint;
   }
 
-  /** @return the rowBufferMeta */
+  /**
+   * @return the rowBufferMeta
+   */
   public IRowMeta getRowBufferMeta() {
     return rowBufferMeta;
   }
 
-  /** @param rowBufferMeta the rowBufferMeta to set */
+  /**
+   * @param rowBufferMeta the rowBufferMeta to set
+   */
   public void setRowBufferMeta(IRowMeta rowBufferMeta) {
     this.rowBufferMeta = rowBufferMeta;
   }
 
-  /** @return the rowBuffer */
+  /**
+   * @return the rowBuffer
+   */
   public List<Object[]> getRowBuffer() {
     return rowBuffer;
   }
 
-  /** @param rowBuffer the rowBuffer to set */
+  /**
+   * @param rowBuffer the rowBuffer to set
+   */
   public void setRowBuffer(List<Object[]> rowBuffer) {
     this.rowBuffer = rowBuffer;
   }
 
-  /** @return the number of times the break-point listeners got called */
+  /**
+   * @return the number of times the break-point listeners got called
+   */
   public int getNumberOfHits() {
     return numberOfHits;
   }
 
-  /** @param numberOfHits the number of times the break-point listeners got called */
+  /**
+   * @param numberOfHits the number of times the break-point listeners got called
+   */
   public void setNumberOfHits(int numberOfHits) {
     this.numberOfHits = numberOfHits;
   }

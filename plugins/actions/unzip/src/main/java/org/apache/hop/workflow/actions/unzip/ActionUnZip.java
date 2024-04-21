@@ -17,6 +17,15 @@
 
 package org.apache.hop.workflow.actions.unzip;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -45,16 +54,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a 'unzip' action. Its main use would be to unzip files in a directory */
 @Action(
@@ -1179,7 +1178,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return typeIfFileExistsCode[i];
   }
 
-  /** @return Returns the iffileexist. */
+  /**
+   * @return Returns the iffileexist.
+   */
   public int getIfFileExist() {
     return iffileexist;
   }

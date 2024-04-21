@@ -32,8 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class StringToHopFn extends DoFn<String, HopRow> {
 
   private final String transformName;
@@ -48,10 +46,7 @@ public class StringToHopFn extends DoFn<String, HopRow> {
 
   private transient IRowMeta rowMeta;
 
-  public StringToHopFn(
-      String transformName,
-      String rowMetaJson,
-      String separator) {
+  public StringToHopFn(String transformName, String rowMetaJson, String separator) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.separator = separator;

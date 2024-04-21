@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
@@ -34,9 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /** Reads information from a database table by using freehand SQL */
 public class TableInput extends BaseTransform<TableInputMeta, TableInputData> {

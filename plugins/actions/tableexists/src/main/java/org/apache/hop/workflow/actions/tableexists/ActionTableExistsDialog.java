@@ -277,7 +277,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
             shell,
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
-            e);      
+            e);
       }
     }
   }

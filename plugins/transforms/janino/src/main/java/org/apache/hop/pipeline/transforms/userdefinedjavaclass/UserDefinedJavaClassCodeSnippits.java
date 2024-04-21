@@ -16,18 +16,17 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class UserDefinedJavaClassCodeSnippits {
   private static final Class<?> PKG = UserDefinedJavaClass.class; // For Translator

@@ -17,14 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.ini4j.Profile.Section;
-import org.ini4j.Wini;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.text.DateFormatSymbols;
@@ -36,6 +28,13 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.ini4j.Profile.Section;
+import org.ini4j.Wini;
 
 public class PropertyInputData extends BaseTransformData implements ITransformData {
   public String currentLine;

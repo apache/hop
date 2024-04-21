@@ -77,38 +77,37 @@ public class ActionTruncateTablesLoadSaveTest
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
 
     validators.put(
-        "items", new ListLoadSaveValidator<TruncateTableItem>(new TruncateTableItemLoadSaveValidator()));
+        "items",
+        new ListLoadSaveValidator<TruncateTableItem>(new TruncateTableItemLoadSaveValidator()));
 
     return validators;
   }
 
   public class TruncateTableItemLoadSaveValidator
-          implements IFieldLoadSaveValidator<TruncateTableItem> {
+      implements IFieldLoadSaveValidator<TruncateTableItem> {
     final Random rand = new Random();
 
     @Override
     public TruncateTableItem getTestObject() {
 
       TruncateTableItem field =
-              new TruncateTableItem(
-                      UUID.randomUUID().toString(),
-                      UUID.randomUUID().toString());
+          new TruncateTableItem(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
       return field;
     }
 
     @Override
     public boolean validateTestObject(TruncateTableItem testObject, Object actual) {
-      
+
       if (!(actual instanceof TruncateTableItem)) {
         return false;
       }
-      
+
       TruncateTableItem another = (TruncateTableItem) actual;
       return new EqualsBuilder()
-              .append(testObject.getSchemaName(), another.getSchemaName())
-              .append(testObject.getTableName(), another.getTableName())
-              .isEquals();
+          .append(testObject.getSchemaName(), another.getSchemaName())
+          .append(testObject.getTableName(), another.getTableName())
+          .isEquals();
     }
   }
 }

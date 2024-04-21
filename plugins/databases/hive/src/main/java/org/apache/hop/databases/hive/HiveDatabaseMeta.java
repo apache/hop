@@ -17,6 +17,8 @@
 
 package org.apache.hop.databases.hive;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -29,9 +31,6 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Contains MySQL specific information through static final members */
 @DatabaseMetaPlugin(
@@ -53,9 +52,8 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private String tablePartitions;
 
   /**
-   * We can generate the PARTITION clause here.
-   * We take the tablePartitions field and look for the table.
-   * In there we'll TABLE1(field1) which we'll turn into PARTITION(field1).
+   * We can generate the PARTITION clause here. We take the tablePartitions field and look for the
+   * table. In there we'll TABLE1(field1) which we'll turn into PARTITION(field1).
    *
    * @param schemaTable The schema-table name combination (Fully qualified table name) to generate
    *     the clause for.
@@ -73,7 +71,7 @@ public class HiveDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       if (tablePart.startsWith(prefix)) {
         // This is the part we want: PARTITION(field)
         //
-        return "PARTITION"+tablePart.substring(prefix.length()-1);
+        return "PARTITION" + tablePart.substring(prefix.length() - 1);
       }
     }
     return null;

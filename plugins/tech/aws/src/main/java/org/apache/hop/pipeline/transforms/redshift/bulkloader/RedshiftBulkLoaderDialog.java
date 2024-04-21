@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -74,13 +80,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG =
@@ -118,7 +117,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
   private static final String AWS_CREDENTIALS = "Credentials";
   private static final String AWS_IAM_ROLE = "IAM Role";
-  private String[] awsAuthOptions = new String[]{AWS_CREDENTIALS, AWS_IAM_ROLE};
+  private String[] awsAuthOptions = new String[] {AWS_CREDENTIALS, AWS_IAM_ROLE};
 
   private Label wlAwsAuthentication;
   private ComboVar wAwsAuthentication;
@@ -130,7 +129,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   private TextVar wSecretAccessKey;
   private Label wlAwsIamRole;
   private TextVar wAwsIamRole;
-
 
   /** List of ColumnInfo that should have the field names of the selected database table */
   private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
@@ -195,7 +193,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
-    fdlTransformName.top = new FormAttachment(0, margin*2);
+    fdlTransformName.top = new FormAttachment(0, margin * 2);
     wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
@@ -203,7 +201,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
-    fdTransformName.top = new FormAttachment(0, margin*2);
+    fdTransformName.top = new FormAttachment(0, margin * 2);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
@@ -275,14 +273,15 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         };
 
     wlAwsAuthentication = new Label(shell, SWT.RIGHT);
-    wlAwsAuthentication.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.Options.Label"));
+    wlAwsAuthentication.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.Options.Label"));
     PropsUi.setLook(wlAwsAuthentication);
     FormData fdlAwsAuthentication = new FormData();
     fdlAwsAuthentication.top = new FormAttachment(lastControl, margin);
     fdlAwsAuthentication.left = new FormAttachment(0, 0);
     fdlAwsAuthentication.right = new FormAttachment(middle, -margin);
     wlAwsAuthentication.setLayoutData(fdlAwsAuthentication);
-    wAwsAuthentication = new ComboVar(variables, shell, SWT.BORDER|SWT.READ_ONLY);
+    wAwsAuthentication = new ComboVar(variables, shell, SWT.BORDER | SWT.READ_ONLY);
     wAwsAuthentication.setItems(awsAuthOptions);
     wAwsAuthentication.setText(awsAuthOptions[0]);
     PropsUi.setLook(wAwsAuthentication);
@@ -295,7 +294,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     wlUseSystemVars = new Label(shell, SWT.RIGHT);
     wlUseSystemVars.setText("Use AWS system variables");
-    wlUseSystemVars.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
+    wlUseSystemVars.setToolTipText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
     PropsUi.setLook(wlUseSystemVars);
     FormData fdlUseSystemVars = new FormData();
     fdlUseSystemVars.top = new FormAttachment(lastControl, margin);
@@ -306,18 +306,19 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wUseSystemVars.setSelection(true);
     PropsUi.setLook(wUseSystemVars);
     FormData fdUseSystemVars = new FormData();
-    fdUseSystemVars.top = new FormAttachment(lastControl, margin*3);
+    fdUseSystemVars.top = new FormAttachment(lastControl, margin * 3);
     fdUseSystemVars.left = new FormAttachment(middle, 0);
     fdUseSystemVars.right = new FormAttachment(100, 0);
     wUseSystemVars.setLayoutData(fdUseSystemVars);
     lastControl = wlUseSystemVars;
 
-    wUseSystemVars.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        toggleKeysSelection();
-      }
-    });
+    wUseSystemVars.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleKeysSelection();
+          }
+        });
 
     wlAccessKeyId = new Label(shell, SWT.RIGHT);
     wlAccessKeyId.setText("AWS_ACCESS_KEY_ID");
@@ -340,7 +341,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wlSecretAccessKey.setText("AWS_SECRET_ACCESS_KEY");
     PropsUi.setLook(wlSecretAccessKey);
     FormData fdlSecretAccessKey = new FormData();
-    fdlSecretAccessKey.top = new FormAttachment(lastControl,margin);
+    fdlSecretAccessKey.top = new FormAttachment(lastControl, margin);
     fdlSecretAccessKey.left = new FormAttachment(0, 0);
     fdlSecretAccessKey.right = new FormAttachment(middle, -margin);
     wlSecretAccessKey.setLayoutData(fdlSecretAccessKey);
@@ -348,7 +349,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     PropsUi.setLook(wSecretAccessKey);
     FormData fdSecretAccessKey = new FormData();
     fdSecretAccessKey.top = new FormAttachment(lastControl, margin);
-    fdSecretAccessKey.left = new FormAttachment(middle,0);
+    fdSecretAccessKey.left = new FormAttachment(middle, 0);
     fdSecretAccessKey.right = new FormAttachment(100, 0);
     wSecretAccessKey.setLayoutData(fdSecretAccessKey);
     lastControl = wSecretAccessKey;
@@ -358,7 +359,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wAccessKeyId.setEnabled(false);
     wlSecretAccessKey.setEnabled(false);
     wSecretAccessKey.setEnabled(false);
-
 
     wlAwsIamRole = new Label(shell, SWT.RIGHT);
     wlAwsIamRole.setText("IAM Role");
@@ -381,12 +381,13 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wlAwsIamRole.setEnabled(false);
     wAwsIamRole.setEnabled(false);
 
-    wAwsAuthentication.addSelectionListener(new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        toggleAuthSelection();
-      }
-    });
+    wAwsAuthentication.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleAuthSelection();
+          }
+        });
 
     // Truncate table
     wlTruncate = new Label(shell, SWT.RIGHT);
@@ -400,7 +401,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wTruncate = new Button(shell, SWT.CHECK);
     PropsUi.setLook(wTruncate);
     FormData fdTruncate = new FormData();
-    fdTruncate.top = new FormAttachment(lastControl, margin*3);
+    fdTruncate.top = new FormAttachment(lastControl, margin * 3);
     fdTruncate.left = new FormAttachment(middle, 0);
     fdTruncate.right = new FormAttachment(100, 0);
     wTruncate.setLayoutData(fdTruncate);
@@ -436,7 +437,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.OnlyWhenHaveRows.Tooltip"));
     PropsUi.setLook(wOnlyWhenHaveRows);
     FormData fdTruncateWhenHaveRows = new FormData();
-    fdTruncateWhenHaveRows.top = new FormAttachment(lastControl, margin*3);
+    fdTruncateWhenHaveRows.top = new FormAttachment(lastControl, margin * 3);
     fdTruncateWhenHaveRows.left = new FormAttachment(middle, 0);
     fdTruncateWhenHaveRows.right = new FormAttachment(100, 0);
     wOnlyWhenHaveRows.setLayoutData(fdTruncateWhenHaveRows);
@@ -456,7 +457,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wSpecifyFields = new Button(shell, SWT.CHECK);
     PropsUi.setLook(wSpecifyFields);
     fdSpecifyFields = new FormData();
-    fdSpecifyFields.top = new FormAttachment(lastControl, margin*3);
+    fdSpecifyFields.top = new FormAttachment(lastControl, margin * 3);
     fdSpecifyFields.left = new FormAttachment(middle, 0);
     fdSpecifyFields.right = new FormAttachment(100, 0);
     wSpecifyFields.setLayoutData(fdSpecifyFields);
@@ -498,20 +499,23 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wMainComp.setLayoutData(fdMainComp);
 
     Label wlStreamToS3Csv = new Label(wMainComp, SWT.RIGHT);
-    wlStreamToS3Csv.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.Label"));
-    wlStreamToS3Csv.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
+    wlStreamToS3Csv.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.Label"));
+    wlStreamToS3Csv.setToolTipText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
     PropsUi.setLook(wlStreamToS3Csv);
     FormData fdlStreamToS3Csv = new FormData();
-    fdlStreamToS3Csv.top = new FormAttachment(0, margin*2);
+    fdlStreamToS3Csv.top = new FormAttachment(0, margin * 2);
     fdlStreamToS3Csv.left = new FormAttachment(0, 0);
     fdlStreamToS3Csv.right = new FormAttachment(middle, -margin);
     wlStreamToS3Csv.setLayoutData(fdlStreamToS3Csv);
 
     wStreamToS3Csv = new Button(wMainComp, SWT.CHECK);
-    wStreamToS3Csv.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
+    wStreamToS3Csv.setToolTipText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
     PropsUi.setLook(wStreamToS3Csv);
     FormData fdStreamToS3Csv = new FormData();
-    fdStreamToS3Csv.top = new FormAttachment(0, margin*4);
+    fdStreamToS3Csv.top = new FormAttachment(0, margin * 4);
     fdStreamToS3Csv.left = new FormAttachment(middle, 0);
     fdStreamToS3Csv.right = new FormAttachment(100, 0);
     wStreamToS3Csv.setLayoutData(fdStreamToS3Csv);
@@ -519,30 +523,32 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     lastControl = wlStreamToS3Csv;
 
     wStreamToS3Csv.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                if(wStreamToS3Csv.getSelection()){
-                  wLoadFromExistingFileFormat.setText("");
-                }
-                wLoadFromExistingFileFormat.setEnabled(!wStreamToS3Csv.getSelection());
-              }
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            if (wStreamToS3Csv.getSelection()) {
+              wLoadFromExistingFileFormat.setText("");
             }
-    );
+            wLoadFromExistingFileFormat.setEnabled(!wStreamToS3Csv.getSelection());
+          }
+        });
 
     Label wlLoadFromExistingFile = new Label(wMainComp, SWT.RIGHT);
-    wlLoadFromExistingFile.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Label"));
-    wlLoadFromExistingFile.setToolTipText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Tooltip"));
+    wlLoadFromExistingFile.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Label"));
+    wlLoadFromExistingFile.setToolTipText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Tooltip"));
     PropsUi.setLook(wlLoadFromExistingFile);
     FormData fdlLoadFromExistingFile = new FormData();
-    fdlLoadFromExistingFile.top = new FormAttachment(lastControl, margin*2);
+    fdlLoadFromExistingFile.top = new FormAttachment(lastControl, margin * 2);
     fdlLoadFromExistingFile.left = new FormAttachment(0, 0);
     fdlLoadFromExistingFile.right = new FormAttachment(middle, -margin);
     wlLoadFromExistingFile.setLayoutData(fdlLoadFromExistingFile);
 
-    wLoadFromExistingFileFormat = new ComboVar(variables, wMainComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+    wLoadFromExistingFileFormat =
+        new ComboVar(variables, wMainComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     FormData fdLoadFromExistingFile = new FormData();
-    fdLoadFromExistingFile.top = new FormAttachment(lastControl, margin*2);
+    fdLoadFromExistingFile.top = new FormAttachment(lastControl, margin * 2);
     fdLoadFromExistingFile.left = new FormAttachment(middle, 0);
     fdLoadFromExistingFile.right = new FormAttachment(100, 0);
     wLoadFromExistingFileFormat.setLayoutData(fdLoadFromExistingFile);
@@ -551,10 +557,11 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     lastControl = wLoadFromExistingFileFormat;
 
     Label wlCopyFromFile = new Label(wMainComp, SWT.RIGHT);
-    wlCopyFromFile.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.CopyFromFile.Label"));
+    wlCopyFromFile.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.CopyFromFile.Label"));
     PropsUi.setLook(wlCopyFromFile);
     FormData fdlCopyFromFile = new FormData();
-    fdlCopyFromFile.top = new FormAttachment(lastControl, margin*2);
+    fdlCopyFromFile.top = new FormAttachment(lastControl, margin * 2);
     fdlCopyFromFile.left = new FormAttachment(0, 0);
     fdlCopyFromFile.right = new FormAttachment(middle, -margin);
     wlCopyFromFile.setLayoutData(fdlCopyFromFile);
@@ -563,7 +570,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     PropsUi.setLook(wbCopyFromFile);
     wbCopyFromFile.setText(BaseMessages.getString("System.Button.Browse"));
     FormData fdbCopyFromFile = new FormData();
-    fdbCopyFromFile.top = new FormAttachment(lastControl, margin*2);
+    fdbCopyFromFile.top = new FormAttachment(lastControl, margin * 2);
     fdbCopyFromFile.right = new FormAttachment(100, 0);
     wbCopyFromFile.setLayoutData(fdbCopyFromFile);
 
@@ -574,7 +581,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wCopyFromFilename.getTextWidget().setMessage("s3://<FILENAME_IN_BUCKET>");
 
     FormData fdCopyFromFile = new FormData();
-    fdCopyFromFile.top = new FormAttachment(lastControl, margin*2);
+    fdCopyFromFile.top = new FormAttachment(lastControl, margin * 2);
     fdCopyFromFile.left = new FormAttachment(middle, 0);
     fdCopyFromFile.right = new FormAttachment(wbCopyFromFile, -margin);
     wCopyFromFilename.setLayoutData(fdCopyFromFile);
@@ -770,7 +777,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     // refresh data
     input.setTablename(variables.resolve(wTable.getText()));
     ITransformMeta transformMeta = this.transformMeta.getTransform();
-    if(StringUtils.isEmpty(input.getConnection())){
+    if (StringUtils.isEmpty(input.getConnection())) {
       input.setConnection(wConnection.getText());
     }
     try {
@@ -955,38 +962,38 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
   /** Copy information from the meta-data input to the dialog fields. */
   public void getData() {
-    if(!StringUtils.isEmpty(input.getConnection())) {
+    if (!StringUtils.isEmpty(input.getConnection())) {
       wConnection.setText(input.getConnection());
     }
-    if(!StringUtils.isEmpty(input.getSchemaName())) {
+    if (!StringUtils.isEmpty(input.getSchemaName())) {
       wSchema.setText(input.getSchemaName());
     }
-    if(!StringUtils.isEmpty(input.getTableName())) {
+    if (!StringUtils.isEmpty(input.getTableName())) {
       wTable.setText(input.getTableName());
     }
-    if(input.isUseCredentials()){
+    if (input.isUseCredentials()) {
       wAwsAuthentication.setText(awsAuthOptions[0]);
       wUseSystemVars.setSelection(input.isUseSystemEnvVars());
-      if(!input.isUseSystemEnvVars()){
-        if(!StringUtil.isEmpty(input.getAwsAccessKeyId())){
+      if (!input.isUseSystemEnvVars()) {
+        if (!StringUtil.isEmpty(input.getAwsAccessKeyId())) {
           wAccessKeyId.setText(input.getAwsAccessKeyId());
         }
-        if(!StringUtils.isEmpty(input.getAwsSecretAccessKey())){
+        if (!StringUtils.isEmpty(input.getAwsSecretAccessKey())) {
           wAccessKeyId.setText(input.getAwsSecretAccessKey());
         }
       }
-    }else if(input.isUseAwsIamRole()){
+    } else if (input.isUseAwsIamRole()) {
       wAwsAuthentication.setText(awsAuthOptions[1]);
-      if(!StringUtils.isEmpty(input.getAwsIamRole())){
+      if (!StringUtils.isEmpty(input.getAwsIamRole())) {
         wAwsIamRole.setText(input.getAwsIamRole());
       }
     }
 
     wStreamToS3Csv.setSelection(input.isStreamToS3Csv());
-    if(!StringUtils.isEmpty(input.getLoadFromExistingFileFormat())){
+    if (!StringUtils.isEmpty(input.getLoadFromExistingFileFormat())) {
       wLoadFromExistingFileFormat.setText(input.getLoadFromExistingFileFormat());
     }
-    if(!StringUtils.isEmpty(input.getCopyFromFilename())){
+    if (!StringUtils.isEmpty(input.getCopyFromFilename())) {
       wCopyFromFilename.setText(input.getCopyFromFilename());
     }
 
@@ -1018,43 +1025,43 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   }
 
   private void getInfo(RedshiftBulkLoaderMeta info) {
-    if(!StringUtils.isEmpty(wConnection.getText())){
+    if (!StringUtils.isEmpty(wConnection.getText())) {
       info.setConnection(wConnection.getText());
     }
-    if(!StringUtils.isEmpty(wSchema.getText())){
+    if (!StringUtils.isEmpty(wSchema.getText())) {
       info.setSchemaName(wSchema.getText());
     }
-    if(!StringUtils.isEmpty(wTable.getText())){
+    if (!StringUtils.isEmpty(wTable.getText())) {
       info.setTablename(wTable.getText());
     }
-    if(wAwsAuthentication.getText().equals(AWS_CREDENTIALS)){
+    if (wAwsAuthentication.getText().equals(AWS_CREDENTIALS)) {
       info.setUseCredentials(true);
       info.setUseAwsIamRole(false);
-      if(wUseSystemVars.getSelection()){
+      if (wUseSystemVars.getSelection()) {
         info.setUseSystemEnvVars(true);
-      }else{
+      } else {
         info.setUseSystemEnvVars(false);
-        if(!StringUtils.isEmpty(wAccessKeyId.getText())){
+        if (!StringUtils.isEmpty(wAccessKeyId.getText())) {
           info.setAwsAccessKeyId(wAccessKeyId.getText());
         }
-        if(!StringUtil.isEmpty(wSecretAccessKey.getText())){
+        if (!StringUtil.isEmpty(wSecretAccessKey.getText())) {
           info.setAwsSecretAccessKey(wSecretAccessKey.getText());
         }
       }
-    }else if(wAwsAuthentication.getText().equals(AWS_IAM_ROLE)){
+    } else if (wAwsAuthentication.getText().equals(AWS_IAM_ROLE)) {
       info.setUseCredentials(false);
       info.setUseAwsIamRole(true);
-      if(!StringUtils.isEmpty(wAwsIamRole.getText())){
+      if (!StringUtils.isEmpty(wAwsIamRole.getText())) {
         info.setAwsIamRole(wAwsIamRole.getText());
       }
     }
     info.setTruncateTable(wTruncate.getSelection());
     info.setOnlyWhenHaveRows(wOnlyWhenHaveRows.getSelection());
     info.setStreamToS3Csv(wStreamToS3Csv.getSelection());
-    if(!StringUtils.isEmpty(wLoadFromExistingFileFormat.getText())){
+    if (!StringUtils.isEmpty(wLoadFromExistingFileFormat.getText())) {
       info.setLoadFromExistingFileFormat(wLoadFromExistingFileFormat.getText());
     }
-    if(!StringUtils.isEmpty(wCopyFromFilename.getText())){
+    if (!StringUtils.isEmpty(wCopyFromFilename.getText())) {
       info.setCopyFromFilename(wCopyFromFilename.getText());
     }
 
@@ -1185,7 +1192,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-          mb.setMessage(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.NoSQL.DialogMessage"));
+          mb.setMessage(
+              BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.NoSQL.DialogMessage"));
           mb.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.NoSQL.DialogTitle"));
           mb.open();
         }
@@ -1209,8 +1217,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     return this.getClass().getName();
   }
 
-  public void toggleAuthSelection(){
-    if(wAwsAuthentication.getText().equals("Credentials")){
+  public void toggleAuthSelection() {
+    if (wAwsAuthentication.getText().equals("Credentials")) {
       wlUseSystemVars.setEnabled(true);
       wUseSystemVars.setEnabled(true);
       wlAccessKeyId.setEnabled(true);
@@ -1221,7 +1229,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
       wlAwsIamRole.setEnabled(false);
       wAwsIamRole.setEnabled(false);
     }
-    if(wAwsAuthentication.getText().equals("IAM Role")){
+    if (wAwsAuthentication.getText().equals("IAM Role")) {
       wlUseSystemVars.setEnabled(false);
       wUseSystemVars.setEnabled(false);
       wlAccessKeyId.setEnabled(false);
@@ -1234,13 +1242,13 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     }
   }
 
-  public void toggleKeysSelection(){
-    if(wUseSystemVars.getSelection()){
+  public void toggleKeysSelection() {
+    if (wUseSystemVars.getSelection()) {
       wlAccessKeyId.setEnabled(false);
       wAccessKeyId.setEnabled(false);
       wlSecretAccessKey.setEnabled(false);
       wSecretAccessKey.setEnabled(false);
-    }else{
+    } else {
       wlAccessKeyId.setEnabled(true);
       wAccessKeyId.setEnabled(true);
       wlSecretAccessKey.setEnabled(true);

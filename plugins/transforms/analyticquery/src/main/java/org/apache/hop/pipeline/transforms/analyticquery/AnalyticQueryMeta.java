@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -32,9 +34,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "AnalyticQuery",
@@ -160,7 +159,9 @@ public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, Analytic
     return groupFields;
   }
 
-  /** @param groupFields The groupFields to set */
+  /**
+   * @param groupFields The groupFields to set
+   */
   public void setGroupFields(List<GroupField> groupFields) {
     this.groupFields = groupFields;
   }
@@ -174,7 +175,9 @@ public class AnalyticQueryMeta extends BaseTransformMeta<AnalyticQuery, Analytic
     return queryFields;
   }
 
-  /** @param queryFields The queryFields to set */
+  /**
+   * @param queryFields The queryFields to set
+   */
   public void setQueryFields(List<QueryField> queryFields) {
     this.queryFields = queryFields;
   }

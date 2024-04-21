@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.transforms.window;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.transforms.windowing.AfterWatermark;
 import org.apache.beam.sdk.transforms.windowing.FixedWindows;
@@ -50,9 +52,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.joda.time.Duration;
-
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "BeamWindow",

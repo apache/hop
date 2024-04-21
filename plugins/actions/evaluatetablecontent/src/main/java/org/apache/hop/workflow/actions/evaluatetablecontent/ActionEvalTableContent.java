@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -41,9 +43,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** This defines a Table content evaluation action */
 @Action(
@@ -122,7 +121,9 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return je;
   }
 
-  /** @return the successCondition */
+  /**
+   * @return the successCondition
+   */
   public int getSuccessCondition() {
     return successCondition;
   }

@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.config;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.exception.HopException;
 
 public class ConfigNoFileSerializer implements IHopConfigSerializer {
   @Override

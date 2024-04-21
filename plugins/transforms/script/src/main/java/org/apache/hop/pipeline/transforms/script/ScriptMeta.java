@@ -195,8 +195,10 @@ public class ScriptMeta extends BaseTransformMeta<Script, ScriptData> implements
     @HopMetadataProperty private String type;
     @HopMetadataProperty private int length;
     @HopMetadataProperty private int precision;
+
     /** Replace the specified field. */
     @HopMetadataProperty private boolean replace;
+
     /** Does this field contain the result of the compiledScript evaluation? */
     @HopMetadataProperty private boolean scriptResult;
 

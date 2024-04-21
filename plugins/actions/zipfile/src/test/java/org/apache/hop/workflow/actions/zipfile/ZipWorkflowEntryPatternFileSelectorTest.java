@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.zipfile;
 
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -27,8 +28,6 @@ import org.apache.hop.core.util.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.regex.Pattern;
 
 public class ZipWorkflowEntryPatternFileSelectorTest {
 

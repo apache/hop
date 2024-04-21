@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.partition;
 
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -26,9 +28,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.metadata.MetadataManager;
-
-import java.util.Collections;
-import java.util.List;
 
 public class PartitionSettings {
 

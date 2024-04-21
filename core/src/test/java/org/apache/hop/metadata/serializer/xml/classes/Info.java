@@ -24,8 +24,7 @@ public class Info {
   @HopMetadataProperty private String a;
   @HopMetadataProperty private String b;
 
-  public Info() {
-  }
+  public Info() {}
 
   public Info(String a, String b) {
     this.a = a;

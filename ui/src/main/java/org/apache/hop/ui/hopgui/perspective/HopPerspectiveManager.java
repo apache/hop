@@ -17,11 +17,6 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-import org.apache.hop.core.file.IHasFilename;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.file.IHopFileType;
-import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -29,6 +24,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.apache.hop.core.file.IHasFilename;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 
 /**
  * This class helps the perspective plugins to keep track of their visualisation. The main principle

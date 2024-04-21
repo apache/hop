@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.Stack;
+import java.util.StringTokenizer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -49,9 +51,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.Stack;
-import java.util.StringTokenizer;
 
 /** This dialogs allows you to select a ordered number of items from a list of strings. */
 public class EnterOrderedListDialog extends Dialog {

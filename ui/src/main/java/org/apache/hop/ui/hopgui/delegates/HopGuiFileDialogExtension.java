@@ -17,9 +17,8 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import org.apache.hop.ui.core.dialog.IFileDialog;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.ui.core.dialog.IFileDialog;
 
 public class HopGuiFileDialogExtension {
   public AtomicBoolean doIt;
@@ -39,7 +38,9 @@ public class HopGuiFileDialogExtension {
     return doIt;
   }
 
-  /** @param doIt The doIt to set */
+  /**
+   * @param doIt The doIt to set
+   */
   public void setDoIt(AtomicBoolean doIt) {
     this.doIt = doIt;
   }
@@ -53,7 +54,9 @@ public class HopGuiFileDialogExtension {
     return fileDialog;
   }
 
-  /** @param fileDialog The fileDialog to set */
+  /**
+   * @param fileDialog The fileDialog to set
+   */
   public void setFileDialog(IFileDialog fileDialog) {
     this.fileDialog = fileDialog;
   }

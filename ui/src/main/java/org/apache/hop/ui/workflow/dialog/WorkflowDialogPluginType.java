@@ -17,11 +17,10 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-
-import java.util.Map;
 
 /** This plugin allows you to capture additional information concerning actions. */
 @PluginMainClassType(IWorkflowDialogPlugin.class)

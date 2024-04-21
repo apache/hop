@@ -17,6 +17,12 @@
 
 package org.apache.hop.neo4j.model.sw;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.neo4j.model.GraphModel;
@@ -28,13 +34,6 @@ import org.apache.hop.neo4j.model.GraphRelationship;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SolutionsWorkbenchImporter {
 

@@ -18,6 +18,7 @@
 
 package org.apache.hop.reflection.probe.gui;
 
+import java.util.List;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -44,8 +45,6 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
-
-import java.util.List;
 
 @GuiPlugin
 public class DataProbeGuiPlugin {

@@ -17,14 +17,14 @@
 
 package org.apache.hop.mongo.wrapper;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import org.apache.hop.core.logging.ILogChannel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 public class HopMongoUtilLoggerTest {
 

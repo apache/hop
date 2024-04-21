@@ -17,6 +17,8 @@
 
 package org.apache.hop.core.row;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -31,9 +33,6 @@ import org.apache.hop.core.row.value.ValueMetaSerializable;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 public class ValueMetaAndData {
   public static final String XML_TAG = "value";

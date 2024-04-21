@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -34,9 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class providing an output transform for writing data to a MongoDB collection. Supports insert,
@@ -315,7 +314,9 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     return mongoIndexes;
   }
 
-  /** @param r the number of retry attempts to make */
+  /**
+   * @param r the number of retry attempts to make
+   */
   public void setWriteRetries(String r) {
     writeRetries = r;
   }

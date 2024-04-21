@@ -17,15 +17,14 @@
 
 package org.apache.hop.metadata.serializer;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BaseMetadataProvider {
 
@@ -97,7 +96,9 @@ public class BaseMetadataProvider {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

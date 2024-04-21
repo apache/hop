@@ -39,12 +39,16 @@ public class TextExplorerFileType extends BaseTextExplorerFileType<TextExplorerF
     implements IExplorerFileType<TextExplorerFileTypeHandler> {
 
   public TextExplorerFileType() {
-    super("TXT File", ".txt", new String[] {"*.txt"}, new String[] {"TXT files"}, 
+    super(
+        "TXT File",
+        ".txt",
+        new String[] {"*.txt"},
+        new String[] {"TXT files"},
         FileTypeCapabilities.getCapabilities(
             IHopFileType.CAPABILITY_SAVE,
-            IHopFileType.CAPABILITY_CLOSE, 
+            IHopFileType.CAPABILITY_CLOSE,
             IHopFileType.CAPABILITY_FILE_HISTORY,
-            IHopFileType.CAPABILITY_COPY, 
+            IHopFileType.CAPABILITY_COPY,
             IHopFileType.CAPABILITY_SELECT));
   }
 

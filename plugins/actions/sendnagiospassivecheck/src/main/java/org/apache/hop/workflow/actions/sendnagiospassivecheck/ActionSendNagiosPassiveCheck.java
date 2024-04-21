@@ -24,6 +24,7 @@ import com.googlecode.jsendnsca.NagiosSettings;
 import com.googlecode.jsendnsca.builders.MessagePayloadBuilder;
 import com.googlecode.jsendnsca.builders.NagiosSettingsBuilder;
 import com.googlecode.jsendnsca.encryption.Encryption;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -44,8 +45,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** This defines an SendNagiosPassiveCheck action. */
 @Action(
@@ -262,42 +261,58 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     }
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   public String getServerName() {
     return serverName;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /** @return Returns the senderServerName. */
+  /**
+   * @return Returns the senderServerName.
+   */
   public String getSenderServerName() {
     return senderServerName;
   }
 
-  /** @param senderServerName The senderServerName to set. */
+  /**
+   * @param senderServerName The senderServerName to set.
+   */
   public void setSenderServerName(String senderServerName) {
     this.senderServerName = senderServerName;
   }
 
-  /** @return Returns the senderServiceName. */
+  /**
+   * @return Returns the senderServiceName.
+   */
   public String getSenderServiceName() {
     return senderServiceName;
   }
 
-  /** @param senderServiceName The senderServiceName to set. */
+  /**
+   * @param senderServiceName The senderServiceName to set.
+   */
   public void setSenderServiceName(String senderServiceName) {
     this.senderServiceName = senderServiceName;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
@@ -318,42 +333,58 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     this.level = levelMode;
   }
 
-  /** @param message The message to set. */
+  /**
+   * @param message The message to set.
+   */
   public void setMessage(String message) {
     this.message = message;
   }
 
-  /** @return Returns the comString. */
+  /**
+   * @return Returns the comString.
+   */
   public String getMessage() {
     return message;
   }
 
-  /** @return Returns the port. */
+  /**
+   * @return Returns the port.
+   */
   public String getPort() {
     return port;
   }
 
-  /** @param port The port to set. */
+  /**
+   * @param port The port to set.
+   */
   public void setPort(String port) {
     this.port = port;
   }
 
-  /** @param responseTimeOut The responseTimeOut to set. */
+  /**
+   * @param responseTimeOut The responseTimeOut to set.
+   */
   public void setResponseTimeOut(String responseTimeOut) {
     this.responseTimeOut = responseTimeOut;
   }
 
-  /** @return Returns the responseTimeOut. */
+  /**
+   * @return Returns the responseTimeOut.
+   */
   public String getResponseTimeOut() {
     return responseTimeOut;
   }
 
-  /** @param connectionTimeOut The connectionTimeOut to set. */
+  /**
+   * @param connectionTimeOut The connectionTimeOut to set.
+   */
   public void setConnectionTimeOut(String connectionTimeOut) {
     this.connectionTimeOut = connectionTimeOut;
   }
 
-  /** @return Returns the connectionTimeOut. */
+  /**
+   * @return Returns the connectionTimeOut.
+   */
   public String getConnectionTimeOut() {
     return connectionTimeOut;
   }

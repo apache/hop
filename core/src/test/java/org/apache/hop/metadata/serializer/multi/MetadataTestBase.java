@@ -18,6 +18,9 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import junit.framework.TestCase;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -30,10 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Ignore;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Ignore
 public class MetadataTestBase extends TestCase {

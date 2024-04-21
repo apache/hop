@@ -17,18 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-
 import java.io.Writer;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 public class JsonOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;

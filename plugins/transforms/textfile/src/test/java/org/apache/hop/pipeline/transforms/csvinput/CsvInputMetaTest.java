@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -32,13 +38,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
   TransformLoadSaveTester<CsvInputMeta> transformLoadSaveTester;
@@ -116,12 +115,7 @@ public class CsvInputMetaTest implements IInitializer<ITransformMeta> {
 
     transformLoadSaveTester =
         new TransformLoadSaveTester(
-            testMetaClass,
-                attributes,
-            getterMap,
-            setterMap,
-            attrValidatorMap,
-            typeValidatorMap);
+            testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap);
   }
 
   // Call the allocate method on the LoadSaveTester meta class

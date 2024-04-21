@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -35,8 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 @Transform(
     id = "SplitFieldToRows3",
     name = "i18n::SplitFieldToRows.Name",
@@ -45,7 +44,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SplitFieldToRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/splitfieldtorows.html")
-public class SplitFieldToRowsMeta extends BaseTransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
+public class SplitFieldToRowsMeta
+    extends BaseTransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // For Translator
 
   /** Field to split */
@@ -108,22 +108,30 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta<SplitFieldToRows, Sp
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the delimiter. */
+  /**
+   * @return Returns the delimiter.
+   */
   public String getDelimiter() {
     return delimiter;
   }
 
-  /** @param delimiter The delimiter to set. */
+  /**
+   * @param delimiter The delimiter to set.
+   */
   public void setDelimiter(String delimiter) {
     this.delimiter = delimiter;
   }
 
-  /** @return Returns the splitField. */
+  /**
+   * @return Returns the splitField.
+   */
   public String getSplitField() {
     return splitField;
   }
 
-  /** @param splitField The splitField to set. */
+  /**
+   * @param splitField The splitField to set.
+   */
   public void setSplitField(String splitField) {
     this.splitField = splitField;
   }
@@ -263,42 +271,58 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta<SplitFieldToRows, Sp
     }
   }
 
-  /** @return the newFieldname */
+  /**
+   * @return the newFieldname
+   */
   public String getNewFieldname() {
     return newFieldname;
   }
 
-  /** @param newFieldname the newFieldname to set */
+  /**
+   * @param newFieldname the newFieldname to set
+   */
   public void setNewFieldname(String newFieldname) {
     this.newFieldname = newFieldname;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }
 
-  /** @return Returns the resetRowNumber. */
+  /**
+   * @return Returns the resetRowNumber.
+   */
   public boolean isResetRowNumber() {
     return resetRowNumber;
   }
 
-  /** @param resetRowNumber The resetRowNumber to set. */
+  /**
+   * @param resetRowNumber The resetRowNumber to set.
+   */
   public void setResetRowNumber(boolean resetRowNumber) {
     this.resetRowNumber = resetRowNumber;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   public boolean isIncludeRowNumber() {
     return includeRowNumber;
   }

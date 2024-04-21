@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -33,10 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output
@@ -267,7 +266,7 @@ public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesDa
 
         // See if we need to add the row number to the row...
         if (meta.isIncludeRowNumber() && !Utils.isEmpty(meta.getRowNumberField())) {
-          extraData[outputIndex++] = Long.valueOf(data.rownr+1);
+          extraData[outputIndex++] = Long.valueOf(data.rownr + 1);
         }
 
         data.rownr++;

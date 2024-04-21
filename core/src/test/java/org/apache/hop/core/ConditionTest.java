@@ -17,6 +17,10 @@
 
 package org.apache.hop.core;
 
+import static org.apache.hop.core.Condition.Function;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.ValueMetaAndData;
@@ -29,10 +33,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static org.apache.hop.core.Condition.Function;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ConditionTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

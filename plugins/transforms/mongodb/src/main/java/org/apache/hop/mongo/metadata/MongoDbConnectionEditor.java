@@ -18,6 +18,7 @@
 
 package org.apache.hop.mongo.metadata;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
@@ -43,8 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     implements IMetadataEditor<MongoDbConnection> {

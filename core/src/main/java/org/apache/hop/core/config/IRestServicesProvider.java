@@ -21,8 +21,10 @@ package org.apache.hop.core.config;
 import java.util.Properties;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 
-/** This signals that the implementing class provides a Properties object.
- * It also needs to be able to handle metadata providers so that plugins can add/remove providers. */
+/**
+ * This signals that the implementing class provides a Properties object. It also needs to be able
+ * to handle metadata providers so that plugins can add/remove providers.
+ */
 public interface IRestServicesProvider {
   Properties getProperties();
 

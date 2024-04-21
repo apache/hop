@@ -165,7 +165,7 @@ public class StyledTextComp extends Composite {
   }
 
   @Override
-  public void setBackground(Color color) {    
+  public void setBackground(Color color) {
     super.setBackground(color);
     textWidget.setBackground(color);
   }
@@ -175,7 +175,7 @@ public class StyledTextComp extends Composite {
     super.setForeground(color);
     textWidget.setForeground(color);
   }
-  
+
   @Override
   public void setFont(Font fnt) {
     textWidget.setFont(fnt);
@@ -186,43 +186,50 @@ public class StyledTextComp extends Composite {
     final MenuItem cutItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
     cutItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Cut")));
-    cutItem.setImage(GuiResource.getInstance().getImage("ui/images/cut.svg",
-        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    cutItem.setImage(
+        GuiResource.getInstance()
+            .getImage("ui/images/cut.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     cutItem.addListener(SWT.Selection, e -> textWidget.cut());
 
     final MenuItem copyItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
     copyItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Copy")));
-    copyItem.setImage(GuiResource.getInstance().getImage("ui/images/copy.svg",
-        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    copyItem.setImage(
+        GuiResource.getInstance()
+            .getImage("ui/images/copy.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     copyItem.addListener(SWT.Selection, e -> textWidget.copy());
 
     final MenuItem pasteItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
     pasteItem.setText(
         OsHelper.customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.Paste")));
-    pasteItem.setImage(GuiResource.getInstance().getImage("ui/images/paste.svg",
-        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    pasteItem.setImage(
+        GuiResource.getInstance()
+            .getImage("ui/images/paste.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     pasteItem.addListener(SWT.Selection, e -> textWidget.paste());
 
     new MenuItem(styledTextPopupmenu, SWT.SEPARATOR);
 
     MenuItem selectAllItem = new MenuItem(styledTextPopupmenu, SWT.PUSH);
-    selectAllItem.setText(OsHelper
-        .customizeMenuitemText(BaseMessages.getString(PKG, "WidgetDialog.Styled.SelectAll")));
-    selectAllItem.setImage(GuiResource.getInstance().getImage("ui/images/select-all.svg",
-        ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    selectAllItem.setText(
+        OsHelper.customizeMenuitemText(
+            BaseMessages.getString(PKG, "WidgetDialog.Styled.SelectAll")));
+    selectAllItem.setImage(
+        GuiResource.getInstance()
+            .getImage(
+                "ui/images/select-all.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
     selectAllItem.addListener(SWT.Selection, e -> textWidget.selectAll());
 
-    textWidget.addMenuDetectListener(e -> {
-      pasteItem.setEnabled(checkPaste());
-      if (textWidget.getSelectionCount() > 0) {
-        cutItem.setEnabled(true);
-        copyItem.setEnabled(true);
-      } else {
-        cutItem.setEnabled(false);
-        copyItem.setEnabled(false);
-      }
-    });
+    textWidget.addMenuDetectListener(
+        e -> {
+          pasteItem.setEnabled(checkPaste());
+          if (textWidget.getSelectionCount() > 0) {
+            cutItem.setEnabled(true);
+            copyItem.setEnabled(true);
+          } else {
+            cutItem.setEnabled(false);
+            copyItem.setEnabled(false);
+          }
+        });
     textWidget.setMenu(styledTextPopupmenu);
   }
 
@@ -275,7 +282,9 @@ public class StyledTextComp extends Composite {
     }
   }
 
-  /** @return The caret line number, starting from 1. */
+  /**
+   * @return The caret line number, starting from 1.
+   */
   public int getLineNumber() {
     String text = textWidget.getText();
     if (StringUtils.isEmpty(text)) {
@@ -294,7 +303,9 @@ public class StyledTextComp extends Composite {
     return rowNumber;
   }
 
-  /** @return The caret column number, starting from 1. */
+  /**
+   * @return The caret column number, starting from 1.
+   */
   public int getColumnNumber() {
     String text = textWidget.getText();
     if (StringUtils.isEmpty(text)) {

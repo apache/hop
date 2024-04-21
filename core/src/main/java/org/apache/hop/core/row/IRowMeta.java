@@ -18,11 +18,6 @@
 package org.apache.hop.core.row;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopValueException;
-import org.w3c.dom.Node;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -30,6 +25,10 @@ import java.math.BigDecimal;
 import java.net.SocketTimeoutException;
 import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
+import org.w3c.dom.Node;
 
 /**
  * This interface provides methods to describe and manipulate a row&#39;s structure. The interface

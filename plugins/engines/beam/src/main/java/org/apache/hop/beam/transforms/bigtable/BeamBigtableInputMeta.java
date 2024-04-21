@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.transforms.bigtable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.gcp.bigtable.BigtableIO;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -42,10 +45,6 @@ import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "BeamBigtableInput",
@@ -178,7 +177,9 @@ public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
     return projectId;
   }
 
-  /** @param projectId The projectId to set */
+  /**
+   * @param projectId The projectId to set
+   */
   public void setProjectId(String projectId) {
     this.projectId = projectId;
   }
@@ -192,7 +193,9 @@ public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
     return instanceId;
   }
 
-  /** @param instanceId The datasetId to set */
+  /**
+   * @param instanceId The datasetId to set
+   */
   public void setInstanceId(String instanceId) {
     this.instanceId = instanceId;
   }
@@ -206,7 +209,9 @@ public class BeamBigtableInputMeta extends BaseTransformMeta<Dummy, DummyData>
     return tableId;
   }
 
-  /** @param tableId The tableId to set */
+  /**
+   * @param tableId The tableId to set
+   */
   public void setTableId(String tableId) {
     this.tableId = tableId;
   }

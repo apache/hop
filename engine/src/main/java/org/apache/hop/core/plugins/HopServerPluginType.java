@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.plugins;
 
+import java.util.Map;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.www.IHopServerPlugin;
-
-import java.util.Map;
 
 /** This class represents the carte plugin type. */
 @PluginMainClassType(IHopServerPlugin.class)

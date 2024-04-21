@@ -40,8 +40,13 @@ public class SvgExplorerFileType extends BaseExplorerFileType<SvgExplorerFileTyp
     implements IExplorerFileType<SvgExplorerFileTypeHandler> {
 
   public SvgExplorerFileType() {
-    super("SVG file", ".svg", new String[] {"*.svg"}, new String[] {"SVG Files"}, 
-        FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
+    super(
+        "SVG file",
+        ".svg",
+        new String[] {"*.svg"},
+        new String[] {"SVG Files"},
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
   }
 
   @Override

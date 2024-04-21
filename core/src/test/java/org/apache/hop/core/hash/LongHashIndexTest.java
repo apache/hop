@@ -17,12 +17,12 @@
 
 package org.apache.hop.core.hash;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.junit.Test;
-
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+
+import org.apache.hop.core.exception.HopValueException;
+import org.junit.Test;
 
 /** Test class for the basic functionality of LongHashIndex. */
 public class LongHashIndexTest {

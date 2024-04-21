@@ -22,7 +22,6 @@ import com.mongodb.ReadPreference;
 import com.mongodb.Tag;
 import com.mongodb.TagSet;
 import com.mongodb.TaggableReadPreference;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -18,6 +18,11 @@
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
@@ -26,12 +31,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class DorisBulkLoader extends BaseTransform<DorisBulkLoaderMeta, DorisBulkLoaderData> {
   private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator

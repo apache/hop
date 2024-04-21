@@ -17,11 +17,10 @@
 
 package org.apache.hop.laf;
 
-import org.apache.hop.i18n.IMessageHandler;
-import org.apache.hop.i18n.LafMessageHandler;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.hop.i18n.IMessageHandler;
+import org.apache.hop.i18n.LafMessageHandler;
 
 class RemoveAltKeyMessageHandler implements IMessageHandler {
   private final IMessageHandler defMessageHandler;
@@ -60,8 +59,8 @@ class RemoveAltKeyMessageHandler implements IMessageHandler {
     Matcher matcher = altKeyPattern.matcher(value);
     if (matcher.find()) {
       value = value.substring(0, matcher.start());
-      if (matcher.group(1) != null){
-          value += matcher.group(1);
+      if (matcher.group(1) != null) {
+        value += matcher.group(1);
       }
     }
     return value;

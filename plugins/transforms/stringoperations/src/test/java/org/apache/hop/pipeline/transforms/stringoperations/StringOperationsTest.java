@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import junit.framework.Assert;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
@@ -31,11 +36,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for StringOperations transform

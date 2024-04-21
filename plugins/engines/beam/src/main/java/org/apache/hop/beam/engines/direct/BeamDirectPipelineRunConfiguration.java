@@ -117,7 +117,9 @@ public class BeamDirectPipelineRunConfiguration extends BeamPipelineRunConfigura
     return numberOfWorkers;
   }
 
-  /** @param numberOfWorkers The numberOfWorkers to set */
+  /**
+   * @param numberOfWorkers The numberOfWorkers to set
+   */
   public void setNumberOfWorkers(String numberOfWorkers) {
     this.numberOfWorkers = numberOfWorkers;
   }

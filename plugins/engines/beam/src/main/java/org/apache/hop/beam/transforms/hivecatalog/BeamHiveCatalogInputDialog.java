@@ -94,7 +94,7 @@ public class BeamHiveCatalogInputDialog extends BaseTransformDialog implements I
     wTransformName.setLayoutData(fdTransformName);
     Control lastControl = wTransformName;
 
-    //metatore uri
+    // metatore uri
     Label wlMetastoreUri = new Label(shell, SWT.RIGHT);
     wlMetastoreUri.setText(BaseMessages.getString(PKG, "BeamHiveCatalogInputDialog.MetaStoreUri"));
     PropsUi.setLook(wlMetastoreUri);
@@ -112,9 +112,10 @@ public class BeamHiveCatalogInputDialog extends BaseTransformDialog implements I
     wMetastoreUri.setLayoutData(fdMetastoreUri);
     lastControl = wMetastoreUri;
 
-    //Database
+    // Database
     Label wlMetastoreDatabase = new Label(shell, SWT.RIGHT);
-    wlMetastoreDatabase.setText(BaseMessages.getString(PKG, "BeamHiveCatalogInputDialog.MetaStoreDatabase"));
+    wlMetastoreDatabase.setText(
+        BaseMessages.getString(PKG, "BeamHiveCatalogInputDialog.MetaStoreDatabase"));
     PropsUi.setLook(wlMetastoreDatabase);
     FormData fdlmetastoredatabase = new FormData();
     fdlmetastoredatabase.left = new FormAttachment(0, 0);
@@ -130,10 +131,10 @@ public class BeamHiveCatalogInputDialog extends BaseTransformDialog implements I
     wMetastoreDatabase.setLayoutData(fdMetastoreDatabase);
     lastControl = wMetastoreDatabase;
 
-
-    //Table
+    // Table
     Label wlMetastoreTable = new Label(shell, SWT.RIGHT);
-    wlMetastoreTable.setText(BaseMessages.getString(PKG, "BeamHiveCatalogInputDialog.MetaStoreTable"));
+    wlMetastoreTable.setText(
+        BaseMessages.getString(PKG, "BeamHiveCatalogInputDialog.MetaStoreTable"));
     PropsUi.setLook(wlMetastoreTable);
     FormData fdlmetastoreTable = new FormData();
     fdlmetastoreTable.left = new FormAttachment(0, 0);
@@ -165,9 +166,9 @@ public class BeamHiveCatalogInputDialog extends BaseTransformDialog implements I
 
   public void getData() {
     wTransformName.setText(transformName);
-    wMetastoreUri.setText(Const.NVL(input.getHiveMetastoreUris(),""));
-    wMetastoreDatabase.setText(Const.NVL(input.getHiveMetastoreDatabase(),""));
-    wMetastoreTable.setText(Const.NVL(input.getHiveMetastoreTable(),""));
+    wMetastoreUri.setText(Const.NVL(input.getHiveMetastoreUris(), ""));
+    wMetastoreDatabase.setText(Const.NVL(input.getHiveMetastoreDatabase(), ""));
+    wMetastoreTable.setText(Const.NVL(input.getHiveMetastoreTable(), ""));
   }
 
   private void ok() {

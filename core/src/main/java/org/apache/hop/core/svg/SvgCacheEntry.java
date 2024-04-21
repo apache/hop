@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.svg;
 
-import org.w3c.dom.svg.SVGDocument;
-
 import java.util.Objects;
+import org.w3c.dom.svg.SVGDocument;
 
 public class SvgCacheEntry {
 
@@ -66,7 +65,9 @@ public class SvgCacheEntry {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -80,7 +81,9 @@ public class SvgCacheEntry {
     return svgDocument;
   }
 
-  /** @param svgDocument The svgDocument to set */
+  /**
+   * @param svgDocument The svgDocument to set
+   */
   public void setSvgDocument(SVGDocument svgDocument) {
     this.svgDocument = svgDocument;
   }
@@ -94,7 +97,9 @@ public class SvgCacheEntry {
     return width;
   }
 
-  /** @param width The width to set */
+  /**
+   * @param width The width to set
+   */
   public void setWidth(float width) {
     this.width = width;
   }
@@ -108,7 +113,9 @@ public class SvgCacheEntry {
     return height;
   }
 
-  /** @param height The height to set */
+  /**
+   * @param height The height to set
+   */
   public void setHeight(float height) {
     this.height = height;
   }
@@ -122,7 +129,9 @@ public class SvgCacheEntry {
     return x;
   }
 
-  /** @param x The x to set */
+  /**
+   * @param x The x to set
+   */
   public void setX(int x) {
     this.x = x;
   }
@@ -136,7 +145,9 @@ public class SvgCacheEntry {
     return y;
   }
 
-  /** @param y The y to set */
+  /**
+   * @param y The y to set
+   */
   public void setY(int y) {
     this.y = y;
   }

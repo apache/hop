@@ -22,30 +22,41 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 public class ValueType {
 
   /** which types to display? */
-  @HopMetadataProperty(key = "name", injectionKey = "TYPE_NAME", injectionKeyDescription = "IfNull.Injection.TYPE_NAME")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "TYPE_NAME",
+      injectionKeyDescription = "IfNull.Injection.TYPE_NAME")
   private String name;
 
   /** by which value we replace */
-  @HopMetadataProperty(key = "value", injectionKey = "TYPE_REPLACE_VALUE", injectionKeyDescription = "IfNull.Injection.TYPE_REPLACE_VALUE")
+  @HopMetadataProperty(
+      key = "value",
+      injectionKey = "TYPE_REPLACE_VALUE",
+      injectionKeyDescription = "IfNull.Injection.TYPE_REPLACE_VALUE")
   private String value;
 
-  @HopMetadataProperty(key = "mask", injectionKey = "TYPE_REPLACE_MASK", injectionKeyDescription = "IfNull.Injection.TYPE_REPLACE_MASK")
+  @HopMetadataProperty(
+      key = "mask",
+      injectionKey = "TYPE_REPLACE_MASK",
+      injectionKeyDescription = "IfNull.Injection.TYPE_REPLACE_MASK")
   private String mask;
 
   /** Flag : set empty string for type */
-  @HopMetadataProperty(key = "set_type_empty_string", injectionKey = "SET_TYPE_EMPTY_STRING", injectionKeyDescription = "IfNull.Injection.SET_TYPE_EMPTY_STRING")
+  @HopMetadataProperty(
+      key = "set_type_empty_string",
+      injectionKey = "SET_TYPE_EMPTY_STRING",
+      injectionKeyDescription = "IfNull.Injection.SET_TYPE_EMPTY_STRING")
   private boolean setEmptyString;
 
-  public ValueType() {   
-  }
+  public ValueType() {}
 
   public ValueType(ValueType other) {
-      this.name = other.name;
-      this.value = other.value;
-      this.mask = other.mask;
-      this.setEmptyString = other.setEmptyString;
+    this.name = other.name;
+    this.value = other.value;
+    this.mask = other.mask;
+    this.setEmptyString = other.setEmptyString;
   }
-  
+
   public String getName() {
     return name;
   }

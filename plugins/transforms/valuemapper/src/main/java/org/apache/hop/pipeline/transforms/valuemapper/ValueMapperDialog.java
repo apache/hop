@@ -211,7 +211,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     colinf[1].setUsingVariables(true);
-    
+
     wFields =
         new TableView(
             variables,
@@ -320,7 +320,7 @@ public class ValueMapperDialog extends BaseTransformDialog implements ITransform
       v.setTarget(item.getText(2));
       input.getValues().add(v);
     }
-    
+
     dispose();
   }
 }

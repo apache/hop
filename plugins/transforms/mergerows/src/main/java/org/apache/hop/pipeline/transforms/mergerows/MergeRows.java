@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -30,9 +32,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Merge rows from 2 sorted streams to detect changes. Use this as feed for a dimension in case you
@@ -69,7 +68,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
       data.oneRowSet = findInputRowSet(infoStreams.get(0).getTransformName());
       // twoRowSet is the "Comparison" stream
       data.twoRowSet = findInputRowSet(infoStreams.get(1).getTransformName());
-      
+
       data.one = getRowFrom(data.oneRowSet);
       data.two = getRowFrom(data.twoRowSet);
 
@@ -173,7 +172,7 @@ public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> {
         int compareValues = data.oneRowSet.getRowMeta().compare(data.one, data.two, data.valueNrs);
         if (compareValues == 0) {
           outputRow = data.two; // documented behavior: use the comparison stream
-          outputIndex = data.twoRowSet.getRowMeta().size();          
+          outputIndex = data.twoRowSet.getRowMeta().size();
           flagField = VALUE_IDENTICAL;
         } else {
           // Return the compare (most recent) row

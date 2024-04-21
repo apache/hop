@@ -97,7 +97,7 @@ public class Hop implements IHasHopMetadataProvider, IRestServicesProvider {
         if (configFile.exists()) {
           try (InputStream inputStream = new FileInputStream(configFile)) {
             properties.load(inputStream);
-            log.logBasic("Configuration file " + configFileName+" was successfully loaded.");
+            log.logBasic("Configuration file " + configFileName + " was successfully loaded.");
           }
         } else {
           try (InputStream inputStream = getClass().getResourceAsStream("/hop-rest.properties")) {

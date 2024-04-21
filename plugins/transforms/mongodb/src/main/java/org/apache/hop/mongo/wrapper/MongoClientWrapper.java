@@ -20,11 +20,10 @@ package org.apache.hop.mongo.wrapper;
 import com.mongodb.DBObject;
 import com.mongodb.MongoCredential;
 import com.mongodb.ReplicaSetStatus;
-import org.apache.hop.mongo.MongoDbException;
-import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
-
 import java.util.List;
 import java.util.Set;
+import org.apache.hop.mongo.MongoDbException;
+import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 
 /**
  * Defines the wrapper interface for all interactions with a MongoClient. This interface for the
@@ -125,6 +124,8 @@ public interface MongoClientWrapper {
   <ReturnType> ReturnType perform(String db, MongoDBAction<ReturnType> action)
       throws MongoDbException;
 
-  /** @return the ReplicaSetStatus for the cluster. */
+  /**
+   * @return the ReplicaSetStatus for the cluster.
+   */
   ReplicaSetStatus getReplicaSetStatus();
 }

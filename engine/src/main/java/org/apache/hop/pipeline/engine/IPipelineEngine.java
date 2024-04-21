@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
@@ -37,10 +40,6 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Describes the capabilities of an execution engine for a certain type of object called the subject
@@ -94,7 +93,9 @@ public interface IPipelineEngine<T extends PipelineMeta>
    */
   void prepareExecution() throws HopException;
 
-  /** @return true if the engine is preparing execution */
+  /**
+   * @return true if the engine is preparing execution
+   */
   boolean isPreparing();
 
   /**
@@ -137,7 +138,9 @@ public interface IPipelineEngine<T extends PipelineMeta>
   void waitUntilFinished();
 
   /**
-   * This method is called when all the finished listeners are executed and when the pipeline has completed.
+   * This method is called when all the finished listeners are executed and when the pipeline has
+   * completed.
+   *
    * @throws HopException
    */
   void pipelineCompleted() throws HopException;
@@ -172,7 +175,9 @@ public interface IPipelineEngine<T extends PipelineMeta>
   /** Resume the execution (all components). */
   void resumeExecution();
 
-  /** @return a number larger than 0 in case of errors */
+  /**
+   * @return a number larger than 0 in case of errors
+   */
   int getErrors();
 
   /**
@@ -326,7 +331,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @param preview
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   void setPreview(boolean preview);
 
   /**
@@ -334,7 +339,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   boolean isPreview();
 
   /**
@@ -396,7 +401,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return True if feedback needs to be given
    */
-  @Deprecated(since="2.0") // TODO: move this to the run configuration API
+  @Deprecated(since = "2.0") // TODO: move this to the run configuration API
   boolean isFeedbackShown();
 
   /**
@@ -404,7 +409,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return The feedback size in rows
    */
-  @Deprecated(since="2.0") // TODO: move the run configuration API
+  @Deprecated(since = "2.0") // TODO: move the run configuration API
   int getFeedbackSize();
 
   /**
@@ -414,10 +419,14 @@ public interface IPipelineEngine<T extends PipelineMeta>
    */
   Result getPreviousResult();
 
-  /** @return The start date of the pipeline execution */
+  /**
+   * @return The start date of the pipeline execution
+   */
   Date getExecutionStartDate();
 
-  /** @return The end date of the pipeline preparation */
+  /**
+   * @return The end date of the pipeline preparation
+   */
   Date getExecutionEndDate();
 
   /**
@@ -487,12 +496,13 @@ public interface IPipelineEngine<T extends PipelineMeta>
   Map<String, Object> getExtensionDataMap();
 
   /**
-   * Plugins can add individual data samplers which will act upon the rows passing through the transforms
-   * in the pipeline.  The execution information collected at this level will be sent to the execution
-   * information location if any is defined in the run configuration used to execute this pipeline.
+   * Plugins can add individual data samplers which will act upon the rows passing through the
+   * transforms in the pipeline. The execution information collected at this level will be sent to
+   * the execution information location if any is defined in the run configuration used to execute
+   * this pipeline.
    *
    * @param sampler The sampler to use
    */
   <Store extends IExecutionDataSamplerStore, Sampler extends IExecutionDataSampler<Store>>
-    void addExecutionDataSampler(Sampler sampler) throws HopException;
+      void addExecutionDataSampler(Sampler sampler) throws HopException;
 }

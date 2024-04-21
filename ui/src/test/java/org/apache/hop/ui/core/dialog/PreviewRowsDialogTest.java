@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.Collections;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -30,8 +31,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.Collections;
 
 public class PreviewRowsDialogTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

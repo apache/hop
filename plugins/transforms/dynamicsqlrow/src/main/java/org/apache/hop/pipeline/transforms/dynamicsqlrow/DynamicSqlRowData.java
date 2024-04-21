@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 
+import java.util.ArrayList;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.ArrayList;
 
 public class DynamicSqlRowData extends BaseTransformData implements ITransformData {
   IRowMeta outputRowMeta;

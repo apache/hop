@@ -48,6 +48,7 @@ public class HopBeamUtil {
 
   /**
    * Create a copy but don't over allocate objects in the target row.
+   *
    * @param hopRow
    * @param rowMeta
    * @return

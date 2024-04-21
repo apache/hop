@@ -17,10 +17,9 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.LinkedList;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.row.IRowMeta;
 
 /**
  * A simplified rowset for transforms for single threaded execution. This row set has no limited

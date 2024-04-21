@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.FileTypeSelector;
 import org.apache.hop.core.exception.HopException;
@@ -275,7 +274,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       // We don't load the logging for performance and to avoid an infinite loop.
       //
       ExecutionState state = getExecutionState(executionId, false);
-      if (state==null) {
+      if (state == null) {
         return null;
       }
       return getExecutionStateLoggingText(state, sizeLimit);

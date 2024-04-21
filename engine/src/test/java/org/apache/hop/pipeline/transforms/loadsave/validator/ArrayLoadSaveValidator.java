@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.lang.reflect.Array;
 import java.util.Random;
+import org.apache.hop.core.exception.HopException;
 
 public class ArrayLoadSaveValidator<ObjectType> implements IFieldLoadSaveValidator<ObjectType[]> {
   private final IFieldLoadSaveValidator<ObjectType> validator;

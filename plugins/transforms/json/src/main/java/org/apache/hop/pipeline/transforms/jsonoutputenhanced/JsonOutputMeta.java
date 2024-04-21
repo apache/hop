@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,8 +39,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "EnhancedJsonOutput",
@@ -357,9 +356,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
               .equalsIgnoreCase(
                   XmlHandler.getTagValue(transformnode, "use_arrays_with_single_instance"));
       useSingleItemPerGroup =
-          "Y"
-              .equalsIgnoreCase(
-                  XmlHandler.getTagValue(transformnode, "use_single_item_per_group"));
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "use_single_item_per_group"));
       jsonPrittified =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformnode, "json_prittified"));
 
@@ -504,9 +501,8 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
         .append(
             XmlHandler.addTagValue("use_arrays_with_single_instance", useArrayWithSingleInstance));
     retval
-    .append("    ")
-    .append(
-        XmlHandler.addTagValue("use_single_item_per_group", useSingleItemPerGroup));
+        .append("    ")
+        .append(XmlHandler.addTagValue("use_single_item_per_group", useSingleItemPerGroup));
     retval.append("    ").append(XmlHandler.addTagValue("json_prittified", jsonPrittified));
     retval.append("    ").append(XmlHandler.addTagValue("encoding", encoding));
     retval.append("    ").append(XmlHandler.addTagValue("addtoresult", addToResult));

@@ -35,7 +35,7 @@ public class JsonOutputField implements Cloneable {
 
   @Injection(name = "JSON_REMOVEIFBLANK", group = "FIELDS")
   private boolean removeIfBlank;
-  
+
   public boolean isKeyField;
 
   public boolean isJSONFragment() {

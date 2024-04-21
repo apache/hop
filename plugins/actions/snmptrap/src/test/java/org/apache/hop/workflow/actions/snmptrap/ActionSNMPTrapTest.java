@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.snmptrap;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -28,8 +30,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ActionSNMPTrapTest {
 
@@ -58,8 +58,8 @@ public class ActionSNMPTrapTest {
     HopClientEnvironment.init();
 
     ActionSNMPTrap action =
-            ActionSerializationTestUtil. testSerialization(
-                    "/snmp-trap-action.xml", ActionSNMPTrap.class);
+        ActionSerializationTestUtil.testSerialization(
+            "/snmp-trap-action.xml", ActionSNMPTrap.class);
 
     assertEquals("awesomeserver", action.getServerName());
     assertEquals("5000", action.getTimeout());

@@ -18,15 +18,14 @@
 package org.apache.hop.www;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HopServerStatus {
   public static final String XML_TAG = "serverstatus";
@@ -164,32 +163,44 @@ public class HopServerStatus {
     return new HopServerStatus(XmlHandler.getSubNode(document, XML_TAG));
   }
 
-  /** @return the statusDescription */
+  /**
+   * @return the statusDescription
+   */
   public String getStatusDescription() {
     return statusDescription;
   }
 
-  /** @param statusDescription the statusDescription to set */
+  /**
+   * @param statusDescription the statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /** @return the pipelineStatusList */
+  /**
+   * @return the pipelineStatusList
+   */
   public List<HopServerPipelineStatus> getPipelineStatusList() {
     return pipelineStatusList;
   }
 
-  /** @param pipelineStatusList the pipelineStatusList to set */
+  /**
+   * @param pipelineStatusList the pipelineStatusList to set
+   */
   public void setPipelineStatusList(List<HopServerPipelineStatus> pipelineStatusList) {
     this.pipelineStatusList = pipelineStatusList;
   }
 
-  /** @return the errorDescription */
+  /**
+   * @return the errorDescription
+   */
   public String getErrorDescription() {
     return errorDescription;
   }
 
-  /** @param errorDescription the errorDescription to set */
+  /**
+   * @param errorDescription the errorDescription to set
+   */
   public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
   }
@@ -216,52 +227,72 @@ public class HopServerStatus {
     return null;
   }
 
-  /** @return the jobStatusList */
+  /**
+   * @return the jobStatusList
+   */
   public List<HopServerWorkflowStatus> getWorkflowStatusList() {
     return workflowStatusList;
   }
 
-  /** @param workflowStatusList the jobStatusList to set */
+  /**
+   * @param workflowStatusList the jobStatusList to set
+   */
   public void setWorkflowStatusList(List<HopServerWorkflowStatus> workflowStatusList) {
     this.workflowStatusList = workflowStatusList;
   }
 
-  /** @return the memoryFree */
+  /**
+   * @return the memoryFree
+   */
   public double getMemoryFree() {
     return memoryFree;
   }
 
-  /** @param memoryFree the memoryFree to set */
+  /**
+   * @param memoryFree the memoryFree to set
+   */
   public void setMemoryFree(long memoryFree) {
     this.memoryFree = memoryFree;
   }
 
-  /** @return the memoryTotal */
+  /**
+   * @return the memoryTotal
+   */
   public double getMemoryTotal() {
     return memoryTotal;
   }
 
-  /** @param memoryTotal the memoryTotal to set */
+  /**
+   * @param memoryTotal the memoryTotal to set
+   */
   public void setMemoryTotal(long memoryTotal) {
     this.memoryTotal = memoryTotal;
   }
 
-  /** @return the cpuCores */
+  /**
+   * @return the cpuCores
+   */
   public int getCpuCores() {
     return cpuCores;
   }
 
-  /** @param cpuCores the cpuCores to set */
+  /**
+   * @param cpuCores the cpuCores to set
+   */
   public void setCpuCores(int cpuCores) {
     this.cpuCores = cpuCores;
   }
 
-  /** @return the cpuProcessTime */
+  /**
+   * @return the cpuProcessTime
+   */
   public long getCpuProcessTime() {
     return cpuProcessTime;
   }
 
-  /** @param cpuProcessTime the cpuProcessTime to set */
+  /**
+   * @param cpuProcessTime the cpuProcessTime to set
+   */
   public void setCpuProcessTime(long cpuProcessTime) {
     this.cpuProcessTime = cpuProcessTime;
   }

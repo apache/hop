@@ -17,15 +17,14 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * Methods in this class are referenced in validator definitions within the validator resources file

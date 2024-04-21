@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -40,11 +44,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class HopGuiWorkflowClipboardDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
@@ -94,7 +93,7 @@ public class HopGuiWorkflowClipboardDelegate {
       // De-select all, re-select pasted transforms...
       workflowMeta.unselectAll();
 
-      Node actionsNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_ACTIONS);      
+      Node actionsNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_ACTIONS);
       int nr = XmlHandler.countNodes(actionsNode, ActionMeta.XML_TAG);
       ActionMeta[] actions = new ActionMeta[nr];
       ArrayList<String> actionsOldNames = new ArrayList<>(nr);
@@ -141,7 +140,7 @@ public class HopGuiWorkflowClipboardDelegate {
           }
         }
       }
-      
+
       // Load the hops...
       Node hopsNode = XmlHandler.getSubNode(workflowNode, WorkflowMeta.XML_TAG_HOPS);
       nr = XmlHandler.countNodes(hopsNode, WorkflowHopMeta.XML_HOP_TAG);
@@ -256,7 +255,7 @@ public class HopGuiWorkflowClipboardDelegate {
         // Add a notepad
         //
         shiftLocation(location);
-        
+
         NotePadMeta notePadMeta =
             new NotePadMeta(
                 clipboardContent,
@@ -269,7 +268,6 @@ public class HopGuiWorkflowClipboardDelegate {
             workflowMeta,
             new NotePadMeta[] {notePadMeta},
             new int[] {workflowMeta.indexOfNote(notePadMeta)});
-
       }
 
     } catch (Exception e) {
@@ -300,7 +298,7 @@ public class HopGuiWorkflowClipboardDelegate {
 
   public void copySelected(
       WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes) {
-    if (actions == null || actions.size()+notes.size() == 0) {
+    if (actions == null || actions.size() + notes.size() == 0) {
       return;
     }
 

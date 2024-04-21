@@ -17,6 +17,13 @@
 
 package org.apache.hop.workflow;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -61,14 +68,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The definition of a Hop workflow is represented by a WorkflowMeta object. It is typically loaded
@@ -123,13 +122,13 @@ public class WorkflowMeta extends AbstractMeta
 
   /** A constant specifying the tag value for the XML node of the actions. */
   public static final String XML_TAG_ACTIONS = "actions";
-  
+
   /** A constant specifying the tag value for the XML node of the notes. */
   public static final String XML_TAG_NOTEPADS = "notepads";
-  
+
   /** A constant specifying the tag value for the XML node of the hops. */
   public static final String XML_TAG_HOPS = "hops";
-  
+
   /** A constant specifying the tag value for the XML node of the workflow parameters. */
   protected static final String XML_TAG_PARAMETERS = "parameters";
 
@@ -356,10 +355,13 @@ public class WorkflowMeta extends AbstractMeta
         .append(
             XmlHandler.addTagValue("name", getName())); // lossy if name is sync'ed with filename
     xml.append("  ")
-        .append(XmlHandler.addTagValue("name_sync_with_filename", info.isNameSynchronizedWithFilename()));
+        .append(
+            XmlHandler.addTagValue(
+                "name_sync_with_filename", info.isNameSynchronizedWithFilename()));
 
     xml.append("  ").append(XmlHandler.addTagValue("description", info.getDescription()));
-    xml.append("  ").append(XmlHandler.addTagValue("extended_description", info.getExtendedDescription()));
+    xml.append("  ")
+        .append(XmlHandler.addTagValue("extended_description", info.getExtendedDescription()));
     xml.append("  ").append(XmlHandler.addTagValue("workflow_version", workflowVersion));
     if (workflowStatus >= 0) {
       xml.append("  ").append(XmlHandler.addTagValue("workflow_status", workflowStatus));
@@ -367,10 +369,13 @@ public class WorkflowMeta extends AbstractMeta
 
     xml.append("  ").append(XmlHandler.addTagValue("created_user", info.getCreatedUser()));
     xml.append("  ")
-        .append(XmlHandler.addTagValue("created_date", XmlHandler.date2string(info.getCreatedDate())));
+        .append(
+            XmlHandler.addTagValue("created_date", XmlHandler.date2string(info.getCreatedDate())));
     xml.append("  ").append(XmlHandler.addTagValue("modified_user", info.getModifiedUser()));
     xml.append("  ")
-        .append(XmlHandler.addTagValue("modified_date", XmlHandler.date2string(info.getModifiedDate())));
+        .append(
+            XmlHandler.addTagValue(
+                "modified_date", XmlHandler.date2string(info.getModifiedDate())));
 
     xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
     String[] parameters = listParameters();
@@ -537,10 +542,10 @@ public class WorkflowMeta extends AbstractMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(workflowNode, "name_sync_with_filename")));
 
       // description
-      info.setDescription( XmlHandler.getTagValue(workflowNode, "description"));
+      info.setDescription(XmlHandler.getTagValue(workflowNode, "description"));
 
       // extended description
-      info.setExtendedDescription( XmlHandler.getTagValue(workflowNode, "extended_description"));
+      info.setExtendedDescription(XmlHandler.getTagValue(workflowNode, "extended_description"));
 
       // workflow version
       workflowVersion = XmlHandler.getTagValue(workflowNode, "workflow_version");
@@ -549,7 +554,7 @@ public class WorkflowMeta extends AbstractMeta
       workflowStatus = Const.toInt(XmlHandler.getTagValue(workflowNode, "workflow_status"), -1);
 
       // Created user/date
-      info.setCreatedUser( XmlHandler.getTagValue(workflowNode, "created_user"));
+      info.setCreatedUser(XmlHandler.getTagValue(workflowNode, "created_user"));
       String createDate = XmlHandler.getTagValue(workflowNode, "created_date");
 
       if (createDate != null) {
@@ -2046,6 +2051,7 @@ public class WorkflowMeta extends AbstractMeta
     return extractNameFromFilename(
         isNameSynchronizedWithFilename(), info.getName(), filename, getExtension());
   }
+
   /**
    * Set the name.
    *

@@ -103,6 +103,7 @@ public abstract class HopGuiAbstractGraph extends DragViewZoomBase
   }
 
   public abstract boolean hasChanged();
+
   public abstract void setChanged();
 
   @Override

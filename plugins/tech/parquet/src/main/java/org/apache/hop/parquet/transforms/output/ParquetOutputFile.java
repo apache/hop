@@ -17,10 +17,9 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.io.OutputStream;
 import org.apache.parquet.io.OutputFile;
 import org.apache.parquet.io.PositionOutputStream;
-
-import java.io.OutputStream;
 
 public class ParquetOutputFile implements OutputFile {
 

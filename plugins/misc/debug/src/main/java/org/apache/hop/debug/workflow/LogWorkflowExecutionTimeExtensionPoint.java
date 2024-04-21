@@ -17,6 +17,7 @@
 
 package org.apache.hop.debug.workflow;
 
+import java.util.Date;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -26,8 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.Date;
 
 @ExtensionPoint(
     id = "LogWorkflowExecutionTimeExtensionPoint",

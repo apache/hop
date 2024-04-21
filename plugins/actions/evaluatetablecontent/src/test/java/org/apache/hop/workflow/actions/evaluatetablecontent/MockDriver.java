@@ -17,7 +17,10 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
-import org.mockito.stubbing.Answer;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -32,11 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
-
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.mockito.stubbing.Answer;
 
 public class MockDriver implements Driver {
   private static final List<MockDriver> drivers = new ArrayList<>();

@@ -47,7 +47,9 @@ public class AuditEvent {
     return group;
   }
 
-  /** @param group The group to set */
+  /**
+   * @param group The group to set
+   */
   public void setGroup(String group) {
     this.group = group;
   }
@@ -61,7 +63,9 @@ public class AuditEvent {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -75,7 +79,9 @@ public class AuditEvent {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -89,7 +95,9 @@ public class AuditEvent {
     return operation;
   }
 
-  /** @param operation The operation to set */
+  /**
+   * @param operation The operation to set
+   */
   public void setOperation(String operation) {
     this.operation = operation;
   }
@@ -103,7 +111,9 @@ public class AuditEvent {
     return date;
   }
 
-  /** @param date The date to set */
+  /**
+   * @param date The date to set
+   */
   public void setDate(Date date) {
     this.date = date;
   }

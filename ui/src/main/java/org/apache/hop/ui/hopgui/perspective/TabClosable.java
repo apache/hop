@@ -17,63 +17,54 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public interface TabClosable {
 
-    /**
-     * Close the tab on the perspective
-     */
-    void closeTab(CTabFolderEvent event, CTabItem tabItem);
+  /** Close the tab on the perspective */
+  void closeTab(CTabFolderEvent event, CTabItem tabItem);
 
-    /**
-     * Get all the tabs on the right-hand side of the selected one
-     */
-    default List<CTabItem> getTabsToRight(CTabItem selectedTabItem){
-        List<CTabItem> items = new ArrayList<>();
-        for (int i = getTabFolder().getItems().length - 1; i >= 0; i--) {
-            if (selectedTabItem.equals(getTabFolder().getItems()[i])) {
-                break;
-            } else {
-                items.add(getTabFolder().getItems()[i]);
-            }
-        }
-        return items;
+  /** Get all the tabs on the right-hand side of the selected one */
+  default List<CTabItem> getTabsToRight(CTabItem selectedTabItem) {
+    List<CTabItem> items = new ArrayList<>();
+    for (int i = getTabFolder().getItems().length - 1; i >= 0; i--) {
+      if (selectedTabItem.equals(getTabFolder().getItems()[i])) {
+        break;
+      } else {
+        items.add(getTabFolder().getItems()[i]);
+      }
     }
+    return items;
+  }
 
-    /**
-     * Get all the tabs on the left-hand side of the selected one
-     */
-    default List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
-        List<CTabItem> items = new ArrayList<>();
-        for (CTabItem item : getTabFolder().getItems()) {
-            if (selectedTabItem.equals(item)) {
-                break;
-            } else {
-                items.add(item);
-            }
-        }
-        return items;
+  /** Get all the tabs on the left-hand side of the selected one */
+  default List<CTabItem> getTabsToLeft(CTabItem selectedTabItem) {
+    List<CTabItem> items = new ArrayList<>();
+    for (CTabItem item : getTabFolder().getItems()) {
+      if (selectedTabItem.equals(item)) {
+        break;
+      } else {
+        items.add(item);
+      }
     }
+    return items;
+  }
 
-    /**
-     * Get all the other tabs of the selected one
-     */
-    default List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
-        List<CTabItem> items = new ArrayList<>();
-        for (CTabItem item : getTabFolder().getItems()) {
-            if (!selectedTabItem.equals(item)) {
-                items.add(item);
-            }
-        }
-        return items;
+  /** Get all the other tabs of the selected one */
+  default List<CTabItem> getOtherTabs(CTabItem selectedTabItem) {
+    List<CTabItem> items = new ArrayList<>();
+    for (CTabItem item : getTabFolder().getItems()) {
+      if (!selectedTabItem.equals(item)) {
+        items.add(item);
+      }
     }
+    return items;
+  }
 
-    /** Get the tabFolder of the perspective */
-    CTabFolder getTabFolder();
+  /** Get the tabFolder of the perspective */
+  CTabFolder getTabFolder();
 }

@@ -41,7 +41,9 @@ public class GoogleDriveConfig {
     return credentialsFile;
   }
 
-  /** @param credentialsFile The credentialsFile to set */
+  /**
+   * @param credentialsFile The credentialsFile to set
+   */
   public void setCredentialsFile(String credentialsFile) {
     this.credentialsFile = credentialsFile;
   }
@@ -55,7 +57,9 @@ public class GoogleDriveConfig {
     return tokensFolder;
   }
 
-  /** @param tokensFolder The tokensFolder to set */
+  /**
+   * @param tokensFolder The tokensFolder to set
+   */
   public void setTokensFolder(String tokensFolder) {
     this.tokensFolder = tokensFolder;
   }

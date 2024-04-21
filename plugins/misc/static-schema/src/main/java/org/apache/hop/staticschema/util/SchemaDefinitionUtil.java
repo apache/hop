@@ -25,33 +25,33 @@ import org.apache.hop.staticschema.metadata.SchemaDefinition;
 
 public class SchemaDefinitionUtil {
 
-    public SchemaDefinition loadSchemaDefinition(IHopMetadataProvider metadataProvider, String schemaDefinitionName)
-            throws HopTransformException {
-        if (StringUtils.isEmpty(schemaDefinitionName)) {
-            throw new HopTransformException("No schema definition name provided");
-        }
-        SchemaDefinition schemaDefinition;
-        try {
-            IHopMetadataSerializer<SchemaDefinition> serializer =
-                    metadataProvider.getSerializer(SchemaDefinition.class);
-            schemaDefinition = serializer.load(schemaDefinitionName);
-        } catch (Exception e) {
-            throw new HopTransformException(
-                    "Unable to schema definition '" + schemaDefinitionName + "' from the metadata", e);
-        }
-        if (schemaDefinition == null) {
-            throw new HopTransformException(
-                    "Unable to find schema definition '" + schemaDefinitionName + "' in the metadata");
-        }
-
-        try {
-            schemaDefinition.validate();
-        } catch (Exception e) {
-            throw new HopTransformException(
-                    "There was an error validating file definition " + schemaDefinition.getName(), e);
-        }
-
-        return schemaDefinition;
+  public SchemaDefinition loadSchemaDefinition(
+      IHopMetadataProvider metadataProvider, String schemaDefinitionName)
+      throws HopTransformException {
+    if (StringUtils.isEmpty(schemaDefinitionName)) {
+      throw new HopTransformException("No schema definition name provided");
+    }
+    SchemaDefinition schemaDefinition;
+    try {
+      IHopMetadataSerializer<SchemaDefinition> serializer =
+          metadataProvider.getSerializer(SchemaDefinition.class);
+      schemaDefinition = serializer.load(schemaDefinitionName);
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "Unable to schema definition '" + schemaDefinitionName + "' from the metadata", e);
+    }
+    if (schemaDefinition == null) {
+      throw new HopTransformException(
+          "Unable to find schema definition '" + schemaDefinitionName + "' in the metadata");
     }
 
+    try {
+      schemaDefinition.validate();
+    } catch (Exception e) {
+      throw new HopTransformException(
+          "There was an error validating file definition " + schemaDefinition.getName(), e);
+    }
+
+    return schemaDefinition;
+  }
 }

@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.mailinput;
 
 import jakarta.mail.Folder;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -75,9 +77,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 public class MailInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator

@@ -17,11 +17,10 @@
 
 package org.apache.hop.laf;
 
+import java.util.HashMap;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.IMessageHandler;
 import org.apache.hop.i18n.LafMessageHandler;
-
-import java.util.HashMap;
 
 /**
  * the LafFactory provides a mechanism whereby @see IHandler s can be dynamically replaced to enable
@@ -43,7 +42,7 @@ public class LafFactory {
   static {
     handlerRef.put(IMessageHandler.class.getName(), _defMessageHandler);
     handlerRef.put(IPropertyHandler.class.getName(), _defPropertyHandler);
-    if (Const.isOSX()){
+    if (Const.isOSX()) {
       handlerRef.put(IMessageHandler.class.getName(), RemoveAltKeyMessageHandler.class);
     }
   }

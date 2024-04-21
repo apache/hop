@@ -17,12 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * ConcatFieldsData

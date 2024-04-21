@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.compress.snappy;
 
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 import org.xerial.snappy.SnappyInputStream;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class SnappyCompressionInputStream extends CompressionInputStream {
 

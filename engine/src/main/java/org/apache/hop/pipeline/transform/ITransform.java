@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
@@ -32,21 +37,16 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 /**
  * The interface that any pipeline transform or plugin needs to implement.
  *
  * <p>Created on 12-AUG-2004
  */
-public interface ITransform
-    extends IVariables, IHasLogChannel, IEngineComponent, IExtensionData {
+public interface ITransform extends IVariables, IHasLogChannel, IEngineComponent, IExtensionData {
 
-  /** @return the pipeline that is executing this transform */
+  /**
+   * @return the pipeline that is executing this transform
+   */
   IPipelineEngine<PipelineMeta> getPipeline();
 
   /**
@@ -83,7 +83,9 @@ public interface ITransform
   /** Stop running operations... */
   void stopRunning() throws HopException;
 
-  /** @return true if the transform is running after having been initialized */
+  /**
+   * @return true if the transform is running after having been initialized
+   */
   @Override
   boolean isRunning();
 
@@ -94,22 +96,32 @@ public interface ITransform
    */
   void setRunning(boolean running);
 
-  /** @return True if the transform is marked as stopped. Execution should stop immediate. */
+  /**
+   * @return True if the transform is marked as stopped. Execution should stop immediate.
+   */
   @Override
   boolean isStopped();
 
-  /** @param stopped true if the transform needs to be stopped */
+  /**
+   * @param stopped true if the transform needs to be stopped
+   */
   void setStopped(boolean stopped);
 
-  /** @param stopped true if the transform needs to be safe stopped */
+  /**
+   * @param stopped true if the transform needs to be safe stopped
+   */
   default void setSafeStopped(boolean stopped) {}
 
-  /** @return true if transform is safe stopped. */
+  /**
+   * @return true if transform is safe stopped.
+   */
   default boolean isSafeStopped() {
     return false;
   }
 
-  /** @return True if the transform is paused */
+  /**
+   * @return True if the transform is paused
+   */
   @Override
   boolean isPaused();
 
@@ -129,10 +141,14 @@ public interface ITransform
    */
   String getTransformName();
 
-  /** @return The transforms copy number (default 0) */
+  /**
+   * @return The transforms copy number (default 0)
+   */
   int getCopy();
 
-  /** @return the type ID of the transform... */
+  /**
+   * @return the type ID of the transform...
+   */
   String getTransformPluginId();
 
   /**
@@ -150,30 +166,44 @@ public interface ITransform
    */
   void setErrors(long errors);
 
-  /** @return Returns the linesInput. */
+  /**
+   * @return Returns the linesInput.
+   */
   @Override
   long getLinesInput();
 
-  /** @return Returns the linesOutput. */
+  /**
+   * @return Returns the linesOutput.
+   */
   @Override
   long getLinesOutput();
 
-  /** @return Returns the linesRead. */
+  /**
+   * @return Returns the linesRead.
+   */
   @Override
   long getLinesRead();
 
-  /** @return Returns the linesWritten. */
+  /**
+   * @return Returns the linesWritten.
+   */
   @Override
   long getLinesWritten();
 
-  /** @return Returns the linesUpdated. */
+  /**
+   * @return Returns the linesUpdated.
+   */
   @Override
   long getLinesUpdated();
 
-  /** @param linesRejected transforms the lines rejected by error handling. */
+  /**
+   * @param linesRejected transforms the lines rejected by error handling.
+   */
   void setLinesRejected(long linesRejected);
 
-  /** @return Returns the lines rejected by error handling. */
+  /**
+   * @return Returns the lines rejected by error handling.
+   */
   @Override
   long getLinesRejected();
 
@@ -184,7 +214,9 @@ public interface ITransform
    */
   void putRow(IRowMeta row, Object[] data) throws HopException;
 
-  /** @return a row from the source transform(s). */
+  /**
+   * @return a row from the source transform(s).
+   */
   Object[] getRow() throws HopException;
 
   /** Signal output done to destination transforms */
@@ -207,22 +239,34 @@ public interface ITransform
   @Override
   void removeRowListener(IRowListener rowListener);
 
-  /** @return a list of the installed RowListeners */
+  /**
+   * @return a list of the installed RowListeners
+   */
   List<IRowListener> getRowListeners();
 
-  /** @return The list of active input rowsets for the transform */
+  /**
+   * @return The list of active input rowsets for the transform
+   */
   List<IRowSet> getInputRowSets();
 
-  /** @return The list of active output rowsets for the transform */
+  /**
+   * @return The list of active output rowsets for the transform
+   */
   List<IRowSet> getOutputRowSets();
 
-  /** @return true if the transform is running partitioned */
+  /**
+   * @return true if the transform is running partitioned
+   */
   boolean isPartitioned();
 
-  /** @param partitionId the partitionID to set */
+  /**
+   * @param partitionId the partitionID to set
+   */
   void setPartitionId(String partitionId);
 
-  /** @return the transforms partition ID */
+  /**
+   * @return the transforms partition ID
+   */
   String getPartitionId();
 
   /** Cleanup any left-over resources for this transform. */
@@ -253,20 +297,30 @@ public interface ITransform
    */
   void addTransformStartedListener(ITransformStartedListener transformListener);
 
-  /** @return true if the thread is a special mapping transform */
+  /**
+   * @return true if the thread is a special mapping transform
+   */
   boolean isMapping();
 
-  /** @return The metadata for this transform */
+  /**
+   * @return The metadata for this transform
+   */
   TransformMeta getTransformMeta();
 
-  /** @return the logging channel for this transform */
+  /**
+   * @return the logging channel for this transform
+   */
   @Override
   ILogChannel getLogChannel();
 
-  /** @return The total amount of rows in the input buffers */
+  /**
+   * @return The total amount of rows in the input buffers
+   */
   int rowsetInputSize();
 
-  /** @return The total amount of rows in the output buffers */
+  /**
+   * @return The total amount of rows in the output buffers
+   */
   int rowsetOutputSize();
 
   /**
@@ -275,14 +329,20 @@ public interface ITransform
    */
   long getProcessed();
 
-  /** @return The result files for this transform */
+  /**
+   * @return The result files for this transform
+   */
   Map<String, ResultFile> getResultFiles();
 
-  /** @return the description as in {@link ITransformData} */
+  /**
+   * @return the description as in {@link ITransformData}
+   */
   @Override
   ComponentExecutionStatus getStatus();
 
-  /** @return The number of ms that this transform has been running */
+  /**
+   * @return The number of ms that this transform has been running
+   */
   @Override
   long getExecutionDuration();
 
@@ -292,30 +352,36 @@ public interface ITransform
    */
   void identifyErrorOutput();
 
-  /** @param partitioned true if this transform is partitioned */
+  /**
+   * @param partitioned true if this transform is partitioned
+   */
   void setPartitioned(boolean partitioned);
 
-  /** @param partitioningMethod The repartitioning method */
+  /**
+   * @param partitioningMethod The repartitioning method
+   */
   void setRepartitioning(int partitioningMethod);
 
   /**
-   * When using the Single threaded engine this signals to the transform that a batch of records has been processed
-   * and that no more are expected in this batch.
+   * When using the Single threaded engine this signals to the transform that a batch of records has
+   * been processed and that no more are expected in this batch.
    *
    * @throws HopException In case an error occurs during the processing of the batch of rows.
    */
   void batchComplete() throws HopException;
 
   /**
-   * When running in a Beam context this signals the transform that a new bundle was started.
-   * File writing transforms might want to create new files here.
+   * When running in a Beam context this signals the transform that a new bundle was started. File
+   * writing transforms might want to create new files here.
+   *
    * @throws HopException
    */
   void startBundle() throws HopException;
 
   /**
-   * When running in a Beam context this signals the transform that a bundle was finished.
-   * File writing transforms will want to close open file(s) here.
+   * When running in a Beam context this signals the transform that a bundle was finished. File
+   * writing transforms will want to close open file(s) here.
+   *
    * @throws HopException
    */
   void finishBundle() throws HopException;
@@ -327,19 +393,29 @@ public interface ITransform
    */
   void setMetadataProvider(IHopMetadataProvider metadataProvider);
 
-  /** @return The metadata that the transform uses to load external elements from. */
+  /**
+   * @return The metadata that the transform uses to load external elements from.
+   */
   IHopMetadataProvider getMetadataProvider();
 
-  /** @return the index of the active (current) output row set */
+  /**
+   * @return the index of the active (current) output row set
+   */
   int getCurrentOutputRowSetNr();
 
-  /** @param index Sets the index of the active (current) output row set to use. */
+  /**
+   * @param index Sets the index of the active (current) output row set to use.
+   */
   void setCurrentOutputRowSetNr(int index);
 
-  /** @return the index of the active (current) input row set */
+  /**
+   * @return the index of the active (current) input row set
+   */
   int getCurrentInputRowSetNr();
 
-  /** @param index Sets the index of the active (current) input row set to use. */
+  /**
+   * @param index Sets the index of the active (current) input row set to use.
+   */
   void setCurrentInputRowSetNr(int index);
 
   default Collection<TransformStatus> subStatuses() {
@@ -354,7 +430,9 @@ public interface ITransform
     getOutputRowSets().add(rowSet);
   }
 
-  /** @return Returns the transform specific metadata. */
+  /**
+   * @return Returns the transform specific metadata.
+   */
   ITransformMeta getMeta();
 
   /**
@@ -372,7 +450,9 @@ public interface ITransform
   @Override
   Date getInitStartDate();
 
-  /** @param initStartDate The initStartDate to set */
+  /**
+   * @param initStartDate The initStartDate to set
+   */
   @Override
   void setInitStartDate(Date initStartDate);
 
@@ -384,7 +464,9 @@ public interface ITransform
   @Override
   Date getExecutionStartDate();
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   @Override
   void setExecutionStartDate(Date executionStartDate);
 
@@ -396,7 +478,9 @@ public interface ITransform
   @Override
   Date getFirstRowReadDate();
 
-  /** @param firstRowReadDate The firstRowReadDate to set */
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
   @Override
   void setFirstRowReadDate(Date firstRowReadDate);
 
@@ -408,7 +492,9 @@ public interface ITransform
   @Override
   Date getLastRowWrittenDate();
 
-  /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
   @Override
   void setLastRowWrittenDate(Date lastRowWrittenDate);
 
@@ -420,7 +506,9 @@ public interface ITransform
   @Override
   Date getExecutionEndDate();
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   @Override
   void setExecutionEndDate(Date executionEndDate);
 }

@@ -17,6 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -44,21 +58,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 /** Read a simple CSV file Just output Strings found in the file... */
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
@@ -100,7 +99,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
           row = getRowFrom(rowSet);
         }
-        if (list.isEmpty()){
+        if (list.isEmpty()) {
           receivedRows = false;
           break;
         }
@@ -442,12 +441,15 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
     }
   }
 
-  /** Inject constant values.
+  /**
+   * Inject constant values.
+   *
    * @param variables
    * @param targetTransform
    * @param targetTransformMeta
    */
-  private void newInjectionConstants(IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
+  private void newInjectionConstants(
+      IVariables variables, String targetTransform, ITransformMeta targetTransformMeta)
       throws HopException {
     if (log.isDetailed()) {
       logDetailed("Handing transform '" + targetTransform + "' constants injection!");
@@ -470,8 +472,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
           if (injector.hasProperty(targetTransformMeta, target.getAttributeKey())) {
             // target transform has specified key
             String value = variables.resolve(source.getField());
-            injector.setProperty(
-                targetTransformMeta, target.getAttributeKey(), null, value);
+            injector.setProperty(targetTransformMeta, target.getAttributeKey(), null, value);
           } else {
             // target transform doesn't have specified key - just report but don't fail like in 6.0
             logError(

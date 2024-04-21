@@ -18,13 +18,12 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class ReturnValue implements Cloneable {
 
@@ -117,7 +116,7 @@ public class ReturnValue implements Cloneable {
     } else if (StringUtils.isEmpty(parameter)) {
       return expression;
     } else {
-      return "{"+parameter+"}";
+      return "{" + parameter + "}";
     }
   }
 

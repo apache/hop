@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExcelWriterTemplateField {
 
@@ -70,20 +69,33 @@ public class ExcelWriterTemplateField {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     ExcelWriterTemplateField that = (ExcelWriterTemplateField) o;
-    return templateEnabled == that.templateEnabled && templateSheetEnabled == that.templateSheetEnabled && templateSheetHidden == that.templateSheetHidden && Objects.equals(templateFileName, that.templateFileName) && Objects.equals(templateSheetName, that.templateSheetName);
+    return templateEnabled == that.templateEnabled
+        && templateSheetEnabled == that.templateSheetEnabled
+        && templateSheetHidden == that.templateSheetHidden
+        && Objects.equals(templateFileName, that.templateFileName)
+        && Objects.equals(templateSheetName, that.templateSheetName);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(templateEnabled, templateSheetEnabled, templateSheetHidden, templateFileName, templateSheetName);
+    return Objects.hash(
+        templateEnabled,
+        templateSheetEnabled,
+        templateSheetHidden,
+        templateFileName,
+        templateSheetName);
   }
 
-  /** @return Returns the template. */
+  /**
+   * @return Returns the template.
+   */
   public boolean isTemplateEnabled() {
     return templateEnabled;
   }
 
-  /** @param template The template to set. */
+  /**
+   * @param template The template to set.
+   */
   public void setTemplateEnabled(boolean template) {
     this.templateEnabled = template;
   }
@@ -104,12 +116,16 @@ public class ExcelWriterTemplateField {
     this.templateSheetHidden = hide;
   }
 
-  /** @return Returns the templateFileName. */
+  /**
+   * @return Returns the templateFileName.
+   */
   public String getTemplateFileName() {
     return templateFileName;
   }
 
-  /** @param templateFileName The templateFileName to set. */
+  /**
+   * @param templateFileName The templateFileName to set.
+   */
   public void setTemplateFileName(String templateFileName) {
     this.templateFileName = templateFileName;
   }

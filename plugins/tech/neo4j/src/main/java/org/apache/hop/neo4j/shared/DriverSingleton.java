@@ -18,15 +18,14 @@
 
 package org.apache.hop.neo4j.shared;
 
-import org.apache.hop.core.exception.HopConfigException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.variables.IVariables;
-import org.neo4j.driver.Driver;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopConfigException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
+import org.neo4j.driver.Driver;
 
 public class DriverSingleton {
 
@@ -45,7 +44,8 @@ public class DriverSingleton {
     return singleton;
   }
 
-  public static Driver getDriver(ILogChannel log, IVariables variables, NeoConnection connection) throws HopConfigException {
+  public static Driver getDriver(ILogChannel log, IVariables variables, NeoConnection connection)
+      throws HopConfigException {
     DriverSingleton ds = getInstance();
 
     String key = getDriverKey(connection, variables);

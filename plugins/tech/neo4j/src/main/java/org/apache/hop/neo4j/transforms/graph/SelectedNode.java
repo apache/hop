@@ -17,11 +17,10 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
-import org.apache.hop.neo4j.model.GraphNode;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.hop.neo4j.model.GraphNode;
 
 public class SelectedNode {
   private GraphNode node;
@@ -33,7 +32,8 @@ public class SelectedNode {
     this.labels = new ArrayList<>();
   }
 
-  public SelectedNode(GraphNode node, ModelTargetHint hint, List<String> labels, List<String> labelsToSet) {
+  public SelectedNode(
+      GraphNode node, ModelTargetHint hint, List<String> labels, List<String> labelsToSet) {
     this.node = node;
     this.hint = hint;
     this.labels = labels;
@@ -73,7 +73,9 @@ public class SelectedNode {
     return node;
   }
 
-  /** @param node The node to set */
+  /**
+   * @param node The node to set
+   */
   public void setNode(GraphNode node) {
     this.node = node;
   }
@@ -87,7 +89,9 @@ public class SelectedNode {
     return hint;
   }
 
-  /** @param hint The hint to set */
+  /**
+   * @param hint The hint to set
+   */
   public void setHint(ModelTargetHint hint) {
     this.hint = hint;
   }
@@ -101,7 +105,9 @@ public class SelectedNode {
     return labels;
   }
 
-  /** @param labels The labels to set */
+  /**
+   * @param labels The labels to set
+   */
   public void setLabels(List<String> labels) {
     this.labels = labels;
   }

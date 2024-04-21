@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.metrics;
 
+import java.util.Date;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-
-import java.util.Date;
 
 public class MetricsDuration {
   private Date date;
@@ -87,52 +86,72 @@ public class MetricsDuration {
     }
   }
 
-  /** @return the date */
+  /**
+   * @return the date
+   */
   public Date getDate() {
     return date;
   }
 
-  /** @param date the date to set */
+  /**
+   * @param date the date to set
+   */
   public void setDate(Date date) {
     this.date = date;
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
-  /** @param description the description to set */
+  /**
+   * @param description the description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** @return the duration */
+  /**
+   * @return the duration
+   */
   public Long getDuration() {
     return duration;
   }
 
-  /** @param duration the duration to set */
+  /**
+   * @param duration the duration to set
+   */
   public void setDuration(Long duration) {
     this.duration = duration;
   }
 
-  /** @return the subject */
+  /**
+   * @return the subject
+   */
   public String getSubject() {
     return subject;
   }
 
-  /** @param subject the subject to set */
+  /**
+   * @param subject the subject to set
+   */
   public void setSubject(String subject) {
     this.subject = subject;
   }
 
-  /** @return the logChannelId */
+  /**
+   * @return the logChannelId
+   */
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /** @param logChannelId the logChannelId to set */
+  /**
+   * @param logChannelId the logChannelId to set
+   */
   public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
@@ -153,12 +172,16 @@ public class MetricsDuration {
     }
   }
 
-  /** @return the endDate */
+  /**
+   * @return the endDate
+   */
   public Date getEndDate() {
     return endDate;
   }
 
-  /** @param endDate the endDate to set */
+  /**
+   * @param endDate the endDate to set
+   */
   public void setEndDate(Date endDate) {
     this.endDate = endDate;
   }

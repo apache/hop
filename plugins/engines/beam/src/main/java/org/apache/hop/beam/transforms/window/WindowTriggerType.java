@@ -20,7 +20,8 @@ package org.apache.hop.beam.transforms.window;
 
 public enum WindowTriggerType {
   None("No triggering"),
-  RepeatedlyForeverAfterWatermarkPastEndOfWindow("Repeatedly forever: after watermark, past the end of the window");
+  RepeatedlyForeverAfterWatermarkPastEndOfWindow(
+      "Repeatedly forever: after watermark, past the end of the window");
 
   private String description;
 

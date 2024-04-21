@@ -19,6 +19,9 @@ package org.apache.hop.pipeline.transforms.mongodboutput;
 
 import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -60,10 +63,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /** Dialog class for the MongoDB output transform */
 public class MongoDbOutputDialog extends BaseTransformDialog implements ITransformDialog {

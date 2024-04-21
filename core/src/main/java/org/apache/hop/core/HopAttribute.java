@@ -57,57 +57,77 @@ public class HopAttribute implements IHopAttribute {
     this.key = key;
   }
 
-  /** @return the xmlCode */
+  /**
+   * @return the xmlCode
+   */
   @Override
   public String getXmlCode() {
     return xmlCode;
   }
 
-  /** @param xmlCode the xmlCode to set */
+  /**
+   * @param xmlCode the xmlCode to set
+   */
   public void setXmlCode(String xmlCode) {
     this.xmlCode = xmlCode;
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /** @param description the description to set */
+  /**
+   * @param description the description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** @return the tooltip */
+  /**
+   * @return the tooltip
+   */
   @Override
   public String getTooltip() {
     return tooltip;
   }
 
-  /** @param tooltip the tooltip to set */
+  /**
+   * @param tooltip the tooltip to set
+   */
   public void setTooltip(String tooltip) {
     this.tooltip = tooltip;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   @Override
   public int getType() {
     return type;
   }
 
-  /** @param type the type to set */
+  /**
+   * @param type the type to set
+   */
   public void setType(int type) {
     this.type = type;
   }
 
-  /** @return the parent */
+  /**
+   * @return the parent
+   */
   @Override
   public IHopAttribute getParent() {
     return parent;
   }
 
-  /** @param parent the parent to set */
+  /**
+   * @param parent the parent to set
+   */
   public void setParent(IHopAttribute parent) {
     this.parent = parent;
   }

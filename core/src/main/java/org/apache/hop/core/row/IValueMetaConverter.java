@@ -16,9 +16,8 @@
  */
 package org.apache.hop.core.row;
 
-import org.apache.hop.core.row.value.ValueMetaConversionException;
-
 import java.text.SimpleDateFormat;
+import org.apache.hop.core.row.value.ValueMetaConversionException;
 
 public interface IValueMetaConverter {
   /**

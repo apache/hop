@@ -40,7 +40,13 @@ public class GitInfoExplorerFileType extends BaseExplorerFileType<GitInfoExplore
     implements IExplorerFileType<GitInfoExplorerFileTypeHandler> {
 
   public GitInfoExplorerFileType() {
-    super("Git info", "", new String[] {}, new String[] {}, FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
+    super(
+        "Git info",
+        "",
+        new String[] {},
+        new String[] {},
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
   }
 
   @Override

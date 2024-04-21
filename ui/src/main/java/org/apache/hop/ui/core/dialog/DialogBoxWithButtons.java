@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.hop.core.Const;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -30,9 +32,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DialogBoxWithButtons {
 
@@ -67,7 +66,7 @@ public class DialogBoxWithButtons {
     formLayout.marginRight = formMargin;
     shell.setLayout(formLayout);
     PropsUi.setLook(shell);
-    
+
     Label wLabel = new Label(shell, SWT.CENTER | SWT.WRAP);
     PropsUi.setLook(wLabel);
     wLabel.setText(Const.NVL(message, ""));

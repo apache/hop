@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -45,9 +47,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Search and replace in string. */
 public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {

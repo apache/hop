@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.dbproc;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -55,8 +57,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DBProcDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DBProcMeta.class; // For Translator
@@ -311,7 +311,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
   private void selectProcedure(Event event) {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
-    if (databaseMeta != null) {      
+    if (databaseMeta != null) {
       try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
         String[] procs = db.getProcedures();

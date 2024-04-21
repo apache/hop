@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.transforms.pubsub;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.BeamDefaults;
@@ -40,9 +42,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamSubscribe",
     name = "i18n::BeamSubscribeDialog.DialogTitle",
@@ -51,7 +50,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamSubscribeMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamgcpsubscriber.html")
-public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData> implements IBeamPipelineTransformHandler {
+public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubscribeData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty private String topic;
   @HopMetadataProperty private String subscription;
@@ -168,7 +168,9 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
     return subscription;
   }
 
-  /** @param subscription The subscription to set */
+  /**
+   * @param subscription The subscription to set
+   */
   public void setSubscription(String subscription) {
     this.subscription = subscription;
   }
@@ -182,7 +184,9 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }
@@ -196,7 +200,9 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
     return messageType;
   }
 
-  /** @param messageType The messageType to set */
+  /**
+   * @param messageType The messageType to set
+   */
   public void setMessageType(String messageType) {
     this.messageType = messageType;
   }
@@ -210,7 +216,9 @@ public class BeamSubscribeMeta extends BaseTransformMeta<BeamSubscribe, BeamSubs
     return messageField;
   }
 
-  /** @param messageField The messageField to set */
+  /**
+   * @param messageField The messageField to set
+   */
   public void setMessageField(String messageField) {
     this.messageField = messageField;
   }

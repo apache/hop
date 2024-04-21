@@ -16,6 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -24,13 +30,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.regex.Pattern;
 
 public class FieldHelper {
   private static final Class<?> PKG = FieldHelper.class; // For Translator

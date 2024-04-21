@@ -17,18 +17,17 @@
 
 package org.apache.hop.metadata.serializer.json.person;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.serializer.json.occupation.Occupation;
 import org.apache.hop.metadata.serializer.json.person.interest.IInterest;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @HopMetadata(key = "person", name = "A Person", description = "Description of the Person object")
 public class Person extends HopMetadataBase implements IHopMetadata {
@@ -104,7 +103,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return age;
   }
 
-  /** @param age The age to set */
+  /**
+   * @param age The age to set
+   */
   public void setAge(String age) {
     this.age = age;
   }
@@ -118,7 +119,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return address;
   }
 
-  /** @param address The address to set */
+  /**
+   * @param address The address to set
+   */
   public void setAddress(Address address) {
     this.address = address;
   }
@@ -132,7 +135,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return mainInterest;
   }
 
-  /** @param mainInterest The mainInterest to set */
+  /**
+   * @param mainInterest The mainInterest to set
+   */
   public void setMainInterest(IInterest mainInterest) {
     this.mainInterest = mainInterest;
   }
@@ -146,7 +151,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return sideInterest;
   }
 
-  /** @param sideInterest The sideInterest to set */
+  /**
+   * @param sideInterest The sideInterest to set
+   */
   public void setSideInterest(IInterest sideInterest) {
     this.sideInterest = sideInterest;
   }
@@ -160,7 +167,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return interests;
   }
 
-  /** @param interests The interests to set */
+  /**
+   * @param interests The interests to set
+   */
   public void setInterests(List<IInterest> interests) {
     this.interests = interests;
   }
@@ -174,7 +183,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return attributes;
   }
 
-  /** @param attributes The attributes to set */
+  /**
+   * @param attributes The attributes to set
+   */
   public void setAttributes(Map<String, String> attributes) {
     this.attributes = attributes;
   }
@@ -188,7 +199,9 @@ public class Person extends HopMetadataBase implements IHopMetadata {
     return occupation;
   }
 
-  /** @param occupation The occupation to set */
+  /**
+   * @param occupation The occupation to set
+   */
   public void setOccupation(Occupation occupation) {
     this.occupation = occupation;
   }

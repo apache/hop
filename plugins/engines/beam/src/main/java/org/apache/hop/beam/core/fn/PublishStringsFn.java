@@ -28,8 +28,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class PublishStringsFn extends DoFn<HopRow, String> {
 
   private String rowMetaJson;
@@ -44,10 +42,7 @@ public class PublishStringsFn extends DoFn<HopRow, String> {
   private transient Counter readCounter;
   private transient Counter outputCounter;
 
-  public PublishStringsFn(
-      String transformName,
-      int fieldIndex,
-      String rowMetaJson) {
+  public PublishStringsFn(String transformName, int fieldIndex, String rowMetaJson) {
     this.transformName = transformName;
     this.fieldIndex = fieldIndex;
     this.rowMetaJson = rowMetaJson;

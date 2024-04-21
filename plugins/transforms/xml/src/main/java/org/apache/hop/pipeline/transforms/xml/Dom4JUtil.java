@@ -16,20 +16,18 @@
  */
 package org.apache.hop.pipeline.transforms.xml;
 
+import javax.xml.XMLConstants;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.dom4j.io.SAXReader;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
-
 public class Dom4JUtil {
-  
+
   private static final ILogChannel log = HopLogStore.getLogChannelFactory().create("Xml");
 
-  private Dom4JUtil() {    
-  }
-  
+  private Dom4JUtil() {}
+
   public static SAXReader getSAXReader() {
     SAXReader reader = new SAXReader();
     try {

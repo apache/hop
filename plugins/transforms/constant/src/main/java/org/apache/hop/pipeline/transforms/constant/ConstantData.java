@@ -17,16 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class ConstantData extends BaseTransformData implements ITransformData {
   public NumberFormat nf;

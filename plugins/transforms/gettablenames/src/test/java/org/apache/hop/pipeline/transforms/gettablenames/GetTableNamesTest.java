@@ -16,15 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.gettablenames;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -33,6 +24,15 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
+
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class GetTableNamesTest {
   private TransformMockHelper<GetTableNamesMeta, GetTableNamesData> mockHelper;

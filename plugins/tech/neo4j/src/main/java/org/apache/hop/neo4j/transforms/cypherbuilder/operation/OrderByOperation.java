@@ -18,11 +18,10 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder.operation;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Parameter;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Property;
-
-import java.util.List;
 
 public class OrderByOperation extends BaseOperation {
 
@@ -35,7 +34,8 @@ public class OrderByOperation extends BaseOperation {
   }
 
   @Override
-  public String getCypherClause(String unwindAlias, List<Parameter> parameters) throws HopException {
+  public String getCypherClause(String unwindAlias, List<Parameter> parameters)
+      throws HopException {
     // ORDER BY
     //
     StringBuilder cypher = new StringBuilder(operationType.keyWord());
@@ -43,9 +43,9 @@ public class OrderByOperation extends BaseOperation {
 
     // n.name DESC, upper(n.lastName), ...
     //
-    for (int i=0;i<properties.size();i++) {
+    for (int i = 0; i < properties.size(); i++) {
       Property property = properties.get(i);
-      if (i>0) {
+      if (i > 0) {
         cypher.append(", ");
       }
       cypher.append(property.getOrderByCypherClause());

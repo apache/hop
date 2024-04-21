@@ -18,6 +18,9 @@
 
 package org.apache.hop.ui.hopgui.welcome;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiElements;
@@ -47,10 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Widget;
-
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
 
 /** We show this dialog at the start of the application. */
 @GuiPlugin

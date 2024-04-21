@@ -17,9 +17,8 @@
 
 package org.apache.hop.metadata.serializer.json.person.interest;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Music implements IInterest {
 
@@ -66,7 +65,9 @@ public class Music implements IInterest {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -81,7 +82,9 @@ public class Music implements IInterest {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -95,7 +98,9 @@ public class Music implements IInterest {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(InterestType type) {
     this.type = type;
   }

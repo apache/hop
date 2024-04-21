@@ -17,17 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.util.ArrayList;
 import java.util.Map;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class RedshiftBulkLoaderData extends BaseTransformData implements ITransformData {
   protected Database db;
@@ -68,6 +67,5 @@ public class RedshiftBulkLoaderData extends BaseTransformData implements ITransf
     return insertRowMeta;
   }
 
-  public void close() throws IOException {
-  }
+  public void close() throws IOException {}
 }

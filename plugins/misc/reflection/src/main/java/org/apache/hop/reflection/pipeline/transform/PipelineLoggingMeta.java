@@ -154,7 +154,9 @@ public class PipelineLoggingMeta extends BaseTransformMeta<PipelineLogging, Pipe
     return loggingTransforms;
   }
 
-  /** @param loggingTransforms The loggingTransforms to set */
+  /**
+   * @param loggingTransforms The loggingTransforms to set
+   */
   public void setLoggingTransforms(boolean loggingTransforms) {
     this.loggingTransforms = loggingTransforms;
   }

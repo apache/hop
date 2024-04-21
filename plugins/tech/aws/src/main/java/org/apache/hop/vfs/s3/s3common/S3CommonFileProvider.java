@@ -17,6 +17,9 @@
 
 package org.apache.hop.vfs.s3.s3common;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;
@@ -24,10 +27,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.UserAuthenticationData;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvider {
 

@@ -112,7 +112,9 @@ public class GraphPropertyData {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -126,7 +128,9 @@ public class GraphPropertyData {
     return value;
   }
 
-  /** @param value The value to set */
+  /**
+   * @param value The value to set
+   */
   public void setValue(Object value) {
     this.value = value;
   }
@@ -140,7 +144,9 @@ public class GraphPropertyData {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(GraphPropertyDataType type) {
     this.type = type;
   }
@@ -154,7 +160,9 @@ public class GraphPropertyData {
     return primary;
   }
 
-  /** @param primary The primary to set */
+  /**
+   * @param primary The primary to set
+   */
   public void setPrimary(boolean primary) {
     this.primary = primary;
   }

@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.hopgui.perspective.metadata;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -80,11 +84,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 @HopPerspectivePlugin(
     id = "200-HopMetadataPerspective",
@@ -510,7 +509,10 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
         Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
         MetadataManager<IHopMetadata> manager =
             new MetadataManager<>(
-                HopGui.getInstance().getVariables(), metadataProvider, metadataClass, hopGui.getShell());
+                HopGui.getInstance().getVariables(),
+                metadataProvider,
+                metadataClass,
+                hopGui.getShell());
 
         manager.newMetadataWithEditor();
 
@@ -756,7 +758,8 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
                     ConstUi.SMALL_ICON_SIZE);
 
         TreeItem classItem = new TreeItem(tree, SWT.NONE);
-        classItem.setText(0, Const.NVL(TranslateUtil.translate(annotation.name(), metadataClass), ""));
+        classItem.setText(
+            0, Const.NVL(TranslateUtil.translate(annotation.name(), metadataClass), ""));
         classItem.setImage(image);
         classItem.setExpanded(true);
         classItem.setData(annotation.key());
@@ -929,7 +932,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
 
   private String getKeyOfMetadataClass(Class<? extends IHopMetadata> managedClass) {
     HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
-    assert annotation!=null : "Metadata classes need to be annotated with @HopMetadata";
+    assert annotation != null : "Metadata classes need to be annotated with @HopMetadata";
     return annotation.key();
   }
 
@@ -938,7 +941,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     // Look at all the top level items in the tree
     //
     for (TreeItem item : tree.getItems()) {
-      String classKey = (String)item.getData();
+      String classKey = (String) item.getData();
       if (key.equals(classKey)) {
         // Found the item.
         //
@@ -952,7 +955,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
   public void goToElement(Class<? extends IHopMetadata> managedClass, String elementName) {
     String key = getKeyOfMetadataClass(managedClass);
     for (TreeItem item : tree.getItems()) {
-      String classKey = (String)item.getData();
+      String classKey = (String) item.getData();
       if (key.equals(classKey)) {
         // Found the type.
         //

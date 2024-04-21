@@ -109,8 +109,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   private String[] parameters = null;
 
   @Option(
-          names = {"-ps", "--parameters-separator"},
-          description = "A character to be used as separator for our list of PARAMETER=VALUE pairs (default is ,)" )
+      names = {"-ps", "--parameters-separator"},
+      description =
+          "A character to be used as separator for our list of PARAMETER=VALUE pairs (default is ,)")
   private String parametersSeparator = null;
 
   @Option(
@@ -128,7 +129,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       names = {"-a", "--startaction"},
       description = "The name of the action where to start a workflow")
   private String startActionName = null;
-  
+
   @Option(
       names = {"-m", "--metadata-export"},
       description = "A file containing exported metadata in JSON format")
@@ -368,9 +369,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       }
 
       // Start workflow at action
-      //  
-      configuration.setStartActionName(startActionName);      
-      
+      //
+      configuration.setStartActionName(startActionName);
+
       // Certain Hop plugins rely on this.  Meh.
       //
       ExtensionPointHandler.callExtensionPoint(
@@ -419,19 +420,19 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Also copy the parameter values over to the variables...
       //
       workflow.activateParameters(workflow);
-      
+
       // If there is an alternative start action, pass it to the workflow
       //
       if (!Utils.isEmpty(configuration.getStartActionName())) {
-        ActionMeta startActionMeta =
-            workflowMeta.findAction(configuration.getStartActionName());
-        
-        if ( startActionMeta==null ) {
-          throw new ExecutionException(cmd, "Error running workflow, specified start action not found");
-        } 
+        ActionMeta startActionMeta = workflowMeta.findAction(configuration.getStartActionName());
+
+        if (startActionMeta == null) {
+          throw new ExecutionException(
+              cmd, "Error running workflow, specified start action not found");
+        }
         workflow.setStartActionMeta(startActionMeta);
       }
-      
+
       log.logMinimal("Starting workflow: " + workflowMeta.getFilename());
 
       workflow.startExecution();
@@ -510,7 +511,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         parametersSeparator = parametersSeparator == null ? "," : parametersSeparator;
 
         for (String parameter : parameters) {
-          for(String singleParameter : parameter.split(parametersSeparator)){
+          for (String singleParameter : parameter.split(parametersSeparator)) {
             String[] split = singleParameter.split("=", 2);
             String key = split.length > 0 ? split[0] : null;
             String value = split.length > 1 ? split[1] : null;

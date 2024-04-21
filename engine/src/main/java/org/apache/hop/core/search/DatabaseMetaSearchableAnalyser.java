@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.core.database.DatabaseMeta;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.database.DatabaseMeta;
 
 @SearchableAnalyserPlugin(
     id = "DatabaseMetaSearchableAnalyser",

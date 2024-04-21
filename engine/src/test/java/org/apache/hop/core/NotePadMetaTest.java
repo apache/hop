@@ -18,12 +18,12 @@
 
 package org.apache.hop.core;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.Test;
 import org.w3c.dom.Node;
-
-import static org.junit.Assert.assertEquals;
 
 public class NotePadMetaTest {
 

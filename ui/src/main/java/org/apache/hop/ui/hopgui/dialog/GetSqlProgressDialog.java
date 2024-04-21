@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.SqlStatement;
@@ -27,9 +29,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while getting the SQL for a

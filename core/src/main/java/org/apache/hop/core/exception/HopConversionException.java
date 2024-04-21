@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.exception;
 
-import org.apache.hop.core.row.IValueMeta;
-
 import java.util.List;
+import org.apache.hop.core.row.IValueMeta;
 
 public class HopConversionException extends HopException {
 
@@ -52,32 +51,44 @@ public class HopConversionException extends HopException {
     this.rowData = rowData;
   }
 
-  /** @return the causes */
+  /**
+   * @return the causes
+   */
   public List<Exception> getCauses() {
     return causes;
   }
 
-  /** @param causes the causes to set */
+  /**
+   * @param causes the causes to set
+   */
   public void setCauses(List<Exception> causes) {
     this.causes = causes;
   }
 
-  /** @return the fields */
+  /**
+   * @return the fields
+   */
   public List<IValueMeta> getFields() {
     return fields;
   }
 
-  /** @param fields the fields to set */
+  /**
+   * @param fields the fields to set
+   */
   public void setFields(List<IValueMeta> fields) {
     this.fields = fields;
   }
 
-  /** @return the rowData */
+  /**
+   * @return the rowData
+   */
   public Object[] getRowData() {
     return rowData;
   }
 
-  /** @param rowData the rowData to set */
+  /**
+   * @param rowData the rowData to set
+   */
   public void setRowData(Object[] rowData) {
     this.rowData = rowData;
   }

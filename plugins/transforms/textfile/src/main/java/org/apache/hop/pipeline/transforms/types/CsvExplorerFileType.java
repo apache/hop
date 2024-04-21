@@ -39,7 +39,15 @@ public class CsvExplorerFileType extends BaseTextExplorerFileType<TextExplorerFi
     implements IExplorerFileType<TextExplorerFileTypeHandler> {
 
   public CsvExplorerFileType() {
-    super("CSV File", ".csv", new String[] {"*.csv"}, new String[] {"CSV files"}, FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_SAVE, IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
+    super(
+        "CSV File",
+        ".csv",
+        new String[] {"*.csv"},
+        new String[] {"CSV files"},
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_SAVE,
+            IHopFileType.CAPABILITY_CLOSE,
+            IHopFileType.CAPABILITY_FILE_HISTORY));
   }
 
   @Override

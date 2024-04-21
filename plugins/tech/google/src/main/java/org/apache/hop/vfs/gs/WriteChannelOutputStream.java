@@ -19,7 +19,6 @@
 package org.apache.hop.vfs.gs;
 
 import com.google.cloud.WriteChannel;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;

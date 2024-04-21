@@ -50,7 +50,7 @@ public class OperationFactory implements IHopMetadataObjectFactory {
     }
   }
 
-    @Override
+  @Override
   public Object createObject(String id, Object parentObject) throws HopException {
     try {
       OperationType operationType = OperationType.valueOf(id);

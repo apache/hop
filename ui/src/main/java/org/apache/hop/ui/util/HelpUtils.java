@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.util;
 
+import static org.apache.hop.core.Const.getDocUrl;
+
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -32,8 +34,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-
-import static org.apache.hop.core.Const.getDocUrl;
 
 public class HelpUtils {
   private static final Class<?> PKG = HelpUtils.class; // For Translator

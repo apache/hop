@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.util;
 
+import java.io.File;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.io.File;
 
 public class FileUtil {
   public static boolean createParentFolder(

@@ -75,7 +75,9 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
     return safeModeEnabled;
   }
 
-  /** @param safeModeEnabled The safeModeEnabled to set */
+  /**
+   * @param safeModeEnabled The safeModeEnabled to set
+   */
   public void setSafeModeEnabled(boolean safeModeEnabled) {
     this.safeModeEnabled = safeModeEnabled;
   }
@@ -89,7 +91,9 @@ public class LocalWorkflowRunConfiguration extends EmptyWorkflowRunConfiguration
     return transactional;
   }
 
-  /** @param transactional The transactional to set */
+  /**
+   * @param transactional The transactional to set
+   */
   public void setTransactional(boolean transactional) {
     this.transactional = transactional;
   }

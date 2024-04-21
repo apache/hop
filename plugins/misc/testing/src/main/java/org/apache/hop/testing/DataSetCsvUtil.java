@@ -17,6 +17,16 @@
 
 package org.apache.hop.testing;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVPrinter;
@@ -33,17 +43,6 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * The implementation of a CSV Data Set Group We simply write/read the rows without a header into a
@@ -68,11 +67,11 @@ public class DataSetCsvUtil {
             break;
         }
       }
-      
+
       // Force decimal separator for non English system (HOP-4190).
-      if ( valueMeta.isNumber() || valueMeta.isBigNumber() ) {
+      if (valueMeta.isNumber() || valueMeta.isBigNumber()) {
         valueMeta.setDecimalSymbol(".");
-      }       
+      }
     }
   }
 

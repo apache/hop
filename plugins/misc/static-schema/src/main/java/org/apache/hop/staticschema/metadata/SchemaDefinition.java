@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -74,17 +73,18 @@ public class SchemaDefinition extends HopMetadataBase implements Serializable, I
     return rowMeta;
   }
 
-
-  public void validate() throws HopException  {
-//    if (StringUtils.isEmpty(separator)) {
-//      throw new HopException("Please specify a separator in file definition "+name);
-//    }
+  public void validate() throws HopException {
+    //    if (StringUtils.isEmpty(separator)) {
+    //      throw new HopException("Please specify a separator in file definition "+name);
+    //    }
     for (IValueMeta valueMeta : getRowMeta().getValueMetaList()) {
       if (StringUtils.isEmpty(valueMeta.getName())) {
-        throw new HopException("Schema definition " + name + " should not contain fields without a name");
+        throw new HopException(
+            "Schema definition " + name + " should not contain fields without a name");
       }
-      if (valueMeta.getType()==IValueMeta.TYPE_NONE) {
-        throw new HopException("Schema definition " + name + " should not contain fields without a type");
+      if (valueMeta.getType() == IValueMeta.TYPE_NONE) {
+        throw new HopException(
+            "Schema definition " + name + " should not contain fields without a type");
       }
     }
   }
@@ -98,7 +98,9 @@ public class SchemaDefinition extends HopMetadataBase implements Serializable, I
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -112,7 +114,9 @@ public class SchemaDefinition extends HopMetadataBase implements Serializable, I
     return fieldDefinitions;
   }
 
-  /** @param fieldDefinitions The fieldDefinitions to set */
+  /**
+   * @param fieldDefinitions The fieldDefinitions to set
+   */
   public void setFieldDefinitions(List<SchemaFieldDefinition> fieldDefinitions) {
     this.fieldDefinitions = fieldDefinitions;
   }
@@ -126,7 +130,9 @@ public class SchemaDefinition extends HopMetadataBase implements Serializable, I
     return separator;
   }
 
-  /** @param separator The separator to set */
+  /**
+   * @param separator The separator to set
+   */
   public void setSeparator(String separator) {
     this.separator = separator;
   }
@@ -140,9 +146,10 @@ public class SchemaDefinition extends HopMetadataBase implements Serializable, I
     return enclosure;
   }
 
-  /** @param enclosure The enclosure to set */
+  /**
+   * @param enclosure The enclosure to set
+   */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
-
 }

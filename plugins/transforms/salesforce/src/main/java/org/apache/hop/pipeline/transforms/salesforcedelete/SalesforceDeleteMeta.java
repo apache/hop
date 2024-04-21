@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforcedelete;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -32,8 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "SalesforceDelete",
@@ -59,32 +58,44 @@ public class SalesforceDeleteMeta
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the rollbackAllChangesOnError. */
+  /**
+   * @return Returns the rollbackAllChangesOnError.
+   */
   public boolean isRollbackAllChangesOnError() {
     return rollbackAllChangesOnError;
   }
 
-  /** @param rollbackAllChangesOnError The rollbackAllChangesOnError to set. */
+  /**
+   * @param rollbackAllChangesOnError The rollbackAllChangesOnError to set.
+   */
   public void setRollbackAllChangesOnError(boolean rollbackAllChangesOnError) {
     this.rollbackAllChangesOnError = rollbackAllChangesOnError;
   }
 
-  /** @param deleteField The DeleteField to set. */
+  /**
+   * @param deleteField The DeleteField to set.
+   */
   public void setDeleteField(String deleteField) {
     this.deleteField = deleteField;
   }
 
-  /** @return Returns the DeleteField. */
+  /**
+   * @return Returns the DeleteField.
+   */
   public String getDeleteField() {
     return this.deleteField;
   }
 
-  /** @param batchSize */
+  /**
+   * @param batchSize
+   */
   public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
 
-  /** @return Returns the batchSize. */
+  /**
+   * @return Returns the batchSize.
+   */
   public String getBatchSize() {
     return this.batchSize;
   }

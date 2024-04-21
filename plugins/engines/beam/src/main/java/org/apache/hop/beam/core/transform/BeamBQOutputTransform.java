@@ -21,6 +21,8 @@ import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableReference;
 import com.google.api.services.bigquery.model.TableRow;
 import com.google.api.services.bigquery.model.TableSchema;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -38,9 +40,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone> {
 
@@ -137,8 +136,7 @@ public class BeamBQOutputTransform extends PTransform<PCollection<HopRow>, PDone
       tableSchema.setFields(schemaFields);
 
       SerializableFunction<HopRow, TableRow> formatFunction =
-          new HopToBQTableRowFn(
-              transformName, rowMetaJson);
+          new HopToBQTableRowFn(transformName, rowMetaJson);
 
       BigQueryIO.Write.CreateDisposition createDisposition;
       if (createIfNeeded) {

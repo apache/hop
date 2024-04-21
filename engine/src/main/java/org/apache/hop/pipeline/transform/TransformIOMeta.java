@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.pipeline.transform.stream.IStream;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   private boolean inputAcceptor;
@@ -64,35 +63,47 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     return ioMeta;
   }
 
-  /** @return the inputAcceptor */
+  /**
+   * @return the inputAcceptor
+   */
   @Override
   public boolean isInputAcceptor() {
     return inputAcceptor;
   }
 
-  /** @param inputAcceptor the inputAcceptor to set */
+  /**
+   * @param inputAcceptor the inputAcceptor to set
+   */
   public void setInputAcceptor(boolean inputAcceptor) {
     this.inputAcceptor = inputAcceptor;
   }
 
-  /** @return the outputProducer */
+  /**
+   * @return the outputProducer
+   */
   @Override
   public boolean isOutputProducer() {
     return outputProducer;
   }
 
-  /** @param outputProducer the outputProducer to set */
+  /**
+   * @param outputProducer the outputProducer to set
+   */
   public void setOutputProducer(boolean outputProducer) {
     this.outputProducer = outputProducer;
   }
 
-  /** @return the inputOptional */
+  /**
+   * @return the inputOptional
+   */
   @Override
   public boolean isInputOptional() {
     return inputOptional;
   }
 
-  /** @param inputOptional the inputOptional to set */
+  /**
+   * @param inputOptional the inputOptional to set
+   */
   public void setInputOptional(boolean inputOptional) {
     this.inputOptional = inputOptional;
   }
@@ -131,13 +142,17 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     return list;
   }
 
-  /** @return the sortedDataRequired */
+  /**
+   * @return the sortedDataRequired
+   */
   @Override
   public boolean isSortedDataRequired() {
     return sortedDataRequired;
   }
 
-  /** @param sortedDataRequired the sortedDataRequired to set */
+  /**
+   * @param sortedDataRequired the sortedDataRequired to set
+   */
   public void setSortedDataRequired(boolean sortedDataRequired) {
     this.sortedDataRequired = sortedDataRequired;
   }
@@ -192,25 +207,33 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     }
   }
 
-  /** @return the generalInfoDescription */
+  /**
+   * @return the generalInfoDescription
+   */
   @Override
   public String getGeneralInfoDescription() {
     return generalInfoDescription;
   }
 
-  /** @param generalInfoDescription the generalInfoDescription to set */
+  /**
+   * @param generalInfoDescription the generalInfoDescription to set
+   */
   @Override
   public void setGeneralInfoDescription(String generalInfoDescription) {
     this.generalInfoDescription = generalInfoDescription;
   }
 
-  /** @return the generalTargetDescription */
+  /**
+   * @return the generalTargetDescription
+   */
   @Override
   public String getGeneralTargetDescription() {
     return generalTargetDescription;
   }
 
-  /** @param generalTargetDescription the generalTargetDescription to set */
+  /**
+   * @param generalTargetDescription the generalTargetDescription to set
+   */
   @Override
   public void setGeneralTargetDescription(String generalTargetDescription) {
     this.generalTargetDescription = generalTargetDescription;
@@ -220,25 +243,33 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     streams.clear();
   }
 
-  /** @return the outputDynamic */
+  /**
+   * @return the outputDynamic
+   */
   @Override
   public boolean isOutputDynamic() {
     return outputDynamic;
   }
 
-  /** @param outputDynamic the outputDynamic to set */
+  /**
+   * @param outputDynamic the outputDynamic to set
+   */
   @Override
   public void setOutputDynamic(boolean outputDynamic) {
     this.outputDynamic = outputDynamic;
   }
 
-  /** @return the inputDynamic */
+  /**
+   * @return the inputDynamic
+   */
   @Override
   public boolean isInputDynamic() {
     return inputDynamic;
   }
 
-  /** @param inputDynamic the inputDynamic to set */
+  /**
+   * @param inputDynamic the inputDynamic to set
+   */
   @Override
   public void setInputDynamic(boolean inputDynamic) {
     this.inputDynamic = inputDynamic;

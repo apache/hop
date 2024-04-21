@@ -88,6 +88,7 @@ public class SimpleTimestampFormat extends SimpleDateFormat {
 
   /** Default format of the <code>Timestamp</code> object for sql. */
   public static final String DEFAULT_TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss.SSSSSSSSS";
+
   /** Fields for advantages of using locale version from JRE 1.7 and for JRE 1.6 compatibility */
   private static Method getDefaultLocaleMethod;
 

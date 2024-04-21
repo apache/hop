@@ -16,11 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.core.Condition;
-import org.apache.hop.core.exception.HopException;
-
 import java.util.Random;
 import java.util.UUID;
+import org.apache.hop.core.Condition;
+import org.apache.hop.core.exception.HopException;
 
 public class ConditionLoadSaveValidator implements IFieldLoadSaveValidator<Condition> {
   final Random rand = new Random();

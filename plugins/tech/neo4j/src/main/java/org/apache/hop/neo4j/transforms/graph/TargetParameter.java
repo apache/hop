@@ -49,7 +49,9 @@ public class TargetParameter {
     return inputField;
   }
 
-  /** @param inputField The inputField to set */
+  /**
+   * @param inputField The inputField to set
+   */
   public void setInputField(String inputField) {
     this.inputField = inputField;
   }
@@ -63,7 +65,9 @@ public class TargetParameter {
     return inputFieldIndex;
   }
 
-  /** @param inputFieldIndex The inputFieldIndex to set */
+  /**
+   * @param inputFieldIndex The inputFieldIndex to set
+   */
   public void setInputFieldIndex(int inputFieldIndex) {
     this.inputFieldIndex = inputFieldIndex;
   }
@@ -77,7 +81,9 @@ public class TargetParameter {
     return parameterName;
   }
 
-  /** @param parameterName The parameterName to set */
+  /**
+   * @param parameterName The parameterName to set
+   */
   public void setParameterName(String parameterName) {
     this.parameterName = parameterName;
   }
@@ -91,7 +97,9 @@ public class TargetParameter {
     return parameterType;
   }
 
-  /** @param parameterType The parameterType to set */
+  /**
+   * @param parameterType The parameterType to set
+   */
   public void setParameterType(GraphPropertyType parameterType) {
     this.parameterType = parameterType;
   }

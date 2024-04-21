@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.IRowListener;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Helper class for testcases. You can add an instance of this class to a transform to read all of

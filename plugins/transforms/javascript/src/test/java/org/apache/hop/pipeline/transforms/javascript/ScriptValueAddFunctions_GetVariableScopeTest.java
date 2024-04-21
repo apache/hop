@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.mozilla.javascript.EvaluatorException;
-
-import static org.junit.Assert.assertEquals;
 
 public class ScriptValueAddFunctions_GetVariableScopeTest {
 

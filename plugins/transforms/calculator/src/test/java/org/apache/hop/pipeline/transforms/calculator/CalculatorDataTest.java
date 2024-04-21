@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class CalculatorDataTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

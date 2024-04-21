@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.search;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.search.ISearchable;
@@ -25,10 +28,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /** Lazily load the searchables during next() */
 public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
@@ -97,7 +96,9 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -111,7 +112,9 @@ public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
     return location;
   }
 
-  /** @param location The location to set */
+  /**
+   * @param location The location to set
+   */
   public void setLocation(HopGuiSearchLocation location) {
     this.location = location;
   }

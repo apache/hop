@@ -17,6 +17,12 @@
 
 package org.apache.hop.workflow.actions.sftpput;
 
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -44,13 +50,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.w3c.dom.Node;
-
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines an SFTP put action. */
 @Action(
@@ -286,22 +285,30 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     return getAfterSftpPutByCode(tt);
   }
 
-  /** @param createDestinationFolder The create destination folder flag to set. */
+  /**
+   * @param createDestinationFolder The create destination folder flag to set.
+   */
   public void setCreateDestinationFolder(boolean createDestinationFolder) {
     this.createDestinationFolder = createDestinationFolder;
   }
 
-  /** @return Returns the create destination folder flag */
+  /**
+   * @return Returns the create destination folder flag
+   */
   public boolean isCreateDestinationFolder() {
     return createDestinationFolder;
   }
 
-  /** @param successWhenNoFile The successWhenNoFile flag to set. */
+  /**
+   * @param successWhenNoFile The successWhenNoFile flag to set.
+   */
   public void setSuccessWhenNoFile(boolean successWhenNoFile) {
     this.successWhenNoFile = successWhenNoFile;
   }
 
-  /** @return Returns the create successWhenNoFile folder flag */
+  /**
+   * @return Returns the create successWhenNoFile folder flag
+   */
   public boolean isSuccessWhenNoFile() {
     return successWhenNoFile;
   }
@@ -314,72 +321,100 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     return destinationFolder;
   }
 
-  /** @return Returns the afterFTPS. */
+  /**
+   * @return Returns the afterFTPS.
+   */
   public int getAfterFtps() {
     return afterFtps;
   }
 
-  /** @param value The afterFTPS to set. */
+  /**
+   * @param value The afterFTPS to set.
+   */
   public void setAfterFtps(int value) {
     this.afterFtps = value;
   }
 
-  /** @return Returns the directory. */
+  /**
+   * @return Returns the directory.
+   */
   public String getScpDirectory() {
     return remoteDirectory;
   }
 
-  /** @param directory The directory to set. */
+  /**
+   * @param directory The directory to set.
+   */
   public void setScpDirectory(String directory) {
     this.remoteDirectory = directory;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   public String getServerName() {
     return serverName;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /** @return Returns the userName. */
+  /**
+   * @return Returns the userName.
+   */
   public String getUserName() {
     return userName;
   }
 
-  /** @param userName The userName to set. */
+  /**
+   * @param userName The userName to set.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /** @return Returns the wildcard. */
+  /**
+   * @return Returns the wildcard.
+   */
   public String getWildcard() {
     return wildcard;
   }
 
-  /** @param wildcard The wildcard to set. */
+  /**
+   * @param wildcard The wildcard to set.
+   */
   public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
 
-  /** @return Returns the localdirectory. */
+  /**
+   * @return Returns the localdirectory.
+   */
   public String getLocalDirectory() {
     return localDirectory;
   }
 
-  /** @param localDirectory The localDirectory to set. */
+  /**
+   * @param localDirectory The localDirectory to set.
+   */
   public void setLocalDirectory(String localDirectory) {
     this.localDirectory = localDirectory;
   }
@@ -432,12 +467,16 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
     this.addFilenameResut = addFilenameResut;
   }
 
-  /** @return Returns the compression. */
+  /**
+   * @return Returns the compression.
+   */
   public String getCompression() {
     return compression;
   }
 
-  /** @param compression The compression to set. */
+  /**
+   * @param compression The compression to set.
+   */
   public void setCompression(String compression) {
     this.compression = compression;
   }

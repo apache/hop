@@ -19,5 +19,5 @@
 package org.apache.hop.execution;
 
 public interface IExecutionMatcher {
-    boolean matches(Execution execution);
+  boolean matches(Execution execution);
 }

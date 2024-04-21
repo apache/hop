@@ -568,10 +568,10 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog implements ITr
 
   private void enableFields() {
     /*
-      wArrivalTimeWatermarkPolicy.addListener(SWT.Selection, e -> enableFields());
-      wProcessingTimeWatermarkPolicy.addListener(SWT.Selection, e -> enableFields());
-      wFixedDelayRatePolicy.addListener(SWT.Selection, e -> enableFields());
-     */
+     wArrivalTimeWatermarkPolicy.addListener(SWT.Selection, e -> enableFields());
+     wProcessingTimeWatermarkPolicy.addListener(SWT.Selection, e -> enableFields());
+     wFixedDelayRatePolicy.addListener(SWT.Selection, e -> enableFields());
+    */
   }
 
   /** Populate the widgets. */

@@ -18,6 +18,10 @@
 
 package org.apache.hop.execution.sampler.plugins.last;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -27,21 +31,16 @@ import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerStoreBase;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 /** A class meant to contain transform execution sampling data */
 public class LastRowsExecutionDataSamplerStore
-        extends ExecutionDataSamplerStoreBase<LastRowsExecutionDataSamplerStore>
-        implements IExecutionDataSamplerStore {
+    extends ExecutionDataSamplerStoreBase<LastRowsExecutionDataSamplerStore>
+    implements IExecutionDataSamplerStore {
   public static final String EXECUTION_DATA_SAMPLE_LAST_OUTPUT = "LastOutput";
 
   private LastRowsExecutionDataSampler dataSampler;
 
   public LastRowsExecutionDataSamplerStore(
-          LastRowsExecutionDataSampler dataSampler,
+      LastRowsExecutionDataSampler dataSampler,
       ExecutionDataSamplerMeta samplerMeta,
       IRowMeta rowMeta,
       List<Object[]> rows,
@@ -51,7 +50,7 @@ public class LastRowsExecutionDataSamplerStore
   }
 
   public LastRowsExecutionDataSamplerStore(
-          LastRowsExecutionDataSampler dataSampler, ExecutionDataSamplerMeta samplerMeta) {
+      LastRowsExecutionDataSampler dataSampler, ExecutionDataSamplerMeta samplerMeta) {
     this(dataSampler, samplerMeta, null, null, 0);
   }
 
@@ -69,25 +68,22 @@ public class LastRowsExecutionDataSamplerStore
   @Override
   public Map<String, RowBuffer> getSamples() {
     return Map.of(
-            getKeyForStore(EXECUTION_DATA_SAMPLE_LAST_OUTPUT, samplerMeta),
-            new RowBuffer(rowMeta, rows));
+        getKeyForStore(EXECUTION_DATA_SAMPLE_LAST_OUTPUT, samplerMeta),
+        new RowBuffer(rowMeta, rows));
   }
 
   @Override
   public Map<String, ExecutionDataSetMeta> getSamplesMetadata() {
     String setKey = getKeyForStore(EXECUTION_DATA_SAMPLE_LAST_OUTPUT, samplerMeta);
     String description =
-            "Last rows of "
-                    + getSamplerMeta().getTransformName()
-                    + "."
-                    + getSamplerMeta().getCopyNr();
-    ExecutionDataSetMeta meta = new ExecutionDataSetMeta(
+        "Last rows of " + getSamplerMeta().getTransformName() + "." + getSamplerMeta().getCopyNr();
+    ExecutionDataSetMeta meta =
+        new ExecutionDataSetMeta(
             setKey,
             samplerMeta.getLogChannelId(),
             samplerMeta.getTransformName(),
             samplerMeta.getCopyNr(),
-            description
-    );
+            description);
 
     return Map.of(setKey, meta);
   }

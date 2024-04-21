@@ -17,16 +17,15 @@
 
 package org.apache.hop.ui.hopgui.shared;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.history.AuditList;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
 import org.apache.hop.ui.core.gui.HopNamespace;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /** Utility methods for conveniently storing and retrieving items, lists and so on... */
 public class AuditManagerGuiUtil {

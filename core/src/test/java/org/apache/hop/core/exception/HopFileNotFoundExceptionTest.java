@@ -17,11 +17,11 @@
 
 package org.apache.hop.core.exception;
 
-import org.apache.hop.core.Const;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.hop.core.Const;
+import org.junit.Test;
 
 public class HopFileNotFoundExceptionTest {
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.filelocked;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -32,8 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 /** Check if a file is locked * */
 @Transform(
@@ -68,22 +67,30 @@ public class FileLockedMeta extends BaseTransformMeta<FileLocked, FileLockedData
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the filenamefield. */
+  /**
+   * @return Returns the filenamefield.
+   */
   public String getFilenamefield() {
     return filenamefield;
   }
 
-  /** @param filenamefield The filenamefield to set. */
+  /**
+   * @param filenamefield The filenamefield to set.
+   */
   public void setFilenamefield(String filenamefield) {
     this.filenamefield = filenamefield;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getResultfieldname() {
     return resultfieldname;
   }
 
-  /** @param resultfieldname The resultfieldname to set. */
+  /**
+   * @param resultfieldname The resultfieldname to set.
+   */
   public void setResultfieldname(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }

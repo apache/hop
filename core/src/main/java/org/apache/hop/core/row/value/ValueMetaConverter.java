@@ -16,9 +16,6 @@
  */
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.IValueMetaConverter;
-
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -28,6 +25,8 @@ import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.IValueMetaConverter;
 
 /**
  * This class is intended to facilitate any needed conversions of a IValueMeta field from one type

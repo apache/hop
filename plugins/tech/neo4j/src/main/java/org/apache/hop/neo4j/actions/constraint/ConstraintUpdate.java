@@ -76,7 +76,9 @@ public class ConstraintUpdate {
     return objectType;
   }
 
-  /** @param objectType The objectType to set */
+  /**
+   * @param objectType The objectType to set
+   */
   public void setObjectType(ObjectType objectType) {
     this.objectType = objectType;
   }
@@ -90,7 +92,9 @@ public class ConstraintUpdate {
     return constraintName;
   }
 
-  /** @param constraintName The constraintName to set */
+  /**
+   * @param constraintName The constraintName to set
+   */
   public void setConstraintName(String constraintName) {
     this.constraintName = constraintName;
   }
@@ -104,7 +108,9 @@ public class ConstraintUpdate {
     return objectName;
   }
 
-  /** @param objectName The objectName to set */
+  /**
+   * @param objectName The objectName to set
+   */
   public void setObjectName(String objectName) {
     this.objectName = objectName;
   }
@@ -118,7 +124,9 @@ public class ConstraintUpdate {
     return objectProperties;
   }
 
-  /** @param objectProperties The objectProperties to set */
+  /**
+   * @param objectProperties The objectProperties to set
+   */
   public void setObjectProperties(String objectProperties) {
     this.objectProperties = objectProperties;
   }
@@ -132,7 +140,9 @@ public class ConstraintUpdate {
     return updateType;
   }
 
-  /** @param updateType The type to set */
+  /**
+   * @param updateType The type to set
+   */
   public void setUpdateType(UpdateType updateType) {
     this.updateType = updateType;
   }
@@ -146,7 +156,9 @@ public class ConstraintUpdate {
     return constraintType;
   }
 
-  /** @param constraintType The constraintType to set */
+  /**
+   * @param constraintType The constraintType to set
+   */
   public void setConstraintType(ConstraintType constraintType) {
     this.constraintType = constraintType;
   }

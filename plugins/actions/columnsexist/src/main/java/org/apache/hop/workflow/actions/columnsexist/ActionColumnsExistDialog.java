@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.columnsexist;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -56,8 +58,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This dialog allows you to edit the Column Exists action settings. (select the connection and the
@@ -315,7 +315,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
 
     if (action.getColumns() != null) {
       for (int i = 0; i < action.getColumns().size(); i++) {
-        ColumnExist column  = action.getColumns().get(i);
+        ColumnExist column = action.getColumns().get(i);
         TableItem ti = wFields.table.getItem(i);
         ti.setText(1, column.getName());
       }
@@ -341,14 +341,14 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       mb.open();
       return;
     }
-    
+
     action.setName(wName.getText());
     action.setDatabaseMeta(wConnection.loadSelectedElement());
     action.setTableName(wTablename.getText());
     action.setSchemaName(wSchemaname.getText());
 
     List<ColumnExist> columns = new ArrayList<>();
-    
+
     int nrItems = wFields.nrNonEmpty();
     for (int i = 0; i < nrItems; i++) {
       String name = wFields.getNonEmpty(i).getText(1);
@@ -405,7 +405,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       return;
     }
     DatabaseMeta databaseMeta = wConnection.loadSelectedElement();
-    if (databaseMeta != null) {      
+    if (databaseMeta != null) {
       try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();

@@ -18,18 +18,17 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
@@ -155,7 +154,8 @@ public class MultiMetadataSerializer<T extends IHopMetadata> implements IHopMeta
   @Override
   public List<T> loadAll() throws HopException {
     Set<T> set = new HashSet<>();
-    // The methods add and addAll for a hash-set only do something if an element doesn't already exist.
+    // The methods add and addAll for a hash-set only do something if an element doesn't already
+    // exist.
     // So we need to loop over the providers in reverse.
     //
     List<IHopMetadataProvider> providers = multiProvider.getProviders();

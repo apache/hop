@@ -16,5 +16,4 @@
  */
 package org.apache.hop.core.injection.inheritance;
 
-public class MetaBeanMiddle<T> extends MetaBeanParent<MetaBeanChildItem, T> {
-}
+public class MetaBeanMiddle<T> extends MetaBeanParent<MetaBeanChildItem, T> {}

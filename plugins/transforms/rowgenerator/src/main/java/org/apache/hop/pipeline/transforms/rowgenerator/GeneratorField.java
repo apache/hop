@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class GeneratorField {
 
@@ -122,7 +121,9 @@ public class GeneratorField {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -136,7 +137,9 @@ public class GeneratorField {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -150,7 +153,9 @@ public class GeneratorField {
     return format;
   }
 
-  /** @param format The format to set */
+  /**
+   * @param format The format to set
+   */
   public void setFormat(String format) {
     this.format = format;
   }
@@ -164,7 +169,9 @@ public class GeneratorField {
     return length;
   }
 
-  /** @param length The length to set */
+  /**
+   * @param length The length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }
@@ -178,7 +185,9 @@ public class GeneratorField {
     return precision;
   }
 
-  /** @param precision The precision to set */
+  /**
+   * @param precision The precision to set
+   */
   public void setPrecision(int precision) {
     this.precision = precision;
   }
@@ -192,7 +201,9 @@ public class GeneratorField {
     return currency;
   }
 
-  /** @param currency The currency to set */
+  /**
+   * @param currency The currency to set
+   */
   public void setCurrency(String currency) {
     this.currency = currency;
   }
@@ -206,7 +217,9 @@ public class GeneratorField {
     return decimal;
   }
 
-  /** @param decimal The decimal to set */
+  /**
+   * @param decimal The decimal to set
+   */
   public void setDecimal(String decimal) {
     this.decimal = decimal;
   }
@@ -220,7 +233,9 @@ public class GeneratorField {
     return group;
   }
 
-  /** @param group The group to set */
+  /**
+   * @param group The group to set
+   */
   public void setGroup(String group) {
     this.group = group;
   }
@@ -234,7 +249,9 @@ public class GeneratorField {
     return value;
   }
 
-  /** @param value The value to set */
+  /**
+   * @param value The value to set
+   */
   public void setValue(String value) {
     this.value = value;
   }
@@ -248,7 +265,9 @@ public class GeneratorField {
     return setEmptyString;
   }
 
-  /** @param setEmptyString The setEmptyString to set */
+  /**
+   * @param setEmptyString The setEmptyString to set
+   */
   public void setSetEmptyString(boolean setEmptyString) {
     this.setEmptyString = setEmptyString;
   }

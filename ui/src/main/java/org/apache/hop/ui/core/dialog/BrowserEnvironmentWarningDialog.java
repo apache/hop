@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.awt.Desktop;
+import java.net.URI;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -38,9 +40,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.awt.Desktop;
-import java.net.URI;
 
 /** Dialog that shows a warning when the Browser Environment is not supported. */
 public class BrowserEnvironmentWarningDialog extends Dialog {

@@ -17,6 +17,19 @@
 
 package org.apache.hop.workflow;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -61,20 +74,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.actions.start.ActionStart;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class executes a workflow as defined by a WorkflowMeta object.
@@ -655,7 +654,7 @@ public abstract class Workflow extends Variables
       log.snap(Metrics.METRIC_ACTION_STOP, cloneJei.toString());
 
       // Action execution duration
-      newResult.setElapsedTimeMillis(System.currentTimeMillis()-start);
+      newResult.setElapsedTimeMillis(System.currentTimeMillis() - start);
 
       if (interactive) {
         getActiveActions().remove(actionMeta);

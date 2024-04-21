@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.transforms.bq;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamBQOutputTransform;
@@ -37,9 +39,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamBQOutput",
     image = "beam-bq-output.svg",
@@ -48,7 +47,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.BigData",
     documentationUrl = "/pipeline/transforms/beambigqueryoutput.html",
     keywords = "i18n::BeamBQOutputDialog.keyword")
-public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implements IBeamPipelineTransformHandler {
+public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -154,7 +154,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
     return projectId;
   }
 
-  /** @param projectId The projectId to set */
+  /**
+   * @param projectId The projectId to set
+   */
   public void setProjectId(String projectId) {
     this.projectId = projectId;
   }
@@ -168,7 +170,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
     return datasetId;
   }
 
-  /** @param datasetId The datasetId to set */
+  /**
+   * @param datasetId The datasetId to set
+   */
   public void setDatasetId(String datasetId) {
     this.datasetId = datasetId;
   }
@@ -182,7 +186,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
     return tableId;
   }
 
-  /** @param tableId The tableId to set */
+  /**
+   * @param tableId The tableId to set
+   */
   public void setTableId(String tableId) {
     this.tableId = tableId;
   }
@@ -196,7 +202,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
     return creatingIfNeeded;
   }
 
-  /** @param creatingIfNeeded The creatingIfNeeded to set */
+  /**
+   * @param creatingIfNeeded The creatingIfNeeded to set
+   */
   public void setCreatingIfNeeded(boolean creatingIfNeeded) {
     this.creatingIfNeeded = creatingIfNeeded;
   }
@@ -210,7 +218,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
     return truncatingTable;
   }
 
-  /** @param truncatingTable The truncatingTable to set */
+  /**
+   * @param truncatingTable The truncatingTable to set
+   */
   public void setTruncatingTable(boolean truncatingTable) {
     this.truncatingTable = truncatingTable;
   }
@@ -224,7 +234,9 @@ public class BeamBQOutputMeta extends BaseTransformMeta<Dummy, DummyData> implem
     return failingIfNotEmpty;
   }
 
-  /** @param failingIfNotEmpty The failingIfNotEmpty to set */
+  /**
+   * @param failingIfNotEmpty The failingIfNotEmpty to set
+   */
   public void setFailingIfNotEmpty(boolean failingIfNotEmpty) {
     this.failingIfNotEmpty = failingIfNotEmpty;
   }

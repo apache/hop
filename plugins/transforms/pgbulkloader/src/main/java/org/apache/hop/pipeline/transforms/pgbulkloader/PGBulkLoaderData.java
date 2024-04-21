@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
+import java.io.OutputStream;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -24,8 +25,6 @@ import org.apache.hop.core.util.StreamLogger;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.postgresql.PGConnection;
-
-import java.io.OutputStream;
 
 /** Stores data for the GPBulkLoader transform. */
 public class PGBulkLoaderData extends BaseTransformData implements ITransformData {

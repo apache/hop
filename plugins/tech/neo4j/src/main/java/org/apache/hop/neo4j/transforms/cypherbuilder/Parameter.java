@@ -18,9 +18,8 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** A parameter is set using an input field */
 public class Parameter implements Cloneable {

@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.sql;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -39,11 +44,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
 
 /** This defines an SQL action. */
 @Action(
@@ -59,14 +59,19 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "sql")
   private String sql;
+
   @HopMetadataProperty(key = "connection")
   private String connection;
+
   @HopMetadataProperty(key = "useVariableSubstitution")
   private boolean useVariableSubstitution = false;
+
   @HopMetadataProperty(key = "sqlfromfile")
   private boolean sqlFromFile = false;
+
   @HopMetadataProperty(key = "sqlfilename")
   private String sqlFilename;
+
   @HopMetadataProperty(key = "sendOneStatement")
   private boolean sendOneStatement = false;
 
@@ -254,7 +259,9 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     DatabaseMeta databaseMeta = parentWorkflowMeta.findDatabase(connection, getVariables());
     if (databaseMeta != null) {
       ResourceReference reference = new ResourceReference(this);
-      reference.getEntries().add(new ResourceEntry(databaseMeta.getHostname(), ResourceType.SERVER));
+      reference
+          .getEntries()
+          .add(new ResourceEntry(databaseMeta.getHostname(), ResourceType.SERVER));
       reference
           .getEntries()
           .add(new ResourceEntry(databaseMeta.getDatabaseName(), ResourceType.DATABASENAME));

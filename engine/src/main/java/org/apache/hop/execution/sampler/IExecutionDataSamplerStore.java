@@ -18,40 +18,43 @@
 
 package org.apache.hop.execution.sampler;
 
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionDataSetMeta;
 import org.apache.hop.pipeline.transform.IRowListener;
 
-import java.util.Map;
-
 public interface IExecutionDataSamplerStore {
 
-    /**
-     * Initializes this sampler store
-     * @param variables The variables to resolve with
-     * @param inputRowMeta Transform input row metadata
-     * @param outputRowMeta Transform output row metadata
-     */
-    void init(IVariables variables, IRowMeta inputRowMeta, IRowMeta outputRowMeta);
+  /**
+   * Initializes this sampler store
+   *
+   * @param variables The variables to resolve with
+   * @param inputRowMeta Transform input row metadata
+   * @param outputRowMeta Transform output row metadata
+   */
+  void init(IVariables variables, IRowMeta inputRowMeta, IRowMeta outputRowMeta);
 
-    /**
-     * Create a row listener to attach to a transform
-     * @return The row listener for this store.
-     */
-    IRowListener createRowListener(IExecutionDataSampler<?> dataSampler);
+  /**
+   * Create a row listener to attach to a transform
+   *
+   * @return The row listener for this store.
+   */
+  IRowListener createRowListener(IExecutionDataSampler<?> dataSampler);
 
-    /**
-     * Return a map of keys and rows of data.  Every key represents a different type of sampling data.
-     *
-     * @return The samples map for the sampler store
-     */
-    Map<String, RowBuffer> getSamples();
+  /**
+   * Return a map of keys and rows of data. Every key represents a different type of sampling data.
+   *
+   * @return The samples map for the sampler store
+   */
+  Map<String, RowBuffer> getSamples();
 
-    /**
-     * Get some extra information about the data samples.
-     * @return The metadata map where for every key more information (description) is given about the sampled data.
-     */
-    Map<String, ExecutionDataSetMeta> getSamplesMetadata();
+  /**
+   * Get some extra information about the data samples.
+   *
+   * @return The metadata map where for every key more information (description) is given about the
+   *     sampled data.
+   */
+  Map<String, ExecutionDataSetMeta> getSamplesMetadata();
 }

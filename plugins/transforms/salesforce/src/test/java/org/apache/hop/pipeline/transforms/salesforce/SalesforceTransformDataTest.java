@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertNull;
+
+import org.junit.Test;
 
 public class SalesforceTransformDataTest {
 

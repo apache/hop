@@ -17,10 +17,10 @@
  */
 package org.apache.hop.database.cassandra.util;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.databases.cassandra.util.Partitioners;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class PartitionersTest {
   String pString;

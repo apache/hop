@@ -17,9 +17,8 @@
 
 package org.apache.hop.metadata.serializer.json.person;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Address {
 
@@ -65,7 +64,9 @@ public class Address {
     return street;
   }
 
-  /** @param street The street to set */
+  /**
+   * @param street The street to set
+   */
   public void setStreet(String street) {
     this.street = street;
   }
@@ -79,7 +80,9 @@ public class Address {
     return number;
   }
 
-  /** @param number The number to set */
+  /**
+   * @param number The number to set
+   */
   public void setNumber(String number) {
     this.number = number;
   }
@@ -93,7 +96,9 @@ public class Address {
     return city;
   }
 
-  /** @param city The city to set */
+  /**
+   * @param city The city to set
+   */
   public void setCity(City city) {
     this.city = city;
   }

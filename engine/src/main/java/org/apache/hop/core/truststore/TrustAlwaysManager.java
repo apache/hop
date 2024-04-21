@@ -16,8 +16,8 @@
  */
 package org.apache.hop.core.truststore;
 
-import javax.net.ssl.X509TrustManager;
 import java.security.cert.X509Certificate;
+import javax.net.ssl.X509TrustManager;
 
 public class TrustAlwaysManager implements X509TrustManager {
   @Override

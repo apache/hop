@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.util;
 
+import java.util.prefs.Preferences;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.FunctorException;
 import org.apache.hop.core.exception.HopException;
 import org.w3c.dom.Node;
-
-import java.util.prefs.Preferences;
 
 public final class PluginPropertyHandler {
 
@@ -78,7 +77,9 @@ public final class PluginPropertyHandler {
       property.appendXml(this.builder);
     }
 
-    /** @return XML string. */
+    /**
+     * @return XML string.
+     */
     public String getXml() {
       return this.builder.toString();
     }

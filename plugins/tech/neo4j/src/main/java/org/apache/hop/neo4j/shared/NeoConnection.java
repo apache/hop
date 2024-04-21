@@ -17,6 +17,14 @@
 
 package org.apache.hop.neo4j.shared;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -41,15 +49,6 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.SessionConfig;
 import org.neo4j.driver.Value;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 @HopMetadata(
     key = "neo4j-connection",
@@ -470,7 +469,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   @Override
   public void setName(String name) {
     this.name = name;
@@ -485,7 +486,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return server;
   }
 
-  /** @param server The server to set */
+  /**
+   * @param server The server to set
+   */
   public void setServer(String server) {
     this.server = server;
   }
@@ -499,7 +502,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return databaseName;
   }
 
-  /** @param databaseName The databaseName to set */
+  /**
+   * @param databaseName The databaseName to set
+   */
   public void setDatabaseName(String databaseName) {
     this.databaseName = databaseName;
   }
@@ -513,7 +518,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return boltPort;
   }
 
-  /** @param boltPort The boltPort to set */
+  /**
+   * @param boltPort The boltPort to set
+   */
   public void setBoltPort(String boltPort) {
     this.boltPort = boltPort;
   }
@@ -527,7 +534,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return browserPort;
   }
 
-  /** @param browserPort The browserPort to set */
+  /**
+   * @param browserPort The browserPort to set
+   */
   public void setBrowserPort(String browserPort) {
     this.browserPort = browserPort;
   }
@@ -541,7 +550,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return routing;
   }
 
-  /** @param routing The routing to set */
+  /**
+   * @param routing The routing to set
+   */
   public void setRouting(boolean routing) {
     this.routing = routing;
   }
@@ -555,7 +566,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return routingVariable;
   }
 
-  /** @param routingVariable The routingVariable to set */
+  /**
+   * @param routingVariable The routingVariable to set
+   */
   public void setRoutingVariable(String routingVariable) {
     this.routingVariable = routingVariable;
   }
@@ -569,7 +582,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return routingPolicy;
   }
 
-  /** @param routingPolicy The routingPolicy to set */
+  /**
+   * @param routingPolicy The routingPolicy to set
+   */
   public void setRoutingPolicy(String routingPolicy) {
     this.routingPolicy = routingPolicy;
   }
@@ -583,7 +598,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return username;
   }
 
-  /** @param username The username to set */
+  /**
+   * @param username The username to set
+   */
   public void setUsername(String username) {
     this.username = username;
   }
@@ -597,7 +614,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return password;
   }
 
-  /** @param password The password to set */
+  /**
+   * @param password The password to set
+   */
   public void setPassword(String password) {
     this.password = password;
   }
@@ -611,7 +630,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return usingEncryption;
   }
 
-  /** @param usingEncryption The usingEncryption to set */
+  /**
+   * @param usingEncryption The usingEncryption to set
+   */
   public void setUsingEncryption(boolean usingEncryption) {
     this.usingEncryption = usingEncryption;
   }
@@ -625,7 +646,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return trustAllCertificates;
   }
 
-  /** @param trustAllCertificates The trustAllCertificates to set */
+  /**
+   * @param trustAllCertificates The trustAllCertificates to set
+   */
   public void setTrustAllCertificates(boolean trustAllCertificates) {
     this.trustAllCertificates = trustAllCertificates;
   }
@@ -639,7 +662,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return manualUrls;
   }
 
-  /** @param manualUrls The manualUrls to set */
+  /**
+   * @param manualUrls The manualUrls to set
+   */
   public void setManualUrls(List<String> manualUrls) {
     this.manualUrls = manualUrls;
   }
@@ -653,7 +678,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return connectionLivenessCheckTimeout;
   }
 
-  /** @param connectionLivenessCheckTimeout The connectionLivenessCheckTimeout to set */
+  /**
+   * @param connectionLivenessCheckTimeout The connectionLivenessCheckTimeout to set
+   */
   public void setConnectionLivenessCheckTimeout(String connectionLivenessCheckTimeout) {
     this.connectionLivenessCheckTimeout = connectionLivenessCheckTimeout;
   }
@@ -667,7 +694,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return maxConnectionLifetime;
   }
 
-  /** @param maxConnectionLifetime The maxConnectionLifetime to set */
+  /**
+   * @param maxConnectionLifetime The maxConnectionLifetime to set
+   */
   public void setMaxConnectionLifetime(String maxConnectionLifetime) {
     this.maxConnectionLifetime = maxConnectionLifetime;
   }
@@ -681,7 +710,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return maxConnectionPoolSize;
   }
 
-  /** @param maxConnectionPoolSize The maxConnectionPoolSize to set */
+  /**
+   * @param maxConnectionPoolSize The maxConnectionPoolSize to set
+   */
   public void setMaxConnectionPoolSize(String maxConnectionPoolSize) {
     this.maxConnectionPoolSize = maxConnectionPoolSize;
   }
@@ -695,7 +726,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return connectionAcquisitionTimeout;
   }
 
-  /** @param connectionAcquisitionTimeout The connectionAcquisitionTimeout to set */
+  /**
+   * @param connectionAcquisitionTimeout The connectionAcquisitionTimeout to set
+   */
   public void setConnectionAcquisitionTimeout(String connectionAcquisitionTimeout) {
     this.connectionAcquisitionTimeout = connectionAcquisitionTimeout;
   }
@@ -709,7 +742,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return connectionTimeout;
   }
 
-  /** @param connectionTimeout The connectionTimeout to set */
+  /**
+   * @param connectionTimeout The connectionTimeout to set
+   */
   public void setConnectionTimeout(String connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
   }
@@ -723,7 +758,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return maxTransactionRetryTime;
   }
 
-  /** @param maxTransactionRetryTime The maxTransactionRetryTime to set */
+  /**
+   * @param maxTransactionRetryTime The maxTransactionRetryTime to set
+   */
   public void setMaxTransactionRetryTime(String maxTransactionRetryTime) {
     this.maxTransactionRetryTime = maxTransactionRetryTime;
   }
@@ -737,7 +774,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return version4;
   }
 
-  /** @param version4 The version4 to set */
+  /**
+   * @param version4 The version4 to set
+   */
   public void setVersion4(boolean version4) {
     this.version4 = version4;
   }
@@ -751,7 +790,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return usingEncryptionVariable;
   }
 
-  /** @param usingEncryptionVariable The usingEncryptionVariable to set */
+  /**
+   * @param usingEncryptionVariable The usingEncryptionVariable to set
+   */
   public void setUsingEncryptionVariable(String usingEncryptionVariable) {
     this.usingEncryptionVariable = usingEncryptionVariable;
   }
@@ -765,7 +806,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return trustAllCertificatesVariable;
   }
 
-  /** @param trustAllCertificatesVariable The trustAllCertificatesVariable to set */
+  /**
+   * @param trustAllCertificatesVariable The trustAllCertificatesVariable to set
+   */
   public void setTrustAllCertificatesVariable(String trustAllCertificatesVariable) {
     this.trustAllCertificatesVariable = trustAllCertificatesVariable;
   }
@@ -779,7 +822,9 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return version4Variable;
   }
 
-  /** @param version4Variable The version4Variable to set */
+  /**
+   * @param version4Variable The version4Variable to set
+   */
   public void setVersion4Variable(String version4Variable) {
     this.version4Variable = version4Variable;
   }
@@ -794,12 +839,16 @@ public class NeoConnection extends HopMetadataBase implements IHopMetadata {
     return automatic;
   }
 
-  /** @param automatic The automatic flag to be set. */
+  /**
+   * @param automatic The automatic flag to be set.
+   */
   public void setAutomatic(boolean automatic) {
     this.automatic = automatic;
   }
 
-  /** @return A variable expression which allows you to enable or disable the automatic flag */
+  /**
+   * @return A variable expression which allows you to enable or disable the automatic flag
+   */
   public String getAutomaticVariable() {
     return automaticVariable;
   }

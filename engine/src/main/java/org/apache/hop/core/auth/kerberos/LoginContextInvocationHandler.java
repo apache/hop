@@ -17,10 +17,6 @@
 
 package org.apache.hop.core.auth.kerberos;
 
-import org.apache.commons.lang.ClassUtils;
-
-import javax.security.auth.Subject;
-import javax.security.auth.login.LoginContext;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,6 +26,9 @@ import java.security.PrivilegedExceptionAction;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import org.apache.commons.lang.ClassUtils;
 
 public class LoginContextInvocationHandler<T> implements InvocationHandler {
   private final T delegate;

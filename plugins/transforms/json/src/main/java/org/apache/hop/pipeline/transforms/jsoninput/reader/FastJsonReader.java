@@ -22,6 +22,10 @@ import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
 import com.jayway.jsonpath.ParseContext;
 import com.jayway.jsonpath.ReadContext;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
@@ -31,11 +35,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputField;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputMeta;
 import org.apache.hop.pipeline.transforms.jsoninput.exception.JsonInputException;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
 
 public class FastJsonReader implements IJsonReader {
   private static final Class<?> PKG = JsonInputMeta.class; // For Translator
@@ -138,8 +137,8 @@ public class FastJsonReader implements IJsonReader {
         paths[i++] = JsonPath.compile(field.getPath());
       }
     } catch (Exception e) {
-      throw new HopException(BaseMessages.getString(
-              PKG, "JsonParser.JsonPath.Compile.Error", e.getMessage()));
+      throw new HopException(
+          BaseMessages.getString(PKG, "JsonParser.JsonPath.Compile.Error", e.getMessage()));
     }
     return paths;
   }
@@ -197,6 +196,7 @@ public class FastJsonReader implements IJsonReader {
     private List<List<?>> results;
     private final int rowCount;
     private int rowNbr;
+
     /**
      * if should skip null-only rows; size won't be exact if set. If HOP_JSON_INPUT_INCLUDE_NULLS is
      * "Y" (default behavior) then nulls will be included otherwise they will not

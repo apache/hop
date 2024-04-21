@@ -18,6 +18,10 @@
 package org.apache.hop.core;
 
 import com.google.common.util.concurrent.SettableFuture;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
@@ -45,11 +49,6 @@ import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.RowDistributionPluginType;
 import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * The HopEnvironment class contains settings and properties for all of Hop. Initialization of the

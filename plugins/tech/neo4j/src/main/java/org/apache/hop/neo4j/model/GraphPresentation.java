@@ -48,7 +48,9 @@ public class GraphPresentation {
     return x;
   }
 
-  /** @param x The x to set */
+  /**
+   * @param x The x to set
+   */
   public void setX(int x) {
     this.x = x;
   }
@@ -62,7 +64,9 @@ public class GraphPresentation {
     return y;
   }
 
-  /** @param y The y to set */
+  /**
+   * @param y The y to set
+   */
   public void setY(int y) {
     this.y = y;
   }

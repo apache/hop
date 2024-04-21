@@ -17,13 +17,6 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.exception.HopEofException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
-
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -32,6 +25,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 
 /**
  * This class caches database queries so that the same query doesn't get called twice. Queries are

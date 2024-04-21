@@ -17,18 +17,17 @@
 
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.HopMetadataObject;
-
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataObject;
 
 /**
  * This interface describes the methods that a database connection needs to have in order to
@@ -36,73 +35,119 @@ import java.util.Map;
  */
 @HopMetadataObject(objectFactory = DatabaseMetaObjectFactory.class)
 public interface IDatabase extends Cloneable {
-  /** @return the plugin id of this database */
+  /**
+   * @return the plugin id of this database
+   */
   String getPluginId();
 
-  /** @param pluginId set the plugin id of this plugin (after instantiation) */
+  /**
+   * @param pluginId set the plugin id of this plugin (after instantiation)
+   */
   void setPluginId(String pluginId);
 
-  /** @return the plugin name of this database, the same thing as the annotation typeDescription */
+  /**
+   * @return the plugin name of this database, the same thing as the annotation typeDescription
+   */
   String getPluginName();
 
-  /** @param pluginName set the plugin name of this plugin (after instantiation) */
+  /**
+   * @param pluginName set the plugin name of this plugin (after instantiation)
+   */
   void setPluginName(String pluginName);
 
-  /** @return Returns the accessType. */
+  /**
+   * @return Returns the accessType.
+   */
   int getAccessType();
 
-  /** @param accessType The accessType to set. */
+  /**
+   * @param accessType The accessType to set.
+   */
   void setAccessType(int accessType);
 
-  /** @return Returns the changed. */
+  /**
+   * @return Returns the changed.
+   */
   boolean isChanged();
 
-  /** @param changed The changed to set. */
+  /**
+   * @param changed The changed to set.
+   */
   void setChanged(boolean changed);
 
-  /** @return Returns the databaseName. */
+  /**
+   * @return Returns the databaseName.
+   */
   String getDatabaseName();
 
-  /** @param databaseName The databaseName to set. */
+  /**
+   * @param databaseName The databaseName to set.
+   */
   void setDatabaseName(String databaseName);
 
-  /** @return Returns the hostname. */
+  /**
+   * @return Returns the hostname.
+   */
   String getHostname();
 
-  /** @param hostname The hostname to set. */
+  /**
+   * @param hostname The hostname to set.
+   */
   void setHostname(String hostname);
 
-  /** @return the username to log onto the database */
+  /**
+   * @return the username to log onto the database
+   */
   String getUsername();
 
-  /** @param username Sets the username to log onto the database with. */
+  /**
+   * @param username Sets the username to log onto the database with.
+   */
   void setUsername(String username);
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   String getPassword();
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   void setPassword(String password);
 
-  /** @return Returns the servername. */
+  /**
+   * @return Returns the servername.
+   */
   String getServername();
 
-  /** @param servername The servername to set. */
+  /**
+   * @param servername The servername to set.
+   */
   void setServername(String servername);
 
-  /** @return the tablespace to store data in. (create table) */
+  /**
+   * @return the tablespace to store data in. (create table)
+   */
   String getDataTablespace();
 
-  /** @param dataTablespace the tablespace to store data in */
+  /**
+   * @param dataTablespace the tablespace to store data in
+   */
   void setDataTablespace(String dataTablespace);
 
-  /** @return the tablespace to store indexes in */
+  /**
+   * @return the tablespace to store indexes in
+   */
   String getIndexTablespace();
 
-  /** @param indexTablespace the tablespace to store indexes in */
+  /**
+   * @param indexTablespace the tablespace to store indexes in
+   */
   void setIndexTablespace(String indexTablespace);
 
-  /** @return The extra attributes for this database connection */
+  /**
+   * @return The extra attributes for this database connection
+   */
   Map<String, String> getAttributes();
 
   /**
@@ -140,7 +185,9 @@ public interface IDatabase extends Cloneable {
    */
   boolean isSupportsSetCharacterStream();
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   boolean isSupportsAutoInc();
 
   /* Returns weather or not the database supports a custom SQL statement to perform delete operations */
@@ -148,6 +195,7 @@ public interface IDatabase extends Cloneable {
 
   /* Returns weather or not the database supports a custom SQL statement to perform update operations */
   boolean isSupportsCustomUpdateStmt();
+
   /**
    * Describe a Value as a field in the database.
    *
@@ -174,10 +222,14 @@ public interface IDatabase extends Cloneable {
    */
   int[] getAccessTypeList();
 
-  /** @return the default database port number */
+  /**
+   * @return the default database port number
+   */
   int getDefaultDatabasePort();
 
-  /** @return default extra Options */
+  /**
+   * @return default extra Options
+   */
   Map<String, String> getDefaultOptions();
 
   /**
@@ -218,10 +270,11 @@ public interface IDatabase extends Cloneable {
    * @return the URL to use for connecting to the database.
    * @throws HopDatabaseException in case a configuration error is detected.
    */
-  String getURL(String hostname, String port, String databaseName)
-      throws HopDatabaseException;
+  String getURL(String hostname, String port, String databaseName) throws HopDatabaseException;
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   boolean isSupportsSequences();
 
   /**
@@ -255,19 +308,29 @@ public interface IDatabase extends Cloneable {
    */
   boolean isFetchSizeSupported();
 
-  /** @return true if the database supports transactions. */
+  /**
+   * @return true if the database supports transactions.
+   */
   boolean isSupportsTransactions();
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   boolean isSupportsBitmapIndex();
 
-  /** @return true if the database JDBC driver supports the setLong command */
+  /**
+   * @return true if the database JDBC driver supports the setLong command
+   */
   boolean isSupportsSetLong();
 
-  /** @return true if the database supports schemas */
+  /**
+   * @return true if the database supports schemas
+   */
   boolean isSupportsSchemas();
 
-  /** @return true if the database supports catalogs */
+  /**
+   * @return true if the database supports catalogs
+   */
   boolean isSupportsCatalogs();
 
   /**
@@ -283,19 +346,29 @@ public interface IDatabase extends Cloneable {
    */
   boolean isNeedsPlaceHolder();
 
-  /** @return the function for Sum agrregate */
+  /**
+   * @return the function for Sum agrregate
+   */
   String getFunctionSum();
 
-  /** @return the function for Average agrregate */
+  /**
+   * @return the function for Average agrregate
+   */
   String getFunctionAverage();
 
-  /** @return the function for Minimum agrregate */
+  /**
+   * @return the function for Minimum agrregate
+   */
   String getFunctionMinimum();
 
-  /** @return the function for Maximum agrregate */
+  /**
+   * @return the function for Maximum agrregate
+   */
   String getFunctionMaximum();
 
-  /** @return the function for Count agrregate */
+  /**
+   * @return the function for Count agrregate
+   */
   String getFunctionCount();
 
   /**
@@ -389,16 +462,24 @@ public interface IDatabase extends Cloneable {
    */
   Object clone();
 
-  /** @return an array of reserved words for the database type... */
+  /**
+   * @return an array of reserved words for the database type...
+   */
   String[] getReservedWords();
 
-  /** @return true if reserved words need to be double quoted ("password", "select", ...) */
+  /**
+   * @return true if reserved words need to be double quoted ("password", "select", ...)
+   */
   boolean isQuoteReservedWords();
 
-  /** @return The start quote sequence, mostly just double quote, but sometimes [, ... */
+  /**
+   * @return The start quote sequence, mostly just double quote, but sometimes [, ...
+   */
   String getStartQuote();
 
-  /** @return The end quote sequence, mostly just double quote, but sometimes ], ... */
+  /**
+   * @return The end quote sequence, mostly just double quote, but sometimes ], ...
+   */
   String getEndQuote();
 
   /**
@@ -412,7 +493,9 @@ public interface IDatabase extends Cloneable {
    */
   String[] getViewTypes();
 
-  /** @return a list of table types to retrieve synonyms for the database */
+  /**
+   * @return a list of table types to retrieve synonyms for the database
+   */
   String[] getSynonymTypes();
 
   /**
@@ -421,13 +504,19 @@ public interface IDatabase extends Cloneable {
    */
   boolean useSchemaNameForTableList();
 
-  /** @return true if the database supports views */
+  /**
+   * @return true if the database supports views
+   */
   boolean isSupportsViews();
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   boolean isSupportsSynonyms();
 
-  /** @return The SQL on this database to get a list of stored procedures. */
+  /**
+   * @return The SQL on this database to get a list of stored procedures.
+   */
   String getSqlListOfProcedures();
 
   /**
@@ -467,16 +556,24 @@ public interface IDatabase extends Cloneable {
    */
   boolean isSupportsBatchUpdates();
 
-  /** @return true if the database supports a boolean, bit, logical, ... datatype */
+  /**
+   * @return true if the database supports a boolean, bit, logical, ... datatype
+   */
   boolean isSupportsBooleanDataType();
 
-  /** @param b Set to true if the database supports a boolean, bit, logical, ... datatype */
+  /**
+   * @param b Set to true if the database supports a boolean, bit, logical, ... datatype
+   */
   void setSupportsBooleanDataType(boolean b);
 
-  /** @return true if reserved words' case should be preserved */
+  /**
+   * @return true if reserved words' case should be preserved
+   */
   boolean isPreserveReservedCase();
 
-  /** @param b Set to true if reserved words' case should be preserved */
+  /**
+   * @param b Set to true if reserved words' case should be preserved
+   */
   void setPreserveReservedCase(boolean b);
 
   /**
@@ -512,7 +609,9 @@ public interface IDatabase extends Cloneable {
    */
   String getExtraOptionValueSeparator();
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   String getExtraOptionIndicator();
 
   /**
@@ -521,7 +620,9 @@ public interface IDatabase extends Cloneable {
    */
   boolean isSupportsOptionsInURL();
 
-  /** @return extra help text on the supported options on the selected database platform. */
+  /**
+   * @return extra help text on the supported options on the selected database platform.
+   */
   String getExtraOptionsHelpText();
 
   /**
@@ -530,10 +631,14 @@ public interface IDatabase extends Cloneable {
    */
   boolean isSupportsGetBlob();
 
-  /** @return The SQL to execute right after connecting */
+  /**
+   * @return The SQL to execute right after connecting
+   */
   String getConnectSql();
 
-  /** @param sql The SQL to execute right after connecting */
+  /**
+   * @param sql The SQL to execute right after connecting
+   */
   void setConnectSql(String sql);
 
   /**
@@ -567,22 +672,34 @@ public interface IDatabase extends Cloneable {
    */
   void setStreamingResults(boolean useStreaming);
 
-  /** @return true if all fields should always be quoted in db */
+  /**
+   * @return true if all fields should always be quoted in db
+   */
   boolean isQuoteAllFields();
 
-  /** @param quoteAllFields true if all fields in DB should be quoted. */
+  /**
+   * @param quoteAllFields true if all fields in DB should be quoted.
+   */
   void setQuoteAllFields(boolean quoteAllFields);
 
-  /** @return true if all identifiers should be forced to lower case */
+  /**
+   * @return true if all identifiers should be forced to lower case
+   */
   boolean isForcingIdentifiersToLowerCase();
 
-  /** @param forceLowerCase true if all identifiers should be forced to lower case */
+  /**
+   * @param forceLowerCase true if all identifiers should be forced to lower case
+   */
   void setForcingIdentifiersToLowerCase(boolean forceLowerCase);
 
-  /** @return true if all identifiers should be forced to upper case */
+  /**
+   * @return true if all identifiers should be forced to upper case
+   */
   boolean isForcingIdentifiersToUpperCase();
 
-  /** @param forceUpperCase true if all identifiers should be forced to upper case */
+  /**
+   * @param forceUpperCase true if all identifiers should be forced to upper case
+   */
   void setForcingIdentifiersToUpperCase(boolean forceUpperCase);
 
   /**
@@ -613,10 +730,14 @@ public interface IDatabase extends Cloneable {
    */
   String getDatabaseFactoryName();
 
-  /** @return The preferred schema name of this database connection. */
+  /**
+   * @return The preferred schema name of this database connection.
+   */
   String getPreferredSchemaName();
 
-  /** @param preferredSchemaName The preferred schema name of this database connection. */
+  /**
+   * @param preferredSchemaName The preferred schema name of this database connection.
+   */
   void setPreferredSchemaName(String preferredSchemaName);
 
   /**
@@ -630,8 +751,7 @@ public interface IDatabase extends Cloneable {
    * @return
    * @throws HopDatabaseException
    */
-  boolean hasIndex(
-      Database database, String schemaName, String tableName, String[] idxFields)
+  boolean hasIndex(Database database, String schemaName, String tableName, String[] idxFields)
       throws HopDatabaseException;
 
   /**
@@ -672,13 +792,19 @@ public interface IDatabase extends Cloneable {
    */
   boolean isSystemTable(String tableName);
 
-  /** @return true if the database supports newlines in a SQL statements. */
+  /**
+   * @return true if the database supports newlines in a SQL statements.
+   */
   boolean isSupportsNewLinesInSql();
 
-  /** @return the SQL to retrieve the list of schemas */
+  /**
+   * @return the SQL to retrieve the list of schemas
+   */
   String getSqlListOfSchemas();
 
-  /** @return The maximum number of columns in a database, <=0 means: no known limit */
+  /**
+   * @return The maximum number of columns in a database, <=0 means: no known limit
+   */
   int getMaxColumnsInIndex();
 
   /**
@@ -703,7 +829,9 @@ public interface IDatabase extends Cloneable {
    */
   boolean isExplorable();
 
-  /** @return The SQL on this database to get a list of sequences. */
+  /**
+   * @return The SQL on this database to get a list of sequences.
+   */
   String getSqlListOfSequences();
 
   /**
@@ -762,40 +890,64 @@ public interface IDatabase extends Cloneable {
    */
   boolean isPostgresVariant();
 
-  /** @return true if the database is a Sybase variant. */
+  /**
+   * @return true if the database is a Sybase variant.
+   */
   boolean isSybaseVariant();
 
-  /** @return true if the database is a SybaseIQ variant. */
+  /**
+   * @return true if the database is a SybaseIQ variant.
+   */
   boolean isSybaseIQVariant();
 
-  /** @return true if the database is a neoview variant. */
+  /**
+   * @return true if the database is a neoview variant.
+   */
   boolean isNeoviewVariant();
 
-  /** @return true if the database is a DuckDB variant. */
+  /**
+   * @return true if the database is a DuckDB variant.
+   */
   boolean isDuckDbVariant();
 
-  /** @return true if the database is a DuckDB variant. */
+  /**
+   * @return true if the database is a DuckDB variant.
+   */
   boolean isExasolVariant();
 
-  /** @return true if the database is an Informix variant. */
+  /**
+   * @return true if the database is an Informix variant.
+   */
   boolean isInformixVariant();
 
-  /** @return true if the database is a MS SQL Server (native) variant. */
+  /**
+   * @return true if the database is a MS SQL Server (native) variant.
+   */
   boolean isMsSqlServerNativeVariant();
 
-  /** @return true if the database is a MS SQL Server variant. */
+  /**
+   * @return true if the database is a MS SQL Server variant.
+   */
   boolean isMsSqlServerVariant();
 
-  /** @return true if the database is an Oracle variant. */
+  /**
+   * @return true if the database is an Oracle variant.
+   */
   boolean isOracleVariant();
 
-  /** @return true if the database is a Netezza variant. */
+  /**
+   * @return true if the database is a Netezza variant.
+   */
   boolean isNetezzaVariant();
 
-  /** @return true if the database is a SQLite variant. */
+  /**
+   * @return true if the database is a SQLite variant.
+   */
   boolean isSqliteVariant();
 
-  /** @return true if the database is a Terradata variant. */
+  /**
+   * @return true if the database is a Terradata variant.
+   */
   boolean isTeradataVariant();
 
   /**
@@ -871,6 +1023,7 @@ public interface IDatabase extends Cloneable {
 
   /**
    * Get the DELETE statement for the current database given the table name
+   *
    * @param tableName
    * @return
    */
@@ -878,10 +1031,12 @@ public interface IDatabase extends Cloneable {
 
   /**
    * Get the UPDATE statement for the current database given the table name
+   *
    * @param tableName
    * @return
    */
   String getSqlUpdateStmt(String tableName);
+
   /**
    * @return true if this database only supports metadata retrieval on a result set, never on a
    *     statement (even if the statement has been executed)
@@ -913,7 +1068,9 @@ public interface IDatabase extends Cloneable {
    */
   String getSequenceNoMaxValueOption();
 
-  /** @return true if the database supports autoGeneratedKeys */
+  /**
+   * @return true if the database supports autoGeneratedKeys
+   */
   boolean isSupportsAutoGeneratedKeys();
 
   /**
@@ -948,7 +1105,9 @@ public interface IDatabase extends Cloneable {
     return new SqlScriptParser(true);
   }
 
-  /** @return true if database supports the standard table output transform */
+  /**
+   * @return true if database supports the standard table output transform
+   */
   default boolean supportsStandardTableOutput() {
     return true;
   }
@@ -997,7 +1156,9 @@ public interface IDatabase extends Cloneable {
 
   void setPort(String port);
 
-  /** @return A manually entered URL which will be used over the internally generated one */
+  /**
+   * @return A manually entered URL which will be used over the internally generated one
+   */
   String getManualUrl();
 
   /**
@@ -1005,16 +1166,21 @@ public interface IDatabase extends Cloneable {
    */
   void setManualUrl(String manualUrl);
 
-  /** @return true if the database name is a required parameter */
+  /**
+   * @return true if the database name is a required parameter
+   */
   boolean isRequiresName();
 
   /**
-   * If the database requires it you can generate an additional clause before the 'fields' specification in an insert statement.
-   * For example, you might have INSERT INTO table1(field1, field2, field3) but you need to include a PARTITION clause.
-   * That's what you can do right here.  If you make this method return PARTITION(field4) you will get INSERT INTO table1 PARTITION(field4) (field1, field2, field3).
+   * If the database requires it you can generate an additional clause before the 'fields'
+   * specification in an insert statement. For example, you might have INSERT INTO table1(field1,
+   * field2, field3) but you need to include a PARTITION clause. That's what you can do right here.
+   * If you make this method return PARTITION(field4) you will get INSERT INTO table1
+   * PARTITION(field4) (field1, field2, field3).
    *
    * @param variables the variables to resolve with.
-   * @param schemaTable The schema-table name combination (Fully qualified table name) to generate the clause for.
+   * @param schemaTable The schema-table name combination (Fully qualified table name) to generate
+   *     the clause for.
    */
   String getSqlInsertClauseBeforeFields(IVariables variables, String schemaTable);
 }

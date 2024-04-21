@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IValueMeta;
-
 import java.util.BitSet;
 import java.util.Comparator;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
 
 class IsNullIndex extends Index implements Comparator<Index.IndexedValue> {
 

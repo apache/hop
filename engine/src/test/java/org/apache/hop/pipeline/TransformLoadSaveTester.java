@@ -17,27 +17,27 @@
 
 package org.apache.hop.pipeline;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 public class TransformLoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
 
   public TransformLoadSaveTester(
-          Class<T> clazz,
-          List<String> xmlAttributes,
-          Map<String, String> getterMap,
-          Map<String, String> setterMap,
-          Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-          Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
+      Class<T> clazz,
+      List<String> xmlAttributes,
+      Map<String, String> getterMap,
+      Map<String, String> setterMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
     super(
         clazz,
         xmlAttributes,
@@ -51,7 +51,8 @@ public class TransformLoadSaveTester<T extends ITransformMeta> extends LoadSaveB
     this(clazz, new ArrayList<>());
   }
 
-  public TransformLoadSaveTester(Class<T> clazz, List<String> commonAttributes) throws HopException {
+  public TransformLoadSaveTester(Class<T> clazz, List<String> commonAttributes)
+      throws HopException {
     super(clazz, commonAttributes);
   }
 

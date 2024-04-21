@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.pgpencryptstream;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -36,8 +37,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pgpdecryptstream.PGPDecryptStream;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "PGPEncryptStream",
     image = "pgpencryptstream.svg",
@@ -47,7 +46,8 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
     keywords = "i18n::PGPEncryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
-public class PGPEncryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
+public class PGPEncryptStreamMeta
+    extends BaseTransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
   private static final Class<?> PKG = PGPEncryptStreamMeta.class; // For Translator
 
   /** GPG location */
@@ -80,52 +80,72 @@ public class PGPEncryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PG
     return gpgLocation;
   }
 
-  /** @return Returns the streamfield. */
+  /**
+   * @return Returns the streamfield.
+   */
   public String getStreamField() {
     return streamfield;
   }
 
-  /** @param streamfield The streamfield to set. */
+  /**
+   * @param streamfield The streamfield to set.
+   */
   public void setStreamField(String streamfield) {
     this.streamfield = streamfield;
   }
 
-  /** @return Returns the keynameFieldName. */
+  /**
+   * @return Returns the keynameFieldName.
+   */
   public String getKeynameFieldName() {
     return keynameFieldName;
   }
 
-  /** @param keynameFieldName The keynameFieldName to set. */
+  /**
+   * @param keynameFieldName The keynameFieldName to set.
+   */
   public void setKeynameFieldName(String keynameFieldName) {
     this.keynameFieldName = keynameFieldName;
   }
 
-  /** @return Returns the keynameInField. */
+  /**
+   * @return Returns the keynameInField.
+   */
   public boolean isKeynameInField() {
     return keynameInField;
   }
 
-  /** @param keynameInField The keynameInField to set. */
+  /**
+   * @param keynameInField The keynameInField to set.
+   */
   public void setKeynameInField(boolean keynameInField) {
     this.keynameInField = keynameInField;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getResultFieldName() {
     return resultFieldName;
   }
 
-  /** @param resultFieldName The resultfieldname to set. */
+  /**
+   * @param resultFieldName The resultfieldname to set.
+   */
   public void setResultFieldName(String resultFieldName) {
     this.resultFieldName = resultFieldName;
   }
 
-  /** @return Returns the keyname. */
+  /**
+   * @return Returns the keyname.
+   */
   public String getKeyName() {
     return keyname;
   }
 
-  /** @param keyname The keyname to set. */
+  /**
+   * @param keyname The keyname to set.
+   */
   public void setKeyName(String keyname) {
     this.keyname = keyname;
   }

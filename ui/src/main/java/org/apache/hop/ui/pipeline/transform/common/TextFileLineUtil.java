@@ -17,16 +17,15 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TextFileLineUtil {
   private static final Class<?> PKG = TextFileLineUtil.class; // For Translator
@@ -66,7 +65,7 @@ public class TextFileLineUtil {
                 // Raise an error if this is not a DOS formatted file.
                 //
                 throw new HopFileException(
-                        BaseMessages.getString(PKG, "TextFileLineUtil.Log.SingleLineFound"));
+                    BaseMessages.getString(PKG, "TextFileLineUtil.Log.SingleLineFound"));
               }
               return line.toString();
             }

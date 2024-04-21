@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.field.MongoField;
-
-import java.util.List;
 
 public interface MongoDbInputDiscoverFields {
 

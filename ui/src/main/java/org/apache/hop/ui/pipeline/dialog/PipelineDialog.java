@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.ui.pipeline.dialog;
 
+import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -58,8 +58,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
 
 public class PipelineDialog extends Dialog {
 
@@ -366,7 +364,7 @@ public class PipelineDialog extends Dialog {
     wPipelineStatus.select(-1); // +1: starts at -1
     wPipelineStatus.addSelectionListener(lsModSel);
     PropsUi.setLook(wPipelineStatus);
-    
+
     FormData fdPipelineStatus = new FormData();
     fdPipelineStatus.left = new FormAttachment(middle, 0);
     fdPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
@@ -775,17 +773,15 @@ public class PipelineDialog extends Dialog {
       TableItem item = wParamFields.getNonEmpty(i);
 
       try {
-        if(StringUtils.isEmpty(item.getText(1)) && (!StringUtils.isEmpty(item.getText(2)) || !StringUtils.isEmpty(item.getText(3)))){
-          ok = false; 
+        if (StringUtils.isEmpty(item.getText(1))
+            && (!StringUtils.isEmpty(item.getText(2)) || !StringUtils.isEmpty(item.getText(3)))) {
+          ok = false;
           MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-          mb.setText(
-                  BaseMessages.getString(
-                          PKG, "PipelineDialog.NoUnnamedParameters.DialogTitle"));
+          mb.setText(BaseMessages.getString(PKG, "PipelineDialog.NoUnnamedParameters.DialogTitle"));
           mb.setMessage(
-                  BaseMessages.getString(
-                          PKG, "PipelineDialog.NoUnnamedParameters.DialogMessage"));
+              BaseMessages.getString(PKG, "PipelineDialog.NoUnnamedParameters.DialogMessage"));
           mb.open();
-        }else{
+        } else {
           pipelineMeta.addParameterDefinition(item.getText(1), item.getText(2), item.getText(3));
         }
       } catch (DuplicateParamException e) {

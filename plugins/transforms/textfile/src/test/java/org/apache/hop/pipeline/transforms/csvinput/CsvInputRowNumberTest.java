@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
@@ -25,10 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
 
 public class CsvInputRowNumberTest extends CsvInputUnitTestBase {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

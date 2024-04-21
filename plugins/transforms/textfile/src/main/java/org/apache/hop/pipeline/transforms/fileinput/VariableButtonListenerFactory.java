@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import java.util.Arrays;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -27,10 +28,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.Arrays;
-
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated(since="2.0")
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
+@Deprecated(since = "2.0")
 public class VariableButtonListenerFactory {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 

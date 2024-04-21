@@ -19,16 +19,13 @@ package org.apache.hop.pipeline.transforms.mail;
 
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
+import java.util.HashSet;
+import java.util.Properties;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.util.HashSet;
-import java.util.Properties;
-
-/**
- * Send mail transform. based on Mail action
- */
+/** Send mail transform. based on Mail action */
 public class MailData extends BaseTransformData implements ITransformData {
   public int indexOfDestination;
   public int indexOfDestinationCc;

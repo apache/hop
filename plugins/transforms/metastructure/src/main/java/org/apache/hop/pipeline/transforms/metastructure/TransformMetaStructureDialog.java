@@ -430,8 +430,7 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
 
     // Mask Field
     Label wlMaskField = new Label(shell, SWT.RIGHT);
-    wlMaskField.setText(
-        BaseMessages.getString(PKG, "TransformMetaStructureMeta.MaskField.Label"));
+    wlMaskField.setText(BaseMessages.getString(PKG, "TransformMetaStructureMeta.MaskField.Label"));
     PropsUi.setLook(wlMaskField);
     FormData fdlMaskField = new FormData();
     fdlMaskField.left = new FormAttachment(0, 0);
@@ -447,8 +446,8 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     fdMaskField.top = new FormAttachment(wlMaskField, 0, SWT.CENTER);
     fdMaskField.right = new FormAttachment(100, -margin);
     wMaskField.setLayoutData(fdMaskField);
-    wMaskField.setEnabled(true);  
-    
+    wMaskField.setEnabled(true);
+
     // Include Length field
     Label wlIncludeLength = new Label(shell, SWT.RIGHT);
     wlIncludeLength.setText(
@@ -674,8 +673,8 @@ public class TransformMetaStructureDialog extends BaseTransformDialog implements
     }
 
     wMaskField.setEnabled(input.isIncludeMaskField());
-    wIncludeMask.setSelection(input.isIncludeMaskField());    
-    
+    wIncludeMask.setSelection(input.isIncludeMaskField());
+
     wTypeField.setEnabled(input.isIncludeTypeField());
     wIncludeType.setSelection(input.isIncludeTypeField());
 

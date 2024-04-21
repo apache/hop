@@ -18,6 +18,9 @@
 
 package org.apache.hop.beam.core;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.annotations.Transform;
@@ -38,10 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 public class BeamHop {
 
   private static final Logger LOG = LoggerFactory.getLogger(BeamHop.class);
@@ -50,8 +49,7 @@ public class BeamHop {
     return HopEnvironment.isInitialized();
   }
 
-  public static final void init()
-      throws HopException {
+  public static final void init() throws HopException {
     synchronized (PluginRegistry.getInstance()) {
       // Don't create hop config files everywhere...
       //
@@ -104,16 +102,16 @@ public class BeamHop {
   public static Node getTransformXmlNode(TransformMeta transformMeta) throws HopException {
     String xml = transformMeta.getXml();
     Node transformNode =
-            XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
+        XmlHandler.getSubNode(XmlHandler.loadXmlString(xml), TransformMeta.XML_TAG);
     return transformNode;
   }
 
   public static void loadTransformMetadata(
-          ITransformMeta meta,
-          TransformMeta transformMeta,
-          IHopMetadataProvider metadataProvider,
-          PipelineMeta pipelineMeta)
-          throws HopException {
+      ITransformMeta meta,
+      TransformMeta transformMeta,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta)
+      throws HopException {
     meta.loadXml(getTransformXmlNode(transformMeta), metadataProvider);
     meta.searchInfoAndTargetTransforms(pipelineMeta.getTransforms());
   }

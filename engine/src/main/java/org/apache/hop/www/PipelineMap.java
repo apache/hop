@@ -17,16 +17,15 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineConfiguration;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineConfiguration;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
 
 /** This is a map between the pipeline name and the (running/waiting/finished) pipeline. */
 public class PipelineMap {

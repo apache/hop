@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.variables.IVariables;
@@ -25,10 +28,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /** Input files settings. */
 public class BaseFileInputFiles implements Cloneable {

@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.waitforfile;
 
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -38,7 +39,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import java.util.List;
 
 /** This defines a 'wait for file' action. Its use is to wait for a file to appear. */
 @Action(
@@ -54,19 +54,24 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
 
   @HopMetadataProperty(key = "filename")
   private String filename;
+
   /** Maximum timeout in seconds */
   @HopMetadataProperty(key = "maximum_timeout")
-  private String maximumTimeout;  
+  private String maximumTimeout;
+
   /** cycle time in seconds */
   @HopMetadataProperty(key = "check_cycle_time")
-  private String checkCycleTime; 
+  private String checkCycleTime;
+
   @HopMetadataProperty(key = "success_on_timeout")
   private boolean successOnTimeout;
+
   @HopMetadataProperty(key = "file_size_check")
   private boolean fileSizeCheck;
+
   @HopMetadataProperty(key = "add_filename_result")
   private boolean addFilenameToResult;
-  
+
   // infinite timeout
   private static String DEFAULT_MAXIMUM_TIMEOUT = "0";
 

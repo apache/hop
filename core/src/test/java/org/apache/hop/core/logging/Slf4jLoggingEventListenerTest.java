@@ -17,20 +17,19 @@
 
 package org.apache.hop.core.logging;
 
+import static org.apache.hop.core.logging.LogLevel.BASIC;
+import static org.apache.hop.core.logging.LogLevel.ERROR;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.function.Function;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
-
-import java.util.function.Function;
-
-import static org.apache.hop.core.logging.LogLevel.BASIC;
-import static org.apache.hop.core.logging.LogLevel.ERROR;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Slf4jLoggingEventListenerTest {

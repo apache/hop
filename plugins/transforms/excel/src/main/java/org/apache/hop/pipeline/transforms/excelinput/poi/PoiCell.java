@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
+import java.sql.Date;
+import java.util.TimeZone;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
-
-import java.sql.Date;
-import java.util.TimeZone;
 
 public class PoiCell implements IKCell {
 

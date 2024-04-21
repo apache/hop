@@ -35,7 +35,7 @@ public class DetectLastRowData extends BaseTransformData implements ITransformDa
   public DetectLastRowData() {
     super();
   }
-  
+
   /** Return a array with a constant True. */
   public Object[] getTrueArray() {
     return trueArray;

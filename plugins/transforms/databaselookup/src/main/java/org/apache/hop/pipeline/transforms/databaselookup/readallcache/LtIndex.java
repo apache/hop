@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.IValueMeta;
-
 import java.util.BitSet;
+import org.apache.hop.core.row.IValueMeta;
 
 class LtIndex extends Index {
 

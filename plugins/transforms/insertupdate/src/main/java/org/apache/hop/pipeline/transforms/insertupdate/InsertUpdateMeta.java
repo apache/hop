@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -42,9 +44,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "InsertUpdate",

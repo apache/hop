@@ -32,11 +32,9 @@ public interface ITransformDialog {
    */
   String open();
 
-  /**
-   * Brings the dialog to the front if the dialog is already open.
-   */
+  /** Brings the dialog to the front if the dialog is already open. */
   void setActive();
-  
+
   /**
    * void populateComposite( Composite parent);
    *

@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
+import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -43,12 +48,6 @@ import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.apache.hop.workflow.actions.util.IFtpConnection;
 import org.w3c.dom.Node;
-
-import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines an FTP action. */
 @Action(
@@ -276,32 +275,44 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     this.copyPrevious = copyprevious;
   }
 
-  /** @param publickey The publicpublickey to set. */
+  /**
+   * @param publickey The publicpublickey to set.
+   */
   public void setUsePublicKey(boolean publickey) {
     this.publicPublicKey = publickey;
   }
 
-  /** @return Returns the use public key. */
+  /**
+   * @return Returns the use public key.
+   */
   public boolean isUsePublicKey() {
     return publicPublicKey;
   }
 
-  /** @param keyfilename The key filename to set. */
+  /**
+   * @param keyfilename The key filename to set.
+   */
   public void setKeyFilename(String keyfilename) {
     this.keyFilename = keyfilename;
   }
 
-  /** @return Returns the key filename. */
+  /**
+   * @return Returns the key filename.
+   */
   public String getKeyFilename() {
     return keyFilename;
   }
 
-  /** @param keyFilePass The key file pass to set. */
+  /**
+   * @param keyFilePass The key file pass to set.
+   */
   public void setKeyFilePass(String keyFilePass) {
     this.keyFilePass = keyFilePass;
   }
 
-  /** @return Returns the key file pass. */
+  /**
+   * @return Returns the key file pass.
+   */
   public String getKeyFilePass() {
     return keyFilePass;
   }
@@ -322,17 +333,23 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return successCondition;
   }
 
-  /** @return Returns the directory. */
+  /**
+   * @return Returns the directory.
+   */
   public String getRemoteDirectory() {
     return remoteDirectory;
   }
 
-  /** @param directory The directory to set. */
+  /**
+   * @param directory The directory to set.
+   */
   public void setRemoteDirectory(String directory) {
     this.remoteDirectory = directory;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   @Override
   public String getPassword() {
     return password;
@@ -343,18 +360,24 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return true;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   @Override
   public String getServerName() {
     return serverName;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
@@ -367,33 +390,45 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return protocol;
   }
 
-  /** @return Returns the userName. */
+  /**
+   * @return Returns the userName.
+   */
   @Override
   public String getUserName() {
     return userName;
   }
 
-  /** @param userName The userName to set. */
+  /**
+   * @param userName The userName to set.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /** @return Returns the wildcard. */
+  /**
+   * @return Returns the wildcard.
+   */
   public String getWildcard() {
     return wildcard;
   }
 
-  /** @param wildcard The wildcard to set. */
+  /**
+   * @param wildcard The wildcard to set.
+   */
   public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
 
-  /** @param timeout The timeout to set. */
+  /**
+   * @param timeout The timeout to set.
+   */
   public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
 
-  /** @return Returns the timeout. */
+  /**
+   * @return Returns the timeout.
+   */
   @Override
   public int getTimeout() {
     return timeout;
@@ -404,13 +439,17 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return null;
   }
 
-  /** @return Returns the hostname of the ftp-proxy. */
+  /**
+   * @return Returns the hostname of the ftp-proxy.
+   */
   @Override
   public String getProxyHost() {
     return proxyHost;
   }
 
-  /** @param proxyHost The hostname of the proxy. */
+  /**
+   * @param proxyHost The hostname of the proxy.
+   */
   public void setProxyHost(String proxyHost) {
     this.proxyHost = proxyHost;
   }
@@ -423,46 +462,62 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     this.useProxy = useproxy;
   }
 
-  /** @return Returns the password which is used to authenticate at the proxy. */
+  /**
+   * @return Returns the password which is used to authenticate at the proxy.
+   */
   @Override
   public String getProxyPassword() {
     return proxyPassword;
   }
 
-  /** @param proxyPassword The password which is used to authenticate at the proxy. */
+  /**
+   * @param proxyPassword The password which is used to authenticate at the proxy.
+   */
   public void setProxyPassword(String proxyPassword) {
     this.proxyPassword = proxyPassword;
   }
 
-  /** @return Returns the port of the ftp. */
+  /**
+   * @return Returns the port of the ftp.
+   */
   @Override
   public String getServerPort() {
     return serverPort;
   }
 
-  /** @param serverPort The port of the ftp. */
+  /**
+   * @param serverPort The port of the ftp.
+   */
   public void setServerPort(String serverPort) {
     this.serverPort = serverPort;
   }
 
-  /** @return Returns the port of the ftp-proxy. */
+  /**
+   * @return Returns the port of the ftp-proxy.
+   */
   @Override
   public String getProxyPort() {
     return proxyPort;
   }
 
-  /** @param proxyPort The port of the ftp-proxy. */
+  /**
+   * @param proxyPort The port of the ftp-proxy.
+   */
   public void setProxyPort(String proxyPort) {
     this.proxyPort = proxyPort;
   }
 
-  /** @return Returns the username which is used to authenticate at the proxy. */
+  /**
+   * @return Returns the username which is used to authenticate at the proxy.
+   */
   @Override
   public String getProxyUsername() {
     return proxyUsername;
   }
 
-  /** @param proxyUsername The username which is used to authenticate at the proxy. */
+  /**
+   * @param proxyUsername The username which is used to authenticate at the proxy.
+   */
   public void setProxyUsername(String proxyUsername) {
     this.proxyUsername = proxyUsername;
   }
@@ -724,13 +779,17 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return true;
   }
 
-  /** @return the activeConnection */
+  /**
+   * @return the activeConnection
+   */
   @Override
   public boolean isActiveConnection() {
     return activeConnection;
   }
 
-  /** @param activeConnection the activeConnection to set */
+  /**
+   * @param activeConnection the activeConnection to set
+   */
   public void setActiveConnection(boolean activeConnection) {
     this.activeConnection = activeConnection;
   }
@@ -782,46 +841,62 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     return references;
   }
 
-  /** @return Socks proxy host */
+  /**
+   * @return Socks proxy host
+   */
   @Override
   public String getSocksProxyHost() {
     return this.socksProxyHost;
   }
 
-  /** @return Socks proxy port */
+  /**
+   * @return Socks proxy port
+   */
   @Override
   public String getSocksProxyPort() {
     return this.socksProxyPort;
   }
 
-  /** @return Socks proxy username */
+  /**
+   * @return Socks proxy username
+   */
   @Override
   public String getSocksProxyUsername() {
     return this.socksProxyUsername;
   }
 
-  /** @return Socks proxy username */
+  /**
+   * @return Socks proxy username
+   */
   @Override
   public String getSocksProxyPassword() {
     return this.socksProxyPassword;
   }
 
-  /** @return Sets socks proxy host */
+  /**
+   * @return Sets socks proxy host
+   */
   public void setSocksProxyHost(String socksProxyHost) {
     this.socksProxyHost = socksProxyHost;
   }
 
-  /** @return Sets socks proxy port */
+  /**
+   * @return Sets socks proxy port
+   */
   public void setSocksProxyPort(String socksProxyPort) {
     this.socksProxyPort = socksProxyPort;
   }
 
-  /** @return Sets socks proxy username */
+  /**
+   * @return Sets socks proxy username
+   */
   public void setSocksProxyUsername(String socksProxyUsername) {
     this.socksProxyUsername = socksProxyUsername;
   }
 
-  /** @return Sets socks proxy username */
+  /**
+   * @return Sets socks proxy username
+   */
   public void setSocksProxyPassword(String socksProxyPassword) {
     this.socksProxyPassword = socksProxyPassword;
   }

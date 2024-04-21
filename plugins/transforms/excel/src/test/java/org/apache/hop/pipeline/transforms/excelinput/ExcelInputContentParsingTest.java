@@ -17,13 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -218,7 +218,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
       throws Exception {
 
     testLimitOption(
-            TEST_ROW_LIMIT_SINGLE_SHEET,
+        TEST_ROW_LIMIT_SINGLE_SHEET,
         startsWithHeader,
         new int[] {startRow},
         CNST_1_ZERO_INT_ARRAY,
@@ -227,8 +227,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     // Checks
     assertEquals("Wrong row count", TEST_ROW_LIMIT_SINGLE_SHEET, rows.size());
     assertEquals("Wrong first result", firstResult, rows.get(0)[0]);
-    assertEquals(
-        "Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_SINGLE_SHEET - 1)[0]);
+    assertEquals("Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_SINGLE_SHEET - 1)[0]);
   }
 
   @Test
@@ -270,8 +269,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
   public void testLimitOptionSingleSheet_NoHeader_StartRow12() throws Exception {
     String firstResult = "12.0";
     String lastResult = "21.0";
-    testLimitOptionSingleSheet(
-            TEST_ROW_LIMIT_SINGLE_SHEET, false, 12, firstResult, lastResult);
+    testLimitOptionSingleSheet(TEST_ROW_LIMIT_SINGLE_SHEET, false, 12, firstResult, lastResult);
   }
 
   @Test
@@ -279,7 +277,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     String firstResult = "1.0";
     String lastResult = "20.0";
     testLimitOption(
-            TEST_ROW_LIMIT_MULTIPLE_SHEET,
+        TEST_ROW_LIMIT_MULTIPLE_SHEET,
         true,
         CNST_3_ZERO_INT_ARRAY,
         CNST_3_ZERO_INT_ARRAY,
@@ -287,8 +285,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
 
     // Checks
     assertEquals("Wrong first result", firstResult, rows.get(0)[0]);
-    assertEquals(
-        "Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
+    assertEquals("Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
   }
 
   @Test
@@ -296,7 +293,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     String firstResult = "col";
     String lastResult = "19.0";
     testLimitOption(
-            TEST_ROW_LIMIT_MULTIPLE_SHEET,
+        TEST_ROW_LIMIT_MULTIPLE_SHEET,
         false,
         CNST_3_ZERO_INT_ARRAY,
         CNST_3_ZERO_INT_ARRAY,
@@ -304,8 +301,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
 
     // Checks
     assertEquals("Wrong first result", firstResult, rows.get(0)[0]);
-    assertEquals(
-        "Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
+    assertEquals("Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
   }
 
   @Test
@@ -313,7 +309,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     String firstResult = "24.0";
     String lastResult = "132.0";
     testLimitOption(
-            TEST_ROW_LIMIT_MULTIPLE_SHEET,
+        TEST_ROW_LIMIT_MULTIPLE_SHEET,
         true,
         CNST_3_SHEET_START_ROW_ARRAY,
         CNST_3_ZERO_INT_ARRAY,
@@ -321,8 +317,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
 
     // Checks
     assertEquals("Wrong first result", firstResult, rows.get(0)[0]);
-    assertEquals(
-        "Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
+    assertEquals("Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
   }
 
   @Test
@@ -330,7 +325,7 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
     String firstResult = "23.0";
     String lastResult = "102.0";
     testLimitOption(
-            TEST_ROW_LIMIT_MULTIPLE_SHEET,
+        TEST_ROW_LIMIT_MULTIPLE_SHEET,
         false,
         CNST_3_SHEET_START_ROW_ARRAY,
         CNST_3_ZERO_INT_ARRAY,
@@ -338,7 +333,6 @@ public class ExcelInputContentParsingTest extends BaseExcelParsingTest {
 
     // Checks
     assertEquals("Wrong first result", firstResult, rows.get(0)[0]);
-    assertEquals(
-        "Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
+    assertEquals("Wrong last result", lastResult, rows.get(TEST_ROW_LIMIT_MULTIPLE_SHEET - 1)[0]);
   }
 }

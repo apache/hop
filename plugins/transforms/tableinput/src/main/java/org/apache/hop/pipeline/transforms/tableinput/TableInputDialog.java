@@ -134,7 +134,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
 
-
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
 
     // Some buttons

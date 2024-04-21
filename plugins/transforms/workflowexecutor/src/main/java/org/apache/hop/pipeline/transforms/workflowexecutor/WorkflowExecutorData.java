@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
@@ -25,8 +26,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.List;
 
 public class WorkflowExecutorData extends BaseTransformData implements ITransformData {
   public IWorkflowEngine<WorkflowMeta> executorWorkflow;

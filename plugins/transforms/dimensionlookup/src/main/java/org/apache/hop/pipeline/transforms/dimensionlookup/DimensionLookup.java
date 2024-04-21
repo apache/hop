@@ -148,8 +148,9 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         if (isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
           data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
           if (data.fieldnrs[i] < 0) {
-            throw new HopTransformException(BaseMessages.getString(PKG,
-                "DimensionLookup.Exception.KeyFieldNotFound", field.getName()));
+            throw new HopTransformException(
+                BaseMessages.getString(
+                    PKG, "DimensionLookup.Exception.KeyFieldNotFound", field.getName()));
           }
         } else {
           data.fieldnrs[i] = -1;
@@ -234,7 +235,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     return true;
   }
 
-  public boolean isLookupOrUpdateTypeWithArgument(final boolean update, final DLField field) throws HopTransformException {
+  public boolean isLookupOrUpdateTypeWithArgument(final boolean update, final DLField field)
+      throws HopTransformException {
     // Lookup
     if (!update) {
       return true;
@@ -243,12 +245,13 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     // Update type field
     DimensionUpdateType updateType = field.getUpdateType();
     if (updateType == null) {
-      throw new HopTransformException(BaseMessages.getString(
-          PKG, "DimensionLookup.Exception.MissingUpdateTypeField ", field.getName()));
-    }     
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "DimensionLookup.Exception.MissingUpdateTypeField ", field.getName()));
+    }
     return updateType.isWithArgument();
   }
-  
+
   private Date determineDimensionUpdatedDate(Object[] row) throws HopException {
     if (data.datefieldnr < 0) {
       return getPipeline().getExecutionStartDate(); // start of pipeline...
@@ -869,7 +872,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     for (DLField field : f.getFields()) {
       // Don't retrieve the fields without input
-      if (StringUtils.isNotEmpty(field.getLookup()) && isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
+      if (StringUtils.isNotEmpty(field.getLookup())
+          && isLookupOrUpdateTypeWithArgument(meta.isUpdate(), field)) {
         sql += ", " + databaseMeta.quoteField(field.getLookup());
 
         if (StringUtils.isNotEmpty(field.getName()) && !field.getLookup().equals(field.getName())) {
@@ -1446,7 +1450,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           data.punchThroughRowMeta.addValueMeta(rowMeta.getValueMeta(data.fieldnrs[i]));
         }
       }
-      
+
       // The special update fields...
       //
       for (DLField field : f.getFields()) {
@@ -1463,8 +1467,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           sqlUpdate += ", " + databaseMeta.quoteField(valueMeta.getName()) + " = ?" + Const.CR;
           data.punchThroughRowMeta.addValueMeta(valueMeta);
         }
-      }      
-      
+      }
+
       sqlUpdate += "WHERE ";
       for (int i = 0; i < f.getKeys().size(); i++) {
         DLKey key = f.getKeys().get(i);
@@ -1500,7 +1504,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           break;
         default:
           break;
-      }      
+      }
     }
 
     for (int i = 0; i < data.keynrs.length; i++) {
@@ -1692,16 +1696,16 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       long time = dateValue.getTime();
       long from = 0L;
       long to = 0L;
-      
+
       Date dateFrom = (Date) row[row.length - 2];
-      if ( dateFrom!=null ) {
+      if (dateFrom != null) {
         from = dateFrom.getTime();
-      }      
+      }
       Date dateTo = (Date) row[row.length - 1];
-      if ( dateTo!=null ) {
+      if (dateTo != null) {
         to = dateTo.getTime();
       }
-       
+
       if (time >= from && time < to) { // sanity check to see if we have the right version
         if (isRowLevel()) {
           logRowlevel(

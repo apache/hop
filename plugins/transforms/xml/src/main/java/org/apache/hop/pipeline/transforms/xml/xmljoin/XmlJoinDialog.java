@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -45,10 +48,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class XmlJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XmlJoinMeta.class; // For Translator

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
@@ -47,10 +50,6 @@ import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /** This class contains everything that is needed to define a transform. */
 public class TransformMeta
@@ -668,7 +667,7 @@ public class TransformMeta
   public boolean supportsMultiCopyExecution() {
     return transform.supportsMultiCopyExecution();
   }
-  
+
   public boolean supportsErrorHandling() {
     return transform.supportsErrorHandling();
   }

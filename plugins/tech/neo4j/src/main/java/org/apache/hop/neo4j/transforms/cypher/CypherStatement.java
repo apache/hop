@@ -48,7 +48,9 @@ public class CypherStatement {
     return row;
   }
 
-  /** @param row The row to set */
+  /**
+   * @param row The row to set
+   */
   public void setRow(Object[] row) {
     this.row = row;
   }
@@ -62,7 +64,9 @@ public class CypherStatement {
     return cypher;
   }
 
-  /** @param cypher The cypher to set */
+  /**
+   * @param cypher The cypher to set
+   */
   public void setCypher(String cypher) {
     this.cypher = cypher;
   }
@@ -76,7 +80,9 @@ public class CypherStatement {
     return parameters;
   }
 
-  /** @param parameters The parameters to set */
+  /**
+   * @param parameters The parameters to set
+   */
   public void setParameters(Map<String, Object> parameters) {
     this.parameters = parameters;
   }
@@ -90,7 +96,9 @@ public class CypherStatement {
     return resultRows;
   }
 
-  /** @param resultRows The resultRows to set */
+  /**
+   * @param resultRows The resultRows to set
+   */
   public void setResultRows(List<Object[]> resultRows) {
     this.resultRows = resultRows;
   }

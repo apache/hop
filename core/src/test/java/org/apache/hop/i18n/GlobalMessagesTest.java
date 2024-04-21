@@ -17,15 +17,14 @@
 
 package org.apache.hop.i18n;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 public class GlobalMessagesTest {

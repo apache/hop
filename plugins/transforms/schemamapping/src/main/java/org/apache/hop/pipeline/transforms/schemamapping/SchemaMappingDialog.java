@@ -213,7 +213,7 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     if (!Utils.isEmpty(schemaName)) {
       try {
         SchemaDefinition schemaDefinition =
-                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+            (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
         if (schemaDefinition != null) {
           List<SchemaFieldDefinition> fieldDefinitions = schemaDefinition.getFieldDefinitions();
 
@@ -233,7 +233,6 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
       }
     }
   }
-
 
   private void buildMappingTable(ModifyListener lsMod, int margin) {
 
@@ -516,8 +515,10 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
     } else {
       MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
       mb.setMessage(
-              BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SchemaNameNotProvided.Message"));
-      mb.setText(BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SchemaNameNotProvided.Title"));
+          BaseMessages.getString(
+              PKG, "SchemaMappingDialog.DoMapping.SchemaNameNotProvided.Message"));
+      mb.setText(
+          BaseMessages.getString(PKG, "SchemaMappingDialog.DoMapping.SchemaNameNotProvided.Title"));
       mb.open();
     }
   }
@@ -575,7 +576,8 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
             (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
 
         if (input.getMappingFieldset() != null) input.getMappingFieldset().clear();
-        ArrayList<SchemaFieldDefinition> staticFieldset = (ArrayList<SchemaFieldDefinition>) schemaDefinition.getFieldDefinitions();
+        ArrayList<SchemaFieldDefinition> staticFieldset =
+            (ArrayList<SchemaFieldDefinition>) schemaDefinition.getFieldDefinitions();
         for (int i = 0; i < staticFieldset.size(); i++) {
           SchemaFieldDefinition sfItem = staticFieldset.get(i);
           if (smfMap.get(sfItem.getName()) != null)

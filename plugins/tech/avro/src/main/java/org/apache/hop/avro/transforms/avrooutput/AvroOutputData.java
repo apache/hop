@@ -17,6 +17,10 @@
 
 package org.apache.hop.avro.transforms.avrooutput;
 
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
 import org.apache.avro.Schema;
 import org.apache.avro.file.DataFileWriter;
 import org.apache.avro.generic.GenericRecord;
@@ -27,11 +31,6 @@ import org.apache.avro.io.JsonEncoder;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
 
 public class AvroOutputData extends BaseTransformData implements ITransformData {
   public int splitNr;

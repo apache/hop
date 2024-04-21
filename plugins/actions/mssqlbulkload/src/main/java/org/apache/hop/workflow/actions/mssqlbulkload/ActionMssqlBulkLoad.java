@@ -17,6 +17,10 @@
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
@@ -47,11 +51,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 /** This defines a MSSQL Bulk action. */
 @Action(
@@ -514,7 +513,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                   logError("An error occurred executing this action : " + je.getMessage(), je);
                 } catch (HopFileException e) {
                   logError("An error occurred executing this action : " + e.getMessage(), e);
-                  result.setNrErrors(1);                
+                  result.setNrErrors(1);
                 }
               } else {
                 // Of course, the table should have been created already before the bulk load

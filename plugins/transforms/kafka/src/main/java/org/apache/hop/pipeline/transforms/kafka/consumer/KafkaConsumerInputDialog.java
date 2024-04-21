@@ -17,7 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
+import static java.util.Optional.ofNullable;
+
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -69,14 +76,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.Optional.ofNullable;
 
 public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -383,7 +382,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     wlConsumerGroup.setText(BaseMessages.getString(PKG, "KafkaConsumerInputDialog.ConsumerGroup"));
     FormData fdlConsumerGroup = new FormData();
     fdlConsumerGroup.left = new FormAttachment(0, 0);
-    fdlConsumerGroup.top = new FormAttachment(wConsumerGroup, 0,  SWT.CENTER);
+    fdlConsumerGroup.top = new FormAttachment(wConsumerGroup, 0, SWT.CENTER);
     fdlConsumerGroup.right = new FormAttachment(middle, -margin);
     wlConsumerGroup.setLayoutData(fdlConsumerGroup);
     fdConsumerGroup.left = new FormAttachment(wlConsumerGroup, margin);

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -60,8 +62,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-import java.util.ArrayList;
-import java.util.List;
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG = TeraFastMeta.class; // For Translator
@@ -487,7 +487,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wReturn.addModifyListener(lsMod);
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildControlFileLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wUseControlFile;
 
@@ -510,7 +512,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wControlFile.setLayoutData(formData);
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildFastloadLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wVariableSubstitution;
 
@@ -533,7 +537,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wFastLoadPath.setLayoutData(formData);
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildUseControlFileLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wTransformName;
 
@@ -556,7 +562,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         });
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildVariableSubstitutionLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wControlFile;
 
@@ -572,7 +580,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         factory.createButtonLayoutData(wlVariableSubstitution));
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildLogFileLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wFastLoadPath;
 
@@ -613,7 +623,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wTransformName.setLayoutData(this.fdTransformName);
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildTableLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wConnection;
 
@@ -635,7 +647,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         });
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildTruncateTableLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wTable;
 
@@ -649,7 +663,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wbTruncateTable.setLayoutData(factory.createButtonLayoutData(wlTruncateTable));
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildDataFileLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wbTruncateTable;
 
@@ -672,7 +688,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wDataFile.setLayoutData(formData);
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildSessionsLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wDataFile;
 
@@ -686,7 +704,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wSessions.setLayoutData(factory.createControlLayoutData(topControl));
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildErrorLimitLine(final PluginWidgetFactory factory) {
     final Control topControl = this.wSessions;
 
@@ -700,7 +720,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     this.wErrLimit.setLayoutData(factory.createControlLayoutData(topControl));
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildAscLink(final PluginWidgetFactory factory) {
     final Control topControl = this.wReturn;
 
@@ -708,7 +730,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     formData.right = null;
   }
 
-  /** @param factory factory to use. */
+  /**
+   * @param factory factory to use.
+   */
   protected void buildFieldTable(final PluginWidgetFactory factory) {
     final Control topControl = this.wErrLimit;
 
@@ -802,7 +826,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     }
   }
 
-  /** @return the meta */
+  /**
+   * @return the meta
+   */
   public TeraFastMeta getMeta() {
     return this.meta;
   }

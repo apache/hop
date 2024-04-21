@@ -17,6 +17,13 @@
 
 package org.apache.hop.core.fileinput;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -28,14 +35,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
 
 public class FileInputList {
   private final List<FileObject> files = new ArrayList<>();
@@ -341,26 +340,26 @@ public class FileInputList {
         // Find all folder names in this directory
         //
         if (directoryFileObject != null
-                && directoryFileObject.getType() == FileType.FOLDER) { // it's a directory
+            && directoryFileObject.getType() == FileType.FOLDER) { // it's a directory
           FileObject[] fileObjects =
-                  directoryFileObject.findFiles(
-                          new AllFileSelector() {
-                            @Override
-                            public boolean includeFile(FileSelectInfo info) {
-                              // Never return the parent directory of a file list.
-                              if (info.getDepth() == 0) {
-                                return false;
-                              }
+              directoryFileObject.findFiles(
+                  new AllFileSelector() {
+                    @Override
+                    public boolean includeFile(FileSelectInfo info) {
+                      // Never return the parent directory of a file list.
+                      if (info.getDepth() == 0) {
+                        return false;
+                      }
 
-                              FileObject fileObject = info.getFile();
-                              try {
-                                return fileObject != null && filter.isFileTypeAllowed(fileObject.getType());
-                              } catch (IOException ex) {
-                                // Upon error don't process the file.
-                                return false;
-                              }
-                            }
-                          });
+                      FileObject fileObject = info.getFile();
+                      try {
+                        return fileObject != null && filter.isFileTypeAllowed(fileObject.getType());
+                      } catch (IOException ex) {
+                        // Upon error don't process the file.
+                        return false;
+                      }
+                    }
+                  });
           if (fileObjects != null) {
             for (FileObject fileObject : fileObjects) {
               if (fileObject.exists()) {

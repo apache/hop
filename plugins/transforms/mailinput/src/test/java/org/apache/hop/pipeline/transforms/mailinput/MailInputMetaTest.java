@@ -22,7 +22,12 @@ package org.apache.hop.pipeline.transforms.mailinput;
  *
  * @see MailInputMeta
  */
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -38,13 +43,6 @@ import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class MailInputMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;

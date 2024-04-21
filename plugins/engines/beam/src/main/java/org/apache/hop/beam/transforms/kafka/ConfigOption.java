@@ -74,7 +74,9 @@ public class ConfigOption {
     return parameter;
   }
 
-  /** @param parameter The parameter to set */
+  /**
+   * @param parameter The parameter to set
+   */
   public void setParameter(String parameter) {
     this.parameter = parameter;
   }
@@ -88,7 +90,9 @@ public class ConfigOption {
     return value;
   }
 
-  /** @param value The value to set */
+  /**
+   * @param value The value to set
+   */
   public void setValue(String value) {
     this.value = value;
   }
@@ -102,7 +106,9 @@ public class ConfigOption {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(Type type) {
     this.type = type;
   }

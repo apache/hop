@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.file;
 
-import org.apache.hop.core.util.Utils;
-
 import java.io.UnsupportedEncodingException;
+import org.apache.hop.core.util.Utils;
 
 public enum EncodingType {
   SINGLE(1, 0, '\r', '\n'),

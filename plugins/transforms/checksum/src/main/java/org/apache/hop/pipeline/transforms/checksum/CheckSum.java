@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
+import java.io.ByteArrayOutputStream;
+import java.security.MessageDigest;
+import java.util.zip.Adler32;
+import java.util.zip.CRC32;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -27,11 +31,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.ByteArrayOutputStream;
-import java.security.MessageDigest;
-import java.util.zip.Adler32;
-import java.util.zip.CRC32;
 
 /** Caculate a checksum for each row. */
 public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
@@ -176,7 +175,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
         if (value != null) {
           valueAdded = true;
           baos.write(value.toString().getBytes());
-        }    
+        }
       }
     }
 
@@ -184,7 +183,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     if (!valueAdded) {
       return null;
     }
-    
+
     // Updates the digest using the specified array of bytes
     data.digest.update(baos.toByteArray());
 
@@ -227,7 +226,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
       } else {
         Object value = valueMeta.getNativeDataType(r[data.fieldnrs[i]]);
         if (value != null) {
-          valueAdded= true;
+          valueAdded = true;
           baos.write(value.toString().getBytes());
         }
       }
@@ -237,7 +236,7 @@ public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> {
     if (!valueAdded) {
       return null;
     }
-    
+
     byteArray = baos.toByteArray();
 
     if (meta.getCheckSumType() == CheckSumMeta.CheckSumType.CRC32) {

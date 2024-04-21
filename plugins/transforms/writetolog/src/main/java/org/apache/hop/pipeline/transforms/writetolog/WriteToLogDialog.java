@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.writetolog;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -52,9 +54,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WriteToLogDialog.class; // For Translator

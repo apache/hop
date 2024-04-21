@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IRowMeta;
@@ -28,10 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * We take file with content and run it parallel with several transforms. see docs for {@link

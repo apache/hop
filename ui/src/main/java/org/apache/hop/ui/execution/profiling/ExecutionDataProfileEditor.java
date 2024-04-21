@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.execution.profiling;
 
+import java.util.ArrayList;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
@@ -45,9 +47,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * The editor for metadata object {@link org.apache.hop.execution.profiling.ExecutionDataProfile}
@@ -92,7 +91,6 @@ public class ExecutionDataProfileEditor extends MetadataEditor<ExecutionDataProf
     //
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
-
 
     // The generic widgets: name, description and pipeline engine type
     //

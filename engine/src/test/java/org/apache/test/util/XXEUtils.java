@@ -17,7 +17,9 @@
 package org.apache.test.util;
 
 public class XXEUtils {
-  /** @see <a href="https://en.wikipedia.org/wiki/Billion_laughs" /> */
+  /**
+   * @see <a href="https://en.wikipedia.org/wiki/Billion_laughs" />
+   */
   public static final String MALICIOUS_XML =
       "<?xml version=\"1.0\"?>\n"
           + "<!DOCTYPE lolz [\n"

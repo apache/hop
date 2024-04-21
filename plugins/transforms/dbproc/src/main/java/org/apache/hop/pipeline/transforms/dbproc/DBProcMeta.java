@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.dbproc;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -39,9 +41,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Transform(
     id = "DBProc",
     image = "dbproc.svg",
@@ -56,7 +55,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
   /** database connection */
   @HopMetadataProperty(key = "connection")
   private String connection;
-  
+
   /** procedure name to be called */
   @HopMetadataProperty private String procedure;
 
@@ -162,9 +161,7 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
               BaseMessages.getString(
-                  PKG,
-                  "DBProcMeta.CheckResult.DatabaseMetaError",
-                  variables.resolve(connection)),
+                  PKG, "DBProcMeta.CheckResult.DatabaseMetaError", variables.resolve(connection)),
               transformMeta);
       remarks.add(cr);
     }
@@ -224,13 +221,13 @@ public class DBProcMeta extends BaseTransformMeta<DBProc, DBProcData> {
               BaseMessages.getString(PKG, "DBProcMeta.CheckResult.CouldNotReadFields") + Const.CR;
           cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
           remarks.add(cr);
-        }        
+        }
       } catch (HopException e) {
         errorMessage =
             BaseMessages.getString(PKG, "DBProcMeta.CheckResult.ErrorOccurred") + e.getMessage();
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
-     }          
+      }
     } else {
       errorMessage = BaseMessages.getString(PKG, "DBProcMeta.CheckResult.InvalidConnection");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);

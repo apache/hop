@@ -17,6 +17,25 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.util.List;
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -36,26 +55,6 @@ import org.glassfish.jersey.client.RequestEntityProcessing;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.uri.UriComponent;
 import org.json.simple.JSONObject;
-
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
-import java.util.List;
 
 public class Rest extends BaseTransform<RestMeta, RestData> {
   private static final Class<?> PKG = RestMeta.class; // For Translator
@@ -294,10 +293,12 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       // Use ApacheHttpClient for supporting proxy authentication.
       data.config = new ClientConfig();
       data.config.connectorProvider(new ApacheConnectorProvider());
-      data.config.property(ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+      data.config.property(
+          ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
       if (!Utils.isEmpty(data.realProxyHost)) {
         // PROXY CONFIGURATION
-        data.config.property(ClientProperties.PROXY_URI,"http://"+ data.realProxyHost + ":" + data.realProxyPort);
+        data.config.property(
+            ClientProperties.PROXY_URI, "http://" + data.realProxyHost + ":" + data.realProxyPort);
         if (!Utils.isEmpty(data.realHttpLogin) && !Utils.isEmpty(data.realHttpPassword)) {
           data.config.property(ClientProperties.PROXY_USERNAME, data.realHttpLogin);
           data.config.property(ClientProperties.PROXY_PASSWORD, data.realHttpPassword);

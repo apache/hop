@@ -17,19 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Properties;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Properties;
 
 public class XsltData extends BaseTransformData implements ITransformData {
 

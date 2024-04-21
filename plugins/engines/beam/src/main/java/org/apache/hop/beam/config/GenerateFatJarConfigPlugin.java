@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.config;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.gui.HopBeamGuiPlugin;
 import org.apache.hop.beam.pipeline.fatjar.FatJarBuilder;
@@ -27,8 +28,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import picocli.CommandLine;
-
-import java.util.List;
 
 @ConfigPlugin(
     id = "GenerateFatJarConfigPlugin",
@@ -83,7 +82,9 @@ public class GenerateFatJarConfigPlugin implements IConfigOptions {
     return fatJarFilename;
   }
 
-  /** @param fatJarFilename The fatJarFilename to set */
+  /**
+   * @param fatJarFilename The fatJarFilename to set
+   */
   public void setFatJarFilename(String fatJarFilename) {
     this.fatJarFilename = fatJarFilename;
   }

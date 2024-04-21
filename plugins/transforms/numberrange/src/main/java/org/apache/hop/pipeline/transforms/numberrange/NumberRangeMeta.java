@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.numberrange;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -33,9 +35,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.LinkedList;
-import java.util.List;
-
 @Transform(
     id = "NumberRange",
     image = "numberrange.svg",
@@ -47,17 +46,30 @@ import java.util.List;
 public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeData> {
 
   private static final Class<?> PKG = NumberRangeMeta.class; // For Translator
-  
-  @HopMetadataProperty(key ="inputField", injectionKey = "INPUT_FIELD", injectionKeyDescription = "NumberRangeMeta.Injection.INPUT_FIELD")
+
+  @HopMetadataProperty(
+      key = "inputField",
+      injectionKey = "INPUT_FIELD",
+      injectionKeyDescription = "NumberRangeMeta.Injection.INPUT_FIELD")
   private String inputField;
 
-  @HopMetadataProperty(key ="outputField", injectionKey = "OUTPUT_FIELD", injectionKeyDescription = "NumberRangeMeta.Injection.OUTPUT_FIELD")
+  @HopMetadataProperty(
+      key = "outputField",
+      injectionKey = "OUTPUT_FIELD",
+      injectionKeyDescription = "NumberRangeMeta.Injection.OUTPUT_FIELD")
   private String outputField;
 
-  @HopMetadataProperty(key ="fallBackValue", injectionKey = "FALL_BACK_VALUE", injectionKeyDescription = "NumberRangeMeta.Injection.FALL_BACK_VALUE")
+  @HopMetadataProperty(
+      key = "fallBackValue",
+      injectionKey = "FALL_BACK_VALUE",
+      injectionKeyDescription = "NumberRangeMeta.Injection.FALL_BACK_VALUE")
   private String fallBackValue;
 
-  @HopMetadataProperty(groupKey = "rules", key = "rule", injectionGroupKey = "RULES", injectionGroupDescription = "NumberRangeMeta.Injection.RULES")
+  @HopMetadataProperty(
+      groupKey = "rules",
+      key = "rule",
+      injectionGroupKey = "RULES",
+      injectionGroupDescription = "NumberRangeMeta.Injection.RULES")
   private List<NumberRangeRule> rules;
 
   public NumberRangeMeta() {
@@ -147,8 +159,8 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
               transforminfo);
       remarks.add(cr);
     }
-    
-    // Check that the lower and upper bounds are numerics    
+
+    // Check that the lower and upper bounds are numerics
     for (NumberRangeRule rule : this.rules) {
       try {
         if (!Utils.isEmpty(rule.getLowerBound())) {
@@ -158,10 +170,15 @@ public class NumberRangeMeta extends BaseTransformMeta<NumberRange, NumberRangeD
           Double.valueOf(rule.getUpperBound());
         }
       } catch (NumberFormatException e) {
-        cr = new CheckResult(
-                ICheckResult.TYPE_RESULT_ERROR,                
+        cr =
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    PKG, "NumberRangeMeta.CheckResult.NotNumericRule", rule.getLowerBound(), rule.getUpperBound(), rule.getValue()),
+                    PKG,
+                    "NumberRangeMeta.CheckResult.NotNumericRule",
+                    rule.getLowerBound(),
+                    rule.getUpperBound(),
+                    rule.getValue()),
                 transforminfo);
         remarks.add(cr);
       }

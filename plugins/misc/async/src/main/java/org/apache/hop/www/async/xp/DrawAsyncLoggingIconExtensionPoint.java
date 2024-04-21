@@ -17,6 +17,7 @@
 
 package org.apache.hop.www.async.xp;
 
+import java.util.Map;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
@@ -27,8 +28,6 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.WorkflowPainterExtension;
 import org.apache.hop.www.async.Defaults;
-
-import java.util.Map;
 
 @ExtensionPoint(
     id = "DrawAsyncLoggingIconExtensionPoint",

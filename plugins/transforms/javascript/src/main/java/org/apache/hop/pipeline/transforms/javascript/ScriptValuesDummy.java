@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import java.awt.event.ComponentListener;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -37,12 +42,6 @@ import org.apache.hop.pipeline.transform.ITransformFinishedListener;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.ITransformStartedListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.awt.event.ComponentListener;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /** Dummy class used for test(). */
 public class ScriptValuesDummy implements ITransform {
@@ -359,20 +358,16 @@ public class ScriptValuesDummy implements ITransform {
     return false;
   }
 
-  public void setUsingThreadPriorityManagment(boolean usingThreadPriorityManagment) {
-  }
+  public void setUsingThreadPriorityManagment(boolean usingThreadPriorityManagment) {}
 
   @Override
-  public void setRunning(boolean running) {
-  }
+  public void setRunning(boolean running) {}
 
   @Override
-  public void setStopped(boolean stopped) {
-  }
+  public void setStopped(boolean stopped) {}
 
   @Override
-  public void setSafeStopped(boolean stopped) {
-  }
+  public void setSafeStopped(boolean stopped) {}
 
   @Override
   public int rowsetInputSize() {
@@ -424,16 +419,13 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void identifyErrorOutput() {
-  }
+  public void identifyErrorOutput() {}
 
   @Override
-  public void setPartitioned(boolean partitioned) {
-  }
+  public void setPartitioned(boolean partitioned) {}
 
   @Override
-  public void setRepartitioning(int partitioningMethod) {
-  }
+  public void setRepartitioning(int partitioningMethod) {}
 
   @Override
   public boolean canProcessOneRow() {
@@ -449,8 +441,7 @@ public class ScriptValuesDummy implements ITransform {
     return false;
   }
 
-  public void setWaitingForData(boolean waitingForData) {
-  }
+  public void setWaitingForData(boolean waitingForData) {}
 
   public boolean isIdle() {
     return false;
@@ -460,24 +451,19 @@ public class ScriptValuesDummy implements ITransform {
     return false;
   }
 
-  public void setPassingData(boolean passingData) {
-  }
+  public void setPassingData(boolean passingData) {}
 
   @Override
-  public void batchComplete() throws HopException {
-  }
+  public void batchComplete() throws HopException {}
 
   @Override
-  public void startBundle() throws HopException {
-  }
+  public void startBundle() throws HopException {}
 
   @Override
-  public void finishBundle() throws HopException {
-  }
+  public void finishBundle() throws HopException {}
 
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-  }
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {}
 
   @Override
   public IHopMetadataProvider getMetadataProvider() {
@@ -490,8 +476,7 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setCurrentOutputRowSetNr(int index) {
-  }
+  public void setCurrentOutputRowSetNr(int index) {}
 
   @Override
   public int getCurrentOutputRowSetNr() {
@@ -499,8 +484,7 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setCurrentInputRowSetNr(int index) {
-  }
+  public void setCurrentInputRowSetNr(int index) {}
 
   @Override
   public ITransformMeta getMeta() {

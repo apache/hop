@@ -209,22 +209,30 @@ public class XmlField implements Cloneable {
     return fieldName + ":" + getTypeDesc() + ":" + elementName;
   }
 
-  /** @return Returns the elementName. */
+  /**
+   * @return Returns the elementName.
+   */
   public String getElementName() {
     return elementName;
   }
 
-  /** @param elementName The elementName to set. */
+  /**
+   * @param elementName The elementName to set.
+   */
   public void setElementName(String elementName) {
     this.elementName = elementName;
   }
 
-  /** @return the contentType */
+  /**
+   * @return the contentType
+   */
   public ContentType getContentType() {
     return contentType;
   }
 
-  /** @param contentType the contentType to set */
+  /**
+   * @param contentType the contentType to set
+   */
   public void setContentType(ContentType contentType) {
     this.contentType = contentType;
   }

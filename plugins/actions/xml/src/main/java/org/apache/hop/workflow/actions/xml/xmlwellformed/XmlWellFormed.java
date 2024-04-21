@@ -17,6 +17,10 @@
 
 package org.apache.hop.workflow.actions.xml.xmlwellformed;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -47,11 +51,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 import org.xml.sax.helpers.DefaultHandler;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /** This defines a 'xml well formed' workflow action. */
 @Action(
     id = "XML_WELL_FORMED",
@@ -72,17 +71,29 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   public static final String ADD_WELL_FORMED_FILES_ONLY = "only_well_formed_filenames";
   public static final String ADD_BAD_FORMED_FILES_ONLY = "only_bad_formed_filenames";
 
-  /** @Deprecated no longer used */
-  @Deprecated(since="2.0") public boolean argFromPrevious;
+  /**
+   * @Deprecated no longer used
+   */
+  @Deprecated(since = "2.0")
+  public boolean argFromPrevious;
 
-  /** @Deprecated no longer used */
-  @Deprecated(since="2.0") public boolean includeSubfolders;
+  /**
+   * @Deprecated no longer used
+   */
+  @Deprecated(since = "2.0")
+  public boolean includeSubfolders;
 
-  /** @Deprecated no longer used */
-  @Deprecated(since="2.0") public String[] sourceFileFolders;
+  /**
+   * @Deprecated no longer used
+   */
+  @Deprecated(since = "2.0")
+  public String[] sourceFileFolders;
 
-  /** @Deprecated no longer used */
-  @Deprecated(since="2.0") public String[] wildcard;
+  /**
+   * @Deprecated no longer used
+   */
+  @Deprecated(since = "2.0")
+  public String[] wildcard;
 
   private String nrErrorsLessThan;
   private String successCondition;

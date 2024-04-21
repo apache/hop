@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -40,8 +41,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 @Transform(
     id = "TeraFast",
@@ -304,122 +303,170 @@ public class TeraFastMeta extends AbstractTransformMeta<ITransform, ITransformDa
     return super.clone();
   }
 
-  /** @return the fastloadPath */
+  /**
+   * @return the fastloadPath
+   */
   public StringPluginProperty getFastloadPath() {
     return this.fastloadPath;
   }
 
-  /** @param fastloadPath the fastloadPath to set */
+  /**
+   * @param fastloadPath the fastloadPath to set
+   */
   public void setFastloadPath(final StringPluginProperty fastloadPath) {
     this.fastloadPath = fastloadPath;
   }
 
-  /** @return the controlFile */
+  /**
+   * @return the controlFile
+   */
   public StringPluginProperty getControlFile() {
     return this.controlFile;
   }
 
-  /** @param controlFile the controlFile to set */
+  /**
+   * @param controlFile the controlFile to set
+   */
   public void setControlFile(final StringPluginProperty controlFile) {
     this.controlFile = controlFile;
   }
 
-  /** @return the dataFile */
+  /**
+   * @return the dataFile
+   */
   public StringPluginProperty getDataFile() {
     return this.dataFile;
   }
 
-  /** @param dataFile the dataFile to set */
+  /**
+   * @param dataFile the dataFile to set
+   */
   public void setDataFile(final StringPluginProperty dataFile) {
     this.dataFile = dataFile;
   }
 
-  /** @return the logFile */
+  /**
+   * @return the logFile
+   */
   public StringPluginProperty getLogFile() {
     return this.logFile;
   }
 
-  /** @param logFile the logFile to set */
+  /**
+   * @param logFile the logFile to set
+   */
   public void setLogFile(final StringPluginProperty logFile) {
     this.logFile = logFile;
   }
 
-  /** @return the sessions */
+  /**
+   * @return the sessions
+   */
   public IntegerPluginProperty getSessions() {
     return this.sessions;
   }
 
-  /** @param sessions the sessions to set */
+  /**
+   * @param sessions the sessions to set
+   */
   public void setSessions(final IntegerPluginProperty sessions) {
     this.sessions = sessions;
   }
 
-  /** @return the errorLimit */
+  /**
+   * @return the errorLimit
+   */
   public IntegerPluginProperty getErrorLimit() {
     return this.errorLimit;
   }
 
-  /** @param errorLimit the errorLimit to set */
+  /**
+   * @param errorLimit the errorLimit to set
+   */
   public void setErrorLimit(final IntegerPluginProperty errorLimit) {
     this.errorLimit = errorLimit;
   }
 
-  /** @return the useControlFile */
+  /**
+   * @return the useControlFile
+   */
   public BooleanPluginProperty getUseControlFile() {
     return this.useControlFile;
   }
 
-  /** @param useControlFile the useControlFile to set */
+  /**
+   * @param useControlFile the useControlFile to set
+   */
   public void setUseControlFile(final BooleanPluginProperty useControlFile) {
     this.useControlFile = useControlFile;
   }
 
-  /** @return the targetTable */
+  /**
+   * @return the targetTable
+   */
   public StringPluginProperty getTargetTable() {
     return this.targetTable;
   }
 
-  /** @param targetTable the targetTable to set */
+  /**
+   * @param targetTable the targetTable to set
+   */
   public void setTargetTable(final StringPluginProperty targetTable) {
     this.targetTable = targetTable;
   }
 
-  /** @return the truncateTable */
+  /**
+   * @return the truncateTable
+   */
   public BooleanPluginProperty getTruncateTable() {
     return this.truncateTable;
   }
 
-  /** @param truncateTable the truncateTable to set */
+  /**
+   * @param truncateTable the truncateTable to set
+   */
   public void setTruncateTable(final BooleanPluginProperty truncateTable) {
     this.truncateTable = truncateTable;
   }
 
-  /** @return the tableFieldList */
+  /**
+   * @return the tableFieldList
+   */
   public StringListPluginProperty getTableFieldList() {
     return this.tableFieldList;
   }
 
-  /** @param tableFieldList the tableFieldList to set */
+  /**
+   * @param tableFieldList the tableFieldList to set
+   */
   public void setTableFieldList(final StringListPluginProperty tableFieldList) {
     this.tableFieldList = tableFieldList;
   }
 
-  /** @return the streamFieldList */
+  /**
+   * @return the streamFieldList
+   */
   public StringListPluginProperty getStreamFieldList() {
     return this.streamFieldList;
   }
 
-  /** @param streamFieldList the streamFieldList to set */
+  /**
+   * @param streamFieldList the streamFieldList to set
+   */
   public void setStreamFieldList(final StringListPluginProperty streamFieldList) {
     this.streamFieldList = streamFieldList;
   }
 
-  /** @return the variableSubstitution */
+  /**
+   * @return the variableSubstitution
+   */
   public BooleanPluginProperty getVariableSubstitution() {
     return this.variableSubstitution;
   }
 
-  /** @param variableSubstitution the variableSubstitution to set */
+  /**
+   * @param variableSubstitution the variableSubstitution to set
+   */
   public void setVariableSubstitution(BooleanPluginProperty variableSubstitution) {
     this.variableSubstitution = variableSubstitution;
   }

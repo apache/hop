@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.sampler.plugins.last;
 
+import java.util.List;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
@@ -26,16 +27,14 @@ import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.plugins.ExecutionDataSamplerBase;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
-import java.util.List;
-
 @GuiPlugin
 @ExecutionDataSamplerPlugin(
     id = "LastRowsExecutionDataSampler",
     name = "Last output rows",
     description = "Samples the last rows of a transform output")
 public class LastRowsExecutionDataSampler
-        extends ExecutionDataSamplerBase<LastRowsExecutionDataSamplerStore>
-implements IExecutionDataSampler<LastRowsExecutionDataSamplerStore> {
+    extends ExecutionDataSamplerBase<LastRowsExecutionDataSamplerStore>
+    implements IExecutionDataSampler<LastRowsExecutionDataSamplerStore> {
   private static final Class<?> PKG = LastRowsExecutionDataSampler.class; // For Translator
 
   public LastRowsExecutionDataSampler() {
@@ -55,13 +54,14 @@ implements IExecutionDataSampler<LastRowsExecutionDataSamplerStore> {
   }
 
   @Override
-  public LastRowsExecutionDataSamplerStore createSamplerStore(ExecutionDataSamplerMeta samplerMeta) {
+  public LastRowsExecutionDataSamplerStore createSamplerStore(
+      ExecutionDataSamplerMeta samplerMeta) {
     return new LastRowsExecutionDataSamplerStore(this, samplerMeta);
   }
 
   @Override
   public void sampleRow(
-          LastRowsExecutionDataSamplerStore samplerStore,
+      LastRowsExecutionDataSamplerStore samplerStore,
       IStream.StreamType streamType,
       IRowMeta rowMeta,
       Object[] row) {

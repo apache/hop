@@ -17,6 +17,10 @@
 
 package org.apache.hop.beam.pipeline.handler;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.io.Read;
 import org.apache.beam.sdk.io.synthetic.SyntheticBoundedSource;
@@ -42,11 +46,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGenerator;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {
@@ -189,12 +188,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
           sourceInput.apply(
               ParDo.of(
                   new StaticHopRowFn(
-                      transformMeta.getName(),
-                      rowMetaJson,
-                      rowDataXml,
-                      false,
-                      -1,
-                      -1)));
+                      transformMeta.getName(), rowMetaJson, rowDataXml, false, -1, -1)));
     }
 
     transformCollectionMap.put(transformMeta.getName(), afterInput);

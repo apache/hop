@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -34,9 +36,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "RowGenerator",
@@ -223,7 +222,9 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     return neverEnding;
   }
 
-  /** @param neverEnding The neverEnding to set */
+  /**
+   * @param neverEnding The neverEnding to set
+   */
   public void setNeverEnding(boolean neverEnding) {
     this.neverEnding = neverEnding;
   }
@@ -237,7 +238,9 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     return intervalInMs;
   }
 
-  /** @param intervalInMs The intervalInMs to set */
+  /**
+   * @param intervalInMs The intervalInMs to set
+   */
   public void setIntervalInMs(String intervalInMs) {
     this.intervalInMs = intervalInMs;
   }
@@ -251,7 +254,9 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     return rowTimeField;
   }
 
-  /** @param rowTimeField The rowTimeField to set */
+  /**
+   * @param rowTimeField The rowTimeField to set
+   */
   public void setRowTimeField(String rowTimeField) {
     this.rowTimeField = rowTimeField;
   }
@@ -265,7 +270,9 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     return lastTimeField;
   }
 
-  /** @param lastTimeField The lastTimeField to set */
+  /**
+   * @param lastTimeField The lastTimeField to set
+   */
   public void setLastTimeField(String lastTimeField) {
     this.lastTimeField = lastTimeField;
   }
@@ -279,7 +286,9 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set */
+  /**
+   * @param rowLimit The rowLimit to set
+   */
   public void setRowLimit(String rowLimit) {
     this.rowLimit = rowLimit;
   }
@@ -293,7 +302,9 @@ public class RowGeneratorMeta extends BaseTransformMeta<RowGenerator, RowGenerat
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<GeneratorField> fields) {
     this.fields = fields;
   }

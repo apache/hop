@@ -17,6 +17,8 @@
 
 package org.apache.hop.testing.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -29,9 +31,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UnitTestUtil {
 

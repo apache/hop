@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.actions.constraint;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -27,9 +29,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Action(
     id = "NEO4J_CONSTRAINT",
@@ -218,7 +217,9 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     return connection;
   }
 
-  /** @param connection The connection to set */
+  /**
+   * @param connection The connection to set
+   */
   public void setConnection(NeoConnection connection) {
     this.connection = connection;
   }
@@ -232,7 +233,9 @@ public class Neo4jConstraint extends ActionBase implements IAction {
     return constraintUpdates;
   }
 
-  /** @param constraintUpdates The constraintUpdates to set */
+  /**
+   * @param constraintUpdates The constraintUpdates to set
+   */
   public void setConstraintUpdates(List<ConstraintUpdate> constraintUpdates) {
     this.constraintUpdates = constraintUpdates;
   }

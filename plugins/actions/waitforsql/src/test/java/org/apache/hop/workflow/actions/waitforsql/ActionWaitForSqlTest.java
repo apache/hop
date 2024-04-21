@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.waitforsql;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -29,7 +30,7 @@ import org.junit.Test;
 
 /** Unit tests for wait for sql action. */
 public class ActionWaitForSqlTest {
- 
+
   @Test
   public void testSerialization() throws Exception {
     HopClientEnvironment.init();

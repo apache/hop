@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -30,9 +32,6 @@ import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Transform(
     id = "BlockUntilTransformsFinish",
     image = "blockinguntiltransformsfinish.svg",
@@ -41,7 +40,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::BlockUntilTransformsFinishMeta.keyword",
     documentationUrl = "/pipeline/transforms/blockuntiltransformsfinish.html")
-public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
+public class BlockUntilTransformsFinishMeta
+    extends BaseTransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 
   private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
 
@@ -136,7 +136,9 @@ public class BlockUntilTransformsFinishMeta extends BaseTransformMeta<BlockUntil
     return blockingTransforms;
   }
 
-  /** @param blockingTransforms The blockingTransforms to set */
+  /**
+   * @param blockingTransforms The blockingTransforms to set
+   */
   public void setBlockingTransforms(List<BlockingTransform> blockingTransforms) {
     this.blockingTransforms = blockingTransforms;
   }

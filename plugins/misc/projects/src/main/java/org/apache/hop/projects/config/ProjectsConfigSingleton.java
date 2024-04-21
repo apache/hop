@@ -19,12 +19,11 @@ package org.apache.hop.projects.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import java.util.List;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
-
-import java.util.List;
 
 public class ProjectsConfigSingleton {
 

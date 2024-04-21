@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
+import java.util.Arrays;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -25,13 +31,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Random;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 public class HttpPostMetaTest {
   @Before
@@ -44,13 +43,11 @@ public class HttpPostMetaTest {
     LoadSaveTester<HttpPostMeta> tester = new LoadSaveTester<>(HttpPostMeta.class);
     IFieldLoadSaveValidatorFactory factory = tester.getFieldLoadSaveValidatorFactory();
     factory.registerValidator(
-            HttpPostMeta.class.getDeclaredField("lookupFields").getGenericType().toString(),
-            new ListLoadSaveValidator<>(new HttpPostLookupFieldValidator())
-    );
+        HttpPostMeta.class.getDeclaredField("lookupFields").getGenericType().toString(),
+        new ListLoadSaveValidator<>(new HttpPostLookupFieldValidator()));
     factory.registerValidator(
-            HttpPostMeta.class.getDeclaredField("resultFields").getGenericType().toString(),
-            new ListLoadSaveValidator<>(new HttpPostResultFieldValidator())
-    );
+        HttpPostMeta.class.getDeclaredField("resultFields").getGenericType().toString(),
+        new ListLoadSaveValidator<>(new HttpPostResultFieldValidator()));
 
     tester.testSerialization();
   }
@@ -64,36 +61,50 @@ public class HttpPostMetaTest {
     assertEquals("UTF-8", meta.getEncoding());
   }
 
-  public static final class HttpPostLookupFieldValidator implements IFieldLoadSaveValidator<HttpPostLookupField> {
+  public static final class HttpPostLookupFieldValidator
+      implements IFieldLoadSaveValidator<HttpPostLookupField> {
 
     @Override
     public HttpPostLookupField getTestObject() {
       HttpPostLookupField field = new HttpPostLookupField();
-      field.getArgumentField().addAll(Arrays.asList(
-              new HttpPostArgumentField(UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Random().nextBoolean()),
-              new HttpPostArgumentField(UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Random().nextBoolean()),
-              new HttpPostArgumentField(UUID.randomUUID().toString(), UUID.randomUUID().toString(), new Random().nextBoolean())
-      ));
-      field.getQueryField().addAll(Arrays.asList(
-              new HttpPostQuery(UUID.randomUUID().toString(), UUID.randomUUID().toString()),
-              new HttpPostQuery(UUID.randomUUID().toString(), UUID.randomUUID().toString())
-              ));
+      field
+          .getArgumentField()
+          .addAll(
+              Arrays.asList(
+                  new HttpPostArgumentField(
+                      UUID.randomUUID().toString(),
+                      UUID.randomUUID().toString(),
+                      new Random().nextBoolean()),
+                  new HttpPostArgumentField(
+                      UUID.randomUUID().toString(),
+                      UUID.randomUUID().toString(),
+                      new Random().nextBoolean()),
+                  new HttpPostArgumentField(
+                      UUID.randomUUID().toString(),
+                      UUID.randomUUID().toString(),
+                      new Random().nextBoolean())));
+      field
+          .getQueryField()
+          .addAll(
+              Arrays.asList(
+                  new HttpPostQuery(UUID.randomUUID().toString(), UUID.randomUUID().toString()),
+                  new HttpPostQuery(UUID.randomUUID().toString(), UUID.randomUUID().toString())));
       return field;
     }
 
     @Override
     public boolean validateTestObject(HttpPostLookupField testObject, Object actual) {
-      if (!(actual instanceof HttpPostLookupField)){
+      if (!(actual instanceof HttpPostLookupField)) {
         return false;
       }
       HttpPostLookupField actualObject = (HttpPostLookupField) actual;
 
       // Check the argument fields...
       //
-      if (testObject.getArgumentField().size()!=actualObject.getArgumentField().size()) {
+      if (testObject.getArgumentField().size() != actualObject.getArgumentField().size()) {
         return false;
       }
-      for (int i=0;i<testObject.getArgumentField().size();i++) {
+      for (int i = 0; i < testObject.getArgumentField().size(); i++) {
         HttpPostArgumentField testField = testObject.getArgumentField().get(i);
         HttpPostArgumentField actualField = actualObject.getArgumentField().get(i);
         if (!testField.equals(actualField)) {
@@ -103,10 +114,10 @@ public class HttpPostMetaTest {
 
       // Check the query fields...
       //
-      if (testObject.getQueryField().size()!=actualObject.getQueryField().size()) {
+      if (testObject.getQueryField().size() != actualObject.getQueryField().size()) {
         return false;
       }
-      for (int i=0;i<testObject.getQueryField().size();i++) {
+      for (int i = 0; i < testObject.getQueryField().size(); i++) {
         HttpPostQuery testField = testObject.getQueryField().get(i);
         HttpPostQuery actualField = actualObject.getQueryField().get(i);
         if (!testField.equals(actualField)) {
@@ -118,14 +129,16 @@ public class HttpPostMetaTest {
     }
   }
 
-  public static final class HttpPostResultFieldValidator implements IFieldLoadSaveValidator<HttpPostResultField> {
+  public static final class HttpPostResultFieldValidator
+      implements IFieldLoadSaveValidator<HttpPostResultField> {
 
     @Override
     public HttpPostResultField getTestObject() {
-      return new HttpPostResultField(UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString());
+      return new HttpPostResultField(
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString());
     }
 
     @Override

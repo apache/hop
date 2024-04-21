@@ -16,9 +16,6 @@
  */
 package org.apache.hop.core;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,6 +27,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ConcurrentMapPropertiesTest {
 

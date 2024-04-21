@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
+import static org.junit.Assert.assertEquals;
+
+import java.text.Collator;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -32,19 +40,12 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.text.Collator;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-
 public class SortRowsMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-  /** @throws HopException */
+  /**
+   * @throws HopException
+   */
   @Test
   public void testRoundTrips() throws HopException {
     List<String> attributes =

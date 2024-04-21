@@ -16,13 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.Collection;
+import javax.naming.ldap.InitialLdapContext;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.mockito.Mockito;
-
-import javax.naming.ldap.InitialLdapContext;
-import java.util.Collection;
 
 /** Mock LDAP connection protocol, for testing */
 public class LdapMockProtocol extends LdapProtocol {

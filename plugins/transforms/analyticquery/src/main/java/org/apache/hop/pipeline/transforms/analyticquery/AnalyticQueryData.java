@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AnalyticQueryData extends BaseTransformData implements ITransformData {
   // Grouped Field Indexes (faster than looking up by strings)

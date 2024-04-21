@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -42,9 +44,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
-
-import java.util.Arrays;
-import java.util.List;
 
 /** This class knows how to handle the MetaData for the XML join transform */
 @Transform(
@@ -423,7 +422,9 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     return targetXmlTransform;
   }
 
-  /** @param targetXmlTransform The targetXmlTransform to set */
+  /**
+   * @param targetXmlTransform The targetXmlTransform to set
+   */
   public void setTargetXmlTransform(String targetXmlTransform) {
     this.targetXmlTransform = targetXmlTransform;
   }
@@ -445,7 +446,9 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     return sourceXmlTransform;
   }
 
-  /** @param sourceXmlTransform The sourceXmlTransform to set */
+  /**
+   * @param sourceXmlTransform The sourceXmlTransform to set
+   */
   public void setSourceXmlTransform(String sourceXmlTransform) {
     this.sourceXmlTransform = sourceXmlTransform;
   }
@@ -496,7 +499,9 @@ public class XmlJoinMeta extends BaseTransformMeta<XmlJoin, XmlJoinData> {
     return omitXmlHeader;
   }
 
-  /** @param omitXmlHeader The omitXmlHeader to set */
+  /**
+   * @param omitXmlHeader The omitXmlHeader to set
+   */
   public void setOmitXmlHeader(boolean omitXmlHeader) {
     this.omitXmlHeader = omitXmlHeader;
   }

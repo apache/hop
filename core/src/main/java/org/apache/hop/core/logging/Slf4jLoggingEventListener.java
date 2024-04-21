@@ -17,20 +17,19 @@
 
 package org.apache.hop.core.logging;
 
-import com.google.common.annotations.VisibleForTesting;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.function.Function;
-
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.hop.core.logging.LoggingObjectType.ACTION;
 import static org.apache.hop.core.logging.LoggingObjectType.DATABASE;
 import static org.apache.hop.core.logging.LoggingObjectType.PIPELINE;
 import static org.apache.hop.core.logging.LoggingObjectType.TRANSFORM;
 import static org.apache.hop.core.logging.LoggingObjectType.WORKFLOW;
+
+import com.google.common.annotations.VisibleForTesting;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
 

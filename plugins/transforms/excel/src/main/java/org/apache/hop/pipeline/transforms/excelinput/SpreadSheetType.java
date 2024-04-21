@@ -24,7 +24,9 @@ public enum SpreadSheetType {
 
   private String description;
 
-  /** @param description */
+  /**
+   * @param description
+   */
   private SpreadSheetType(String description) {
     this.description = description;
   }

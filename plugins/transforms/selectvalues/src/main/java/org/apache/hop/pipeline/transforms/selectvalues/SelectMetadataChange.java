@@ -32,22 +32,29 @@ public class SelectMetadataChange implements Cloneable {
   /** Fields of which we want to change the meta data */
   @Injection(name = "META_NAME", group = "METAS")
   private String name;
+
   /** Meta: new name of field */
   @Injection(name = "META_RENAME", group = "METAS")
   private String rename;
+
   /** Meta: new Value type for this field or TYPE_NONE if no change needed! */
   private int type;
+
   /** Meta: new length of field */
   @Injection(name = "META_LENGTH", group = "METAS")
   private int length = -1;
+
   /** Meta: new precision of field (for numbers) */
   @Injection(name = "META_PRECISION", group = "METAS")
   private int precision = -1;
+
   /** Meta: the storage type, NORMAL or BINARY_STRING */
   private int storageType;
+
   /** The conversion metadata if any conversion needs to take place */
   @Injection(name = "META_CONVERSION_MASK", group = "METAS")
   private String conversionMask;
+
   /** Treat the date format as lenient */
   @Injection(name = "META_DATE_FORMAT_LENIENT", group = "METAS")
   private boolean dateFormatLenient;
@@ -63,15 +70,19 @@ public class SelectMetadataChange implements Cloneable {
   /** Treat string to number format as lenient */
   @Injection(name = "META_LENIENT_STRING_TO_NUMBER", group = "METAS")
   private boolean lenientStringToNumber;
+
   /** The decimal symbol for number conversions */
   @Injection(name = "META_DECIMAL", group = "METAS")
   private String decimalSymbol;
+
   /** The grouping symbol for number conversions */
   @Injection(name = "META_GROUPING", group = "METAS")
   private String groupingSymbol;
+
   /** The currency symbol for number conversions */
   @Injection(name = "META_CURRENCY", group = "METAS")
   private String currencySymbol;
+
   /** The encoding to use when decoding binary data to Strings */
   @Injection(name = "META_ENCODING", group = "METAS")
   private String encoding;
@@ -171,32 +182,44 @@ public class SelectMetadataChange implements Cloneable {
     }
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /** @return the rename */
+  /**
+   * @return the rename
+   */
   public String getRename() {
     return rename;
   }
 
-  /** @param rename the rename to set */
+  /**
+   * @param rename the rename to set
+   */
   public void setRename(String rename) {
     this.rename = rename;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   public int getType() {
     return type;
   }
 
-  /** @param type the type to set */
+  /**
+   * @param type the type to set
+   */
   public void setType(int type) {
     this.type = type;
   }
@@ -206,32 +229,44 @@ public class SelectMetadataChange implements Cloneable {
     type = ValueMetaFactory.getIdForValueMeta(value);
   }
 
-  /** @return the length */
+  /**
+   * @return the length
+   */
   public int getLength() {
     return length;
   }
 
-  /** @param length the length to set */
+  /**
+   * @param length the length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }
 
-  /** @return the precision */
+  /**
+   * @return the precision
+   */
   public int getPrecision() {
     return precision;
   }
 
-  /** @param precision the precision to set */
+  /**
+   * @param precision the precision to set
+   */
   public void setPrecision(int precision) {
     this.precision = precision;
   }
 
-  /** @return the storageType */
+  /**
+   * @return the storageType
+   */
   public int getStorageType() {
     return storageType;
   }
 
-  /** @param storageType the storageType to set */
+  /**
+   * @param storageType the storageType to set
+   */
   public void setStorageType(int storageType) {
     this.storageType = storageType;
   }
@@ -241,92 +276,128 @@ public class SelectMetadataChange implements Cloneable {
     this.storageType = ValueMetaBase.getStorageType(storageType);
   }
 
-  /** @return the conversionMask */
+  /**
+   * @return the conversionMask
+   */
   public String getConversionMask() {
     return conversionMask;
   }
 
-  /** @param conversionMask the conversionMask to set */
+  /**
+   * @param conversionMask the conversionMask to set
+   */
   public void setConversionMask(String conversionMask) {
     this.conversionMask = conversionMask;
   }
 
-  /** @return whether date conversion from string is lenient or not */
+  /**
+   * @return whether date conversion from string is lenient or not
+   */
   public boolean isDateFormatLenient() {
     return dateFormatLenient;
   }
 
-  /** @param dateFormatLenient whether date conversion from string is lenient or not */
+  /**
+   * @param dateFormatLenient whether date conversion from string is lenient or not
+   */
   public void setDateFormatLenient(boolean dateFormatLenient) {
     this.dateFormatLenient = dateFormatLenient;
   }
 
-  /** @return the decimalSymbol */
+  /**
+   * @return the decimalSymbol
+   */
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  /** @param decimalSymbol the decimalSymbol to set */
+  /**
+   * @param decimalSymbol the decimalSymbol to set
+   */
   public void setDecimalSymbol(String decimalSymbol) {
     this.decimalSymbol = decimalSymbol;
   }
 
-  /** @return the groupingSymbol */
+  /**
+   * @return the groupingSymbol
+   */
   public String getGroupingSymbol() {
     return groupingSymbol;
   }
 
-  /** @param groupingSymbol the groupingSymbol to set */
+  /**
+   * @param groupingSymbol the groupingSymbol to set
+   */
   public void setGroupingSymbol(String groupingSymbol) {
     this.groupingSymbol = groupingSymbol;
   }
 
-  /** @return the currencySymbol */
+  /**
+   * @return the currencySymbol
+   */
   public String getCurrencySymbol() {
     return currencySymbol;
   }
 
-  /** @param currencySymbol the currencySymbol to set */
+  /**
+   * @param currencySymbol the currencySymbol to set
+   */
   public void setCurrencySymbol(String currencySymbol) {
     this.currencySymbol = currencySymbol;
   }
 
-  /** @return the encoding to use when decoding binary data to strings */
+  /**
+   * @return the encoding to use when decoding binary data to strings
+   */
   public String getEncoding() {
     return encoding;
   }
 
-  /** @param encoding the encoding to use when decoding binary data to strings */
+  /**
+   * @param encoding the encoding to use when decoding binary data to strings
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
 
-  /** @return the lenientStringToNumber */
+  /**
+   * @return the lenientStringToNumber
+   */
   public boolean isLenientStringToNumber() {
     return lenientStringToNumber;
   }
 
-  /** @param lenientStringToNumber the lenientStringToNumber to set */
+  /**
+   * @param lenientStringToNumber the lenientStringToNumber to set
+   */
   public void setLenientStringToNumber(boolean lenientStringToNumber) {
     this.lenientStringToNumber = lenientStringToNumber;
   }
 
-  /** @return the dateFormatLocale */
+  /**
+   * @return the dateFormatLocale
+   */
   public String getDateFormatLocale() {
     return dateFormatLocale;
   }
 
-  /** @param dateFormatLocale the dateFormatLocale to set */
+  /**
+   * @param dateFormatLocale the dateFormatLocale to set
+   */
   public void setDateFormatLocale(String dateFormatLocale) {
     this.dateFormatLocale = dateFormatLocale;
   }
 
-  /** @return the dateFormatTimeZone */
+  /**
+   * @return the dateFormatTimeZone
+   */
   public String getDateFormatTimeZone() {
     return dateFormatTimeZone;
   }
 
-  /** @param dateFormatTimeZone the dateFormatTimeZone to set */
+  /**
+   * @param dateFormatTimeZone the dateFormatTimeZone to set
+   */
   public void setDateFormatTimeZone(String dateFormatTimeZone) {
     this.dateFormatTimeZone = dateFormatTimeZone;
   }

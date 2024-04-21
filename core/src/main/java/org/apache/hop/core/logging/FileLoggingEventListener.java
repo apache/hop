@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.logging;
 
+import java.io.OutputStream;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.io.OutputStream;
-import java.util.List;
 
 public class FileLoggingEventListener implements IHopLoggingEventListener {
 

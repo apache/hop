@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.sasinput;
 
+import java.util.Date;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-
-import java.util.Date;
 
 public class SasUtil {
   public static int getHopDataType(Class<?> type) {

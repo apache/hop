@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.pipeline;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -30,8 +31,6 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardD
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardExtension;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-
-import java.util.List;
 
 @ExtensionPoint(
     id = "HopGuiWorkflowHplFilenamePastedExtensionPoint",

@@ -18,6 +18,8 @@
 
 package org.apache.hop.neo4j.actions.check;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -30,9 +32,6 @@ import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Action(
     id = "NEO4J_CHECK_CONNECTIONS",
@@ -149,7 +148,9 @@ public class CheckConnections extends ActionBase implements IAction {
     return connectionNames;
   }
 
-  /** @param connectionNames The connectionNames to set */
+  /**
+   * @param connectionNames The connectionNames to set
+   */
   public void setConnectionNames(List<String> connectionNames) {
     this.connectionNames = connectionNames;
   }

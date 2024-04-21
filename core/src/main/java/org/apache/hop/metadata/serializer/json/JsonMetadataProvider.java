@@ -115,7 +115,9 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
     return twoWayPasswordEncoder;
   }
 
-  /** @param twoWayPasswordEncoder The twoWayPasswordEncoder to set */
+  /**
+   * @param twoWayPasswordEncoder The twoWayPasswordEncoder to set
+   */
   public void setTwoWayPasswordEncoder(ITwoWayPasswordEncoder twoWayPasswordEncoder) {
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
   }
@@ -129,7 +131,9 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
     return baseFolder;
   }
 
-  /** @param baseFolder The baseFolder to set */
+  /**
+   * @param baseFolder The baseFolder to set
+   */
   public void setBaseFolder(String baseFolder) {
     this.baseFolder = baseFolder;
     setDescription(calculateDescription());

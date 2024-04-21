@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.hopgui.perspective.search;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
@@ -53,13 +59,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "400-HopSearchPerspective",
@@ -317,10 +316,10 @@ public class HopSearchPerspective implements IHopPerspective {
           false,
           true),
       new ColumnInfo(
-              BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Value.Field"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              true),
+          BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Value.Field"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          true),
       new ColumnInfo(
           BaseMessages.getString(PKG, "HopSearchPerspective.ResultsTable.Description.Field"),
           ColumnInfo.COLUMN_TYPE_TEXT,
@@ -502,7 +501,9 @@ public class HopSearchPerspective implements IHopPerspective {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }

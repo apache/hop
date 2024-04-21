@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -27,13 +29,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
-/**
- * Write to LDAP.
- */
+/** Write to LDAP. */
 public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData> {
   private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // For Translator
 

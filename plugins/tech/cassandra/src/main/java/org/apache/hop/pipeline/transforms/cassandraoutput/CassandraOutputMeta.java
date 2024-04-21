@@ -237,7 +237,7 @@ public class CassandraOutputMeta extends BaseTransformMeta<CassandraOutput, Cass
 
     public static String[] getDescriptions() {
       String[] descriptions = new String[values().length];
-      for (int i=0;i<descriptions.length;i++) {
+      for (int i = 0; i < descriptions.length; i++) {
         descriptions[i] = values()[i].description;
       }
       return descriptions;

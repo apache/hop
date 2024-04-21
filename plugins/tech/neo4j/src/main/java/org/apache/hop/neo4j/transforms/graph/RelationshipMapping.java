@@ -17,9 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class RelationshipMapping {
 
@@ -139,7 +138,9 @@ public class RelationshipMapping {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(RelationshipMappingType type) {
     this.type = type;
   }
@@ -153,7 +154,9 @@ public class RelationshipMapping {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -167,7 +170,9 @@ public class RelationshipMapping {
     return fieldValue;
   }
 
-  /** @param fieldValue The fieldValue to set */
+  /**
+   * @param fieldValue The fieldValue to set
+   */
   public void setFieldValue(String fieldValue) {
     this.fieldValue = fieldValue;
   }
@@ -181,7 +186,9 @@ public class RelationshipMapping {
     return targetRelationship;
   }
 
-  /** @param targetRelationship The targetRelationship to set */
+  /**
+   * @param targetRelationship The targetRelationship to set
+   */
   public void setTargetRelationship(String targetRelationship) {
     this.targetRelationship = targetRelationship;
   }
@@ -195,7 +202,9 @@ public class RelationshipMapping {
     return sourceNode;
   }
 
-  /** @param sourceNode The sourceNode to set */
+  /**
+   * @param sourceNode The sourceNode to set
+   */
   public void setSourceNode(String sourceNode) {
     this.sourceNode = sourceNode;
   }
@@ -209,7 +218,9 @@ public class RelationshipMapping {
     return targetNode;
   }
 
-  /** @param targetNode The targetNode to set */
+  /**
+   * @param targetNode The targetNode to set
+   */
   public void setTargetNode(String targetNode) {
     this.targetNode = targetNode;
   }

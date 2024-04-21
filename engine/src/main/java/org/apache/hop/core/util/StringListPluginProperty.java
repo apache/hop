@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.xml.XmlHandler;
-import org.w3c.dom.Node;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.xml.XmlHandler;
+import org.w3c.dom.Node;
 
 public class StringListPluginProperty extends KeyValue<List<String>>
     implements IPluginProperty, Iterable<String> {
@@ -38,7 +37,9 @@ public class StringListPluginProperty extends KeyValue<List<String>>
   /** The separator character. */
   public static final char SEPARATOR_CHAR = ',';
 
-  /** @param key key to use. */
+  /**
+   * @param key key to use.
+   */
   public StringListPluginProperty(final String key) {
     super(key, new ArrayList<>());
   }
@@ -106,7 +107,9 @@ public class StringListPluginProperty extends KeyValue<List<String>>
     node.put(this.getKey(), asString(this.getValue()));
   }
 
-  /** @param values values to set, no validation. */
+  /**
+   * @param values values to set, no validation.
+   */
   public void setValues(final String... values) {
     if (this.getValue() == null) {
       this.setValue(new ArrayList<>());
@@ -127,7 +130,9 @@ public class StringListPluginProperty extends KeyValue<List<String>>
     return this.getValue().iterator();
   }
 
-  /** @return true if list is empty . */
+  /**
+   * @return true if list is empty .
+   */
   public boolean isEmpty() {
     this.assertValueNotNull();
     return this.getValue().isEmpty();

@@ -17,11 +17,11 @@
 
 package org.apache.hop.laf;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.i18n.IMessageHandler;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
 
 public class RemoveAltKeyMessageHandlerTest {
 

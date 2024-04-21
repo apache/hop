@@ -17,11 +17,10 @@
 
 package org.apache.hop.workflow.engine;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-
-import java.util.Map;
 
 @PluginMainClassType(IWorkflowEngine.class)
 @PluginAnnotationType(WorkflowEnginePlugin.class)

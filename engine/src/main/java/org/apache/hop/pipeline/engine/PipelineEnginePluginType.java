@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-
-import java.util.Map;
 
 @PluginMainClassType(IPipelineEngine.class)
 @PluginAnnotationType(PipelineEnginePlugin.class)

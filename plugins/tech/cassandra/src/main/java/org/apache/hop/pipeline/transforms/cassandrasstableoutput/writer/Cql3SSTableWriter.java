@@ -18,15 +18,12 @@
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
 import com.google.common.base.Joiner;
-import org.apache.cassandra.db.marshal.UTF8Type;
+import java.util.Arrays;
+import java.util.Map;
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
-import org.apache.cassandra.schema.Schema;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-
-import java.util.Arrays;
-import java.util.Map;
 
 class Cql3SSTableWriter extends AbstractSSTableWriter {
   private CQLSSTableWriter writer;
@@ -40,21 +37,21 @@ class Cql3SSTableWriter extends AbstractSSTableWriter {
   }
 
   /*void purgeSchemaInstance() {
-    // Since the unload function only cares about the keyspace and table name,
-    // the partition key and class don't matter (however, creating the CFMetaData
-    // will fail unless something is passed in
-    //
-    Schema.instance.truncateSchemaKeyspace();
+      // Since the unload function only cares about the keyspace and table name,
+      // the partition key and class don't matter (however, creating the CFMetaData
+      // will fail unless something is passed in
+      //
+      Schema.instance.truncateSchemaKeyspace();
 
-    CFMetaDataElements.
-    CFMetaData cfm =
-        CFMetaData.Builder.create()
-            .withPartitioner(CassandraUtils.getPartitionerClassInstance(getPartitionerClass()))
-            .addPartitionKey(getPartitionKey(), UTF8Type.instance)
-            .build();
-    Schema.instance.unload(cfm);
-  }
-*/
+      CFMetaDataElements.
+      CFMetaData cfm =
+          CFMetaData.Builder.create()
+              .withPartitioner(CassandraUtils.getPartitionerClassInstance(getPartitionerClass()))
+              .addPartitionKey(getPartitionKey(), UTF8Type.instance)
+              .build();
+      Schema.instance.unload(cfm);
+    }
+  */
   CQLSSTableWriter getCQLSSTableWriter() {
     return CQLSSTableWriter.builder()
         .inDirectory(getDirectory())

@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.util;
 
+import java.util.prefs.Preferences;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
-
-import java.util.prefs.Preferences;
 
 public class IntegerPluginProperty extends KeyValue<Integer> implements IPluginProperty {
 

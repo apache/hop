@@ -91,12 +91,7 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
       //
       PCollection<KV<HopRow, HopRow>> groupSubjects =
           input.apply(
-              ParDo.of(
-                  new HopKeyValueFn(
-                      rowMetaJson,
-                      groupFields,
-                      subjects,
-                      transformName)));
+              ParDo.of(new HopKeyValueFn(rowMetaJson, groupFields, subjects, transformName)));
 
       // Now we need to aggregate the groups with a Combine
       GroupByKey<HopRow, HopRow> byKey = GroupByKey.<HopRow, HopRow>create();
@@ -136,7 +131,9 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
     return rowMetaJson;
   }
 
-  /** @param rowMetaJson The inputRowMetaJson to set */
+  /**
+   * @param rowMetaJson The inputRowMetaJson to set
+   */
   public void setRowMetaJson(String rowMetaJson) {
     this.rowMetaJson = rowMetaJson;
   }
@@ -150,7 +147,9 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
     return groupFields;
   }
 
-  /** @param groupFields The groupFields to set */
+  /**
+   * @param groupFields The groupFields to set
+   */
   public void setGroupFields(String[] groupFields) {
     this.groupFields = groupFields;
   }
@@ -164,7 +163,9 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
     return subjects;
   }
 
-  /** @param subjects The subjects to set */
+  /**
+   * @param subjects The subjects to set
+   */
   public void setSubjects(String[] subjects) {
     this.subjects = subjects;
   }
@@ -178,7 +179,9 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
     return aggregations;
   }
 
-  /** @param aggregations The aggregations to set */
+  /**
+   * @param aggregations The aggregations to set
+   */
   public void setAggregations(String[] aggregations) {
     this.aggregations = aggregations;
   }
@@ -192,7 +195,9 @@ public class GroupByTransform extends PTransform<PCollection<HopRow>, PCollectio
     return resultFields;
   }
 
-  /** @param resultFields The resultFields to set */
+  /**
+   * @param resultFields The resultFields to set
+   */
   public void setResultFields(String[] resultFields) {
     this.resultFields = resultFields;
   }

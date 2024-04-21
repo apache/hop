@@ -76,9 +76,10 @@ public class KettleConst {
                 {"sourceXMLstep", "sourceXMLTransform"},
                 // Multiway Merge Join, 0-9 for simplicity
                 {"step0", "transform0"},
-                // step1 and step2 are already covered earlier in the mapping. left in comments here for clarity.
-                //{"step1", "transform1"},
-                //{"step2", "transform2"},
+                // step1 and step2 are already covered earlier in the mapping. left in comments here
+                // for clarity.
+                // {"step1", "transform1"},
+                // {"step2", "transform2"},
                 {"step3", "transform3"},
                 {"step4", "transform4"},
                 {"step5", "transform5"},
@@ -210,7 +211,6 @@ public class KettleConst {
                 {"CURRENT_JOB", "CURRENT_WORKFLOW"}, // set variable
                 {"PARENT_JOB", "PARENT_WORKFLOW"}, // set variable
                 {"ROOT_JOB", "ROOT_WORKFLOW"} // set variable
-
               })
           .collect(Collectors.toMap(data -> (String) data[0], data -> (String) data[1]));
 

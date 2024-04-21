@@ -16,6 +16,8 @@
  */
 package org.apache.hop.www;
 
+import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -42,9 +44,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.json.simple.parser.ParseException;
 
-import java.util.Map;
-import java.util.UUID;
-
 public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
   private static final long serialVersionUID = 8523062215275251356L;
@@ -70,7 +69,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     // Create the workflow and store in the list...
     //
-    String runConfigurationName = variables.resolve(workflowExecutionConfiguration.getRunConfiguration());
+    String runConfigurationName =
+        variables.resolve(workflowExecutionConfiguration.getRunConfiguration());
     final IWorkflowEngine<WorkflowMeta> workflow =
         WorkflowEngineFactory.createWorkflowEngine(
             variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject);

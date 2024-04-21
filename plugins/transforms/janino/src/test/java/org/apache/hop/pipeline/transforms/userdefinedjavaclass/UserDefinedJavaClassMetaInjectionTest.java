@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
@@ -24,10 +27,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static org.junit.Assert.assertEquals;
 
 public class UserDefinedJavaClassMetaInjectionTest
     extends BaseMetadataInjectionTest<UserDefinedJavaClassMeta> {

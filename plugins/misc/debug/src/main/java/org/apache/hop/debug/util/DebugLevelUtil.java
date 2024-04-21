@@ -17,6 +17,10 @@
 
 package org.apache.hop.debug.util;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -25,11 +29,6 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.debug.action.ActionDebugLevel;
 import org.apache.hop.debug.transform.TransformDebugLevel;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class DebugLevelUtil {
 

@@ -15,9 +15,16 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.ui.core.widget;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
@@ -91,15 +98,6 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /** Widget to display or modify data, displayed in a Table format. */
 @GuiPlugin
@@ -2997,6 +2995,7 @@ public class TableView extends Composite {
     setRowNums();
     optWidth(true);
   }
+
   /*
    * Remove empty rows in the table...
    */

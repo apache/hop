@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Sybase specific information through static final members
- */
-@DatabaseMetaPlugin(type = "SYBASE", typeDescription = "Sybase", documentationUrl = "/database/databases/sybase.html")
+/** Contains Sybase specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "SYBASE",
+    typeDescription = "Sybase",
+    documentationUrl = "/database/databases/sybase.html")
 @GuiPlugin(id = "GUI-SybaseDatabaseMeta")
 public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -44,7 +45,9 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return -1;
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -64,7 +67,9 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "jdbc:jtds:sybase://" + hostname + ":" + port + "/" + databaseName;
   }
 
-  /** @see IDatabase#getSchemaTableCombination(String, String) */
+  /**
+   * @see IDatabase#getSchemaTableCombination(String, String)
+   */
   @Override
   public String getSchemaTableCombination(String schemaName, String tablePart) {
     return tablePart;

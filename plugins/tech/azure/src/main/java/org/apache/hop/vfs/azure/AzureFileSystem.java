@@ -19,14 +19,13 @@
 package org.apache.hop.vfs.azure;
 
 import com.microsoft.azure.storage.blob.CloudBlobClient;
+import java.util.Collection;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
-
-import java.util.Collection;
 
 public class AzureFileSystem extends AbstractFileSystem {
 
@@ -35,7 +34,10 @@ public class AzureFileSystem extends AbstractFileSystem {
   private String account;
 
   public AzureFileSystem(
-      AzureFileName fileName, CloudBlobClient service, FileSystemOptions fileSystemOptions, String account)
+      AzureFileName fileName,
+      CloudBlobClient service,
+      FileSystemOptions fileSystemOptions,
+      String account)
       throws FileSystemException {
     super(fileName, null, fileSystemOptions);
     this.client = service;
@@ -52,7 +54,7 @@ public class AzureFileSystem extends AbstractFileSystem {
     return new AzureFileObject(name, this, client);
   }
 
-    public String getAccount() {
-        return account;
-    }
+  public String getAccount() {
+    return account;
+  }
 }

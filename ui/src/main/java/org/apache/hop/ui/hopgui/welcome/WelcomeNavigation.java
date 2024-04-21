@@ -69,11 +69,11 @@ public class WelcomeNavigation {
       type = GuiElementType.LINK,
       label =
           "Here are a few ways to navigate around large or zoomed pipelines and workflows:\n\n"
-                  + " - Use the arrow keys to move the view\n"
-                  + " - Use the HOME key to reset to top/left\n"
-                  + " - Drag with the middle mouse button on the background\n"
-                  + " - CTRL+drag with the left mouse button on the background\n"
-                  + " - Drag the darker rectangle on the bottom right of the screen\n")
+              + " - Use the arrow keys to move the view\n"
+              + " - Use the HOME key to reset to top/left\n"
+              + " - Drag with the middle mouse button on the background\n"
+              + " - CTRL+drag with the left mouse button on the background\n"
+              + " - Drag the darker rectangle on the bottom right of the screen\n")
   public void homepageLink(Event event) {
     // handleWebLinkEvent(event, WEB_NAME_HOP_APACHE_ORG, WEB_LINK_HOP_APACHE_ORG);
   }

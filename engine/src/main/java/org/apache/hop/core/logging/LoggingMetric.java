@@ -36,22 +36,30 @@ public class LoggingMetric {
     this.snapshot = snapshot;
   }
 
-  /** @return the batchId */
+  /**
+   * @return the batchId
+   */
   public long getBatchId() {
     return batchId;
   }
 
-  /** @param batchId the batchId to set */
+  /**
+   * @param batchId the batchId to set
+   */
   public void setBatchId(long batchId) {
     this.batchId = batchId;
   }
 
-  /** @return the snapshot */
+  /**
+   * @return the snapshot
+   */
   public IMetricsSnapshot getSnapshot() {
     return snapshot;
   }
 
-  /** @param snapshot the snapshot to set */
+  /**
+   * @param snapshot the snapshot to set
+   */
   public void setSnapshot(IMetricsSnapshot snapshot) {
     this.snapshot = snapshot;
   }

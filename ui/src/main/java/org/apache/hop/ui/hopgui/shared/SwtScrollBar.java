@@ -24,7 +24,9 @@ public class SwtScrollBar implements IScrollBar {
 
   private ScrollBar scrollBar;
 
-  /** @param scrollBar */
+  /**
+   * @param scrollBar
+   */
   public SwtScrollBar(ScrollBar scrollBar) {
     this.scrollBar = scrollBar;
   }

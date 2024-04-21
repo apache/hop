@@ -29,9 +29,13 @@ public interface IKCell {
    */
   Object getValue();
 
-  /** @return The content description of the cell */
+  /**
+   * @return The content description of the cell
+   */
   String getContents();
 
-  /** @return The row number in the sheet. */
+  /**
+   * @return The row number in the sheet.
+   */
   int getRow();
 }

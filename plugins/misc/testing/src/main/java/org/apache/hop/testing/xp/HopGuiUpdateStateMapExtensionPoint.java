@@ -17,6 +17,9 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -26,10 +29,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineFinishedExtension;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ExtensionPoint(
     id = "HopGuiUpdateStateMapExtensionPoint",

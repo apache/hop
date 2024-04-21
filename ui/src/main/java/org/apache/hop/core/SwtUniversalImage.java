@@ -17,15 +17,14 @@
 
 package org.apache.hop.core;
 
+import java.awt.image.BufferedImage;
+import java.util.Map;
+import java.util.TreeMap;
 import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
-
-import java.awt.image.BufferedImage;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * Universal image storage for SWT processing. It contains SVG or bitmap image depends on file and
@@ -35,7 +34,7 @@ public abstract class SwtUniversalImage {
 
   private Map<String, Image> cache = new TreeMap<>();
 
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   protected abstract Image renderSimple(Device device);
 
   protected abstract Image renderSimple(Device device, int width, int height);
@@ -61,8 +60,10 @@ public abstract class SwtUniversalImage {
     }
   }
 
-  /** @deprecated Use getAsBitmapForSize() instead. */
-  @Deprecated(since="2.0")
+  /**
+   * @deprecated Use getAsBitmapForSize() instead.
+   */
+  @Deprecated(since = "2.0")
   public synchronized Image getAsBitmap(Device device) {
     checkDisposed();
 

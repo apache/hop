@@ -187,7 +187,7 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
     fdDocumentation.right = new FormAttachment(100, 0);
     wDocumentation.setLayoutData(fdDocumentation);
     lastControl = wDocumentation;
-    
+
     Label wlFields = new Label(shell, SWT.RIGHT);
     wlFields.setText(BaseMessages.getString(PKG, "AvroEncodeDialog.Fields.Label"));
     PropsUi.setLook(wlFields);

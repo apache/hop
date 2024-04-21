@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /** Performs analytic queries (LEAD/LAG, etc) based on a group */
 public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> {

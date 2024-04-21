@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.xml;
 
+import java.io.ByteArrayInputStream;
 import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
 
 public class XmlCheckTest {
 

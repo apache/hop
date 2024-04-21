@@ -17,9 +17,8 @@ package org.apache.hop.pipeline.transforms.sql;
  * limitations under the License.
  */
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExecSqlArgumentItem {
 

@@ -17,12 +17,11 @@
 
 package org.apache.hop.workflow.actions.sftp;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class WorkflowActionSftpLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionSftp> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -35,25 +34,25 @@ public class WorkflowActionSftpLoadSaveTest extends WorkflowActionLoadSaveTestSu
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "serverName",
-            "serverPort",
-            "userName",
-            "password",
-            "scpDirectory",
-            "targetDirectory",
-            "wildcard",
-            "remove",
-            "addToResult",
-            "createTargetFolder",
-            "copyPrevious",
-            "useKeyFile",
-            "keyFilename",
-            "keyPassPhrase",
-            "compression",
-            "proxyType",
-            "proxyHost",
-            "proxyPort",
-            "proxyUsername",
-            "proxyPassword");
+        "serverName",
+        "serverPort",
+        "userName",
+        "password",
+        "scpDirectory",
+        "targetDirectory",
+        "wildcard",
+        "remove",
+        "addToResult",
+        "createTargetFolder",
+        "copyPrevious",
+        "useKeyFile",
+        "keyFilename",
+        "keyPassPhrase",
+        "compression",
+        "proxyType",
+        "proxyHost",
+        "proxyPort",
+        "proxyUsername",
+        "proxyPassword");
   }
 }

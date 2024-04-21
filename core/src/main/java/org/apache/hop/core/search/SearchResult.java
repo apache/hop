@@ -25,9 +25,12 @@ public class SearchResult implements ISearchResult {
   private String component;
   private String value;
 
-
   public SearchResult(
-      ISearchable matchingSearchable, String matchingString, String description, String component, String value) {
+      ISearchable matchingSearchable,
+      String matchingString,
+      String description,
+      String component,
+      String value) {
     this.matchingSearchable = matchingSearchable;
     this.matchingString = matchingString;
     this.description = description;
@@ -45,7 +48,9 @@ public class SearchResult implements ISearchResult {
     return matchingSearchable;
   }
 
-  /** @param matchingSearchable The matchingSearchable to set */
+  /**
+   * @param matchingSearchable The matchingSearchable to set
+   */
   public void setMatchingSearchable(ISearchable matchingSearchable) {
     this.matchingSearchable = matchingSearchable;
   }
@@ -60,7 +65,9 @@ public class SearchResult implements ISearchResult {
     return matchingString;
   }
 
-  /** @param matchingString The matchingString to set */
+  /**
+   * @param matchingString The matchingString to set
+   */
   public void setMatchingString(String matchingString) {
     this.matchingString = matchingString;
   }
@@ -75,7 +82,9 @@ public class SearchResult implements ISearchResult {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -90,7 +99,9 @@ public class SearchResult implements ISearchResult {
     return component;
   }
 
-  /** @param component The component to set */
+  /**
+   * @param component The component to set
+   */
   public void setComponent(String component) {
     this.component = component;
   }

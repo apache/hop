@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.ui.core.PropsUi;
@@ -25,9 +27,6 @@ import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.StartupParameters;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.widgets.Composite;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HopWebEntryPoint extends AbstractEntryPoint {
 

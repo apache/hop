@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mergerows;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -46,8 +47,6 @@ import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @InjectionSupported(localizationPrefix = "MergeRows.Injection.")
 @Transform(
     id = "MergeRows",
@@ -69,22 +68,30 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
   @Injection(name = "VALUE_FIELDS")
   private String[] valueFields;
 
-  /** @return Returns the keyFields. */
+  /**
+   * @return Returns the keyFields.
+   */
   public String[] getKeyFields() {
     return keyFields;
   }
 
-  /** @param keyFields The keyFields to set. */
+  /**
+   * @param keyFields The keyFields to set.
+   */
   public void setKeyFields(String[] keyFields) {
     this.keyFields = keyFields;
   }
 
-  /** @return Returns the valueFields. */
+  /**
+   * @return Returns the valueFields.
+   */
   public String[] getValueFields() {
     return valueFields;
   }
 
-  /** @param valueFields The valueFields to set. */
+  /**
+   * @param valueFields The valueFields to set.
+   */
   public void setValueFields(String[] valueFields) {
     this.valueFields = valueFields;
   }
@@ -99,12 +106,16 @@ public class MergeRowsMeta extends BaseTransformMeta<MergeRows, MergeRowsData> {
     readData(transformNode);
   }
 
-  /** @return Returns the flagField. */
+  /**
+   * @return Returns the flagField.
+   */
   public String getFlagField() {
     return flagField;
   }
 
-  /** @param flagField The flagField to set. */
+  /**
+   * @param flagField The flagField to set.
+   */
   public void setFlagField(String flagField) {
     this.flagField = flagField;
   }

@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.setvariable;
 
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.Objects;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class VariableItem {
 
@@ -33,7 +32,10 @@ public class VariableItem {
   public static final String VARIABLE_TYPE_JVM = "JVM";
 
   private static final String[] variableTypeCodes = {
-          VARIABLE_TYPE_JVM, VARIABLE_TYPE_PARENT_WORKFLOW, VARIABLE_TYPE_GRAND_PARENT_WORKFLOW, VARIABLE_TYPE_ROOT_WORKFLOW,
+    VARIABLE_TYPE_JVM,
+    VARIABLE_TYPE_PARENT_WORKFLOW,
+    VARIABLE_TYPE_GRAND_PARENT_WORKFLOW,
+    VARIABLE_TYPE_ROOT_WORKFLOW,
   };
 
   private static final String[] variableTypeDescriptions = {

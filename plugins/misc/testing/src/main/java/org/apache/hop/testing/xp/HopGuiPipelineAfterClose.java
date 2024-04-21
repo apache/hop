@@ -17,6 +17,7 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -25,8 +26,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
-
-import java.util.Map;
 
 @ExtensionPoint(
     extensionPointId = "HopGuiPipelineAfterClose",

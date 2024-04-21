@@ -17,15 +17,14 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.io.IOException;
-import java.util.List;
 
 /** Fails if a field's value is a filename and the file does not exist. */
 public class FileDoesNotExistValidator extends AbstractFileValidator {

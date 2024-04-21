@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.auth.core.impl;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import org.apache.hop.core.auth.core.AuthenticationFactoryException;
 import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 public class DefaultAuthenticationConsumerFactory
     implements IAuthenticationConsumerFactory<Object, Object, Object> {

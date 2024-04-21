@@ -71,22 +71,30 @@ public class ObjectUsageCount
     return nrUses;
   }
 
-  /** @return the nrUses */
+  /**
+   * @return the nrUses
+   */
   public int getNrUses() {
     return nrUses;
   }
 
-  /** @param nrUses the nrUses to set */
+  /**
+   * @param nrUses the nrUses to set
+   */
   public void setNrUses(int nrUses) {
     this.nrUses = nrUses;
   }
 
-  /** @return the objectName */
+  /**
+   * @return the objectName
+   */
   public String getObjectName() {
     return objectName;
   }
 
-  /** @param objectName the objectName to set */
+  /**
+   * @param objectName the objectName to set
+   */
   public void setObjectName(String objectName) {
     this.objectName = objectName;
   }

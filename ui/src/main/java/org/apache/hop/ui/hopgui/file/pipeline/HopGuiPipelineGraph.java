@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import java.io.OutputStream;
@@ -267,9 +266,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ROWS_DISTRIBUTE =
       "pipeline-graph-transform-10600-rows-distribute";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_SPECIFY_COPIES =
-  "pipeline-graph-transform-10100-copies";   
+      "pipeline-graph-transform-10100-copies";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_ERROR_HANDLING =
-      "pipeline-graph-transform-10800-error-handling"; 
+      "pipeline-graph-transform-10800-error-handling";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_VIEW_EXECUTION_INFO =
       "pipeline-graph-transform-11000-view-execution-info";
 
@@ -685,7 +684,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           candidateHopType = null;
           startErrorHopTransform = false;
           break;
-        
+
         case TRANSFORM_INFO_ICON:
           // Click on the transform info icon means: Edit transformation description
           //
@@ -695,20 +694,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case HOP_INFO_ICON:
           // Click on the hop info icon means: Edit transform that use info
           //
-          pipelineTransformDelegate.editTransform(pipelineMeta, (TransformMeta) areaOwner.getOwner());
+          pipelineTransformDelegate.editTransform(
+              pipelineMeta, (TransformMeta) areaOwner.getOwner());
           break;
 
         case TRANSFORM_TARGET_HOP_ICON:
           // Click on the hop target icon means: Edit transform that dispatch row
           //
-          pipelineTransformDelegate.editTransform(pipelineMeta, (TransformMeta) areaOwner.getParent());
+          pipelineTransformDelegate.editTransform(
+              pipelineMeta, (TransformMeta) areaOwner.getParent());
           break;
 
-          
         case HOP_COPY_ICON:
-         // clickedPipelineHop = (PipelineHopMeta) areaOwner.getOwner();          
+          // clickedPipelineHop = (PipelineHopMeta) areaOwner.getOwner();
           break;
-          
+
         case HOP_ERROR_ICON:
           // Click on the error icon means: Edit error handling
           //
@@ -865,7 +865,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // RAP does not support certain mouse events.
       mouseMove(e);
     }
-    
+
     // Default cursor
     setCursor(null);
 
@@ -1241,8 +1241,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             previewRowsDialog.setTitleMessage(title, prefix + message);
             previewRowsDialog.open();
           } catch (Exception ex) {
-            new ErrorDialog(
-                hopGui.getActiveShell(), "Error", "Error showing preview dialog", ex);
+            new ErrorDialog(hopGui.getActiveShell(), "Error", "Error showing preview dialog", ex);
           }
         }
       }
@@ -1390,7 +1389,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     mouseMovedSinceClick = true;
     boolean doRedraw = false;
     PipelineHopMeta hop = null;
-    
+
     // disable the tooltip
     //
     toolTip.setVisible(false);
@@ -1424,15 +1423,16 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     // Moved over an area?
     //
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
-    
+
     // Moved over an hop?
     //
-    if ( areaOwner==null ) {
+    if (areaOwner == null) {
       hop = this.findPipelineHop(real.x, real.y);
     }
-    
+
     try {
-      HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, event, real, areaOwner);
+      HopGuiPipelineGraphExtension ext =
+          new HopGuiPipelineGraphExtension(this, event, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.PipelineGraphMouseMoved.id, ext);
       if (ext.isPreventingDefault()) {
@@ -1626,8 +1626,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         doRedraw = true;
       }
     }
-    
-    Cursor cursor = null; 
+
+    Cursor cursor = null;
     // Change cursor when dragging view or view port
     if (viewDrag || viewPortNavigation) {
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
@@ -1637,11 +1637,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_CROSS);
     }
     // Change cursor when hover an hop or an area that support hover
-    else if (hop != null || ( areaOwner != null && areaOwner.getAreaType() != null && areaOwner.getAreaType().isSupportHover())) {     
+    else if (hop != null
+        || (areaOwner != null
+            && areaOwner.getAreaType() != null
+            && areaOwner.getAreaType().isSupportHover())) {
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
-    }     
+    }
     setCursor(cursor);
-    
+
     if (doRedraw) {
       redraw();
     }
@@ -3405,8 +3408,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         }
 
       } catch (Exception e) {
-        new ErrorDialog(
-            hopGui.getActiveShell(), "Error", "Error drawing pipeline image", e);
+        new ErrorDialog(hopGui.getActiveShell(), "Error", "Error drawing pipeline image", e);
       }
     } finally {
       gc.dispose();

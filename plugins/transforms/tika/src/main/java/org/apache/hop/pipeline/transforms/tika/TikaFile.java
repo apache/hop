@@ -77,7 +77,9 @@ public class TikaFile {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -91,7 +93,9 @@ public class TikaFile {
     return mask;
   }
 
-  /** @param mask The mask to set */
+  /**
+   * @param mask The mask to set
+   */
   public void setMask(String mask) {
     this.mask = mask;
   }
@@ -105,7 +109,9 @@ public class TikaFile {
     return excludeMask;
   }
 
-  /** @param excludeMask The excludeMask to set */
+  /**
+   * @param excludeMask The excludeMask to set
+   */
   public void setExcludeMask(String excludeMask) {
     this.excludeMask = excludeMask;
   }
@@ -119,7 +125,9 @@ public class TikaFile {
     return required;
   }
 
-  /** @param required The required to set */
+  /**
+   * @param required The required to set
+   */
   public void setRequired(boolean required) {
     this.required = required;
   }
@@ -133,7 +141,9 @@ public class TikaFile {
     return includingSubFolders;
   }
 
-  /** @param includingSubFolders The includingSubFolders to set */
+  /**
+   * @param includingSubFolders The includingSubFolders to set
+   */
   public void setIncludingSubFolders(boolean includingSubFolders) {
     this.includingSubFolders = includingSubFolders;
   }

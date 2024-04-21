@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.msgboxinfo;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -32,8 +33,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** Action type to display a message box. */
 @Action(

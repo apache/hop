@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -48,10 +51,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
 
 public class GroupByDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = GroupByMeta.class; // For Translator
@@ -193,7 +192,8 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     fdSortDir.top = new FormAttachment(wAllRows, margin);
     fdSortDir.right = new FormAttachment(wbSortDir, -margin);
     wSortDir.setLayoutData(fdSortDir);
-    wbSortDir.addListener(SWT.Selection, e-> BaseDialog.presentDirectoryDialog(shell, wSortDir, variables));
+    wbSortDir.addListener(
+        SWT.Selection, e -> BaseDialog.presentDirectoryDialog(shell, wSortDir, variables));
 
     // Whenever something changes, set the tooltip to the expanded version:
     wSortDir.addModifyListener(e -> wSortDir.setToolTipText(variables.resolve(wSortDir.getText())));
@@ -282,12 +282,12 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     fdAlwaysAddResult.right = new FormAttachment(100, 0);
     wAlwaysAddResult.setLayoutData(fdAlwaysAddResult);
     wAlwaysAddResult.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                input.setChanged();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
     Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText(BaseMessages.getString(PKG, "GroupByDialog.Group.Label"));

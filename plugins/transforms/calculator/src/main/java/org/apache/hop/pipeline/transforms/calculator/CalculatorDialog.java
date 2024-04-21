@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,9 +52,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
@@ -314,7 +313,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     final List<String> fields = new ArrayList<>();
 
     // Add the currentMeta fields...
-    for(String s :  inputFields) {
+    for (String s : inputFields) {
       fields.add(s);
     }
 

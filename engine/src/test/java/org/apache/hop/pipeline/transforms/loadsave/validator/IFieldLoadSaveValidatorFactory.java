@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
-
 import java.lang.reflect.Type;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 
 public interface IFieldLoadSaveValidatorFactory {
   <T> IFieldLoadSaveValidator<T> createValidator(IGetter<T> getterMethod);

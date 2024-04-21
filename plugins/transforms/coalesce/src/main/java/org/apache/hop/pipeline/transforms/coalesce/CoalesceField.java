@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Contains the properties of the inputs fields, target field name, target value type and options.
@@ -61,7 +60,8 @@ public class CoalesceField implements Cloneable {
     super();
   }
 
-  public CoalesceField(String name, String type, boolean removeFields, String inputFields, List<String> cache) {
+  public CoalesceField(
+      String name, String type, boolean removeFields, String inputFields, List<String> cache) {
     this.name = name;
     this.type = type;
     this.removeFields = removeFields;

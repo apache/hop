@@ -18,6 +18,9 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
@@ -27,10 +30,6 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 
 // TODO: implement as plugin, move to text transform plugin
 //

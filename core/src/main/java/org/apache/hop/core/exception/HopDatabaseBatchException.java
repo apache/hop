@@ -65,12 +65,16 @@ public class HopDatabaseBatchException extends HopDatabaseException {
     super(message, cause);
   }
 
-  /** @return Returns the updateCounts. */
+  /**
+   * @return Returns the updateCounts.
+   */
   public int[] getUpdateCounts() {
     return updateCounts;
   }
 
-  /** @param updateCounts The updateCounts to set. */
+  /**
+   * @param updateCounts The updateCounts to set.
+   */
   public void setUpdateCounts(int[] updateCounts) {
     this.updateCounts = updateCounts;
   }

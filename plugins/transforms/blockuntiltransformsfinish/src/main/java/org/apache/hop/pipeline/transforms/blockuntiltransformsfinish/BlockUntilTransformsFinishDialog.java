@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -40,9 +42,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class BlockUntilTransformsFinishDialog extends BaseTransformDialog
     implements ITransformDialog {

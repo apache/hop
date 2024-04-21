@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import org.apache.hop.core.Const;
 
 public class LogChannelFileWriterBuffer {
 

@@ -64,6 +64,8 @@ public interface ITwoWayPasswordEncoder {
    */
   String decode(String encodedPassword);
 
-  /** @return The prefixes to the encoded passwords which this password encoder supports. */
+  /**
+   * @return The prefixes to the encoded passwords which this password encoder supports.
+   */
   String[] getPrefixes();
 }

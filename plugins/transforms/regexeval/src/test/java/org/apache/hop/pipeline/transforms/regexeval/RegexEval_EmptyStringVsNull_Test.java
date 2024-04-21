@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,14 +38,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class RegexEval_EmptyStringVsNull_Test {
   private TransformMockHelper<RegexEvalMeta, ITransformData> helper;

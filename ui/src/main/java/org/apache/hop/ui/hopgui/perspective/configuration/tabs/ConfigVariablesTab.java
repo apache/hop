@@ -18,6 +18,8 @@
 
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -44,9 +46,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @GuiPlugin
 public class ConfigVariablesTab {
@@ -110,7 +109,7 @@ public class ConfigVariablesTab {
     wFields =
         new TableView(
             Variables.getADefaultVariableSpace(),
-                wVarsTabComp,
+            wVarsTabComp,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL,
             columns,
             0,

@@ -18,8 +18,6 @@
 package org.apache.hop.concurrency;
 
 import com.google.common.base.Throwables;
-import org.junit.Assert;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.Assert;
 
 /**
  * This class is aimed to be a general runner for concurrency tests. You need to follow a convention

@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.playlist.IFilePlayList;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformData;
-
-import java.util.LinkedList;
-import java.util.List;
 
 public class TextFileInputData extends BaseFileInputTransformData {
 

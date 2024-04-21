@@ -25,7 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 public class NormaliserMetaTest {
-  
+
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before
@@ -39,9 +39,9 @@ public class NormaliserMetaTest {
     NormaliserMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/normaliser-transform.xml", NormaliserMeta.class);
-    
-    //assertEquals(2, meta.getFields().size());
-    //assertEquals("fieldName", meta.getFields().get(0).getName());
-    //assertEquals("two", meta.getFields().get(0).getValue());    
+
+    // assertEquals(2, meta.getFields().size());
+    // assertEquals("fieldName", meta.getFields().get(0).getName());
+    // assertEquals("two", meta.getFields().get(0).getValue());
   }
 }

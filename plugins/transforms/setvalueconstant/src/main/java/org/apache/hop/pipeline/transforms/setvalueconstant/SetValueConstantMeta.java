@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,9 +38,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @InjectionSupported(
     localizationPrefix = "SetValueConstant.Injection.",
     groups = {"FIELDS", "OPTIONS"})
@@ -50,7 +49,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SetValueConstantMeta.keyword",
     documentationUrl = "/pipeline/transforms/setvalueconstant.html")
-public class SetValueConstantMeta extends BaseTransformMeta<SetValueConstant, SetValueConstantData> {
+public class SetValueConstantMeta
+    extends BaseTransformMeta<SetValueConstant, SetValueConstantData> {
   private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
 
   @InjectionDeep private List<Field> fields = new ArrayList<>();

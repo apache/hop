@@ -18,11 +18,7 @@
 
 package org.apache.hop.neo4j.transforms.gencsv;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.neo4j.core.data.GraphData;
-import org.apache.hop.neo4j.core.data.GraphNodeData;
-import org.apache.hop.neo4j.core.data.GraphPropertyData;
-import org.apache.hop.neo4j.core.data.GraphRelationshipData;
+import static org.apache.hop.neo4j.transforms.gencsv.UniquenessStrategy.None;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,8 +26,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static org.apache.hop.neo4j.transforms.gencsv.UniquenessStrategy.None;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.neo4j.core.data.GraphData;
+import org.apache.hop.neo4j.core.data.GraphNodeData;
+import org.apache.hop.neo4j.core.data.GraphPropertyData;
+import org.apache.hop.neo4j.core.data.GraphRelationshipData;
 
 /** Adds an index to graph data. This allows us to quickly lookup nodes and relationships */
 public class IndexedGraphData extends GraphData {
@@ -151,7 +150,9 @@ public class IndexedGraphData extends GraphData {
     return nodeIdMap;
   }
 
-  /** @param nodeIdMap The nodeIdMap to set */
+  /**
+   * @param nodeIdMap The nodeIdMap to set
+   */
   public void setNodeIdMap(Map<String, Integer> nodeIdMap) {
     this.nodeIdMap = nodeIdMap;
   }
@@ -165,7 +166,9 @@ public class IndexedGraphData extends GraphData {
     return relIdMap;
   }
 
-  /** @param relIdMap The relIdMap to set */
+  /**
+   * @param relIdMap The relIdMap to set
+   */
   public void setRelIdMap(Map<String, Integer> relIdMap) {
     this.relIdMap = relIdMap;
   }
@@ -179,7 +182,9 @@ public class IndexedGraphData extends GraphData {
     return nodeCollisionListeners;
   }
 
-  /** @param nodeCollisionListeners The nodeCollisionListeners to set */
+  /**
+   * @param nodeCollisionListeners The nodeCollisionListeners to set
+   */
   public void setNodeCollisionListeners(List<NodeCollisionListener> nodeCollisionListeners) {
     this.nodeCollisionListeners = nodeCollisionListeners;
   }
@@ -193,7 +198,9 @@ public class IndexedGraphData extends GraphData {
     return relCollisionListeners;
   }
 
-  /** @param relCollisionListeners The relCollisionListeners to set */
+  /**
+   * @param relCollisionListeners The relCollisionListeners to set
+   */
   public void setRelCollisionListeners(List<RelationshipCollisionListener> relCollisionListeners) {
     this.relCollisionListeners = relCollisionListeners;
   }
@@ -207,7 +214,9 @@ public class IndexedGraphData extends GraphData {
     return nodePropertiesSet;
   }
 
-  /** @param nodePropertiesSet The nodePropertiesSet to set */
+  /**
+   * @param nodePropertiesSet The nodePropertiesSet to set
+   */
   public void setNodePropertiesSet(Set<IdType> nodePropertiesSet) {
     this.nodePropertiesSet = nodePropertiesSet;
   }
@@ -221,7 +230,9 @@ public class IndexedGraphData extends GraphData {
     return relPropertiesSet;
   }
 
-  /** @param relPropertiesSet The relPropertiesSet to set */
+  /**
+   * @param relPropertiesSet The relPropertiesSet to set
+   */
   public void setRelPropertiesSet(Set<IdType> relPropertiesSet) {
     this.relPropertiesSet = relPropertiesSet;
   }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -37,9 +39,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "MongoDbInput",
@@ -242,32 +241,44 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
         metadataProvider);
   }
 
-  /** @return the fields */
+  /**
+   * @return the fields
+   */
   public String getFieldsName() {
     return jsonField;
   }
 
-  /** @param fields a field name to set */
+  /**
+   * @param fields a field name to set
+   */
   public void setFieldsName(String fields) {
     this.jsonField = fields;
   }
 
-  /** @return the jsonFieldName */
+  /**
+   * @return the jsonFieldName
+   */
   public String getJsonFieldName() {
     return jsonFieldName;
   }
 
-  /** @param jsonFieldName the jsonFieldName to set */
+  /**
+   * @param jsonFieldName the jsonFieldName to set
+   */
   public void setJsonFieldName(String jsonFieldName) {
     this.jsonFieldName = jsonFieldName;
   }
 
-  /** @return the jsonQuery */
+  /**
+   * @return the jsonQuery
+   */
   public String getJsonQuery() {
     return jsonQuery;
   }
 
-  /** @param jsonQuery the jsonQuery to set */
+  /**
+   * @param jsonQuery the jsonQuery to set
+   */
   public void setJsonQuery(String jsonQuery) {
     this.jsonQuery = jsonQuery;
   }

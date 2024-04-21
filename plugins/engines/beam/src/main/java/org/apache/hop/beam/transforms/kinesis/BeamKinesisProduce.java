@@ -42,6 +42,7 @@ public class BeamKinesisProduce extends BaseTransform implements ITransform {
     // Outside a Beam Runner this transform doesn't actually do anything, it's just metadata
     // This transform gets converted into Beam API calls in a pipeline
     //
-    throw new HopException("The Beam Kinesis Produce transform is only intended to be used in a Beam pipeline");
+    throw new HopException(
+        "The Beam Kinesis Produce transform is only intended to be used in a Beam pipeline");
   }
 }

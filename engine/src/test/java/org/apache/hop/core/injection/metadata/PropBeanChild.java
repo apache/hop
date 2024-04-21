@@ -42,7 +42,9 @@ public class PropBeanChild {
     return childField1;
   }
 
-  /** @param childField1 The childField1 to set */
+  /**
+   * @param childField1 The childField1 to set
+   */
   public void setChildField1(String childField1) {
     this.childField1 = childField1;
   }
@@ -56,7 +58,9 @@ public class PropBeanChild {
     return childField2;
   }
 
-  /** @param childField2 The childField2 to set */
+  /**
+   * @param childField2 The childField2 to set
+   */
   public void setChildField2(String childField2) {
     this.childField2 = childField2;
   }
@@ -70,7 +74,9 @@ public class PropBeanChild {
     return grandChild;
   }
 
-  /** @param grandChild The grandChild to set */
+  /**
+   * @param grandChild The grandChild to set
+   */
   public void setGrandChild(PropBeanGrandChild grandChild) {
     this.grandChild = grandChild;
   }

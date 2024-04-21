@@ -17,6 +17,8 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -27,9 +29,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "AvroDecode",
@@ -90,7 +89,9 @@ public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData
     return sourceFieldName;
   }
 
-  /** @param sourceFieldName The sourceFieldName to set */
+  /**
+   * @param sourceFieldName The sourceFieldName to set
+   */
   public void setSourceFieldName(String sourceFieldName) {
     this.sourceFieldName = sourceFieldName;
   }
@@ -112,7 +113,9 @@ public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData
     return ignoringMissingPaths;
   }
 
-  /** @param ignoringMissingPaths The ignoringMissingPaths to set */
+  /**
+   * @param ignoringMissingPaths The ignoringMissingPaths to set
+   */
   public void setIgnoringMissingPaths(boolean ignoringMissingPaths) {
     this.ignoringMissingPaths = ignoringMissingPaths;
   }
@@ -126,7 +129,9 @@ public class AvroDecodeMeta extends BaseTransformMeta<AvroDecode, AvroDecodeData
     return targetFields;
   }
 
-  /** @param targetFields The targetFields to set */
+  /**
+   * @param targetFields The targetFields to set
+   */
   public void setTargetFields(List<TargetField> targetFields) {
     this.targetFields = targetFields;
   }

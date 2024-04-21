@@ -16,10 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.core.util.Utils;
-
 import java.util.Locale;
 import java.util.Random;
+import org.apache.hop.core.util.Utils;
 
 public class LocaleLoadSaveValidator implements IFieldLoadSaveValidator<Locale> {
   @Override

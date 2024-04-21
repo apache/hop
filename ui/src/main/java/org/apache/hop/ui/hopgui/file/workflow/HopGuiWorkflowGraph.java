@@ -475,7 +475,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
 
     try {
-      HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, event, real, areaOwner);
+      HopGuiWorkflowGraphExtension ext =
+          new HopGuiWorkflowGraphExtension(this, event, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseDoubleClick.id, ext);
       if (ext.isPreventingDefault()) {
@@ -536,7 +537,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
 
     try {
-      HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, event, real, areaOwner);
+      HopGuiWorkflowGraphExtension ext =
+          new HopGuiWorkflowGraphExtension(this, event, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseDown.id, ext);
       if (ext.isPreventingDefault()) {
@@ -591,7 +593,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             //
             editActionDescription((ActionMeta) areaOwner.getOwner());
             break;
-            
+
           case NOTE:
             ni = (NotePadMeta) areaOwner.getOwner();
             selectedNotes = workflowMeta.getSelectedNotes();
@@ -622,7 +624,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               }
               updateGui();
             }
-            break; 
+            break;
           default:
             break;
         }
@@ -700,7 +702,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Default cursor
     setCursor(null);
-    
+
     if (viewPortNavigation || viewDrag) {
       viewDrag = false;
       viewPortNavigation = false;
@@ -727,7 +729,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
 
     try {
-      HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, event, real, areaOwner);
+      HopGuiWorkflowGraphExtension ext =
+          new HopGuiWorkflowGraphExtension(this, event, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
           LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseUp.id, ext);
       if (ext.isPreventingDefault()) {
@@ -1068,7 +1071,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
         if (contextHandler != null) {
           Shell parent = hopShell();
-          org.eclipse.swt.graphics.Point p = parent.getDisplay().map(canvas, null, event.x, event.y);
+          org.eclipse.swt.graphics.Point p =
+              parent.getDisplay().map(canvas, null, event.x, event.y);
 
           this.openedContextDialog = true;
           this.hideToolTips();
@@ -1091,7 +1095,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     noInputAction = null;
     boolean doRedraw = false;
     WorkflowHopMeta hop = null;
-    
+
     // disable the tooltip
     //
     hideToolTips();
@@ -1124,10 +1128,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     // Moved over an hop?
     //
-    if ( areaOwner==null ) {
+    if (areaOwner == null) {
       hop = findWorkflowHop(real.x, real.y);
     }
-    
+
     // Mouse over the name of the transform
     //
     if (!PropsUi.getInstance().useDoubleClick()) {
@@ -1297,9 +1301,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         doRedraw = true;
       }
-    }    
+    }
 
-    Cursor cursor = null; 
+    Cursor cursor = null;
     // Change cursor when dragging view or view port
     if (viewDrag || viewPortNavigation) {
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
@@ -1309,9 +1313,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_CROSS);
     }
     // Change cursor when hover an hop or an area that support hover
-    else if (hop != null || ( areaOwner != null && areaOwner.getAreaType() != null && areaOwner.getAreaType().isSupportHover())) {     
+    else if (hop != null
+        || (areaOwner != null
+            && areaOwner.getAreaType() != null
+            && areaOwner.getAreaType().isSupportHover())) {
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
-    }     
+    }
     setCursor(cursor);
 
     if (doRedraw) {
@@ -1373,8 +1380,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         workflowMeta.addWorkflowHop(hopCandidate);
         if (workflowMeta.hasLoop(hopCandidate.getToAction())) {
           MessageBox mb =
-              new MessageBox(
-                  hopGui.getActiveShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
+              new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.CANCEL | SWT.ICON_WARNING);
           mb.setMessage(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Message"));
           mb.setText(BaseMessages.getString(PKG, "WorkflowGraph.Dialog.HopCausesLoop.Title"));
           int choice = mb.open();
@@ -1856,7 +1862,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void editActionDescription(HopGuiWorkflowActionContext context) {
     this.editActionDescription(context.getActionMeta());
   }
-  
+
   public void editActionDescription(ActionMeta actionMeta) {
     String title = BaseMessages.getString(PKG, "WorkflowGraph.Dialog.EditDescription.Title");
     String message = BaseMessages.getString(PKG, "WorkflowGraph.Dialog.EditDescription.Message");
@@ -3323,8 +3329,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       FileObject fileObject = HopVfs.getFileObject(filename);
       if (fileObject.exists()) {
         MessageBox box =
-            new MessageBox(
-                hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
+            new MessageBox(hopGui.getActiveShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText("Overwrite?");
         box.setMessage("Are you sure you want to overwrite file '" + filename + "'?");
         int answer = box.open();

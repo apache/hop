@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Vertica Analytic Database information through static final members
- */
-@DatabaseMetaPlugin(type = "VERTICA", typeDescription = "Vertica", documentationUrl = "/database/databases/vertica.html")
+/** Contains Vertica Analytic Database information through static final members */
+@DatabaseMetaPlugin(
+    type = "VERTICA",
+    typeDescription = "Vertica",
+    documentationUrl = "/database/databases/vertica.html")
 @GuiPlugin(id = "GUI-VerticaDatabaseMeta")
 public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -64,7 +65,9 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
@@ -588,7 +591,9 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
@@ -599,7 +604,9 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "&";
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return true;
@@ -637,7 +644,9 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "SELECT nextval('" + sequenceName + "')";
   }
 
-  /** @return false as the database does not support timestamp to date conversion. */
+  /**
+   * @return false as the database does not support timestamp to date conversion.
+   */
   @Override
   public boolean isSupportsTimeStampToDateConversion() {
     return false;

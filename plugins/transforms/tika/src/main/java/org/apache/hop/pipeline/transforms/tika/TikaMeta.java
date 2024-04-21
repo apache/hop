@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.tika;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -39,17 +42,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "Tika",
     image = "tika.svg",
     name = "i18n::Tika.Name",
     description = "i18n::Tika.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl = "/pipeline/transforms/apache-tika.html",       
+    documentationUrl = "/pipeline/transforms/apache-tika.html",
     keywords = "i18n::Tika.Keywords")
 public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
   private static final Class<?> PKG = TikaMeta.class; // for Translator
@@ -447,7 +446,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return files;
   }
 
-  /** @param files The files to set */
+  /**
+   * @param files The files to set
+   */
   public void setFiles(List<TikaFile> files) {
     this.files = files;
   }
@@ -461,7 +462,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return contentFieldName;
   }
 
-  /** @param contentFieldName The contentFieldName to set */
+  /**
+   * @param contentFieldName The contentFieldName to set
+   */
   public void setContentFieldName(String contentFieldName) {
     this.contentFieldName = contentFieldName;
   }
@@ -475,7 +478,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return fileSizeFieldName;
   }
 
-  /** @param fileSizeFieldName The fileSizeFieldName to set */
+  /**
+   * @param fileSizeFieldName The fileSizeFieldName to set
+   */
   public void setFileSizeFieldName(String fileSizeFieldName) {
     this.fileSizeFieldName = fileSizeFieldName;
   }
@@ -489,7 +494,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return filenameField;
   }
 
-  /** @param filenameField The filenameField to set */
+  /**
+   * @param filenameField The filenameField to set
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
@@ -503,7 +510,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return rowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set */
+  /**
+   * @param rowNumberField The rowNumberField to set
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }
@@ -517,7 +526,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set */
+  /**
+   * @param rowLimit The rowLimit to set
+   */
   public void setRowLimit(long rowLimit) {
     this.rowLimit = rowLimit;
   }
@@ -531,7 +542,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return outputFormat;
   }
 
-  /** @param outputFormat The outputFormat to set */
+  /**
+   * @param outputFormat The outputFormat to set
+   */
   public void setOutputFormat(String outputFormat) {
     this.outputFormat = outputFormat;
   }
@@ -545,7 +558,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return encoding;
   }
 
-  /** @param encoding The encoding to set */
+  /**
+   * @param encoding The encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
@@ -559,7 +574,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return dynamicFilenameField;
   }
 
-  /** @param dynamicFilenameField The dynamicFilenameField to set */
+  /**
+   * @param dynamicFilenameField The dynamicFilenameField to set
+   */
   public void setDynamicFilenameField(String dynamicFilenameField) {
     this.dynamicFilenameField = dynamicFilenameField;
   }
@@ -573,7 +590,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return fileInField;
   }
 
-  /** @param fileInField The fileInField to set */
+  /**
+   * @param fileInField The fileInField to set
+   */
   public void setFileInField(boolean fileInField) {
     this.fileInField = fileInField;
   }
@@ -587,7 +606,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return addingResultFile;
   }
 
-  /** @param addingResultFile The addingResultFile to set */
+  /**
+   * @param addingResultFile The addingResultFile to set
+   */
   public void setAddingResultFile(boolean addingResultFile) {
     this.addingResultFile = addingResultFile;
   }
@@ -601,7 +622,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return ignoreEmptyFile;
   }
 
-  /** @param ignoreEmptyFile The ignoreEmptyFile to set */
+  /**
+   * @param ignoreEmptyFile The ignoreEmptyFile to set
+   */
   public void setIgnoreEmptyFile(boolean ignoreEmptyFile) {
     this.ignoreEmptyFile = ignoreEmptyFile;
   }
@@ -615,7 +638,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return shortFileFieldName;
   }
 
-  /** @param shortFileFieldName The shortFileFieldName to set */
+  /**
+   * @param shortFileFieldName The shortFileFieldName to set
+   */
   public void setShortFileFieldName(String shortFileFieldName) {
     this.shortFileFieldName = shortFileFieldName;
   }
@@ -629,7 +654,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return pathFieldName;
   }
 
-  /** @param pathFieldName The pathFieldName to set */
+  /**
+   * @param pathFieldName The pathFieldName to set
+   */
   public void setPathFieldName(String pathFieldName) {
     this.pathFieldName = pathFieldName;
   }
@@ -643,7 +670,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return hiddenFieldName;
   }
 
-  /** @param hiddenFieldName The hiddenFieldName to set */
+  /**
+   * @param hiddenFieldName The hiddenFieldName to set
+   */
   public void setHiddenFieldName(String hiddenFieldName) {
     this.hiddenFieldName = hiddenFieldName;
   }
@@ -657,7 +686,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return lastModificationTimeFieldName;
   }
 
-  /** @param lastModificationTimeFieldName The lastModificationTimeFieldName to set */
+  /**
+   * @param lastModificationTimeFieldName The lastModificationTimeFieldName to set
+   */
   public void setLastModificationTimeFieldName(String lastModificationTimeFieldName) {
     this.lastModificationTimeFieldName = lastModificationTimeFieldName;
   }
@@ -671,7 +702,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return uriFieldName;
   }
 
-  /** @param uriFieldName The uriFieldName to set */
+  /**
+   * @param uriFieldName The uriFieldName to set
+   */
   public void setUriFieldName(String uriFieldName) {
     this.uriFieldName = uriFieldName;
   }
@@ -685,7 +718,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return rootUriNameFieldName;
   }
 
-  /** @param rootUriNameFieldName The rootUriNameFieldName to set */
+  /**
+   * @param rootUriNameFieldName The rootUriNameFieldName to set
+   */
   public void setRootUriNameFieldName(String rootUriNameFieldName) {
     this.rootUriNameFieldName = rootUriNameFieldName;
   }
@@ -699,7 +734,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return extensionFieldName;
   }
 
-  /** @param extensionFieldName The extensionFieldName to set */
+  /**
+   * @param extensionFieldName The extensionFieldName to set
+   */
   public void setExtensionFieldName(String extensionFieldName) {
     this.extensionFieldName = extensionFieldName;
   }
@@ -713,7 +750,9 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
     return metadataFieldName;
   }
 
-  /** @param metadataFieldName The metadataFieldName to set */
+  /**
+   * @param metadataFieldName The metadataFieldName to set
+   */
   public void setMetadataFieldName(String metadataFieldName) {
     this.metadataFieldName = metadataFieldName;
   }

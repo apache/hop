@@ -17,16 +17,15 @@
 
 package org.apache.hop.mongo;
 
-import com.mongodb.MongoClientOptions;
-import com.mongodb.ReadPreference;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import javax.net.ssl.SSLSocketFactory;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ReadPreference;
+import javax.net.ssl.SSLSocketFactory;
+import org.junit.Test;
+import org.mockito.Mockito;
 
 public class MongoPropertiesTest {
   @Test

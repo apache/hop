@@ -17,6 +17,8 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
 import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
@@ -24,9 +26,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetWriter;
-
-import java.io.OutputStream;
-import java.util.ArrayList;
 
 public class ParquetOutputData extends BaseTransformData implements ITransformData {
   public ArrayList<Integer> sourceFieldIndexes;
@@ -43,8 +42,8 @@ public class ParquetOutputData extends BaseTransformData implements ITransformDa
   public int pageSize;
   public int dictionaryPageSize;
   public Schema avroSchema;
-  
+
   public ParquetOutputData() {
-    super();   
+    super();
   }
 }

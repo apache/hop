@@ -17,11 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -30,6 +25,10 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class GroupByData extends BaseTransformData implements ITransformData {
   public Object[] previous;
@@ -41,6 +40,7 @@ public class GroupByData extends BaseTransformData implements ITransformData {
   public IRowMeta groupMeta;
   public IRowMeta groupAggMeta; // for speed: groupMeta+aggMeta
   public int[] groupnrs;
+
   /**
    * array, length is equal to aggMeta value meta list size and metadata subject fields length.
    * Values corresponds to input values used to calculate target results.

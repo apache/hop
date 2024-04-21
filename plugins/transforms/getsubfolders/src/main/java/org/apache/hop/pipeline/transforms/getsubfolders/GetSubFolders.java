@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.getsubfolders;
 
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -30,9 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Read all subfolder inside a specified folder and convert them to rows and writes these to one or

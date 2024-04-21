@@ -18,12 +18,11 @@
 
 package org.apache.hop.avro.transforms.avroencode;
 
+import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.List;
 
 public class AvroEncodeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;

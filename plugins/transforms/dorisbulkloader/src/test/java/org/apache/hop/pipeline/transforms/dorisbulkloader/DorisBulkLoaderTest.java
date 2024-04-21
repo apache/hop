@@ -17,13 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -35,6 +28,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.powermock.reflect.Whitebox.setInternalState;
+
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.util.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 public class DorisBulkLoaderTest {
@@ -98,7 +98,12 @@ public class DorisBulkLoaderTest {
     Assert.assertTrue(data.dorisStreamLoad != null, "data.dorisStreamLoad initialization failure");
 
     data.dorisStreamLoad = mock(DorisStreamLoad.class);
-    when(data.dorisStreamLoad.canWrite(anyLong())).thenAnswer(x -> {canWrite = !canWrite; return canWrite;});
+    when(data.dorisStreamLoad.canWrite(anyLong()))
+        .thenAnswer(
+            x -> {
+              canWrite = !canWrite;
+              return canWrite;
+            });
 
     dorisBulkLoader.processStreamLoad("{\"no\":2, \"name\":\"jack\", \"sex\":\"m\"}", false);
 
@@ -107,5 +112,4 @@ public class DorisBulkLoaderTest {
 
     verify(data.dorisStreamLoad, times(2)).executeDorisStreamLoad();
   }
-
 }

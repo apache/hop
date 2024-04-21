@@ -309,18 +309,18 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         checkDrawSlowTransformIndicator(transformMeta);
       }
     }
- 
+
     // Display after slow transform indicator
     for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
       TransformMeta transformMeta = pipelineMeta.getTransform(i);
-      
-      // Draw transform information icon if description is available    
+
+      // Draw transform information icon if description is available
       drawTransformInformationIndicator(transformMeta);
-      
+
       // Draw transform status indicators (running vs. done)
       drawTransformStatusIndicator(transformMeta);
     }
-    
+
     // Draw data grid indicators (output data available)
     if (outputRowsMap != null && !outputRowsMap.isEmpty()) {
       for (int i = 0; i < pipelineMeta.nrTransforms(); i++) {
@@ -387,7 +387,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               // if the transform can't keep up with its input, mark it by drawing an animation
               boolean isSlow = inputRows * 0.85 > outputRows;
               if (isSlow) {
-//                gc.setLineWidth(lineWidth + 1);
+                //                gc.setLineWidth(lineWidth + 1);
                 if (transformMeta.isSelected()) {
                   gc.setLineWidth(lineWidth + 2);
                 } else {
@@ -398,15 +398,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
                   gc.setForeground(EColor.BACKGROUND);
                   gc.setLineStyle(ELineStyle.SOLID);
                   gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
-                  
+
                   gc.setForeground(EColor.DARKGRAY);
                   gc.setLineStyle(ELineStyle.DOT);
                   gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
                 } else {
                   gc.setForeground(EColor.DARKGRAY);
-                  gc.setLineStyle(ELineStyle.SOLID);                 
+                  gc.setLineStyle(ELineStyle.SOLID);
                   gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
-                  
+
                   gc.setForeground(EColor.BACKGROUND);
                   gc.setLineStyle(ELineStyle.DOT);
                   gc.drawRoundRectangle(x - 1, y - 1, iconSize + 1, iconSize + 1, 8, 8);
@@ -599,7 +599,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       Point screen = real2screen(pt.x, pt.y);
       int x = screen.x;
       int y = screen.y;
-      
+
       int xInfo = x - (miniIconSize / 2) - 1;
       int yInfo = y - (miniIconSize / 2) - 1;
       gc.drawImage(EImage.INFO_DISABLED, xInfo, yInfo, magnification);
@@ -615,7 +615,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               transformMeta));
     }
   }
-  
+
   private void drawTransformStatusIndicator(TransformMeta transformMeta) throws HopException {
 
     if (transformMeta == null) {
@@ -866,11 +866,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     // See if we need to draw a line under the name to make the name look like a hyperlink.
     //
     if (name.equals(mouseOverName)) {
-      gc.setLineWidth(lineWidth);      
+      gc.setLineWidth(lineWidth);
       gc.drawLine(
           namePosition.x,
           namePosition.y + nameExtent.y,
-          namePosition.x + nameExtent.x ,
+          namePosition.x + nameExtent.x,
           namePosition.y + nameExtent.y);
     }
 
@@ -959,7 +959,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return new Point(xpos, ypos);
   }
 
-  private void drawLine(TransformMeta from, TransformMeta to, PipelineHopMeta hop, boolean isCandidate)
+  private void drawLine(
+      TransformMeta from, TransformMeta to, PipelineHopMeta hop, boolean isCandidate)
       throws HopException {
     int[] line = getLine(from, to);
 

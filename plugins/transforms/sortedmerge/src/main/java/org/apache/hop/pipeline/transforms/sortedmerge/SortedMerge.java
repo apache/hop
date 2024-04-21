@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -26,12 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-
 
 /** Do nothing. Pass all input data to the next transforms. */
 public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> {

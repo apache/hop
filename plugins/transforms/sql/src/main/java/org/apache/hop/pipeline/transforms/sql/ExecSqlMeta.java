@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,9 +38,6 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * Contains meta-data to execute arbitrary SQL, optionally each row again.
@@ -128,82 +127,114 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     arguments = new ArrayList<ExecSqlArgumentItem>();
   }
 
-  /** @return Returns the true if we have to set params. */
+  /**
+   * @return Returns the true if we have to set params.
+   */
   public boolean isParams() {
     return this.params;
   }
 
-  /** @param value set true if we have to set params. */
+  /**
+   * @param value set true if we have to set params.
+   */
   public void setParams(boolean value) {
     this.params = value;
   }
 
-  /** @return Returns the sql. */
+  /**
+   * @return Returns the sql.
+   */
   public String getSql() {
     return sql;
   }
 
-  /** @param sql The sql to set. */
+  /**
+   * @param sql The sql to set.
+   */
   public void setSql(String sql) {
     this.sql = sql;
   }
 
-  /** @return Returns the arguments. */
+  /**
+   * @return Returns the arguments.
+   */
   public List<ExecSqlArgumentItem> getArguments() {
     return arguments;
   }
 
-  /** @param arguments The arguments to set. */
+  /**
+   * @param arguments The arguments to set.
+   */
   public void setArguments(List<ExecSqlArgumentItem> arguments) {
     this.arguments = arguments;
   }
 
-  /** @return Returns the executedEachInputRow. */
+  /**
+   * @return Returns the executedEachInputRow.
+   */
   public boolean isExecutedEachInputRow() {
     return executedEachInputRow;
   }
 
-  /** @param executedEachInputRow The executedEachInputRow to set. */
+  /**
+   * @param executedEachInputRow The executedEachInputRow to set.
+   */
   public void setExecutedEachInputRow(boolean executedEachInputRow) {
     this.executedEachInputRow = executedEachInputRow;
   }
 
-  /** @return Returns the deleteField. */
+  /**
+   * @return Returns the deleteField.
+   */
   public String getDeleteField() {
     return deleteField;
   }
 
-  /** @param deleteField The deleteField to set. */
+  /**
+   * @param deleteField The deleteField to set.
+   */
   public void setDeleteField(String deleteField) {
     this.deleteField = deleteField;
   }
 
-  /** @return Returns the insertField. */
+  /**
+   * @return Returns the insertField.
+   */
   public String getInsertField() {
     return insertField;
   }
 
-  /** @param insertField The insertField to set. */
+  /**
+   * @param insertField The insertField to set.
+   */
   public void setInsertField(String insertField) {
     this.insertField = insertField;
   }
 
-  /** @return Returns the readField. */
+  /**
+   * @return Returns the readField.
+   */
   public String getReadField() {
     return readField;
   }
 
-  /** @param readField The readField to set. */
+  /**
+   * @param readField The readField to set.
+   */
   public void setReadField(String readField) {
     this.readField = readField;
   }
 
-  /** @return Returns the updateField. */
+  /**
+   * @return Returns the updateField.
+   */
   public String getUpdateField() {
     return updateField;
   }
 
-  /** @param updateField The updateField to set. */
+  /**
+   * @param updateField The updateField to set.
+   */
   public void setUpdateField(String updateField) {
     this.updateField = updateField;
   }
@@ -393,12 +424,16 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     }
   }
 
-  /** @return Returns the variableReplacementActive. */
+  /**
+   * @return Returns the variableReplacementActive.
+   */
   public boolean isReplaceVariables() {
     return replaceVariables;
   }
 
-  /** @param replaceVariables The variableReplacement to set. */
+  /**
+   * @param replaceVariables The variableReplacement to set.
+   */
   public void setReplaceVariables(boolean replaceVariables) {
     this.replaceVariables = replaceVariables;
   }
@@ -424,12 +459,16 @@ public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
     return true;
   }
 
-  /** @return the singleStatement */
+  /**
+   * @return the singleStatement
+   */
   public boolean isSingleStatement() {
     return singleStatement;
   }
 
-  /** @param singleStatement the singleStatement to set */
+  /**
+   * @param singleStatement the singleStatement to set
+   */
   public void setSingleStatement(boolean singleStatement) {
     this.singleStatement = singleStatement;
   }

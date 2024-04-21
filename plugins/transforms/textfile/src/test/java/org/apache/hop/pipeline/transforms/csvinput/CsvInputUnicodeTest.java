@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.file.TextFileInputField;
@@ -32,8 +33,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-
-import java.nio.charset.StandardCharsets;
 
 /**
  * Tests for unicode support in CsvInput transform

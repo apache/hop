@@ -18,9 +18,8 @@
 
 package org.apache.hop.neo4j.model;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class GraphProperty {
 
@@ -94,7 +93,9 @@ public class GraphProperty {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -108,7 +109,9 @@ public class GraphProperty {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -122,7 +125,9 @@ public class GraphProperty {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(GraphPropertyType type) {
     this.type = type;
   }
@@ -136,7 +141,9 @@ public class GraphProperty {
     return primary;
   }
 
-  /** @param primary The primary to set */
+  /**
+   * @param primary The primary to set
+   */
   public void setPrimary(boolean primary) {
     this.primary = primary;
   }
@@ -150,7 +157,9 @@ public class GraphProperty {
     return mandatory;
   }
 
-  /** @param mandatory The mandatory to set */
+  /**
+   * @param mandatory The mandatory to set
+   */
   public void setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
   }
@@ -164,7 +173,9 @@ public class GraphProperty {
     return unique;
   }
 
-  /** @param unique The unique to set */
+  /**
+   * @param unique The unique to set
+   */
   public void setUnique(boolean unique) {
     this.unique = unique;
   }
@@ -178,7 +189,9 @@ public class GraphProperty {
     return indexed;
   }
 
-  /** @param indexed The indexed to set */
+  /**
+   * @param indexed The indexed to set
+   */
   public void setIndexed(boolean indexed) {
     this.indexed = indexed;
   }

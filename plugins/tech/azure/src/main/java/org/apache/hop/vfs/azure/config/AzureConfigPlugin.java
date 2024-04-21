@@ -74,19 +74,19 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       description = "The key to use for the Azure VFS")
   private String key;
 
-    @GuiWidgetElement(
-        id = WIDGET_ID_AZURE_LOCAL_EMULATOR_URL,
-        parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
-        type = GuiElementType.TEXT,
-        variables = true,
-        password = false,
-        label = "i18n::AzureVFS.Url.Label",
-        toolTip = "i18n::AzureVFS.Url.Description")
-    @CommandLine.Option(
-        names = {"-aze", "--azure-emulator"},
-        description = "The URL of an Azure emulator (Azurite) to be used for test and development goals instead of official Azure services")
-    private String localEmulatorUrl;
-
+  @GuiWidgetElement(
+      id = WIDGET_ID_AZURE_LOCAL_EMULATOR_URL,
+      parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
+      type = GuiElementType.TEXT,
+      variables = true,
+      password = false,
+      label = "i18n::AzureVFS.Url.Label",
+      toolTip = "i18n::AzureVFS.Url.Description")
+  @CommandLine.Option(
+      names = {"-aze", "--azure-emulator"},
+      description =
+          "The URL of an Azure emulator (Azurite) to be used for test and development goals instead of official Azure services")
+  private String localEmulatorUrl;
 
   /**
    * Gets instance
@@ -125,8 +125,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
       }
 
       if (localEmulatorUrl != null) {
-          config.setEmulatorUrl(localEmulatorUrl);
-          log.logBasic("The Azure emulator URL is set to '" + localEmulatorUrl + "'");
+        config.setEmulatorUrl(localEmulatorUrl);
+        log.logBasic("The Azure emulator URL is set to '" + localEmulatorUrl + "'");
       }
 
       // Save to file if anything changed
@@ -166,8 +166,8 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
           AzureConfigSingleton.getConfig().setKey(key);
           break;
         case WIDGET_ID_AZURE_LOCAL_EMULATOR_URL:
-            localEmulatorUrl = ((TextVar) control).getText();
-            AzureConfigSingleton.getConfig().setEmulatorUrl(localEmulatorUrl);
+          localEmulatorUrl = ((TextVar) control).getText();
+          AzureConfigSingleton.getConfig().setEmulatorUrl(localEmulatorUrl);
       }
     }
     // Save the project...
@@ -211,19 +211,17 @@ public class AzureConfigPlugin implements IConfigOptions, IGuiPluginCompositeWid
     this.key = key;
   }
 
-/**
-*
- * @return the local emulator url
-*/
-    public String getLocalEmulatorUrl() {
-        return localEmulatorUrl;
-    }
+  /**
+   * @return the local emulator url
+   */
+  public String getLocalEmulatorUrl() {
+    return localEmulatorUrl;
+  }
 
-/**
-*
- * @param localEmulatorUrl The URL of the Azure blob storage
-*/
-    public void setLocalEmulatorUrl(String localEmulatorUrl) {
-        this.localEmulatorUrl = localEmulatorUrl;
-    }
+  /**
+   * @param localEmulatorUrl The URL of the Azure blob storage
+   */
+  public void setLocalEmulatorUrl(String localEmulatorUrl) {
+    this.localEmulatorUrl = localEmulatorUrl;
+  }
 }

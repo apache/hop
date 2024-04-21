@@ -23,7 +23,8 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 public class GetServerStatusData extends BaseTransformData {
   public IRowMeta outputRowMeta;
   public int serverFieldIndex;
+
   public GetServerStatusData() {
-    super();   
+    super();
   }
 }

@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -33,16 +39,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
 
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import java.io.File;
-import java.io.OutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
-/**
- * Converts input rows to one or more XML files.
- */
+/** Converts input rows to one or more XML files. */
 public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
   private static final String EOL =
       "\n"; // force EOL char because woodstox library encodes CRLF incorrectly
@@ -240,7 +237,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
       }
     }
   }
-  
+
   private void writeField(IValueMeta valueMeta, Object valueData, String element)
       throws HopTransformException {
     try {

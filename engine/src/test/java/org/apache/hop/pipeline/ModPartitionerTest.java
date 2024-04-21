@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ModPartitionerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

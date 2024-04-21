@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.engines.flink;
 
+import java.util.Arrays;
 import org.apache.beam.runners.flink.FlinkPipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptions;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
@@ -34,8 +35,6 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-
-import java.util.Arrays;
 
 @GuiPlugin
 public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfiguration

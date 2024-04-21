@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.janino;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,10 +39,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 @InjectionSupported(
     localizationPrefix = "Janino.Injection.",

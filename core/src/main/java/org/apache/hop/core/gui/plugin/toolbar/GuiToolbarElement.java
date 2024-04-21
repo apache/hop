@@ -31,7 +31,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface GuiToolbarElement {
 
-  /** @return The ID of the toolbar to which this element belongs */
+  /**
+   * @return The ID of the toolbar to which this element belongs
+   */
   String root();
 
   /**
@@ -74,19 +76,29 @@ public @interface GuiToolbarElement {
    */
   String imageMethod() default "";
 
-  /** @return True if the text element you define is a password with an asterisk mask */
+  /**
+   * @return True if the text element you define is a password with an asterisk mask
+   */
   boolean password() default false;
 
-  /** @return true if the widget supports variables */
+  /**
+   * @return true if the widget supports variables
+   */
   boolean variables() default true;
 
-  /** @return The getter method of the property if it's non-standard */
+  /**
+   * @return The getter method of the property if it's non-standard
+   */
   String getterMethod() default "";
 
-  /** @return The setter method of the property if it's non-standard */
+  /**
+   * @return The setter method of the property if it's non-standard
+   */
   String setterMethod() default "";
 
-  /** @return The method which returns a String[] to populate a combo box widget GUI element */
+  /**
+   * @return The method which returns a String[] to populate a combo box widget GUI element
+   */
   String comboValuesMethod() default "";
 
   /**

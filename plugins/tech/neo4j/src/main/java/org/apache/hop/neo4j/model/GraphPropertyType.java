@@ -18,13 +18,12 @@
 
 package org.apache.hop.neo4j.model;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaTimestamp;
-
 import java.sql.Timestamp;
 import java.time.ZonedDateTime;
 import java.util.TimeZone;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
 
 public enum GraphPropertyType {
   String,

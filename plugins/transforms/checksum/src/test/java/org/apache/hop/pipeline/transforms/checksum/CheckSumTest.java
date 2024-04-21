@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
+import static org.junit.Assert.assertEquals;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -49,13 +55,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class CheckSumTest {
   // calculations are different in Linux and Windows for files (due to CRLF vs LF)

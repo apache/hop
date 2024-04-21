@@ -27,10 +27,11 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Exasol 4 specific information through static final members
- */
-@DatabaseMetaPlugin(type = "EXASOL4", typeDescription = "Exasol", documentationUrl = "/database/databases/exasol.html")
+/** Contains Exasol 4 specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "EXASOL4",
+    typeDescription = "Exasol",
+    documentationUrl = "/database/databases/exasol.html")
 @GuiPlugin(id = "GUI-ExasolDatabaseMeta")
 public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -46,7 +47,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return -1;
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     // Exasol does support the identity column type, but does not support returning generated
@@ -54,7 +57,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @see IDatabase#getLimitClause(int) */
+  /**
+   * @see IDatabase#getLimitClause(int)
+   */
   @Override
   public String getLimitClause(int nrRows) {
     return " WHERE ROWNUM <= " + nrRows;
@@ -106,7 +111,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return false;
@@ -121,7 +128,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;
@@ -692,7 +701,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     };
   }
 
-  /** @return extra help text on the supported options on the selected database platform. */
+  /**
+   * @return extra help text on the supported options on the selected database platform.
+   */
   @Override
   public String getExtraOptionsHelpText() {
     return "http://www.exasol.com/knowledge-center.html";
@@ -735,7 +746,9 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return The maximum number of columns in a database, <=0 means: no known limit */
+  /**
+   * @return The maximum number of columns in a database, <=0 means: no known limit
+   */
   @Override
   public int getMaxColumnsInIndex() {
     return -1;

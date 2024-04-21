@@ -18,13 +18,12 @@
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class JsonOutputData extends BaseTransformData implements ITransformData {
 

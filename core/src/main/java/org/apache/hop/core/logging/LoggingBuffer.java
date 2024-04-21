@@ -17,8 +17,6 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +26,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.hop.core.Const;
 
 /** This class keeps the last N lines in a buffer */
 public class LoggingBuffer {
@@ -190,7 +189,9 @@ public class LoggingBuffer {
     }
   }
 
-  /** @return the maximum number of lines that this buffer contains, 0 or lower means: no limit */
+  /**
+   * @return the maximum number of lines that this buffer contains, 0 or lower means: no limit
+   */
   public int getMaxNrLines() {
     return bufferSize;
   }
@@ -203,7 +204,9 @@ public class LoggingBuffer {
     this.bufferSize = maxNrLines;
   }
 
-  /** @return the nrLines */
+  /**
+   * @return the nrLines
+   */
   public int getNrLines() {
     return buffer.size();
   }

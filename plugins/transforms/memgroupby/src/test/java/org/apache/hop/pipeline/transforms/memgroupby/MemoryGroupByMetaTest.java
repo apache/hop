@@ -16,24 +16,6 @@
  */
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import java.util.Arrays;
-import java.util.List;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaBigNumber;
-import org.apache.hop.core.row.value.ValueMetaBinary;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaInternetAddress;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.row.value.ValueMetaTimestamp;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Average;
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.ConcatComma;
 import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.ConcatString;
@@ -53,6 +35,25 @@ import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.Gr
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.List;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBigNumber;
+import org.apache.hop.core.row.value.ValueMetaBinary;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaInternetAddress;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaTimestamp;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.Test;
 

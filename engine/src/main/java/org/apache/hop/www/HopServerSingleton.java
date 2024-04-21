@@ -17,6 +17,10 @@
 
 package org.apache.hop.www;
 
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -35,11 +39,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopServerSingleton {
 

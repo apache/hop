@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.createfile;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -38,9 +40,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.List;
 
 /**
  * This defines a 'create file' action. Its main use would be to create empty trigger files that can

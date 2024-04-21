@@ -76,7 +76,9 @@ public class NativeFileDialog implements IFileDialog {
     return fileDialog;
   }
 
-  /** @param fileDialog The fileDialog to set */
+  /**
+   * @param fileDialog The fileDialog to set
+   */
   public void setFileDialog(FileDialog fileDialog) {
     this.fileDialog = fileDialog;
   }

@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.core.metadata;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -44,10 +47,6 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.Objects;
 
 /** Abstract implementation of all metadata editors. */
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
@@ -120,7 +119,8 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   @Override
   public int hashCode() {
-    return Objects.hash(hopGui, manager, metadata, title, toolTip, titleImage, image, isChanged, originalName);
+    return Objects.hash(
+        hopGui, manager, metadata, title, toolTip, titleImage, image, isChanged, originalName);
   }
 
   public Button[] createButtonsForButtonBar(final Composite parent) {
@@ -271,7 +271,7 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
       throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.NoName"));
     }
 
-    if(StringUtils.startsWith(name, "$")) {
+    if (StringUtils.startsWith(name, "$")) {
       throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.IncorrectName"));
     }
 
@@ -342,14 +342,13 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   @Override
   public void dispose() {}
-  
+
   @Override
   public void updateGui() {
     hopGui
-    .getDisplay()
-    .asyncExec(
-        () ->
-            hopGui.handleFileCapabilities(
-                this.getFileType(), this.hasChanged(), false, false));
+        .getDisplay()
+        .asyncExec(
+            () ->
+                hopGui.handleFileCapabilities(this.getFileType(), this.hasChanged(), false, false));
   }
 }

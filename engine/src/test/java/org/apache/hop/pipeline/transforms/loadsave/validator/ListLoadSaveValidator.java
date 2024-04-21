@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.apache.hop.core.exception.HopException;
 
 public class ListLoadSaveValidator<ObjectType>
     implements IFieldLoadSaveValidator<List<ObjectType>> {

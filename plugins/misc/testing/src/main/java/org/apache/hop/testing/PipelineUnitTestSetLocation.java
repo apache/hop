@@ -17,10 +17,9 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** This defines the place where we need to inject an input data set */
 public class PipelineUnitTestSetLocation {

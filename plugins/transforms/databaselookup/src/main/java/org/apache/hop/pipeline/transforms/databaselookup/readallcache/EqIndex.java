@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
+import java.util.BitSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
-
-import java.util.BitSet;
 
 class EqIndex extends Index {
 

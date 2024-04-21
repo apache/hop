@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.core.transform;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.PTransform;
@@ -32,9 +34,6 @@ import org.apache.hop.beam.core.shared.VariableValue;
 import org.apache.hop.beam.core.util.HopBeamUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TransformTransform extends PTransform<PCollection<HopRow>, PCollectionTuple> {
 

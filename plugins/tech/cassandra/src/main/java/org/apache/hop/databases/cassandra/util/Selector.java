@@ -30,7 +30,9 @@ public class Selector {
 
   private boolean isFunction;
 
-  /** @param columnName */
+  /**
+   * @param columnName
+   */
   public Selector(String columnName) {
     this(columnName, null);
   }

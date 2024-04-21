@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforceupdate;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -32,8 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "SalesforceUpdate",
@@ -65,52 +64,72 @@ public class SalesforceUpdateMeta
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the rollbackAllChangesOnError. */
+  /**
+   * @return Returns the rollbackAllChangesOnError.
+   */
   public boolean isRollbackAllChangesOnError() {
     return rollbackAllChangesOnError;
   }
 
-  /** @param rollbackAllChangesOnError The rollbackAllChangesOnError to set. */
+  /**
+   * @param rollbackAllChangesOnError The rollbackAllChangesOnError to set.
+   */
   public void setRollbackAllChangesOnError(boolean rollbackAllChangesOnError) {
     this.rollbackAllChangesOnError = rollbackAllChangesOnError;
   }
 
-  /** @return Returns the updateLookup. */
+  /**
+   * @return Returns the updateLookup.
+   */
   public String[] getUpdateLookup() {
     return updateLookup;
   }
 
-  /** @param updateLookup The updateLookup to set. */
+  /**
+   * @param updateLookup The updateLookup to set.
+   */
   public void setUpdateLookup(String[] updateLookup) {
     this.updateLookup = updateLookup;
   }
 
-  /** @return Returns the useExternalId. */
+  /**
+   * @return Returns the useExternalId.
+   */
   public Boolean[] getUseExternalId() {
     return useExternalId;
   }
 
-  /** @param useExternalId The useExternalId to set. */
+  /**
+   * @param useExternalId The useExternalId to set.
+   */
   public void setUseExternalId(Boolean[] useExternalId) {
     this.useExternalId = useExternalId;
   }
 
-  /** @return Returns the updateStream. */
+  /**
+   * @return Returns the updateStream.
+   */
   public String[] getUpdateStream() {
     return updateStream;
   }
 
-  /** @param updateStream The updateStream to set. */
+  /**
+   * @param updateStream The updateStream to set.
+   */
   public void setUpdateStream(String[] updateStream) {
     this.updateStream = updateStream;
   }
 
-  /** @param batchSize */
+  /**
+   * @param batchSize
+   */
   public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
 
-  /** @return Returns the batchSize. */
+  /**
+   * @return Returns the batchSize.
+   */
   public String getBatchSize() {
     return this.batchSize;
   }

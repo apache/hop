@@ -17,6 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -44,22 +59,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 public class LoadFileInputTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -120,12 +119,11 @@ public class LoadFileInputTest {
 
     loadFileInputMeta = spy(new LoadFileInputMeta());
     fileInputList = new FileInputList();
-    Mockito.doReturn(fileInputList)
-        .when(loadFileInputMeta)
-        .getFiles(any(IVariables.class));
+    Mockito.doReturn(fileInputList).when(loadFileInputMeta).getFiles(any(IVariables.class));
     String transformId =
         PluginRegistry.getInstance().getPluginId(TransformPluginType.class, loadFileInputMeta);
-    TransformMeta transformMeta = new TransformMeta(transformId, "Load File Input", loadFileInputMeta);
+    TransformMeta transformMeta =
+        new TransformMeta(transformId, "Load File Input", loadFileInputMeta);
     pipelineMeta.addTransform(transformMeta);
 
     loadFileInputData = new LoadFileInputData();

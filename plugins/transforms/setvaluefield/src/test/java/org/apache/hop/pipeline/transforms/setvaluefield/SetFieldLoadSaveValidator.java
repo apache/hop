@@ -16,19 +16,17 @@
  */
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
+import java.util.Random;
+import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
-import java.util.Random;
-import java.util.UUID;
-
-public class SetFieldLoadSaveValidator implements IFieldLoadSaveValidator<SetField>  {
+public class SetFieldLoadSaveValidator implements IFieldLoadSaveValidator<SetField> {
   final Random rand = new Random();
 
   @Override
   public SetField getTestObject() {
-    SetField field =
-        new SetField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+    SetField field = new SetField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
 
     return field;
   }

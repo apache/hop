@@ -17,15 +17,14 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.core.exception.HopXmlException;
-import org.junit.Test;
-
-import java.util.UUID;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+
+import java.util.UUID;
+import org.apache.hop.core.exception.HopXmlException;
+import org.junit.Test;
 
 public class WebResultTest {
 

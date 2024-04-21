@@ -17,10 +17,9 @@
 
 package org.apache.hop.neo4j.shared;
 
+import java.util.List;
 import org.apache.hop.core.logging.ILogChannel;
 import org.neo4j.driver.Session;
-
-import java.util.List;
 
 public class NeoConnectionUtils {
   private static final Class<?> PKG =
@@ -76,7 +75,7 @@ public class NeoConnectionUtils {
       } else {
         indexCypher += ", ";
       }
-      indexCypher += "n."+property;
+      indexCypher += "n." + property;
     }
     indexCypher += ")";
 

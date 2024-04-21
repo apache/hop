@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.engines.direct;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
 import org.apache.hop.beam.engines.BeamBasePipelineEngineTest;
 import org.apache.hop.beam.util.BeamPipelineMetaUtil;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -25,10 +28,6 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.junit.Test;
-
-import java.util.Arrays;
-
-import static org.junit.Assert.assertEquals;
 
 public class BeamDirectPipelineEngineTest extends BeamBasePipelineEngineTest {
 

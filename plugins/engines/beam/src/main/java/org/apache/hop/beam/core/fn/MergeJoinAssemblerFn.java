@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.core.fn;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -29,10 +31,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, HopRow> {
 
@@ -177,11 +175,11 @@ public class MergeJoinAssemblerFn extends DoFn<KV<HopRow, KV<HopRow, HopRow>>, H
         if (rightValue.isNotEmpty()) {
           Integer keyIndex = rightKeyIndexes.get(i);
           if (keyIndex != null) {
-            outputRow[leftRowMeta.size()+i] = rightValue.getRow()[keyIndex];
+            outputRow[leftRowMeta.size() + i] = rightValue.getRow()[keyIndex];
           }
           Integer valueIndex = rightValueIndexes.get(i);
           if (valueIndex != null) {
-            outputRow[leftRowMeta.size()+i] = rightValue.getRow()[valueIndex];
+            outputRow[leftRowMeta.size() + i] = rightValue.getRow()[valueIndex];
           }
         }
       }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.valuemapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -31,8 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import java.util.ArrayList;
-import java.util.List;
 
 /** Maps String values of a certain field to new values */
 @Transform(
@@ -45,13 +45,13 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/valuemapper.html")
 public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // For Translator
-  
+
   @HopMetadataProperty(
       key = "field_to_use",
       injectionKey = "FIELDNAME",
       injectionKeyDescription = "ValueMapper.Injection.FIELDNAME")
   private String fieldToUse;
-  
+
   @HopMetadataProperty(
       key = "target_field",
       injectionKey = "TARGET_FIELDNAME",
@@ -81,18 +81,22 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     for (Values v : meta.values) {
       values.add(new Values(v));
     }
-    
+
     this.fieldToUse = meta.fieldToUse;
     this.targetField = meta.targetField;
     this.nonMatchDefault = meta.nonMatchDefault;
   }
-  
-  /** @return Returns the fieldValue. */
+
+  /**
+   * @return Returns the fieldValue.
+   */
   public List<Values> getValues() {
     return values;
   }
 
-  /** @param fieldValue The fieldValue to set. */
+  /**
+   * @param fieldValue The fieldValue to set.
+   */
   public void setValues(List<Values> values) {
     this.values = values;
   }
@@ -123,7 +127,7 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
           maxlen = v.getTarget().length();
         }
       }
-      
+
       // include default value in max length calculation
       //
       if (nonMatchDefault != null && nonMatchDefault.length() > maxlen) {
@@ -197,22 +201,30 @@ public class ValueMapperMeta extends BaseTransformMeta<ValueMapper, ValueMapperD
     }
   }
 
-  /** @return Returns the fieldToUse. */
+  /**
+   * @return Returns the fieldToUse.
+   */
   public String getFieldToUse() {
     return fieldToUse;
   }
 
-  /** @param fieldToUse The fieldToUse to set. */
+  /**
+   * @param fieldToUse The fieldToUse to set.
+   */
   public void setFieldToUse(String fieldToUse) {
     this.fieldToUse = fieldToUse;
   }
 
-  /** @return Returns the targetField. */
+  /**
+   * @return Returns the targetField.
+   */
   public String getTargetField() {
     return targetField;
   }
 
-  /** @param targetField The targetField to set. */
+  /**
+   * @param targetField The targetField to set.
+   */
   public void setTargetField(String targetField) {
     this.targetField = targetField;
   }

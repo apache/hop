@@ -17,6 +17,9 @@
 
 package org.apache.hop.reflection.workflow.xp;
 
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -36,10 +39,6 @@ import org.apache.hop.reflection.workflow.meta.WorkflowLog;
 import org.apache.hop.reflection.workflow.transform.WorkflowLogging;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @ExtensionPoint(
     id = "WorkflowStartLoggingXp",
@@ -68,20 +67,19 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       final IVariables variables)
       throws HopException {
 
+    // See if we need to do anything at all...
+    //
+    if (!workflowLog.isEnabled()) {
+      return;
+    }
 
-      // See if we need to do anything at all...
-      //
-      if (!workflowLog.isEnabled()) {
+    // If we log parent (root) workflows only we don't want a parent
+    //
+    if (workflowLog.isLoggingParentsOnly()) {
+      if (workflow.getParentPipeline() != null || workflow.getParentWorkflow() != null) {
         return;
       }
-
-      // If we log parent (root) workflows only we don't want a parent
-      //
-      if (workflowLog.isLoggingParentsOnly()) {
-        if (workflow.getParentPipeline() != null || workflow.getParentWorkflow() != null) {
-          return;
-        }
-      }
+    }
 
     // Load the pipeline filename specified in the Workflow Log object...
     //
@@ -112,7 +110,8 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
     } else {
       for (String workflowToLog : workflowLog.getWorkflowToLog()) {
         String workflowUri = HopVfs.getFileObject(workflow.getFilename()).getPublicURIString();
-        String workflowToLogUri = HopVfs.getFileObject(variables.resolve(workflowToLog)).getPublicURIString();
+        String workflowToLogUri =
+            HopVfs.getFileObject(variables.resolve(workflowToLog)).getPublicURIString();
         if (workflowUri.equals(workflowToLogUri)) {
           logWorkflow(workflowLog, workflow, variables, loggingPipelineFilename);
         }
@@ -120,7 +119,12 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
     }
   }
 
-  private void logWorkflow(WorkflowLog workflowLog, IWorkflowEngine<WorkflowMeta> workflow, IVariables variables, String loggingPipelineFilename) throws HopException {
+  private void logWorkflow(
+      WorkflowLog workflowLog,
+      IWorkflowEngine<WorkflowMeta> workflow,
+      IVariables variables,
+      String loggingPipelineFilename)
+      throws HopException {
     try {
       final Timer timer = new Timer();
 

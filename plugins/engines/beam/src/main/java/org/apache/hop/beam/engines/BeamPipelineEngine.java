@@ -17,6 +17,19 @@
 
 package org.apache.hop.beam.engines;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.beam.runners.core.metrics.DefaultMetricResults;
 import org.apache.beam.runners.dataflow.DataflowRunner;
 import org.apache.beam.runners.direct.DirectRunner;
@@ -79,26 +92,13 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.joda.time.Duration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 public abstract class BeamPipelineEngine extends Variables
     implements IPipelineEngine<PipelineMeta> {
 
   static MetricResults EMPTY_METRIC_RESULTS =
       new DefaultMetricResults(
           Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+
   /**
    * Constant specifying a filename containing XML to inject into a ZIP file created during resource
    * export.

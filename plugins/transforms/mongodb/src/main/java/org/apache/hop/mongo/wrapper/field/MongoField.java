@@ -19,6 +19,10 @@ package org.apache.hop.mongo.wrapper.field;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.Injection;
@@ -29,11 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputData;
 import org.bson.BsonUndefined;
 import org.bson.types.Binary;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class MongoField implements Comparable<MongoField> {
   protected static Class<?> PKG = MongoField.class; // For Translator

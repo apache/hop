@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 /** Replace Field value by a constant value. */
 public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData> {

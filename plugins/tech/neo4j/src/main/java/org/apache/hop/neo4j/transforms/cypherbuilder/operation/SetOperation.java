@@ -18,11 +18,10 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder.operation;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Parameter;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Property;
-
-import java.util.List;
 
 public class SetOperation extends BaseOperation {
   public SetOperation() {

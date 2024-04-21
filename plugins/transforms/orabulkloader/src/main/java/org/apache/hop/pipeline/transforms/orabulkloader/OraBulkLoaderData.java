@@ -20,9 +20,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-/**
- * Stores data for the OraBulkLoader transformation.
- */
+/** Stores data for the OraBulkLoader transformation. */
 public class OraBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 

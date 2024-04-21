@@ -17,6 +17,7 @@
 
 package org.apache.hop.databases.oracle;
 
+import java.sql.ResultSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
@@ -30,12 +31,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 
-import java.sql.ResultSet;
-
-/**
- * Contains Oracle specific information through static final members
- */
-@DatabaseMetaPlugin(type = "ORACLE", typeDescription = "Oracle", documentationUrl = "/database/databases/oracle.html")
+/** Contains Oracle specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "ORACLE",
+    typeDescription = "Oracle",
+    documentationUrl = "/database/databases/oracle.html")
 @GuiPlugin(id = "GUI-OracleDatabaseMeta")
 public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -54,13 +54,17 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return -1;
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return false;
   }
 
-  /** @see IDatabase#getLimitClause(int) */
+  /**
+   * @see IDatabase#getLimitClause(int)
+   */
   @Override
   public String getLimitClause(int nrRows) {
     return " WHERE ROWNUM <= " + nrRows;
@@ -164,7 +168,9 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return true;
@@ -233,7 +239,9 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return true;
@@ -533,7 +541,9 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     };
   }
 
-  /** @return The SQL on this database to get a list of stored procedures. */
+  /**
+   * @return The SQL on this database to get a list of stored procedures.
+   */
   @Override
   public String getSqlListOfProcedures() {
     return "SELECT OWNER||'.'||OBJECT_NAME||NVL2(PROCEDURE_NAME,'.'||PROCEDURE_NAME,NULL) FROM ALL_PROCEDURES ORDER BY 1";
@@ -556,7 +566,9 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return null; // commit handles the unlocking!
   }
 
-  /** @return extra help text on the supported options on the selected database platform. */
+  /**
+   * @return extra help text on the supported options on the selected database platform.
+   */
   @Override
   public String getExtraOptionsHelpText() {
     return "http://download.oracle.com/docs/cd/B19306_01/java.102/b14355/urls.htm#i1006362";
@@ -646,13 +658,17 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return The maximum number of columns in a database, <=0 means: no known limit */
+  /**
+   * @return The maximum number of columns in a database, <=0 means: no known limit
+   */
   @Override
   public int getMaxColumnsInIndex() {
     return 32;
   }
 
-  /** @return The SQL on this database to get a list of sequences. */
+  /**
+   * @return The SQL on this database to get a list of sequences.
+   */
   @Override
   public String getSqlListOfSequences() {
     return "SELECT SEQUENCE_NAME FROM all_sequences";
@@ -728,13 +744,17 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new SqlScriptParser(false);
   }
 
-  /** @return true if using strict number(38) interpretation */
+  /**
+   * @return true if using strict number(38) interpretation
+   */
   @Override
   public boolean isStrictBigNumberInterpretation() {
     return "Y".equalsIgnoreCase(getAttributeProperty(STRICT_BIGNUMBER_INTERPRETATION, "N"));
   }
 
-  /** @param strictBigNumberInterpretation true if use strict number(38) interpretation */
+  /**
+   * @param strictBigNumberInterpretation true if use strict number(38) interpretation
+   */
   public void setStrictBigNumberInterpretation(boolean strictBigNumberInterpretation) {
     getAttributes().put(STRICT_BIGNUMBER_INTERPRETATION, strictBigNumberInterpretation ? "Y" : "N");
   }

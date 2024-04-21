@@ -117,30 +117,40 @@ public enum SelectValuesAttr implements IHopAttribute {
     return repCode;
   }
 
-  /** @return the xmlCode */
+  /**
+   * @return the xmlCode
+   */
   @Override
   public String getXmlCode() {
     return xmlCode;
   }
 
-  /** @return the repCode */
+  /**
+   * @return the repCode
+   */
   public String getRepCode() {
     return repCode;
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /** @return the tooltip */
+  /**
+   * @return the tooltip
+   */
   @Override
   public String getTooltip() {
     return tooltip;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   @Override
   public int getType() {
     return type;

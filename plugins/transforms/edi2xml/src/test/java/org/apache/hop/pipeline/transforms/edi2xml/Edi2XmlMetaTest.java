@@ -17,23 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.edi2xml;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Assert;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
-import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Edi2XmlMetaTest {
   @Test
   public void testSerialization() throws Exception {
-    Edi2XmlMeta meta = TransformSerializationTestUtil.testSerialization(
+    Edi2XmlMeta meta =
+        TransformSerializationTestUtil.testSerialization(
             "/edi-to-xml-transform.xml", Edi2XmlMeta.class);
 
     Assert.assertNotNull(meta.getInputField());

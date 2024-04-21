@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
 import com.sforce.ws.util.Base64;
+import java.text.SimpleDateFormat;
+import java.util.GregorianCalendar;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -33,9 +35,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceRecordValue;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
-
-import java.text.SimpleDateFormat;
-import java.util.GregorianCalendar;
 
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output

@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.pipeline.transforms.webservices.WebServiceMeta;
-
 import javax.xml.namespace.QName;
+import org.apache.hop.pipeline.transforms.webservices.WebServiceMeta;
 
 public class WsdlOpParameterContainer implements WsdlParamContainer {
   private WsdlOpParameter parameter;

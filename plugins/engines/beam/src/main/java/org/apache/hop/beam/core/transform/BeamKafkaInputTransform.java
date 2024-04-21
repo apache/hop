@@ -17,6 +17,11 @@
 
 package org.apache.hop.beam.core.transform;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.io.kafka.ConfluentSchemaRegistryDeserializerProvider;
 import org.apache.beam.sdk.io.kafka.KafkaIO;
@@ -40,12 +45,6 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopRow>> {
 
@@ -210,9 +209,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
         output =
             kafkaConsumerOutput.apply(
-                ParDo.of(
-                    new KVStringGenericRecordToHopRowFn(
-                        transformName, rowMetaJson)));
+                ParDo.of(new KVStringGenericRecordToHopRowFn(transformName, rowMetaJson)));
 
         return output;
       } else if ("String".equalsIgnoreCase(messageType)) {
@@ -248,9 +245,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
 
         output =
             kafkaConsumerOutput.apply(
-                ParDo.of(
-                    new KVStringStringToHopRowFn(
-                        transformName, rowMetaJson)));
+                ParDo.of(new KVStringStringToHopRowFn(transformName, rowMetaJson)));
 
       } else {
         throw new HopException(
@@ -278,9 +273,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
     private transient Counter inputCounter;
     private transient Counter writtenCounter;
 
-    public KVStringStringToHopRowFn(
-        String transformName,
-        String rowMetaJson) {
+    public KVStringStringToHopRowFn(String transformName, String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
     }
@@ -338,9 +331,7 @@ public class BeamKafkaInputTransform extends PTransform<PBegin, PCollection<HopR
     private transient Counter inputCounter;
     private transient Counter writtenCounter;
 
-    public KVStringGenericRecordToHopRowFn(
-        String transformName,
-        String rowMetaJson) {
+    public KVStringGenericRecordToHopRowFn(String transformName, String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
     }

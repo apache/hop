@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -30,56 +31,56 @@ import org.junit.Test;
 
 public class IfNullMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-  
+
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
     PluginRegistry.init();
   }
-  
+
   @Test
   public void testLoadSaveValueType() throws Exception {
     IfNullMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/if-null-transform-value-type.xml", IfNullMeta.class);
-    
+
     assertTrue(meta.isSelectValuesType());
     assertEquals(3, meta.getValueTypes().size());
     assertFalse(meta.isSelectFields());
-    assertEquals(0, meta.getFields().size());     
-    
+    assertEquals(0, meta.getFields().size());
+
     assertEquals("String", meta.getValueTypes().get(0).getName());
-    assertNull(meta.getValueTypes().get(0).getValue());    
+    assertNull(meta.getValueTypes().get(0).getValue());
     assertTrue(meta.getValueTypes().get(0).isSetEmptyString());
     assertEquals("Number", meta.getValueTypes().get(1).getName());
-    assertNull(meta.getValueTypes().get(1).getValue());    
-    assertFalse(meta.getValueTypes().get(1).isSetEmptyString());    
+    assertNull(meta.getValueTypes().get(1).getValue());
+    assertFalse(meta.getValueTypes().get(1).isSetEmptyString());
     assertEquals("Date", meta.getValueTypes().get(2).getName());
-    assertNull(meta.getValueTypes().get(2).getValue());    
-    assertFalse(meta.getValueTypes().get(2).isSetEmptyString());   
+    assertNull(meta.getValueTypes().get(2).getValue());
+    assertFalse(meta.getValueTypes().get(2).isSetEmptyString());
   }
-  
+
   @Test
   public void testLoadSaveField() throws Exception {
-      IfNullMeta meta =
-          TransformSerializationTestUtil.testSerialization(
+    IfNullMeta meta =
+        TransformSerializationTestUtil.testSerialization(
             "/if-null-transform-field.xml", IfNullMeta.class);
-  
+
     assertFalse(meta.isSelectValuesType());
     assertEquals(0, meta.getValueTypes().size());
     assertTrue(meta.isSelectFields());
-    assertEquals(3, meta.getFields().size());    
-    
+    assertEquals(3, meta.getFields().size());
+
     assertEquals("F1", meta.getFields().get(0).getName());
-    assertEquals("EMPTY",meta.getFields().get(0).getValue());    
+    assertEquals("EMPTY", meta.getFields().get(0).getValue());
     assertFalse(meta.getFields().get(0).isSetEmptyString());
     assertEquals("F2", meta.getFields().get(1).getName());
-    assertEquals("01019999",meta.getFields().get(1).getValue());    
-    assertEquals("ddMMYYYY",meta.getFields().get(1).getMask());
-    assertFalse(meta.getFields().get(1).isSetEmptyString());    
+    assertEquals("01019999", meta.getFields().get(1).getValue());
+    assertEquals("ddMMYYYY", meta.getFields().get(1).getMask());
+    assertFalse(meta.getFields().get(1).isSetEmptyString());
     assertEquals("F3", meta.getFields().get(2).getName());
-    assertNull(meta.getFields().get(2).getValue());    
-    assertTrue(meta.getFields().get(2).isSetEmptyString());   
+    assertNull(meta.getFields().get(2).getValue());
+    assertTrue(meta.getFields().get(2).isSetEmptyString());
   }
 
   @Test

@@ -17,18 +17,27 @@
 
 package org.apache.hop.pipeline.transforms.normaliser;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class NormaliserField {
 
-  @HopMetadataProperty(key="name", injectionKey = "NAME", injectionKeyDescription = "NormaliserMeta.Injection.NAME")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "NAME",
+      injectionKeyDescription = "NormaliserMeta.Injection.NAME")
   private String name;
 
-  @HopMetadataProperty(key="value", injectionKey = "VALUE", injectionKeyDescription = "NormaliserMeta.Injection.VALUE")
+  @HopMetadataProperty(
+      key = "value",
+      injectionKey = "VALUE",
+      injectionKeyDescription = "NormaliserMeta.Injection.VALUE")
   private String value;
 
-  @HopMetadataProperty(key="norm", injectionKey = "NORMALISED", injectionKeyDescription = "NormaliserMeta.Injection.NORMALISED")
+  @HopMetadataProperty(
+      key = "norm",
+      injectionKey = "NORMALISED",
+      injectionKeyDescription = "NormaliserMeta.Injection.NORMALISED")
   private String norm;
 
   public NormaliserField() {
@@ -40,33 +49,45 @@ public class NormaliserField {
     this.value = field.value;
     this.norm = field.norm;
   }
-  
-  /** @return the name */
+
+  /**
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /** @return the value */
+  /**
+   * @return the value
+   */
   public String getValue() {
     return value;
   }
 
-  /** @param value the value to set */
+  /**
+   * @param value the value to set
+   */
   public void setValue(String value) {
     this.value = value;
   }
 
-  /** @return the norm */
+  /**
+   * @return the norm
+   */
   public String getNorm() {
     return norm;
   }
 
-  /** @param norm the norm to set */
+  /**
+   * @param norm the norm to set
+   */
   public void setNorm(String norm) {
     this.norm = norm;
   }

@@ -19,8 +19,12 @@ package org.apache.hop.core.config.plugin;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.ConfigFileSerializer;
 import org.apache.hop.core.config.ConfigNoFileSerializer;
@@ -30,12 +34,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.DescribedVariable;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class ConfigFile implements IConfigFile {
 
@@ -108,7 +106,7 @@ public abstract class ConfigFile implements IConfigFile {
         for (Object dvObject : (List) variablesObject) {
           String dvJson = new Gson().toJson(dvObject);
           DescribedVariable describedVariable =
-                  HopJson.newMapper().readValue(dvJson, DescribedVariable.class);
+              HopJson.newMapper().readValue(dvJson, DescribedVariable.class);
           variables.add(describedVariable);
         }
       } catch (Exception e) {
@@ -174,7 +172,9 @@ public abstract class ConfigFile implements IConfigFile {
   @Override
   public abstract String getConfigFilename();
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   @Override
   public abstract void setConfigFilename(String filename);
 
@@ -187,7 +187,9 @@ public abstract class ConfigFile implements IConfigFile {
     return configMap;
   }
 
-  /** @param configMap The configMap to set */
+  /**
+   * @param configMap The configMap to set
+   */
   public void setConfigMap(Map<String, Object> configMap) {
     this.configMap = configMap;
   }
@@ -201,7 +203,9 @@ public abstract class ConfigFile implements IConfigFile {
     return serializer;
   }
 
-  /** @param serializer The serializer to set */
+  /**
+   * @param serializer The serializer to set
+   */
   public void setSerializer(IHopConfigSerializer serializer) {
     this.serializer = serializer;
   }

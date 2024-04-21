@@ -26,10 +26,11 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Oracle RDB specific information through static final members
- */
-@DatabaseMetaPlugin(type = "ORACLERDB", typeDescription = "Oracle RDB", documentationUrl = "/database/databases/oraclerdb.html")
+/** Contains Oracle RDB specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "ORACLERDB",
+    typeDescription = "Oracle RDB",
+    documentationUrl = "/database/databases/oraclerdb.html")
 @GuiPlugin(id = "GUI-OracleRDBDatabaseMeta")
 public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -37,13 +38,17 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return false;
   }
 
-  /** @see IDatabase#getLimitClause(int) */
+  /**
+   * @see IDatabase#getLimitClause(int)
+   */
   @Override
   public String getLimitClause(int nrRows) {
     return " WHERE ROWNUM <= " + nrRows;
@@ -95,7 +100,9 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return false;
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return true;
@@ -150,7 +157,9 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return true;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return true;

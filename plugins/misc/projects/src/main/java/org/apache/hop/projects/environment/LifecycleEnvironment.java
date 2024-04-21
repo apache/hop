@@ -77,7 +77,9 @@ public class LifecycleEnvironment {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -91,7 +93,9 @@ public class LifecycleEnvironment {
     return purpose;
   }
 
-  /** @param purpose The purpose to set */
+  /**
+   * @param purpose The purpose to set
+   */
   public void setPurpose(String purpose) {
     this.purpose = purpose;
   }
@@ -105,7 +109,9 @@ public class LifecycleEnvironment {
     return projectName;
   }
 
-  /** @param projectName The projectName to set */
+  /**
+   * @param projectName The projectName to set
+   */
   public void setProjectName(String projectName) {
     this.projectName = projectName;
   }
@@ -119,7 +125,9 @@ public class LifecycleEnvironment {
     return configurationFiles;
   }
 
-  /** @param configurationFiles The configurationFiles to set */
+  /**
+   * @param configurationFiles The configurationFiles to set
+   */
   public void setConfigurationFiles(List<String> configurationFiles) {
     this.configurationFiles = configurationFiles;
   }

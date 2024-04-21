@@ -18,6 +18,7 @@
 package org.apache.hop.beam.core.transform;
 
 import com.google.api.services.bigquery.model.TableReference;
+import javax.annotation.Nullable;
 import org.apache.beam.sdk.io.gcp.bigquery.BigQueryIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -31,9 +32,6 @@ import org.apache.hop.beam.core.fn.BQSchemaAndRecordToHopFn;
 import org.apache.hop.core.row.IRowMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>> {
 
@@ -80,9 +78,7 @@ public class BeamBQInputTransform extends PTransform<PBegin, PCollection<HopRow>
 
       // Function to convert from Avro to Hop rows
       //
-      BQSchemaAndRecordToHopFn toHopFn =
-          new BQSchemaAndRecordToHopFn(
-              transformName, rowMetaJson);
+      BQSchemaAndRecordToHopFn toHopFn = new BQSchemaAndRecordToHopFn(transformName, rowMetaJson);
 
       TableReference tableReference = new TableReference();
       if (StringUtils.isNotEmpty(projectId)) {

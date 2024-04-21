@@ -294,26 +294,24 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         // .. but before, perform all the consistency checks just one time just in the first result
         // row
         if (!rowConsistencyChecked) {
-            for (int i = 0; i < meta.getResultRowsField().length; i++) {
-              int idx = row.getRowMeta().indexOfValue(meta.getResultRowsField()[i]);
-              
-              if (idx == -1) {
-                missingFields +=
-                    (missingFields.length() > 0 ? "," : "")
-                        + meta.getResultRowsField()[i];
-              }
-              
-              IValueMeta valueMeta = row.getRowMeta().getValueMeta(i);
+          for (int i = 0; i < meta.getResultRowsField().length; i++) {
+            int idx = row.getRowMeta().indexOfValue(meta.getResultRowsField()[i]);
 
-              if (valueMeta != null && valueMeta.getType() != meta.getResultRowsType()[i]) {
-                expectedTypes +=
-                    (expectedTypes.length() > 0 ? "," : "")
-                        + ValueMetaFactory.getValueMetaName(meta.getResultRowsType()[i]);
-                currentTypes +=
-                    (currentTypes.length() > 0 ? "," : "") + valueMeta.getTypeDesc();
-              }
+            if (idx == -1) {
+              missingFields +=
+                  (missingFields.length() > 0 ? "," : "") + meta.getResultRowsField()[i];
             }
-            rowConsistencyChecked = true;
+
+            IValueMeta valueMeta = row.getRowMeta().getValueMeta(i);
+
+            if (valueMeta != null && valueMeta.getType() != meta.getResultRowsType()[i]) {
+              expectedTypes +=
+                  (expectedTypes.length() > 0 ? "," : "")
+                      + ValueMetaFactory.getValueMetaName(meta.getResultRowsType()[i]);
+              currentTypes += (currentTypes.length() > 0 ? "," : "") + valueMeta.getTypeDesc();
+            }
+          }
+          rowConsistencyChecked = true;
 
           if (missingFields.length() > 0) {
             logError("Unable to find required fields [" + missingFields + "] in result row!");
@@ -321,13 +319,10 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
           if (currentTypes.length() > 0) {
             logError(
-                    BaseMessages.getString(
-                            PKG,
-                            "WorkflowExecutor.IncorrectDataTypePassed",
-                            currentTypes,
-                            expectedTypes));
+                BaseMessages.getString(
+                    PKG, "WorkflowExecutor.IncorrectDataTypePassed", currentTypes, expectedTypes));
             throw new HopException(
-                    "We got into troubles while performing a consistency check on incoming result rows!");
+                "We got into troubles while performing a consistency check on incoming result rows!");
           }
         }
 

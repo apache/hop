@@ -17,14 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfSheet;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class OdfSheetTest {
 

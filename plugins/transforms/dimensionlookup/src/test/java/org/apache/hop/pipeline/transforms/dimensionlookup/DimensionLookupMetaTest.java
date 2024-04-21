@@ -17,17 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class DimensionLookupMetaTest {
 
@@ -59,13 +59,17 @@ public class DimensionLookupMetaTest {
     assertEquals("value", meta.getFields().getFields().get(0).getName());
     assertEquals("valueLookup", meta.getFields().getFields().get(0).getLookup());
     assertEquals("Insert", meta.getFields().getFields().get(0).getUpdate());
-    assertEquals(DimensionLookupMeta.DimensionUpdateType.INSERT, meta.getFields().getFields().get(0).getUpdateType());
+    assertEquals(
+        DimensionLookupMeta.DimensionUpdateType.INSERT,
+        meta.getFields().getFields().get(0).getUpdateType());
 
     assertEquals("lastVersion", meta.getFields().getFields().get(1).getName());
     assertEquals("lastVersionLookup", meta.getFields().getFields().get(1).getLookup());
     assertEquals("LastVersion", meta.getFields().getFields().get(1).getUpdate());
-    assertEquals(DimensionLookupMeta.DimensionUpdateType.LAST_VERSION, meta.getFields().getFields().get(1).getUpdateType());
-    
+    assertEquals(
+        DimensionLookupMeta.DimensionUpdateType.LAST_VERSION,
+        meta.getFields().getFields().get(1).getUpdateType());
+
     meta =
         TransformSerializationTestUtil.testSerialization(
             "/dimension-lookup-transform.xml", DimensionLookupMeta.class, metadataProvider);

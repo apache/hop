@@ -17,18 +17,6 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaBoolean;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaNumber;
-import org.apache.hop.core.row.value.ValueMetaString;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -41,6 +29,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBoolean;
+import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaInteger;
+import org.apache.hop.core.row.value.ValueMetaNumber;
+import org.apache.hop.core.row.value.ValueMetaString;
 
 /**
  * This class evaluates strings and extracts a data type. It allows you to criteria after which the
@@ -520,7 +519,9 @@ public class StringEvaluator {
     }
   }
 
-  /** @return The distinct set of string values */
+  /**
+   * @return The distinct set of string values
+   */
   public Set<String> getValues() {
     return values;
   }
@@ -540,12 +541,16 @@ public class StringEvaluator {
     return result;
   }
 
-  /** @return the number of values analyzed */
+  /**
+   * @return the number of values analyzed
+   */
   public int getCount() {
     return count;
   }
 
-  /** @return The maximum string length encountered */
+  /**
+   * @return The maximum string length encountered
+   */
   public int getMaxLength() {
     return maxLength;
   }

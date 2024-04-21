@@ -17,19 +17,20 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import org.apache.hop.databases.cassandra.util.CqlUtils;
-import org.apache.hop.databases.cassandra.util.Selector;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import org.apache.hop.databases.cassandra.util.CqlUtils;
+import org.apache.hop.databases.cassandra.util.Selector;
+import org.junit.Test;
+
 public class CqlUtilsTest {
 
   /** */
   private static final String ALIAS_IS_INCORRECT = "Alias is incorrect:";
+
   /** */
   private static final String COLUMN_NAME_IS_INCORRECT = "Column Name is incorrect:";
 

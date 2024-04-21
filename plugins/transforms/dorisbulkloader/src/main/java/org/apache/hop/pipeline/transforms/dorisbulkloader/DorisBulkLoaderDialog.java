@@ -18,6 +18,14 @@
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
+import static org.apache.hop.pipeline.transforms.dorisbulkloader.LoadConstants.CSV;
+import static org.apache.hop.pipeline.transforms.dorisbulkloader.LoadConstants.JSON;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -56,15 +64,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.apache.hop.pipeline.transforms.dorisbulkloader.LoadConstants.CSV;
-import static org.apache.hop.pipeline.transforms.dorisbulkloader.LoadConstants.JSON;
 
 public class DorisBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DorisBulkLoaderMeta.class; // For Translator

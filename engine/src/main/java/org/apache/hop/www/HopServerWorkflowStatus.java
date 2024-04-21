@@ -19,6 +19,8 @@ package org.apache.hop.www;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.IOException;
+import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -29,9 +31,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.server.HttpUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.Date;
 
 public class HopServerWorkflowStatus {
   public static final String XML_TAG = "workflow-status";
@@ -170,42 +169,58 @@ public class HopServerWorkflowStatus {
     return status;
   }
 
-  /** @return the statusDescription */
+  /**
+   * @return the statusDescription
+   */
   public String getStatusDescription() {
     return statusDescription;
   }
 
-  /** @param statusDescription the statusDescription to set */
+  /**
+   * @param statusDescription the statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /** @return the workflow name */
+  /**
+   * @return the workflow name
+   */
   public String getWorkflowName() {
     return workflowName;
   }
 
-  /** @param workflowName the workflow name to set */
+  /**
+   * @param workflowName the workflow name to set
+   */
   public void setWorkflowName(String workflowName) {
     this.workflowName = workflowName;
   }
 
-  /** @return the errorDescription */
+  /**
+   * @return the errorDescription
+   */
   public String getErrorDescription() {
     return errorDescription;
   }
 
-  /** @param errorDescription the errorDescription to set */
+  /**
+   * @param errorDescription the errorDescription to set
+   */
   public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
   }
 
-  /** @return the loggingString */
+  /**
+   * @return the loggingString
+   */
   public String getLoggingString() {
     return loggingString;
   }
 
-  /** @param loggingString the loggingString to set */
+  /**
+   * @param loggingString the loggingString to set
+   */
   public void setLoggingString(String loggingString) {
     this.loggingString = loggingString;
   }
@@ -243,52 +258,72 @@ public class HopServerWorkflowStatus {
         || getStatusDescription().equalsIgnoreCase(Pipeline.STRING_STOPPED_WITH_ERRORS);
   }
 
-  /** @return the result */
+  /**
+   * @return the result
+   */
   public Result getResult() {
     return result;
   }
 
-  /** @param result the result to set */
+  /**
+   * @param result the result to set
+   */
   public void setResult(Result result) {
     this.result = result;
   }
 
-  /** @return the firstLoggingLineNr */
+  /**
+   * @return the firstLoggingLineNr
+   */
   public int getFirstLoggingLineNr() {
     return firstLoggingLineNr;
   }
 
-  /** @param firstLoggingLineNr the firstLoggingLineNr to set */
+  /**
+   * @param firstLoggingLineNr the firstLoggingLineNr to set
+   */
   public void setFirstLoggingLineNr(int firstLoggingLineNr) {
     this.firstLoggingLineNr = firstLoggingLineNr;
   }
 
-  /** @return the lastLoggingLineNr */
+  /**
+   * @return the lastLoggingLineNr
+   */
   public int getLastLoggingLineNr() {
     return lastLoggingLineNr;
   }
 
-  /** @param lastLoggingLineNr the lastLoggingLineNr to set */
+  /**
+   * @param lastLoggingLineNr the lastLoggingLineNr to set
+   */
   public void setLastLoggingLineNr(int lastLoggingLineNr) {
     this.lastLoggingLineNr = lastLoggingLineNr;
   }
 
-  /** @return the logDate */
+  /**
+   * @return the logDate
+   */
   public Date getLogDate() {
     return logDate;
   }
 
-  /** @param logDate */
+  /**
+   * @param logDate
+   */
   public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }
 
-  /** @return the id */
+  /**
+   * @return the id
+   */
   public String getId() {
     return id;
   }
 
-  /** @param id the id to set */
+  /**
+   * @param id the id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -302,7 +337,9 @@ public class HopServerWorkflowStatus {
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
@@ -316,7 +353,9 @@ public class HopServerWorkflowStatus {
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }

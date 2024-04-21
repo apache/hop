@@ -17,15 +17,14 @@
 
 package org.apache.hop.core.hash;
 
-import org.apache.commons.collections4.map.AbstractHashedMap;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.map.AbstractHashedMap;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 
 public class ByteArrayHashMap extends AbstractHashedMap {
   private IRowMeta keyMeta;

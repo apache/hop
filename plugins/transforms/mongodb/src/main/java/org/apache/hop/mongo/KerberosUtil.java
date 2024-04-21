@@ -18,18 +18,17 @@
 package org.apache.hop.mongo;
 
 import com.sun.security.auth.module.Krb5LoginModule;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.mongo.wrapper.MongoClientWrapper;
-
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.AppConfigurationEntry;
 import javax.security.auth.login.AppConfigurationEntry.LoginModuleControlFlag;
 import javax.security.auth.login.Configuration;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 
 /**
  * A collection of utilities for working with Kerberos.

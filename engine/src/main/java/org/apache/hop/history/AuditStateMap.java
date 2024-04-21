@@ -39,7 +39,9 @@ public class AuditStateMap {
     return nameStateMap;
   }
 
-  /** @param nameStateMap The nameStateMap to set */
+  /**
+   * @param nameStateMap The nameStateMap to set
+   */
   public void setNameStateMap(Map<String, AuditState> nameStateMap) {
     this.nameStateMap = nameStateMap;
   }

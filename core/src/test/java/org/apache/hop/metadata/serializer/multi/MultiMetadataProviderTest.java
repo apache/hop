@@ -18,6 +18,7 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import java.util.List;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.Variables;
@@ -25,14 +26,13 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 
-import java.util.List;
-
 public class MultiMetadataProviderTest extends MetadataTestBase {
 
   public void testGetDescription() {
     String description = multiMetadataProvider.getDescription();
     assertNotNull(description);
-    assertEquals("Multi Metadata Provider with 3 providers: Provider1, Provider2, Provider3", description);
+    assertEquals(
+        "Multi Metadata Provider with 3 providers: Provider1, Provider2, Provider3", description);
   }
 
   public void testGetMetadataClasses() {

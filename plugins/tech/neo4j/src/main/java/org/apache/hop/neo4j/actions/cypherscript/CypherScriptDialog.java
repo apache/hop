@@ -181,7 +181,7 @@ public class CypherScriptDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons(
         shell,
         new Button[] {
-                wOk, wCancel,
+          wOk, wCancel,
         },
         margin,
         null);

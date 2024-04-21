@@ -17,14 +17,6 @@
 
 package org.apache.hop.beam.core.coder;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.beam.sdk.coders.AtomicCoder;
-import org.apache.beam.sdk.coders.CoderException;
-import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaAvroRecord;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -37,6 +29,13 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.util.Date;
+import org.apache.avro.Schema;
+import org.apache.avro.generic.GenericRecord;
+import org.apache.beam.sdk.coders.AtomicCoder;
+import org.apache.beam.sdk.coders.CoderException;
+import org.apache.hop.beam.core.HopRow;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 
 public class HopRowCoder extends AtomicCoder<HopRow> {
 
@@ -181,7 +180,8 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
 
             // Now we perform the binary serialization of the data
             //
-            ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("write", genericRecord.getSchema());
+            ValueMetaAvroRecord valueMeta =
+                new ValueMetaAvroRecord("write", genericRecord.getSchema());
             DataOutputStream dataOutputStream = new DataOutputStream(out);
             valueMeta.writeData(dataOutputStream, genericRecord);
             dataOutputStream.flush();

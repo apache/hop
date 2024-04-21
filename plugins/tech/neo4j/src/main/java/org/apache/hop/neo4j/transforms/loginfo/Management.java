@@ -19,11 +19,10 @@
 package org.apache.hop.neo4j.transforms.loginfo;
 
 import com.sun.management.OperatingSystemMXBean;
-import org.apache.hop.core.Const;
-
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
+import org.apache.hop.core.Const;
 
 public class Management {
   private static RuntimeMXBean mx = null;
@@ -32,7 +31,9 @@ public class Management {
 
   /** Return infos like current PID, JVM memory, ... */
 
-  /** @return Process CPU time in nanoseconds */
+  /**
+   * @return Process CPU time in nanoseconds
+   */
   public static long getPID() {
     String pid = null;
     if (mx == null) {
@@ -47,31 +48,41 @@ public class Management {
     return Const.toInt(pid, -1);
   }
 
-  /** @return JVM CPU time in nanoseconds */
+  /**
+   * @return JVM CPU time in nanoseconds
+   */
   public static long getJVMCpuTime() {
     setOperatingSystemMXBean();
     return bean.getProcessCpuTime();
   }
 
-  /** @return the amount of free physical memory in bytes */
+  /**
+   * @return the amount of free physical memory in bytes
+   */
   public static long getFreePhysicalMemorySize() {
     setOperatingSystemMXBean();
     return bean.getFreePhysicalMemorySize();
   }
 
-  /** @return the amount of free swap space in bytes */
+  /**
+   * @return the amount of free swap space in bytes
+   */
   public static long getFreeSwapSpaceSize() {
     setOperatingSystemMXBean();
     return bean.getFreeSwapSpaceSize();
   }
 
-  /** @return the total amount of physical memory in bytes */
+  /**
+   * @return the total amount of physical memory in bytes
+   */
   public static long getTotalPhysicalMemorySize() {
     setOperatingSystemMXBean();
     return bean.getTotalPhysicalMemorySize();
   }
 
-  /** @return the total amount of swap space in bytes. */
+  /**
+   * @return the total amount of swap space in bytes.
+   */
   public static long getTotalSwapSpaceSize() {
     setOperatingSystemMXBean();
     return bean.getTotalSwapSpaceSize();
@@ -86,7 +97,9 @@ public class Management {
     return bean.getCommittedVirtualMemorySize();
   }
 
-  /** @return CPU time in nanoseconds. */
+  /**
+   * @return CPU time in nanoseconds.
+   */
   public static long getCpuTime(long id) {
     setThreadMXBean();
     if (!tbean.isThreadCpuTimeSupported()) {

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -48,12 +53,6 @@ import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 @Transform(
     id = "MetaInject",
     image = "GenericTransform.svg",
@@ -66,9 +65,7 @@ import java.util.Map.Entry;
     localizationPrefix = "MetaInject.Injection.",
     groups = {"SOURCE_OUTPUT_FIELDS", "MAPPING_FIELDS"})
 public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData>
-    implements 
-        ITransformMetaChangeListener,
-        ISubPipelineAwareMeta {
+    implements ITransformMetaChangeListener, ISubPipelineAwareMeta {
 
   private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
 
@@ -229,7 +226,8 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
       }
 
       targetFile = XmlHandler.getTagValue(transformNode, TARGET_FILE);
-      createParentFolder = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CREATE_PARENT_FOLDER));
+      createParentFolder =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, CREATE_PARENT_FOLDER));
       noExecution = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, NO_EXECUTION));
 
       streamSourceTransformName = XmlHandler.getTagValue(transformNode, STREAM_SOURCE_TRANSFORM);
@@ -290,12 +288,16 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     this.targetSourceMapping = targetSourceMapping;
   }
 
-  /** @return the fileName */
+  /**
+   * @return the fileName
+   */
   public String getFileName() {
     return fileName;
   }
 
-  /** @param fileName the fileName to set */
+  /**
+   * @param fileName the fileName to set
+   */
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
@@ -417,32 +419,44 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     return true;
   }
 
-  /** @return the sourceTransformName */
+  /**
+   * @return the sourceTransformName
+   */
   public String getSourceTransformName() {
     return sourceTransformName;
   }
 
-  /** @param sourceTransformName the sourceTransformName to set */
+  /**
+   * @param sourceTransformName the sourceTransformName to set
+   */
   public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }
 
-  /** @return the targetFile */
+  /**
+   * @return the targetFile
+   */
   public String getTargetFile() {
     return targetFile;
   }
 
-  /** @param targetFile the targetFile to set */
+  /**
+   * @param targetFile the targetFile to set
+   */
   public void setTargetFile(String targetFile) {
     this.targetFile = targetFile;
   }
 
-  /** @return the noExecution */
+  /**
+   * @return the noExecution
+   */
   public boolean isNoExecution() {
     return noExecution;
   }
 
-  /** @param noExecution the noExecution to set */
+  /**
+   * @param noExecution the noExecution to set
+   */
   public void setNoExecution(boolean noExecution) {
     this.noExecution = noExecution;
   }

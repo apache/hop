@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.testing;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -50,10 +53,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class PipelineUnitTestSetLocationDialog extends Dialog {
   private static final Class<?> PKG = PipelineUnitTestSetLocationDialog.class; // For Translator
@@ -399,7 +398,9 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
     dispose();
   }
 
-  /** @param loc The data set to load the dialog information into */
+  /**
+   * @param loc The data set to load the dialog information into
+   */
   public void getInfo(PipelineUnitTestSetLocation loc) {
 
     loc.setTransformName(wTransformName.getText());

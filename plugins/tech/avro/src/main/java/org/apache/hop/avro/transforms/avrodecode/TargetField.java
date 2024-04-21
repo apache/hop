@@ -17,14 +17,13 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
+import java.util.Objects;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class TargetField {
   @HopMetadataProperty(key = "source_field")
@@ -118,7 +117,9 @@ public class TargetField {
     return sourceField;
   }
 
-  /** @param sourceField The sourcePath to set */
+  /**
+   * @param sourceField The sourcePath to set
+   */
   public void setSourceField(String sourceField) {
     this.sourceField = sourceField;
   }
@@ -132,7 +133,9 @@ public class TargetField {
     return sourceAvroType;
   }
 
-  /** @param sourceAvroType The sourceAvroType to set */
+  /**
+   * @param sourceAvroType The sourceAvroType to set
+   */
   public void setSourceAvroType(String sourceAvroType) {
     this.sourceAvroType = sourceAvroType;
   }
@@ -146,7 +149,9 @@ public class TargetField {
     return targetFieldName;
   }
 
-  /** @param targetFieldName The targetFieldName to set */
+  /**
+   * @param targetFieldName The targetFieldName to set
+   */
   public void setTargetFieldName(String targetFieldName) {
     this.targetFieldName = targetFieldName;
   }
@@ -160,7 +165,9 @@ public class TargetField {
     return targetType;
   }
 
-  /** @param targetType The targetType to set */
+  /**
+   * @param targetType The targetType to set
+   */
   public void setTargetType(String targetType) {
     this.targetType = targetType;
   }
@@ -174,7 +181,9 @@ public class TargetField {
     return targetFormat;
   }
 
-  /** @param targetFormat The targetFormat to set */
+  /**
+   * @param targetFormat The targetFormat to set
+   */
   public void setTargetFormat(String targetFormat) {
     this.targetFormat = targetFormat;
   }
@@ -188,7 +197,9 @@ public class TargetField {
     return targetLength;
   }
 
-  /** @param targetLength The targetLength to set */
+  /**
+   * @param targetLength The targetLength to set
+   */
   public void setTargetLength(String targetLength) {
     this.targetLength = targetLength;
   }
@@ -202,7 +213,9 @@ public class TargetField {
     return targetPrecision;
   }
 
-  /** @param targetPrecision The targetPrecision to set */
+  /**
+   * @param targetPrecision The targetPrecision to set
+   */
   public void setTargetPrecision(String targetPrecision) {
     this.targetPrecision = targetPrecision;
   }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.telnet;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -28,8 +30,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ActionTelnetTest {
 

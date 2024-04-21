@@ -20,6 +20,8 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -27,9 +29,6 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginTypeListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.List;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /** This class maintains a map of IExtensionPoint object to its name. */
 public class ExtensionPointMap {

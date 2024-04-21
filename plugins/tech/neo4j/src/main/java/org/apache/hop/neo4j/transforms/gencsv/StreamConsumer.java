@@ -18,13 +18,12 @@
 
 package org.apache.hop.neo4j.transforms.gencsv;
 
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogLevel;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogLevel;
 
 public class StreamConsumer extends Thread {
 

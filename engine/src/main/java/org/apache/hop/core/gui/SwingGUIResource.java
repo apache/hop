@@ -17,6 +17,11 @@
 
 package org.apache.hop.core.gui;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
@@ -28,12 +33,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SwingGUIResource {
   private static ILogChannel log = LogChannel.GENERAL;

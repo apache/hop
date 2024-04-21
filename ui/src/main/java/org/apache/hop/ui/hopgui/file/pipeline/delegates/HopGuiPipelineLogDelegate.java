@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import java.util.ArrayList;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -45,9 +47,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import java.util.ArrayList;
-import java.util.Map;
-
 @GuiPlugin(description = "Pipeline Graph Log Delegate")
 public class HopGuiPipelineLogDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
@@ -55,7 +54,8 @@ public class HopGuiPipelineLogDelegate {
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
   public static final String TOOLBAR_ICON_SHOW_ERROR_LINES = "ToolbarIcon-10010-ShowErrorLines";
-  public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD = "ToolbarIcon-10020-LogCopyToClipboard";
+  public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD =
+      "ToolbarIcon-10020-LogCopyToClipboard";
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
 
   private HopGuiPipelineGraph pipelineGraph;
@@ -72,7 +72,9 @@ public class HopGuiPipelineLogDelegate {
 
   private HopGuiLogBrowser logBrowser;
 
-  /** @param hopGui */
+  /**
+   * @param hopGui
+   */
   public HopGuiPipelineLogDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
@@ -211,12 +213,11 @@ public class HopGuiPipelineLogDelegate {
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD,
       toolTip = "i18n:org.apache.hop.ui.hopgui:PipelineLog.Button.LogCopyToClipboard",
-      image = "ui/images/copy.svg") 
+      image = "ui/images/copy.svg")
   public void copyToClipboard() {
     GuiResource.getInstance().toClipboard(pipelineLogText.getText());
   }
-  
-  
+
   @GuiToolbarElement(
       root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
       id = TOOLBAR_ICON_SHOW_ERROR_LINES,
@@ -286,7 +287,9 @@ public class HopGuiPipelineLogDelegate {
     }
   }
 
-  /** @return the pipelineLogTab */
+  /**
+   * @return the pipelineLogTab
+   */
   public CTabItem getPipelineLogTab() {
     return pipelineLogTab;
   }

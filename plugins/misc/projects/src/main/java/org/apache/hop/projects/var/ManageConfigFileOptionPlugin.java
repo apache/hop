@@ -77,7 +77,9 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
           if (equalsIndex > 0) {
             String variableName = varValue.substring(0, equalsIndex);
             String variableValue = varValue.substring(equalsIndex + 1);
-            if (variableValue != null && variableValue.startsWith("\"") && variableValue.endsWith("\"")) {
+            if (variableValue != null
+                && variableValue.startsWith("\"")
+                && variableValue.endsWith("\"")) {
               variableValue = variableValue.substring(1, variableValue.length() - 1);
             }
             DescribedVariable describedVariable =
@@ -134,7 +136,9 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
     return configFile;
   }
 
-  /** @param configFile The configFile to set */
+  /**
+   * @param configFile The configFile to set
+   */
   public void setConfigFile(String configFile) {
     this.configFile = configFile;
   }
@@ -148,7 +152,9 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
     return configSetVariables;
   }
 
-  /** @param configSetVariables The configSetVariables to set */
+  /**
+   * @param configSetVariables The configSetVariables to set
+   */
   public void setConfigSetVariables(String[] configSetVariables) {
     this.configSetVariables = configSetVariables;
   }
@@ -162,7 +168,9 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
     return configDescribeVariables;
   }
 
-  /** @param configDescribeVariables The configDescribeVariables to set */
+  /**
+   * @param configDescribeVariables The configDescribeVariables to set
+   */
   public void setConfigDescribeVariables(String[] configDescribeVariables) {
     this.configDescribeVariables = configDescribeVariables;
   }

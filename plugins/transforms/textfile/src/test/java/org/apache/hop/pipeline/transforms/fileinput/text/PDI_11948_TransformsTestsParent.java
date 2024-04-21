@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import static org.mockito.Mockito.mock;
+
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.BaseTransformData;
-
-import static org.mockito.Mockito.mock;
 
 public class PDI_11948_TransformsTestsParent<T extends BaseTransform, E extends BaseTransformData> {
   protected T transformMock;

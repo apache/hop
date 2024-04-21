@@ -16,6 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.mongodboutput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
@@ -23,10 +27,6 @@ import org.apache.hop.core.logging.ILogChannelFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /** MDI test for MongoDbOutput. */
 public class MongoDbOutputMetaInjectionTest extends BaseMetadataInjectionTest<MongoDbOutputMeta> {

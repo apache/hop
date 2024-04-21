@@ -17,11 +17,10 @@
 
 package org.apache.hop.resource;
 
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.Map;
 
 public interface IResourceNaming {
 
@@ -60,6 +59,8 @@ public interface IResourceNaming {
   String nameResource(FileObject fileObject, IVariables variables, boolean pathOnly)
       throws FileSystemException;
 
-  /** @return the map of folders mapped to created parameters during the resource naming. */
+  /**
+   * @return the map of folders mapped to created parameters during the resource naming.
+   */
   Map<String, String> getDirectoryMap();
 }

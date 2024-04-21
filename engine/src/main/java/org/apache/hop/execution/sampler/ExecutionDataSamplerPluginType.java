@@ -26,8 +26,10 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 public class ExecutionDataSamplerPluginType extends BasePluginType<ExecutionDataSamplerPlugin> {
 
   private ExecutionDataSamplerPluginType() {
-    super(ExecutionDataSamplerPlugin.class, "EXECUTION_DATA_SAMPLER_LOCATIONS",
-            "Execution Data Sampler Locations");
+    super(
+        ExecutionDataSamplerPlugin.class,
+        "EXECUTION_DATA_SAMPLER_LOCATIONS",
+        "Execution Data Sampler Locations");
   }
 
   private static ExecutionDataSamplerPluginType pluginType;
@@ -53,5 +55,4 @@ public class ExecutionDataSamplerPluginType extends BasePluginType<ExecutionData
   protected String extractName(ExecutionDataSamplerPlugin annotation) {
     return annotation.name();
   }
-
 }

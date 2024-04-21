@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -59,10 +62,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 /** Meta-data for the Workflow executor transform. */
 @Transform(
     id = "WorkflowExecutor",
@@ -72,7 +71,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     documentationUrl = "/pipeline/transforms/workflow-executor.html",
     keywords = "i18n::WorkflowExecutorMeta.keyword")
-public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
+public class WorkflowExecutorMeta
+    extends BaseTransformMeta<WorkflowExecutor, WorkflowExecutorData> {
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   /** The name of the workflow run configuration to execute with */
@@ -790,282 +790,394 @@ public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, Wo
     };
   }
 
-  /** @return the fileName */
+  /**
+   * @return the fileName
+   */
   public String getFilename() {
     return filename;
   }
 
-  /** @param filename the fileName to set */
+  /**
+   * @param filename the fileName to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /** @return the mappingParameters */
+  /**
+   * @return the mappingParameters
+   */
   public WorkflowExecutorParameters getMappingParameters() {
     return parameters;
   }
 
-  /** @param mappingParameters the mappingParameters to set */
+  /**
+   * @param mappingParameters the mappingParameters to set
+   */
   public void setMappingParameters(WorkflowExecutorParameters mappingParameters) {
     this.parameters = mappingParameters;
   }
 
-  /** @return the parameters */
+  /**
+   * @return the parameters
+   */
   public WorkflowExecutorParameters getParameters() {
     return parameters;
   }
 
-  /** @param parameters the parameters to set */
+  /**
+   * @param parameters the parameters to set
+   */
   public void setParameters(WorkflowExecutorParameters parameters) {
     this.parameters = parameters;
   }
 
-  /** @return the executionTimeField */
+  /**
+   * @return the executionTimeField
+   */
   public String getExecutionTimeField() {
     return executionTimeField;
   }
 
-  /** @param executionTimeField the executionTimeField to set */
+  /**
+   * @param executionTimeField the executionTimeField to set
+   */
   public void setExecutionTimeField(String executionTimeField) {
     this.executionTimeField = executionTimeField;
   }
 
-  /** @return the executionResultField */
+  /**
+   * @return the executionResultField
+   */
   public String getExecutionResultField() {
     return executionResultField;
   }
 
-  /** @param executionResultField the executionResultField to set */
+  /**
+   * @param executionResultField the executionResultField to set
+   */
   public void setExecutionResultField(String executionResultField) {
     this.executionResultField = executionResultField;
   }
 
-  /** @return the executionNrErrorsField */
+  /**
+   * @return the executionNrErrorsField
+   */
   public String getExecutionNrErrorsField() {
     return executionNrErrorsField;
   }
 
-  /** @param executionNrErrorsField the executionNrErrorsField to set */
+  /**
+   * @param executionNrErrorsField the executionNrErrorsField to set
+   */
   public void setExecutionNrErrorsField(String executionNrErrorsField) {
     this.executionNrErrorsField = executionNrErrorsField;
   }
 
-  /** @return the executionLinesReadField */
+  /**
+   * @return the executionLinesReadField
+   */
   public String getExecutionLinesReadField() {
     return executionLinesReadField;
   }
 
-  /** @param executionLinesReadField the executionLinesReadField to set */
+  /**
+   * @param executionLinesReadField the executionLinesReadField to set
+   */
   public void setExecutionLinesReadField(String executionLinesReadField) {
     this.executionLinesReadField = executionLinesReadField;
   }
 
-  /** @return the executionLinesWrittenField */
+  /**
+   * @return the executionLinesWrittenField
+   */
   public String getExecutionLinesWrittenField() {
     return executionLinesWrittenField;
   }
 
-  /** @param executionLinesWrittenField the executionLinesWrittenField to set */
+  /**
+   * @param executionLinesWrittenField the executionLinesWrittenField to set
+   */
   public void setExecutionLinesWrittenField(String executionLinesWrittenField) {
     this.executionLinesWrittenField = executionLinesWrittenField;
   }
 
-  /** @return the executionLinesInputField */
+  /**
+   * @return the executionLinesInputField
+   */
   public String getExecutionLinesInputField() {
     return executionLinesInputField;
   }
 
-  /** @param executionLinesInputField the executionLinesInputField to set */
+  /**
+   * @param executionLinesInputField the executionLinesInputField to set
+   */
   public void setExecutionLinesInputField(String executionLinesInputField) {
     this.executionLinesInputField = executionLinesInputField;
   }
 
-  /** @return the executionLinesOutputField */
+  /**
+   * @return the executionLinesOutputField
+   */
   public String getExecutionLinesOutputField() {
     return executionLinesOutputField;
   }
 
-  /** @param executionLinesOutputField the executionLinesOutputField to set */
+  /**
+   * @param executionLinesOutputField the executionLinesOutputField to set
+   */
   public void setExecutionLinesOutputField(String executionLinesOutputField) {
     this.executionLinesOutputField = executionLinesOutputField;
   }
 
-  /** @return the executionLinesRejectedField */
+  /**
+   * @return the executionLinesRejectedField
+   */
   public String getExecutionLinesRejectedField() {
     return executionLinesRejectedField;
   }
 
-  /** @param executionLinesRejectedField the executionLinesRejectedField to set */
+  /**
+   * @param executionLinesRejectedField the executionLinesRejectedField to set
+   */
   public void setExecutionLinesRejectedField(String executionLinesRejectedField) {
     this.executionLinesRejectedField = executionLinesRejectedField;
   }
 
-  /** @return the executionLinesUpdatedField */
+  /**
+   * @return the executionLinesUpdatedField
+   */
   public String getExecutionLinesUpdatedField() {
     return executionLinesUpdatedField;
   }
 
-  /** @param executionLinesUpdatedField the executionLinesUpdatedField to set */
+  /**
+   * @param executionLinesUpdatedField the executionLinesUpdatedField to set
+   */
   public void setExecutionLinesUpdatedField(String executionLinesUpdatedField) {
     this.executionLinesUpdatedField = executionLinesUpdatedField;
   }
 
-  /** @return the executionLinesDeletedField */
+  /**
+   * @return the executionLinesDeletedField
+   */
   public String getExecutionLinesDeletedField() {
     return executionLinesDeletedField;
   }
 
-  /** @param executionLinesDeletedField the executionLinesDeletedField to set */
+  /**
+   * @param executionLinesDeletedField the executionLinesDeletedField to set
+   */
   public void setExecutionLinesDeletedField(String executionLinesDeletedField) {
     this.executionLinesDeletedField = executionLinesDeletedField;
   }
 
-  /** @return the executionFilesRetrievedField */
+  /**
+   * @return the executionFilesRetrievedField
+   */
   public String getExecutionFilesRetrievedField() {
     return executionFilesRetrievedField;
   }
 
-  /** @param executionFilesRetrievedField the executionFilesRetrievedField to set */
+  /**
+   * @param executionFilesRetrievedField the executionFilesRetrievedField to set
+   */
   public void setExecutionFilesRetrievedField(String executionFilesRetrievedField) {
     this.executionFilesRetrievedField = executionFilesRetrievedField;
   }
 
-  /** @return the executionExitStatusField */
+  /**
+   * @return the executionExitStatusField
+   */
   public String getExecutionExitStatusField() {
     return executionExitStatusField;
   }
 
-  /** @param executionExitStatusField the executionExitStatusField to set */
+  /**
+   * @param executionExitStatusField the executionExitStatusField to set
+   */
   public void setExecutionExitStatusField(String executionExitStatusField) {
     this.executionExitStatusField = executionExitStatusField;
   }
 
-  /** @return the executionLogTextField */
+  /**
+   * @return the executionLogTextField
+   */
   public String getExecutionLogTextField() {
     return executionLogTextField;
   }
 
-  /** @param executionLogTextField the executionLogTextField to set */
+  /**
+   * @param executionLogTextField the executionLogTextField to set
+   */
   public void setExecutionLogTextField(String executionLogTextField) {
     this.executionLogTextField = executionLogTextField;
   }
 
-  /** @return the executionLogChannelIdField */
+  /**
+   * @return the executionLogChannelIdField
+   */
   public String getExecutionLogChannelIdField() {
     return executionLogChannelIdField;
   }
 
-  /** @param executionLogChannelIdField the executionLogChannelIdField to set */
+  /**
+   * @param executionLogChannelIdField the executionLogChannelIdField to set
+   */
   public void setExecutionLogChannelIdField(String executionLogChannelIdField) {
     this.executionLogChannelIdField = executionLogChannelIdField;
   }
 
-  /** @return the resultRowsTargetTransform */
+  /**
+   * @return the resultRowsTargetTransform
+   */
   public String getResultRowsTargetTransform() {
     return resultRowsTargetTransform;
   }
 
-  /** @param resultRowsTargetTransform the result Rows Target Transform to set */
+  /**
+   * @param resultRowsTargetTransform the result Rows Target Transform to set
+   */
   public void setResultRowsTargetTransform(String resultRowsTargetTransform) {
     this.resultRowsTargetTransform = resultRowsTargetTransform;
   }
 
-  /** @return the resultRowsField */
+  /**
+   * @return the resultRowsField
+   */
   public String[] getResultRowsField() {
     return resultRowsField;
   }
 
-  /** @param resultRowsField the resultRowsField to set */
+  /**
+   * @param resultRowsField the resultRowsField to set
+   */
   public void setResultRowsField(String[] resultRowsField) {
     this.resultRowsField = resultRowsField;
   }
 
-  /** @return the resultRowsType */
+  /**
+   * @return the resultRowsType
+   */
   public int[] getResultRowsType() {
     return resultRowsType;
   }
 
-  /** @param resultRowsType the resultRowsType to set */
+  /**
+   * @param resultRowsType the resultRowsType to set
+   */
   public void setResultRowsType(int[] resultRowsType) {
     this.resultRowsType = resultRowsType;
   }
 
-  /** @return the resultRowsLength */
+  /**
+   * @return the resultRowsLength
+   */
   public int[] getResultRowsLength() {
     return resultRowsLength;
   }
 
-  /** @param resultRowsLength the resultRowsLength to set */
+  /**
+   * @param resultRowsLength the resultRowsLength to set
+   */
   public void setResultRowsLength(int[] resultRowsLength) {
     this.resultRowsLength = resultRowsLength;
   }
 
-  /** @return the resultRowsPrecision */
+  /**
+   * @return the resultRowsPrecision
+   */
   public int[] getResultRowsPrecision() {
     return resultRowsPrecision;
   }
 
-  /** @param resultRowsPrecision the resultRowsPrecision to set */
+  /**
+   * @param resultRowsPrecision the resultRowsPrecision to set
+   */
   public void setResultRowsPrecision(int[] resultRowsPrecision) {
     this.resultRowsPrecision = resultRowsPrecision;
   }
 
-  /** @return the result Files Target Transform */
+  /**
+   * @return the result Files Target Transform
+   */
   public String getResultFilesTargetTransform() {
     return resultFilesTargetTransform;
   }
 
-  /** @param resultFilesTargetTransform the result Files Target Transform to set */
+  /**
+   * @param resultFilesTargetTransform the result Files Target Transform to set
+   */
   public void setResultFilesTargetTransform(String resultFilesTargetTransform) {
     this.resultFilesTargetTransform = resultFilesTargetTransform;
   }
 
-  /** @return the resultRowsTargetTransformMeta */
+  /**
+   * @return the resultRowsTargetTransformMeta
+   */
   public TransformMeta getResultRowsTargetTransformMeta() {
     return resultRowsTargetTransformMeta;
   }
 
-  /** @param resultRowsTargetTransformMeta the resultRowsTargetTransformMeta to set */
+  /**
+   * @param resultRowsTargetTransformMeta the resultRowsTargetTransformMeta to set
+   */
   public void setResultRowsTargetTransformMeta(TransformMeta resultRowsTargetTransformMeta) {
     this.resultRowsTargetTransformMeta = resultRowsTargetTransformMeta;
   }
 
-  /** @return the resultFilesTargetTransformMeta */
+  /**
+   * @return the resultFilesTargetTransformMeta
+   */
   public TransformMeta getResultFilesTargetTransformMeta() {
     return resultFilesTargetTransformMeta;
   }
 
-  /** @param resultFilesTargetTransformMeta the resultFilesTargetTransformMeta to set */
+  /**
+   * @param resultFilesTargetTransformMeta the resultFilesTargetTransformMeta to set
+   */
   public void setResultFilesTargetTransformMeta(TransformMeta resultFilesTargetTransformMeta) {
     this.resultFilesTargetTransformMeta = resultFilesTargetTransformMeta;
   }
 
-  /** @return the groupSize */
+  /**
+   * @return the groupSize
+   */
   public String getGroupSize() {
     return groupSize;
   }
 
-  /** @param groupSize the groupSize to set */
+  /**
+   * @param groupSize the groupSize to set
+   */
   public void setGroupSize(String groupSize) {
     this.groupSize = groupSize;
   }
 
-  /** @return the groupField */
+  /**
+   * @return the groupField
+   */
   public String getGroupField() {
     return groupField;
   }
 
-  /** @param groupField the groupField to set */
+  /**
+   * @param groupField the groupField to set
+   */
   public void setGroupField(String groupField) {
     this.groupField = groupField;
   }
 
-  /** @return the groupTime */
+  /**
+   * @return the groupTime
+   */
   public String getGroupTime() {
     return groupTime;
   }
 
-  /** @param groupTime the groupTime to set */
+  /**
+   * @param groupTime the groupTime to set
+   */
   public void setGroupTime(String groupTime) {
     this.groupTime = groupTime;
   }
@@ -1075,33 +1187,45 @@ public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, Wo
     return true;
   }
 
-  /** @return the execution Result Target Transform */
+  /**
+   * @return the execution Result Target Transform
+   */
   public String getExecutionResultTargetTransform() {
     return executionResultTargetTransform;
   }
 
-  /** @param executionResultTargetTransform the executionResultTargetTransform to set */
+  /**
+   * @param executionResultTargetTransform the executionResultTargetTransform to set
+   */
   public void setExecutionResultTargetTransform(String executionResultTargetTransform) {
     this.executionResultTargetTransform = executionResultTargetTransform;
   }
 
-  /** @return the executionResultTargetTransformMeta */
+  /**
+   * @return the executionResultTargetTransformMeta
+   */
   public TransformMeta getExecutionResultTargetTransformMeta() {
     return executionResultTargetTransformMeta;
   }
 
-  /** @param executionResultTargetTransformMeta the executionResultTargetTransformMeta to set */
+  /**
+   * @param executionResultTargetTransformMeta the executionResultTargetTransformMeta to set
+   */
   public void setExecutionResultTargetTransformMeta(
       TransformMeta executionResultTargetTransformMeta) {
     this.executionResultTargetTransformMeta = executionResultTargetTransformMeta;
   }
 
-  /** @return the resultFilesFileNameField */
+  /**
+   * @return the resultFilesFileNameField
+   */
   public String getResultFilesFileNameField() {
     return resultFilesFileNameField;
   }
 
-  /** @param resultFilesFileNameField the resultFilesFileNameField to set */
+  /**
+   * @param resultFilesFileNameField the resultFilesFileNameField to set
+   */
   public void setResultFilesFileNameField(String resultFilesFileNameField) {
     this.resultFilesFileNameField = resultFilesFileNameField;
   }
@@ -1192,7 +1316,9 @@ public class WorkflowExecutorMeta extends BaseTransformMeta<WorkflowExecutor, Wo
     return runConfigurationName;
   }
 
-  /** @param runConfigurationName The runConfigurationName to set */
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
   public void setRunConfigurationName(String runConfigurationName) {
     this.runConfigurationName = runConfigurationName;
   }

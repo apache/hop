@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow;
 
+import java.io.IOException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -27,8 +28,6 @@ import org.apache.hop.server.HttpUtil;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
 
 public class WorkflowConfiguration {
   public static final String XML_TAG = "workflow_configuration";
@@ -84,23 +83,31 @@ public class WorkflowConfiguration {
     return new WorkflowConfiguration(configNode, variables);
   }
 
-  /** @return the workflowExecutionConfiguration */
+  /**
+   * @return the workflowExecutionConfiguration
+   */
   public WorkflowExecutionConfiguration getWorkflowExecutionConfiguration() {
     return workflowExecutionConfiguration;
   }
 
-  /** @param workflowExecutionConfiguration the workflowExecutionConfiguration to set */
+  /**
+   * @param workflowExecutionConfiguration the workflowExecutionConfiguration to set
+   */
   public void setWorkflowExecutionConfiguration(
       WorkflowExecutionConfiguration workflowExecutionConfiguration) {
     this.workflowExecutionConfiguration = workflowExecutionConfiguration;
   }
 
-  /** @return the workflow metadata */
+  /**
+   * @return the workflow metadata
+   */
   public WorkflowMeta getWorkflowMeta() {
     return workflowMeta;
   }
 
-  /** @param workflowMeta the workflow meta data to set */
+  /**
+   * @param workflowMeta the workflow meta data to set
+   */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
   }

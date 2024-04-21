@@ -17,6 +17,9 @@
 
 package org.apache.hop.metadata.serializer.json;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
@@ -31,10 +34,6 @@ import org.apache.hop.metadata.serializer.json.person.interest.Cooking;
 import org.apache.hop.metadata.serializer.json.person.interest.Music;
 import org.apache.hop.metadata.serializer.json.person.interest.Running;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class JsonMetadataSerializerTest extends TestCase {
 

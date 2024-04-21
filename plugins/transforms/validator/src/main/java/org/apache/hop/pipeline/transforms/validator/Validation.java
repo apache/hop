@@ -27,107 +27,157 @@ public class Validation implements Cloneable {
   public static final String XML_TAG = "validator_field";
   public static final String XML_TAG_ALLOWED = "allowed_value";
 
-  @HopMetadataProperty(key = "validation_name", injectionKey = "NAME",
-  injectionKeyDescription = "Validator.Injection.NAME")
+  @HopMetadataProperty(
+      key = "validation_name",
+      injectionKey = "NAME",
+      injectionKeyDescription = "Validator.Injection.NAME")
   private String name;
 
-  @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME",
-          injectionKeyDescription = "Validator.Injection.FIELD_NAME")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "FIELD_NAME",
+      injectionKeyDescription = "Validator.Injection.FIELD_NAME")
   private String fieldName;
 
-  @HopMetadataProperty(key = "max_length", injectionKey = "MAX_LENGTH",
-          injectionKeyDescription = "Validator.Injection.MAX_LENGTH")
+  @HopMetadataProperty(
+      key = "max_length",
+      injectionKey = "MAX_LENGTH",
+      injectionKeyDescription = "Validator.Injection.MAX_LENGTH")
   private String maximumLength;
 
-  @HopMetadataProperty(key = "min_length", injectionKey = "MIN_LENGTH",
-          injectionKeyDescription = "Validator.Injection.MIN_LENGTH")
+  @HopMetadataProperty(
+      key = "min_length",
+      injectionKey = "MIN_LENGTH",
+      injectionKeyDescription = "Validator.Injection.MIN_LENGTH")
   private String minimumLength;
 
-  @HopMetadataProperty(key = "null_allowed", injectionKey = "NULL_ALLOWED",
-          injectionKeyDescription = "Validator.Injection.NULL_ALLOWED")
+  @HopMetadataProperty(
+      key = "null_allowed",
+      injectionKey = "NULL_ALLOWED",
+      injectionKeyDescription = "Validator.Injection.NULL_ALLOWED")
   private boolean nullAllowed;
 
-  @HopMetadataProperty(key = "only_null_allowed", injectionKey = "ONLY_NULL_ALLOWED",
-          injectionKeyDescription = "Validator.Injection.ONLY_NULL_ALLOWED")
+  @HopMetadataProperty(
+      key = "only_null_allowed",
+      injectionKey = "ONLY_NULL_ALLOWED",
+      injectionKeyDescription = "Validator.Injection.ONLY_NULL_ALLOWED")
   private boolean onlyNullAllowed;
 
-  @HopMetadataProperty(key = "only_numeric_allowed", injectionKey = "ONLY_NUMERIC_ALLOWED",
-          injectionKeyDescription = "Validator.Injection.ONLY_NUMERIC_ALLOWED")
+  @HopMetadataProperty(
+      key = "only_numeric_allowed",
+      injectionKey = "ONLY_NUMERIC_ALLOWED",
+      injectionKeyDescription = "Validator.Injection.ONLY_NUMERIC_ALLOWED")
   private boolean onlyNumericAllowed;
 
-  @HopMetadataProperty(key = "data_type", injectionKey = "DATA_TYPE",
-          injectionKeyDescription = "Validator.Injection.DATA_TYPE")
+  @HopMetadataProperty(
+      key = "data_type",
+      injectionKey = "DATA_TYPE",
+      injectionKeyDescription = "Validator.Injection.DATA_TYPE")
   private String dataType;
 
-  @HopMetadataProperty(key = "data_type_verified", injectionKey = "DATA_TYPE_VERIFIED",
-          injectionKeyDescription = "Validator.Injection.DATA_TYPE_VERIFIED")
+  @HopMetadataProperty(
+      key = "data_type_verified",
+      injectionKey = "DATA_TYPE_VERIFIED",
+      injectionKeyDescription = "Validator.Injection.DATA_TYPE_VERIFIED")
   private boolean dataTypeVerified;
 
-  @HopMetadataProperty(key = "conversion_mask", injectionKey = "CONVERSION_MASK",
-          injectionKeyDescription = "Validator.Injection.CONVERSION_MASK")
+  @HopMetadataProperty(
+      key = "conversion_mask",
+      injectionKey = "CONVERSION_MASK",
+      injectionKeyDescription = "Validator.Injection.CONVERSION_MASK")
   private String conversionMask;
 
-  @HopMetadataProperty(key = "decimal_symbol", injectionKey = "DECIMAL_SYMBOL",
-          injectionKeyDescription = "Validator.Injection.DECIMAL_SYMBOL")
+  @HopMetadataProperty(
+      key = "decimal_symbol",
+      injectionKey = "DECIMAL_SYMBOL",
+      injectionKeyDescription = "Validator.Injection.DECIMAL_SYMBOL")
   private String decimalSymbol;
 
-  @HopMetadataProperty(key = "grouping_symbol", injectionKey = "GROUPING_SYMBOL",
-          injectionKeyDescription = "Validator.Injection.GROUPING_SYMBOL")
+  @HopMetadataProperty(
+      key = "grouping_symbol",
+      injectionKey = "GROUPING_SYMBOL",
+      injectionKeyDescription = "Validator.Injection.GROUPING_SYMBOL")
   private String groupingSymbol;
 
-  @HopMetadataProperty(key = "is_sourcing_values", injectionKey = "SOURCING_VALUES",
-          injectionKeyDescription = "Validator.Injection.SOURCING_VALUES")
+  @HopMetadataProperty(
+      key = "is_sourcing_values",
+      injectionKey = "SOURCING_VALUES",
+      injectionKeyDescription = "Validator.Injection.SOURCING_VALUES")
   private boolean sourcingValues;
 
-  @HopMetadataProperty(key = "sourcing_transform", injectionKey = "SOURCING_TRANSFORM_NAME",
-          injectionKeyDescription = "Validator.Injection.SOURCING_TRANSFORM_NAME")
+  @HopMetadataProperty(
+      key = "sourcing_transform",
+      injectionKey = "SOURCING_TRANSFORM_NAME",
+      injectionKeyDescription = "Validator.Injection.SOURCING_TRANSFORM_NAME")
   private String sourcingTransformName;
 
-  @HopMetadataProperty(key = "sourcing_field", injectionKey = "SOURCING_FIELD",
-          injectionKeyDescription = "Validator.Injection.SOURCING_FIELD")
+  @HopMetadataProperty(
+      key = "sourcing_field",
+      injectionKey = "SOURCING_FIELD",
+      injectionKeyDescription = "Validator.Injection.SOURCING_FIELD")
   private String sourcingField;
 
-  @HopMetadataProperty(key = "min_value", injectionKey = "MIN_VALUE",
-          injectionKeyDescription = "Validator.Injection.MIN_VALUE")
+  @HopMetadataProperty(
+      key = "min_value",
+      injectionKey = "MIN_VALUE",
+      injectionKeyDescription = "Validator.Injection.MIN_VALUE")
   private String minimumValue;
 
-  @HopMetadataProperty(key = "max_value", injectionKey = "MAX_VALUE",
-          injectionKeyDescription = "Validator.Injection.MAX_VALUE")
+  @HopMetadataProperty(
+      key = "max_value",
+      injectionKey = "MAX_VALUE",
+      injectionKeyDescription = "Validator.Injection.MAX_VALUE")
   private String maximumValue;
 
-  @HopMetadataProperty(key = "start_string", injectionKey = "START_STRING",
-          injectionKeyDescription = "Validator.Injection.START_STRING")
+  @HopMetadataProperty(
+      key = "start_string",
+      injectionKey = "START_STRING",
+      injectionKeyDescription = "Validator.Injection.START_STRING")
   private String startString;
 
-  @HopMetadataProperty(key = "start_string_not_allowed", injectionKey = "START_STRING_NOT_ALLOWED",
-          injectionKeyDescription = "Validator.Injection.START_STRING_NOT_ALLOWED")
+  @HopMetadataProperty(
+      key = "start_string_not_allowed",
+      injectionKey = "START_STRING_NOT_ALLOWED",
+      injectionKeyDescription = "Validator.Injection.START_STRING_NOT_ALLOWED")
   private String startStringNotAllowed;
 
-  @HopMetadataProperty(key = "end_string", injectionKey = "END_STRING",
-          injectionKeyDescription = "Validator.Injection.END_STRING")
+  @HopMetadataProperty(
+      key = "end_string",
+      injectionKey = "END_STRING",
+      injectionKeyDescription = "Validator.Injection.END_STRING")
   private String endString;
 
-  @HopMetadataProperty(key = "end_string_not_allowed", injectionKey = "END_STRING_NOT_ALLOWED",
-          injectionKeyDescription = "Validator.Injection.END_STRING_NOT_ALLOWED")
+  @HopMetadataProperty(
+      key = "end_string_not_allowed",
+      injectionKey = "END_STRING_NOT_ALLOWED",
+      injectionKeyDescription = "Validator.Injection.END_STRING_NOT_ALLOWED")
   private String endStringNotAllowed;
 
-  @HopMetadataProperty(key = "regular_expression", injectionKey = "REGULAR_EXPRESSION_EXPECTED",
-          injectionKeyDescription = "Validator.Injection.REGULAR_EXPRESSION_EXPECTED")
+  @HopMetadataProperty(
+      key = "regular_expression",
+      injectionKey = "REGULAR_EXPRESSION_EXPECTED",
+      injectionKeyDescription = "Validator.Injection.REGULAR_EXPRESSION_EXPECTED")
   private String regularExpression;
 
-  @HopMetadataProperty(key = "regular_expression_not_allowed", injectionKey = "REGULAR_EXPRESSION_NOT_ALLOWED",
-          injectionKeyDescription = "Validator.Injection.REGULAR_EXPRESSION_NOT_ALLOWED")
+  @HopMetadataProperty(
+      key = "regular_expression_not_allowed",
+      injectionKey = "REGULAR_EXPRESSION_NOT_ALLOWED",
+      injectionKeyDescription = "Validator.Injection.REGULAR_EXPRESSION_NOT_ALLOWED")
   private String regularExpressionNotAllowed;
 
-  @HopMetadataProperty(key = "error_code", injectionKey = "ERROR_CODE",
-          injectionKeyDescription = "Validator.Injection.ERROR_CODE")
+  @HopMetadataProperty(
+      key = "error_code",
+      injectionKey = "ERROR_CODE",
+      injectionKeyDescription = "Validator.Injection.ERROR_CODE")
   private String errorCode;
 
-  @HopMetadataProperty(key = "error_description", injectionKey = "ERROR_CODE_DESCRIPTION",
-          injectionKeyDescription = "Validator.Injection.ERROR_CODE_DESCRIPTION")
+  @HopMetadataProperty(
+      key = "error_description",
+      injectionKey = "ERROR_CODE_DESCRIPTION",
+      injectionKeyDescription = "Validator.Injection.ERROR_CODE_DESCRIPTION")
   private String errorDescription;
 
-  @HopMetadataProperty(groupKey="allowed_value", key="value")
+  @HopMetadataProperty(groupKey = "allowed_value", key = "value")
   private List<String> allowedValues;
 
   // Non-serialized

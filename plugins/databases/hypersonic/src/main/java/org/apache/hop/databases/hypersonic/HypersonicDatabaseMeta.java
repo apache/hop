@@ -26,10 +26,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
-/**
- * Contains Hypersonic specific information through static final members
- */
-@DatabaseMetaPlugin(type = "HYPERSONIC", typeDescription = "Hypersonic", documentationUrl = "/database/databases/hypersonic.html" )
+/** Contains Hypersonic specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "HYPERSONIC",
+    typeDescription = "Hypersonic",
+    documentationUrl = "/database/databases/hypersonic.html")
 @GuiPlugin(id = "GUI-HypersonicDatabaseMeta")
 public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -61,7 +62,9 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     }
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
@@ -530,7 +533,9 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     };
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return true;

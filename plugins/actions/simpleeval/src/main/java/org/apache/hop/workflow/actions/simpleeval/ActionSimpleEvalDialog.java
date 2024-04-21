@@ -266,7 +266,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdFieldType.top = new FormAttachment(wVariableName, margin);
     fdFieldType.right = new FormAttachment(100, 0);
     wFieldType.setLayoutData(fdFieldType);
-    wFieldType.addListener(SWT.Selection, e -> {refresh(); action.setChanged();});
+    wFieldType.addListener(
+        SWT.Selection,
+        e -> {
+          refresh();
+          action.setChanged();
+        });
 
     // Mask
     wlMask = new Label(wSource, SWT.RIGHT);
@@ -330,7 +335,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdSuccessWhenSet.top = new FormAttachment(wlSuccessWhenSet, 0, SWT.CENTER);
     fdSuccessWhenSet.right = new FormAttachment(100, 0);
     wSuccessWhenSet.setLayoutData(fdSuccessWhenSet);
-    wSuccessWhenSet.addListener(SWT.Selection, e -> {refresh(); action.setChanged();});
+    wSuccessWhenSet.addListener(
+        SWT.Selection,
+        e -> {
+          refresh();
+          action.setChanged();
+        });
 
     // Success String Condition
     wlSuccessStringCondition = new Label(wSuccessOn, SWT.RIGHT);
@@ -352,7 +362,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdSuccessStringCondition.top = new FormAttachment(wSuccessWhenSet, margin);
     fdSuccessStringCondition.right = new FormAttachment(100, 0);
     wSuccessStringCondition.setLayoutData(fdSuccessStringCondition);
-    wSuccessStringCondition.addListener(SWT.Selection, e -> {refresh(); action.setChanged();});
+    wSuccessStringCondition.addListener(
+        SWT.Selection,
+        e -> {
+          refresh();
+          action.setChanged();
+        });
 
     // Success Number or Date Condition
     wlSuccessNumberCondition = new Label(wSuccessOn, SWT.RIGHT);
@@ -375,7 +390,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdSuccessNumberCondition.top = new FormAttachment(wSuccessWhenSet, margin);
     fdSuccessNumberCondition.right = new FormAttachment(100, 0);
     wSuccessNumberCondition.setLayoutData(fdSuccessNumberCondition);
-    wSuccessNumberCondition.addListener(SWT.Selection, e -> {refresh(); action.setChanged();});
+    wSuccessNumberCondition.addListener(
+        SWT.Selection,
+        e -> {
+          refresh();
+          action.setChanged();
+        });
 
     // Success Boolean Condition
     wlSuccessBooleanCondition = new Label(wSuccessOn, SWT.RIGHT);
@@ -398,7 +418,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdSuccessBooleanCondition.top = new FormAttachment(wSuccessWhenSet, margin);
     fdSuccessBooleanCondition.right = new FormAttachment(100, 0);
     wSuccessBooleanCondition.setLayoutData(fdSuccessBooleanCondition);
-    wSuccessBooleanCondition.addListener(SWT.Selection, e -> {refresh(); action.setChanged();});
+    wSuccessBooleanCondition.addListener(
+        SWT.Selection,
+        e -> {
+          refresh();
+          action.setChanged();
+        });
 
     // Compare with value
     wlCompareValue = new Label(wSuccessOn, SWT.RIGHT);
@@ -423,7 +448,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdCompareValue.right = new FormAttachment(100, -margin);
     wCompareValue.setLayoutData(fdCompareValue);
     wCompareValue.addListener(SWT.Modify, e -> action.setChanged());
-    
+
     // Min value
     wlMinValue = new Label(wSuccessOn, SWT.RIGHT);
     wlMinValue.setText(BaseMessages.getString(PKG, "ActionSimpleEval.MinValue.Label"));
@@ -447,7 +472,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdMinValue.right = new FormAttachment(100, -margin);
     wMinValue.setLayoutData(fdMinValue);
     wMinValue.addListener(SWT.Modify, e -> action.setChanged());
-    
+
     // Maximum value
     wlMaxValue = new Label(wSuccessOn, SWT.RIGHT);
     wlMaxValue.setText(BaseMessages.getString(PKG, "ActionSimpleEval.MaxValue.Label"));
@@ -471,7 +496,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdMaxValue.right = new FormAttachment(100, -margin);
     wMaxValue.setLayoutData(fdMaxValue);
     wMaxValue.addListener(SWT.Modify, e -> action.setChanged());
-    
+
     FormData fdSuccessOn = new FormData();
     fdSuccessOn.left = new FormAttachment(0, margin);
     fdSuccessOn.top = new FormAttachment(wSource, margin);
@@ -534,8 +559,10 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   }
 
   private void refresh() {
-    boolean evaluatepreviousRowField = ValueType.lookupDescription(wValueType.getText()) == ValueType.FIELD;
-    boolean evaluateVariable = ValueType.lookupDescription(wValueType.getText()) == ValueType.VARIABLE;
+    boolean evaluatepreviousRowField =
+        ValueType.lookupDescription(wValueType.getText()) == ValueType.FIELD;
+    boolean evaluateVariable =
+        ValueType.lookupDescription(wValueType.getText()) == ValueType.VARIABLE;
     wlVariableName.setVisible(evaluateVariable);
     wVariableName.setVisible(evaluateVariable);
     wlFieldName.setVisible(evaluatepreviousRowField);
@@ -548,7 +575,8 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlFieldType.setVisible(!successWhenSet);
     wFieldType.setVisible(!successWhenSet);
 
-    boolean valueTypeDate = FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME;
+    boolean valueTypeDate =
+        FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME;
     wlMask.setVisible(!successWhenSet && valueTypeDate);
     wMask.setVisible(!successWhenSet && valueTypeDate);
 
@@ -556,19 +584,22 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlSuccessStringCondition.setVisible(!successWhenSet && valueTypeString);
     wSuccessStringCondition.setVisible(!successWhenSet && valueTypeString);
 
-    boolean valueTypeNumber = FieldType.lookupDescription(wFieldType.getText()) == FieldType.NUMBER
+    boolean valueTypeNumber =
+        FieldType.lookupDescription(wFieldType.getText()) == FieldType.NUMBER
             || FieldType.lookupDescription(wFieldType.getText()) == FieldType.DATE_TIME;
     wlSuccessNumberCondition.setVisible(!successWhenSet && valueTypeNumber);
     wSuccessNumberCondition.setVisible(!successWhenSet && valueTypeNumber);
 
-    boolean valueTypeBoolean = FieldType.lookupDescription(wFieldType.getText()) == FieldType.BOOLEAN;
+    boolean valueTypeBoolean =
+        FieldType.lookupDescription(wFieldType.getText()) == FieldType.BOOLEAN;
     wlSuccessBooleanCondition.setVisible(!successWhenSet && valueTypeBoolean);
     wSuccessBooleanCondition.setVisible(!successWhenSet && valueTypeBoolean);
 
     boolean compareValue =
         valueTypeString
             || (!valueTypeString
-                && SuccessNumberCondition.lookupDescription(wSuccessNumberCondition.getText()) != SuccessNumberCondition.BETWEEN);
+                && SuccessNumberCondition.lookupDescription(wSuccessNumberCondition.getText())
+                    != SuccessNumberCondition.BETWEEN);
     wlCompareValue.setVisible(!successWhenSet && compareValue && !valueTypeBoolean);
     wCompareValue.setVisible(!successWhenSet && compareValue && !valueTypeBoolean);
     wlMinValue.setVisible(!successWhenSet && !compareValue && !valueTypeBoolean);
@@ -602,9 +633,12 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     action.setCompareValue(wCompareValue.getText());
     action.setMinValue(wMinValue.getText());
     action.setMaxValue(wMaxValue.getText());
-    action.setSuccessStringCondition(SuccessStringCondition.lookupDescription(wSuccessStringCondition.getText()));
-    action.setSuccessNumberCondition(SuccessNumberCondition.lookupDescription(wSuccessNumberCondition.getText()));
-    action.setSuccessBooleanCondition(SuccessBooleanCondition.lookupDescription(wSuccessBooleanCondition.getText()));
+    action.setSuccessStringCondition(
+        SuccessStringCondition.lookupDescription(wSuccessStringCondition.getText()));
+    action.setSuccessNumberCondition(
+        SuccessNumberCondition.lookupDescription(wSuccessNumberCondition.getText()));
+    action.setSuccessBooleanCondition(
+        SuccessBooleanCondition.lookupDescription(wSuccessBooleanCondition.getText()));
     action.setSuccessWhenVarSet(wSuccessWhenSet.getSelection());
     dispose();
   }

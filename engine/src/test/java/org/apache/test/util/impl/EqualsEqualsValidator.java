@@ -17,9 +17,9 @@
 
 package org.apache.test.util.impl;
 
-import org.apache.test.util.IObjectValidator;
-
 import static org.junit.Assert.assertTrue;
+
+import org.apache.test.util.IObjectValidator;
 
 public class EqualsEqualsValidator<T> implements IObjectValidator<T> {
 

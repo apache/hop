@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.action;
 
-import org.apache.hop.core.gui.plugin.action.GuiActionType;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.hop.core.gui.plugin.action.GuiActionType;
 
 /**
  * This annotation indicated that the annotated method handles an action in a certain context (the

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -56,12 +61,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
@@ -575,16 +574,17 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // Listen to the Browse... button
     wbbFilename.addListener(
         SWT.Selection,
-        e -> BaseDialog.presentFileDialog(
-            shell,
-            wXSLFilename,
-            variables,
-            new String[] {"*.xsl;*.XSL", "*.xslt;.*XSLT", "*"},
-            new String[] {
-              BaseMessages.getString(PKG, "XsltDialog.FileType"),
-              BaseMessages.getString(PKG, "System.FileType.AllFiles")
-            },
-            true));
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wXSLFilename,
+                variables,
+                new String[] {"*.xsl;*.XSL", "*.xslt;.*XSLT", "*"},
+                new String[] {
+                  BaseMessages.getString(PKG, "XsltDialog.FileType"),
+                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
 
     wTabFolder.setSelection(0);
 

@@ -17,13 +17,12 @@
 
 package org.apache.hop.workflow.actions.sql;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
+import org.junit.ClassRule;
 
 public class WorkflowActionSqlTest extends WorkflowActionLoadSaveTestSupport<ActionSql> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

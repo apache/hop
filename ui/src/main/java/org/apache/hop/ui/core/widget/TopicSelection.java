@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.widget;
 
+import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
+
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -31,8 +33,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-
-import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
 
 public class TopicSelection extends Composite {
 

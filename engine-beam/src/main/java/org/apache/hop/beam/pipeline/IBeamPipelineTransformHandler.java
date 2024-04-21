@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.pipeline;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
@@ -28,9 +30,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
-import java.util.Map;
 
 public interface IBeamPipelineTransformHandler {
 

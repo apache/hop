@@ -116,22 +116,30 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
     return cmp;
   }
 
-  /** @return The java source file */
+  /**
+   * @return The java source file
+   */
   public FileObject getFileObject() {
     return fileObject;
   }
 
-  /** @param fileObject The java source file */
+  /**
+   * @param fileObject The java source file
+   */
   public void setFileObject(FileObject fileObject) {
     this.fileObject = fileObject;
   }
 
-  /** @return The location of the messages file */
+  /**
+   * @return The location of the messages file
+   */
   public String getMessagesPackage() {
     return messagesPackage;
   }
 
-  /** @param messagesPackage The location of the messages file */
+  /**
+   * @param messagesPackage The location of the messages file
+   */
   public void setMessagesPackage(String messagesPackage) {
     this.messagesPackage = messagesPackage;
   }
@@ -153,37 +161,51 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
     return fileIndex;
   }
 
-  /** @param fileIndex The fileIndex to set */
+  /**
+   * @param fileIndex The fileIndex to set
+   */
   public void setFileIndex(int fileIndex) {
     this.fileIndex = fileIndex;
   }
 
-  /** @return The i18n key */
+  /**
+   * @return The i18n key
+   */
   public String getKey() {
     return key;
   }
 
-  /** @param key The i18n key */
+  /**
+   * @param key The i18n key
+   */
   public void setKey(String key) {
     this.key = key;
   }
 
-  /** @return The arguments from the source code */
+  /**
+   * @return The arguments from the source code
+   */
   public String getArguments() {
     return arguments;
   }
 
-  /** @param arguments The arguments from the source code */
+  /**
+   * @param arguments The arguments from the source code
+   */
   public void setArguments(String arguments) {
     this.arguments = arguments;
   }
 
-  /** @return The number of occurrences */
+  /**
+   * @return The number of occurrences
+   */
   public int getOccurrences() {
     return occurrences;
   }
 
-  /** @param occurrences The number of occurrences */
+  /**
+   * @param occurrences The number of occurrences
+   */
   public void setOccurrences(int occurrences) {
     this.occurrences = occurrences;
   }
@@ -193,12 +215,16 @@ public class KeyOccurrence implements Comparable<KeyOccurrence> {
     this.occurrences++;
   }
 
-  /** @return the line of source code on which the key occurs. */
+  /**
+   * @return the line of source code on which the key occurs.
+   */
   public String getSourceLine() {
     return sourceLine;
   }
 
-  /** @param sourceLine the line of source code on which the key occurs. */
+  /**
+   * @param sourceLine the line of source code on which the key occurs.
+   */
   public void setSourceLine(String sourceLine) {
     this.sourceLine = sourceLine;
   }

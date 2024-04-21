@@ -18,7 +18,6 @@
 package org.apache.hop.mongo;
 
 import com.mongodb.MongoClientOptions;
-
 import javax.net.ssl.SSLSocketFactory;
 
 /**

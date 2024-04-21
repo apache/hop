@@ -17,18 +17,17 @@
 
 package org.apache.hop.workflow.actions.pgpdecryptfiles;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class WorkflowActionPGPDecryptFilesLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionPGPDecryptFiles> {
@@ -42,33 +41,33 @@ public class WorkflowActionPGPDecryptFilesLoadSaveTest
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "gpgLocation",
-            "argFromPrevious",
-            "includeSubFolders",
-            "addResultFilenames",
-            "destinationIsAFile",
-            "createDestinationFolder",
-            "addDate",
-            "addTime",
-            "specifyFormat",
-            "dateTimeFormat",
-            "nrErrorsLessThan",
-            "successCondition",
-            "addDateBeforeExtension",
-            "doNotKeepFolderStructure",
-            "ifFileExists",
-            "destinationFolder",
-            "ifMovedFileExists",
-            "movedDateTimeFormat",
-            "createMoveToFolder",
-            "addMovedDate",
-            "addMovedTime",
-            "specifyMoveFormat",
-            "addMovedDateBeforeExtension",
-            "sourceFileFolder",
-            "passphrase",
-            "destinationFileFolder",
-            "wildcard");
+        "gpgLocation",
+        "argFromPrevious",
+        "includeSubFolders",
+        "addResultFilenames",
+        "destinationIsAFile",
+        "createDestinationFolder",
+        "addDate",
+        "addTime",
+        "specifyFormat",
+        "dateTimeFormat",
+        "nrErrorsLessThan",
+        "successCondition",
+        "addDateBeforeExtension",
+        "doNotKeepFolderStructure",
+        "ifFileExists",
+        "destinationFolder",
+        "ifMovedFileExists",
+        "movedDateTimeFormat",
+        "createMoveToFolder",
+        "addMovedDate",
+        "addMovedTime",
+        "specifyMoveFormat",
+        "addMovedDateBeforeExtension",
+        "sourceFileFolder",
+        "passphrase",
+        "destinationFileFolder",
+        "wildcard");
   }
 
   @Override

@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.Hashtable;
+import java.util.StringTokenizer;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -48,9 +50,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.Hashtable;
-import java.util.StringTokenizer;
 
 /** This dialogs allows you to select a number of items from a list of strings. */
 public class EnterListDialog extends Dialog {

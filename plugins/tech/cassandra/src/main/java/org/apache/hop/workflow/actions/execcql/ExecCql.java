@@ -24,6 +24,7 @@ import com.datastax.oss.driver.api.core.cql.ColumnDefinitions;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.core.type.DataType;
+import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -45,8 +46,6 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.util.Iterator;
 
 @Action(
     id = "CASSANDRA_EXEC_CQL",

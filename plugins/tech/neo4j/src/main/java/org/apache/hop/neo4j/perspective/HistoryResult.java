@@ -18,10 +18,9 @@
 
 package org.apache.hop.neo4j.perspective;
 
-import org.apache.hop.core.Const;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.Const;
 
 public class HistoryResult {
 
@@ -55,7 +54,9 @@ public class HistoryResult {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -69,7 +70,9 @@ public class HistoryResult {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -83,7 +86,9 @@ public class HistoryResult {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -97,7 +102,9 @@ public class HistoryResult {
     return copy;
   }
 
-  /** @param copy The copy to set */
+  /**
+   * @param copy The copy to set
+   */
   public void setCopy(String copy) {
     this.copy = copy;
   }
@@ -111,7 +118,9 @@ public class HistoryResult {
     return input;
   }
 
-  /** @param input The input to set */
+  /**
+   * @param input The input to set
+   */
   public void setInput(Long input) {
     this.input = input;
   }
@@ -125,7 +134,9 @@ public class HistoryResult {
     return output;
   }
 
-  /** @param output The output to set */
+  /**
+   * @param output The output to set
+   */
   public void setOutput(Long output) {
     this.output = output;
   }
@@ -139,7 +150,9 @@ public class HistoryResult {
     return read;
   }
 
-  /** @param read The read to set */
+  /**
+   * @param read The read to set
+   */
   public void setRead(Long read) {
     this.read = read;
   }
@@ -153,7 +166,9 @@ public class HistoryResult {
     return written;
   }
 
-  /** @param written The written to set */
+  /**
+   * @param written The written to set
+   */
   public void setWritten(Long written) {
     this.written = written;
   }
@@ -167,7 +182,9 @@ public class HistoryResult {
     return rejected;
   }
 
-  /** @param rejected The rejected to set */
+  /**
+   * @param rejected The rejected to set
+   */
   public void setRejected(Long rejected) {
     this.rejected = rejected;
   }
@@ -181,7 +198,9 @@ public class HistoryResult {
     return errors;
   }
 
-  /** @param errors The errors to set */
+  /**
+   * @param errors The errors to set
+   */
   public void setErrors(Long errors) {
     this.errors = errors;
   }
@@ -195,7 +214,9 @@ public class HistoryResult {
     return loggingText;
   }
 
-  /** @param loggingText The loggingText to set */
+  /**
+   * @param loggingText The loggingText to set
+   */
   public void setLoggingText(String loggingText) {
     this.loggingText = loggingText;
   }
@@ -209,7 +230,9 @@ public class HistoryResult {
     return registrationDate;
   }
 
-  /** @param registrationDate The registrationDate to set */
+  /**
+   * @param registrationDate The registrationDate to set
+   */
   public void setRegistrationDate(String registrationDate) {
     this.registrationDate = registrationDate;
   }
@@ -223,7 +246,9 @@ public class HistoryResult {
     return shortestPaths;
   }
 
-  /** @param shortestPaths The shortestPaths to set */
+  /**
+   * @param shortestPaths The shortestPaths to set
+   */
   public void setShortestPaths(List<List<HistoryResult>> shortestPaths) {
     this.shortestPaths = shortestPaths;
   }
@@ -237,7 +262,9 @@ public class HistoryResult {
     return durationMs;
   }
 
-  /** @param durationMs The durationMs to set */
+  /**
+   * @param durationMs The durationMs to set
+   */
   public void setDurationMs(Long durationMs) {
     this.durationMs = durationMs;
   }

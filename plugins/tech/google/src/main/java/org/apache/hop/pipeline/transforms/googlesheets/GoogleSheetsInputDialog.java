@@ -29,6 +29,8 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -59,9 +61,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG = GoogleSheetsInputMeta.class; // for Translator
@@ -77,6 +76,7 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
   private TextVar wWorksheetId;
   private TextVar wSampleFields;
   private TableView wFields;
+
   public GoogleSheetsInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String name) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, name);
@@ -181,14 +181,14 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wPrivateKeyStore.setLayoutData(fdPrivateKeyStore);
 
     // Appname - Label
-    Label appNameLabel = new Label( serviceAccountComposite, SWT.RIGHT );
-    appNameLabel.setText( "Google Application Name :" );
-    props.setLook( appNameLabel );
+    Label appNameLabel = new Label(serviceAccountComposite, SWT.RIGHT);
+    appNameLabel.setText("Google Application Name :");
+    props.setLook(appNameLabel);
     FormData appNameLabelForm = new FormData();
-    appNameLabelForm.top = new FormAttachment( wbPrivateKeyButton, margin );
-    appNameLabelForm.left = new FormAttachment( 0, 0 );
-    appNameLabelForm.right = new FormAttachment( middle, -margin );
-    appNameLabel.setLayoutData( appNameLabelForm );
+    appNameLabelForm.top = new FormAttachment(wbPrivateKeyButton, margin);
+    appNameLabelForm.left = new FormAttachment(0, 0);
+    appNameLabelForm.right = new FormAttachment(middle, -margin);
+    appNameLabel.setLayoutData(appNameLabelForm);
 
     // Appname - Text
     wAppname = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -199,16 +199,15 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     appNameData.right = new FormAttachment(wbPrivateKeyButton, -margin);
     wAppname.setLayoutData(appNameData);
 
-
     // Timeout - Label
-    Label timeoutLabel = new Label( serviceAccountComposite, SWT.RIGHT );
-    timeoutLabel.setText( "Time out in minutes :" );
-    props.setLook( timeoutLabel );
+    Label timeoutLabel = new Label(serviceAccountComposite, SWT.RIGHT);
+    timeoutLabel.setText("Time out in minutes :");
+    props.setLook(timeoutLabel);
     FormData timeoutLabelForm = new FormData();
-    timeoutLabelForm.top = new FormAttachment( appNameLabel, margin );
-    timeoutLabelForm.left = new FormAttachment( 0, 0 );
-    timeoutLabelForm.right = new FormAttachment( middle, -margin );
-    timeoutLabel.setLayoutData( timeoutLabelForm );
+    timeoutLabelForm.top = new FormAttachment(appNameLabel, margin);
+    timeoutLabelForm.left = new FormAttachment(0, 0);
+    timeoutLabelForm.right = new FormAttachment(middle, -margin);
+    timeoutLabel.setLayoutData(timeoutLabelForm);
 
     // timeout - Text
     wTimeout = new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -220,17 +219,19 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
     wTimeout.setLayoutData(timeoutData);
 
     // Impersonation - Label
-    Label impersonationLabel = new Label( serviceAccountComposite, SWT.RIGHT );
-    impersonationLabel.setText(BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.ImpersonationAccount"));
-    props.setLook( impersonationLabel );
+    Label impersonationLabel = new Label(serviceAccountComposite, SWT.RIGHT);
+    impersonationLabel.setText(
+        BaseMessages.getString(PKG, "GoogleSheetsOutputDialog.ImpersonationAccount"));
+    props.setLook(impersonationLabel);
     FormData impersonationLabelForm = new FormData();
-    impersonationLabelForm.top = new FormAttachment( wTimeout, margin );
-    impersonationLabelForm.left = new FormAttachment( 0, 0 );
-    impersonationLabelForm.right = new FormAttachment( middle, -margin );
-    impersonationLabel.setLayoutData( impersonationLabelForm );
+    impersonationLabelForm.top = new FormAttachment(wTimeout, margin);
+    impersonationLabelForm.left = new FormAttachment(0, 0);
+    impersonationLabelForm.right = new FormAttachment(middle, -margin);
+    impersonationLabel.setLayoutData(impersonationLabelForm);
 
     // impersonation - Text
-    wImpersonation = new TextVar(variables,serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wImpersonation =
+        new TextVar(variables, serviceAccountComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wImpersonation);
     FormData impersonationData = new FormData();
     impersonationData.top = new FormAttachment(wTimeout, margin);
@@ -477,12 +478,17 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
       // Test by building a drive connection
-      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
+      HttpRequestInitializer credential =
+          GoogleSheetsCredentials.getCredentialsJson(
+              scope,
+              variables.resolve(meta.getJsonCredentialPath()),
+              variables.resolve(meta.getImpersonation()));
       //
       new Drive.Builder(
               HTTP_TRANSPORT,
               JSON_FACTORY,
-              GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
+              GoogleSheetsCredentials.setHttpTimeout(
+                  credential, variables.resolve(meta.getTimeout())))
           .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
           .build();
       wlTestServiceAccountInfo.setText("Google Drive API : Success!");
@@ -496,13 +502,18 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
       JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
       String scope = "https://www.googleapis.com/auth/drive.readonly";
-      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
+      HttpRequestInitializer credential =
+          GoogleSheetsCredentials.getCredentialsJson(
+              scope,
+              variables.resolve(meta.getJsonCredentialPath()),
+              variables.resolve(meta.getImpersonation()));
       //
       Drive service =
-      new Drive.Builder(
-              HTTP_TRANSPORT,
-              JSON_FACTORY,
-              GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
+          new Drive.Builder(
+                  HTTP_TRANSPORT,
+                  JSON_FACTORY,
+                  GoogleSheetsCredentials.setHttpTimeout(
+                      credential, variables.resolve(meta.getTimeout())))
               .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
               .build();
 
@@ -557,13 +568,18 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
 
-      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
+      HttpRequestInitializer credential =
+          GoogleSheetsCredentials.getCredentialsJson(
+              scope,
+              variables.resolve(meta.getJsonCredentialPath()),
+              variables.resolve(meta.getImpersonation()));
       //
       Sheets service =
           new Sheets.Builder(
                   HTTP_TRANSPORT,
                   JSON_FACTORY,
-                  GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
+                  GoogleSheetsCredentials.setHttpTimeout(
+                      credential, variables.resolve(meta.getTimeout())))
               .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
               .build();
       Spreadsheet response1 =
@@ -610,22 +626,22 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
   private void getData(GoogleSheetsInputMeta meta) {
     this.wTransformName.selectAll();
 
-    if(!StringUtils.isEmpty(meta.getSpreadsheetKey())){
+    if (!StringUtils.isEmpty(meta.getSpreadsheetKey())) {
       this.wSpreadSheetKey.setText(meta.getSpreadsheetKey());
     }
-    if(!StringUtils.isEmpty(meta.getWorksheetId())){
+    if (!StringUtils.isEmpty(meta.getWorksheetId())) {
       this.wWorksheetId.setText(meta.getWorksheetId());
     }
-    if(!StringUtils.isEmpty(meta.getJsonCredentialPath())){
+    if (!StringUtils.isEmpty(meta.getJsonCredentialPath())) {
       this.wPrivateKeyStore.setText(meta.getJsonCredentialPath());
     }
-    if(!StringUtils.isEmpty(meta.getTimeout())){
+    if (!StringUtils.isEmpty(meta.getTimeout())) {
       this.wTimeout.setText(meta.getTimeout());
     }
-    if(!StringUtils.isEmpty(meta.getImpersonation())){
+    if (!StringUtils.isEmpty(meta.getImpersonation())) {
       this.wImpersonation.setText(meta.getImpersonation());
     }
-    if(!StringUtils.isEmpty(meta.getAppName())){
+    if (!StringUtils.isEmpty(meta.getAppName())) {
       this.wAppname.setText(meta.getAppName());
     }
     this.wSampleFields.setText(Integer.toString(meta.getSampleFields()));
@@ -758,12 +774,17 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
       String scope = SheetsScopes.SPREADSHEETS_READONLY;
       wFields.table.removeAll();
 
-      HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, variables.resolve(meta.getJsonCredentialPath()), variables.resolve(meta.getImpersonation()));
+      HttpRequestInitializer credential =
+          GoogleSheetsCredentials.getCredentialsJson(
+              scope,
+              variables.resolve(meta.getJsonCredentialPath()),
+              variables.resolve(meta.getImpersonation()));
       Sheets service =
           new Sheets.Builder(
                   HTTP_TRANSPORT,
                   JSON_FACTORY,
-                  GoogleSheetsCredentials.setHttpTimeout(credential, variables.resolve(meta.getTimeout())))
+                  GoogleSheetsCredentials.setHttpTimeout(
+                      credential, variables.resolve(meta.getTimeout())))
               .setApplicationName(GoogleSheetsCredentials.APPLICATION_NAME)
               .build();
       // Fill in sample in order to guess types
@@ -824,25 +845,25 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog implements ITra
               System.arraycopy(tmpSampleColumnValues, 0, sampleColumnValues, 0, m);
               sampleInputFields.setSamples(sampleColumnValues);
               sampleInputFields.guess();
-              if(!StringUtils.isEmpty(sampleInputFields.getTypeDesc())){
+              if (!StringUtils.isEmpty(sampleInputFields.getTypeDesc())) {
                 item.setText(2, sampleInputFields.getTypeDesc());
               }
-              if(!StringUtils.isEmpty(sampleInputFields.getFormat())){
+              if (!StringUtils.isEmpty(sampleInputFields.getFormat())) {
                 item.setText(3, sampleInputFields.getFormat());
               }
-              if(!StringUtils.isEmpty(Integer.toString(sampleInputFields.getPrecision()))){
+              if (!StringUtils.isEmpty(Integer.toString(sampleInputFields.getPrecision()))) {
                 item.setText(5, Integer.toString(sampleInputFields.getPrecision()));
               }
-              if(!StringUtils.isEmpty(sampleInputFields.getCurrencySymbol())){
+              if (!StringUtils.isEmpty(sampleInputFields.getCurrencySymbol())) {
                 item.setText(6, sampleInputFields.getCurrencySymbol());
               }
-              if(!StringUtils.isEmpty(sampleInputFields.getDecimalSymbol())){
+              if (!StringUtils.isEmpty(sampleInputFields.getDecimalSymbol())) {
                 item.setText(7, sampleInputFields.getDecimalSymbol());
               }
-              if(!StringUtils.isEmpty(sampleInputFields.getGroupSymbol())){
+              if (!StringUtils.isEmpty(sampleInputFields.getGroupSymbol())) {
                 item.setText(8, sampleInputFields.getGroupSymbol());
               }
-              if(!StringUtils.isEmpty(sampleInputFields.getTrimTypeDesc())){
+              if (!StringUtils.isEmpty(sampleInputFields.getTrimTypeDesc())) {
                 item.setText(9, sampleInputFields.getTrimTypeDesc());
               }
             } else {

@@ -18,6 +18,10 @@
 package org.apache.hop.pipeline.transforms.replacestring;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -32,11 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** Search and replace in string. */
 public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> {
@@ -116,10 +115,10 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
     }
 
     String str = getInputRowMeta().getString(row, data.replaceFieldIndex[index]);
-    
-    // Escape the regex pattern backslash  
-    if ( str!=null ) {
-      str = str.replace("\\","\\\\");      
+
+    // Escape the regex pattern backslash
+    if (str != null) {
+      str = str.replace("\\", "\\\\");
     }
     return str;
   }
@@ -215,8 +214,9 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
           }
         } else {
           data.replaceFieldIndex[i] = -1;
-          // Escape the regex pattern backslash  
-          data.replaceByString[i] = Const.NVL(resolve(field.getReplaceByString()), "").replace("\\","\\\\");
+          // Escape the regex pattern backslash
+          data.replaceByString[i] =
+              Const.NVL(resolve(field.getReplaceByString()), "").replace("\\", "\\\\");
         }
         data.setEmptyString[i] = field.isSettingEmptyString();
       }

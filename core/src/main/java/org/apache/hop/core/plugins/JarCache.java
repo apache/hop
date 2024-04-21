@@ -17,14 +17,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.variables.Variables;
-import org.jboss.jandex.Index;
-import org.jboss.jandex.IndexReader;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +31,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.variables.Variables;
+import org.jboss.jandex.Index;
+import org.jboss.jandex.IndexReader;
 
 public class JarCache {
 

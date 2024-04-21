@@ -20,6 +20,8 @@ package org.apache.hop.vfs.dropbox;
 
 import com.dropbox.core.DbxRequestConfig;
 import com.dropbox.core.v2.DbxClientV2;
+import java.util.Collection;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
@@ -30,9 +32,6 @@ import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.hop.vfs.dropbox.config.DropboxConfig;
 import org.apache.hop.vfs.dropbox.config.DropboxConfigSingleton;
 
-import java.util.Collection;
-import java.util.Set;
-
 /** A provider for dropbox file systems. */
 public class DropboxFileProvider extends AbstractOriginatingFileProvider {
 
@@ -40,15 +39,15 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
 
   protected static final Collection<Capability> capabilities =
       Set.of(
-              Capability.CREATE,
-              Capability.DELETE,
-              Capability.RENAME,
-              Capability.GET_TYPE,
-              Capability.LIST_CHILDREN,
-              Capability.READ_CONTENT,
-              Capability.GET_LAST_MODIFIED,
-              Capability.URI,
-              Capability.WRITE_CONTENT);
+          Capability.CREATE,
+          Capability.DELETE,
+          Capability.RENAME,
+          Capability.GET_TYPE,
+          Capability.LIST_CHILDREN,
+          Capability.READ_CONTENT,
+          Capability.GET_LAST_MODIFIED,
+          Capability.URI,
+          Capability.WRITE_CONTENT);
 
   private static FileSystemOptions defaultOptions = new FileSystemOptions();
 
@@ -58,7 +57,7 @@ public class DropboxFileProvider extends AbstractOriginatingFileProvider {
 
   public DropboxFileProvider() {
     super();
-    
+
     setFileNameParser(DropboxFileNameParser.getInstance());
   }
 

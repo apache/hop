@@ -17,6 +17,8 @@
 
 package org.apache.hop.testing;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -31,9 +33,6 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @HopMetadata(
     key = "dataset",
@@ -151,7 +150,9 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -165,7 +166,9 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
     return folderName;
   }
 
-  /** @param folderName The folderName to set */
+  /**
+   * @param folderName The folderName to set
+   */
   public void setFolderName(String folderName) {
     this.folderName = folderName;
   }
@@ -179,7 +182,9 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
     return baseFilename;
   }
 
-  /** @param baseFilename The base filename to set */
+  /**
+   * @param baseFilename The base filename to set
+   */
   public void setBaseFilename(String baseFilename) {
     this.baseFilename = baseFilename;
   }
@@ -193,7 +198,9 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<DataSetField> fields) {
     this.fields = fields;
   }

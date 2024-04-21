@@ -17,14 +17,13 @@
 
 package org.apache.hop.laf;
 
-import org.apache.hop.core.Const;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.LinkedList;
+import org.apache.hop.core.Const;
 
 public class OverlayPropertyHandler implements IPropertyHandler {
   protected static final String propFile = "ui/laf.properties";

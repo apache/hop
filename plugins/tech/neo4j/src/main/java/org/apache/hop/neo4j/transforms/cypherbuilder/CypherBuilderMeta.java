@@ -18,6 +18,9 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
@@ -32,10 +35,6 @@ import org.apache.hop.neo4j.transforms.cypherbuilder.operation.IOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.ReturnOperation;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Transform(
     id = "Neo4jCypherBuilder",

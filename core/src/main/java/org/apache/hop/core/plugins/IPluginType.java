@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.exception.HopPluginException;
-
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.util.List;
+import org.apache.hop.core.exception.HopPluginException;
 
 /**
  * This interface describes a plugin type.<br>
@@ -40,13 +39,19 @@ public interface IPluginType<T extends Annotation> {
    */
   void addObjectType(Class<?> clz, String xmlNodeName);
 
-  /** @return The ID of this plugin type */
+  /**
+   * @return The ID of this plugin type
+   */
   String getId();
 
-  /** @return The name of this plugin */
+  /**
+   * @return The name of this plugin
+   */
   String getName();
 
-  /** @throws HopPluginException */
+  /**
+   * @throws HopPluginException
+   */
   void searchPlugins() throws HopPluginException;
 
   /**

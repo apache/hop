@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -39,8 +40,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @InjectionSupported(
     localizationPrefix = "SortedMerge.Injection.",
     groups = {"FIELDS"})
@@ -58,6 +57,7 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
   /** order by which fields? */
   @Injection(name = "FIELD_NAME", group = "FIELDS")
   private String[] fieldName;
+
   /** false : descending, true=ascending */
   @Injection(name = "ASCENDING", group = "FIELDS")
   private boolean[] ascending;
@@ -241,22 +241,30 @@ public class SortedMergeMeta extends BaseTransformMeta<SortedMerge, SortedMergeD
     }
   }
 
-  /** @return the ascending */
+  /**
+   * @return the ascending
+   */
   public boolean[] getAscending() {
     return ascending;
   }
 
-  /** @param ascending the ascending to set */
+  /**
+   * @param ascending the ascending to set
+   */
   public void setAscending(boolean[] ascending) {
     this.ascending = ascending;
   }
 
-  /** @return the fieldName */
+  /**
+   * @return the fieldName
+   */
   public String[] getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName the fieldName to set */
+  /**
+   * @param fieldName the fieldName to set
+   */
   public void setFieldName(String[] fieldName) {
     this.fieldName = fieldName;
   }

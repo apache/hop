@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.List;
+import java.util.Objects;
 import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
@@ -24,9 +26,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Objects;
 
 /** Defines a link between 2 transforms in a pipeline */
 public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
@@ -51,11 +50,9 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
 
   public PipelineHopMeta(Node hopNode, List<TransformMeta> transforms) throws HopXmlException {
     try {
-      this.from = searchTransform(transforms,
-          XmlHandler.getTagValue(hopNode, XML_FROM_TAG));
-      this.to =
-          searchTransform(transforms, XmlHandler.getTagValue(hopNode, XML_TO_TAG));
-      this.enabled = getTagValueAsBoolean(hopNode, XML_ENABLED_TAG, true);    
+      this.from = searchTransform(transforms, XmlHandler.getTagValue(hopNode, XML_FROM_TAG));
+      this.to = searchTransform(transforms, XmlHandler.getTagValue(hopNode, XML_TO_TAG));
+      this.enabled = getTagValueAsBoolean(hopNode, XML_ENABLED_TAG, true);
     } catch (Exception e) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "PipelineHopMeta.Exception.UnableToLoadHopInfo"), e);
@@ -138,10 +135,8 @@ public class PipelineHopMeta extends BaseHopMeta<TransformMeta>
 
     if (this.from != null && this.to != null) {
       xml.append("    ").append(XmlHandler.openTag(XML_HOP_TAG)).append(Const.CR);
-      xml.append("      ")
-          .append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
-      xml.append("      ")
-          .append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
+      xml.append("      ").append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
+      xml.append("      ").append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
       xml.append("      ").append(XmlHandler.addTagValue(XML_ENABLED_TAG, enabled));
       xml.append("    ").append(XmlHandler.closeTag(XML_HOP_TAG)).append(Const.CR);
     }

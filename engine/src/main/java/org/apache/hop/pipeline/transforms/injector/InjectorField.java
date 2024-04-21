@@ -66,7 +66,9 @@ public class InjectorField {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -80,7 +82,9 @@ public class InjectorField {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -94,7 +98,9 @@ public class InjectorField {
     return length;
   }
 
-  /** @param length The length to set */
+  /**
+   * @param length The length to set
+   */
   public void setLength(String length) {
     this.length = length;
   }
@@ -108,7 +114,9 @@ public class InjectorField {
     return precision;
   }
 
-  /** @param precision The precision to set */
+  /**
+   * @param precision The precision to set
+   */
   public void setPrecision(String precision) {
     this.precision = precision;
   }

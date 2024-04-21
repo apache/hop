@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -89,18 +100,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
@@ -1202,7 +1201,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       int colNr = 1;
       transformDefinition.tag = item.getText(colNr++);
       transformDefinition.transformName = item.getText(colNr++);
-      transformDefinition.transformMeta = pipelineMeta.findTransform(transformDefinition.transformName);
+      transformDefinition.transformMeta =
+          pipelineMeta.findTransform(transformDefinition.transformName);
       transformDefinition.description = item.getText(colNr++);
       meta.getInfoTransformDefinitions().add(transformDefinition);
     }
@@ -1215,7 +1215,8 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
       int colNr = 1;
       transformDefinition.tag = item.getText(colNr++);
       transformDefinition.transformName = item.getText(colNr++);
-      transformDefinition.transformMeta = pipelineMeta.findTransform(transformDefinition.transformName);
+      transformDefinition.transformMeta =
+          pipelineMeta.findTransform(transformDefinition.transformName);
       transformDefinition.description = item.getText(colNr++);
       meta.getTargetTransformDefinitions().add(transformDefinition);
     }

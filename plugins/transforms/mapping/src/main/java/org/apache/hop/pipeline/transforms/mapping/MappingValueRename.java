@@ -26,8 +26,7 @@ public class MappingValueRename implements Cloneable {
   @HopMetadataProperty(key = "child")
   private String targetValueName;
 
-  public MappingValueRename() {
-  }
+  public MappingValueRename() {}
 
   /**
    * @param sourceValueName

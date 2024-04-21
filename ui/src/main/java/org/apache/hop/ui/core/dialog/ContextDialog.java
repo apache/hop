@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -65,13 +71,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @GuiPlugin(description = "This dialog presents you all the actions you can take in a given context")
 public class ContextDialog extends Dialog {
@@ -336,7 +335,8 @@ public class ContextDialog extends Dialog {
     for (GuiAction action : actions) {
       CategoryAndOrder categoryAndOrder;
       if (StringUtils.isNotEmpty(action.getCategory())) {
-        categoryAndOrder = new CategoryAndOrder(
+        categoryAndOrder =
+            new CategoryAndOrder(
                 action.getCategory(), Const.NVL(action.getCategoryOrder(), "0"), false);
       } else {
         // Add an "Other" category
@@ -752,12 +752,11 @@ public class ContextDialog extends Dialog {
   }
 
   private void onMouseUp(Event event) {
-    AreaOwner areaOwner =
-        AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
+    AreaOwner areaOwner = AreaOwner.getVisibleAreaOwner(areaOwners, event.x, event.y);
     if (areaOwner == null) {
       return;
     }
-    
+
     OwnerType ownerType = (OwnerType) areaOwner.getParent();
     switch (ownerType) {
       case CATEGORY:

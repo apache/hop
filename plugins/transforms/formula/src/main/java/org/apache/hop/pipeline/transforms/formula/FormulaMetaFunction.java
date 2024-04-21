@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
+import java.util.Objects;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class FormulaMetaFunction {
   public static final String XML_TAG = "formula";

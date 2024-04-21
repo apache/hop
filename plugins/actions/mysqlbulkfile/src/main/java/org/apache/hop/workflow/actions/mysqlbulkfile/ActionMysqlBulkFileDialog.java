@@ -644,7 +644,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     if (!Utils.isEmpty(wTableName.getText())) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
       if (databaseMeta != null) {
-        
+
         try (Database database = new Database(loggingObject, variables, databaseMeta)) {
           database.connect();
           IRowMeta row = database.getTableFieldsMeta(wSchemaName.getText(), wTableName.getText());

@@ -18,21 +18,20 @@
 
 package org.apache.hop.passwords.aes;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
-import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.Variables;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
+import org.apache.hop.core.encryption.TwoWayPasswordEncoderPlugin;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.Variables;
 
 /**
  * We expect a few variables to be set for this plugin to be picked up: 1.

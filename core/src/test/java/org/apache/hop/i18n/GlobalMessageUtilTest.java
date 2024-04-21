@@ -17,12 +17,11 @@
 
 package org.apache.hop.i18n;
 
+import java.util.Locale;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Locale;
 
 public class GlobalMessageUtilTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

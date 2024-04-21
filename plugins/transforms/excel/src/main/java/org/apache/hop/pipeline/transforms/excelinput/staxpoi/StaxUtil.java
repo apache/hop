@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
-import org.apache.poi.ss.SpreadsheetVersion;
-
 import javax.xml.stream.XMLInputFactory;
+import org.apache.poi.ss.SpreadsheetVersion;
 
 public class StaxUtil {
   private static final SpreadsheetVersion DEFAULT_SPREADSHEET_VERSION =

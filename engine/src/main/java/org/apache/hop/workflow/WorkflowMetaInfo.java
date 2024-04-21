@@ -20,5 +20,4 @@ package org.apache.hop.workflow;
 
 import org.apache.hop.pipeline.AbstractMetaInfo;
 
-public class WorkflowMetaInfo extends AbstractMetaInfo {
-}
+public class WorkflowMetaInfo extends AbstractMetaInfo {}

@@ -17,20 +17,20 @@
 
 package org.apache.hop.www;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineSvgPainter;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "pipelineImage", name = "Generate a PNG image of a pipeline")
 public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -48,7 +48,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     if (isJettyMode() && !request.getContextPath().startsWith(CONTEXT_PATH)) {
       return;
     }
-    if (!supportGraphicEnvironment){
+    if (!supportGraphicEnvironment) {
       response.setStatus(HttpServletResponse.SC_NO_CONTENT);
       return;
     }

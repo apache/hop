@@ -18,8 +18,9 @@
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
 import com.ibm.wsdl.extensions.soap12.SOAP12BodyImpl;
-import org.apache.hop.core.exception.HopException;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -36,9 +37,7 @@ import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.wsdl.extensions.soap12.SOAP12Header;
 import javax.wsdl.extensions.soap12.SOAP12Operation;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import org.apache.hop.core.exception.HopException;
 
 /** Utilities for getting extensibility elements. */
 final class WsdlUtils {

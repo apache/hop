@@ -57,7 +57,9 @@ public class GuiCallbackMethod {
     return callbackId;
   }
 
-  /** @param callbackId The callbackId to set */
+  /**
+   * @param callbackId The callbackId to set
+   */
   public void setCallbackId(String callbackId) {
     this.callbackId = callbackId;
   }
@@ -71,7 +73,9 @@ public class GuiCallbackMethod {
     return singletonClass;
   }
 
-  /** @param singletonClass The singletonClass to set */
+  /**
+   * @param singletonClass The singletonClass to set
+   */
   public void setSingletonClass(Class<?> singletonClass) {
     this.singletonClass = singletonClass;
   }
@@ -85,7 +89,9 @@ public class GuiCallbackMethod {
     return callbackMethod;
   }
 
-  /** @param callbackMethod The callbackMethod to set */
+  /**
+   * @param callbackMethod The callbackMethod to set
+   */
   public void setCallbackMethod(Method callbackMethod) {
     this.callbackMethod = callbackMethod;
   }

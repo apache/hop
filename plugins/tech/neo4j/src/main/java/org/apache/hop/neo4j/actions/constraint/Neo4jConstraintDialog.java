@@ -17,6 +17,7 @@
 
 package org.apache.hop.neo4j.actions.constraint;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -47,8 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class Neo4jConstraintDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = Neo4jConstraintDialog.class; // For Translator

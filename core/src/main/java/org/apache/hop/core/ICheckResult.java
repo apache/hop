@@ -29,23 +29,35 @@ public interface ICheckResult {
 
   int TYPE_RESULT_ERROR = 4;
 
-  /** @return The type of the Check Result (0-4) */
+  /**
+   * @return The type of the Check Result (0-4)
+   */
   int getType();
 
-  /** @return The internationalized type description */
+  /**
+   * @return The internationalized type description
+   */
   String getTypeDesc();
 
-  /** @return The text of the check result. */
+  /**
+   * @return The text of the check result.
+   */
   String getText();
 
-  /** @return The source of the check result */
+  /**
+   * @return The source of the check result
+   */
   ICheckResultSource getSourceInfo();
 
-  /** @return String description of the check result */
+  /**
+   * @return String description of the check result
+   */
   @Override
   String toString();
 
-  /** @return The component-specific result code. */
+  /**
+   * @return The component-specific result code.
+   */
   String getErrorCode();
 
   /**

@@ -17,45 +17,45 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class GroupingField implements Cloneable {
 
-    @HopMetadataProperty(injectionKey = "GROUP_FIELD", injectionKeyDescription = "GroupByMeta.Injection.GROUP_FIELD")
-    private String name;
+  @HopMetadataProperty(
+      injectionKey = "GROUP_FIELD",
+      injectionKeyDescription = "GroupByMeta.Injection.GROUP_FIELD")
+  private String name;
 
-    public String getName() {
-        return name;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public GroupingField() {
-    }
+  public GroupingField() {}
 
-    public GroupingField(String name) {
-        this.name = name;
-    }
+  public GroupingField(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GroupingField that = (GroupingField) o;
-        return Objects.equals(name, that.name);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    GroupingField that = (GroupingField) o;
+    return Objects.equals(name, that.name);
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
 
-    @Override
-    public GroupingField clone() {
-        return new GroupingField(name);
-    }
+  @Override
+  public GroupingField clone() {
+    return new GroupingField(name);
+  }
 }

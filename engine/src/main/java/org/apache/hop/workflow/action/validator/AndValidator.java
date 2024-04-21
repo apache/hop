@@ -17,10 +17,9 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
-
-import java.util.List;
 
 /**
  * Boolean ANDs the results of all validators. If one validator fails, <code>false</code> is

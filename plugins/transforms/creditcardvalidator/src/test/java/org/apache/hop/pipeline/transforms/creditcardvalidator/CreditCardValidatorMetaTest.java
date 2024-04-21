@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -24,10 +28,6 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Assert;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class CreditCardValidatorMetaTest {
   @Test

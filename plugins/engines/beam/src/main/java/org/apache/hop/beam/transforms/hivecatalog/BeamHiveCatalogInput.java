@@ -23,36 +23,37 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class BeamHiveCatalogInput extends BaseTransform<BeamHiveCatalogInputMeta, BeamHiveCatalogInputData> {
+public class BeamHiveCatalogInput
+    extends BaseTransform<BeamHiveCatalogInputMeta, BeamHiveCatalogInputData> {
 
-    /**
-     * This is the base transform that forms that basis for all transforms. You can derive from this
-     * class to implement your own transforms.
-     *
-     * @param transformMeta The TransformMeta object to run.
-     * @param meta the meta object containing all metadata
-     * @param data the data object to store temporary data, database connections, caches, result sets,
-     *     hashtables etc.
-     * @param copyNr The copynumber for this transform.
-     * @param pipelineMeta The TransInfo of which the transform transformMeta is part of.
-     * @param pipeline The (running) transformation to obtain information shared among the transforms.
-     */
-    public BeamHiveCatalogInput(
-            TransformMeta transformMeta,
-            BeamHiveCatalogInputMeta meta,
-            BeamHiveCatalogInputData data,
-            int copyNr,
-            PipelineMeta pipelineMeta,
-            Pipeline pipeline) {
-        super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
-    }
+  /**
+   * This is the base transform that forms that basis for all transforms. You can derive from this
+   * class to implement your own transforms.
+   *
+   * @param transformMeta The TransformMeta object to run.
+   * @param meta the meta object containing all metadata
+   * @param data the data object to store temporary data, database connections, caches, result sets,
+   *     hashtables etc.
+   * @param copyNr The copynumber for this transform.
+   * @param pipelineMeta The TransInfo of which the transform transformMeta is part of.
+   * @param pipeline The (running) transformation to obtain information shared among the transforms.
+   */
+  public BeamHiveCatalogInput(
+      TransformMeta transformMeta,
+      BeamHiveCatalogInputMeta meta,
+      BeamHiveCatalogInputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+  }
 
-    @Override
-    public boolean processRow() throws HopException {
+  @Override
+  public boolean processRow() throws HopException {
 
-        // Outside of Beam this transform doesn't actually do anything, it's just metadata
-        // This transform gets converted into Beam API calls in a pipeline
-        //
-        return false;
-    }
+    // Outside of Beam this transform doesn't actually do anything, it's just metadata
+    // This transform gets converted into Beam API calls in a pipeline
+    //
+    return false;
+  }
 }

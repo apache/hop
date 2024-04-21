@@ -77,7 +77,8 @@ public class FormulaEditor extends Dialog implements KeyListener {
   private SashForm rightSash;
   private IVariables variables;
 
-  public FormulaEditor(IVariables variables, Shell parent, int style, String formula, String[] inputFields)
+  public FormulaEditor(
+      IVariables variables, Shell parent, int style, String formula, String[] inputFields)
       throws Exception {
     super(parent, style);
     this.variables = variables;
@@ -190,7 +191,9 @@ public class FormulaEditor extends Dialog implements KeyListener {
 
     // An expression editor on the right
     //
-    expressionEditor = new StyledTextComp(variables, rightSash, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+    expressionEditor =
+        new StyledTextComp(
+            variables, rightSash, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
     expressionEditor.setText(this.formula);
     expressionEditor.addModifyListener(event -> setStyles());
     expressionEditor.addKeyListener(this);
@@ -284,7 +287,7 @@ public class FormulaEditor extends Dialog implements KeyListener {
     };
     FormulaEditor lbe =
         new FormulaEditor(
-                null,
+            null,
             new Shell(display, SWT.NONE),
             SWT.NONE,
             "MID(UPPER([name] & \" \" & [firstname]);5;10)",

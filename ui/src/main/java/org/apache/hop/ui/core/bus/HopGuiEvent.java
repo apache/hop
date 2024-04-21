@@ -64,7 +64,9 @@ public class HopGuiEvent<T> {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -78,7 +80,9 @@ public class HopGuiEvent<T> {
     return subject;
   }
 
-  /** @param subject The subject to set */
+  /**
+   * @param subject The subject to set
+   */
   public void setSubject(T subject) {
     this.subject = subject;
   }

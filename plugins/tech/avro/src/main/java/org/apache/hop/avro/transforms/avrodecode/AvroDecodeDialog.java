@@ -17,6 +17,11 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.commons.lang.StringUtils;
@@ -60,12 +65,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class AvroDecodeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator

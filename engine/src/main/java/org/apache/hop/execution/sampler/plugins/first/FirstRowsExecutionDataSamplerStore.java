@@ -18,6 +18,8 @@
 
 package org.apache.hop.execution.sampler.plugins.first;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -27,19 +29,16 @@ import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerStoreBase;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 
-import java.util.List;
-import java.util.Map;
-
 /** A class meant to contain transform execution sampling data */
 public class FirstRowsExecutionDataSamplerStore
-        extends ExecutionDataSamplerStoreBase<FirstRowsExecutionDataSamplerStore>
-        implements IExecutionDataSamplerStore {
+    extends ExecutionDataSamplerStoreBase<FirstRowsExecutionDataSamplerStore>
+    implements IExecutionDataSamplerStore {
   public static final String EXECUTION_DATA_SAMPLE_FIRST_OUTPUT = "FirstOutput";
 
   private FirstRowsExecutionDataSampler dataSampler;
 
   public FirstRowsExecutionDataSamplerStore(
-          FirstRowsExecutionDataSampler dataSampler,
+      FirstRowsExecutionDataSampler dataSampler,
       ExecutionDataSamplerMeta samplerMeta,
       IRowMeta rowMeta,
       List<Object[]> rows,
@@ -53,7 +52,7 @@ public class FirstRowsExecutionDataSamplerStore
   }
 
   public FirstRowsExecutionDataSamplerStore(
-          FirstRowsExecutionDataSampler dataSampler, ExecutionDataSamplerMeta samplerMeta) {
+      FirstRowsExecutionDataSampler dataSampler, ExecutionDataSamplerMeta samplerMeta) {
     this(dataSampler, samplerMeta, null, null, 0);
   }
 
@@ -71,29 +70,25 @@ public class FirstRowsExecutionDataSamplerStore
   @Override
   public Map<String, RowBuffer> getSamples() {
     return Map.of(
-            getKeyForStore(EXECUTION_DATA_SAMPLE_FIRST_OUTPUT, samplerMeta),
-            new RowBuffer(rowMeta, rows));
+        getKeyForStore(EXECUTION_DATA_SAMPLE_FIRST_OUTPUT, samplerMeta),
+        new RowBuffer(rowMeta, rows));
   }
+
   @Override
   public Map<String, ExecutionDataSetMeta> getSamplesMetadata() {
     String setKey = getKeyForStore(EXECUTION_DATA_SAMPLE_FIRST_OUTPUT, samplerMeta);
     String description =
-            "First rows of "
-                    + getSamplerMeta().getTransformName()
-                    + "."
-                    + getSamplerMeta().getCopyNr();
-    ExecutionDataSetMeta meta = new ExecutionDataSetMeta(
+        "First rows of " + getSamplerMeta().getTransformName() + "." + getSamplerMeta().getCopyNr();
+    ExecutionDataSetMeta meta =
+        new ExecutionDataSetMeta(
             setKey,
             samplerMeta.getLogChannelId(),
             samplerMeta.getTransformName(),
             samplerMeta.getCopyNr(),
-            description
-    );
+            description);
 
     return Map.of(setKey, meta);
   }
-
-
 
   /**
    * Gets dataSampler
@@ -112,5 +107,4 @@ public class FirstRowsExecutionDataSamplerStore
   public void setDataSampler(FirstRowsExecutionDataSampler dataSampler) {
     this.dataSampler = dataSampler;
   }
-
 }

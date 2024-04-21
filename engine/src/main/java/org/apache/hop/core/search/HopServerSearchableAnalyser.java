@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.server.HopServer;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.server.HopServer;
 
 @SearchableAnalyserPlugin(
     id = "HopServerSearchableAnalyser",

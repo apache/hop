@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.pipeline.config;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -58,12 +63,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(
     description = "This dialog allows you to configure the various pipeline run configurations")
@@ -213,14 +212,13 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     Label wlDefault = new Label(wMainComp, SWT.RIGHT);
     PropsUi.setLook(wlDefault);
-    wlDefault.setText(
-            BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
+    wlDefault.setText(BaseMessages.getString(PKG, "PipelineRunConfigurationDialog.label.Default"));
     FormData fdlDefault = new FormData();
     fdlDefault.top = new FormAttachment(lastControl, margin);
     fdlDefault.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDefault.right = new FormAttachment(middle, -margin);
     wlDefault.setLayoutData(fdlDefault);
-    wDefault = new Button(wMainComp, SWT.CHECK | SWT.LEFT );
+    wDefault = new Button(wMainComp, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wDefault);
     FormData fdDefault = new FormData();
     fdDefault.top = new FormAttachment(wlDefault, 0, SWT.CENTER);

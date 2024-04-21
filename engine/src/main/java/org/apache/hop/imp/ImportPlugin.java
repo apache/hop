@@ -31,7 +31,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ImportPlugin {
-  /** @return The ID of the plugin. You need to specify this on the command line. */
+  /**
+   * @return The ID of the plugin. You need to specify this on the command line.
+   */
   String id();
 
   /**
@@ -41,9 +43,13 @@ public @interface ImportPlugin {
    */
   String name();
 
-  /** @return The description of the plugin */
+  /**
+   * @return The description of the plugin
+   */
   String description();
 
-  /** @return The documentation url */
+  /**
+   * @return The documentation url
+   */
   String documentationUrl() default "";
 }

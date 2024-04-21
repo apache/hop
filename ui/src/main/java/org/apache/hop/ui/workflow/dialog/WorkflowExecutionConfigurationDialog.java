@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -49,11 +53,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
   private static final Class<?> PKG = WorkflowExecutionConfigurationDialog.class; // For Translator

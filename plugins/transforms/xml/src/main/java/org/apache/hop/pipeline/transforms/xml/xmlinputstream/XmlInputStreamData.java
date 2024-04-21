@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
+import java.io.InputStream;
+import java.util.Map;
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import java.io.InputStream;
-import java.util.Map;
 
 public class XmlInputStreamData extends BaseTransformData implements ITransformData {
 

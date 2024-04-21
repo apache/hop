@@ -506,7 +506,10 @@ public class NeoConnectionEditor extends MetadataEditor<NeoConnection> {
                   ColumnInfo.COLUMN_TYPE_TEXT)
             },
             getMetadata().getManualUrls().size(),
-            e -> { setChanged(); enableFields(); },
+            e -> {
+              setChanged();
+              enableFields();
+            },
             props);
 
     FormData fdUrls = new FormData();

@@ -16,6 +16,10 @@
  */
 package org.apache.hop.www;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hop.core.Const;
@@ -23,11 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.PackageMessages;
 import org.owasp.encoder.Encode;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopServerPlugin {
 
@@ -94,7 +93,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     out.println(Encode.forHtml(getTitle()));
     out.println("</TITLE>");
     out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");    
+    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
     out.println("</HEAD>");
     out.println("<BODY>");
   }

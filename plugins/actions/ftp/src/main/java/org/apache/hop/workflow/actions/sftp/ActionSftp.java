@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.sftp;
 
+import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -43,12 +48,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
-
-import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a SFTP action. */
 @Action(
@@ -204,62 +203,86 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  /** @return Returns the directory. */
+  /**
+   * @return Returns the directory.
+   */
   public String getScpDirectory() {
     return sftpDirectory;
   }
 
-  /** @param directory The directory to set. */
+  /**
+   * @param directory The directory to set.
+   */
   public void setScpDirectory(String directory) {
     this.sftpDirectory = directory;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the compression. */
+  /**
+   * @return Returns the compression.
+   */
   public String getCompression() {
     return compression;
   }
 
-  /** @param compression The compression to set. */
+  /**
+   * @param compression The compression to set.
+   */
   public void setCompression(String compression) {
     this.compression = compression;
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   public String getServerName() {
     return serverName;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /** @return Returns the userName. */
+  /**
+   * @return Returns the userName.
+   */
   public String getUserName() {
     return userName;
   }
 
-  /** @param userName The userName to set. */
+  /**
+   * @param userName The userName to set.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /** @return Returns the wildcard. */
+  /**
+   * @return Returns the wildcard.
+   */
   public String getWildcard() {
     return wildcard;
   }
 
-  /** @param wildcard The wildcard to set. */
+  /**
+   * @param wildcard The wildcard to set.
+   */
   public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
@@ -272,7 +295,9 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     return isaddresult;
   }
 
-  /** @return Returns the targetDirectory. */
+  /**
+   * @return Returns the targetDirectory.
+   */
   public String getTargetDirectory() {
     return targetDirectory;
   }
@@ -293,17 +318,23 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     this.copyprevious = copyprevious;
   }
 
-  /** @param targetDirectory The targetDirectory to set. */
+  /**
+   * @param targetDirectory The targetDirectory to set.
+   */
   public void setTargetDirectory(String targetDirectory) {
     this.targetDirectory = targetDirectory;
   }
 
-  /** @param remove The remove to set. */
+  /**
+   * @param remove The remove to set.
+   */
   public void setRemove(boolean remove) {
     this.remove = remove;
   }
 
-  /** @return Returns the remove. */
+  /**
+   * @return Returns the remove.
+   */
   public boolean getRemove() {
     return remove;
   }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.janino;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -44,9 +46,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class JaninoDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JaninoMeta.class; // For Translator

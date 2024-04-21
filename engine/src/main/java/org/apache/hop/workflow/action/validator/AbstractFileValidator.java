@@ -17,11 +17,10 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.List;
 
 public abstract class AbstractFileValidator implements IActionValidator {
 

@@ -256,10 +256,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
     boolean actionError = false;
     ActionResult actionResult = findActionResult(actionMeta);
-    if ( actionResult!=null && !actionResult.isCheckpoint() ) {      
+    if (actionResult != null && !actionResult.isCheckpoint()) {
       actionError = !actionResult.getResult().getResult();
     }
-    
+
     if (actionError || actionMeta.isMissing()) {
       gc.setForeground(EColor.RED);
     } else if (actionMeta.isDeprecated()) {

@@ -18,34 +18,6 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.FileUtil;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transforms.loadfileinput.LoadFileInput;
-import org.apache.hop.ui.core.dialog.MessageBox;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.eclipse.swt.SWT;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.EvaluatorException;
-import org.mozilla.javascript.Function;
-import org.mozilla.javascript.JavaScriptException;
-import org.mozilla.javascript.Scriptable;
-import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.WrappedException;
-
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -74,6 +46,33 @@ import java.util.Locale;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.FileUtil;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.ValueDataUtil;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transforms.loadfileinput.LoadFileInput;
+import org.apache.hop.ui.core.dialog.MessageBox;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.EvaluatorException;
+import org.mozilla.javascript.Function;
+import org.mozilla.javascript.JavaScriptException;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.WrappedException;
 
 public class ScriptValuesAddedFunctions extends ScriptableObject {
 
@@ -669,7 +668,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           } else if (strType.equals("w")) {
             int iDays = (int) ((endL - startL) / 86400000);
             return Double.valueOf(iDays / 7);
-          } else if (strType.equals("ms")) {            
+          } else if (strType.equals("ms")) {
             return Double.valueOf(endL - startL);
           } else if (strType.equals("ss")) {
             return Double.valueOf(((endL - startL) / 1000));

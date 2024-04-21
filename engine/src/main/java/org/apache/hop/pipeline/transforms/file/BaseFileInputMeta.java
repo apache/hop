@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.file;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.variables.IVariables;
@@ -28,8 +29,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.ResourceReference;
-
-import java.util.List;
 
 /** Base meta for file-based input transforms. */
 public abstract class BaseFileInputMeta<
@@ -58,7 +57,9 @@ public abstract class BaseFileInputMeta<
   /** The fields to import... */
   @InjectionDeep public F[] inputFields;
 
-  /** @return the input fields. */
+  /**
+   * @return the input fields.
+   */
   public F[] getInputFields() {
     return inputFields;
   }
@@ -90,7 +91,9 @@ public abstract class BaseFileInputMeta<
     return retval;
   }
 
-  /** @param fileRequiredin The fileRequired to set. */
+  /**
+   * @param fileRequiredin The fileRequired to set.
+   */
   public void inputFiles_fileRequired(String[] fileRequiredin) {
     for (int i = 0; i < fileRequiredin.length; i++) {
       inputFiles.fileRequired[i] = getRequiredFilesCode(fileRequiredin[i]);

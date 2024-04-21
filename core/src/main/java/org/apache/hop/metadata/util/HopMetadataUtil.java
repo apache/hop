@@ -17,6 +17,9 @@
 
 package org.apache.hop.metadata.util;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -26,10 +29,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class HopMetadataUtil {
 

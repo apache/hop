@@ -17,9 +17,8 @@
 
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.gui.plugin.action.GuiAction;
-
 import java.util.List;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
 
 public class GuiContextHandler implements IGuiContextHandler {
 
@@ -41,7 +40,9 @@ public class GuiContextHandler implements IGuiContextHandler {
     return contextId;
   }
 
-  /** @param contextId The contextId to set */
+  /**
+   * @param contextId The contextId to set
+   */
   public void setContextId(String contextId) {
     this.contextId = contextId;
   }
@@ -56,7 +57,9 @@ public class GuiContextHandler implements IGuiContextHandler {
     return supportedActions;
   }
 
-  /** @param supportedActions The supportedActions to set */
+  /**
+   * @param supportedActions The supportedActions to set
+   */
   public void setSupportedActions(List<GuiAction> supportedActions) {
     this.supportedActions = supportedActions;
   }

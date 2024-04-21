@@ -17,6 +17,11 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
@@ -26,12 +31,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.BaseMetadataProvider;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
 
 /**
  * This metadata provider delegates for a standard provider but also reads information from others
@@ -71,7 +70,7 @@ public class MultiMetadataProvider implements IHopMetadataProvider {
   }
 
   private String calculateDescription() {
-    String descr = "Multi Metadata Provider with "+providers.size()+" providers";
+    String descr = "Multi Metadata Provider with " + providers.size() + " providers";
     for (int i = 0; i < providers.size(); i++) {
       IHopMetadataProvider provider = providers.get(i);
       if (i == 0) {

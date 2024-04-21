@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -48,11 +52,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 
 @Transform(
     id = "DimensionLookup",
@@ -174,7 +173,6 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   @Override
   public boolean supportsErrorHandling() {
     return true;
-
   }
 
   @Override
@@ -371,8 +369,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     try (Database db = new Database(loggingObject, variables, databaseMeta)) {
       db.connect();
 
-      IRowMeta tableRowMeta =
-          checkTableFields(transformMeta, db, realSchema, realTable, remarks);
+      IRowMeta tableRowMeta = checkTableFields(transformMeta, db, realSchema, realTable, remarks);
       if (tableRowMeta != null) {
         checkKeys(
             transformMeta,
@@ -455,15 +452,18 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
     boolean allOk = true;
     for (DLField field : fields.fields) {
-      DimensionUpdateType updateType = field.getUpdateType();      
-      if ( updateType!=null && updateType.isWithArgument() ) {
+      DimensionUpdateType updateType = field.getUpdateType();
+      if (updateType != null && updateType.isWithArgument()) {
         IValueMeta valueMeta = previousFields.searchValueMeta(field.getName());
         if (valueMeta == null) {
           allOk = false;
-          remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.MissingFields") + " "
-                  + field.getName(),
-              transformMeta));
+          remarks.add(
+              new CheckResult(
+                  ICheckResult.TYPE_RESULT_ERROR,
+                  BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.MissingFields")
+                      + " "
+                      + field.getName(),
+                  transformMeta));
         }
       }
     }
@@ -1165,16 +1165,25 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     INSERT("Insert", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Insert"), true),
     UPDATE("Update", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.Update"), true),
     PUNCH_THROUGH(
-        "Punch through", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.PunchThrough"), true),
+        "Punch through",
+        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.PunchThrough"),
+        true),
     DATE_INSERTED_UPDATED(
         "DateInsertedOrUpdated",
-        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInsertedOrUpdated"), false),
+        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInsertedOrUpdated"),
+        false),
     DATE_INSERTED(
-        "DateInserted", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInserted"), false),
+        "DateInserted",
+        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateInserted"),
+        false),
     DATE_UPDATED(
-        "DateUpdated", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateUpdated"), false),
+        "DateUpdated",
+        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.DateUpdated"),
+        false),
     LAST_VERSION(
-        "LastVersion", BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.LastVersion"), false);
+        "LastVersion",
+        BaseMessages.getString(PKG, "DimensionLookupMeta.TypeDesc.LastVersion"),
+        false);
     private final String code;
     private final String description;
     private final boolean isWithArgument;
@@ -1216,9 +1225,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     public boolean isWithArgument() {
       return isWithArgument;
     }
-    
+
     public static DimensionUpdateType lookupDescription(String description) {
-      return IEnumHasCodeAndDescription.lookupDescription(DimensionUpdateType.class, description, null);
+      return IEnumHasCodeAndDescription.lookupDescription(
+          DimensionUpdateType.class, description, null);
     }
   }
 
@@ -1516,12 +1526,12 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         injectionKeyDescription = "DimensionLookup.Injection.UPDATE_TYPE")
     private String update;
 
-    @HopMetadataProperty(        
+    @HopMetadataProperty(
         key = "type",
         injectionKey = "TYPE_OF_RETURN_FIELD",
         injectionKeyDescription = "DimensionLookup.Injection.TYPE_OF_RETURN_FIELD")
     private String returnType;
-    
+
     /** Not serialized. This is used to cache the lookup of the dimension type */
     private DimensionUpdateType updateType;
 
@@ -1605,16 +1615,16 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       this.update = update;
       this.updateType = null;
     }
-    
+
     /**
      * Gets return type for read only lookup
      *
-     * @return type of 
+     * @return type of
      */
     public String getReturnType() {
       return returnType;
     }
-    
+
     /**
      * Sets return type for read only lookup
      *
@@ -1631,6 +1641,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         injectionKey = "KEY_STREAM_FIELDNAME",
         injectionKeyDescription = "DimensionLookup.Injection.KEY_STREAM_FIELDNAME")
     private String name;
+
     /** Fields in the dimension to use for lookup */
     @HopMetadataProperty(
         injectionKey = "KEY_DATABASE_FIELDNAME",

@@ -46,35 +46,47 @@ public class SimpleLoggingObject implements ILoggingObject {
     }
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   @Override
   public String getObjectName() {
     return objectName;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setObjectName(String name) {
     this.objectName = name;
   }
 
-  /** @return the objectType */
+  /**
+   * @return the objectType
+   */
   @Override
   public LoggingObjectType getObjectType() {
     return objectType;
   }
 
-  /** @param objectType the objectType to set */
+  /**
+   * @param objectType the objectType to set
+   */
   public void setObjectType(LoggingObjectType objectType) {
     this.objectType = objectType;
   }
 
-  /** @return the parent */
+  /**
+   * @return the parent
+   */
   @Override
   public ILoggingObject getParent() {
     return parent;
   }
 
-  /** @param parent the parent to set */
+  /**
+   * @param parent the parent to set
+   */
   public void setParent(ILoggingObject parent) {
     this.parent = parent;
   }
@@ -112,36 +124,48 @@ public class SimpleLoggingObject implements ILoggingObject {
     this.containerObjectId = containerObjectId;
   }
 
-  /** @return the registrationDate */
+  /**
+   * @return the registrationDate
+   */
   @Override
   public Date getRegistrationDate() {
     return registrationDate;
   }
 
-  /** @param registrationDate the registrationDate to set */
+  /**
+   * @param registrationDate the registrationDate to set
+   */
   public void setRegistrationDate(Date registrationDate) {
     this.registrationDate = registrationDate;
   }
 
-  /** @return the gatheringMetrics */
+  /**
+   * @return the gatheringMetrics
+   */
   @Override
   public boolean isGatheringMetrics() {
     return gatheringMetrics;
   }
 
-  /** @param gatheringMetrics the gatheringMetrics to set */
+  /**
+   * @param gatheringMetrics the gatheringMetrics to set
+   */
   @Override
   public void setGatheringMetrics(boolean gatheringMetrics) {
     this.gatheringMetrics = gatheringMetrics;
   }
 
-  /** @return the forcingSeparateLogging */
+  /**
+   * @return the forcingSeparateLogging
+   */
   @Override
   public boolean isForcingSeparateLogging() {
     return forcingSeparateLogging;
   }
 
-  /** @param forcingSeparateLogging the forcingSeparateLogging to set */
+  /**
+   * @param forcingSeparateLogging the forcingSeparateLogging to set
+   */
   @Override
   public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
     this.forcingSeparateLogging = forcingSeparateLogging;

@@ -140,7 +140,9 @@ public abstract class DragViewZoomBase extends Composite {
             + Math.floor(((double) mouseEvent.x / area.x) * 100) / 100 * (viewWidth - oldViewWidth);
     offset.y =
         offset.y
-            + Math.floor(((double) mouseEvent.y / area.y) * 100) / 100 * (viewHeight - oldViewHeight);
+            + Math.floor(((double) mouseEvent.y / area.y) * 100)
+                / 100
+                * (viewHeight - oldViewHeight);
 
     setZoomLabel();
     redraw();
@@ -256,7 +258,7 @@ public abstract class DragViewZoomBase extends Composite {
     if (viewPort != null && viewPort.contains(screenClick)) {
       viewPortNavigation = true;
       viewPortStart = new Point(screenClick);
-      viewDragBaseOffset = new DPoint(offset);  
+      viewDragBaseOffset = new DPoint(offset);
       setCursor(getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL));
       return true;
     }

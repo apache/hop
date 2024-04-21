@@ -17,6 +17,20 @@
 
 package org.apache.hop.workflow.actions.xml.xsdvalidator;
 
+import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -40,21 +54,6 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.xerces.xni.parser.XMLEntityResolver;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-
-import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
-import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /** This defines a 'xsdvalidator' job entry. */
 @Action(
@@ -170,7 +169,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
         File xsdFile = new File(HopVfs.getFilename(xsdfile));
         schemaXSD = factorytXSDValidator1.newSchema(xsdFile);
 
-      } else {//not specifying filename
+      } else { // not specifying filename
         schemaXSD = factorytXSDValidator1.newSchema();
       }
 
@@ -179,8 +178,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
       if (!isAllowExternalEntities()) {
         xsdValidator.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
         xsdValidator.setFeature("http://xml.org/sax/features/external-general-entities", false);
-        xsdValidator.setFeature(
-            "http://xml.org/sax/features/external-parameter-entities", false);
+        xsdValidator.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
         xsdValidator.setProperty(
             "http://apache.org/xml/properties/internal/entity-resolver",
             (XMLEntityResolver)
@@ -219,7 +217,9 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
         }
 
       } catch (IOException e) {
-        logError(BaseMessages.getString(PKG, "ActionXSDValidator.ErrorCloseFile.Label") + e.getMessage());
+        logError(
+            BaseMessages.getString(PKG, "ActionXSDValidator.ErrorCloseFile.Label")
+                + e.getMessage());
         result.setNrErrors(1);
       }
     }
@@ -228,7 +228,7 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
   }
 
   private void validateNonNullFileName(String filename, String key, Result result) {
-    if(StringUtils.isEmpty(filename)){
+    if (StringUtils.isEmpty(filename)) {
       logError(BaseMessages.getString(PKG, key));
       result.setNrErrors(1);
     }

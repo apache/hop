@@ -17,16 +17,15 @@
 
 package org.apache.hop.www;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /** This is a map between the workflow name and the (running/waiting/finished) workflow. */
 public class WorkflowMap {
@@ -153,12 +152,16 @@ public class WorkflowMap {
     }
   }
 
-  /** @return the hopServerConfig */
+  /**
+   * @return the hopServerConfig
+   */
   public HopServerConfig getHopServerConfig() {
     return hopServerConfig;
   }
 
-  /** @param hopServerConfig the hopServerConfig to set */
+  /**
+   * @param hopServerConfig the hopServerConfig to set
+   */
   public void setHopServerConfig(HopServerConfig hopServerConfig) {
     this.hopServerConfig = hopServerConfig;
   }

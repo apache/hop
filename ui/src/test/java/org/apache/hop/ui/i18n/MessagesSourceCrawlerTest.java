@@ -18,16 +18,15 @@
 
 package org.apache.hop.ui.i18n;
 
+import static org.junit.Assert.assertFalse;
+
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.vfs.HopVfs;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertFalse;
 
 public class MessagesSourceCrawlerTest {
 

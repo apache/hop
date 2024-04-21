@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -29,9 +31,6 @@ import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPlugin;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SearchableAnalyserPlugin(id = "PipelineMetaSearchAnalyser", name = "Search in pipeline metadata")
 public class PipelineMetaSearchAnalyser extends BaseSearchableAnalyser<PipelineMeta>

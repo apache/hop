@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
+import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -61,8 +62,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
 
 /** Allows you to edit the Workflow settings. Just feed it a WorkflowMeta object. */
 public class WorkflowDialog extends Dialog {
@@ -641,17 +640,15 @@ public class WorkflowDialog extends Dialog {
       TableItem item = wParamFields.getNonEmpty(i);
 
       try {
-        if(StringUtils.isEmpty(item.getText(1)) && (!StringUtils.isEmpty(item.getText(2)) || !StringUtils.isEmpty(item.getText(3)))){
+        if (StringUtils.isEmpty(item.getText(1))
+            && (!StringUtils.isEmpty(item.getText(2)) || !StringUtils.isEmpty(item.getText(3)))) {
           allGood = false;
           MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
-          mb.setText(
-                  BaseMessages.getString(
-                          PKG, "WorkflowDialog.NoUnnamedParameters.DialogTitle"));
+          mb.setText(BaseMessages.getString(PKG, "WorkflowDialog.NoUnnamedParameters.DialogTitle"));
           mb.setMessage(
-                  BaseMessages.getString(
-                          PKG, "WorkflowDialog.NoUnnamedParameters.DialogMessage"));
+              BaseMessages.getString(PKG, "WorkflowDialog.NoUnnamedParameters.DialogMessage"));
           mb.open();
-        }else{
+        } else {
           workflowMeta.addParameterDefinition(item.getText(1), item.getText(2), item.getText(3));
         }
       } catch (DuplicateParamException e) {
@@ -665,7 +662,7 @@ public class WorkflowDialog extends Dialog {
 
     workflowMeta.setChanged(changed || workflowMeta.hasChanged());
 
-    if(allGood){
+    if (allGood) {
       dispose();
     }
   }

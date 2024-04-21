@@ -21,11 +21,6 @@ package org.apache.hop.execution;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.RowMeta;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -41,6 +36,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
 
 /**
  * This class contains execution data in the form of rows of data. These rows are collected for a
@@ -166,7 +165,7 @@ public class ExecutionData {
 
           if (rowMeta == null) {
             // no information received yet, an empty buffer
-            rowMeta=new RowMeta();
+            rowMeta = new RowMeta();
           }
 
           // Write the metadata
@@ -175,7 +174,7 @@ public class ExecutionData {
 
           synchronized (buffer.getBuffer()) {
             List<Object[]> rows = buffer.getBuffer();
-            if (rows==null) {
+            if (rows == null) {
               // Empty buffer
               rows = Collections.emptyList();
             }

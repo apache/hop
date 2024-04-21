@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -64,9 +66,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CombinationLookupDialog.class; // For Translator
 
@@ -112,7 +111,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   private DatabaseMeta databaseMeta;
 
   private final List<String> inputFields = new ArrayList<>();
-  
+
   /** List of ColumnInfo that should have the field names of the selected database table */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
@@ -887,7 +886,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
               PKG, "CombinationLookupDialog.Log.LookingAtConnection", dbMeta.toString()));
 
       DatabaseExplorerDialog std =
-          new DatabaseExplorerDialog(shell, SWT.NONE, variables, dbMeta, pipelineMeta.getDatabases());
+          new DatabaseExplorerDialog(
+              shell, SWT.NONE, variables, dbMeta, pipelineMeta.getDatabases());
       std.setSelectedSchemaAndTable(wSchema.getText(), wTable.getText());
       if (std.open()) {
         wSchema.setText(Const.NVL(std.getSchemaName(), ""));

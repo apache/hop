@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.core.gui;
 
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -48,13 +54,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
-
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiCompositeWidgets {
@@ -335,10 +334,7 @@ public class GuiCompositeWidgets {
   }
 
   private Link getLinkControl(
-      Composite parent,
-      GuiElements guiElements,
-      PropsUi props,
-      Control lastControl) {
+      Composite parent, GuiElements guiElements, PropsUi props, Control lastControl) {
 
     Link link = new Link(parent, SWT.NONE);
     PropsUi.setLook(link);

@@ -19,11 +19,10 @@ package org.apache.hop.pipeline.transforms.salesforceupsert;
 
 import com.sforce.soap.partner.UpsertResult;
 import com.sforce.soap.partner.sobject.SObject;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 
 public class SalesforceUpsertData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;

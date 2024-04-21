@@ -32,22 +32,30 @@ public class SourceToTargetMapping {
     this.targetPosition = targetPosition;
   }
 
-  /** @return Returns the sourcePosition. */
+  /**
+   * @return Returns the sourcePosition.
+   */
   public int getSourcePosition() {
     return sourcePosition;
   }
 
-  /** @param sourcePosition The sourcePosition to set. */
+  /**
+   * @param sourcePosition The sourcePosition to set.
+   */
   public void setSourcePosition(int sourcePosition) {
     this.sourcePosition = sourcePosition;
   }
 
-  /** @return Returns the targetPosition. */
+  /**
+   * @return Returns the targetPosition.
+   */
   public int getTargetPosition() {
     return targetPosition;
   }
 
-  /** @param targetPosition The targetPosition to set. */
+  /**
+   * @param targetPosition The targetPosition to set.
+   */
   public void setTargetPosition(int targetPosition) {
     this.targetPosition = targetPosition;
   }

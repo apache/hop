@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.Date;
+import java.util.Objects;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
-
-import java.util.Date;
-import java.util.Objects;
 
 public class EngineComponent implements IEngineComponent {
 
@@ -94,7 +93,9 @@ public class EngineComponent implements IEngineComponent {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -109,7 +110,9 @@ public class EngineComponent implements IEngineComponent {
     return copyNr;
   }
 
-  /** @param copyNr The copyNr to set */
+  /**
+   * @param copyNr The copyNr to set
+   */
   public void setCopyNr(int copyNr) {
     this.copyNr = copyNr;
   }
@@ -124,7 +127,9 @@ public class EngineComponent implements IEngineComponent {
     return logChannel;
   }
 
-  /** @param logChannel The logChannel to set */
+  /**
+   * @param logChannel The logChannel to set
+   */
   public void setLogChannel(ILogChannel logChannel) {
     this.logChannel = logChannel;
   }
@@ -139,7 +144,9 @@ public class EngineComponent implements IEngineComponent {
     return logChannelId;
   }
 
-  /** @param logChannelId The logChannelId to set */
+  /**
+   * @param logChannelId The logChannelId to set
+   */
   public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
@@ -154,7 +161,9 @@ public class EngineComponent implements IEngineComponent {
     return logLevel;
   }
 
-  /** @param logLevel The logLevel to set */
+  /**
+   * @param logLevel The logLevel to set
+   */
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
@@ -170,7 +179,9 @@ public class EngineComponent implements IEngineComponent {
     return logText;
   }
 
-  /** @param logText The logText to set */
+  /**
+   * @param logText The logText to set
+   */
   public void setLogText(String logText) {
     this.logText = logText;
   }
@@ -185,7 +196,9 @@ public class EngineComponent implements IEngineComponent {
     return running;
   }
 
-  /** @param running The running to set */
+  /**
+   * @param running The running to set
+   */
   public void setRunning(boolean running) {
     this.running = running;
   }
@@ -200,7 +213,9 @@ public class EngineComponent implements IEngineComponent {
     return selected;
   }
 
-  /** @param selected The selected to set */
+  /**
+   * @param selected The selected to set
+   */
   public void setSelected(boolean selected) {
     this.selected = selected;
   }
@@ -227,7 +242,9 @@ public class EngineComponent implements IEngineComponent {
         "Removing a row listener to this transform is not possible as it's not part of a running engine");
   }
 
-  /** @param errors The errors to set */
+  /**
+   * @param errors The errors to set
+   */
   public void setErrors(long errors) {
     this.errors = errors;
   }
@@ -242,7 +259,9 @@ public class EngineComponent implements IEngineComponent {
     return linesRead;
   }
 
-  /** @param linesRead The linesRead to set */
+  /**
+   * @param linesRead The linesRead to set
+   */
   public void setLinesRead(long linesRead) {
     this.linesRead = linesRead;
   }
@@ -257,7 +276,9 @@ public class EngineComponent implements IEngineComponent {
     return linesWritten;
   }
 
-  /** @param linesWritten The linesWritten to set */
+  /**
+   * @param linesWritten The linesWritten to set
+   */
   public void setLinesWritten(long linesWritten) {
     this.linesWritten = linesWritten;
   }
@@ -272,7 +293,9 @@ public class EngineComponent implements IEngineComponent {
     return linesInput;
   }
 
-  /** @param linesInput The linesInput to set */
+  /**
+   * @param linesInput The linesInput to set
+   */
   public void setLinesInput(long linesInput) {
     this.linesInput = linesInput;
   }
@@ -287,7 +310,9 @@ public class EngineComponent implements IEngineComponent {
     return linesOutput;
   }
 
-  /** @param linesOutput The linesOutput to set */
+  /**
+   * @param linesOutput The linesOutput to set
+   */
   public void setLinesOutput(long linesOutput) {
     this.linesOutput = linesOutput;
   }
@@ -302,7 +327,9 @@ public class EngineComponent implements IEngineComponent {
     return linesRejected;
   }
 
-  /** @param linesRejected The linesRejected to set */
+  /**
+   * @param linesRejected The linesRejected to set
+   */
   public void setLinesRejected(long linesRejected) {
     this.linesRejected = linesRejected;
   }
@@ -317,7 +344,9 @@ public class EngineComponent implements IEngineComponent {
     return linesUpdated;
   }
 
-  /** @param linesUpdated The linesUpdated to set */
+  /**
+   * @param linesUpdated The linesUpdated to set
+   */
   public void setLinesUpdated(long linesUpdated) {
     this.linesUpdated = linesUpdated;
   }
@@ -342,7 +371,9 @@ public class EngineComponent implements IEngineComponent {
     return executionDuration;
   }
 
-  /** @param executionDuration The executionDuration to set */
+  /**
+   * @param executionDuration The executionDuration to set
+   */
   public void setExecutionDuration(long executionDuration) {
     this.executionDuration = executionDuration;
   }
@@ -357,7 +388,9 @@ public class EngineComponent implements IEngineComponent {
     return inputBufferSize;
   }
 
-  /** @param inputBufferSize The inputBufferSize to set */
+  /**
+   * @param inputBufferSize The inputBufferSize to set
+   */
   public void setInputBufferSize(long inputBufferSize) {
     this.inputBufferSize = inputBufferSize;
   }
@@ -372,7 +405,9 @@ public class EngineComponent implements IEngineComponent {
     return outputBufferSize;
   }
 
-  /** @param outputBufferSize The outputBufferSize to set */
+  /**
+   * @param outputBufferSize The outputBufferSize to set
+   */
   public void setOutputBufferSize(long outputBufferSize) {
     this.outputBufferSize = outputBufferSize;
   }
@@ -387,7 +422,9 @@ public class EngineComponent implements IEngineComponent {
     return stopped;
   }
 
-  /** @param stopped The stopped to set */
+  /**
+   * @param stopped The stopped to set
+   */
   public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
@@ -402,7 +439,9 @@ public class EngineComponent implements IEngineComponent {
     return paused;
   }
 
-  /** @param paused The paused to set */
+  /**
+   * @param paused The paused to set
+   */
   public void setPaused(boolean paused) {
     this.paused = paused;
   }
@@ -417,7 +456,9 @@ public class EngineComponent implements IEngineComponent {
     return status;
   }
 
-  /** @param status The status to set */
+  /**
+   * @param status The status to set
+   */
   public void setStatus(ComponentExecutionStatus status) {
     this.status = status;
   }
@@ -432,7 +473,9 @@ public class EngineComponent implements IEngineComponent {
     return initStartDate;
   }
 
-  /** @param initStartDate The initStartDate to set */
+  /**
+   * @param initStartDate The initStartDate to set
+   */
   @Override
   public void setInitStartDate(Date initStartDate) {
     this.initStartDate = initStartDate;
@@ -448,7 +491,9 @@ public class EngineComponent implements IEngineComponent {
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   @Override
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
@@ -464,7 +509,9 @@ public class EngineComponent implements IEngineComponent {
     return firstRowReadDate;
   }
 
-  /** @param firstRowReadDate The firstRowReadDate to set */
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
   @Override
   public void setFirstRowReadDate(Date firstRowReadDate) {
     this.firstRowReadDate = firstRowReadDate;
@@ -480,7 +527,9 @@ public class EngineComponent implements IEngineComponent {
     return lastRowWrittenDate;
   }
 
-  /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
   @Override
   public void setLastRowWrittenDate(Date lastRowWrittenDate) {
     this.lastRowWrittenDate = lastRowWrittenDate;
@@ -496,7 +545,9 @@ public class EngineComponent implements IEngineComponent {
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   @Override
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;

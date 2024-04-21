@@ -17,6 +17,13 @@
 
 package org.apache.hop.core;
 
+import static org.apache.hop.core.Condition.Function.EQUAL;
+import static org.apache.hop.core.Condition.Function.NOT_NULL;
+import static org.apache.hop.core.Condition.Function.NULL;
+import static org.apache.hop.core.Condition.Function.TRUE;
+import static org.apache.hop.core.Condition.Operator.AND;
+import static org.apache.hop.core.Condition.Operator.NONE;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,13 +47,6 @@ import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.w3c.dom.Node;
-
-import static org.apache.hop.core.Condition.Function.EQUAL;
-import static org.apache.hop.core.Condition.Function.NOT_NULL;
-import static org.apache.hop.core.Condition.Function.NULL;
-import static org.apache.hop.core.Condition.Function.TRUE;
-import static org.apache.hop.core.Condition.Operator.AND;
-import static org.apache.hop.core.Condition.Operator.NONE;
 
 /**
  * This class describes a condition in a general meaning.

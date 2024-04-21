@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.compress.hadoopsnappy;
 
-import org.apache.hop.core.compress.CompressionPlugin;
-import org.apache.hop.core.compress.ICompressionProvider;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import org.apache.hop.core.compress.CompressionPlugin;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 @CompressionPlugin(
     id = "HADOOPSNAPPY",

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.drools;
 
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -30,12 +35,6 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.ObjectFilter;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
-
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class RulesExecutorData extends BaseTransformData implements ITransformData {
   private static Class<?> PKG = RulesExecutor.class; // for i18n purposes
@@ -75,7 +74,6 @@ public class RulesExecutorData extends BaseTransformData implements ITransformDa
   public IRowMeta getOutputRowMeta() {
     return outputRowMeta;
   }
-
 
   public void initializeRules() throws RuleValidationException {
 

@@ -20,12 +20,11 @@ package org.apache.hop.pipeline.transforms.splunkinput;
 
 import com.splunk.Service;
 import com.splunk.ServiceArgs;
+import java.io.InputStream;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.splunk.SplunkConnection;
-
-import java.io.InputStream;
 
 public class SplunkInputData extends BaseTransformData implements ITransformData {
 

@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.pipeline.transform.stream.IStream;
-
 import java.util.List;
+import org.apache.hop.pipeline.transform.stream.IStream;
 
 public interface ITransformIOMeta {
 
@@ -67,13 +66,19 @@ public interface ITransformIOMeta {
    */
   void setGeneralTargetDescription(String string);
 
-  /** @return the generalTargetDescription */
+  /**
+   * @return the generalTargetDescription
+   */
   String getGeneralTargetDescription();
 
-  /** @return the generalInfoDescription */
+  /**
+   * @return the generalInfoDescription
+   */
   String getGeneralInfoDescription();
 
-  /** @return true if the output targets of this transform are dynamic (variable) */
+  /**
+   * @return true if the output targets of this transform are dynamic (variable)
+   */
   boolean isOutputDynamic();
 
   /**
@@ -81,7 +86,9 @@ public interface ITransformIOMeta {
    */
   void setOutputDynamic(boolean outputDynamic);
 
-  /** @return true if the input info sources of this transform are dynamic (variable) */
+  /**
+   * @return true if the input info sources of this transform are dynamic (variable)
+   */
   boolean isInputDynamic();
 
   /**

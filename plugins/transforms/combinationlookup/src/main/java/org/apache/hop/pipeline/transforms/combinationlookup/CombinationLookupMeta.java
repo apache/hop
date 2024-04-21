@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -43,9 +45,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "CombinationLookup",
@@ -129,8 +128,7 @@ public class CombinationLookupMeta
       injectionKeyDescription = "CombinationLookup.Injection.CACHE_SIZE")
   private int cacheSize;
 
-  @HopMetadataProperty
-  private CFields fields;
+  @HopMetadataProperty private CFields fields;
 
   public static final String CREATION_METHOD_AUTOINC = "autoinc";
   public static final String CREATION_METHOD_SEQUENCE = "sequence";
@@ -148,7 +146,6 @@ public class CombinationLookupMeta
   public CombinationLookupMeta clone() {
     return new CombinationLookupMeta(this);
   }
-
 
   @Override
   public void setDefault() {

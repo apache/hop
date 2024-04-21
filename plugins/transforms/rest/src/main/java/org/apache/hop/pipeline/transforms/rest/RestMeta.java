@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -37,8 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "Rest",
@@ -142,152 +141,212 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the method. */
+  /**
+   * @return Returns the method.
+   */
   public String getMethod() {
     return method;
   }
 
-  /** @param value The method to set. */
+  /**
+   * @param value The method to set.
+   */
   public void setMethod(String value) {
     this.method = value;
   }
 
-  /** @return Returns the bodyField. */
+  /**
+   * @return Returns the bodyField.
+   */
   public String getBodyField() {
     return bodyField;
   }
 
-  /** @param value The bodyField to set. */
+  /**
+   * @param value The bodyField to set.
+   */
   public void setBodyField(String value) {
     this.bodyField = value;
   }
 
-  /** @return Returns the headerName. */
+  /**
+   * @return Returns the headerName.
+   */
   public String[] getHeaderName() {
     return headerName;
   }
 
-  /** @param value The headerName to set. */
+  /**
+   * @param value The headerName to set.
+   */
   public void setHeaderName(String[] value) {
     this.headerName = value;
   }
 
-  /** @return Returns the parameterField. */
+  /**
+   * @return Returns the parameterField.
+   */
   public String[] getParameterField() {
     return parameterField;
   }
 
-  /** @param value The parameterField to set. */
+  /**
+   * @param value The parameterField to set.
+   */
   public void setParameterField(String[] value) {
     this.parameterField = value;
   }
 
-  /** @return Returns the parameterName. */
+  /**
+   * @return Returns the parameterName.
+   */
   public String[] getParameterName() {
     return parameterName;
   }
 
-  /** @param value The parameterName to set. */
+  /**
+   * @param value The parameterName to set.
+   */
   public void setParameterName(String[] value) {
     this.parameterName = value;
   }
 
-  /** @return Returns the matrixParameterField. */
+  /**
+   * @return Returns the matrixParameterField.
+   */
   public String[] getMatrixParameterField() {
     return matrixParameterField;
   }
 
-  /** @param value The matrixParameterField to set. */
+  /**
+   * @param value The matrixParameterField to set.
+   */
   public void setMatrixParameterField(String[] value) {
     this.matrixParameterField = value;
   }
 
-  /** @return Returns the matrixParameterName. */
+  /**
+   * @return Returns the matrixParameterName.
+   */
   public String[] getMatrixParameterName() {
     return matrixParameterName;
   }
 
-  /** @param value The matrixParameterName to set. */
+  /**
+   * @param value The matrixParameterName to set.
+   */
   public void setMatrixParameterName(String[] value) {
     this.matrixParameterName = value;
   }
 
-  /** @return Returns the headerField. */
+  /**
+   * @return Returns the headerField.
+   */
   public String[] getHeaderField() {
     return headerField;
   }
 
-  /** @param value The headerField to set. */
+  /**
+   * @param value The headerField to set.
+   */
   public void setHeaderField(String[] value) {
     this.headerField = value;
   }
 
-  /** @return Returns the procedure. */
+  /**
+   * @return Returns the procedure.
+   */
   public String getUrl() {
     return url;
   }
 
-  /** @param procedure The procedure to set. */
+  /**
+   * @param procedure The procedure to set.
+   */
   public void setUrl(String procedure) {
     this.url = procedure;
   }
 
-  /** @return Is the url coded in a field? */
+  /**
+   * @return Is the url coded in a field?
+   */
   public boolean isUrlInField() {
     return urlInField;
   }
 
-  /** @param urlInField Is the url coded in a field? */
+  /**
+   * @param urlInField Is the url coded in a field?
+   */
   public void setUrlInField(boolean urlInField) {
     this.urlInField = urlInField;
   }
 
-  /** @return Is preemptive? */
+  /**
+   * @return Is preemptive?
+   */
   public boolean isPreemptive() {
     return preemptive;
   }
 
-  /** @param preemptive Ispreemptive? */
+  /**
+   * @param preemptive Ispreemptive?
+   */
   public void setPreemptive(boolean preemptive) {
     this.preemptive = preemptive;
   }
 
-  /** @return Is the method defined in a field? */
+  /**
+   * @return Is the method defined in a field?
+   */
   public boolean isDynamicMethod() {
     return dynamicMethod;
   }
 
-  /** @param dynamicMethod If the method is defined in a field? */
+  /**
+   * @param dynamicMethod If the method is defined in a field?
+   */
   public void setDynamicMethod(boolean dynamicMethod) {
     this.dynamicMethod = dynamicMethod;
   }
 
-  /** @return methodFieldName */
+  /**
+   * @return methodFieldName
+   */
   public String getMethodFieldName() {
     return methodFieldName;
   }
 
-  /** @param methodFieldName */
+  /**
+   * @param methodFieldName
+   */
   public void setMethodFieldName(String methodFieldName) {
     this.methodFieldName = methodFieldName;
   }
 
-  /** @return The field name that contains the url. */
+  /**
+   * @return The field name that contains the url.
+   */
   public String getUrlField() {
     return urlField;
   }
 
-  /** @param urlField name of the field that contains the url */
+  /**
+   * @param urlField name of the field that contains the url
+   */
   public void setUrlField(String urlField) {
     this.urlField = urlField;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getFieldName() {
     return fieldName;
   }
 
-  /** @param resultName The resultName to set. */
+  /**
+   * @param resultName The resultName to set.
+   */
   public void setFieldName(String resultName) {
     this.fieldName = resultName;
   }
@@ -622,12 +681,16 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     return true;
   }
 
-  /** @return the resultCodeFieldName */
+  /**
+   * @return the resultCodeFieldName
+   */
   public String getResultCodeFieldName() {
     return resultCodeFieldName;
   }
 
-  /** @param resultCodeFieldName the resultCodeFieldName to set */
+  /**
+   * @param resultCodeFieldName the resultCodeFieldName to set
+   */
   public void setResultCodeFieldName(String resultCodeFieldName) {
     this.resultCodeFieldName = resultCodeFieldName;
   }
@@ -713,7 +776,9 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.httpPassword = httpPassword;
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   public String getHttpPassword() {
     return httpPassword;
   }
@@ -727,7 +792,9 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.trustStoreFile = trustStoreFile;
   }
 
-  /** @return trustStoreFile */
+  /**
+   * @return trustStoreFile
+   */
   public String getTrustStoreFile() {
     return trustStoreFile;
   }
@@ -741,7 +808,9 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.trustStorePassword = trustStorePassword;
   }
 
-  /** @return trustStorePassword */
+  /**
+   * @return trustStorePassword
+   */
   public String getTrustStorePassword() {
     return trustStorePassword;
   }

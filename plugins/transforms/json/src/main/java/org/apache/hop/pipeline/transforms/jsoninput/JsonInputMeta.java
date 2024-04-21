@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -47,11 +51,6 @@ import org.apache.hop.pipeline.transforms.file.BaseFileInputMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /** Store run-time data on the JsonInput transform. */
 @Transform(
@@ -755,7 +754,7 @@ public class JsonInputMeta
    * @param nrFiles
    * @param nrFields
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public void allocate(int nrFiles, int nrFields) {
     initArrayFields(nrFiles, nrFields);
   }

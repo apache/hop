@@ -17,12 +17,11 @@
 
 package org.apache.hop.resource;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class SimpleResourceNaming implements IResourceNaming {
 
@@ -271,13 +270,17 @@ public class SimpleResourceNaming implements IResourceNaming {
     this.useOriginalPathInTargetName = value;
   }
 
-  /** @return the directoryMap */
+  /**
+   * @return the directoryMap
+   */
   @Override
   public Map<String, String> getDirectoryMap() {
     return directoryMap;
   }
 
-  /** @param directoryMap the directoryMap to set */
+  /**
+   * @param directoryMap the directoryMap to set
+   */
   public void setDirectoryMap(Map<String, String> directoryMap) {
     this.directoryMap = directoryMap;
   }

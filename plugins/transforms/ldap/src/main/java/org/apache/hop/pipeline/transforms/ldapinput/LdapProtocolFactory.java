@@ -16,13 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.variables.IVariables;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 
 public class LdapProtocolFactory {
   protected static final List<Class<? extends LdapProtocol>> protocols = initProtocols();

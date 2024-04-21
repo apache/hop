@@ -17,9 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class FieldModelMapping {
 
@@ -106,7 +105,9 @@ public class FieldModelMapping {
     return field;
   }
 
-  /** @param field The field to set */
+  /**
+   * @param field The field to set
+   */
   public void setField(String field) {
     this.field = field;
   }
@@ -120,7 +121,9 @@ public class FieldModelMapping {
     return targetType;
   }
 
-  /** @param targetType The targetType to set */
+  /**
+   * @param targetType The targetType to set
+   */
   public void setTargetType(ModelTargetType targetType) {
     this.targetType = targetType;
   }
@@ -134,7 +137,9 @@ public class FieldModelMapping {
     return targetName;
   }
 
-  /** @param targetName The targetName to set */
+  /**
+   * @param targetName The targetName to set
+   */
   public void setTargetName(String targetName) {
     this.targetName = targetName;
   }
@@ -148,7 +153,9 @@ public class FieldModelMapping {
     return targetProperty;
   }
 
-  /** @param targetProperty The targetProperty to set */
+  /**
+   * @param targetProperty The targetProperty to set
+   */
   public void setTargetProperty(String targetProperty) {
     this.targetProperty = targetProperty;
   }
@@ -162,7 +169,9 @@ public class FieldModelMapping {
     return targetHint;
   }
 
-  /** @param targetHint The targetHint to set */
+  /**
+   * @param targetHint The targetHint to set
+   */
   public void setTargetHint(ModelTargetHint targetHint) {
     this.targetHint = targetHint;
   }

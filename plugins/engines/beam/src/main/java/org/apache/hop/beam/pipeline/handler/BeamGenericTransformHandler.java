@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.pipeline.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.coders.KvCoder;
 import org.apache.beam.sdk.coders.StringUtf8Coder;
@@ -55,10 +58,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class BeamGenericTransformHandler extends BeamBaseTransformHandler
     implements IBeamPipelineTransformHandler {

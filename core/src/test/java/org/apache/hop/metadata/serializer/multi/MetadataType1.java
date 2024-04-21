@@ -18,12 +18,11 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.Objects;
 
 @HopMetadata(
     key = "type-1",
@@ -71,7 +70,9 @@ public class MetadataType1 extends HopMetadataBase implements IHopMetadata {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -85,7 +86,9 @@ public class MetadataType1 extends HopMetadataBase implements IHopMetadata {
     return value;
   }
 
-  /** @param value The value to set */
+  /**
+   * @param value The value to set
+   */
   public void setValue(String value) {
     this.value = value;
   }

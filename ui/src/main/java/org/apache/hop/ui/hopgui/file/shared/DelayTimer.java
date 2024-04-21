@@ -28,6 +28,7 @@ public class DelayTimer implements Runnable {
   private boolean stopped;
 
   private List<IDelayListener> delayListeners;
+
   /** Default prolonger should not prolong delay. */
   private Callable<Boolean> prolonger = () -> false;
 
@@ -94,12 +95,16 @@ public class DelayTimer implements Runnable {
     delayListeners.add(delayListener);
   }
 
-  /** @return the delay in milliseconds */
+  /**
+   * @return the delay in milliseconds
+   */
   public int getDelayInMilliseconds() {
     return delayInMiliseconds;
   }
 
-  /** @param delayInMilliseconds the delay in milliseconds to set */
+  /**
+   * @param delayInMilliseconds the delay in milliseconds to set
+   */
   public void setDelayInSeconds(int delayInMilliseconds) {
     this.delayInMiliseconds = delayInMilliseconds;
   }

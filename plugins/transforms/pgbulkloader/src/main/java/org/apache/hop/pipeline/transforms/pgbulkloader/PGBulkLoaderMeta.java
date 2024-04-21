@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -40,9 +42,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Transform(
     id = "PGBulkLoader",
     image = "PGBulkLoader.svg",
@@ -53,8 +52,8 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/postgresbulkloader.html",
     classLoaderGroup = "postgres-db",
     isIncludeJdbcDrivers = true)
-public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> implements
-        IProvidesDatabaseConnectionInformation {
+public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData>
+    implements IProvidesDatabaseConnectionInformation {
 
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
@@ -462,13 +461,17 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     }
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   @Override
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
@@ -522,24 +525,32 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     this.stopOnError = value;
   }
 
-  /** @return Returns the database. */
+  /**
+   * @return Returns the database.
+   */
   @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
 
-  /** @param database The database to set. */
+  /**
+   * @param database The database to set.
+   */
   public void setDatabaseMeta(DatabaseMeta database) {
     this.databaseMeta = database;
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   @Override
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName The tableName to set. */
+  /**
+   * @param tableName The tableName to set.
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }

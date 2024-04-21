@@ -18,6 +18,7 @@
 
 package org.apache.hop.beam.core.transform;
 
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -25,8 +26,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowHandler;
 import org.apache.hop.pipeline.transform.IRowListener;
-
-import java.util.List;
 
 /**
  * Reading and writing rows from/to row sets is simpler in a Beam context since we're using a single

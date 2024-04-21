@@ -17,14 +17,13 @@
 
 package org.apache.hop.projects.search;
 
+import java.util.Iterator;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.projects.project.ProjectConfig;
-
-import java.util.Iterator;
 
 public class ProjectsSearchablesLocation implements ISearchablesLocation {
 

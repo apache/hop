@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -36,11 +40,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 
 /**
  * Shows a user 2 lists of strings and allows the linkage of values between values in the 2 lists
@@ -576,7 +575,9 @@ public class EnterMappingDialog extends Dialog {
     return sourceSeparator;
   }
 
-  /** @param sourceSeparator The sourceSeparator to set */
+  /**
+   * @param sourceSeparator The sourceSeparator to set
+   */
   public void setSourceSeparator(String sourceSeparator) {
     this.sourceSeparator = sourceSeparator;
   }
@@ -590,7 +591,9 @@ public class EnterMappingDialog extends Dialog {
     return targetSeparator;
   }
 
-  /** @param targetSeparator The targetSeparator to set */
+  /**
+   * @param targetSeparator The targetSeparator to set
+   */
   public void setTargetSeparator(String targetSeparator) {
     this.targetSeparator = targetSeparator;
   }

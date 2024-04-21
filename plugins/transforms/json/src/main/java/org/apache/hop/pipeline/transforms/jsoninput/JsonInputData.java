@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import java.io.InputStream;
+import java.util.BitSet;
+import java.util.Iterator;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformData;
 import org.apache.hop.pipeline.transforms.jsoninput.reader.IJsonReader;
-
-import java.io.InputStream;
-import java.util.BitSet;
-import java.util.Iterator;
 
 public class JsonInputData extends BaseFileInputTransformData implements ITransformData {
   public Object[] previousRow;

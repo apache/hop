@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.datagrid;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -57,11 +61,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DataGridMeta.class; // For Translator

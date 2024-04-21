@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -39,9 +41,6 @@ import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * This interface allows custom transforms to talk to Hop. The ITransformMeta is the main Java
@@ -176,14 +175,15 @@ public interface ITransformMeta {
    * @throws HopTransformException the hop transform exception
    */
   void getFields(
-          PipelineMeta pipelineMeta,
-          IRowMeta inputRowMeta,
-          String name,
-          IRowMeta[] info,
-          TransformMeta nextTransform,
-          IVariables variables,
-          IHopMetadataProvider metadataProvider)
-          throws HopTransformException;
+      PipelineMeta pipelineMeta,
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException;
+
   /**
    * Get the XML that represents the values in this transform
    *
@@ -334,7 +334,7 @@ public interface ITransformMeta {
    * @return true if this transform supports multi-copies execution. By default return true.
    */
   boolean supportsMultiCopyExecution();
-  
+
   /**
    * Get a list of all the resource dependencies that the transform is depending on.
    *

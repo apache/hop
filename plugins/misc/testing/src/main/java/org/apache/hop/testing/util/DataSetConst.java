@@ -17,6 +17,10 @@
 
 package org.apache.hop.testing.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.util.Precision;
 import org.apache.hop.core.Const;
@@ -38,11 +42,6 @@ import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.xp.RowCollection;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class DataSetConst {
   private static final Class<?> PKG = DataSetConst.class; // For Translator

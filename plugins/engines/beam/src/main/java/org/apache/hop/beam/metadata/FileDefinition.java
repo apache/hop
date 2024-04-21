@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.metadata;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -27,10 +30,6 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 @HopMetadata(
     key = "file-definition",
@@ -73,17 +72,18 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return rowMeta;
   }
 
-
-  public void validate() throws HopException  {
+  public void validate() throws HopException {
     if (StringUtils.isEmpty(separator)) {
-      throw new HopException("Please specify a separator in file definition "+name);
+      throw new HopException("Please specify a separator in file definition " + name);
     }
     for (IValueMeta valueMeta : getRowMeta().getValueMetaList()) {
       if (StringUtils.isEmpty(valueMeta.getName())) {
-        throw new HopException("File definition "+name+" should not contain fields without a name");
+        throw new HopException(
+            "File definition " + name + " should not contain fields without a name");
       }
-      if (valueMeta.getType()==IValueMeta.TYPE_NONE) {
-        throw new HopException("File definition "+name+" should not contain fields without a type");
+      if (valueMeta.getType() == IValueMeta.TYPE_NONE) {
+        throw new HopException(
+            "File definition " + name + " should not contain fields without a type");
       }
     }
   }
@@ -97,7 +97,9 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -111,7 +113,9 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return fieldDefinitions;
   }
 
-  /** @param fieldDefinitions The fieldDefinitions to set */
+  /**
+   * @param fieldDefinitions The fieldDefinitions to set
+   */
   public void setFieldDefinitions(List<FieldDefinition> fieldDefinitions) {
     this.fieldDefinitions = fieldDefinitions;
   }
@@ -125,7 +129,9 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return separator;
   }
 
-  /** @param separator The separator to set */
+  /**
+   * @param separator The separator to set
+   */
   public void setSeparator(String separator) {
     this.separator = separator;
   }
@@ -139,9 +145,10 @@ public class FileDefinition extends HopMetadataBase implements Serializable, IHo
     return enclosure;
   }
 
-  /** @param enclosure The enclosure to set */
+  /**
+   * @param enclosure The enclosure to set
+   */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
-
 }

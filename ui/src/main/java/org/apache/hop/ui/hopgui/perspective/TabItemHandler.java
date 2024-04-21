@@ -17,10 +17,9 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import java.util.Objects;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.custom.CTabItem;
-
-import java.util.Objects;
 
 public class TabItemHandler {
   private CTabItem tabItem;
@@ -59,7 +58,9 @@ public class TabItemHandler {
     return tabItem;
   }
 
-  /** @param tabItem The tabItem to set */
+  /**
+   * @param tabItem The tabItem to set
+   */
   public void setTabItem(CTabItem tabItem) {
     this.tabItem = tabItem;
   }
@@ -73,7 +74,9 @@ public class TabItemHandler {
     return typeHandler;
   }
 
-  /** @param typeHandler The typeHandler to set */
+  /**
+   * @param typeHandler The typeHandler to set
+   */
   public void setTypeHandler(IHopFileTypeHandler typeHandler) {
     this.typeHandler = typeHandler;
   }

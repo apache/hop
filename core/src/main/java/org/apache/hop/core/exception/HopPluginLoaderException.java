@@ -72,7 +72,9 @@ public class HopPluginLoaderException extends HopException {
     this.pluginId = pluginId;
   }
 
-  /** @return The ID of the missing plugin that caused this exception */
+  /**
+   * @return The ID of the missing plugin that caused this exception
+   */
   public String getPluginId() {
     return pluginId;
   }
