@@ -38,9 +38,14 @@ jobs:
               sort: 'due_on',
               direction: 'asc'
             })
-            const milestone = list.data
-            console.log(milestone)
-            return milestone.length == 0 ? null : milestone[0].number
+            for( const milestone of list.data) {
+              if ( milestone.due_on !== null ) { 
+                console.log(milestone)
+                return milestone.number
+                break; 
+              }
+            }
+            return null
       - name: add milestone
         uses: actions/github-script@v7
         with:
