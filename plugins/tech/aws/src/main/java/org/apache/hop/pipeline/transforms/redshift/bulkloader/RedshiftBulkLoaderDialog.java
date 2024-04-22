@@ -353,8 +353,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlOnlyWhenHaveRows.right = new FormAttachment(middle, -margin);
     wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
     wOnlyWhenHaveRows = new Button(wGeneralComp, SWT.CHECK);
-    wOnlyWhenHaveRows.setToolTipText(
-            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.OnlyWhenHaveRows.Tooltip"));
     PropsUi.setLook(wOnlyWhenHaveRows);
     FormData fdTruncateWhenHaveRows = new FormData();
     fdTruncateWhenHaveRows.top = new FormAttachment(lastControl, margin);
