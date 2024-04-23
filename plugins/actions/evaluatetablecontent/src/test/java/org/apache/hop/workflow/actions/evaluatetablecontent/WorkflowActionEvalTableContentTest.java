@@ -17,6 +17,15 @@
 
 package org.apache.hop.workflow.actions.evaluatetablecontent;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -40,16 +49,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /*
  * Action: Evaluate rows number in a table:
@@ -188,7 +187,7 @@ public class WorkflowActionEvalTableContentTest {
         res.getNrErrors(),
         0);
   }
-  
+
   @Test
   public void testNrErrorsSuccess() throws Exception {
     action.setLimit("5");

@@ -16,13 +16,13 @@
  */
 package org.apache.hop.core.parameters;
 
-import org.apache.hop.core.variables.Variables;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.spy;
+
+import org.apache.hop.core.variables.Variables;
+import org.junit.Before;
+import org.junit.Test;
 
 public class NamedParamsDefaultTest {
   INamedParameters namedParams;

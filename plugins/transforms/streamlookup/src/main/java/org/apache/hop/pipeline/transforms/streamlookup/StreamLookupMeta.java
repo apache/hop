@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.streamlookup;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -43,8 +44,6 @@ import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @InjectionSupported(localizationPrefix = "StreamLookupMeta.Injection.")
 @Transform(
@@ -173,14 +172,14 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
 
       for (int i = 0; i < nrkeys; i++) {
         Node knode = XmlHandler.getSubNodeByNr(lookup, "key", i);
-  
+
         getKeystream()[i] = XmlHandler.getTagValue(knode, "name");
         getKeylookup()[i] = XmlHandler.getTagValue(knode, "field");
       }
 
       for (int i = 0; i < nrvalues; i++) {
         Node vnode = XmlHandler.getSubNodeByNr(lookup, "value", i);
-  
+
         getValue()[i] = XmlHandler.getTagValue(vnode, "name");
         getValueName()[i] = XmlHandler.getTagValue(vnode, "rename");
         if (getValueName()[i] == null) {
@@ -530,72 +529,100 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
     // Do nothing, don't reset as there is no need to do this.
   }
 
-  /** @return Returns the inputSorted. */
+  /**
+   * @return Returns the inputSorted.
+   */
   public boolean isInputSorted() {
     return inputSorted;
   }
 
-  /** @param inputSorted The inputSorted to set. */
+  /**
+   * @param inputSorted The inputSorted to set.
+   */
   public void setInputSorted(boolean inputSorted) {
     this.inputSorted = inputSorted;
   }
 
-  /** @return Returns the keylookup. */
+  /**
+   * @return Returns the keylookup.
+   */
   public String[] getKeylookup() {
     return keylookup;
   }
 
-  /** @param keylookup The keylookup to set. */
+  /**
+   * @param keylookup The keylookup to set.
+   */
   public void setKeylookup(String[] keylookup) {
     this.keylookup = keylookup;
   }
 
-  /** @return Returns the keystream. */
+  /**
+   * @return Returns the keystream.
+   */
   public String[] getKeystream() {
     return keystream;
   }
 
-  /** @param keystream The keystream to set. */
+  /**
+   * @param keystream The keystream to set.
+   */
   public void setKeystream(String[] keystream) {
     this.keystream = keystream;
   }
 
-  /** @return Returns the value. */
+  /**
+   * @return Returns the value.
+   */
   public String[] getValue() {
     return value;
   }
 
-  /** @param value The value to set. */
+  /**
+   * @param value The value to set.
+   */
   public void setValue(String[] value) {
     this.value = value;
   }
 
-  /** @return Returns the valueDefault. */
+  /**
+   * @return Returns the valueDefault.
+   */
   public String[] getValueDefault() {
     return valueDefault;
   }
 
-  /** @param valueDefault The valueDefault to set. */
+  /**
+   * @param valueDefault The valueDefault to set.
+   */
   public void setValueDefault(String[] valueDefault) {
     this.valueDefault = valueDefault;
   }
 
-  /** @return Returns the valueDefaultType. */
+  /**
+   * @return Returns the valueDefaultType.
+   */
   public int[] getValueDefaultType() {
     return valueDefaultType;
   }
 
-  /** @param valueDefaultType The valueDefaultType to set. */
+  /**
+   * @param valueDefaultType The valueDefaultType to set.
+   */
   public void setValueDefaultType(int[] valueDefaultType) {
     this.valueDefaultType = valueDefaultType;
   }
 
-  /** @return Returns the valueName. */
+  /**
+   * @return Returns the valueName.
+   */
   public String[] getValueName() {
     return valueName;
   }
 
-  /** @param valueName The valueName to set. */
+  /**
+   * @param valueName The valueName to set.
+   */
   public void setValueName(String[] valueName) {
     this.valueName = valueName;
   }
@@ -616,12 +643,16 @@ public class StreamLookupMeta extends BaseTransformMeta<StreamLookup, StreamLook
     this.usingSortedList = usingSortedList;
   }
 
-  /** @return the usingIntegerPair */
+  /**
+   * @return the usingIntegerPair
+   */
   public boolean isUsingIntegerPair() {
     return usingIntegerPair;
   }
 
-  /** @param usingIntegerPair the usingIntegerPair to set */
+  /**
+   * @param usingIntegerPair the usingIntegerPair to set
+   */
   public void setUsingIntegerPair(boolean usingIntegerPair) {
     this.usingIntegerPair = usingIntegerPair;
   }

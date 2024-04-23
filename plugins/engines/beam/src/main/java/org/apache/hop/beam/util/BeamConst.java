@@ -17,10 +17,6 @@
 
 package org.apache.hop.beam.util;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,6 +25,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
 
 public class BeamConst {
 

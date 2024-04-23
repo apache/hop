@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.util;
 
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -26,10 +29,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 
 public class FtpClientUtil {
   private static final Class<?> PKG = FtpClientUtil.class; // For Translator

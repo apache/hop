@@ -17,6 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -33,17 +43,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import static org.junit.Assert.assertEquals;
 
 /** User: Dzmitry Stsiapanau Date: 1/20/14 Time: 3:04 PM */
 public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {

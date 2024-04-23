@@ -33,7 +33,9 @@ public class HopGuiWorkflowUndoDelegate {
   private HopGuiWorkflowGraph workflowGraph;
   private HopGui hopGui;
 
-  /** @param hopGui */
+  /**
+   * @param hopGui
+   */
   public HopGuiWorkflowUndoDelegate(HopGui hopGui, HopGuiWorkflowGraph workflowGraph) {
     this.hopGui = hopGui;
     this.workflowGraph = workflowGraph;
@@ -330,7 +332,9 @@ public class HopGuiWorkflowUndoDelegate {
     return workflowGraph;
   }
 
-  /** @param workflowGraph The workflowGraph to set */
+  /**
+   * @param workflowGraph The workflowGraph to set
+   */
   public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -344,7 +348,9 @@ public class HopGuiWorkflowUndoDelegate {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }

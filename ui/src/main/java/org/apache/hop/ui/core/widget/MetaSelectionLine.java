@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -31,7 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -51,9 +52,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ToolBar;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * The goal of this composite is to add a line on a dialog which contains: - A label (for example:
@@ -171,7 +169,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     }
     fdLabel.top = new FormAttachment(0, margin + (EnvironmentUtils.getInstance().isWeb() ? 3 : 0));
     wLabel.setLayoutData(fdLabel);
-    if ( labelText!=null ) {
+    if (labelText != null) {
       wLabel.setText(labelText);
     }
     wLabel.setToolTipText(toolTipText);
@@ -189,17 +187,17 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     // Toolbar for default actions
     //
-    wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);    
+    wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL);
     PropsUi.setLook(wToolBar, PropsUi.WIDGET_STYLE_DEFAULT);
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment(100, 0);
     fdToolBar.top = new FormAttachment(0, 0);
     wToolBar.setLayoutData(fdToolBar);
-    
+
     // Add more toolbar items from plugins.
     //
     GuiToolbarWidgets toolbarWidgets = new GuiToolbarWidgets();
-    toolbarWidgets.registerGuiPluginObject(this); 
+    toolbarWidgets.registerGuiPluginObject(this);
     // Removed for Windows dark mode
     // toolbarWidgets.setItemBackgroundColor(GuiResource.getInstance().getColorBackground());
     toolbarWidgets.createToolbarWidgets(wToolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID);
@@ -211,10 +209,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wCombo = new ComboVar(this.variables, this, textFlags, toolTipText);
     FormData fdCombo = new FormData();
     if (leftAlignedLabel) {
-      if ( labelText==null ) {
+      if (labelText == null) {
         fdCombo.left = new FormAttachment(0, 0);
-      } 
-      else {
+      } else {
         fdCombo.left = new FormAttachment(wLabel, margin, SWT.RIGHT);
       }
     } else {

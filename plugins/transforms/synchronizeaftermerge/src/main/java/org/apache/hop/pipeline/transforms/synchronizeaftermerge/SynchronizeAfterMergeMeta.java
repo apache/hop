@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -44,8 +45,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @InjectionSupported(
     localizationPrefix = "SynchronizeAfterMerge.Injection.",
     groups = {"KEYS_TO_LOOKUP", "UPDATE_FIELDS"})
@@ -57,7 +56,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::SynchronizeAfterMergeMeta.keyword",
     documentationUrl = "/pipeline/transforms/synchronizeaftermerge.html")
-public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
+public class SynchronizeAfterMergeMeta
+    extends BaseTransformMeta<SynchronizeAfterMerge, SynchronizeAfterMergeData> {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
 
   /** what's the lookup schema? */
@@ -142,22 +142,30 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     }
   }
 
-  /** @param useBatchUpdate The useBatchUpdate flag to set. */
+  /**
+   * @param useBatchUpdate The useBatchUpdate flag to set.
+   */
   public void setUseBatchUpdate(boolean useBatchUpdate) {
     this.useBatchUpdate = useBatchUpdate;
   }
 
-  /** @return Returns the useBatchUpdate flag. */
+  /**
+   * @return Returns the useBatchUpdate flag.
+   */
   public boolean useBatchUpdate() {
     return useBatchUpdate;
   }
 
-  /** @param performLookup The performLookup flag to set. */
+  /**
+   * @param performLookup The performLookup flag to set.
+   */
   public void setPerformLookup(boolean performLookup) {
     this.performLookup = performLookup;
   }
 
-  /** @return Returns the performLookup flag. */
+  /**
+   * @return Returns the performLookup flag.
+   */
   public boolean isPerformLookup() {
     return performLookup;
   }
@@ -210,97 +218,135 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     this.tablenameField = tablenamefield;
   }
 
-  /** @return Returns the commitSize. */
+  /**
+   * @return Returns the commitSize.
+   */
   public String getCommitSize() {
     return commitSize;
   }
 
-  /** @param commitSize The commitSize to set. */
+  /**
+   * @param commitSize The commitSize to set.
+   */
   public void setCommitSize(int commitSize) {
     this.commitSize = Integer.toString(commitSize);
   }
 
-  /** @param commitSize The commitSize to set. */
+  /**
+   * @param commitSize The commitSize to set.
+   */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
   }
 
-  /** @return Returns the database. */
+  /**
+   * @return Returns the database.
+   */
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
 
-  /** @param database The database to set. */
+  /**
+   * @param database The database to set.
+   */
   public void setDatabaseMeta(DatabaseMeta database) {
     this.databaseMeta = database;
   }
 
-  /** @return Returns the keyCondition. */
+  /**
+   * @return Returns the keyCondition.
+   */
   public String[] getKeyCondition() {
     return keyCondition;
   }
 
-  /** @param keyCondition The keyCondition to set. */
+  /**
+   * @param keyCondition The keyCondition to set.
+   */
   public void setKeyCondition(String[] keyCondition) {
     this.keyCondition = keyCondition;
   }
 
-  /** @return Returns the keyLookup. */
+  /**
+   * @return Returns the keyLookup.
+   */
   public String[] getKeyLookup() {
     return keyLookup;
   }
 
-  /** @param keyLookup The keyLookup to set. */
+  /**
+   * @param keyLookup The keyLookup to set.
+   */
   public void setKeyLookup(String[] keyLookup) {
     this.keyLookup = keyLookup;
   }
 
-  /** @return Returns the keyStream. */
+  /**
+   * @return Returns the keyStream.
+   */
   public String[] getKeyStream() {
     return keyStream;
   }
 
-  /** @param keyStream The keyStream to set. */
+  /**
+   * @param keyStream The keyStream to set.
+   */
   public void setKeyStream(String[] keyStream) {
     this.keyStream = keyStream;
   }
 
-  /** @return Returns the keyStream2. */
+  /**
+   * @return Returns the keyStream2.
+   */
   public String[] getKeyStream2() {
     return keyStream2;
   }
 
-  /** @param keyStream2 The keyStream2 to set. */
+  /**
+   * @param keyStream2 The keyStream2 to set.
+   */
   public void setKeyStream2(String[] keyStream2) {
     this.keyStream2 = keyStream2;
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName The tableName to set. */
+  /**
+   * @param tableName The tableName to set.
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
-  /** @return Returns the updateLookup. */
+  /**
+   * @return Returns the updateLookup.
+   */
   public String[] getUpdateLookup() {
     return updateLookup;
   }
 
-  /** @param updateLookup The updateLookup to set. */
+  /**
+   * @param updateLookup The updateLookup to set.
+   */
   public void setUpdateLookup(String[] updateLookup) {
     this.updateLookup = updateLookup;
   }
 
-  /** @return Returns the updateStream. */
+  /**
+   * @return Returns the updateStream.
+   */
   public String[] getUpdateStream() {
     return updateStream;
   }
 
-  /** @param updateStream The updateStream to set. */
+  /**
+   * @param updateStream The updateStream to set.
+   */
   public void setUpdateStream(String[] updateStream) {
     this.updateStream = updateStream;
   }
@@ -1040,12 +1086,16 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta<SynchronizeAfte
     }
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }

@@ -17,6 +17,9 @@
 
 package org.apache.hop.core.logging;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -25,9 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class LogMessageTest {
   private LogMessage logMessage;

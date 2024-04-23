@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.partition.PartitionSchema;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.partition.PartitionSchema;
 
 @SearchableAnalyserPlugin(
     id = "PartitionSchemaSearchableAnalyser",

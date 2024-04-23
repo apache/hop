@@ -23,13 +23,14 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 public class SnsNotifyData extends BaseTransformData implements ITransformData {
 
-    public IRowMeta outputRowMeta;
-    public int indexOfFieldtopARN;
-    public int indexOfFieldSubject;
-    public int indexOfFieldMessage;
-    public AwsSns aws_sns;
-    public String realMessageIDField;
-    public SnsNotifyData(){
-        super();
-    }
+  public IRowMeta outputRowMeta;
+  public int indexOfFieldtopARN;
+  public int indexOfFieldSubject;
+  public int indexOfFieldMessage;
+  public AwsSns aws_sns;
+  public String realMessageIDField;
+
+  public SnsNotifyData() {
+    super();
+  }
 }

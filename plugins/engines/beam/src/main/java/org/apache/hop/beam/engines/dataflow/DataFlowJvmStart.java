@@ -18,10 +18,9 @@
 package org.apache.hop.beam.engines.dataflow;
 
 import com.google.auto.service.AutoService;
+import java.security.Security;
 import org.apache.beam.sdk.harness.JvmInitializer;
 import org.apache.beam.sdk.options.PipelineOptions;
-
-import java.security.Security;
 
 /**
  * This class will be picked up and used at the very start of a DataFlow JVM. As such it allows us

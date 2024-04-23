@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.zip.GZIPOutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
@@ -28,10 +31,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * Outputs a stream/series of rows to a file, effectively building a sort of (compressed) microcube.
@@ -172,15 +171,15 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
   private void prepareFile() throws HopFileException {
     try {
       String filename = resolve(meta.getFilename());
-      
+
       FileObject fileObject = HopVfs.getFileObject(filename);
-      
+
       // See if we need to create the parent folder(s)...
       //
       if (meta.isFilenameCreatingParentFolders()) {
         createParentFolder(fileObject.getParent());
       }
-      
+
       if (meta.isAddToResultFilenames()) {
         // Add this to the result file names...
         ResultFile resultFile =
@@ -200,26 +199,28 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
       throw new HopFileException(e);
     }
   }
-  
+
   private void createParentFolder(FileObject parentFolder) throws HopTransformException {
-    if ( parentFolder==null )
-      return;
-    
+    if (parentFolder == null) return;
+
     try {
       // See if we need to create the parent folder(s)...
       if (!parentFolder.exists()) {
-        
+
         createParentFolder(parentFolder.getParent());
 
         // Try to create the parent folder...
         parentFolder.createFolder();
         if (log.isDebug()) {
-          logDebug(BaseMessages.getString(PKG, "CubeOutput.Log.ParentFolderCreated", parentFolder.getName()));
+          logDebug(
+              BaseMessages.getString(
+                  PKG, "CubeOutput.Log.ParentFolderCreated", parentFolder.getName()));
         }
       }
     } catch (Exception e) {
-      throw new HopTransformException(BaseMessages.getString(PKG,
-          "CubeOutput.Error.ErrorCreatingParentFolder", parentFolder.getName()));
+      throw new HopTransformException(
+          BaseMessages.getString(
+              PKG, "CubeOutput.Error.ErrorCreatingParentFolder", parentFolder.getName()));
     } finally {
       if (parentFolder != null) {
         try {
@@ -230,7 +231,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
       }
     }
   }
-  
+
   @Override
   public void dispose() {
     if (data.oneFileOpened) {

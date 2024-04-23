@@ -18,11 +18,12 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -32,9 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "Neo4jCypherOutput",

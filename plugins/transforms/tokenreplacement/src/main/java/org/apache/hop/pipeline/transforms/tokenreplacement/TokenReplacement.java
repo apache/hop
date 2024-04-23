@@ -17,6 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
+import java.util.Iterator;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -31,19 +43,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.util.Iterator;
 
 public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenReplacementData> {
   private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator

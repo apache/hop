@@ -18,6 +18,7 @@
 
 package org.apache.hop.reflection.pipeline.transform;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -31,10 +32,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
-public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, PipelineLoggingData>
-{
+public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, PipelineLoggingData> {
   private IPipelineEngine<PipelineMeta> loggingPipeline;
   private String loggingPhase;
 
@@ -189,7 +187,9 @@ public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, Pipeline
     return loggingPipeline;
   }
 
-  /** @param loggingPipeline The loggingPipeline to set */
+  /**
+   * @param loggingPipeline The loggingPipeline to set
+   */
   public void setLoggingPipeline(IPipelineEngine<PipelineMeta> loggingPipeline) {
     this.loggingPipeline = loggingPipeline;
   }
@@ -203,7 +203,9 @@ public class PipelineLogging extends BaseTransform<PipelineLoggingMeta, Pipeline
     return loggingPhase;
   }
 
-  /** @param loggingPhase The loggingPhase to set */
+  /**
+   * @param loggingPhase The loggingPhase to set
+   */
   public void setLoggingPhase(String loggingPhase) {
     this.loggingPhase = loggingPhase;
   }

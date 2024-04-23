@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.search;
 
+import java.io.File;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.search.ISearchable;
@@ -24,8 +25,6 @@ import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.core.variables.DescribedVariable;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.perspective.configuration.ConfigurationPerspective;
-
-import java.io.File;
 
 public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedVariable> {
   private DescribedVariable describedVariable;

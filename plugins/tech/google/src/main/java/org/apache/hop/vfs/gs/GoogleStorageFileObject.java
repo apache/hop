@@ -25,11 +25,6 @@ import com.google.cloud.storage.Bucket;
 import com.google.cloud.storage.BucketInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.Storage.BlobListOption;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.provider.AbstractFileName;
-import org.apache.commons.vfs2.provider.AbstractFileObject;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -37,6 +32,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.provider.AbstractFileName;
+import org.apache.commons.vfs2.provider.AbstractFileObject;
 
 public class GoogleStorageFileObject extends AbstractFileObject<GoogleStorageFileSystem> {
 

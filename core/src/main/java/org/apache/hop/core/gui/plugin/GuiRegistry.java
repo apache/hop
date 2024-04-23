@@ -17,6 +17,15 @@
 
 package org.apache.hop.core.gui.plugin;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
@@ -37,16 +46,6 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItemFilter;
 import org.apache.hop.core.util.TranslateUtil;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * This singleton keeps track of the various GUI elements that are made plug-able by the developers.
  * For example, a general menu with a certain ID is added by someone and then other developers can
@@ -63,6 +62,7 @@ public class GuiRegistry {
    * menu elements stored per ID.
    */
   private Map<String, Map<String, GuiMenuItem>> guiMenuMap;
+
   private Map<String, Map<String, GuiToolbarItem>> guiToolbarMap;
   private Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap;
 
@@ -394,16 +394,18 @@ public class GuiRegistry {
     elements.add(child);
   }
 
-  /** Add a GUI element to the registry.
+  /**
+   * Add a GUI element to the registry.
    *
    * @param guiPluginClassName
    * @param method
    * @param guiTab
    * @param classLoader
    */
-  public void addGuiTab(String guiPluginClassName, Method method, GuiTab guiTab, ClassLoader classLoader){
+  public void addGuiTab(
+      String guiPluginClassName, Method method, GuiTab guiTab, ClassLoader classLoader) {
     List<GuiTabItem> guiTabItemList =
-            guiTabsMap.computeIfAbsent(guiTab.parentId(), k -> new ArrayList<>());
+        guiTabsMap.computeIfAbsent(guiTab.parentId(), k -> new ArrayList<>());
 
     GuiTabItem guiTabItem = new GuiTabItem(guiPluginClassName, guiTab, method, classLoader);
 
@@ -468,11 +470,11 @@ public class GuiRegistry {
     }
   }
 
-  public Map<String, List<GuiTabItem>> getGuiTabsMap(){
+  public Map<String, List<GuiTabItem>> getGuiTabsMap() {
     return guiTabsMap;
   }
 
-  public List<GuiTabItem> findGuiTabItems(String parent){
+  public List<GuiTabItem> findGuiTabItems(String parent) {
     List<GuiTabItem> guiTabItems = guiTabsMap.get(parent);
     return guiTabItems;
   }
@@ -820,7 +822,8 @@ public class GuiRegistry {
    *
    * @param toolbarItemFiltersMap value of toolbarItemFiltersMap
    */
-  public void setToolbarItemFiltersMap(Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap) {
+  public void setToolbarItemFiltersMap(
+      Map<String, List<GuiToolbarItemFilter>> toolbarItemFiltersMap) {
     this.toolbarItemFiltersMap = toolbarItemFiltersMap;
   }
 }

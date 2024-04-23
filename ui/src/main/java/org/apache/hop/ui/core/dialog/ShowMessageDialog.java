@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -38,12 +43,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 /** Dialog to enter a text. (descriptions etc.) */
 public class ShowMessageDialog extends Dialog {
@@ -328,12 +327,16 @@ public class ShowMessageDialog extends Dialog {
     }
   }
 
-  /** @return the timeOut */
+  /**
+   * @return the timeOut
+   */
   public int getTimeOut() {
     return timeOut;
   }
 
-  /** @param timeOut the timeOut to set */
+  /**
+   * @param timeOut the timeOut to set
+   */
   public void setTimeOut(int timeOut) {
     this.timeOut = timeOut;
   }

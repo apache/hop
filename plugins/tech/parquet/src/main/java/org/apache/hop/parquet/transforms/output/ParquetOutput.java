@@ -17,6 +17,10 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -36,11 +40,6 @@ import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData> {
 
@@ -270,7 +269,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       filename += "-" + new DecimalFormat("0000").format(data.split);
     }
     if (data.isBeamContext()) {
-      filename+= "_"+log.getLogChannelId()+"_"+data.getBeamBundleNr();
+      filename += "_" + log.getLogChannelId() + "_" + data.getBeamBundleNr();
     }
     filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
     filename += meta.getCompressionCodec().getExtension();

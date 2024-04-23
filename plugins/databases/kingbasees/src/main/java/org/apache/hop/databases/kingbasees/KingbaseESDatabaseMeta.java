@@ -25,19 +25,24 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains KingbaseES specific information through static final members
- */
-@DatabaseMetaPlugin(type = "KINGBASEES", typeDescription = "KingbaseES", documentationUrl = "/database/databases/kingbasees.html")
+/** Contains KingbaseES specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "KINGBASEES",
+    typeDescription = "KingbaseES",
+    documentationUrl = "/database/databases/kingbasees.html")
 @GuiPlugin(id = "GUI-KingbaseDatabaseMeta")
 public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-  /** @return The extra option separator in database URL for this platform */
+  /**
+   * @return The extra option separator in database URL for this platform
+   */
   @Override
   public String getExtraOptionSeparator() {
     return "&";
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
@@ -76,13 +81,17 @@ public class KingbaseESDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return true;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;

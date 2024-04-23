@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.denormaliser;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -31,9 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "Denormaliser",
@@ -82,32 +81,44 @@ public class DenormaliserMeta extends BaseTransformMeta<Denormaliser, Denormalis
     return meta;
   }
 
-  /** @return Returns the keyField. */
+  /**
+   * @return Returns the keyField.
+   */
   public String getKeyField() {
     return keyField;
   }
 
-  /** @param keyField The keyField to set. */
+  /**
+   * @param keyField The keyField to set.
+   */
   public void setKeyField(String keyField) {
     this.keyField = keyField;
   }
 
-  /** @return Returns the groupField. */
+  /**
+   * @return Returns the groupField.
+   */
   public List<DenormaliserGroupField> getGroupFields() {
     return groupFields;
   }
 
-  /** @param groupFields The groupField to set. */
+  /**
+   * @param groupFields The groupField to set.
+   */
   public void setGroupFields(List<DenormaliserGroupField> groupFields) {
     this.groupFields = groupFields;
   }
 
-  /** @return Return the Targetfields */
+  /**
+   * @return Return the Targetfields
+   */
   public List<DenormaliserTargetField> getDenormaliserTargetFields() {
     return denormaliserTargetFields;
   }
 
-  /** @param denormaliserTargetFields the denormaliserTargetField to set */
+  /**
+   * @param denormaliserTargetFields the denormaliserTargetField to set
+   */
   public void setDenormaliserTargetFields(List<DenormaliserTargetField> denormaliserTargetFields) {
     this.denormaliserTargetFields = denormaliserTargetFields;
   }

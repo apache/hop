@@ -18,13 +18,12 @@
 
 package org.apache.hop.reflection.probe.meta;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @HopMetadata(
     key = "pipeline-probe",
@@ -68,7 +67,9 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /** @param enabled The enabled to set */
+  /**
+   * @param enabled The enabled to set
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -82,7 +83,9 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     return pipelineFilename;
   }
 
-  /** @param pipelineFilename The pipelineFilename to set */
+  /**
+   * @param pipelineFilename The pipelineFilename to set
+   */
   public void setPipelineFilename(String pipelineFilename) {
     this.pipelineFilename = pipelineFilename;
   }
@@ -96,7 +99,9 @@ public class PipelineProbe extends HopMetadataBase implements IHopMetadata {
     return dataProbeLocations;
   }
 
-  /** @param dataProbeLocations The dataProbeLocations to set */
+  /**
+   * @param dataProbeLocations The dataProbeLocations to set
+   */
   public void setDataProbeLocations(List<DataProbeLocation> dataProbeLocations) {
     this.dataProbeLocations = dataProbeLocations;
   }

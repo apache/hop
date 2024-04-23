@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.mail;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
@@ -26,12 +31,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLo
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionMail> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -44,37 +43,37 @@ public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSu
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "server",
-            "port",
-            "destination",
-            "destinationCc",
-            "destinationBCc",
-            "replyAddress",
-            "replyName",
-            "subject",
-            "includeDate",
-            "contactPerson",
-            "contactPhone",
-            "comment",
-            "includingFiles",
-            "zipFiles",
-            "zipFilename",
-            "usingAuthentication",
-            "usingSecureAuthentication",
-            "authenticationUser",
-            "authenticationPassword",
-            "onlySendComment",
-            "useHTML",
-            "usePriority",
-            "encoding",
-            "priority",
-            "importance",
-            "sensitivity",
-            "secureConnectionType",
-            "replyToAddresses",
-            "fileType",
-            "embeddedimages",
-            "contentids");
+        "server",
+        "port",
+        "destination",
+        "destinationCc",
+        "destinationBCc",
+        "replyAddress",
+        "replyName",
+        "subject",
+        "includeDate",
+        "contactPerson",
+        "contactPhone",
+        "comment",
+        "includingFiles",
+        "zipFiles",
+        "zipFilename",
+        "usingAuthentication",
+        "usingSecureAuthentication",
+        "authenticationUser",
+        "authenticationPassword",
+        "onlySendComment",
+        "useHTML",
+        "usePriority",
+        "encoding",
+        "priority",
+        "importance",
+        "sensitivity",
+        "secureConnectionType",
+        "replyToAddresses",
+        "fileType",
+        "embeddedimages",
+        "contentids");
   }
 
   @Override

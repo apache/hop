@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.detectlastrow;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -34,8 +35,6 @@ import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 @Transform(
     id = "DetectLastRow",
     image = "detectlastrow.svg",
@@ -51,12 +50,16 @@ public class DetectLastRowMeta extends BaseTransformMeta<DetectLastRow, DetectLa
   @HopMetadataProperty(key = "resultfieldname")
   private String resultFieldName;
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getResultFieldName() {
     return resultFieldName;
   }
 
-  /** @param resultfieldname The resultfieldname to set. */
+  /**
+   * @param resultfieldname The resultfieldname to set.
+   */
   public void setResultFieldName(String resultfieldname) {
     this.resultFieldName = resultfieldname;
   }

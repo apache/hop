@@ -172,7 +172,7 @@ public class ValidatorMeta extends BaseTransformMeta<Validator, ValidatorData> {
   public void searchInfoAndTargetTransforms(List transforms) {
     for (Validation validation : validations) {
       TransformMeta transformMeta =
-              TransformMeta.findTransform(transforms, validation.getSourcingTransformName());
+          TransformMeta.findTransform(transforms, validation.getSourcingTransformName());
       validation.setSourcingTransform(transformMeta);
     }
     resetTransformIoMeta();

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.sql.ResultSet;
+import java.util.concurrent.locks.ReentrantLock;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -31,9 +33,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.ResultSet;
-import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Use values from input streams to joins with values in a database. Freehand SQL can be used to do

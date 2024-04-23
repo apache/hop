@@ -17,6 +17,18 @@
 
 package org.apache.hop.www;
 
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
@@ -24,19 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
 import org.junit.Test;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class GetStatusServletTest {
   private PipelineMap mockPipelineMap;

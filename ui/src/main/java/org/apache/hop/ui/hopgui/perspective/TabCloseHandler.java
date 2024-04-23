@@ -29,82 +29,87 @@ import org.eclipse.swt.widgets.MenuItem;
 
 public class TabCloseHandler {
 
-    private static final Class<?> PKG = HopDataOrchestrationPerspective.class; // For Translator
+  private static final Class<?> PKG = HopDataOrchestrationPerspective.class; // For Translator
 
-    CTabFolder tabFolder;
-    CTabItem selectedItem;
+  CTabFolder tabFolder;
+  CTabItem selectedItem;
 
-    public TabCloseHandler(TabClosable tabClosablePerspective) {
-        this.tabFolder = tabClosablePerspective.getTabFolder();
+  public TabCloseHandler(TabClosable tabClosablePerspective) {
+    this.tabFolder = tabClosablePerspective.getTabFolder();
 
-        Menu menu = new Menu(tabFolder);
-        tabFolder.setMenu(menu);
-        tabFolder.addListener(SWT.MenuDetect, event -> handleTabMenuDetectEvent(event));
-        tabFolder.addListener(SWT.MouseUp, event -> handleMouseUp(event, tabClosablePerspective));
+    Menu menu = new Menu(tabFolder);
+    tabFolder.setMenu(menu);
+    tabFolder.addListener(SWT.MenuDetect, event -> handleTabMenuDetectEvent(event));
+    tabFolder.addListener(SWT.MouseUp, event -> handleMouseUp(event, tabClosablePerspective));
 
-        // Create menu item
-        MenuItem miClose = new MenuItem(menu, SWT.NONE);
-        miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
-        miClose.addListener(
-            SWT.Selection,
-            event -> tabClosablePerspective.closeTab(null, selectedItem));
+    // Create menu item
+    MenuItem miClose = new MenuItem(menu, SWT.NONE);
+    miClose.setText(BaseMessages.getString(PKG, "DataOrchestrationPerspective.Close.Button.Text"));
+    miClose.addListener(
+        SWT.Selection, event -> tabClosablePerspective.closeTab(null, selectedItem));
 
-        MenuItem miCloseOthers = new MenuItem(menu, SWT.NONE);
-        miCloseOthers.setText(
-            BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
-        miCloseOthers.addListener(
-            SWT.Selection,
-            event -> tabClosablePerspective.getOtherTabs(selectedItem).forEach(tabItem ->
-                tabClosablePerspective.closeTab(null, tabItem)));
+    MenuItem miCloseOthers = new MenuItem(menu, SWT.NONE);
+    miCloseOthers.setText(
+        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseOther.Button.Text"));
+    miCloseOthers.addListener(
+        SWT.Selection,
+        event ->
+            tabClosablePerspective
+                .getOtherTabs(selectedItem)
+                .forEach(tabItem -> tabClosablePerspective.closeTab(null, tabItem)));
 
-        MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
-        miCloseAll.setText(
-            BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
-        miCloseAll.addListener(
-            SWT.Selection,
-            event -> {
-                for (CTabItem tabItem : tabClosablePerspective.getTabFolder().getItems()) {
-                    tabClosablePerspective.closeTab(null, tabItem);
-                }
-            });
+    MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
+    miCloseAll.setText(
+        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseAll.Button.Text"));
+    miCloseAll.addListener(
+        SWT.Selection,
+        event -> {
+          for (CTabItem tabItem : tabClosablePerspective.getTabFolder().getItems()) {
+            tabClosablePerspective.closeTab(null, tabItem);
+          }
+        });
 
-        MenuItem miCloseLeft = new MenuItem(menu, SWT.NONE);
-        miCloseLeft.setText(
-            BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseLeft.Button.Text"));
-        miCloseLeft.addListener(
-            SWT.Selection,
-            event -> tabClosablePerspective.getTabsToLeft(selectedItem).forEach(tabItem ->
-                tabClosablePerspective.closeTab(null, tabItem)));
+    MenuItem miCloseLeft = new MenuItem(menu, SWT.NONE);
+    miCloseLeft.setText(
+        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseLeft.Button.Text"));
+    miCloseLeft.addListener(
+        SWT.Selection,
+        event ->
+            tabClosablePerspective
+                .getTabsToLeft(selectedItem)
+                .forEach(tabItem -> tabClosablePerspective.closeTab(null, tabItem)));
 
-        MenuItem miCloseRight = new MenuItem(menu, SWT.NONE);
-        miCloseRight.setText(
-            BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseRight.Button.Text"));
-        miCloseRight.addListener(
-            SWT.Selection,
-            event -> tabClosablePerspective.getTabsToRight(selectedItem).forEach(tabItem ->
-                tabClosablePerspective.closeTab(null, tabItem)));
+    MenuItem miCloseRight = new MenuItem(menu, SWT.NONE);
+    miCloseRight.setText(
+        BaseMessages.getString(PKG, "DataOrchestrationPerspective.CloseRight.Button.Text"));
+    miCloseRight.addListener(
+        SWT.Selection,
+        event ->
+            tabClosablePerspective
+                .getTabsToRight(selectedItem)
+                .forEach(tabItem -> tabClosablePerspective.closeTab(null, tabItem)));
+  }
+
+  private void handleMouseUp(Event event, TabClosable tabClosablePerspective) {
+
+    // Middle button close tab
+    if (event.button == 2) {
+      Point point = new Point(event.x, event.y);
+      CTabItem item = tabFolder.getItem(point);
+      if (item != null) {
+        tabClosablePerspective.closeTab(null, item);
+      }
     }
 
-    private void handleMouseUp(Event event, TabClosable tabClosablePerspective) {
-      
-      // Middle button close tab
-      if (event.button == 2) {
-        Point point = new Point(event.x, event.y); 
-        CTabItem item = tabFolder.getItem(point);
-        if (item != null) {
-          tabClosablePerspective.closeTab(null, item);
-        }
-      }
+    event.doit = false;
+  }
 
+  private void handleTabMenuDetectEvent(Event event) {
+    Point point = tabFolder.toControl(tabFolder.getDisplay().getCursorLocation());
+    selectedItem = tabFolder.getItem(new Point(point.x, point.y));
+
+    if (selectedItem == null) {
       event.doit = false;
     }
-    
-    private void handleTabMenuDetectEvent(Event event) {
-        Point point = tabFolder.toControl(tabFolder.getDisplay().getCursorLocation());
-        selectedItem = tabFolder.getItem(new Point(point.x, point.y));
-
-        if (selectedItem == null) {
-            event.doit = false;
-        }
-    }
+  }
 }

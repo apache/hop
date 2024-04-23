@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
@@ -41,9 +43,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
   private static final Class<?> PKG = HopGui.class;
@@ -205,7 +204,7 @@ public class ShowHelpDialog extends Dialog {
             if (event.location.endsWith(".pdf")) {
               try {
                 EnvironmentUtils.getInstance().openUrl(event.location);
-              } catch(Exception e) {
+              } catch (Exception e) {
                 new ErrorDialog(shell, "Error", "Error opening URL", e);
               }
               event.doit = false;

@@ -17,10 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import jakarta.mail.Address;
 import jakarta.mail.Header;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -37,18 +48,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mockito;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.regex.Pattern;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ParseMailInputTest {
 

@@ -17,6 +17,15 @@
 
 package org.apache.hop.core.compress.gzip;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPOutputStream;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
@@ -28,16 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.zip.GZIPOutputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class GzipCompressionInputStreamTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

@@ -683,8 +683,7 @@ public class WorkflowExecutionViewer extends BaseExecutionViewer
         viewPort = workflowPainter.getViewPort();
         graphPort = workflowPainter.getGraphPort();
       } catch (Exception e) {
-        new ErrorDialog(
-            hopGui.getActiveShell(), "Error", "Error drawing workflow image", e);
+        new ErrorDialog(hopGui.getActiveShell(), "Error", "Error drawing workflow image", e);
       }
     } finally {
       gc.dispose();

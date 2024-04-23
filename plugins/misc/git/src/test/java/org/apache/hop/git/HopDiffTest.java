@@ -18,6 +18,19 @@
 
 package org.apache.hop.git;
 
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT;
+import static org.apache.hop.git.HopDiff.ATTR_STATUS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.UNCHANGED;
+import static org.apache.hop.git.HopDiff.compareActions;
+import static org.apache.hop.git.HopDiff.compareTransforms;
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -28,20 +41,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-import static org.apache.hop.git.HopDiff.ADDED;
-import static org.apache.hop.git.HopDiff.ATTR_GIT;
-import static org.apache.hop.git.HopDiff.ATTR_STATUS;
-import static org.apache.hop.git.HopDiff.CHANGED;
-import static org.apache.hop.git.HopDiff.REMOVED;
-import static org.apache.hop.git.HopDiff.UNCHANGED;
-import static org.apache.hop.git.HopDiff.compareActions;
-import static org.apache.hop.git.HopDiff.compareTransforms;
-import static org.junit.Assert.assertEquals;
 
 public class HopDiffTest {
 

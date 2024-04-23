@@ -35,8 +35,8 @@ public class GoogleSheetsCredentials {
 
   public static final String APPLICATION_NAME = "Apache-Hop-Google-Sheets";
 
-  public static HttpCredentialsAdapter getCredentialsJson(String scope, String jsonCredentialPath, String impersonation)
-      throws IOException {
+  public static HttpCredentialsAdapter getCredentialsJson(
+      String scope, String jsonCredentialPath, String impersonation) throws IOException {
 
     GoogleCredentials credential;
 
@@ -50,23 +50,27 @@ public class GoogleSheetsCredentials {
     if (in == null) {
       throw new FileNotFoundException("Resource not found:" + jsonCredentialPath);
     }
-    if(StringUtils.isEmpty(impersonation)){
+    if (StringUtils.isEmpty(impersonation)) {
       credential = GoogleCredentials.fromStream(in).createScoped(Collections.singleton(scope));
-    }else{
-      credential = GoogleCredentials.fromStream(in).createScoped(Collections.singleton(SQLAdminScopes.SQLSERVICE_ADMIN)).createDelegated(impersonation);
+    } else {
+      credential =
+          GoogleCredentials.fromStream(in)
+              .createScoped(Collections.singleton(SQLAdminScopes.SQLSERVICE_ADMIN))
+              .createDelegated(impersonation);
     }
 
     return new HttpCredentialsAdapter(credential);
   }
 
-  public static HttpRequestInitializer setHttpTimeout(final HttpRequestInitializer requestInitializer, final String timeout) {
+  public static HttpRequestInitializer setHttpTimeout(
+      final HttpRequestInitializer requestInitializer, final String timeout) {
     return new HttpRequestInitializer() {
       @Override
       public void initialize(HttpRequest httpRequest) throws IOException {
-        Integer TO=Integer.parseInt(timeout);
+        Integer TO = Integer.parseInt(timeout);
         requestInitializer.initialize(httpRequest);
-        httpRequest.setConnectTimeout(TO * 60000);  // 10 minutes connect timeout
-        httpRequest.setReadTimeout(TO * 60000);  // 10 minutes read timeout
+        httpRequest.setConnectTimeout(TO * 60000); // 10 minutes connect timeout
+        httpRequest.setReadTimeout(TO * 60000); // 10 minutes read timeout
       }
     };
   }

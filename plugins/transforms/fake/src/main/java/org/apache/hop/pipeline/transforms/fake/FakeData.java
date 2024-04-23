@@ -18,12 +18,11 @@
 package org.apache.hop.pipeline.transforms.fake;
 
 import com.github.javafaker.Faker;
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class FakeData extends BaseTransformData implements ITransformData {
   public Faker faker;

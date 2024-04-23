@@ -18,6 +18,8 @@
 
 package org.apache.hop.execution.sampler.plugins.random;
 
+import java.util.List;
+import java.util.Random;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
@@ -25,9 +27,6 @@ import org.apache.hop.execution.sampler.ExecutionDataSamplerPlugin;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.plugins.ExecutionDataSamplerBase;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.List;
-import java.util.Random;
 
 @GuiPlugin
 @ExecutionDataSamplerPlugin(
@@ -57,13 +56,14 @@ public class RandomRowsExecutionDataSampler
   private final Random random = new Random();
 
   @Override
-  public RandomRowsExecutionDataSamplerStore createSamplerStore(ExecutionDataSamplerMeta samplerMeta) {
+  public RandomRowsExecutionDataSamplerStore createSamplerStore(
+      ExecutionDataSamplerMeta samplerMeta) {
     return new RandomRowsExecutionDataSamplerStore(this, samplerMeta);
   }
 
   @Override
   public void sampleRow(
-          RandomRowsExecutionDataSamplerStore samplerStore,
+      RandomRowsExecutionDataSamplerStore samplerStore,
       IStream.StreamType streamType,
       IRowMeta rowMeta,
       Object[] row) {

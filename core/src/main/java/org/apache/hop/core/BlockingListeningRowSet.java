@@ -17,12 +17,11 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.core.row.IRowMeta;
 
 /**
  * Contains a buffer of rows. Getting rows from the buffer or putting rows in the buffer is
@@ -134,7 +133,9 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
     return queArray.size();
   }
 
-  /** @return true if this row set is blocking. */
+  /**
+   * @return true if this row set is blocking.
+   */
   @Override
   public boolean isBlocking() {
     return blocking.get();

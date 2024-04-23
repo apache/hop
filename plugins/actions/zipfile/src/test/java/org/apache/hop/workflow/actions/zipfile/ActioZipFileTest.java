@@ -18,19 +18,14 @@
 
 package org.apache.hop.workflow.actions.zipfile;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
-import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.workflow.action.ActionSerializationTestUtil;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.apache.hop.workflow.action.ActionSerializationTestUtil;
+import org.junit.Test;
 
 public class ActioZipFileTest {
 

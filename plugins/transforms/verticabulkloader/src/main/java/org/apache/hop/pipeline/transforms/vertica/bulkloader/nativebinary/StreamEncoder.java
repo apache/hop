@@ -17,10 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-
 import java.io.IOException;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
@@ -33,6 +29,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.util.Collections;
 import java.util.List;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 
 public class StreamEncoder {
 

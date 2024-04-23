@@ -225,7 +225,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     // START OF TargetFileGroupGROUP///
     // /
     Group wTargetFileGroup = setupWebServerReplyGroup(wGeneralComp);
-    
+
     setupTargetFileLine(lsMod, middle, margin, wTargetFileGroup);
     setupAppendFileLine(middle, margin, wTargetFileGroup);
     setupAddDateTimeLine(middle, margin, wTargetFileGroup);
@@ -290,7 +290,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     return action;
   }
 
-  private void setupHeaderTable(ModifyListener lsMod, int margin, CTabItem wHeadersTab, Composite wHeadersComp) {
+  private void setupHeaderTable(
+      ModifyListener lsMod, int margin, CTabItem wHeadersTab, Composite wHeadersComp) {
     int rows =
         action.getHeaderName() == null
             ? 1
@@ -361,7 +362,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
   }
 
-  private void setupTargetExtensionLine(ModifyListener lsMod, int middle, int margin, Group wTargetFileGroup) {
+  private void setupTargetExtensionLine(
+      ModifyListener lsMod, int middle, int margin, Group wTargetFileGroup) {
     // TargetExt line
     wlTargetExt = new Label(wTargetFileGroup, SWT.RIGHT);
     wlTargetExt.setText(BaseMessages.getString(PKG, "ActionHTTP.TargetFileExt.Label"));
@@ -430,7 +432,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wAppend.setLayoutData(fdAppend);
   }
 
-  private void setupTargetFileLine(ModifyListener lsMod, int middle, int margin, Group wTargetFileGroup) {
+  private void setupTargetFileLine(
+      ModifyListener lsMod, int middle, int margin, Group wTargetFileGroup) {
     // TargetFile line
     wlTargetFile = new Label(wTargetFileGroup, SWT.RIGHT);
     wlTargetFile.setText(BaseMessages.getString(PKG, "ActionHTTP.TargetFile.Label"));
@@ -478,7 +481,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     return wTargetFileGroup;
   }
 
-  private void setupUploadFileLine(ModifyListener lsMod, int middle, int margin, Group wAuthentication, Group wUpLoadFile) {
+  private void setupUploadFileLine(
+      ModifyListener lsMod, int middle, int margin, Group wAuthentication, Group wUpLoadFile) {
     // UploadFile line
     wlUploadFile = new Label(wUpLoadFile, SWT.RIGHT);
     wlUploadFile.setText(BaseMessages.getString(PKG, "ActionHTTP.UploadFile.Label"));
@@ -530,7 +534,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     return wUpLoadFile;
   }
 
-  private void setupIgnoreHostLine(ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupIgnoreHostLine(
+      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
     // IgnoreHosts line
     Label wlNonProxyHosts = new Label(wAuthentication, SWT.RIGHT);
     wlNonProxyHosts.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyIgnoreRegexp.Label"));
@@ -552,7 +557,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wNonProxyHosts.setLayoutData(fdNonProxyHosts);
   }
 
-  private void setupProxyPortLine(ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyPortLine(
+      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
     // ProxyPort line
     Label wlProxyPort = new Label(wAuthentication, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyPort.Label"));
@@ -573,7 +579,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wProxyPort.setLayoutData(fdProxyPort);
   }
 
-  private void setupProxyServerLine(ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupProxyServerLine(
+      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
     // ProxyServer line
     Label wlProxyServer = new Label(wAuthentication, SWT.RIGHT);
     wlProxyServer.setText(BaseMessages.getString(PKG, "ActionHTTP.ProxyHost.Label"));
@@ -594,7 +601,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wProxyServer.setLayoutData(fdProxyServer);
   }
 
-  private void setupPasswordLine(ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupPasswordLine(
+      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
     // Password line
     Label wlPassword = new Label(wAuthentication, SWT.RIGHT);
     wlPassword.setText(BaseMessages.getString(PKG, "ActionHTTP.UploadPassword.Label"));
@@ -615,7 +623,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wPassword.setLayoutData(fdPassword);
   }
 
-  private void setupUsernameLine(ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
+  private void setupUsernameLine(
+      ModifyListener lsMod, int middle, int margin, Group wAuthentication) {
     // UserName line
     Label wlUserName = new Label(wAuthentication, SWT.RIGHT);
     wlUserName.setText(BaseMessages.getString(PKG, "ActionHTTP.UploadUser.Label"));
@@ -648,7 +657,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     return wAuthentication;
   }
 
-  private void setupDestFileLine(ModifyListener lsMod, int middle, int margin, Composite wGeneralComp) {
+  private void setupDestFileLine(
+      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp) {
     // FieldTarget line
     wlFieldTarget = new Label(wGeneralComp, SWT.RIGHT);
     wlFieldTarget.setText(BaseMessages.getString(PKG, "ActionHTTP.InputFieldDest.Label"));
@@ -669,7 +679,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wFieldTarget.setLayoutData(fdFieldTarget);
   }
 
-  private void setupUploadFileLine(ModifyListener lsMod, int middle, int margin, Composite wGeneralComp) {
+  private void setupUploadFileLine(
+      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp) {
     // FieldUpload line
     wlFieldUpload = new Label(wGeneralComp, SWT.RIGHT);
     wlFieldUpload.setText(BaseMessages.getString(PKG, "ActionHTTP.InputFieldUpload.Label"));
@@ -690,7 +701,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wFieldUpload.setLayoutData(fdFieldUpload);
   }
 
-  private void setupUrlFieldLine(ModifyListener lsMod, int middle, int margin, Composite wGeneralComp) {
+  private void setupUrlFieldLine(
+      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp) {
     // FieldURL line
     wlFieldURL = new Label(wGeneralComp, SWT.RIGHT);
     wlFieldURL.setText(BaseMessages.getString(PKG, "ActionHTTP.InputField.Label"));

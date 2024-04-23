@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -40,15 +48,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 /** Bulk loads data to Snowflake */
 public class SnowflakeBulkLoader
@@ -188,7 +187,8 @@ public class SnowflakeBulkLoader
     sql += resolve(meta.getTargetTable());
     logDetailed("Executing SQL " + sql);
     try {
-      try (ResultSet resultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
+      try (ResultSet resultSet =
+          data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
 
         IRowMeta rowMeta = data.db.getReturnRowMeta();
         int nameField = rowMeta.indexOfValue("NAME");
@@ -239,33 +239,35 @@ public class SnowflakeBulkLoader
             + ";";
 
     logDebug("Executing SQL " + sql);
-    try (ResultSet putResultSet = data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
-        IRowMeta putRowMeta = data.db.getReturnRowMeta();
-        Object[] putRow = data.db.getRow(putResultSet);
-        logDebug("=========================Put File Results======================");
-        int fileNum = 0;
-        while (putRow != null) {
-          logDebug("------------------------ File " + fileNum + "--------------------------");
-          for (int i = 0; i < putRowMeta.getFieldNames().length; i++) {
-            logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
-            if (putRowMeta.getFieldNames()[i].equalsIgnoreCase("status")
-                && putRowMeta.getString(putRow, i).equalsIgnoreCase("ERROR")) {
-              throw new HopDatabaseException(
-                  "Error putting file to Snowflake stage \n"
-                      + putRowMeta.getString(putRow, "message", ""));
-            }
+    try (ResultSet putResultSet =
+        data.db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
+      IRowMeta putRowMeta = data.db.getReturnRowMeta();
+      Object[] putRow = data.db.getRow(putResultSet);
+      logDebug("=========================Put File Results======================");
+      int fileNum = 0;
+      while (putRow != null) {
+        logDebug("------------------------ File " + fileNum + "--------------------------");
+        for (int i = 0; i < putRowMeta.getFieldNames().length; i++) {
+          logDebug(putRowMeta.getFieldNames()[i] + " = " + putRowMeta.getString(putRow, i));
+          if (putRowMeta.getFieldNames()[i].equalsIgnoreCase("status")
+              && putRowMeta.getString(putRow, i).equalsIgnoreCase("ERROR")) {
+            throw new HopDatabaseException(
+                "Error putting file to Snowflake stage \n"
+                    + putRowMeta.getString(putRow, "message", ""));
           }
-          fileNum++;
+        }
+        fileNum++;
 
-          putRow = data.db.getRow(putResultSet);
+        putRow = data.db.getRow(putResultSet);
       }
       data.db.closeQuery(putResultSet);
-    } catch(SQLException exception) {
+    } catch (SQLException exception) {
       throw new HopDatabaseException(exception);
     }
     String copySQL = meta.getCopyStatement(this, data.getPreviouslyOpenedFiles());
     logDebug("Executing SQL " + copySQL);
-    try (ResultSet resultSet = data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false)) {
+    try (ResultSet resultSet =
+        data.db.openQuery(copySQL, null, null, ResultSet.FETCH_FORWARD, false)) {
       IRowMeta rowMeta = data.db.getReturnRowMeta();
 
       Object[] row = data.db.getRow(resultSet);
@@ -295,7 +297,7 @@ public class SnowflakeBulkLoader
       data.db.closeQuery(resultSet);
       setLinesOutput(rowsLoaded);
       setLinesRejected(rowsError);
-    } catch(SQLException exception) {
+    } catch (SQLException exception) {
       throw new HopDatabaseException(exception);
     }
     data.db.execStatement("commit");
@@ -773,7 +775,8 @@ public class SnowflakeBulkLoader
       setErrors(1);
     }
 
-    if (meta.isRemoveFiles() || !Boolean.parseBoolean(resolve(SnowflakeBulkLoaderMeta.DEBUG_MODE_VAR))) {
+    if (meta.isRemoveFiles()
+        || !Boolean.parseBoolean(resolve(SnowflakeBulkLoaderMeta.DEBUG_MODE_VAR))) {
       for (String filename : data.previouslyOpenedFiles) {
         try {
           HopVfs.getFileObject(filename).delete();

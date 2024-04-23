@@ -106,7 +106,9 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
     return pipelineFilename;
   }
 
-  /** @param pipelineFilename The pipelineFilename to set */
+  /**
+   * @param pipelineFilename The pipelineFilename to set
+   */
   public void setPipelineFilename(String pipelineFilename) {
     this.pipelineFilename = pipelineFilename;
   }
@@ -120,7 +122,9 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
     return transformFilename;
   }
 
-  /** @param transformFilename The transformFilename to set */
+  /**
+   * @param transformFilename The transformFilename to set
+   */
   public void setTransformFilename(String transformFilename) {
     this.transformFilename = transformFilename;
   }
@@ -134,7 +138,9 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
     return workflowFilename;
   }
 
-  /** @param workflowFilename The workflowFilename to set */
+  /**
+   * @param workflowFilename The workflowFilename to set
+   */
   public void setWorkflowFilename(String workflowFilename) {
     this.workflowFilename = workflowFilename;
   }
@@ -148,7 +154,9 @@ public class LogReader extends HopMetadataBase implements IHopMetadata {
     return actionFilename;
   }
 
-  /** @param actionFilename The actionFilename to set */
+  /**
+   * @param actionFilename The actionFilename to set
+   */
   public void setActionFilename(String actionFilename) {
     this.actionFilename = actionFilename;
   }

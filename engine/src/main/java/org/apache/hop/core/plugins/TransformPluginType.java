@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.plugins;
 
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-
-import java.util.Map;
 
 /** This class represents the transform plugin type. */
 @PluginMainClassType(ITransformMeta.class)

@@ -25,10 +25,12 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains PostgreSQL specific information through static final members
- */
-@DatabaseMetaPlugin(type = "POSTGRESQL", typeDescription = "PostgreSQL", documentationUrl = "/database/databases/postgresql.html", classLoaderGroup = "postgres-db")
+/** Contains PostgreSQL specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "POSTGRESQL",
+    typeDescription = "PostgreSQL",
+    documentationUrl = "/database/databases/postgresql.html",
+    classLoaderGroup = "postgres-db")
 @GuiPlugin(id = "GUI-PostgreSQLDatabaseMeta")
 public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int GB_LIMIT = 1_073_741_824;
@@ -38,13 +40,17 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return true;
   }
 
-  /** @return The extra option separator in database URL for this platform */
+  /**
+   * @return The extra option separator in database URL for this platform
+   */
   @Override
   public String getExtraOptionSeparator() {
     return "&";
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
@@ -83,13 +89,17 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return true;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;
@@ -1078,14 +1088,14 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public boolean isSupportsBooleanDataType() {   
+  public boolean isSupportsBooleanDataType() {
     return true;
   }
-  
+
   @Override
   public boolean isSupportsTimestampDataType() {
     return true;
-  }  
+  }
 
   @Override
   public boolean isSupportsGetBlob() {

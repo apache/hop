@@ -18,6 +18,9 @@
 package org.apache.hop.pipeline.transforms.fake;
 
 import com.github.javafaker.Faker;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -25,10 +28,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Locale;
 
 public class Fake extends BaseTransform<FakeMeta, FakeData> {
 

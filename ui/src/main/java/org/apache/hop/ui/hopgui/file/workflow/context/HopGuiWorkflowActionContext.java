@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -34,9 +36,6 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     implements IGuiContextHandler {
@@ -162,7 +161,9 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     return workflowMeta;
   }
 
-  /** @param workflowMeta The workflowMeta to set */
+  /**
+   * @param workflowMeta The workflowMeta to set
+   */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
   }
@@ -176,7 +177,9 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     return actionMeta;
   }
 
-  /** @param actionMeta The actionCopy to set */
+  /**
+   * @param actionMeta The actionCopy to set
+   */
   public void setActionMeta(ActionMeta actionMeta) {
     this.actionMeta = actionMeta;
   }
@@ -190,7 +193,9 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     return workflowGraph;
   }
 
-  /** @param workflowGraph The workflow graph to set */
+  /**
+   * @param workflowGraph The workflow graph to set
+   */
   public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -204,7 +209,9 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     return click;
   }
 
-  /** @param click The click to set */
+  /**
+   * @param click The click to set
+   */
   public void setClick(Point click) {
     this.click = click;
   }
@@ -218,7 +225,9 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
     return lambdaBuilder;
   }
 
-  /** @param lambdaBuilder The lambdaBuilder to set */
+  /**
+   * @param lambdaBuilder The lambdaBuilder to set
+   */
   public void setLambdaBuilder(GuiActionLambdaBuilder<HopGuiWorkflowActionContext> lambdaBuilder) {
     this.lambdaBuilder = lambdaBuilder;
   }

@@ -19,17 +19,23 @@ package org.apache.hop.core.logging;
 
 public interface ILogChannel {
 
-  /** @return the id of the logging channel */
+  /**
+   * @return the id of the logging channel
+   */
   String getLogChannelId();
 
   LogLevel getLogLevel();
 
   void setLogLevel(LogLevel logLevel);
 
-  /** @return the containerObjectId */
+  /**
+   * @return the containerObjectId
+   */
   String getContainerObjectId();
 
-  /** @param containerObjectId the containerObjectId to set */
+  /**
+   * @param containerObjectId the containerObjectId to set
+   */
   void setContainerObjectId(String containerObjectId);
 
   String getFilter();
@@ -84,7 +90,9 @@ public interface ILogChannel {
    */
   void setForcingSeparateLogging(boolean forcingSeparateLogging);
 
-  /** @return True if the logging is forcibly separated out from even identical objects. */
+  /**
+   * @return True if the logging is forcibly separated out from even identical objects.
+   */
   boolean isForcingSeparateLogging();
 
   /**

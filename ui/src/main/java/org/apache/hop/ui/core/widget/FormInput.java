@@ -17,12 +17,11 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.lang.reflect.Method;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-
-import java.lang.reflect.Method;
 
 /**
  * This class defines the fairly generic FormInput. This class is simply a convenience utility,

@@ -17,13 +17,14 @@
 
 package org.apache.hop.core.util;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/** @param <T> type of key value. */
+/**
+ * @param <T> type of key value.
+ */
 public class KeyValueFactory<T> {
 
   /** Default instance for ... */
@@ -70,7 +71,9 @@ public class KeyValueFactory<T> {
     this.defaultValue = defaultValue;
   }
 
-  /** @return the defaultValue */
+  /**
+   * @return the defaultValue
+   */
   public T getDefaultValue() {
     return this.defaultValue;
   }

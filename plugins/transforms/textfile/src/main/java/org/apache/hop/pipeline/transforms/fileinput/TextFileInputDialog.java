@@ -15,9 +15,17 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Vector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -85,18 +93,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
-
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated(since="2.0")
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
+@Deprecated(since = "2.0")
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
@@ -2442,7 +2442,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
-
 
       meta.getInputFields()[i] = field;
     }

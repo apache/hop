@@ -17,6 +17,14 @@
 
 package org.apache.hop.www;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.UUID;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -40,15 +48,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.w3c.dom.Document;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.util.UUID;
 
 /**
  * This servlet allows you to transport an exported workflow or pipeline over to the carte server as
@@ -193,8 +192,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // Open the pipeline from inside the ZIP archive
           //
           PipelineMeta pipelineMeta =
-              new PipelineMeta(
-                  fileUrl, metadataProvider, Variables.getADefaultVariableSpace());
+              new PipelineMeta(fileUrl, metadataProvider, Variables.getADefaultVariableSpace());
 
           serverObjectId = UUID.randomUUID().toString();
           servletLoggingObject.setContainerObjectId(serverObjectId);
@@ -203,7 +201,10 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           String runConfigurationName = executionConfiguration.getRunConfiguration();
           IPipelineEngine<PipelineMeta> pipeline =
               PipelineEngineFactory.createPipelineEngine(
-                  variables, variables.resolve(runConfigurationName), metadataProvider, pipelineMeta);
+                  variables,
+                  variables.resolve(runConfigurationName),
+                  metadataProvider,
+                  pipelineMeta);
           pipeline.setParent(servletLoggingObject);
 
           // store it all in the map...

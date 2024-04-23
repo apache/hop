@@ -21,44 +21,54 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ExcelWriterOutputField implements Cloneable {
 
-  @HopMetadataProperty(injectionKey = "NAME",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
+  @HopMetadataProperty(
+      injectionKey = "NAME",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldName.Field")
   private String name;
 
-  @HopMetadataProperty(injectionKey = "TYPE",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
+  @HopMetadataProperty(
+      injectionKey = "TYPE",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Type.Field")
   private String type;
 
-  @HopMetadataProperty(injectionKey = "FORMAT",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
+  @HopMetadataProperty(
+      injectionKey = "FORMAT",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Format.Field")
   private String format;
 
-  @HopMetadataProperty(injectionKey = "FIELDTITLE",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
+  @HopMetadataProperty(
+      injectionKey = "FIELDTITLE",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Title.Field")
   private String title;
 
-  @HopMetadataProperty(injectionKey = "FORMULA",
+  @HopMetadataProperty(
+      injectionKey = "FORMULA",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.FieldContainFormula.Field")
   private boolean formula;
 
-  @HopMetadataProperty(injectionKey = "HYPERLINKFIELD",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
+  @HopMetadataProperty(
+      injectionKey = "HYPERLINKFIELD",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Hyperlink.Field")
   private String hyperlinkField;
 
-  @HopMetadataProperty(injectionKey = "CELLCOMMENT",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
+  @HopMetadataProperty(
+      injectionKey = "CELLCOMMENT",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.Comment.Field")
   private String commentField;
 
-  @HopMetadataProperty(injectionKey = "COMMENTAUTHOR",
+  @HopMetadataProperty(
+      injectionKey = "COMMENTAUTHOR",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.CommentAuthor.Field")
   private String commentAuthorField;
 
-  @HopMetadataProperty(injectionKey = "TITLESTYLE",
+  @HopMetadataProperty(
+      injectionKey = "TITLESTYLE",
       injectionKeyDescription = "ExcelWriterMeta.Injection.Output.TitleStyleCell.Field")
   private String titleStyleCell;
 
-  @HopMetadataProperty(injectionKey = "STYLECELL",
-          injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
+  @HopMetadataProperty(
+      injectionKey = "STYLECELL",
+      injectionKeyDescription = "ExcelWriterMeta.Injection.Output.StyleCell.Field")
   private String styleCell;
 
   public String getCommentAuthorField() {
@@ -75,7 +85,17 @@ public class ExcelWriterOutputField implements Cloneable {
     this.format = format;
   }
 
-  public ExcelWriterOutputField(String name, String type, String format, String title, boolean formula, String hyperlinkField, String commentField, String commentAuthorField, String titleStyleCell, String styleCell) {
+  public ExcelWriterOutputField(
+      String name,
+      String type,
+      String format,
+      String title,
+      boolean formula,
+      String hyperlinkField,
+      String commentField,
+      String commentAuthorField,
+      String titleStyleCell,
+      String styleCell) {
     this.name = name;
     this.type = type;
     this.format = format;
@@ -107,7 +127,16 @@ public class ExcelWriterOutputField implements Cloneable {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     ExcelWriterOutputField that = (ExcelWriterOutputField) o;
-    return formula == that.formula && name.equals(that.name) && type.equals(that.type) && format.equals(that.format) && title.equals(that.title) && hyperlinkField.equals(that.hyperlinkField) && commentField.equals(that.commentField) && commentAuthorField.equals(that.commentAuthorField) && titleStyleCell.equals(that.titleStyleCell) && styleCell.equals(that.styleCell);
+    return formula == that.formula
+        && name.equals(that.name)
+        && type.equals(that.type)
+        && format.equals(that.format)
+        && title.equals(that.title)
+        && hyperlinkField.equals(that.hyperlinkField)
+        && commentField.equals(that.commentField)
+        && commentAuthorField.equals(that.commentAuthorField)
+        && titleStyleCell.equals(that.titleStyleCell)
+        && styleCell.equals(that.styleCell);
   }
 
   @Override

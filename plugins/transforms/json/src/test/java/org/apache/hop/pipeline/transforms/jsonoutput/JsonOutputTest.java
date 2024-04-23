@@ -17,6 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
@@ -52,15 +62,6 @@ import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
 import org.json.simple.JSONObject;
 import org.junit.Assert;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class JsonOutputTest extends TestCase {
 

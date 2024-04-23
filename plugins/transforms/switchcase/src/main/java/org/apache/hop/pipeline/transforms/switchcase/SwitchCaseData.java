@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class SwitchCaseData extends BaseTransformData implements ITransformData {
 

@@ -130,7 +130,6 @@ public class CsvInputDialog extends BaseTransformDialog
 
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
 
-
   public CsvInputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
@@ -153,13 +152,13 @@ public class CsvInputDialog extends BaseTransformDialog
     previewBusy = new AtomicBoolean(false);
 
     SelectionListener lsSelection =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                fillFieldsLayoutFromSchema();
-                inputMeta.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            fillFieldsLayoutFromSchema();
+            inputMeta.setChanged();
+          }
+        };
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -518,14 +517,14 @@ public class CsvInputDialog extends BaseTransformDialog
 
     // Add schema definition line
     wSchemaDefinition =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SchemaDefinition.class,
-                    shell,
-                    SWT.NONE,
-                    BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Label"),
-                    BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Tooltip"));
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SchemaDefinition.class,
+            shell,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Label"),
+            BaseMessages.getString(PKG, "CsvInputDialog.SchemaDefinition.Tooltip"));
 
     PropsUi.setLook(wSchemaDefinition);
     FormData fdSchemaDefinition = new FormData();
@@ -654,27 +653,35 @@ public class CsvInputDialog extends BaseTransformDialog
     inputMeta.setChanged(changed);
     initializing = false;
 
-    shell.getDisplay().asyncExec(() -> {
-      // Show more information about the transform and its alternatives
-      //
-      if ("Y".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_INFO_PARAMETER, "Y"))) {
-        MessageDialogWithToggle md =
-                new MessageDialogWithToggle(
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              // Show more information about the transform and its alternatives
+              //
+              if ("Y"
+                  .equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_INFO_PARAMETER, "Y"))) {
+                MessageDialogWithToggle md =
+                    new MessageDialogWithToggle(
                         shell,
                         BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.DialogTitle"),
                         BaseMessages.getString(
                                 PKG, "CsvInputDialog.UsageInfoDialog.DialogMessage", Const.CR)
-                                + Const.CR,
+                            + Const.CR,
                         SWT.ICON_INFORMATION,
                         new String[] {
-                                BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.Close")
+                          BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.Close")
                         },
-                        BaseMessages.getString(PKG, "CsvInputDialog.UsageInfoDialog.DoNotShowAgain"),
-                        "N".equalsIgnoreCase(props.getCustomParameter(STRING_USAGE_INFO_PARAMETER, "Y")));
-        md.open();
-        props.setCustomParameter(STRING_USAGE_INFO_PARAMETER, md.getToggleState() ? "N" : "Y");
-      }
-    });
+                        BaseMessages.getString(
+                            PKG, "CsvInputDialog.UsageInfoDialog.DoNotShowAgain"),
+                        "N"
+                            .equalsIgnoreCase(
+                                props.getCustomParameter(STRING_USAGE_INFO_PARAMETER, "Y")));
+                md.open();
+                props.setCustomParameter(
+                    STRING_USAGE_INFO_PARAMETER, md.getToggleState() ? "N" : "Y");
+              }
+            });
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -688,7 +695,7 @@ public class CsvInputDialog extends BaseTransformDialog
 
       MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
       mb.setMessage(
-              BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Message", schemaName));
+          BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Message", schemaName));
       mb.setText(BaseMessages.getString(PKG, "CsvInputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
@@ -721,8 +728,9 @@ public class CsvInputDialog extends BaseTransformDialog
                     item.setText(colnr++, Const.NVL(valueMeta.getCurrencySymbol(), ""));
                     item.setText(colnr++, Const.NVL(valueMeta.getDecimalSymbol(), ""));
                     item.setText(colnr++, Const.NVL(valueMeta.getGroupingSymbol(), ""));
-                    item.setText(colnr++, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
-
+                    item.setText(
+                        colnr++,
+                        Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                   }
                 }
               }
@@ -817,10 +825,7 @@ public class CsvInputDialog extends BaseTransformDialog
     wEncoding.setText(Const.NVL(inputMeta.getEncoding(), ""));
     wSchemaDefinition.setText(Const.NVL(inputMeta.getSchemaDefinition(), ""));
 
-    final List<String> fieldName =
-        newFieldNames == null
-            ? new ArrayList()
-            : newFieldNames;
+    final List<String> fieldName = newFieldNames == null ? new ArrayList() : newFieldNames;
     for (int i = 0; i < inputMeta.getInputFields().length; i++) {
       TextFileInputField field = inputMeta.getInputFields()[i];
       final TableItem item = getTableItem(field.getName(), true);

@@ -228,12 +228,16 @@ public class EnterSearchDialog {
     return searchingNotes;
   }
 
-  /** @return Returns the filterString. */
+  /**
+   * @return Returns the filterString.
+   */
   public String getFilterString() {
     return filterString;
   }
 
-  /** @param filterString The filterString to set. */
+  /**
+   * @param filterString The filterString to set.
+   */
   public void setFilterString(String filterString) {
     this.filterString = filterString;
   }

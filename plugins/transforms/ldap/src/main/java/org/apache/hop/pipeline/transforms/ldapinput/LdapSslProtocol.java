@@ -16,14 +16,13 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.Collection;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.truststore.CustomSocketFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.Collection;
-import java.util.Map;
 
 public class LdapSslProtocol extends LdapProtocol {
 

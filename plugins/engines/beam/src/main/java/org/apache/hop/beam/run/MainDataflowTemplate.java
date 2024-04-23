@@ -18,6 +18,8 @@
 
 package org.apache.hop.beam.run;
 
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.beam.sdk.options.Description;
 import org.apache.beam.sdk.options.PipelineOptionsFactory;
 import org.apache.beam.sdk.options.StreamingOptions;
@@ -31,9 +33,6 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.PipelineMeta;
-
-import java.io.IOException;
-import java.io.InputStream;
 
 public class MainDataflowTemplate {
   public static final String EXPERIMENT_APACHE_HOP_PIPELINE = "apache_hop_pipeline";

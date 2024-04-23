@@ -17,6 +17,19 @@
 
 package org.apache.hop.core.row.value;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -26,20 +39,6 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class ValueMetaFactoryTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

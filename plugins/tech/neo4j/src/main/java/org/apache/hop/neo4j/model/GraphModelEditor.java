@@ -17,6 +17,12 @@
 
 package org.apache.hop.neo4j.model;
 
+import java.awt.geom.Line2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -79,13 +85,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.awt.geom.Line2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 public class GraphModelEditor extends MetadataEditor<GraphModel> {
 
@@ -852,7 +851,8 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
       if (transformName == null) {
         return;
       }
-      IRowMeta inputRowMeta = pipelineMeta.getTransformFields(manager.getVariables(), transformName);
+      IRowMeta inputRowMeta =
+          pipelineMeta.getTransformFields(manager.getVariables(), transformName);
 
       String[] fieldNames = inputRowMeta.getFieldNames();
 

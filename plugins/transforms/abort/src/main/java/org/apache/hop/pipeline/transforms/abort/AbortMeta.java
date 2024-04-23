@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.abort;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -32,8 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** Meta data for the abort transform. */
 @Transform(
@@ -158,7 +157,9 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
     return rowThreshold;
   }
 
-  /** @param rowThreshold The rowThreshold to set */
+  /**
+   * @param rowThreshold The rowThreshold to set
+   */
   public void setRowThreshold(String rowThreshold) {
     this.rowThreshold = rowThreshold;
   }
@@ -172,7 +173,9 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
     return message;
   }
 
-  /** @param message The message to set */
+  /**
+   * @param message The message to set
+   */
   public void setMessage(String message) {
     this.message = message;
   }
@@ -186,7 +189,9 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
     return alwaysLogRows;
   }
 
-  /** @param alwaysLogRows The alwaysLogRows to set */
+  /**
+   * @param alwaysLogRows The alwaysLogRows to set
+   */
   public void setAlwaysLogRows(boolean alwaysLogRows) {
     this.alwaysLogRows = alwaysLogRows;
   }
@@ -200,7 +205,9 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
     return abortOption;
   }
 
-  /** @param abortOption The abortOption to set */
+  /**
+   * @param abortOption The abortOption to set
+   */
   public void setAbortOption(AbortOption abortOption) {
     this.abortOption = abortOption;
   }
@@ -208,5 +215,5 @@ public class AbortMeta extends BaseTransformMeta<Abort, AbortData> {
   @Override
   public boolean supportsMultiCopyExecution() {
     return false;
-  }    
+  }
 }

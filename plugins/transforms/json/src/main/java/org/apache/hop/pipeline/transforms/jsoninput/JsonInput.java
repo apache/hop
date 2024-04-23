@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.BitSet;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -40,11 +44,6 @@ import org.apache.hop.pipeline.transforms.jsoninput.exception.JsonInputException
 import org.apache.hop.pipeline.transforms.jsoninput.reader.FastJsonReader;
 import org.apache.hop.pipeline.transforms.jsoninput.reader.InputsReader;
 import org.apache.hop.pipeline.transforms.jsoninput.reader.RowOutputConverter;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.BitSet;
 
 /**
  * Read Json files, parse them and convert them to rows and writes these to one or more output

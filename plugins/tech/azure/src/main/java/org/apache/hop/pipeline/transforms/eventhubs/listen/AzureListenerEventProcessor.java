@@ -22,13 +22,12 @@ import com.microsoft.azure.eventhubs.EventData;
 import com.microsoft.azure.eventprocessorhost.CloseReason;
 import com.microsoft.azure.eventprocessorhost.IEventProcessor;
 import com.microsoft.azure.eventprocessorhost.PartitionContext;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowDataUtil;
-
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowDataUtil;
 
 public class AzureListenerEventProcessor implements IEventProcessor {
 

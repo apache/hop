@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.filterrows;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -46,8 +47,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator

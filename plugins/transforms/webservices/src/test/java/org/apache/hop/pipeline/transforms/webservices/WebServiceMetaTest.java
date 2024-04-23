@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -37,18 +48,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class WebServiceMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -126,9 +125,9 @@ public class WebServiceMetaTest {
     webServiceMeta.setFieldsOut(Arrays.asList(field1, field2, field3));
     webServiceMeta.getFields(
         rmi, "idk", new IRowMeta[] {rmi2}, nextTransform, new Variables(), metadataProvider);
-    //verify(rmi).addValueMeta(argThat(matchValueMetaString("field1")));
-    //verify(rmi).addValueMeta(argThat(matchValueMetaString("field2")));
-    //verify(rmi).addValueMeta(argThat(matchValueMetaString("field3")));
+    // verify(rmi).addValueMeta(argThat(matchValueMetaString("field1")));
+    // verify(rmi).addValueMeta(argThat(matchValueMetaString("field2")));
+    // verify(rmi).addValueMeta(argThat(matchValueMetaString("field3")));
   }
 
   private Matcher<IValueMeta> matchValueMetaString(final String fieldName) {

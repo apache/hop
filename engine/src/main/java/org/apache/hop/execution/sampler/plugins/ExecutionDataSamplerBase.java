@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.sampler.plugins;
 
+import java.util.Objects;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.execution.profiling.ExecutionDataProfile;
@@ -25,8 +26,6 @@ import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public abstract class ExecutionDataSamplerBase<Store extends IExecutionDataSamplerStore>
     implements IExecutionDataSampler<Store> {

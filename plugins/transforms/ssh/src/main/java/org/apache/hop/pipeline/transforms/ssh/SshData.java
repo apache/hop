@@ -19,6 +19,9 @@ package org.apache.hop.pipeline.transforms.ssh;
 
 import com.trilead.ssh2.Connection;
 import com.trilead.ssh2.HTTPProxyData;
+import java.io.CharArrayWriter;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileContent;
@@ -33,10 +36,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.io.CharArrayWriter;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class SshData extends BaseTransformData implements ITransformData {
   public int indexOfCommand;

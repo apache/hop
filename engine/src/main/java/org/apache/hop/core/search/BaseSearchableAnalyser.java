@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.search;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class BaseSearchableAnalyser<T> {
 
@@ -36,13 +35,21 @@ public abstract class BaseSearchableAnalyser<T> {
     if (searchQuery.matches(propertyName)) {
       searchResults.add(
           new SearchResult(
-              parent, propertyName, "matching property name: " + propertyName, component, propertyValue));
+              parent,
+              propertyName,
+              "matching property name: " + propertyName,
+              component,
+              propertyValue));
     }
     if (StringUtils.isNotEmpty(propertyValue)) {
       if (searchQuery.matches(propertyValue)) {
         searchResults.add(
             new SearchResult(
-                parent, propertyValue, "matching property value: " + propertyValue, component, propertyValue));
+                parent,
+                propertyValue,
+                "matching property value: " + propertyValue,
+                component,
+                propertyValue));
       }
     }
   }
@@ -65,17 +72,17 @@ public abstract class BaseSearchableAnalyser<T> {
                 stringSearchResult.getFieldName(),
                 descriptionPrefix + " : " + stringSearchResult.getFieldName(),
                 component,
-                    stringSearchResult.getString()));
+                stringSearchResult.getString()));
       }
       String resultString = stringSearchResult.getString();
-      if (resultString!=null && searchQuery.matches(resultString)) {
+      if (resultString != null && searchQuery.matches(resultString)) {
         searchResults.add(
             new SearchResult(
                 searchable,
                 stringSearchResult.getString(),
                 descriptionPrefix + " : " + stringSearchResult.getFieldName(),
                 component,
-                    stringSearchResult.getString()));
+                stringSearchResult.getString()));
       }
     }
   }

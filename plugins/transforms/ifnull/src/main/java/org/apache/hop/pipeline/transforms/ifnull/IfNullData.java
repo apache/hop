@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
+import java.util.HashMap;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.HashMap;
 
 public class IfNullData extends BaseTransformData implements ITransformData {
 

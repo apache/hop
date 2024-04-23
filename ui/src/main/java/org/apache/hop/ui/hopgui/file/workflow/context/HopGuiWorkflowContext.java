@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -30,10 +33,6 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
@@ -122,7 +121,9 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return workflowMeta;
   }
 
-  /** @param workflowMeta The workflowMeta to set */
+  /**
+   * @param workflowMeta The workflowMeta to set
+   */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
   }
@@ -136,7 +137,9 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return workflowGraph;
   }
 
-  /** @param workflowGraph The workflowGraph to set */
+  /**
+   * @param workflowGraph The workflowGraph to set
+   */
   public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -150,7 +153,9 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return click;
   }
 
-  /** @param click The click to set */
+  /**
+   * @param click The click to set
+   */
   public void setClick(Point click) {
     this.click = click;
   }
@@ -164,7 +169,9 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
     return lambdaBuilder;
   }
 
-  /** @param lambdaBuilder The lambdaBuilder to set */
+  /**
+   * @param lambdaBuilder The lambdaBuilder to set
+   */
   public void setLambdaBuilder(GuiActionLambdaBuilder<HopGuiWorkflowContext> lambdaBuilder) {
     this.lambdaBuilder = lambdaBuilder;
   }

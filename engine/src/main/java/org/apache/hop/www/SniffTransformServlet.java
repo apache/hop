@@ -17,6 +17,15 @@
 
 package org.apache.hop.www;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.util.List;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopTransformException;
@@ -31,15 +40,6 @@ import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.owasp.encoder.Encode;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-import java.util.List;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "sniffTransform", name = "Sniff test a pipeline transform")
 public class SniffTransformServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -215,7 +215,8 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
                   + URLEncoder.encode(id, UTF_8)
                   + "\">");
           out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-          out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");          
+          out.println(
+              "<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
           out.println("</HEAD>");
           out.println("<BODY>");
           out.println(

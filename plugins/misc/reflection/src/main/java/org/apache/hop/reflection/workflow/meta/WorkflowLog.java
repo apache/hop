@@ -18,13 +18,12 @@
 
 package org.apache.hop.reflection.workflow.meta;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @HopMetadata(
     key = "workflow-log",
@@ -89,7 +88,9 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /** @param enabled The enabled to set */
+  /**
+   * @param enabled The enabled to set
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -103,7 +104,9 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return loggingParentsOnly;
   }
 
-  /** @param loggingParentsOnly The loggingParentsOnly to set */
+  /**
+   * @param loggingParentsOnly The loggingParentsOnly to set
+   */
   public void setLoggingParentsOnly(boolean loggingParentsOnly) {
     this.loggingParentsOnly = loggingParentsOnly;
   }
@@ -117,7 +120,9 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return pipelineFilename;
   }
 
-  /** @param pipelineFilename The pipelineFilename to set */
+  /**
+   * @param pipelineFilename The pipelineFilename to set
+   */
   public void setPipelineFilename(String pipelineFilename) {
     this.pipelineFilename = pipelineFilename;
   }
@@ -131,7 +136,9 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return executingAtStart;
   }
 
-  /** @param executingAtStart The executingAtStart to set */
+  /**
+   * @param executingAtStart The executingAtStart to set
+   */
   public void setExecutingAtStart(boolean executingAtStart) {
     this.executingAtStart = executingAtStart;
   }
@@ -145,7 +152,9 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return executingPeriodically;
   }
 
-  /** @param executingPeriodically The executingPeriodically to set */
+  /**
+   * @param executingPeriodically The executingPeriodically to set
+   */
   public void setExecutingPeriodically(boolean executingPeriodically) {
     this.executingPeriodically = executingPeriodically;
   }
@@ -159,7 +168,9 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return intervalInSeconds;
   }
 
-  /** @param intervalInSeconds The intervalInSeconds to set */
+  /**
+   * @param intervalInSeconds The intervalInSeconds to set
+   */
   public void setIntervalInSeconds(String intervalInSeconds) {
     this.intervalInSeconds = intervalInSeconds;
   }
@@ -173,16 +184,18 @@ public class WorkflowLog extends HopMetadataBase implements IHopMetadata {
     return executingAtEnd;
   }
 
-  /** @param executingAtEnd The executingAtEnd to set */
+  /**
+   * @param executingAtEnd The executingAtEnd to set
+   */
   public void setExecutingAtEnd(boolean executingAtEnd) {
     this.executingAtEnd = executingAtEnd;
   }
 
-  public List<String> getWorkflowToLog(){
+  public List<String> getWorkflowToLog() {
     return workflowToLog;
   }
 
-  public void setWorkflowToLog(List<String> workflowToLog){
+  public void setWorkflowToLog(List<String> workflowToLog) {
     this.workflowToLog = workflowToLog;
   }
 }

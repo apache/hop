@@ -17,6 +17,12 @@
 
 package org.apache.hop.core.gui;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.ActionResult;
@@ -25,12 +31,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class WorkflowTrackerTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

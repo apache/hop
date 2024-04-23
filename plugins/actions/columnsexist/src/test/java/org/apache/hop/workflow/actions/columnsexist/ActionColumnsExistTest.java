@@ -18,6 +18,7 @@
 package org.apache.hop.workflow.actions.columnsexist;
 
 import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -26,7 +27,7 @@ import org.junit.Test;
 
 /** Unit tests for column exist action. */
 public class ActionColumnsExistTest {
- 
+
   @Test
   public void testSerialization() throws Exception {
     HopClientEnvironment.init();

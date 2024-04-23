@@ -17,6 +17,8 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
@@ -29,11 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.parquet.hadoop.ParquetReader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-
-public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputData>
-{
+public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputData> {
   public ParquetInput(
       TransformMeta transformMeta,
       ParquetInputMeta meta,

@@ -18,9 +18,8 @@
 
 package org.apache.hop.reflection.probe.meta;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DataProbeLocation {
 
@@ -62,7 +61,9 @@ public class DataProbeLocation {
     return sourcePipelineFilename;
   }
 
-  /** @param sourcePipelineFilename The sourcePipelineFilename to set */
+  /**
+   * @param sourcePipelineFilename The sourcePipelineFilename to set
+   */
   public void setSourcePipelineFilename(String sourcePipelineFilename) {
     this.sourcePipelineFilename = sourcePipelineFilename;
   }
@@ -76,7 +77,9 @@ public class DataProbeLocation {
     return sourceTransformName;
   }
 
-  /** @param sourceTransformName The sourceTransformName to set */
+  /**
+   * @param sourceTransformName The sourceTransformName to set
+   */
   public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }

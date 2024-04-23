@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -40,8 +41,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
-
-import java.util.List;
 
 @Transform(
     id = "Update",
@@ -125,12 +124,14 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * @return Returns the commitSize.
    * @deprecated use public String getCommitSizeVar() instead
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public int getCommitSize() {
     return Integer.parseInt(commitSize);
   }
 
-  /** @return Returns the commitSize. */
+  /**
+   * @return Returns the commitSize.
+   */
   public String getCommitSizeVar() {
     return commitSize;
   }
@@ -150,42 +151,56 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
    * @param commitSize The commitSize to set.
    * @deprecated use public void setCommitSize( String commitSize ) instead
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public void setCommitSize(int commitSize) {
     this.commitSize = Integer.toString(commitSize);
   }
 
-  /** @param commitSize The commitSize to set. */
+  /**
+   * @param commitSize The commitSize to set.
+   */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
   }
 
-  /** @return Returns the skipLookup. */
+  /**
+   * @return Returns the skipLookup.
+   */
   public boolean isSkipLookup() {
     return skipLookup;
   }
 
-  /** @param skipLookup The skipLookup to set. */
+  /**
+   * @param skipLookup The skipLookup to set.
+   */
   public void setSkipLookup(boolean skipLookup) {
     this.skipLookup = skipLookup;
   }
 
-  /** @return Returns the ignoreError. */
+  /**
+   * @return Returns the ignoreError.
+   */
   public boolean isErrorIgnored() {
     return errorIgnored;
   }
 
-  /** @param ignoreError The ignoreError to set. */
+  /**
+   * @param ignoreError The ignoreError to set.
+   */
   public void setErrorIgnored(boolean ignoreError) {
     this.errorIgnored = ignoreError;
   }
 
-  /** @return Returns the ignoreFlagField. */
+  /**
+   * @return Returns the ignoreFlagField.
+   */
   public String getIgnoreFlagField() {
     return ignoreFlagField;
   }
 
-  /** @param ignoreFlagField The ignoreFlagField to set. */
+  /**
+   * @param ignoreFlagField The ignoreFlagField to set.
+   */
   public void setIgnoreFlagField(String ignoreFlagField) {
     this.ignoreFlagField = ignoreFlagField;
   }
@@ -669,12 +684,16 @@ public class UpdateMeta extends BaseTransformMeta<Update, UpdateData> {
     return true;
   }
 
-  /** @return the useBatchUpdate */
+  /**
+   * @return the useBatchUpdate
+   */
   public boolean isUseBatchUpdate() {
     return useBatchUpdate;
   }
 
-  /** @param useBatchUpdate the useBatchUpdate to set */
+  /**
+   * @param useBatchUpdate the useBatchUpdate to set
+   */
   public void setUseBatchUpdate(boolean useBatchUpdate) {
     this.useBatchUpdate = useBatchUpdate;
   }

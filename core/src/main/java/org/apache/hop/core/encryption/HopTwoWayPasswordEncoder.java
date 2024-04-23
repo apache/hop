@@ -18,14 +18,13 @@
 package org.apache.hop.core.encryption;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.StringUtil;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This class handles basic encryption of passwords in Hop. Note that it's not really encryption,
@@ -38,6 +37,7 @@ import java.util.List;
 public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   private static final int RADIX = 16;
   private String Seed;
+
   /**
    * The word that is put before a password to indicate an encrypted form. If this word is not
    * present, the password is considered to be NOT encrypted

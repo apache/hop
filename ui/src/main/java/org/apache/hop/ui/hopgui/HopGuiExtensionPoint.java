@@ -53,8 +53,12 @@ public enum HopGuiExtensionPoint {
 
   HopGuiPipelineFinished("A pipeline finished in the GUI", HopGuiPipelineFinishedExtension.class),
 
-  HopGuiPipelineGraphUpdateGui("When the UI needs updating and you want to enable/disable widgets", HopGuiPipelineGraph.class),
-  PipelineExecutionViewerUpdate("When the UI needs updating and you want to enable/disable widgets", PipelineExecutionViewer.class),
+  HopGuiPipelineGraphUpdateGui(
+      "When the UI needs updating and you want to enable/disable widgets",
+      HopGuiPipelineGraph.class),
+  PipelineExecutionViewerUpdate(
+      "When the UI needs updating and you want to enable/disable widgets",
+      PipelineExecutionViewer.class),
   ;
 
   public String id;

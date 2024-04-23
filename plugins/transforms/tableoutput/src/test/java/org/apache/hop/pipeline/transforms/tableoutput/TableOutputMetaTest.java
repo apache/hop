@@ -17,6 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,19 +45,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.Random;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class TableOutputMetaTest {
 

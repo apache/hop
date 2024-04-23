@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.Random;
+import org.apache.hop.core.exception.HopException;
 
 public class PrimitiveBooleanArrayLoadSaveValidator implements IFieldLoadSaveValidator<boolean[]> {
   private final IFieldLoadSaveValidator<Boolean> validator;

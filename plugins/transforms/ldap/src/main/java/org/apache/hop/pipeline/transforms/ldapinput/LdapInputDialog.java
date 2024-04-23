@@ -1496,7 +1496,6 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
 
-
       in.getInputFields()[i] = field;
     }
     in.setSearchScope(LdapInputMeta.getSearchScopeByDesc(wSearchScope.getText()));

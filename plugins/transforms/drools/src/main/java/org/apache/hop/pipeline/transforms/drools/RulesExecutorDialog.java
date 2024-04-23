@@ -224,13 +224,13 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
     fdPipelineNameInField.top = new FormAttachment(wRuleFilePath, margin);
     wbRulesInEditor.setLayoutData(fdPipelineNameInField);
     wbRulesInEditor.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                input.setChanged();
-                activeRuleFilenameField();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            activeRuleFilenameField();
+          }
+        });
 
     wRulesEditor =
         new StyledTextComp(
@@ -421,7 +421,7 @@ public class RulesExecutorDialog extends BaseTransformDialog implements ITransfo
 
     wbRulesInEditor.setSelection(input.getRuleDefinition() != null);
 
-    for (int i = 0; i<input.getRuleResultColumns().size(); i++) {
+    for (int i = 0; i < input.getRuleResultColumns().size(); i++) {
       TableItem ti = wResultColumnsFields.table.getItem(i);
       RuleResultItem ri = input.getRuleResultColumns().get(i);
       ti.setText(1, ri.getName());

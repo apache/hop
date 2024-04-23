@@ -16,22 +16,6 @@
  */
 package org.apache.hop.mongo.wrapper.collection;
 
-import com.mongodb.AggregationOptions;
-import com.mongodb.BasicDBObject;
-import com.mongodb.Cursor;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import org.apache.hop.mongo.MongoDbException;
-import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
-import org.hamcrest.CoreMatchers;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
@@ -41,6 +25,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.mongodb.AggregationOptions;
+import com.mongodb.BasicDBObject;
+import com.mongodb.Cursor;
+import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.hop.mongo.MongoDbException;
+import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
+import org.hamcrest.CoreMatchers;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 public class DefaultMongoCollectionWrapperTest {
 

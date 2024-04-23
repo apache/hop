@@ -17,13 +17,12 @@
 
 package org.apache.hop.projects.project;
 
+import java.util.Objects;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.util.Objects;
 
 public class ProjectConfig {
 
@@ -123,7 +122,9 @@ public class ProjectConfig {
     return projectName;
   }
 
-  /** @param projectName The projectName to set */
+  /**
+   * @param projectName The projectName to set
+   */
   public void setProjectName(String projectName) {
     this.projectName = projectName;
   }
@@ -137,7 +138,9 @@ public class ProjectConfig {
     return projectHome;
   }
 
-  /** @param projectHome The projectHome to set */
+  /**
+   * @param projectHome The projectHome to set
+   */
   public void setProjectHome(String projectHome) {
     this.projectHome = projectHome;
   }
@@ -151,7 +154,9 @@ public class ProjectConfig {
     return configFilename;
   }
 
-  /** @param configFilename The configFilename to set */
+  /**
+   * @param configFilename The configFilename to set
+   */
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
   }

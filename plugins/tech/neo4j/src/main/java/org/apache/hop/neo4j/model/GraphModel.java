@@ -21,6 +21,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -30,10 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @HopMetadata(
     key = "neo4j-graph-model",
@@ -309,7 +308,9 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
     return null;
   }
 
-  /** @return a sorted list of node names */
+  /**
+   * @return a sorted list of node names
+   */
   public String[] getNodeNames() {
     String[] names = new String[nodes.size()];
     for (int i = 0; i < names.length; i++) {
@@ -334,7 +335,9 @@ public class GraphModel extends HopMetadataBase implements IHopMetadata {
     return null;
   }
 
-  /** @return a sorted list of relationship names */
+  /**
+   * @return a sorted list of relationship names
+   */
   public String[] getRelationshipNames() {
     String[] names = new String[relationships.size()];
     for (int i = 0; i < names.length; i++) {

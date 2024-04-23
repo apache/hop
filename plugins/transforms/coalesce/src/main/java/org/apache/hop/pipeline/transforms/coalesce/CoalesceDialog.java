@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -48,9 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CoalesceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CoalesceMeta.class; // For Translator
@@ -112,7 +111,11 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.setLayoutData(
-        new FormDataBuilder().left(wlTransformName, 0).top(wlTransformName, 0, SWT.CENTER).right().result());
+        new FormDataBuilder()
+            .left(wlTransformName, 0)
+            .top(wlTransformName, 0, SWT.CENTER)
+            .right()
+            .result());
     PropsUi.setLook(wTransformName);
 
     // Treat empty strings as nulls
@@ -228,8 +231,8 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
                 for (int i = 0; i < row.size(); i++) {
                   fieldNames[i] = row.getValueMeta(i).getName();
                 }
-                
-                if ( PropsUi.getInstance().isSortFieldByName() ) {
+
+                if (PropsUi.getInstance().isSortFieldByName()) {
                   Const.sortStrings(fieldNames);
                 }
               } catch (HopException e) {

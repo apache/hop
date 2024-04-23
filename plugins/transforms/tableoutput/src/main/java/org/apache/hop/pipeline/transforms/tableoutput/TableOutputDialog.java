@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -74,10 +77,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator

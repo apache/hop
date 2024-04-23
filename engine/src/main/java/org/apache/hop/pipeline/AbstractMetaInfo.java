@@ -18,9 +18,8 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Date;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public abstract class AbstractMetaInfo {
 

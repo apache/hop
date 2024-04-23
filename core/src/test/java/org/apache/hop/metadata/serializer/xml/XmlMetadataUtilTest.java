@@ -17,6 +17,7 @@
 
 package org.apache.hop.metadata.serializer.xml;
 
+import java.util.Arrays;
 import junit.framework.TestCase;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
@@ -26,8 +27,6 @@ import org.apache.hop.metadata.serializer.xml.classes.MetaData;
 import org.apache.hop.metadata.serializer.xml.classes.TestEnum;
 import org.junit.Test;
 import org.w3c.dom.Node;
-
-import java.util.Arrays;
 
 public class XmlMetadataUtilTest extends TestCase {
 

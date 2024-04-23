@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.core.exception.HopTransformException;
-import org.w3c.dom.Element;
-
+import java.util.ArrayList;
+import java.util.Map;
 import javax.wsdl.Fault;
 import javax.wsdl.Message;
 import javax.wsdl.Part;
 import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.Map;
+import org.apache.hop.core.exception.HopTransformException;
+import org.w3c.dom.Element;
 
 /** WsdlOpFaultList represents the list of parameters for a WSDL operaton. */
 public final class WsdlOpFaultList extends ArrayList<WsdlOpFault> {

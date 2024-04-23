@@ -37,7 +37,7 @@ public class CypherRelationshipBuilder extends CypherMatchBuilder {
 
   @Override
   public CypherRelationshipBuilder withMatch(
-          String label, String alias, Map<String, Object> keyValueMap) {
+      String label, String alias, Map<String, Object> keyValueMap) {
     return (CypherRelationshipBuilder) super.withMatch(label, alias, keyValueMap);
   }
 
@@ -56,16 +56,16 @@ public class CypherRelationshipBuilder extends CypherMatchBuilder {
   }
 
   public CypherRelationshipBuilder withCreate(
-          String alias1, String alias2, String relationshipLabel) {
+      String alias1, String alias2, String relationshipLabel) {
 
     cypher
-            .append("CREATE(")
-            .append(alias1)
-            .append(")-[rel:")
-            .append(relationshipLabel)
-            .append("]->(")
-            .append(alias2)
-            .append(")");
+        .append("CREATE(")
+        .append(alias1)
+        .append(")-[rel:")
+        .append(relationshipLabel)
+        .append("]->(")
+        .append(alias2)
+        .append(")");
     return this;
   }
 }

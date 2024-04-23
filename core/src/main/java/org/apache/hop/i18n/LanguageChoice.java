@@ -17,12 +17,11 @@
 
 package org.apache.hop.i18n;
 
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.StringUtil;
-
-import java.util.Locale;
 
 public class LanguageChoice {
   private static final String STRING_DEFAULT_LOCALE = "LocaleDefault";
@@ -58,12 +57,16 @@ public class LanguageChoice {
     return choice;
   }
 
-  /** @return Returns the defaultLocale. */
+  /**
+   * @return Returns the defaultLocale.
+   */
   public Locale getDefaultLocale() {
     return defaultLocale;
   }
 
-  /** @param defaultLocale The defaultLocale to set. */
+  /**
+   * @param defaultLocale The defaultLocale to set.
+   */
   public void setDefaultLocale(Locale defaultLocale) {
     this.defaultLocale = defaultLocale;
     HopConfig.getInstance().saveOption(STRING_DEFAULT_LOCALE, defaultLocale.toString());

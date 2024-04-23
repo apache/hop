@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
+import java.util.regex.Pattern;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.regex.Pattern;
 
 /** Runtime data for the RegexEval transform. */
 public class RegexEvalData extends BaseTransformData implements ITransformData {

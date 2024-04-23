@@ -47,7 +47,9 @@ public class ConstraintDetails {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -61,7 +63,9 @@ public class ConstraintDetails {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.logging;
 
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.util.StringUtil;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LogMessage implements ILogMessage {
   private String logChannelId;
@@ -92,7 +91,9 @@ public class LogMessage implements ILogMessage {
     return subjects.size() > 1 ? formatDetailedSubject(subjects) : subjects.get(0);
   }
 
-  /** @param loggingObject */
+  /**
+   * @param loggingObject
+   */
   private List<String> getSubjectTree(ILoggingObject loggingObject) {
     List<String> subjects = new ArrayList<>();
     while (loggingObject != null) {
@@ -135,7 +136,9 @@ public class LogMessage implements ILogMessage {
     return level;
   }
 
-  /** @return The formatted message. */
+  /**
+   * @return The formatted message.
+   */
   @Override
   public String getMessage() {
     String formatted = message;
@@ -162,19 +165,25 @@ public class LogMessage implements ILogMessage {
     return formatted;
   }
 
-  /** @return the subject */
+  /**
+   * @return the subject
+   */
   @Override
   public String getSubject() {
     return subject;
   }
 
-  /** @return the logChannelId */
+  /**
+   * @return the logChannelId
+   */
   @Override
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /** @return the arguments */
+  /**
+   * @return the arguments
+   */
   @Override
   public Object[] getArguments() {
     return arguments;
@@ -199,7 +208,9 @@ public class LogMessage implements ILogMessage {
     return simplified;
   }
 
-  /** @param simplified The simplified to set */
+  /**
+   * @param simplified The simplified to set
+   */
   public void setSimplified(boolean simplified) {
     this.simplified = simplified;
   }

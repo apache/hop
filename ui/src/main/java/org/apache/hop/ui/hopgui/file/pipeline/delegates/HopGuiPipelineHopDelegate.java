@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
@@ -35,9 +37,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.dialog.PipelineHopDialog;
 import org.eclipse.swt.SWT;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HopGuiPipelineHopDelegate {
 
   private static final Class<?> PKG = HopGui.class; // For Translator
@@ -55,7 +54,8 @@ public class HopGuiPipelineHopDelegate {
   public void newHop(PipelineMeta pipelineMeta, TransformMeta fr, TransformMeta to) {
     PipelineHopMeta hi = new PipelineHopMeta(fr, to);
 
-    PipelineHopDialog hd = new PipelineHopDialog(hopGui.getActiveShell(), SWT.NONE, hi, pipelineMeta);
+    PipelineHopDialog hd =
+        new PipelineHopDialog(hopGui.getActiveShell(), SWT.NONE, hi, pipelineMeta);
     if (hd.open() != null) {
       newHop(pipelineMeta, hi);
     }

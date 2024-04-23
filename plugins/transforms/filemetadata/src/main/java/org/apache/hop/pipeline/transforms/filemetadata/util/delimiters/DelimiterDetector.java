@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata.util.delimiters;
 
-import org.apache.hop.core.logging.ILogChannel;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import org.apache.hop.core.logging.ILogChannel;
 
 public class DelimiterDetector {
 

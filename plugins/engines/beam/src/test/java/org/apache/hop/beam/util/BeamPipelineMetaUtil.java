@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.util;
 
+import java.util.List;
 import org.apache.hop.beam.metadata.FieldDefinition;
 import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.beam.transform.PipelineTestBase;
@@ -41,8 +42,6 @@ import org.apache.hop.pipeline.transforms.mergejoin.MergeJoinMeta;
 import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseTarget;
-
-import java.util.List;
 
 public class BeamPipelineMetaUtil {
 

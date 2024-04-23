@@ -17,6 +17,17 @@
 
 package org.apache.hop.databases.vertica;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopException;
@@ -44,18 +55,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Spy;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 public class VerticaDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

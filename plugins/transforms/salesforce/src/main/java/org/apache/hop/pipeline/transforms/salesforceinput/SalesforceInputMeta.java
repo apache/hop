@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -42,8 +43,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnectionUtils;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "SalesforceInput",
@@ -148,72 +147,100 @@ public class SalesforceInputMeta
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the input fields. */
+  /**
+   * @return Returns the input fields.
+   */
   public SalesforceInputField[] getInputFields() {
     return inputFields;
   }
 
-  /** @param inputFields The input fields to set. */
+  /**
+   * @param inputFields The input fields to set.
+   */
   public void setInputFields(SalesforceInputField[] inputFields) {
     this.inputFields = inputFields;
   }
 
-  /** @return Returns the query. */
+  /**
+   * @return Returns the query.
+   */
   public String getQuery() {
     return query;
   }
 
-  /** @param query The query to set. */
+  /**
+   * @param query The query to set.
+   */
   public void setQuery(String query) {
     this.query = query;
   }
 
-  /** @return Returns the specifyQuery. */
+  /**
+   * @return Returns the specifyQuery.
+   */
   public boolean isSpecifyQuery() {
     return specifyQuery;
   }
 
-  /** @param specifyQuery The specifyQuery to set. */
+  /**
+   * @param specifyQuery The specifyQuery to set.
+   */
   public void setSpecifyQuery(boolean specifyQuery) {
     this.specifyQuery = specifyQuery;
   }
 
-  /** @return Returns the queryAll. */
+  /**
+   * @return Returns the queryAll.
+   */
   public boolean isQueryAll() {
     return queryAll;
   }
 
-  /** @param queryAll The queryAll to set. */
+  /**
+   * @param queryAll The queryAll to set.
+   */
   public void setQueryAll(boolean queryAll) {
     this.queryAll = queryAll;
   }
 
-  /** @return Returns the condition. */
+  /**
+   * @return Returns the condition.
+   */
   public String getCondition() {
     return condition;
   }
 
-  /** @param condition The condition to set. */
+  /**
+   * @param condition The condition to set.
+   */
   public void setCondition(String condition) {
     this.condition = condition;
   }
 
-  /** @param targetURLField The targetURLField to set. */
+  /**
+   * @param targetURLField The targetURLField to set.
+   */
   public void setTargetURLField(String targetURLField) {
     this.targetURLField = targetURLField;
   }
 
-  /** @param sqlField The sqlField to set. */
+  /**
+   * @param sqlField The sqlField to set.
+   */
   public void setSQLField(String sqlField) {
     this.sqlField = sqlField;
   }
 
-  /** @param timestampField The timestampField to set. */
+  /**
+   * @param timestampField The timestampField to set.
+   */
   public void setTimestampField(String timestampField) {
     this.timestampField = timestampField;
   }
 
-  /** @param moduleField The moduleField to set. */
+  /**
+   * @param moduleField The moduleField to set.
+   */
   public void setModuleField(String moduleField) {
     this.moduleField = moduleField;
   }
@@ -231,132 +258,184 @@ public class SalesforceInputMeta
     this.recordsFilter = SalesforceConnectionUtils.getRecordsFilterByDesc(recordsFilterDesc);
   }
 
-  /** @return Returns the includeTargetURL. */
+  /**
+   * @return Returns the includeTargetURL.
+   */
   public boolean includeTargetURL() {
     return includeTargetURL;
   }
 
-  /** @return Returns the includeSQL. */
+  /**
+   * @return Returns the includeSQL.
+   */
   public boolean includeSQL() {
     return includeSQL;
   }
 
-  /** @param includeSQL to set. */
+  /**
+   * @param includeSQL to set.
+   */
   public void setIncludeSQL(boolean includeSQL) {
     this.includeSQL = includeSQL;
   }
 
-  /** @return Returns the includeTimestamp. */
+  /**
+   * @return Returns the includeTimestamp.
+   */
   public boolean includeTimestamp() {
     return includeTimestamp;
   }
 
-  /** @param includeTimestamp to set. */
+  /**
+   * @param includeTimestamp to set.
+   */
   public void setIncludeTimestamp(boolean includeTimestamp) {
     this.includeTimestamp = includeTimestamp;
   }
 
-  /** @return Returns the includeModule. */
+  /**
+   * @return Returns the includeModule.
+   */
   public boolean includeModule() {
     return includeModule;
   }
 
-  /** @param includeTargetURL The includeTargetURL to set. */
+  /**
+   * @param includeTargetURL The includeTargetURL to set.
+   */
   public void setIncludeTargetURL(boolean includeTargetURL) {
     this.includeTargetURL = includeTargetURL;
   }
 
-  /** @param includeModule The includeModule to set. */
+  /**
+   * @param includeModule The includeModule to set.
+   */
   public void setIncludeModule(boolean includeModule) {
     this.includeModule = includeModule;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   public boolean includeRowNumber() {
     return includeRowNumber;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
 
-  /** @return Returns the includeDeletionDate. */
+  /**
+   * @return Returns the includeDeletionDate.
+   */
   public boolean includeDeletionDate() {
     return includeDeletionDate;
   }
 
-  /** @param includeDeletionDate The includeDeletionDate to set. */
+  /**
+   * @param includeDeletionDate The includeDeletionDate to set.
+   */
   public void setIncludeDeletionDate(boolean includeDeletionDate) {
     this.includeDeletionDate = includeDeletionDate;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public String getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(String rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @return Returns the deletionDateField. */
+  /**
+   * @return Returns the deletionDateField.
+   */
   public String getDeletionDateField() {
     return deletionDateField;
   }
 
-  /** @param value the deletionDateField to set. */
+  /**
+   * @param value the deletionDateField to set.
+   */
   public void setDeletionDateField(String value) {
     this.deletionDateField = value;
   }
 
-  /** @return Returns the targetURLField. */
+  /**
+   * @return Returns the targetURLField.
+   */
   public String getTargetURLField() {
     return targetURLField;
   }
 
-  /** @return Returns the readFrom. */
+  /**
+   * @return Returns the readFrom.
+   */
   public String getReadFrom() {
     return readFrom;
   }
 
-  /** @param readFrom the readFrom to set. */
+  /**
+   * @param readFrom the readFrom to set.
+   */
   public void setReadFrom(String readFrom) {
     this.readFrom = readFrom;
   }
 
-  /** @return Returns the readTo. */
+  /**
+   * @return Returns the readTo.
+   */
   public String getReadTo() {
     return readTo;
   }
 
-  /** @param readTo the readTo to set. */
+  /**
+   * @param readTo the readTo to set.
+   */
   public void setReadTo(String readTo) {
     this.readTo = readTo;
   }
 
-  /** @return Returns the sqlField. */
+  /**
+   * @return Returns the sqlField.
+   */
   public String getSQLField() {
     return sqlField;
   }
 
-  /** @return Returns the timestampField. */
+  /**
+   * @return Returns the timestampField.
+   */
   public String getTimestampField() {
     return timestampField;
   }
 
-  /** @return Returns the moduleField. */
+  /**
+   * @return Returns the moduleField.
+   */
   public String getModuleField() {
     return moduleField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.writetolog;
 
+import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -30,7 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import java.util.Date;
 
 /** Action type to output message to the workflow log. */
 @Action(
@@ -45,12 +45,12 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToLog.class; // For Translator
 
   /** The log level with which the message should be logged. */
-  @HopMetadataProperty(key = "loglevel", storeWithCode=true)
+  @HopMetadataProperty(key = "loglevel", storeWithCode = true)
   private LogLevel actionLogLevel;
-  
+
   @HopMetadataProperty(key = "logsubject")
   private String logSubject;
-  
+
   @HopMetadataProperty(key = "logmessage")
   private String logMessage;
 
@@ -126,7 +126,9 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
       return logLevel;
     }
 
-    /** @return the execution container object id */
+    /**
+     * @return the execution container object id
+     */
     @Override
     public String getContainerId() {
       return containerObjectId;
@@ -161,7 +163,8 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
 
   protected ILogChannel createLogChannel() {
     String subject = Const.nullToEmpty(resolve(getLogSubject()));
-    LogWriterObject logWriterObject = new LogWriterObject(subject, this, parentWorkflow.getLogLevel());
+    LogWriterObject logWriterObject =
+        new LogWriterObject(subject, this, parentWorkflow.getLogLevel());
     return logWriterObject.getLogChannel();
   }
 

@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.transforms.window;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
@@ -40,9 +42,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamTimestamp",
     name = "Beam Timestamp",
@@ -51,7 +50,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamTimestampMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamtimestamp.html")
-public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData> implements IBeamPipelineTransformHandler {
+public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "field_name")
   private String fieldName;
@@ -148,7 +148,9 @@ public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData> imple
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -162,7 +164,9 @@ public class BeamTimestampMeta extends BaseTransformMeta<Dummy, DummyData> imple
     return readingTimestamp;
   }
 
-  /** @param readingTimestamp The readingTimestamp to set */
+  /**
+   * @param readingTimestamp The readingTimestamp to set
+   */
   public void setReadingTimestamp(boolean readingTimestamp) {
     this.readingTimestamp = readingTimestamp;
   }

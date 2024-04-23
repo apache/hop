@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.loginfo;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,9 +40,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.Arrays;
-import java.util.List;
-
 @Transform(
     id = "GetLoggingInfo",
     name = "i18n::GetLoggingInfoDialog.DialogTitle",
@@ -51,7 +50,8 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/neo4j-getloginfo.html")
 @InjectionSupported(localizationPrefix = "GetLoggingInfoMeta.Injection.")
 public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLoggingInfoData> {
-  private static final Class<?> PKG = GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      GetLoggingInfoMeta.class; // for i18n purposes, needed by Translator2!!
 
   @Injection(name = "FIELD_NAME")
   private String[] fieldName;
@@ -66,22 +66,30 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public String[] getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFieldName(String[] fieldName) {
     this.fieldName = fieldName;
   }
 
-  /** @return Returns the fieldType. */
+  /**
+   * @return Returns the fieldType.
+   */
   public GetLoggingInfoTypes[] getFieldType() {
     return fieldType;
   }
 
-  /** @param fieldType The fieldType to set. */
+  /**
+   * @param fieldType The fieldType to set.
+   */
   public void setFieldType(GetLoggingInfoTypes[] fieldType) {
     this.fieldType = fieldType;
   }
@@ -95,7 +103,9 @@ public class GetLoggingInfoMeta extends BaseTransformMeta<GetLoggingInfo, GetLog
     return fieldArgument;
   }
 
-  /** @param fieldArgument The fieldArgument to set */
+  /**
+   * @param fieldArgument The fieldArgument to set
+   */
   public void setFieldArgument(String[] fieldArgument) {
     this.fieldArgument = fieldArgument;
   }

@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import java.io.InputStreamReader;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.compress.CompressionInputStream;
@@ -28,15 +34,10 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
-import java.io.InputStreamReader;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated(since="2.0")
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
+@Deprecated(since = "2.0")
 public class TextFileInputData extends BaseTransformData implements ITransformData {
 
   public List<TextFileLine> lineBuffer;

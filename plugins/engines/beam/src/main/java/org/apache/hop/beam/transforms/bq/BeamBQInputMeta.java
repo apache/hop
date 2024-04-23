@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.transforms.bq;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamBQInputTransform;
@@ -38,10 +41,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamBQInput",
     name = "Beam BigQuery Input",
@@ -50,7 +49,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamBQInputDialog.keyword",
     documentationUrl = "/pipeline/transforms/beambigqueryinput.html")
-public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputData> implements IBeamPipelineTransformHandler {
+public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "project_id")
   private String projectId;
@@ -156,7 +156,9 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
     return projectId;
   }
 
-  /** @param projectId The projectId to set */
+  /**
+   * @param projectId The projectId to set
+   */
   public void setProjectId(String projectId) {
     this.projectId = projectId;
   }
@@ -170,7 +172,9 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
     return datasetId;
   }
 
-  /** @param datasetId The datasetId to set */
+  /**
+   * @param datasetId The datasetId to set
+   */
   public void setDatasetId(String datasetId) {
     this.datasetId = datasetId;
   }
@@ -184,7 +188,9 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
     return tableId;
   }
 
-  /** @param tableId The tableId to set */
+  /**
+   * @param tableId The tableId to set
+   */
   public void setTableId(String tableId) {
     this.tableId = tableId;
   }
@@ -198,7 +204,9 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
     return query;
   }
 
-  /** @param query The query to set */
+  /**
+   * @param query The query to set
+   */
   public void setQuery(String query) {
     this.query = query;
   }
@@ -212,7 +220,9 @@ public class BeamBQInputMeta extends BaseTransformMeta<BeamBQInput, BeamBQInputD
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<BQField> fields) {
     this.fields = fields;
   }

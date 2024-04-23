@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -36,9 +38,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Execute a mapping: a reusable pipeline */
 public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> {
@@ -127,11 +126,12 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       data.mappingPipelineMeta.setPipelineType(PipelineMeta.PipelineType.SingleThreaded);
     }
     SimpleMappingData simpleMappingData = getData();
-    // Resolve pipeline full name in case variables are used and pipeline meta is not initialized in advance
+    // Resolve pipeline full name in case variables are used and pipeline meta is not initialized in
+    // advance
     if (simpleMappingData.mappingPipelineMeta == null) {
-      simpleMappingData.mappingPipelineMeta = new PipelineMeta(variables.resolve(meta.getFilename()), metadataProvider, variables);
+      simpleMappingData.mappingPipelineMeta =
+          new PipelineMeta(variables.resolve(meta.getFilename()), metadataProvider, variables);
       simpleMappingData.mappingPipelineMeta.clearChanged();
-
     }
 
     String runConfigName = resolve(meta.getRunConfigurationName());

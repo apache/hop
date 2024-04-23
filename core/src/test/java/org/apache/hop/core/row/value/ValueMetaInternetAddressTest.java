@@ -17,13 +17,6 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.junit.Test;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -32,6 +25,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
+import org.junit.Test;
 
 public class ValueMetaInternetAddressTest {
 

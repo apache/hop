@@ -65,22 +65,30 @@ public class PluginWidgetFactory {
     this.varSpace = varSpace;
   }
 
-  /** @return the margin */
+  /**
+   * @return the margin
+   */
   public int getMargin() {
     return this.margin;
   }
 
-  /** @param margin the margin to set */
+  /**
+   * @param margin the margin to set
+   */
   public void setMargin(final int margin) {
     this.margin = margin;
   }
 
-  /** @return the middle */
+  /**
+   * @return the middle
+   */
   public int getMiddle() {
     return this.middle;
   }
 
-  /** @param middle the middle to set */
+  /**
+   * @param middle the middle to set
+   */
   public void setMiddle(final int middle) {
     this.middle = middle;
   }
@@ -182,7 +190,9 @@ public class PluginWidgetFactory {
     return textWidget;
   }
 
-  /** @return new ... */
+  /**
+   * @return new ...
+   */
   public TextVar createSingleTextVarLeft() {
     return new TextVar(this.varSpace, this.shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
   }

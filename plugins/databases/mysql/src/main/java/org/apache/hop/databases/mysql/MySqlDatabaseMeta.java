@@ -18,6 +18,11 @@
 package org.apache.hop.databases.mysql;
 
 import com.google.common.collect.Sets;
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSetMetaData;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,12 +38,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSetMetaData;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 /** Contains MySQL specific information through static final members */
 @DatabaseMetaPlugin(
@@ -56,6 +55,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       type = GuiElementType.CHECKBOX,
       label = "i18n:org.apache.hop.ui.core.database:DatabaseDialog.label.MySQLStreamResults")
   private boolean resultStreaming;
+
   @GuiWidgetElement(
       id = "mySqlDriverClass",
       order = "20",

@@ -24,8 +24,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Static final field annotated with "Variable" are automatically
- * recognized and registered as a described variable.
+ * Static final field annotated with "Variable" are automatically recognized and registered as a
+ * described variable.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
@@ -33,8 +33,10 @@ import java.lang.annotation.Target;
 public @interface Variable {
   /** The default value */
   String value() default "";
+
   /** The description of the variable, can be translated i18n::key */
   String description() default "";
+
   /** The scope of variable defines how a specific variable is accessible and propagated */
   VariableScope scope() default VariableScope.ENGINE;
 }

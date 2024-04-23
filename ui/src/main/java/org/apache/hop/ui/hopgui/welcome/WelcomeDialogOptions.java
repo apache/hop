@@ -39,6 +39,7 @@ import picocli.CommandLine;
 @GuiPlugin(description = "i18n::WelcomeDialog.Description")
 public class WelcomeDialogOptions implements IConfigOptions, IGuiPluginCompositeWidgetsListener {
   protected static Class<?> PKG = WelcomeDialogOptions.class; // For Translator
+
   @CommandLine.Option(
       names = {"-wd", "--welcome-dialog-disabled"},
       description = "Disable the welcome dialog at startup of the Hop GUI")

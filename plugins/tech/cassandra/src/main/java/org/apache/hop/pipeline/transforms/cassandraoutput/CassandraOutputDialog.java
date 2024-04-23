@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -55,8 +56,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 /** Dialog class for the CassandraOutput transform. */
 public class CassandraOutputDialog extends BaseTransformDialog implements ITransformDialog {

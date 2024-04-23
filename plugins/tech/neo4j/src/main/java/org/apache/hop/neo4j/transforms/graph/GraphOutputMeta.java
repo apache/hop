@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.row.IRowMeta;
@@ -27,9 +29,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "Neo4jGraphOutput",
@@ -129,7 +128,7 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
   }
 
   @Override
-  public void setDefault(){
+  public void setDefault() {
     batchSize = "1000";
   }
 
@@ -158,7 +157,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return connectionName;
   }
 
-  /** @param connectionName The connectionName to set */
+  /**
+   * @param connectionName The connectionName to set
+   */
   public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
@@ -172,7 +173,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return model;
   }
 
-  /** @param model The model to set */
+  /**
+   * @param model The model to set
+   */
   public void setModel(String model) {
     this.model = model;
   }
@@ -186,7 +189,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return batchSize;
   }
 
-  /** @param batchSize The batchSize to set */
+  /**
+   * @param batchSize The batchSize to set
+   */
   public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
@@ -200,7 +205,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return creatingIndexes;
   }
 
-  /** @param creatingIndexes The creatingIndexes to set */
+  /**
+   * @param creatingIndexes The creatingIndexes to set
+   */
   public void setCreatingIndexes(boolean creatingIndexes) {
     this.creatingIndexes = creatingIndexes;
   }
@@ -214,7 +221,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return fieldModelMappings;
   }
 
-  /** @param fieldModelMappings The fieldModelMappings to set */
+  /**
+   * @param fieldModelMappings The fieldModelMappings to set
+   */
   public void setFieldModelMappings(List<FieldModelMapping> fieldModelMappings) {
     this.fieldModelMappings = fieldModelMappings;
   }
@@ -228,7 +237,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return returningGraph;
   }
 
-  /** @param returningGraph The returningGraph to set */
+  /**
+   * @param returningGraph The returningGraph to set
+   */
   public void setReturningGraph(boolean returningGraph) {
     this.returningGraph = returningGraph;
   }
@@ -242,7 +253,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return returnGraphField;
   }
 
-  /** @param returnGraphField The returnGraphField to set */
+  /**
+   * @param returnGraphField The returnGraphField to set
+   */
   public void setReturnGraphField(String returnGraphField) {
     this.returnGraphField = returnGraphField;
   }
@@ -256,7 +269,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return validatingAgainstModel;
   }
 
-  /** @param validatingAgainstModel The validatingAgainstModel to set */
+  /**
+   * @param validatingAgainstModel The validatingAgainstModel to set
+   */
   public void setValidatingAgainstModel(boolean validatingAgainstModel) {
     this.validatingAgainstModel = validatingAgainstModel;
   }
@@ -270,7 +285,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return outOfOrderAllowed;
   }
 
-  /** @param outOfOrderAllowed The outOfOrderAllowed to set */
+  /**
+   * @param outOfOrderAllowed The outOfOrderAllowed to set
+   */
   public void setOutOfOrderAllowed(boolean outOfOrderAllowed) {
     this.outOfOrderAllowed = outOfOrderAllowed;
   }
@@ -284,7 +301,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return relationshipMappings;
   }
 
-  /** @param relationshipMappings The relationshipMappings to set */
+  /**
+   * @param relationshipMappings The relationshipMappings to set
+   */
   public void setRelationshipMappings(List<RelationshipMapping> relationshipMappings) {
     this.relationshipMappings = relationshipMappings;
   }
@@ -298,7 +317,9 @@ public class GraphOutputMeta extends BaseTransformMeta<GraphOutput, GraphOutputD
     return nodeMappings;
   }
 
-  /** @param nodeMappings The nodeMappings to set */
+  /**
+   * @param nodeMappings The nodeMappings to set
+   */
   public void setNodeMappings(List<NodeMapping> nodeMappings) {
     this.nodeMappings = nodeMappings;
   }

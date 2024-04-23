@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.UUID;
 
 public class FieldsChangeSequenceMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -42,7 +41,9 @@ public class FieldsChangeSequenceMetaTest {
     LoadSaveTester<FieldsChangeSequenceMeta> tester =
         new LoadSaveTester<>(FieldsChangeSequenceMeta.class);
 
-    tester.getFieldLoadSaveValidatorFactory().registerValidator(
+    tester
+        .getFieldLoadSaveValidatorFactory()
+        .registerValidator(
             FieldsChangeSequenceMeta.class.getDeclaredField("fields").getGenericType().toString(),
             new ListLoadSaveValidator<>(new FieldChangeSequenceFieldValidator()));
 

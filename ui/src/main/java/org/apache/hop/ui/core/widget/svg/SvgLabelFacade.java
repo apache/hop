@@ -31,7 +31,7 @@ public abstract class SvgLabelFacade {
     IMPL = (SvgLabelFacade) ImplementationLoader.newInstance(SvgLabelFacade.class);
   }
 
-  public synchronized static void setData(String id, Label label, String imageFile, int size) {
+  public static synchronized void setData(String id, Label label, String imageFile, int size) {
     synchronized (object) {
       IMPL.setDataInternal(id, label, imageFile, size);
     }
@@ -39,8 +39,8 @@ public abstract class SvgLabelFacade {
 
   public abstract void setDataInternal(String id, Label label, String imageFile, int size);
 
-
-  public synchronized static void enable(ToolItem toolItem, String id, Label label, boolean enable) {
+  public static synchronized void enable(
+      ToolItem toolItem, String id, Label label, boolean enable) {
     synchronized (object) {
       IMPL.enableInternal(toolItem, id, label, enable);
     }
@@ -55,5 +55,4 @@ public abstract class SvgLabelFacade {
   }
 
   public abstract void shadeSvgInternal(Label label, String id, boolean shaded);
-
 }

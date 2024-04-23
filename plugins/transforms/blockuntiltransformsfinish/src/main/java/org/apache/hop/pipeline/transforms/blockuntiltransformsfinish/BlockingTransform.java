@@ -47,7 +47,9 @@ public class BlockingTransform {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -61,7 +63,9 @@ public class BlockingTransform {
     return copyNr;
   }
 
-  /** @param copyNr The copyNr to set */
+  /**
+   * @param copyNr The copyNr to set
+   */
   public void setCopyNr(String copyNr) {
     this.copyNr = copyNr;
   }

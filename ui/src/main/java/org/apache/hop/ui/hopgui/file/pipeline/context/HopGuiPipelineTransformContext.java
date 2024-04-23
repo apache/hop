@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.context;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -34,9 +36,6 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     implements IGuiContextHandler {
@@ -165,7 +164,9 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     return pipelineMeta;
   }
 
-  /** @param pipelineMeta The pipelineMeta to set */
+  /**
+   * @param pipelineMeta The pipelineMeta to set
+   */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
@@ -179,7 +180,9 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     return transformMeta;
   }
 
-  /** @param transformMeta The transformMeta to set */
+  /**
+   * @param transformMeta The transformMeta to set
+   */
   public void setTransformMeta(TransformMeta transformMeta) {
     this.transformMeta = transformMeta;
   }
@@ -193,7 +196,9 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     return pipelineGraph;
   }
 
-  /** @param pipelineGraph The pipelineGraph to set */
+  /**
+   * @param pipelineGraph The pipelineGraph to set
+   */
   public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
@@ -207,7 +212,9 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
     return click;
   }
 
-  /** @param click The click to set */
+  /**
+   * @param click The click to set
+   */
   public void setClick(Point click) {
     this.click = click;
   }

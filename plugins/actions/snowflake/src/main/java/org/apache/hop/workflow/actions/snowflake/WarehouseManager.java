@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.snowflake;
 
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
+
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -34,12 +39,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.util.List;
-
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
-import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 @Action(
     id = "SnowflakeWarehouseManager",
@@ -63,6 +62,7 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   public static final String COMMENT = "comment";
   public static final String RESOURCE_MONITOR = "resourceMonitor";
   public static final String CONNECTION = "connection";
+
   /** The type of management actions this action supports */
   private static final String[] MANAGEMENT_ACTIONS = {
     "create", "drop", "resume", "suspend", "alter"
@@ -78,12 +78,14 @@ public class WarehouseManager extends ActionBase implements Cloneable, IAction {
   private static final String[] WAREHOUSE_SIZES = {
     "XSMALL", "SMALL", "MEDIUM", "LARGE", "XLARGE", "XXLARGE", "XXXLARGE"
   };
+
   /** The valid warehouse types */
   private static final String[] WAREHOUSE_TYPES = {"Standard", "Enterprise"};
 
   public static final String FAIL_IF_NOT_EXISTS = "failIfNotExists";
   private static final Class<?> PKG =
       WarehouseManager.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
+
   /** The database to connect to. */
   private DatabaseMeta databaseMeta;
 

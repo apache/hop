@@ -41,15 +41,6 @@ import jakarta.mail.search.ReceivedDateTerm;
 import jakarta.mail.search.RecipientStringTerm;
 import jakarta.mail.search.SearchTerm;
 import jakarta.mail.search.SubjectTerm;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -61,6 +52,14 @@ import java.util.HashSet;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 
 /** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnection {
@@ -76,6 +75,7 @@ public class MailConnection {
   private boolean usexoauth2;
   private boolean useproxy;
   private String proxyusername;
+
   /** Protocol used. Should be PROTOCOL_POP3 (0) for POP3 and PROTOCOL_IMAP (1) to IMAP */
   private int protocol;
 
@@ -83,8 +83,10 @@ public class MailConnection {
   private Session session = null;
   private Store store = null;
   private Folder folder = null;
+
   /** Contains the list of retrieved messages */
   private Message[] messages;
+
   /** Contains the current message */
   private Message message;
 
@@ -190,8 +192,8 @@ public class MailConnection {
         this.prop.setProperty("mail." + protocolString + ".port", "" + port);
         this.prop.setProperty("mail." + protocolString + ".socketFactory.port", "" + port);
         if (usexoauth2) {
-            this.prop.setProperty("mail." + protocolString + ".ssl.enable", "true");
-            this.prop.setProperty("mail." + protocolString + ".auth.mechanisms", "XOAUTH2");
+          this.prop.setProperty("mail." + protocolString + ".ssl.enable", "true");
+          this.prop.setProperty("mail." + protocolString + ".auth.mechanisms", "XOAUTH2");
         }
 
         // Create session object
@@ -230,12 +232,16 @@ public class MailConnection {
     }
   }
 
-  /** @return Returns the connection status. true if the connection is still opened */
+  /**
+   * @return Returns the connection status. true if the connection is still opened
+   */
   public boolean isConnected() {
     return (this.store != null && this.store.isConnected());
   }
 
-  /** @return Returns the use of SSL. true if the connection use SSL */
+  /**
+   * @return Returns the use of SSL. true if the connection use SSL
+   */
   public boolean isUseSSL() {
     return this.usessl;
   }
@@ -247,22 +253,30 @@ public class MailConnection {
     return this.usexoauth2;
   }
 
-  /** @return Returns the use of proxy. true if the connection use proxy */
+  /**
+   * @return Returns the use of proxy. true if the connection use proxy
+   */
   public boolean isUseProxy() {
     return this.useproxy;
   }
 
-  /** @return Returns the proxy username. */
+  /**
+   * @return Returns the proxy username.
+   */
   public String getProxyUsername() {
     return this.proxyusername;
   }
 
-  /** @return Returns the store */
+  /**
+   * @return Returns the store
+   */
   public Store getStore() {
     return this.store;
   }
 
-  /** @return Returns the folder */
+  /**
+   * @return Returns the folder
+   */
   public Folder getFolder() {
     return this.folder;
   }

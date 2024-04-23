@@ -28,6 +28,18 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -45,19 +57,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /** Send mail transform. based on Mail action */
 public class Mail extends BaseTransform<MailMeta, MailData> {
@@ -282,7 +281,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
         // cache the position of the Authentication password field
         if (data.indexOfAuthenticationPass < 0) {
-          String realAuthenticationPassword =  meta.getAuthenticationPassword();
+          String realAuthenticationPassword = meta.getAuthenticationPassword();
           data.indexOfAuthenticationPass =
               data.previousRowMeta.indexOfValue(realAuthenticationPassword);
           if (data.indexOfAuthenticationPass < 0) {
@@ -499,7 +498,9 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
       String authpass = null;
       if (data.indexOfAuthenticationPass > -1) {
-        authpass = Utils.resolvePassword(variables, data.previousRowMeta.getString( r, data.indexOfAuthenticationPass ));
+        authpass =
+            Utils.resolvePassword(
+                variables, data.previousRowMeta.getString(r, data.indexOfAuthenticationPass));
       }
 
       String subject = null;

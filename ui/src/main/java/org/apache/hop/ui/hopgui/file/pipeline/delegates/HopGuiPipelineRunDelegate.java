@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -36,11 +40,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.pipeline.debug.PipelineDebugDialog;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.eclipse.swt.SWT;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HopGuiPipelineRunDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
@@ -64,7 +63,9 @@ public class HopGuiPipelineRunDelegate {
   /** Remember the preview configuration per pipeline */
   private Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap;
 
-  /** @param hopGui */
+  /**
+   * @param hopGui
+   */
   public HopGuiPipelineRunDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
@@ -177,16 +178,16 @@ public class HopGuiPipelineRunDelegate {
     executionConfiguration.setLogLevel(logLevel);
 
     if (debug || preview) {
-      // Make sure to re-set the default parameter values. They could have been changed since the last execution.
+      // Make sure to re-set the default parameter values. They could have been changed since the
+      // last execution.
       //
       for (String parameterName : pipelineMeta.listParameters()) {
         String defaultValue = pipelineMeta.getParameterDefault(parameterName);
-        if ( StringUtils.isNotEmpty(defaultValue)) {
+        if (StringUtils.isNotEmpty(defaultValue)) {
           executionConfiguration.getParametersMap().put(parameterName, defaultValue);
         }
       }
     }
-
 
     boolean execConfigAnswer = true;
 
@@ -250,7 +251,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineGraph;
   }
 
-  /** @param pipelineGraph The pipelineGraph to set */
+  /**
+   * @param pipelineGraph The pipelineGraph to set
+   */
   public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
@@ -264,7 +267,9 @@ public class HopGuiPipelineRunDelegate {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -278,7 +283,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineExecutionConfiguration;
   }
 
-  /** @param pipelineExecutionConfiguration The pipelineExecutionConfiguration to set */
+  /**
+   * @param pipelineExecutionConfiguration The pipelineExecutionConfiguration to set
+   */
   public void setPipelineExecutionConfiguration(
       PipelineExecutionConfiguration pipelineExecutionConfiguration) {
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
@@ -310,7 +317,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineDebugExecutionConfiguration;
   }
 
-  /** @param pipelineDebugExecutionConfiguration The pipelineDebugExecutionConfiguration to set */
+  /**
+   * @param pipelineDebugExecutionConfiguration The pipelineDebugExecutionConfiguration to set
+   */
   public void setPipelineDebugExecutionConfiguration(
       PipelineExecutionConfiguration pipelineDebugExecutionConfiguration) {
     this.pipelineDebugExecutionConfiguration = pipelineDebugExecutionConfiguration;
@@ -325,7 +334,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineMap;
   }
 
-  /** @param pipelineMap The pipelineMap to set */
+  /**
+   * @param pipelineMap The pipelineMap to set
+   */
   public void setPipelineMap(List<PipelineMeta> pipelineMap) {
     this.pipelineMap = pipelineMap;
   }
@@ -339,7 +350,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelineDebugMetaMap;
   }
 
-  /** @param pipelineDebugMetaMap The pipelineDebugMetaMap to set */
+  /**
+   * @param pipelineDebugMetaMap The pipelineDebugMetaMap to set
+   */
   public void setPipelineDebugMetaMap(Map<PipelineMeta, PipelineDebugMeta> pipelineDebugMetaMap) {
     this.pipelineDebugMetaMap = pipelineDebugMetaMap;
   }
@@ -353,7 +366,9 @@ public class HopGuiPipelineRunDelegate {
     return pipelinePreviewMetaMap;
   }
 
-  /** @param pipelinePreviewMetaMap The pipelinePreviewMetaMap to set */
+  /**
+   * @param pipelinePreviewMetaMap The pipelinePreviewMetaMap to set
+   */
   public void setPipelinePreviewMetaMap(
       Map<PipelineMeta, PipelineDebugMeta> pipelinePreviewMetaMap) {
     this.pipelinePreviewMetaMap = pipelinePreviewMetaMap;

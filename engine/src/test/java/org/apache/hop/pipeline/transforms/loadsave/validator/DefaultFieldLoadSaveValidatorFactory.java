@@ -17,9 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Date;
@@ -27,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 
 public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValidatorFactory {
 

@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains AS/400 specific information through static final members
- */
-@DatabaseMetaPlugin(type = "AS/400", typeDescription = "AS/400", documentationUrl = "/database/databases/as400.html")
+/** Contains AS/400 specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "AS/400",
+    typeDescription = "AS/400",
+    documentationUrl = "/database/databases/as400.html")
 @GuiPlugin(id = "GUI-AS400DatabaseMeta")
 public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -523,7 +524,9 @@ public class AS400DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return 32672;
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return true;

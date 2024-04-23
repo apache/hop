@@ -17,9 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 public class CsvInputDataTest {
   @Test

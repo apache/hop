@@ -67,7 +67,9 @@ public class IndexUpdate {
     return objectType;
   }
 
-  /** @param objectType The objectType to set */
+  /**
+   * @param objectType The objectType to set
+   */
   public void setObjectType(ObjectType objectType) {
     this.objectType = objectType;
   }
@@ -81,7 +83,9 @@ public class IndexUpdate {
     return indexName;
   }
 
-  /** @param indexName The indexName to set */
+  /**
+   * @param indexName The indexName to set
+   */
   public void setIndexName(String indexName) {
     this.indexName = indexName;
   }
@@ -95,7 +99,9 @@ public class IndexUpdate {
     return objectName;
   }
 
-  /** @param objectName The nodeName to set */
+  /**
+   * @param objectName The nodeName to set
+   */
   public void setObjectName(String objectName) {
     this.objectName = objectName;
   }
@@ -109,7 +115,9 @@ public class IndexUpdate {
     return objectProperties;
   }
 
-  /** @param objectProperties The properties to set */
+  /**
+   * @param objectProperties The properties to set
+   */
   public void setObjectProperties(String objectProperties) {
     this.objectProperties = objectProperties;
   }
@@ -123,7 +131,9 @@ public class IndexUpdate {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(UpdateType type) {
     this.type = type;
   }

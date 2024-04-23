@@ -176,6 +176,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog implements ITransfor
 
     return comboVar;
   }
+
   /** Create UI to enter arguments. Return a new set of arguments to store in the meta object */
   private List<String> createArgumentsUI(Object[] argumentDescriptors, List<String> currentValues) {
     logDebug(

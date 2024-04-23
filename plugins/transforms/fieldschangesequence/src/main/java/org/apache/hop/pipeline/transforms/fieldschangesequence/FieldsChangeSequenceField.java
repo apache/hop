@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class FieldsChangeSequenceField {
   @HopMetadataProperty(

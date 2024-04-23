@@ -103,7 +103,8 @@ public class HopDescribedVariablesDialog extends Dialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
-    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wEncode, wCancel}, margin, wFields);
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOk, wEncode, wCancel}, margin, wFields);
 
     // Message line at the top
     //

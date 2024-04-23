@@ -17,13 +17,12 @@
 
 package org.apache.hop.ui.hopgui.file;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.i18n.BaseMessages;
 
 /** This class contains all the available Hop File types */
 public class HopFileTypeRegistry {

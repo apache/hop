@@ -17,6 +17,7 @@
 
 package org.apache.hop.testing.actions.runtests;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -45,8 +46,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class RunPipelineTestsDialog extends ActionDialog implements IActionDialog {
 
@@ -142,7 +141,11 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
 
     ColumnInfo[] columnInfos =
         new ColumnInfo[] {
-          new ColumnInfo(BaseMessages.getString(PKG, "RunTestsDialog.TestsTable.Name.Column"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "RunTestsDialog.TestsTable.Name.Column"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
         };
 
     wTestNames =

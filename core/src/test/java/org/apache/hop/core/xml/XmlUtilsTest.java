@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.xml;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParserFactory;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.Test;
 
 public class XmlUtilsTest {
   @Test

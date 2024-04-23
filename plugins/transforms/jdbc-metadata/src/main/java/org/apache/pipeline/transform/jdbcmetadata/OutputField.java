@@ -21,34 +21,30 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class OutputField {
 
-    @HopMetadataProperty
-    private String name;
+  @HopMetadataProperty private String name;
 
-    @HopMetadataProperty
-    private String rename;
+  @HopMetadataProperty private String rename;
 
-    public OutputField() {
-    }
+  public OutputField() {}
 
-    public OutputField(String name, String rename) {
-        this.name = name;
-        this.rename = rename;
-    }
+  public OutputField(String name, String rename) {
+    this.name = name;
+    this.rename = rename;
+  }
 
+  public String getName() {
+    return name;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public String getRename() {
+    return rename;
+  }
 
-    public String getRename() {
-        return rename;
-    }
-
-    public void setRename(String rename) {
-        this.rename = rename;
-    }
+  public void setRename(String rename) {
+    this.rename = rename;
+  }
 }

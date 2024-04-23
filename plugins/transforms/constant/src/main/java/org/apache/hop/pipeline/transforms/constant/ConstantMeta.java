@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -32,9 +34,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "Constant",

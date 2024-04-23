@@ -17,11 +17,6 @@
 
 package org.apache.hop.core.logging;
 
-import junit.framework.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -33,6 +28,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import junit.framework.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Note, this test must be run on separate JAVA instance, to be sure LoggingRegistry was not already

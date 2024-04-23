@@ -16,6 +16,8 @@
 
 package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -45,9 +47,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class StandardizePhoneNumberDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -133,7 +132,11 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
     wTransformName.setText(transformName);
     wTransformName.addListener(SWT.Modify, e -> input.setChanged());
     wTransformName.setLayoutData(
-        new FormDataBuilder().left(wlTransformName, margin).top(wlTransformName, 0, SWT.CENTER).right().result());
+        new FormDataBuilder()
+            .left(wlTransformName, margin)
+            .top(wlTransformName, 0, SWT.CENTER)
+            .right()
+            .result());
     PropsUi.setLook(wTransformName);
 
     // Table with fields
@@ -253,7 +256,8 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog implements
               }
 
               // Display in red missing field names
-              HopGui.getInstance().getDisplay()
+              HopGui.getInstance()
+                  .getDisplay()
                   .asyncExec(
                       new Runnable() {
                         public void run() {

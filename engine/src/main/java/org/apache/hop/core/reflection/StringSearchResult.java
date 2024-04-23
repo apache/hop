@@ -86,22 +86,30 @@ public class StringSearchResult {
     return sb.toString();
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public String getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
-  /** @return the grandParentObject */
+  /**
+   * @return the grandParentObject
+   */
   public Object getGrandParentObject() {
     return grandParentObject;
   }
 
-  /** @param grandParentObject the grandParentObject to set */
+  /**
+   * @param grandParentObject the grandParentObject to set
+   */
   public void setGrandParentObject(Object grandParentObject) {
     this.grandParentObject = grandParentObject;
   }

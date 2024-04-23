@@ -17,8 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -27,9 +28,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SimpleMappingData extends BaseTransformData implements ITransformData {
   public LocalPipelineEngine mappingPipeline;

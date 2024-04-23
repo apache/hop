@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.snmptrap;
 
+import java.net.InetAddress;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -48,8 +49,6 @@ import org.snmp4j.smi.UdpAddress;
 import org.snmp4j.smi.VariableBinding;
 import org.snmp4j.transport.DefaultUdpTransportMapping;
 
-import java.net.InetAddress;
-
 /** This defines an SNMPTrap action. */
 @Action(
     id = "SNMP_TRAP",
@@ -64,24 +63,34 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
   @HopMetadataProperty(key = "servername")
   private String serverName;
+
   @HopMetadataProperty(key = "port")
   private String port;
+
   @HopMetadataProperty(key = "timeout")
   private String timeout;
+
   @HopMetadataProperty(key = "nrretry")
   private String nrretry;
+
   @HopMetadataProperty(key = "comstring")
   private String comString;
+
   @HopMetadataProperty(key = "message")
   private String message;
+
   @HopMetadataProperty(key = "oid")
   private String oid;
+
   @HopMetadataProperty(key = "targettype")
   private String targettype;
+
   @HopMetadataProperty(key = "user")
   private String user;
+
   @HopMetadataProperty(key = "passphrase")
   private String passphrase;
+
   @HopMetadataProperty(key = "engineid")
   private String engineid;
 
@@ -142,62 +151,86 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   public String getServerName() {
     return serverName;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /** @return Returns the OID. */
+  /**
+   * @return Returns the OID.
+   */
   public String getOid() {
     return oid;
   }
 
-  /** @param oid The oid to set. */
+  /**
+   * @param oid The oid to set.
+   */
   public void setOid(String oid) {
     this.oid = oid;
   }
 
-  /** @return Returns the comString. */
+  /**
+   * @return Returns the comString.
+   */
   public String getComString() {
     return comString;
   }
 
-  /** @param comString The comString to set. */
+  /**
+   * @param comString The comString to set.
+   */
   public void setComString(String comString) {
     this.comString = comString;
   }
 
-  /** @param user The user to set. */
+  /**
+   * @param user The user to set.
+   */
   public void setUser(String user) {
     this.user = user;
   }
 
-  /** @return Returns the user. */
+  /**
+   * @return Returns the user.
+   */
   public String getUser() {
     return user;
   }
 
-  /** @param passphrase The passphrase to set. */
+  /**
+   * @param passphrase The passphrase to set.
+   */
   public void setPassphrase(String passphrase) {
     this.passphrase = passphrase;
   }
 
-  /** @return Returns the passphrase. */
+  /**
+   * @return Returns the passphrase.
+   */
   public String getPassphrase() {
     return passphrase;
   }
 
-  /** @param engineid The engineid to set. */
+  /**
+   * @param engineid The engineid to set.
+   */
   public void setEngineid(String engineid) {
     this.engineid = engineid;
   }
 
-  /** @return Returns the engineid. */
+  /**
+   * @return Returns the engineid.
+   */
   public String getEngineid() {
     return engineid;
   }
@@ -210,42 +243,58 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     this.targettype = getTargetTypeCode(targettypein);
   }
 
-  /** @param message The message to set. */
+  /**
+   * @param message The message to set.
+   */
   public void setMessage(String message) {
     this.message = message;
   }
 
-  /** @return Returns the message. */
+  /**
+   * @return Returns the message.
+   */
   public String getMessage() {
     return message;
   }
 
-  /** @return Returns the port. */
+  /**
+   * @return Returns the port.
+   */
   public String getPort() {
     return port;
   }
 
-  /** @param port The port to set. */
+  /**
+   * @param port The port to set.
+   */
   public void setPort(String port) {
     this.port = port;
   }
 
-  /** @param timeout The timeout to set. */
+  /**
+   * @param timeout The timeout to set.
+   */
   public void setTimeout(String timeout) {
     this.timeout = timeout;
   }
 
-  /** @return Returns the timeout. */
+  /**
+   * @return Returns the timeout.
+   */
   public String getTimeout() {
     return timeout;
   }
 
-  /** @param nrretry The nrretry to set. */
+  /**
+   * @param nrretry The nrretry to set.
+   */
   public void setNrretry(String nrretry) {
     this.nrretry = nrretry;
   }
 
-  /** @return Returns the nrretry. */
+  /**
+   * @return Returns the nrretry.
+   */
   public String getNrretry() {
     return nrretry;
   }
@@ -361,7 +410,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
       }
 
       if (response != null && log.isDebug()) {
-          logDebug("Received response from: " + response.getPeerAddress() + response.toString());
+        logDebug("Received response from: " + response.getPeerAddress() + response.toString());
       }
 
       result.setNrErrors(0);

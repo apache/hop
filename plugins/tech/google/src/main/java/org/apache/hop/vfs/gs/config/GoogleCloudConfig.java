@@ -39,7 +39,9 @@ public class GoogleCloudConfig {
     return serviceAccountKeyFile;
   }
 
-  /** @param serviceAccountKeyFile The serviceAccountKeyFile to set */
+  /**
+   * @param serviceAccountKeyFile The serviceAccountKeyFile to set
+   */
   public void setServiceAccountKeyFile(String serviceAccountKeyFile) {
     this.serviceAccountKeyFile = serviceAccountKeyFile;
   }

@@ -17,16 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
+import java.util.ArrayList;
+import java.util.BitSet;
+import java.util.List;
+import java.util.PriorityQueue;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupData;
 import org.apache.hop.pipeline.transforms.databaselookup.DatabaseLookupMeta;
-
-import java.util.ArrayList;
-import java.util.BitSet;
-import java.util.List;
-import java.util.PriorityQueue;
 
 /**
  * This is a read-only array-based cache to be used in {@linkplain

@@ -17,62 +17,88 @@
 
 package org.apache.hop.vfs.azure;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
-import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.Mockito;
+
 @RunWith(Parameterized.class)
 public class AzureFileNameParserTest {
 
-    private AzureFileNameParser parser;
+  private AzureFileNameParser parser;
 
-    private final String inputUri;
-    private final String expectedScheme;
-    private final String expectedContainer;
-    private final String expectedPathAfterContainer;
+  private final String inputUri;
+  private final String expectedScheme;
+  private final String expectedContainer;
+  private final String expectedPathAfterContainer;
 
-    private final FileType expectedType;
+  private final FileType expectedType;
 
-    @Before
-    public void setup(){
-        parser = new AzureFileNameParser();
-    }
+  @Before
+  public void setup() {
+    parser = new AzureFileNameParser();
+  }
 
-    public AzureFileNameParserTest(String inputUri, String expectedScheme, String expectedContainer, String expectedPathAfterContainer, FileType expectedType) {
-        this.inputUri = inputUri;
-        this.expectedScheme = expectedScheme;
-        this.expectedContainer = expectedContainer;
-        this.expectedPathAfterContainer = expectedPathAfterContainer;
-        this.expectedType = expectedType;
-    }
+  public AzureFileNameParserTest(
+      String inputUri,
+      String expectedScheme,
+      String expectedContainer,
+      String expectedPathAfterContainer,
+      FileType expectedType) {
+    this.inputUri = inputUri;
+    this.expectedScheme = expectedScheme;
+    this.expectedContainer = expectedContainer;
+    this.expectedPathAfterContainer = expectedPathAfterContainer;
+    this.expectedType = expectedType;
+  }
 
-    @Parameterized.Parameters
-    public static Collection azureUris() {
-        return Arrays.asList(new Object[][] {
-            { "azfs://hopsa/container/folder1/parquet-test-delo2-azfs-00-0001.parquet","azfs", "container","/folder1/parquet-test-delo2-azfs-00-0001.parquet", FileType.FILE },
-            { "azfs:/hopsa/container/folder1/", "azfs", "container","/folder1", FileType.FOLDER },
-            { "azure://test/folder1/", "azure", "test", "/folder1", FileType.FOLDER },
-            { "azure://mycontainer/folder1/parquet-test-delo2-azfs-00-0001.parquet","azure", "mycontainer","/folder1/parquet-test-delo2-azfs-00-0001.parquet", FileType.FILE },
-            { "azfs://devstoreaccount1/delo/delo3-azfs-00-0001.parquet", "azfs", "delo", "/delo3-azfs-00-0001.parquet", FileType.FILE}
+  @Parameterized.Parameters
+  public static Collection azureUris() {
+    return Arrays.asList(
+        new Object[][] {
+          {
+            "azfs://hopsa/container/folder1/parquet-test-delo2-azfs-00-0001.parquet",
+            "azfs",
+            "container",
+            "/folder1/parquet-test-delo2-azfs-00-0001.parquet",
+            FileType.FILE
+          },
+          {"azfs:/hopsa/container/folder1/", "azfs", "container", "/folder1", FileType.FOLDER},
+          {"azure://test/folder1/", "azure", "test", "/folder1", FileType.FOLDER},
+          {
+            "azure://mycontainer/folder1/parquet-test-delo2-azfs-00-0001.parquet",
+            "azure",
+            "mycontainer",
+            "/folder1/parquet-test-delo2-azfs-00-0001.parquet",
+            FileType.FILE
+          },
+          {
+            "azfs://devstoreaccount1/delo/delo3-azfs-00-0001.parquet",
+            "azfs",
+            "delo",
+            "/delo3-azfs-00-0001.parquet",
+            FileType.FILE
+          }
         });
-    }
+  }
 
-    @Test
-    public void parseUri() throws FileSystemException {
-        VfsComponentContext context = Mockito.mock(VfsComponentContext.class);
+  @Test
+  public void parseUri() throws FileSystemException {
+    VfsComponentContext context = Mockito.mock(VfsComponentContext.class);
 
-        AzureFileName actual = (AzureFileName) parser.parseUri(context, null, inputUri);
+    AzureFileName actual = (AzureFileName) parser.parseUri(context, null, inputUri);
 
-        assertEquals(expectedScheme, actual.getScheme());
-        assertEquals(expectedContainer, actual.getContainer());
-        assertEquals(expectedPathAfterContainer, actual.getPathAfterContainer());
-        assertEquals(expectedType, actual.getType());
-    }
+    assertEquals(expectedScheme, actual.getScheme());
+    assertEquals(expectedContainer, actual.getContainer());
+    assertEquals(expectedPathAfterContainer, actual.getPathAfterContainer());
+    assertEquals(expectedType, actual.getType());
+  }
 }

@@ -17,6 +17,11 @@
 
 package org.apache.hop.core.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -29,12 +34,6 @@ import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class contained useful methods while working with {@link

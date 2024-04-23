@@ -17,15 +17,14 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.parquet.io.api.Binary;
-import org.apache.parquet.io.api.PrimitiveConverter;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.util.Date;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.parquet.io.api.Binary;
+import org.apache.parquet.io.api.PrimitiveConverter;
 
 public class ParquetValueConverter extends PrimitiveConverter {
 
@@ -151,7 +150,7 @@ public class ParquetValueConverter extends PrimitiveConverter {
   /**
    * Source code from:
    *
-   *   apache/parquet-mr/parquet-pig/src/main/java/org/apache/parquet/pig/convert/DecimalUtils.java
+   * <p>apache/parquet-mr/parquet-pig/src/main/java/org/apache/parquet/pig/convert/DecimalUtils.java
    *
    * @param value
    * @param precision

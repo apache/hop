@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.deletefolders;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -45,9 +47,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.List;
 
 /** This defines a 'delete folders' action. */
 @Action(

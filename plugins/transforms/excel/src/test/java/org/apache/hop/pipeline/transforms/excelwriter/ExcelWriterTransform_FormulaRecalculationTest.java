@@ -17,14 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
-import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyBoolean;
@@ -34,6 +26,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+
+import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ExcelWriterTransform_FormulaRecalculationTest {
 
@@ -59,7 +59,8 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     doReturn(templateMock).when(meta).getTemplate();
 
     data = new ExcelWriterTransformData();
-    ExcelWriterWorkbookDefinition workbookDefinition = new ExcelWriterWorkbookDefinition(null,null,null,null,0,0);
+    ExcelWriterWorkbookDefinition workbookDefinition =
+        new ExcelWriterWorkbookDefinition(null, null, null, null, 0, 0);
     data.currentWorkbookDefinition = workbookDefinition;
   }
 
@@ -103,7 +104,8 @@ public class ExcelWriterTransform_FormulaRecalculationTest {
     if (expectedFlag) {
       verify(data.currentWorkbookDefinition.getWorkbook()).setForceFormulaRecalculation(true);
     } else {
-      verify(data.currentWorkbookDefinition.getWorkbook(), never()).setForceFormulaRecalculation(anyBoolean());
+      verify(data.currentWorkbookDefinition.getWorkbook(), never())
+          .setForceFormulaRecalculation(anyBoolean());
     }
   }
 

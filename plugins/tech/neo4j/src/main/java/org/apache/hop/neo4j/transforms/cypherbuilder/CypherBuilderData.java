@@ -18,6 +18,9 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
@@ -26,10 +29,6 @@ import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class CypherBuilderData extends BaseTransformData {
   public List<Map<String, Object>> rowParametersList;

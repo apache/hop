@@ -61,8 +61,7 @@ import org.junit.Test;
 import org.mockito.Spy;
 
 public class CrateDBValueMetaBaseTest {
-  @ClassRule
-  public static RestoreHopEnvironment env = new RestoreHopEnvironment();
+  @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private static final String TEST_NAME = "TEST_NAME";
   private static final String LOG_FIELD = "LOG_FIELD";

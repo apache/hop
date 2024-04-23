@@ -532,40 +532,44 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   }
 
   private void setTableFieldCombo() {
-    shell.getDisplay().asyncExec(() -> {
-      if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-        final String tableName = wTable.getText();
-        final String connectionName = wConnection.getText();
-        final String schemaName = wSchema.getText();
-        if (!Utils.isEmpty(tableName)) {
-          DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
-          if (databaseMeta != null) {
-            try (Database database = new Database(loggingObject, variables, databaseMeta)) {
-              database.connect();
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
+                final String tableName = wTable.getText();
+                final String connectionName = wConnection.getText();
+                final String schemaName = wSchema.getText();
+                if (!Utils.isEmpty(tableName)) {
+                  DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+                  if (databaseMeta != null) {
+                    try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+                      database.connect();
 
-              String schemaTable =
-                  databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
-              IRowMeta rowMeta = database.getTableFields(schemaTable);
+                      String schemaTable =
+                          databaseMeta.getQuotedSchemaTableCombination(
+                              variables, schemaName, tableName);
+                      IRowMeta rowMeta = database.getTableFields(schemaTable);
 
-              if (null != rowMeta) {
-                String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
-                if (null != fieldNames) {
-                  for (ColumnInfo colInfo : tableFieldColumns) {
-                    colInfo.setComboValues(fieldNames);
+                      if (null != rowMeta) {
+                        String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+                        if (null != fieldNames) {
+                          for (ColumnInfo colInfo : tableFieldColumns) {
+                            colInfo.setComboValues(fieldNames);
+                          }
+                        }
+                      }
+                    } catch (Exception e) {
+                      for (ColumnInfo colInfo : tableFieldColumns) {
+                        colInfo.setComboValues(new String[] {});
+                      }
+                      // ignore any errors here. drop downs will not be
+                      // filled, but no problem for the user
+                    }
                   }
                 }
               }
-            } catch (Exception e) {
-              for (ColumnInfo colInfo : tableFieldColumns) {
-                colInfo.setComboValues(new String[] {});
-              }
-              // ignore any errors here. drop downs will not be
-              // filled, but no problem for the user
-            }
-          }
-        }
-      }
-    });
+            });
   }
 
   private void enableFields() {
@@ -751,7 +755,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
 
         if (!Utils.isEmpty(wTable.getText())) {
           String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination(variables, wSchema.getText(), wTable.getText());
+              databaseMeta.getQuotedSchemaTableCombination(
+                  variables, wSchema.getText(), wTable.getText());
           IRowMeta r = database.getTableFields(schemaTable);
 
           if (r != null && !r.isEmpty()) {

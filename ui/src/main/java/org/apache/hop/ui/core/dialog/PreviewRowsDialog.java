@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -48,9 +50,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Displays an ArrayList of rows in a TableView. */
 public class PreviewRowsDialog {
@@ -465,12 +464,16 @@ public class PreviewRowsDialog {
     vmax = m;
   }
 
-  /** @return true if the user is asking to grab the next rows with preview */
+  /**
+   * @return true if the user is asking to grab the next rows with preview
+   */
   public boolean isAskingForMoreRows() {
     return askingForMoreRows;
   }
 
-  /** @return true if the dialog is proposing to ask for more rows */
+  /**
+   * @return true if the dialog is proposing to ask for more rows
+   */
   public boolean isProposingToGetMoreRows() {
     return proposingToGetMoreRows;
   }
@@ -483,17 +486,23 @@ public class PreviewRowsDialog {
     this.proposingToGetMoreRows = proposingToGetMoreRows;
   }
 
-  /** @return the askingToStop */
+  /**
+   * @return the askingToStop
+   */
   public boolean isAskingToStop() {
     return askingToStop;
   }
 
-  /** @return the proposingToStop */
+  /**
+   * @return the proposingToStop
+   */
   public boolean isProposingToStop() {
     return proposingToStop;
   }
 
-  /** @param proposingToStop the proposingToStop to set */
+  /**
+   * @param proposingToStop the proposingToStop to set
+   */
   public void setProposingToStop(boolean proposingToStop) {
     this.proposingToStop = proposingToStop;
   }
@@ -508,7 +517,8 @@ public class PreviewRowsDialog {
       return;
     }
 
-    HopGui.getInstance().getDisplay()
+    HopGui.getInstance()
+        .getDisplay()
         .syncExec(
             () -> {
               if (wFields.isDisposed()) {

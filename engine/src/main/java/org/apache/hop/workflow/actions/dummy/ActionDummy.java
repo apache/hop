@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.dummy;
 
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -28,8 +29,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Action(
     id = "DUMMY",

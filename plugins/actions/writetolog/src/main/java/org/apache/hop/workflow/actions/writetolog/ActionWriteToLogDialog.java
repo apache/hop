@@ -34,7 +34,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -168,7 +167,7 @@ public class ActionWriteToLogDialog extends ActionDialog implements IActionDialo
     fdlLogMessage.top = new FormAttachment(wLogSubject, margin);
     fdlLogMessage.right = new FormAttachment(middle, -margin);
     wlLogMessage.setLayoutData(fdlLogMessage);
-  
+
     wLogMessage =
         new TextVar(
             variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);

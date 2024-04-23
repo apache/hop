@@ -17,6 +17,8 @@
 
 package org.apache.hop.mongo.wrapper;
 
+import static org.junit.Assert.assertThat;
+
 import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
@@ -25,8 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.Assert.assertThat;
 
 public class MongoClientWrapperFactoryTest {
 

@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.transform.BeamKafkaInputTransform;
@@ -41,10 +44,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamKafkaConsume",
     name = "Beam Kafka Consume",
@@ -53,7 +52,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamConsumeMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamkafkaconsume.html")
-public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> implements IBeamPipelineTransformHandler {
+public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty private String topics;
 
@@ -220,7 +220,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return bootstrapServers;
   }
 
-  /** @param bootstrapServers The bootstrapServers to set */
+  /**
+   * @param bootstrapServers The bootstrapServers to set
+   */
   public void setBootstrapServers(String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
   }
@@ -234,7 +236,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return topics;
   }
 
-  /** @param topics The topics to set */
+  /**
+   * @param topics The topics to set
+   */
   public void setTopics(String topics) {
     this.topics = topics;
   }
@@ -248,7 +252,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return keyField;
   }
 
-  /** @param keyField The keyField to set */
+  /**
+   * @param keyField The keyField to set
+   */
   public void setKeyField(String keyField) {
     this.keyField = keyField;
   }
@@ -262,7 +268,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return messageField;
   }
 
-  /** @param messageField The messageField to set */
+  /**
+   * @param messageField The messageField to set
+   */
   public void setMessageField(String messageField) {
     this.messageField = messageField;
   }
@@ -300,7 +308,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return groupId;
   }
 
-  /** @param groupId The groupId to set */
+  /**
+   * @param groupId The groupId to set
+   */
   public void setGroupId(String groupId) {
     this.groupId = groupId;
   }
@@ -314,7 +324,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return usingProcessingTime;
   }
 
-  /** @param usingProcessingTime The usingProcessingTime to set */
+  /**
+   * @param usingProcessingTime The usingProcessingTime to set
+   */
   public void setUsingProcessingTime(boolean usingProcessingTime) {
     this.usingProcessingTime = usingProcessingTime;
   }
@@ -328,7 +340,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return usingLogAppendTime;
   }
 
-  /** @param usingLogAppendTime The usingLogAppendTime to set */
+  /**
+   * @param usingLogAppendTime The usingLogAppendTime to set
+   */
   public void setUsingLogAppendTime(boolean usingLogAppendTime) {
     this.usingLogAppendTime = usingLogAppendTime;
   }
@@ -342,7 +356,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return usingCreateTime;
   }
 
-  /** @param usingCreateTime The usingCreateTime to set */
+  /**
+   * @param usingCreateTime The usingCreateTime to set
+   */
   public void setUsingCreateTime(boolean usingCreateTime) {
     this.usingCreateTime = usingCreateTime;
   }
@@ -356,7 +372,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return restrictedToCommitted;
   }
 
-  /** @param restrictedToCommitted The restrictedToCommitted to set */
+  /**
+   * @param restrictedToCommitted The restrictedToCommitted to set
+   */
   public void setRestrictedToCommitted(boolean restrictedToCommitted) {
     this.restrictedToCommitted = restrictedToCommitted;
   }
@@ -370,7 +388,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return allowingCommitOnConsumedOffset;
   }
 
-  /** @param allowingCommitOnConsumedOffset The allowingCommitOnConsumedOffset to set */
+  /**
+   * @param allowingCommitOnConsumedOffset The allowingCommitOnConsumedOffset to set
+   */
   public void setAllowingCommitOnConsumedOffset(boolean allowingCommitOnConsumedOffset) {
     this.allowingCommitOnConsumedOffset = allowingCommitOnConsumedOffset;
   }
@@ -384,7 +404,9 @@ public class BeamConsumeMeta extends BaseTransformMeta<BeamConsume, DummyData> i
     return configOptions;
   }
 
-  /** @param configOptions The configOptions to set */
+  /**
+   * @param configOptions The configOptions to set
+   */
   public void setConfigOptions(List<ConfigOption> configOptions) {
     this.configOptions = configOptions;
   }

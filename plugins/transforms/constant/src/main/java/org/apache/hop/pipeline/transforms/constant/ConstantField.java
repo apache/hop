@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ConstantField {
 
@@ -61,6 +60,7 @@ public class ConstantField {
       key = "precision",
       injectionKeyDescription = "ConstantMeta.Injection.FieldPrecision.Field")
   private int fieldPrecision;
+
   /** Flag : set empty string */
   @HopMetadataProperty(
       key = "set_empty_string",
@@ -83,102 +83,142 @@ public class ConstantField {
     this.value = "";
   }
 
-  /** @return Returns the currency. */
+  /**
+   * @return Returns the currency.
+   */
   public String getCurrency() {
     return currency;
   }
 
-  /** @param currency The currency to set. */
+  /**
+   * @param currency The currency to set.
+   */
   public void setCurrency(String currency) {
     this.currency = currency;
   }
 
-  /** @return Returns the decimal. */
+  /**
+   * @return Returns the decimal.
+   */
   public String getDecimal() {
     return decimal;
   }
 
-  /** @param decimal The decimal to set. */
+  /**
+   * @param decimal The decimal to set.
+   */
   public void setDecimal(String decimal) {
     this.decimal = decimal;
   }
 
-  /** @return Returns the fieldFormat. */
+  /**
+   * @return Returns the fieldFormat.
+   */
   public String getFieldFormat() {
     return fieldFormat;
   }
 
-  /** @param fieldFormat The fieldFormat to set. */
+  /**
+   * @param fieldFormat The fieldFormat to set.
+   */
   public void setFieldFormat(String fieldFormat) {
     this.fieldFormat = fieldFormat;
   }
 
-  /** @return Returns the fieldLength. */
+  /**
+   * @return Returns the fieldLength.
+   */
   public int getFieldLength() {
     return fieldLength;
   }
 
-  /** @param fieldLength The fieldLength to set. */
+  /**
+   * @param fieldLength The fieldLength to set.
+   */
   public void setFieldLength(int fieldLength) {
     this.fieldLength = fieldLength;
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public String getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
-  /** @return Returns the fieldPrecision. */
+  /**
+   * @return Returns the fieldPrecision.
+   */
   public int getFieldPrecision() {
     return fieldPrecision;
   }
 
-  /** @param fieldPrecision The fieldPrecision to set. */
+  /**
+   * @param fieldPrecision The fieldPrecision to set.
+   */
   public void setFieldPrecision(int fieldPrecision) {
     this.fieldPrecision = fieldPrecision;
   }
 
-  /** @return Returns the fieldType. */
+  /**
+   * @return Returns the fieldType.
+   */
   public String getFieldType() {
     return fieldType;
   }
 
-  /** @param fieldType The fieldType to set. */
+  /**
+   * @param fieldType The fieldType to set.
+   */
   public void setFieldType(String fieldType) {
     this.fieldType = fieldType;
   }
 
-  /** @return the setEmptyString */
+  /**
+   * @return the setEmptyString
+   */
   public boolean isEmptyString() {
     return emptyString;
   }
 
-  /** @param setEmptyString the setEmptyString to set */
+  /**
+   * @param setEmptyString the setEmptyString to set
+   */
   public void setEmptyString(boolean setEmptyString) {
     this.emptyString = setEmptyString;
   }
 
-  /** @return Returns the group. */
+  /**
+   * @return Returns the group.
+   */
   public String getGroup() {
     return group;
   }
 
-  /** @param group The group to set. */
+  /**
+   * @param group The group to set.
+   */
   public void setGroup(String group) {
     this.group = group;
   }
 
-  /** @return Returns the value. */
+  /**
+   * @return Returns the value.
+   */
   public String getValue() {
     return value;
   }
 
-  /** @param value The value to set. */
+  /**
+   * @param value The value to set.
+   */
   public void setValue(String value) {
     this.value = value;
   }

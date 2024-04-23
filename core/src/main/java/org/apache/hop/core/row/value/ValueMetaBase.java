@@ -18,28 +18,6 @@
 package org.apache.hop.core.row.value;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopEofException;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.ValueDataUtil;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-import org.apache.hop.metadata.api.IIntCodeConverter;
-import org.json.simple.JSONObject;
-import org.w3c.dom.Node;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -71,6 +49,27 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.TimeZone;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.ValueDataUtil;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.IIntCodeConverter;
+import org.json.simple.JSONObject;
+import org.w3c.dom.Node;
 
 public class ValueMetaBase implements IValueMeta {
 
@@ -1046,7 +1045,9 @@ public class ValueMetaBase implements IValueMeta {
       return null;
     }
     // If a date format already exists use it otherwise use the compatible date format
-    return (getDateFormat() != null ? getDateFormat().format(date) : compatibleDateFormat.format(date));
+    return (getDateFormat() != null
+        ? getDateFormat().format(date)
+        : compatibleDateFormat.format(date));
   }
 
   public synchronized Date convertStringToDate(String string) throws HopValueException {

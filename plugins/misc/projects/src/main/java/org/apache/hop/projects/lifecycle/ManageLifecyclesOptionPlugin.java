@@ -17,6 +17,8 @@
 
 package org.apache.hop.projects.lifecycle;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
@@ -27,9 +29,6 @@ import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import picocli.CommandLine;
-
-import java.util.Arrays;
-import java.util.List;
 
 /*
 

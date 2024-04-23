@@ -16,6 +16,20 @@
  */
 package org.apache.hop.core.extension;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import javassist.CannotCompileException;
 import javassist.ClassClassPath;
 import javassist.ClassPool;
@@ -33,21 +47,6 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class ExtensionPointIntegrationTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

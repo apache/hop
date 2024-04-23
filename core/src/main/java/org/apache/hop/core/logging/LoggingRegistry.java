@@ -17,9 +17,6 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -30,6 +27,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.EnvUtil;
 
 public class LoggingRegistry {
   private static LoggingRegistry registry = new LoggingRegistry();
@@ -79,8 +78,8 @@ public class LoggingRegistry {
           String foundParentLogChannelId = foundParent.getLogChannelId();
           String sourceParentLogChannelId = loggingSourceParent.getLogChannelId();
           if (foundParentLogChannelId != null
-                  && foundParentLogChannelId.equals(sourceParentLogChannelId)
-                  && foundLogChannelId != null) {
+              && foundParentLogChannelId.equals(sourceParentLogChannelId)
+              && foundLogChannelId != null) {
             return foundLogChannelId;
           }
         }

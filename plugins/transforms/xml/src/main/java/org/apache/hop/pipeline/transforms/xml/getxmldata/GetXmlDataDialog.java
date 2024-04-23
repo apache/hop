@@ -15,9 +15,11 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
@@ -69,10 +71,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 public class GetXmlDataDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = GetXmlDataMeta.class; // For Translator
@@ -1928,7 +1926,6 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       field.setTrimType(GetXmlDataField.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
-
 
       in.getInputFields()[i] = field;
     }

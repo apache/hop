@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.injector;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -30,9 +32,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 // TODO: check conversion of types from strings to numbers and back.
 //       As compared in the old version.
@@ -124,7 +123,9 @@ public class InjectorMeta extends BaseTransformMeta<Injector, InjectorData> {
     return injectorFields;
   }
 
-  /** @param injectorFields The injectorFields to set */
+  /**
+   * @param injectorFields The injectorFields to set
+   */
   public void setInjectorFields(List<InjectorField> injectorFields) {
     this.injectorFields = injectorFields;
   }

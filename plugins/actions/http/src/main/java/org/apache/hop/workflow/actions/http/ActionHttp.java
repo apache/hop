@@ -17,6 +17,22 @@
 
 package org.apache.hop.workflow.actions.http;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Authenticator;
+import java.net.MalformedURLException;
+import java.net.PasswordAuthentication;
+import java.net.URL;
+import java.net.URLConnection;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import javax.net.ssl.HttpsURLConnection;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -42,23 +58,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
-
-import javax.net.ssl.HttpsURLConnection;
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.Authenticator;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.net.URLConnection;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /** This defines an HTTP action. */
 @Action(
@@ -237,22 +236,30 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  /** @return Returns the URL. */
+  /**
+   * @return Returns the URL.
+   */
   public String getUrl() {
     return url;
   }
 
-  /** @param url The URL to set. */
+  /**
+   * @param url The URL to set.
+   */
   public void setUrl(String url) {
     this.url = url;
   }
 
-  /** @return Returns the target filename. */
+  /**
+   * @return Returns the target filename.
+   */
   public String getTargetFilename() {
     return targetFilename;
   }
 
-  /** @param targetFilename The target filename to set. */
+  /**
+   * @param targetFilename The target filename to set.
+   */
   public void setTargetFilename(String targetFilename) {
     this.targetFilename = targetFilename;
   }
@@ -438,7 +445,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
 
         if (isIgnoreSsl()) {
           HttpsURLConnection httpsConn = (HttpsURLConnection) connection;
-          httpsConn.setSSLSocketFactory(HttpClientManager.getTrustAllSslContext().getSocketFactory());
+          httpsConn.setSSLSocketFactory(
+              HttpClientManager.getTrustAllSslContext().getSocketFactory());
           httpsConn.setHostnameVerifier(HttpClientManager.getHostnameVerifier(isDebug(), log));
         }
 
@@ -587,12 +595,16 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     this.uploadFilename = uploadFilename;
   }
 
-  /** @return Returns the Result URL Fieldname. */
+  /**
+   * @return Returns the Result URL Fieldname.
+   */
   public String getUrlFieldname() {
     return urlFieldname;
   }
 
-  /** @param getFieldname The Result URL Fieldname to set. */
+  /**
+   * @param getFieldname The Result URL Fieldname to set.
+   */
   public void setUrlFieldname(String getFieldname) {
     this.urlFieldname = getFieldname;
   }
@@ -627,42 +639,58 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
     this.destinationFieldname = destinationFieldname;
   }
 
-  /** @return Returns the runForEveryRow. */
+  /**
+   * @return Returns the runForEveryRow.
+   */
   public boolean isRunForEveryRow() {
     return runForEveryRow;
   }
 
-  /** @param runForEveryRow The runForEveryRow to set. */
+  /**
+   * @param runForEveryRow The runForEveryRow to set.
+   */
   public void setRunForEveryRow(boolean runForEveryRow) {
     this.runForEveryRow = runForEveryRow;
   }
 
-  /** @return Returns the fileAppended. */
+  /**
+   * @return Returns the fileAppended.
+   */
   public boolean isFileAppended() {
     return fileAppended;
   }
 
-  /** @param fileAppended The fileAppended to set. */
+  /**
+   * @param fileAppended The fileAppended to set.
+   */
   public void setFileAppended(boolean fileAppended) {
     this.fileAppended = fileAppended;
   }
 
-  /** @return Returns the dateTimeAdded. */
+  /**
+   * @return Returns the dateTimeAdded.
+   */
   public boolean isDateTimeAdded() {
     return dateTimeAdded;
   }
 
-  /** @param dateTimeAdded The dateTimeAdded to set. */
+  /**
+   * @param dateTimeAdded The dateTimeAdded to set.
+   */
   public void setDateTimeAdded(boolean dateTimeAdded) {
     this.dateTimeAdded = dateTimeAdded;
   }
 
-  /** @return Returns the uploadFilenameExtension. */
+  /**
+   * @return Returns the uploadFilenameExtension.
+   */
   public String getTargetFilenameExtension() {
     return targetFilenameExtension;
   }
 
-  /** @param uploadFilenameExtension The uploadFilenameExtension to set. */
+  /**
+   * @param uploadFilenameExtension The uploadFilenameExtension to set.
+   */
   public void setTargetFilenameExtension(String uploadFilenameExtension) {
     this.targetFilenameExtension = uploadFilenameExtension;
   }

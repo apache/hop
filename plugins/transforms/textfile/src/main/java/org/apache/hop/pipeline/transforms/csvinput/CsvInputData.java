@@ -17,17 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.file.EncodingType;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.file.EncodingType;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class CsvInputData extends BaseTransformData implements ITransformData {
   public FileChannel fc;

@@ -17,6 +17,7 @@
 
 package org.apache.hop.avro.transforms.avrodecode;
 
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericContainer;
 import org.apache.avro.generic.GenericData;
@@ -31,8 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Map;
 
 public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
   public AvroDecode(

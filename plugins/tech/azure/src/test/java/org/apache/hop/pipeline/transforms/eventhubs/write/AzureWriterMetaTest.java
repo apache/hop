@@ -18,15 +18,14 @@
 
 package org.apache.hop.pipeline.transforms.eventhubs.write;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class AzureWriterMetaTest {
   @Test

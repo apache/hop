@@ -17,6 +17,9 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphProperty;
@@ -28,10 +31,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GraphOutputData extends BaseNeoTransformData implements ITransformData {
 
@@ -71,7 +70,8 @@ public class GraphOutputData extends BaseNeoTransformData implements ITransformD
   // For a merge on a specific node name, map a field value to the specified node label
   public Map<String, Map<String, String>> nodeValueLabelMergeMap;
 
-  // To set a label on a node after merge, for a specific node name, map a field value to the specified node label
+  // To set a label on a node after merge, for a specific node name, map a field value to the
+  // specified node label
   public Map<String, Map<String, String>> nodeValueLabelSetMap;
 
   public GraphOutputData() {

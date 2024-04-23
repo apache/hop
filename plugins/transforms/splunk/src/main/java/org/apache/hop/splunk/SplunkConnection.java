@@ -124,7 +124,9 @@ public class SplunkConnection extends HopMetadataBase implements Cloneable, IHop
     return hostname;
   }
 
-  /** @param hostname The hostname to set */
+  /**
+   * @param hostname The hostname to set
+   */
   public void setHostname(String hostname) {
     this.hostname = hostname;
   }
@@ -138,7 +140,9 @@ public class SplunkConnection extends HopMetadataBase implements Cloneable, IHop
     return port;
   }
 
-  /** @param port The port to set */
+  /**
+   * @param port The port to set
+   */
   public void setPort(String port) {
     this.port = port;
   }
@@ -152,7 +156,9 @@ public class SplunkConnection extends HopMetadataBase implements Cloneable, IHop
     return username;
   }
 
-  /** @param username The username to set */
+  /**
+   * @param username The username to set
+   */
   public void setUsername(String username) {
     this.username = username;
   }
@@ -166,7 +172,9 @@ public class SplunkConnection extends HopMetadataBase implements Cloneable, IHop
     return password;
   }
 
-  /** @param password The password to set */
+  /**
+   * @param password The password to set
+   */
   public void setPassword(String password) {
     this.password = password;
   }

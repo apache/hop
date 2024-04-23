@@ -65,7 +65,9 @@ public class SearchQuery implements ISearchQuery {
     return searchString;
   }
 
-  /** @param searchString The searchString to set */
+  /**
+   * @param searchString The searchString to set
+   */
   public void setSearchString(String searchString) {
     this.searchString = searchString;
   }
@@ -80,7 +82,9 @@ public class SearchQuery implements ISearchQuery {
     return caseSensitive;
   }
 
-  /** @param caseSensitive The caseSensitive to set */
+  /**
+   * @param caseSensitive The caseSensitive to set
+   */
   public void setCaseSensitive(boolean caseSensitive) {
     this.caseSensitive = caseSensitive;
   }
@@ -95,7 +99,9 @@ public class SearchQuery implements ISearchQuery {
     return regEx;
   }
 
-  /** @param regEx The regEx to set */
+  /**
+   * @param regEx The regEx to set
+   */
   public void setRegEx(boolean regEx) {
     this.regEx = regEx;
   }

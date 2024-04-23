@@ -17,6 +17,10 @@
 
 package org.apache.hop.avro.transforms.avrooutput;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -58,11 +62,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class AvroOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =
@@ -205,7 +204,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
     wOutputType = new CCombo(wFileComp, SWT.BORDER | SWT.READ_ONLY);
     wOutputType.setEditable(false);
     PropsUi.setLook(wOutputType);
-    wOutputType.addListener(SWT.Selection, e->enableFields());
+    wOutputType.addListener(SWT.Selection, e -> enableFields());
     FormData fdOutputType = new FormData();
     fdOutputType.left = new FormAttachment(middle, 0);
     fdOutputType.top = new FormAttachment(0, margin);
@@ -298,7 +297,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
     fdCreateSchemaFile.top = new FormAttachment(wlCreateSchemaFile, 0, SWT.CENTER);
     fdCreateSchemaFile.right = new FormAttachment(100, 0);
     wCreateSchemaFile.setLayoutData(fdCreateSchemaFile);
-    wCreateSchemaFile.addListener(SWT.Selection, e->enableFields());
+    wCreateSchemaFile.addListener(SWT.Selection, e -> enableFields());
 
     // Write Schema File
     //
@@ -620,7 +619,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
     fdSpecifyFormat.top = new FormAttachment(wlSpecifyFormat, 0, SWT.CENTER);
     fdSpecifyFormat.right = new FormAttachment(100, 0);
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
-    wSpecifyFormat.addListener(SWT.Selection, e->enableFields());
+    wSpecifyFormat.addListener(SWT.Selection, e -> enableFields());
 
     // The date-time format
     //
@@ -986,7 +985,7 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
       wDateTimeFormat.setEnabled(true);
       wOutputField.setEnabled(false);
     } else if (outputTypeId == AvroOutputMeta.OUTPUT_TYPE_FIELD
-            || outputTypeId == AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD) {
+        || outputTypeId == AvroOutputMeta.OUTPUT_TYPE_JSON_FIELD) {
       wFilename.setEnabled(false);
       wCompression.setEnabled(false);
       wAddTransformNr.setEnabled(false);

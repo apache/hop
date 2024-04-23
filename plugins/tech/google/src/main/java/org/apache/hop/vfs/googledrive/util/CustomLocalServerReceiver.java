@@ -19,18 +19,17 @@ package org.apache.hop.vfs.googledrive.util;
 
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import com.google.api.client.util.Throwables;
-import org.mortbay.jetty.Connector;
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Server;
-import org.mortbay.jetty.webapp.WebAppContext;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URL;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.mortbay.jetty.Connector;
+import org.mortbay.jetty.Request;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.webapp.WebAppContext;
 
 public class CustomLocalServerReceiver implements VerificationCodeReceiver {
 

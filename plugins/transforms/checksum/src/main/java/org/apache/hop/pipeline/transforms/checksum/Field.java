@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Field {
 
@@ -65,7 +64,9 @@ public class Field {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }

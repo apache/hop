@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.setvariable;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -30,8 +31,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.List;
 
 /** Convert Values in a certain fields to other values */
 public class SetVariable extends BaseTransform<SetVariableMeta, SetVariableData> {

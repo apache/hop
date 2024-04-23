@@ -17,10 +17,9 @@
 
 package org.apache.hop.testing.xp;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.row.IRowMeta;
 
 public class RowCollection {
 

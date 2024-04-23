@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.core.gui;
 
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -45,13 +51,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /** This class contains the widgets for the GUI elements of a GUI Plugin */
 public class GuiToolbarWidgets extends BaseGuiWidgets {
@@ -445,7 +444,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
           Combo combo = (Combo) control;
           combo.setItems(getComboItems(item));
         } else {
-          LogChannel.UI.logError("toolbar item with id '" + id + "' : widget not of instance Combo");
+          LogChannel.UI.logError(
+              "toolbar item with id '" + id + "' : widget not of instance Combo");
         }
       } else {
         LogChannel.UI.logError(

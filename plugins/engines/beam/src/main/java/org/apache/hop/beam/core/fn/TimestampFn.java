@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.fn;
 
+import java.util.Date;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -34,9 +35,6 @@ import org.joda.time.Duration;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Date;
-import java.util.List;
 
 public class TimestampFn extends DoFn<HopRow, HopRow> {
 
@@ -58,10 +56,7 @@ public class TimestampFn extends DoFn<HopRow, HopRow> {
   private transient IValueMeta fieldValueMeta;
 
   public TimestampFn(
-      String transformName,
-      String rowMetaJson,
-      String fieldName,
-      boolean getTimestamp) {
+      String transformName, String rowMetaJson, String fieldName, boolean getTimestamp) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
     this.fieldName = fieldName;

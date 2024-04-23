@@ -17,6 +17,7 @@
 package org.apache.hop.mongo.wrapper;
 
 import com.mongodb.MongoCredential;
+import java.util.List;
 import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
@@ -25,8 +26,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.util.List;
 
 /** Test class for {@link org.apache.hop.mongo.wrapper.UsernamePasswordMongoClientWrapper}. */
 public class UsernamePasswordMongoClientWrapperTest {

@@ -19,7 +19,6 @@ package org.apache.hop.mongo;
 
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -41,7 +40,9 @@ public class MongoProperties {
     this.props = props;
   }
 
-  /** @return the value associated with prop, or null if unset. */
+  /**
+   * @return the value associated with prop, or null if unset.
+   */
   public String get(MongoProp prop) {
     return props.get(prop);
   }
@@ -73,7 +74,9 @@ public class MongoProperties {
     return Boolean.valueOf(props.get(MongoProp.USE_ALL_REPLICA_SET_MEMBERS));
   }
 
-  /** @return the com.mongodb.ReadPreference associated with the MongoProp.readPreference value. */
+  /**
+   * @return the com.mongodb.ReadPreference associated with the MongoProp.readPreference value.
+   */
   public ReadPreference getReadPreference() {
     return ReadPreference.valueOf(props.get(MongoProp.readPreference));
   }

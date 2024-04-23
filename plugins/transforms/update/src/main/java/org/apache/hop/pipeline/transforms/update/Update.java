@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -33,9 +35,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
 
 /** Update data in a database table, does NOT ever perform an insert. */
 public class Update extends BaseTransform<UpdateMeta, UpdateData> {

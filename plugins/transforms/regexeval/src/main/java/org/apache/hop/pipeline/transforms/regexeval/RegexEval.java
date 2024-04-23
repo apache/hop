@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -27,9 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class RegexEval extends BaseTransform<RegexEvalMeta, RegexEvalData> {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator

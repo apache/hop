@@ -19,6 +19,8 @@ package org.apache.hop.mongo.wrapper.field;
 
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -26,9 +28,6 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.mongodbinput.MongoDbInputData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MongoArrayExpansion {
   protected static Class<?> PKG = MongoArrayExpansion.class; // For Translator

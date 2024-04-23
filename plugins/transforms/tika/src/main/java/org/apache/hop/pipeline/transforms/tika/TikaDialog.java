@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.tika;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -63,10 +66,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TikaDialog extends BaseTransformDialog implements ITransformDialog {
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};

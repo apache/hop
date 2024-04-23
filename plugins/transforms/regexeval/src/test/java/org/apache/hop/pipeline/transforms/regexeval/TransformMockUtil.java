@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -25,12 +30,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * Util class to handle TransformMock creation in generic way.
@@ -57,8 +56,12 @@ public class TransformMockUtil {
 
   public static <T extends BaseTransform, K extends ITransformMeta, V extends ITransformData>
       T getTransform(Class<T> klass, TransformMockHelper<K, V> mock)
-          throws NoSuchMethodException, SecurityException, InstantiationException,
-              IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+          throws NoSuchMethodException,
+              SecurityException,
+              InstantiationException,
+              IllegalAccessException,
+              IllegalArgumentException,
+              InvocationTargetException {
     Constructor<T> kons =
         klass.getConstructor(
             TransformMeta.class,
@@ -74,8 +77,12 @@ public class TransformMockUtil {
 
   public static <T extends BaseTransform, K extends ITransformMeta> T getTransform(
       Class<T> transformClass, Class<K> transformMetaClass, String transformName)
-      throws NoSuchMethodException, SecurityException, InstantiationException,
-          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      throws NoSuchMethodException,
+          SecurityException,
+          InstantiationException,
+          IllegalAccessException,
+          IllegalArgumentException,
+          InvocationTargetException {
     return TransformMockUtil.getTransform(
         transformClass,
         TransformMockUtil.getTransformMockHelper(transformMetaClass, transformName));

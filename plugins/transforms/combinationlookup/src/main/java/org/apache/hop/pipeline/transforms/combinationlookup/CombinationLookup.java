@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -37,15 +45,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 
 /**
  * Manages or looks up information in a Type 1 or junk dimension.

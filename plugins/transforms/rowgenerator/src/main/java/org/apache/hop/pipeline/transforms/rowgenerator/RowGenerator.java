@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -38,10 +41,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /** Generates a number of (empty or the same) rows */
 public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> {

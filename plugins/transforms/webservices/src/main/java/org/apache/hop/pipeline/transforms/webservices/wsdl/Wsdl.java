@@ -17,14 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.core.HttpProtocol;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.http.auth.AuthenticationException;
-import org.w3c.dom.Document;
-
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import javax.wsdl.Binding;
 import javax.wsdl.Definition;
 import javax.wsdl.Operation;
@@ -37,14 +37,13 @@ import javax.wsdl.factory.WSDLFactory;
 import javax.wsdl.xml.WSDLLocator;
 import javax.wsdl.xml.WSDLReader;
 import javax.xml.namespace.QName;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import org.apache.hop.core.HttpProtocol;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.http.auth.AuthenticationException;
+import org.w3c.dom.Document;
 
 /** Wsdl abstraction. */
 public final class Wsdl implements java.io.Serializable {

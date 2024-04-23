@@ -40,60 +40,65 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
-        id = "BeamHiveCatalogInput",
-        image = "beam-input.svg",
-        name = "i18n::BeamHiveCatalogInputDialog.DialogTitle",
-        description = "i18n::BeamHiveCatalogInputDialog.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Experimental",
-        keywords = "i18n::BeamHiveCatalogInputDialog.keyword",
-        documentationUrl = "/pipeline/transforms/beamhivecataloginput.html")
-public class BeamHiveCatalogInputMeta extends BaseTransformMeta<BeamHiveCatalogInput, BeamHiveCatalogInputData> implements IBeamPipelineTransformHandler {
-    @HopMetadataProperty(key = "hive_metastore_uris")
-    private String hiveMetastoreUris;
-    @HopMetadataProperty(key = "hive_metastore_databese")
-    private String hiveMetastoreDatabase;
-    @HopMetadataProperty(key = "hive_metastore_table")
-    private String hiveMetastoreTable;
+    id = "BeamHiveCatalogInput",
+    image = "beam-input.svg",
+    name = "i18n::BeamHiveCatalogInputDialog.DialogTitle",
+    description = "i18n::BeamHiveCatalogInputDialog.Description",
+    categoryDescription =
+        "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Experimental",
+    keywords = "i18n::BeamHiveCatalogInputDialog.keyword",
+    documentationUrl = "/pipeline/transforms/beamhivecataloginput.html")
+public class BeamHiveCatalogInputMeta
+    extends BaseTransformMeta<BeamHiveCatalogInput, BeamHiveCatalogInputData>
+    implements IBeamPipelineTransformHandler {
+  @HopMetadataProperty(key = "hive_metastore_uris")
+  private String hiveMetastoreUris;
 
-    public BeamHiveCatalogInputMeta() {}
+  @HopMetadataProperty(key = "hive_metastore_databese")
+  private String hiveMetastoreDatabase;
 
-    @Override
-    public String getDialogClassName() {
-        return BeamHiveCatalogInputDialog.class.getName();
-    }
+  @HopMetadataProperty(key = "hive_metastore_table")
+  private String hiveMetastoreTable;
 
-    @Override
-    public boolean isInput() {
-        return true;
-    }
+  public BeamHiveCatalogInputMeta() {}
 
-    @Override
-    public boolean isOutput() {
-        return false;
-    }
+  @Override
+  public String getDialogClassName() {
+    return BeamHiveCatalogInputDialog.class.getName();
+  }
 
-    @Override
-    public void handleTransform(
-            ILogChannel log,
-            IVariables variables,
-            String runConfigurationName,
-            IBeamPipelineEngineRunConfiguration runConfiguration,
-            String dataSamplersJson,
-            IHopMetadataProvider metadataProvider,
-            PipelineMeta pipelineMeta,
-            TransformMeta transformMeta,
-            Map<String, PCollection<HopRow>> transformCollectionMap,
-            org.apache.beam.sdk.Pipeline pipeline,
-            IRowMeta rowMeta,
-            List<TransformMeta> previousTransforms,
-            PCollection<HopRow> input,
-            String parentLogChannelId)
-            throws HopException {
+  @Override
+  public boolean isInput() {
+    return true;
+  }
 
-        // Output rows (fields selection)
-        //
-        IRowMeta outputRowMeta = new RowMeta();
-        getFields(outputRowMeta, transformMeta.getName(), null, null, variables, null);
+  @Override
+  public boolean isOutput() {
+    return false;
+  }
+
+  @Override
+  public void handleTransform(
+      ILogChannel log,
+      IVariables variables,
+      String runConfigurationName,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      String dataSamplersJson,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> transformCollectionMap,
+      org.apache.beam.sdk.Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input,
+      String parentLogChannelId)
+      throws HopException {
+
+    // Output rows (fields selection)
+    //
+    IRowMeta outputRowMeta = new RowMeta();
+    getFields(outputRowMeta, transformMeta.getName(), null, null, variables, null);
 
     BeamHiveMetastoreInputTransform beamInputTransform =
         new BeamHiveMetastoreInputTransform(
@@ -103,48 +108,46 @@ public class BeamHiveCatalogInputMeta extends BaseTransformMeta<BeamHiveCatalogI
             variables.resolve(hiveMetastoreDatabase),
             variables.resolve(hiveMetastoreTable),
             JsonRowMeta.toJson(outputRowMeta));
-        PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
-        transformCollectionMap.put(transformMeta.getName(), afterInput);
-        log.logBasic("Handled transform (Hive Catalog INPUT) : " + transformMeta.getName());
-    }
+    PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
+    transformCollectionMap.put(transformMeta.getName(), afterInput);
+    log.logBasic("Handled transform (Hive Catalog INPUT) : " + transformMeta.getName());
+  }
 
-    public String getHiveMetastoreUris() {
-        return hiveMetastoreUris;
-    }
+  public String getHiveMetastoreUris() {
+    return hiveMetastoreUris;
+  }
 
-    public void setHiveMetastoreUris(String hiveMetastoreUris) {
-        this.hiveMetastoreUris = hiveMetastoreUris;
-    }
+  public void setHiveMetastoreUris(String hiveMetastoreUris) {
+    this.hiveMetastoreUris = hiveMetastoreUris;
+  }
 
-    public String getHiveMetastoreDatabase() {
-        return hiveMetastoreDatabase;
-    }
+  public String getHiveMetastoreDatabase() {
+    return hiveMetastoreDatabase;
+  }
 
-    public void setHiveMetastoreDatabase(String hiveMetastoreDatabase) {
-        this.hiveMetastoreDatabase = hiveMetastoreDatabase;
-    }
+  public void setHiveMetastoreDatabase(String hiveMetastoreDatabase) {
+    this.hiveMetastoreDatabase = hiveMetastoreDatabase;
+  }
 
-    public String getHiveMetastoreTable() {
-        return hiveMetastoreTable;
-    }
+  public String getHiveMetastoreTable() {
+    return hiveMetastoreTable;
+  }
 
-    public void setHiveMetastoreTable(String hiveMetastoreTable) {
-        this.hiveMetastoreTable = hiveMetastoreTable;
-    }
+  public void setHiveMetastoreTable(String hiveMetastoreTable) {
+    this.hiveMetastoreTable = hiveMetastoreTable;
+  }
 
-    @Override
-    public void getFields(
-            IRowMeta inputRowMeta,
-            String name,
-            IRowMeta[] info,
-            TransformMeta nextTransform,
-            IVariables variables,
-            IHopMetadataProvider metadataProvider
-    ){
-        IValueMeta rowNb = new ValueMetaString();
-        rowNb.setOrigin(name);
-        rowNb.setName("hcatalog_output");
-        inputRowMeta.addValueMeta(rowNb);
-
-    }
+  @Override
+  public void getFields(
+      IRowMeta inputRowMeta,
+      String name,
+      IRowMeta[] info,
+      TransformMeta nextTransform,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
+    IValueMeta rowNb = new ValueMetaString();
+    rowNb.setOrigin(name);
+    rowNb.setName("hcatalog_output");
+    inputRowMeta.addValueMeta(rowNb);
+  }
 }

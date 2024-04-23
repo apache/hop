@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -43,11 +47,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "SQLFileOutput",
@@ -123,82 +122,114 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     return retval;
   }
 
-  /** @return Returns the database. */
+  /**
+   * @return Returns the database.
+   */
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
 
-  /** @param database The database to set. */
+  /**
+   * @param database The database to set.
+   */
   public void setDatabaseMeta(DatabaseMeta database) {
     this.databaseMeta = database;
   }
 
-  /** @return Returns the extension. */
+  /**
+   * @return Returns the extension.
+   */
   public String getExtension() {
     return extension;
   }
 
-  /** @param extension The extension to set. */
+  /**
+   * @param extension The extension to set.
+   */
   public void setExtension(String extension) {
     this.extension = extension;
   }
 
-  /** @return Returns the fileAppended. */
+  /**
+   * @return Returns the fileAppended.
+   */
   public boolean isFileAppended() {
     return fileAppended;
   }
 
-  /** @param fileAppended The fileAppended to set. */
+  /**
+   * @param fileAppended The fileAppended to set.
+   */
   public void setFileAppended(boolean fileAppended) {
     this.fileAppended = fileAppended;
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String getFileName() {
     return fileName;
   }
 
-  /** @return Returns the splitEvery. */
+  /**
+   * @return Returns the splitEvery.
+   */
   public int getSplitEvery() {
     return splitEvery;
   }
 
-  /** @param splitEvery The splitEvery to set. */
+  /**
+   * @param splitEvery The splitEvery to set.
+   */
   public void setSplitEvery(int splitEvery) {
     this.splitEvery = splitEvery;
   }
 
-  /** @return Returns the transformNrInFilename. */
+  /**
+   * @return Returns the transformNrInFilename.
+   */
   public boolean isTransformNrInFilename() {
     return transformNrInFilename;
   }
 
-  /** @param transformNrInFilename The transformNrInFilename to set. */
+  /**
+   * @param transformNrInFilename The transformNrInFilename to set.
+   */
   public void setTransformNrInFilename(boolean transformNrInFilename) {
     this.transformNrInFilename = transformNrInFilename;
   }
 
-  /** @return Returns the timeInFilename. */
+  /**
+   * @return Returns the timeInFilename.
+   */
   public boolean isTimeInFilename() {
     return timeInFilename;
   }
 
-  /** @return Returns the dateInFilename. */
+  /**
+   * @return Returns the dateInFilename.
+   */
   public boolean isDateInFilename() {
     return dateInFilename;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
@@ -211,7 +242,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     return encoding;
   }
 
-  /** @return The desired date format. */
+  /**
+   * @return The desired date format.
+   */
   public String getDateFormat() {
     return dateformat;
   }
@@ -224,32 +257,44 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     this.encoding = encoding;
   }
 
-  /** @param dateFormat The desired date format of output field date used. */
+  /**
+   * @param dateFormat The desired date format of output field date used.
+   */
   public void setDateFormat(String dateFormat) {
     this.dateformat = dateFormat;
   }
 
-  /** @return Returns the table name. */
+  /**
+   * @return Returns the table name.
+   */
   public String getTablename() {
     return tableName;
   }
 
-  /** @param tableName The table name to set. */
+  /**
+   * @param tableName The table name to set.
+   */
   public void setTablename(String tableName) {
     this.tableName = tableName;
   }
 
-  /** @return Returns the truncate table flag. */
+  /**
+   * @return Returns the truncate table flag.
+   */
   public boolean truncateTable() {
     return truncateTable;
   }
 
-  /** @return Returns the Add to result filesname flag. */
+  /**
+   * @return Returns the Add to result filesname flag.
+   */
   public boolean AddToResult() {
     return addToResult;
   }
 
-  /** @return Returns the Start new line flag. */
+  /**
+   * @return Returns the Start new line flag.
+   */
   public boolean StartNewLine() {
     return startNewLine;
   }
@@ -262,37 +307,51 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
-  /** @return Returns the create table flag. */
+  /**
+   * @return Returns the create table flag.
+   */
   public boolean createTable() {
     return createTable;
   }
 
-  /** @param truncateTable The truncate table flag to set. */
+  /**
+   * @param truncateTable The truncate table flag to set.
+   */
   public void setTruncateTable(boolean truncateTable) {
     this.truncateTable = truncateTable;
   }
 
-  /** @param addToResult The Add file to result to set. */
+  /**
+   * @param addToResult The Add file to result to set.
+   */
   public void setAddToResult(boolean addToResult) {
     this.addToResult = addToResult;
   }
 
-  /** @param startNewLine The Start NEw Line to set. */
+  /**
+   * @param startNewLine The Start NEw Line to set.
+   */
   public void setStartNewLine(boolean startNewLine) {
     this.startNewLine = startNewLine;
   }
 
-  /** @param createTable The create table flag to set. */
+  /**
+   * @param createTable The create table flag to set.
+   */
   public void setCreateTable(boolean createTable) {
     this.createTable = createTable;
   }
 
-  /** @return Returns the create parent folder flag. */
+  /**
+   * @return Returns the create parent folder flag.
+   */
   public boolean isCreateParentFolder() {
     return createparentfolder;
   }
 
-  /** @param createparentfolder The create parent folder flag to set. */
+  /**
+   * @param createparentfolder The create parent folder flag to set.
+   */
   public void setCreateParentFolder(boolean createparentfolder) {
     this.createparentfolder = createparentfolder;
   }
@@ -779,12 +838,16 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
     }
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }

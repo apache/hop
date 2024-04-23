@@ -16,6 +16,19 @@
  */
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.SingleRowRowSet;
@@ -30,20 +43,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.Writer;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 public class XmlInputStreamTest {
   private static final String INCORRECT_XML_DATA_VALUE_MESSAGE = "Incorrect xml data value - ";
@@ -141,10 +140,12 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/Fruits:ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
-            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
-    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
-            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
+    assertTrue(
+        INCORRECT_XML_DATA_NAME_MESSAGE,
+        expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(
+        INCORRECT_XML_DATA_VALUE_MESSAGE,
+        expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
     // ATTRIBUTE_2
     expectedRowNum++;
     assertEquals(
@@ -155,10 +156,12 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/Fruits:ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
-            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
-    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
-            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
+    assertTrue(
+        INCORRECT_XML_DATA_NAME_MESSAGE,
+        expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(
+        INCORRECT_XML_DATA_VALUE_MESSAGE,
+        expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
 
     // check EndElement for the ProductGroup element
     expectedRowNum = expectedRowNum + 2;
@@ -218,8 +221,9 @@ public class XmlInputStreamTest {
         INCORRECT_XML_DATA_NAME_MESSAGE,
         "attribute",
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
-            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
+    assertTrue(
+        INCORRECT_XML_DATA_VALUE_MESSAGE,
+        expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
     // ATTRIBUTE_2
     expectedRowNum++;
     assertEquals(
@@ -234,8 +238,9 @@ public class XmlInputStreamTest {
         INCORRECT_XML_DATA_NAME_MESSAGE,
         "attribute",
         rl.getWritten().get(expectedRowNum)[dataNamePos]);
-    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
-            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
+    assertTrue(
+        INCORRECT_XML_DATA_VALUE_MESSAGE,
+        expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
 
     // check EndElement for the ProductGroup element
     expectedRowNum = expectedRowNum + 2;
@@ -295,10 +300,12 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
-            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
-    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
-            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
+    assertTrue(
+        INCORRECT_XML_DATA_NAME_MESSAGE,
+        expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(
+        INCORRECT_XML_DATA_VALUE_MESSAGE,
+        expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
     // ATTRIBUTE_2
     expectedRowNum++;
     assertEquals(
@@ -309,10 +316,12 @@ public class XmlInputStreamTest {
         INCORRECT_XML_PATH_MESSAGE,
         "/Products/Product/ProductGroup",
         rl.getWritten().get(expectedRowNum)[pathPos]);
-    assertTrue(INCORRECT_XML_DATA_NAME_MESSAGE,
-            expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
-    assertTrue(INCORRECT_XML_DATA_VALUE_MESSAGE,
-            expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
+    assertTrue(
+        INCORRECT_XML_DATA_NAME_MESSAGE,
+        expectedAttributeNames.contains(rl.getWritten().get(expectedRowNum)[dataNamePos]));
+    assertTrue(
+        INCORRECT_XML_DATA_VALUE_MESSAGE,
+        expectedAttributeValues.contains(rl.getWritten().get(expectedRowNum)[dataValue]));
 
     // check EndElement for the ProductGroup element
     expectedRowNum = expectedRowNum + 2;

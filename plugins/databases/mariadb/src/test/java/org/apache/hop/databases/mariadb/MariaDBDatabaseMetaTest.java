@@ -16,6 +16,16 @@
  */
 package org.apache.hop.databases.mariadb;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.BDDMockito.doReturn;
+import static org.mockito.BDDMockito.doThrow;
+import static org.mockito.BDDMockito.mock;
+
+import java.sql.DatabaseMetaData;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.Map;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -24,17 +34,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.mockito.BDDMockito.doReturn;
-import static org.mockito.BDDMockito.doThrow;
-import static org.mockito.BDDMockito.mock;
 
 public class MariaDBDatabaseMetaTest {
 

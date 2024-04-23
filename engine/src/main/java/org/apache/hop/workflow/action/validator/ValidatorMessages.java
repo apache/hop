@@ -17,11 +17,10 @@
 
 package org.apache.hop.workflow.action.validator;
 
-import org.apache.hop.i18n.GlobalMessageUtil;
-
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import org.apache.hop.i18n.GlobalMessageUtil;
 
 /** Utility class for getting formatted strings from validator resource bundle. */
 public class ValidatorMessages {

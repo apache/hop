@@ -194,17 +194,23 @@ public class XmlField implements Cloneable {
     return fieldName + ":" + getTypeDesc() + ":" + elementName;
   }
 
-  /** @return Returns the elementName. */
+  /**
+   * @return Returns the elementName.
+   */
   public String getElementName() {
     return elementName;
   }
 
-  /** @param elementName The elementName to set. */
+  /**
+   * @param elementName The elementName to set.
+   */
   public void setElementName(String elementName) {
     this.elementName = elementName;
   }
 
-  /** @return true if the field should be encoded as attribute instead of a child node. */
+  /**
+   * @return true if the field should be encoded as attribute instead of a child node.
+   */
   public boolean isAttribute() {
     return attribute;
   }
@@ -217,12 +223,16 @@ public class XmlField implements Cloneable {
     this.attribute = attribute;
   }
 
-  /** @return Returns the attributeParentName. */
+  /**
+   * @return Returns the attributeParentName.
+   */
   public String getAttributeParentName() {
     return attributeParentName;
   }
 
-  /** @param attributeParentName The attributeParentName to set. */
+  /**
+   * @param attributeParentName The attributeParentName to set.
+   */
   public void setAttributeParentName(String attributeParentName) {
     this.attributeParentName = attributeParentName;
   }

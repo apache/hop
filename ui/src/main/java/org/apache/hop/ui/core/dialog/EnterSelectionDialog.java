@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -43,10 +46,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** Allows the user to make a selection from a list of values. */
 public class EnterSelectionDialog extends Dialog {
@@ -203,7 +202,7 @@ public class EnterSelectionDialog extends Dialog {
       FormData fdlFilter = new FormData();
       fdlFilter.top = new FormAttachment(0, 5);
       fdlFilter.right = new FormAttachment(treeTb, -5);
-      wlFilter.setLayoutData(fdlFilter);      
+      wlFilter.setLayoutData(fdlFilter);
 
       // From transform line
       wlSelection = new Label(shell, SWT.NONE);
@@ -273,7 +272,8 @@ public class EnterSelectionDialog extends Dialog {
       buttons.add(wCancel);
     }
 
-    BaseTransformDialog.positionBottomButtons(shell, buttons.toArray(new Button[0]), PropsUi.getMargin(), null);
+    BaseTransformDialog.positionBottomButtons(
+        shell, buttons.toArray(new Button[0]), PropsUi.getMargin(), null);
 
     Control nextControl = wOk;
 
@@ -492,27 +492,37 @@ public class EnterSelectionDialog extends Dialog {
     return indices;
   }
 
-  /** @return the fixed */
+  /**
+   * @return the fixed
+   */
   public boolean isFixed() {
     return fixed;
   }
 
-  /** @param fixed the fixed to set */
+  /**
+   * @param fixed the fixed to set
+   */
   public void setFixed(boolean fixed) {
     this.fixed = fixed;
   }
 
-  /** @return the selectedNrs */
+  /**
+   * @return the selectedNrs
+   */
   public int[] getSelectedNrs() {
     return selectedNrs;
   }
 
-  /** @param selectedNrs the selectedNrs to set */
+  /**
+   * @param selectedNrs the selectedNrs to set
+   */
   public void setSelectedNrs(int[] selectedNrs) {
     this.selectedNrs = selectedNrs;
   }
 
-  /** @param selectedNrs the selectedNrs to set */
+  /**
+   * @param selectedNrs the selectedNrs to set
+   */
   public void setSelectedNrs(java.util.List<Integer> selectedNrs) {
     this.selectedNrs = new int[selectedNrs.size()];
     for (int i = 0; i < selectedNrs.size(); i++) {
@@ -573,7 +583,9 @@ public class EnterSelectionDialog extends Dialog {
     return addNoneOption;
   }
 
-  /** @param addNoneOption The addNoneOption to set */
+  /**
+   * @param addNoneOption The addNoneOption to set
+   */
   public void setAddNoneOption(boolean addNoneOption) {
     this.addNoneOption = addNoneOption;
   }
@@ -587,7 +599,9 @@ public class EnterSelectionDialog extends Dialog {
     return noneClicked;
   }
 
-  /** @param noneClicked The noneClicked to set */
+  /**
+   * @param noneClicked The noneClicked to set
+   */
   public void setNoneClicked(boolean noneClicked) {
     this.noneClicked = noneClicked;
   }

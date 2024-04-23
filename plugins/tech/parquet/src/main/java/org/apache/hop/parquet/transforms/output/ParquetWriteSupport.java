@@ -17,6 +17,9 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.avro.LogicalType;
 import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
@@ -27,10 +30,6 @@ import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.io.api.RecordConsumer;
 import org.apache.parquet.schema.MessageType;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ParquetWriteSupport extends WriteSupport<RowMetaAndData> {
 

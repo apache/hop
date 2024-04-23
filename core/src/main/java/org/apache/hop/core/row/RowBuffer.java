@@ -18,16 +18,15 @@
 package org.apache.hop.core.row;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.xml.XmlHandler;
-import org.w3c.dom.Node;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.xml.XmlHandler;
+import org.w3c.dom.Node;
 
 /** This class contains a list of data rows as well as the IRowMeta to describe it. */
 public class RowBuffer {
@@ -123,7 +122,7 @@ public class RowBuffer {
     return buffer.isEmpty();
   }
 
-  public void addRow(Object...row) {
+  public void addRow(Object... row) {
     buffer.add(row);
   }
 

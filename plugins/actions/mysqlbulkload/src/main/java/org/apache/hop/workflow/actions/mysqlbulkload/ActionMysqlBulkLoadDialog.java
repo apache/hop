@@ -678,7 +678,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
   private void getListColumns() {
     if (!Utils.isEmpty(wTablename.getText())) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText(), variables);
-      if (databaseMeta != null) {        
+      if (databaseMeta != null) {
         try (Database database = new Database(loggingObject, variables, databaseMeta)) {
           database.connect();
           String schemaTable =

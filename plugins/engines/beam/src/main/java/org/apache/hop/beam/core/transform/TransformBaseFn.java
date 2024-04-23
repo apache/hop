@@ -19,6 +19,12 @@
 package org.apache.hop.beam.core.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.windowing.BoundedWindow;
 import org.apache.beam.sdk.values.TupleTag;
@@ -56,13 +62,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.joda.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
 
@@ -264,7 +263,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
   }
 
   protected void registerExecutingTransform(Pipeline pipeline) {
-    if (executionInfoLocation==null) {
+    if (executionInfoLocation == null) {
       return;
     }
 
@@ -277,7 +276,7 @@ public abstract class TransformBaseFn extends DoFn<HopRow, HopRow> {
       execution.setParentId(parentLogChannelId);
       executionInfoLocation.getExecutionInfoLocation().registerExecution(execution);
       ExecutionState transformState =
-              ExecutionStateBuilder.fromTransform(pipeline, transformComponent).build();
+          ExecutionStateBuilder.fromTransform(pipeline, transformComponent).build();
 
       transformState.setParentId(parentLogChannelId);
       executionInfoLocation.getExecutionInfoLocation().updateExecutionState(transformState);

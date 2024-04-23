@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
@@ -25,10 +29,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MailInputTest {
 

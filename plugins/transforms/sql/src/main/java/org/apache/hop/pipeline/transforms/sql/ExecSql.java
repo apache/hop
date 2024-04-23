@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -33,8 +34,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
 
 /** Execute one or more SQL statements in a script, one time or parameterised (for every row) */
 public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> {

@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class HttpPostArgumentField {
 
@@ -75,7 +74,9 @@ public class HttpPostArgumentField {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     HttpPostArgumentField that = (HttpPostArgumentField) o;
-    return header == that.header && Objects.equals(name, that.name) && Objects.equals(parameter, that.parameter);
+    return header == that.header
+        && Objects.equals(name, that.name)
+        && Objects.equals(parameter, that.parameter);
   }
 
   @Override

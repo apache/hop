@@ -16,6 +16,7 @@
  */
 package org.apache.hop.beam.core.fn;
 
+import java.util.Date;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -31,9 +32,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.Pipeline;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.util.Date;
-import java.util.List;
 
 public class StaticHopRowFn extends DoFn<KV<byte[], byte[]>, HopRow> {
 

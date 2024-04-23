@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -35,12 +40,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "TypeExitExcelWriterTransform",
@@ -355,7 +354,13 @@ public class ExcelWriterTransformMeta
     return retval;
   }
 
-  public String buildFilename(IVariables variables, int transformNr, int splitNr, boolean beamContext, String transformId, int bundleNr) {
+  public String buildFilename(
+      IVariables variables,
+      int transformNr,
+      int splitNr,
+      boolean beamContext,
+      String transformId,
+      int bundleNr) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
@@ -387,7 +392,7 @@ public class ExcelWriterTransformMeta
       retval += "_" + splitNr;
     }
     if (beamContext) {
-      retval+= "_"+transformId+"_"+bundleNr;
+      retval += "_" + transformId + "_" + bundleNr;
     }
 
     if (realextension != null && realextension.length() != 0) {

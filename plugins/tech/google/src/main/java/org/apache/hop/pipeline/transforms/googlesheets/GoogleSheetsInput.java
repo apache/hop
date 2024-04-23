@@ -25,6 +25,11 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
@@ -35,13 +40,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.util.EnvironmentUtils;
-
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 /** Describe your transform plugin. */
 public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, GoogleSheetsInputData> {
@@ -77,7 +75,9 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
 
     if (super.init()) {
       try {
-        HttpRequestInitializer credential = GoogleSheetsCredentials.getCredentialsJson(scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
+        HttpRequestInitializer credential =
+            GoogleSheetsCredentials.getCredentialsJson(
+                scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
         Sheets service =
             new Sheets.Builder(
                     HTTP_TRANSPORT,

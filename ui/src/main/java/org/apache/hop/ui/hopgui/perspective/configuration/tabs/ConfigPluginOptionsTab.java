@@ -18,6 +18,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.configuration.tabs;
 
+import java.lang.reflect.Method;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -45,8 +46,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.Method;
 
 @GuiPlugin
 public class ConfigPluginOptionsTab {
@@ -141,7 +140,7 @@ public class ConfigPluginOptionsTab {
       }
     }
 
-    wPluginsList.select(new int[]{});
+    wPluginsList.select(new int[] {});
 
     FormData fdPluginsTabComp = new FormData();
     fdPluginsTabComp.left = new FormAttachment(0, 0);

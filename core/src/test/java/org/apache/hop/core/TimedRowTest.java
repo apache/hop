@@ -16,14 +16,13 @@
  */
 package org.apache.hop.core;
 
-import org.junit.Test;
-
-import java.util.Date;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+
+import java.util.Date;
+import org.junit.Test;
 
 public class TimedRowTest {
   @Test

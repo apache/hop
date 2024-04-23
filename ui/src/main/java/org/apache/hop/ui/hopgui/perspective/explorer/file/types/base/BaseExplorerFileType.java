@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Properties;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -34,10 +37,6 @@ import org.apache.hop.ui.hopgui.perspective.explorer.config.ExplorerPerspectiveC
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileTypeHandler;
 import org.eclipse.swt.SWT;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 
 public abstract class BaseExplorerFileType<T extends IExplorerFileTypeHandler>
     extends HopFileTypeBase implements IExplorerFileType<T> {

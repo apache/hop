@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
 import com.sforce.soap.partner.Connector;
 import com.sforce.soap.partner.Field;
 import com.sforce.soap.partner.PartnerConnection;
@@ -25,6 +33,10 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sforce.ws.bind.XmlObject;
 import com.sforce.ws.wsdl.Constants;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Random;
+import javax.xml.namespace.QName;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -39,19 +51,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import javax.xml.namespace.QName;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.Random;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 public class SalesforceConnectionTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

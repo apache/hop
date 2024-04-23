@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tablecompare;
 
+import java.util.Arrays;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -52,8 +53,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Arrays;
 
 public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableCompare.class; // For Translator
@@ -116,7 +115,6 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
-
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wCancel = new Button(shell, SWT.PUSH);
@@ -170,7 +168,6 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     Composite wReferenceComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wReferenceComp);
     wReferenceComp.setLayout(referenceLayout);
-
 
     // Reference DB + schema + table
     DatabaseMeta refDatabaseMeta =
@@ -412,7 +409,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     //
     wNrErrors =
         new LabelText(
-                wAdditionalFieldsComp,
+            wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsField.Tooltip"));
     PropsUi.setLook(wNrErrors);
@@ -427,7 +424,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     //
     wNrRecordsReference =
         new LabelText(
-                wAdditionalFieldsComp,
+            wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsReferenceField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsReferenceField.Tooltip"));
     PropsUi.setLook(wNrRecordsReference);
@@ -442,7 +439,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     //
     wNrRecordsCompare =
         new LabelText(
-                wAdditionalFieldsComp,
+            wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsCompareField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrRecordsCompareField.Tooltip"));
     PropsUi.setLook(wNrRecordsCompare);
@@ -457,7 +454,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     //
     wNrErrorsLeftJoin =
         new LabelText(
-                wAdditionalFieldsComp,
+            wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsLeftJoinField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsLeftJoinField.Tooltip"));
     PropsUi.setLook(wNrErrorsLeftJoin);
@@ -472,7 +469,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     //
     wNrErrorsInnerJoin =
         new LabelText(
-                wAdditionalFieldsComp,
+            wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsInnerJoinField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsInnerJoinField.Tooltip"));
     PropsUi.setLook(wNrErrorsInnerJoin);
@@ -487,7 +484,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
     //
     wNrErrorsRightJoin =
         new LabelText(
-                wAdditionalFieldsComp,
+            wAdditionalFieldsComp,
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsRightJoinField.Label"),
             BaseMessages.getString(PKG, "TableCompareDialog.NrErrorsRightJoinField.Tooltip"));
     PropsUi.setLook(wNrErrorsRightJoin);

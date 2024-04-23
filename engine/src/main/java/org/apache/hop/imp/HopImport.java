@@ -17,6 +17,9 @@
 
 package org.apache.hop.imp;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -42,10 +45,6 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 @Command(versionProvider = HopVersionProvider.class)
 public class HopImport implements Runnable, IHasHopMetadataProvider {
@@ -115,11 +114,12 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
       description = "Displays this help message and quits.")
   private boolean helpRequested;
 
-  @Option(names = {"-v", "--version"},
+  @Option(
+      names = {"-v", "--version"},
       versionHelp = true,
       description = "Print version information and exit")
-  private boolean versionRequested;  
-  
+  private boolean versionRequested;
+
   private IVariables variables;
   private CommandLine cmd;
   private ILogChannel log;
@@ -275,7 +275,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -289,7 +291,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return skippingExistingTargetFiles;
   }
 
-  /** @param skippingExistingTargetFiles The skippingExistingTargetFiles to set */
+  /**
+   * @param skippingExistingTargetFiles The skippingExistingTargetFiles to set
+   */
   public void setSkippingExistingTargetFiles(Boolean skippingExistingTargetFiles) {
     this.skippingExistingTargetFiles = skippingExistingTargetFiles;
   }
@@ -303,7 +307,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return skippingHiddenFilesAndFolders;
   }
 
-  /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  /**
+   * @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set
+   */
   public void setSkippingHiddenFilesAndFolders(Boolean skippingHiddenFilesAndFolders) {
     this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
   }
@@ -317,7 +323,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return skippingFolders;
   }
 
-  /** @param skippingFolders The skippingFolders to set */
+  /**
+   * @param skippingFolders The skippingFolders to set
+   */
   public void setSkippingFolders(Boolean skippingFolders) {
     this.skippingFolders = skippingFolders;
   }
@@ -331,7 +339,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return hopImport;
   }
 
-  /** @param hopImport The hopImport to set */
+  /**
+   * @param hopImport The hopImport to set
+   */
   public void setHopImport(IHopImport hopImport) {
     this.hopImport = hopImport;
   }
@@ -345,7 +355,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return inputFolderName;
   }
 
-  /** @param inputFolderName The inputFolderName to set */
+  /**
+   * @param inputFolderName The inputFolderName to set
+   */
   public void setInputFolderName(String inputFolderName) {
     this.inputFolderName = inputFolderName;
   }
@@ -359,7 +371,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return outputFolderName;
   }
 
-  /** @param outputFolderName The outputFolderName to set */
+  /**
+   * @param outputFolderName The outputFolderName to set
+   */
   public void setOutputFolderName(String outputFolderName) {
     this.outputFolderName = outputFolderName;
   }
@@ -373,7 +387,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return sharedXmlFilename;
   }
 
-  /** @param sharedXmlFilename The sharedXmlFilename to set */
+  /**
+   * @param sharedXmlFilename The sharedXmlFilename to set
+   */
   public void setSharedXmlFilename(String sharedXmlFilename) {
     this.sharedXmlFilename = sharedXmlFilename;
   }
@@ -387,7 +403,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return kettlePropertiesFilename;
   }
 
-  /** @param kettlePropertiesFilename The kettlePropertiesFilename to set */
+  /**
+   * @param kettlePropertiesFilename The kettlePropertiesFilename to set
+   */
   public void setKettlePropertiesFilename(String kettlePropertiesFilename) {
     this.kettlePropertiesFilename = kettlePropertiesFilename;
   }
@@ -401,7 +419,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return jdbcPropertiesFilename;
   }
 
-  /** @param jdbcPropertiesFilename The jdbcPropertiesFilename to set */
+  /**
+   * @param jdbcPropertiesFilename The jdbcPropertiesFilename to set
+   */
   public void setJdbcPropertiesFilename(String jdbcPropertiesFilename) {
     this.jdbcPropertiesFilename = jdbcPropertiesFilename;
   }
@@ -415,7 +435,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return targetConfigFilename;
   }
 
-  /** @param targetConfigFilename The targetConfigFilename to set */
+  /**
+   * @param targetConfigFilename The targetConfigFilename to set
+   */
   public void setTargetConfigFilename(String targetConfigFilename) {
     this.targetConfigFilename = targetConfigFilename;
   }
@@ -429,7 +451,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return skippingExistingTargetFiles;
   }
 
-  /** @param skippingExistingTargetFiles The skippingExistingTargetFiles to set */
+  /**
+   * @param skippingExistingTargetFiles The skippingExistingTargetFiles to set
+   */
   public void setSkippingExistingTargetFiles(boolean skippingExistingTargetFiles) {
     this.skippingExistingTargetFiles = skippingExistingTargetFiles;
   }
@@ -443,7 +467,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return skippingHiddenFilesAndFolders;
   }
 
-  /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  /**
+   * @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set
+   */
   public void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders) {
     this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
   }
@@ -457,7 +483,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return skippingFolders;
   }
 
-  /** @param skippingFolders The skippingFolders to set */
+  /**
+   * @param skippingFolders The skippingFolders to set
+   */
   public void setSkippingFolders(boolean skippingFolders) {
     this.skippingFolders = skippingFolders;
   }
@@ -471,7 +499,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return helpRequested;
   }
 
-  /** @param helpRequested The helpRequested to set */
+  /**
+   * @param helpRequested The helpRequested to set
+   */
   public void setHelpRequested(boolean helpRequested) {
     this.helpRequested = helpRequested;
   }
@@ -485,7 +515,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -499,7 +531,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return cmd;
   }
 
-  /** @param cmd The cmd to set */
+  /**
+   * @param cmd The cmd to set
+   */
   public void setCmd(CommandLine cmd) {
     this.cmd = cmd;
   }
@@ -513,7 +547,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }
@@ -528,7 +564,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return hopImport.getMetadataProvider();
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     hopImport.setMetadataProvider(metadataProvider);
@@ -543,7 +581,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return finishedWithoutError;
   }
 
-  /** @param finishedWithoutError The finishedWithoutError to set */
+  /**
+   * @param finishedWithoutError The finishedWithoutError to set
+   */
   public void setFinishedWithoutError(boolean finishedWithoutError) {
     this.finishedWithoutError = finishedWithoutError;
   }
@@ -557,7 +597,9 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     return listPluginTypes;
   }
 
-  /** @param listPluginTypes The listPluginTypes to set */
+  /**
+   * @param listPluginTypes The listPluginTypes to set
+   */
   public void setListPluginTypes(Boolean listPluginTypes) {
     this.listPluginTypes = listPluginTypes;
   }

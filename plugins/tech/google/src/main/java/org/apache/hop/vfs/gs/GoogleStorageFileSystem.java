@@ -22,6 +22,9 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Collection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
@@ -32,10 +35,6 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfig;
 import org.apache.hop.vfs.gs.config.GoogleCloudConfigSingleton;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Collection;
 
 public class GoogleStorageFileSystem extends AbstractFileSystem {
 

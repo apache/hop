@@ -22,9 +22,10 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
-/**
- * Contains PostgreSQL specific information through static final members
- */
-@DatabaseMetaPlugin(type = "COCKROACHDB", typeDescription = "CockroachDB", documentationUrl = "/database/databases/postgresql.html")
+/** Contains PostgreSQL specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "COCKROACHDB",
+    typeDescription = "CockroachDB",
+    documentationUrl = "/database/databases/postgresql.html")
 @GuiPlugin(id = "GUI-CockroachDatabaseMeta")
 public class CockroachDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {}

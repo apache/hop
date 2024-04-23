@@ -222,18 +222,18 @@ public class ExcelWriterTransformTest {
     verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
   }
 
-
   @Test
   public void testWriteUsingTemplateWithFormatting_Streaming() throws Exception {
 
-    String path = Files.createTempDir().getAbsolutePath() + File.separator + "formatted_streaming.xlsx";
+    String path =
+        Files.createTempDir().getAbsolutePath() + File.separator + "formatted_streaming.xlsx";
 
     dataMock.fieldnrs = new int[] {0};
     dataMock.linkfieldnrs = new int[] {-1};
     dataMock.commentfieldnrs = new int[] {-1};
     dataMock.createNewFile = true;
     dataMock.realTemplateFileName =
-            getClass().getResource("template_with_formatting_streaming.xlsx").getFile();
+        getClass().getResource("template_with_formatting_streaming.xlsx").getFile();
     dataMock.realSheetname = "Data";
     dataMock.inputRowMeta = mock(IRowMeta.class);
 
@@ -267,6 +267,7 @@ public class ExcelWriterTransformTest {
     verify(dataMock.currentWorkbookDefinition.getSheet(), times(1)).createRow(1);
     verify(dataMock.currentWorkbookDefinition.getSheet()).getRow(1);
   }
+
   @Test
   public void testValueBigNumber() throws Exception {
 

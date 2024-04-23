@@ -125,22 +125,30 @@ public class ComboVar extends Composite {
     wCombo.addKeyListener(controlSpaceKeyAdapter);
   }
 
-  /** @return the getCaretPositionInterface */
+  /**
+   * @return the getCaretPositionInterface
+   */
   public IGetCaretPosition getGetCaretPositionInterface() {
     return getCaretPositionInterface;
   }
 
-  /** @param getCaretPositionInterface the getCaretPositionInterface to set */
+  /**
+   * @param getCaretPositionInterface the getCaretPositionInterface to set
+   */
   public void setGetCaretPositionInterface(IGetCaretPosition getCaretPositionInterface) {
     this.getCaretPositionInterface = getCaretPositionInterface;
   }
 
-  /** @return the insertTextInterface */
+  /**
+   * @return the insertTextInterface
+   */
   public IInsertText getInsertTextInterface() {
     return insertTextInterface;
   }
 
-  /** @param insertTextInterface the insertTextInterface to set */
+  /**
+   * @param insertTextInterface the insertTextInterface to set
+   */
   public void setInsertTextInterface(IInsertText insertTextInterface) {
     this.insertTextInterface = insertTextInterface;
   }
@@ -159,12 +167,16 @@ public class ComboVar extends Composite {
     };
   }
 
-  /** @return the text in the Text widget */
+  /**
+   * @return the text in the Text widget
+   */
   public String getText() {
     return wCombo.getText();
   }
 
-  /** @param text the text in the Text widget to set. */
+  /**
+   * @param text the text in the Text widget to set.
+   */
   public void setText(String text) {
     wCombo.setText(text);
     modifyListenerTooltipText.modifyText(null);
@@ -289,5 +301,4 @@ public class ComboVar extends Composite {
     wCombo.select(index);
     modifyListenerTooltipText.modifyText(null);
   }
-
 }

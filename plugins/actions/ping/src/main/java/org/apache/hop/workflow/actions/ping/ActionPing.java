@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.ping;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -36,12 +41,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.util.List;
 
 /** This defines a ping action. */
 @Action(

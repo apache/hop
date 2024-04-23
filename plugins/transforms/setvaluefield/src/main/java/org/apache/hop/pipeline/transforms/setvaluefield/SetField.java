@@ -33,8 +33,7 @@ public class SetField implements Cloneable {
       injectionKeyDescription = "SetValueField.Injection.SetField.ReplaceByField")
   private String replaceByField;
 
-  public SetField() {
-  }
+  public SetField() {}
 
   public SetField(SetField cloned) {
     this.fieldName = cloned.fieldName;
@@ -45,7 +44,7 @@ public class SetField implements Cloneable {
     this.fieldName = name;
     this.replaceByField = replaceBy;
   }
-    
+
   @Override
   public Object clone() {
     return new SetField(this);

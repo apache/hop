@@ -94,7 +94,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
     try {
-      Type[] parameterizedTypes = getParameterizedTypes(getClass());      
+      Type[] parameterizedTypes = getParameterizedTypes(getClass());
       Class<Main> mainClass = (Class<Main>) parameterizedTypes[0];
       Class<Data> dataClass = (Class<Data>) parameterizedTypes[1];
 
@@ -114,7 +114,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       return constructor.newInstance(
           new Object[] {transformMeta, this, data, copyNr, pipelineMeta, pipeline});
     } catch (RuntimeException | ReflectiveOperationException e) {
-      throw new RuntimeException("Error create instance of transform: " + getClass().getCanonicalName(), e);
+      throw new RuntimeException(
+          "Error create instance of transform: " + getClass().getCanonicalName(), e);
     }
   }
 
@@ -122,15 +123,16 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   public ITransformData createTransformData() {
     try {
       Type[] parameterizedTypes = getParameterizedTypes(getClass());
-      
+
       Class<Data> dataClass = (Class<Data>) parameterizedTypes[1];
-      
+
       // Some tests class use BaseTransformMeta<ITransform,ITransformData>
       if (dataClass.isInterface()) return null;
 
       return dataClass.getDeclaredConstructor().newInstance();
     } catch (RuntimeException | ReflectiveOperationException e) {
-      throw new RuntimeException("Error create instance of transform data: " + getClass().getCanonicalName(), e);
+      throw new RuntimeException(
+          "Error create instance of transform data: " + getClass().getCanonicalName(), e);
     }
   }
 
@@ -268,8 +270,8 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   }
 
   /**
-   * Gets the fields.
-   * This method doesn't pass along any pipeline metadata to help resolve output row metadata.
+   * Gets the fields. This method doesn't pass along any pipeline metadata to help resolve output
+   * row metadata.
    *
    * @param inputRowMeta the input row meta that is modified in this method to reflect the output
    *     row metadata of the transform
@@ -428,7 +430,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   public boolean supportsMultiCopyExecution() {
     return true;
   }
-  
+
   /** This method is added to exclude certain transforms from layout checking. */
   public boolean excludeFromRowLayoutVerification() {
     return false;

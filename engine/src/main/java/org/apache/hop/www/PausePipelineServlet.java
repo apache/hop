@@ -17,6 +17,14 @@
 
 package org.apache.hop.www;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.URLEncoder;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
@@ -25,14 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.owasp.encoder.Encode;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URLEncoder;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopServerServlet(id = "pausePipeline", name = "Pause or continue a pipeline")
 public class PausePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -90,7 +90,8 @@ public class PausePipelineServlet extends BaseHttpServlet implements IHopServerP
                 + URLEncoder.encode(id, UTF_8)
                 + "\">");
         out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-        out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");        
+        out.println(
+            "<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
         out.println("</HEAD>");
         out.println("<BODY>");
       }

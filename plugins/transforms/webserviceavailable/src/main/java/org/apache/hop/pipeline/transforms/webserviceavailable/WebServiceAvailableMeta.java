@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.webserviceavailable;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -33,8 +34,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 @Transform(
     id = "WebServiceAvailable",
     image = "webserviceavailable.svg",
@@ -43,7 +42,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::WebServiceAvailableMeta.keyword",
     documentationUrl = "/pipeline/transforms/checkwebserviceavailable.html")
-public class WebServiceAvailableMeta extends BaseTransformMeta<WebServiceAvailable, WebServiceAvailableData> {
+public class WebServiceAvailableMeta
+    extends BaseTransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // For Translator
 
   /** dynamic filename */
@@ -72,12 +72,16 @@ public class WebServiceAvailableMeta extends BaseTransformMeta<WebServiceAvailab
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the urlField. */
+  /**
+   * @return Returns the urlField.
+   */
   public String getUrlField() {
     return urlField;
   }
 
-  /** @param urlField The urlField to set. */
+  /**
+   * @param urlField The urlField to set.
+   */
   public void setUrlField(String urlField) {
     this.urlField = urlField;
   }
@@ -98,12 +102,16 @@ public class WebServiceAvailableMeta extends BaseTransformMeta<WebServiceAvailab
     return readTimeOut;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getResultFieldName() {
     return resultFieldName;
   }
 
-  /** @param resultfieldname The resultfieldname to set. */
+  /**
+   * @param resultfieldname The resultfieldname to set.
+   */
   public void setResultFieldName(String resultfieldname) {
     this.resultFieldName = resultfieldname;
   }

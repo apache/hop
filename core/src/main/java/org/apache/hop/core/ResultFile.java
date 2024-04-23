@@ -20,6 +20,7 @@ package org.apache.hop.core;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import java.util.Date;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -29,8 +30,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.w3c.dom.Node;
-
-import java.util.Date;
 
 /**
  * This is a result file: a file as a result of the execution of a action, a pipeline transform,

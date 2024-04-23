@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Assert;
 import org.junit.Test;
-
-import java.sql.Timestamp;
-import java.util.Date;
 
 public class DimensionCacheTest {
 

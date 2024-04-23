@@ -17,13 +17,6 @@
 
 package org.apache.hop.server;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Base64OutputStream;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,6 +27,12 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64OutputStream;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 public class HttpUtil {
 

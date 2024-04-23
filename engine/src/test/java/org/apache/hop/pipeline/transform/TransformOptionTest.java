@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transform;
 
+import static org.apache.hop.i18n.BaseMessages.getString;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.exception.HopException;
@@ -27,14 +34,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.apache.hop.i18n.BaseMessages.getString;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TransformOptionTest {

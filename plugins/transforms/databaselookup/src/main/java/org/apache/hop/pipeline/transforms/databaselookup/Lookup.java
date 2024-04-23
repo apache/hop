@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Lookup {
   /** what's the lookup schema name? */
@@ -98,7 +97,9 @@ public class Lookup {
     return schemaName;
   }
 
-  /** @param schemaName The schemaName to set */
+  /**
+   * @param schemaName The schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
@@ -112,7 +113,9 @@ public class Lookup {
     return tableName;
   }
 
-  /** @param tableName The tableName to set */
+  /**
+   * @param tableName The tableName to set
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }
@@ -126,7 +129,9 @@ public class Lookup {
     return keyFields;
   }
 
-  /** @param keyFields The keyFields to set */
+  /**
+   * @param keyFields The keyFields to set
+   */
   public void setKeyFields(List<KeyField> keyFields) {
     this.keyFields = keyFields;
   }
@@ -140,7 +145,9 @@ public class Lookup {
     return returnValues;
   }
 
-  /** @param returnValues The returnValues to set */
+  /**
+   * @param returnValues The returnValues to set
+   */
   public void setReturnValues(List<ReturnValue> returnValues) {
     this.returnValues = returnValues;
   }
@@ -154,7 +161,9 @@ public class Lookup {
     return orderByClause;
   }
 
-  /** @param orderByClause The orderByClause to set */
+  /**
+   * @param orderByClause The orderByClause to set
+   */
   public void setOrderByClause(String orderByClause) {
     this.orderByClause = orderByClause;
   }
@@ -168,7 +177,9 @@ public class Lookup {
     return failingOnMultipleResults;
   }
 
-  /** @param failingOnMultipleResults The failingOnMultipleResults to set */
+  /**
+   * @param failingOnMultipleResults The failingOnMultipleResults to set
+   */
   public void setFailingOnMultipleResults(boolean failingOnMultipleResults) {
     this.failingOnMultipleResults = failingOnMultipleResults;
   }
@@ -182,7 +193,9 @@ public class Lookup {
     return eatingRowOnLookupFailure;
   }
 
-  /** @param eatingRowOnLookupFailure The eatingRowOnLookupFailure to set */
+  /**
+   * @param eatingRowOnLookupFailure The eatingRowOnLookupFailure to set
+   */
   public void setEatingRowOnLookupFailure(boolean eatingRowOnLookupFailure) {
     this.eatingRowOnLookupFailure = eatingRowOnLookupFailure;
   }

@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.numberrange;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -24,13 +30,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class NumberRangeMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -71,7 +70,9 @@ public class NumberRangeMetaTest {
     @Override
     public NumberRangeRule getTestObject() {
       return new NumberRangeRule(
-          String.valueOf(new Random().nextDouble()), String.valueOf(new Random().nextDouble()), UUID.randomUUID().toString());
+          String.valueOf(new Random().nextDouble()),
+          String.valueOf(new Random().nextDouble()),
+          UUID.randomUUID().toString());
     }
 
     @Override

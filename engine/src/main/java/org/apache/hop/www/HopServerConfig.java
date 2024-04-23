@@ -17,6 +17,11 @@
 
 package org.apache.hop.www;
 
+import java.net.SocketException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.logging.ILogChannel;
@@ -28,12 +33,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
 import org.apache.hop.server.HopServer;
 import org.w3c.dom.Node;
-
-import java.net.SocketException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class HopServerConfig implements IXml {
   public static final String XML_TAG = "hop-server-config";
@@ -207,7 +206,8 @@ public class HopServerConfig implements IXml {
   public HopServerConfig(String hostname, int port, int shutdownPort, boolean joining) {
     this();
     this.joining = joining;
-    this.hopServer = new HopServer(hostname + ":" + port, hostname, "" + port, "" + shutdownPort, null, null);
+    this.hopServer =
+        new HopServer(hostname + ":" + port, hostname, "" + port, "" + shutdownPort, null, null);
   }
 
   /**

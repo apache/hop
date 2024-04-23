@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -41,10 +44,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @Transform(
     id = "RedshiftBulkLoader",
@@ -86,43 +85,37 @@ public class RedshiftBulkLoaderMeta
   @HopMetadataProperty(
       key = "use_credentials",
       injectionKey = "USE_CREDENTIALS",
-      injectionKeyDescription = ""
-  )
+      injectionKeyDescription = "")
   private boolean useCredentials;
 
   @HopMetadataProperty(
       key = "use_system_env_vars",
       injectionKey = "USE_SYSTEM_ENV_VARS",
-      injectionKeyDescription = ""
-  )
+      injectionKeyDescription = "")
   private boolean useSystemEnvVars;
 
   @HopMetadataProperty(
       key = "aws_access_key_id",
       injectionKey = "AWS_ACCESS_KEY_ID",
-      injectionKeyDescription = ""
-  )
+      injectionKeyDescription = "")
   private String awsAccessKeyId;
 
   @HopMetadataProperty(
       key = "aws_secret_access_key",
       injectionKey = "AWS_SECRET_ACCESS_KEY",
-      injectionKeyDescription = ""
-  )
+      injectionKeyDescription = "")
   private String awsSecretAccessKey;
 
   @HopMetadataProperty(
       key = "use_aws_iam_role",
       injectionKey = "USE_AWS_IAM_ROLE",
-      injectionKeyDescription = ""
-  )
+      injectionKeyDescription = "")
   private boolean useAwsIamRole;
 
   @HopMetadataProperty(
       key = "aws_iam_role",
       injectionKey = "AWS_IAM_ROLE",
-      injectionKeyDescription = ""
-  )
+      injectionKeyDescription = "")
   private String awsIamRole;
 
   @HopMetadataProperty(
@@ -138,10 +131,9 @@ public class RedshiftBulkLoaderMeta
   private boolean onlyWhenHaveRows;
 
   @HopMetadataProperty(
-          key = "stream_to_s3",
-          injectionKey = "STREAM_TO_S3",
-          injectionKeyDescription = ""
-  )
+      key = "stream_to_s3",
+      injectionKey = "STREAM_TO_S3",
+      injectionKeyDescription = "")
   private boolean streamToS3Csv = true;
 
   /** CSV: Trim whitespace */
@@ -163,12 +155,10 @@ public class RedshiftBulkLoaderMeta
   @HopMetadataProperty(key = "strip_null", injectionKeyDescription = "")
   private boolean stripNull;
 
-
   @HopMetadataProperty(
-          key = "load_from_existing_file",
-          injectionKey = "LOAD_FROM_EXISTING_FILE",
-          injectionKeyDescription = ""
-  )
+      key = "load_from_existing_file",
+      injectionKey = "LOAD_FROM_EXISTING_FILE",
+      injectionKeyDescription = "")
   private String loadFromExistingFileFormat;
 
   /** Do we explicitly select the fields to update in the database */
@@ -176,10 +166,9 @@ public class RedshiftBulkLoaderMeta
   private boolean specifyFields;
 
   @HopMetadataProperty(
-          key = "load_from_filename",
-          injectionKey = "LOAD_FROM_FILENAME",
-          injectionKeyDescription = ""
-  )
+      key = "load_from_filename",
+      injectionKey = "LOAD_FROM_FILENAME",
+      injectionKeyDescription = "")
   private String copyFromFilename;
 
   @HopMetadataProperty(
@@ -373,7 +362,6 @@ public class RedshiftBulkLoaderMeta
   public void setStripNull(boolean stripNull) {
     this.stripNull = stripNull;
   }
-
 
   public String getLoadFromExistingFileFormat() {
     return loadFromExistingFileFormat;
@@ -674,7 +662,8 @@ public class RedshiftBulkLoaderMeta
                   cr =
                       new CheckResult(
                           ICheckResult.TYPE_RESULT_ERROR,
-                          BaseMessages.getString(PKG, "RedshiftBulkLoaderMeta.CheckResult.NoFields"),
+                          BaseMessages.getString(
+                              PKG, "RedshiftBulkLoaderMeta.CheckResult.NoFields"),
                           transformMeta);
                   remarks.add(cr);
                 }

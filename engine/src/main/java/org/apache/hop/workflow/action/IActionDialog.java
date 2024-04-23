@@ -59,11 +59,9 @@ public interface IActionDialog {
    */
   IAction open();
 
-  /**
-   * Brings the dialog to the front if the dialog is already open.
-   */
+  /** Brings the dialog to the front if the dialog is already open. */
   void setActive();
-  
+
   /**
    * The Metadata provider to pass
    *

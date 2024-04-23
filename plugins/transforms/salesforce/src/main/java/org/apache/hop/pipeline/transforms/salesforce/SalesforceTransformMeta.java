@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.salesforce;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
@@ -33,10 +34,9 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
-public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, Data extends SalesforceTransformData>
-    extends BaseTransformMeta<Main, Data > {
+public abstract class SalesforceTransformMeta<
+        Main extends SalesforceTransform, Data extends SalesforceTransformData>
+    extends BaseTransformMeta<Main, Data> {
 
   private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 
@@ -170,42 +170,58 @@ public abstract class SalesforceTransformMeta<Main extends SalesforceTransform, 
     remarks.add(cr);
   }
 
-  /** @return Returns the Target URL. */
+  /**
+   * @return Returns the Target URL.
+   */
   public String getTargetUrl() {
     return targetUrl;
   }
 
-  /** @param targetUrl The Target URL to set. */
+  /**
+   * @param targetUrl The Target URL to set.
+   */
   public void setTargetUrl(String targetUrl) {
     this.targetUrl = targetUrl;
   }
 
-  /** @return Returns the UserName. */
+  /**
+   * @return Returns the UserName.
+   */
   public String getUsername() {
     return username;
   }
 
-  /** @param username The Username to set. */
+  /**
+   * @param username The Username to set.
+   */
   public void setUsername(String username) {
     this.username = username;
   }
 
-  /** @return Returns the Password. */
+  /**
+   * @return Returns the Password.
+   */
   public String getPassword() {
     return password;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the connection timeout. */
+  /**
+   * @return Returns the connection timeout.
+   */
   public String getTimeout() {
     return timeout;
   }
 
-  /** @param timeout The connection timeout to set. */
+  /**
+   * @param timeout The connection timeout to set.
+   */
   public void setTimeout(String timeout) {
     this.timeout = timeout;
   }

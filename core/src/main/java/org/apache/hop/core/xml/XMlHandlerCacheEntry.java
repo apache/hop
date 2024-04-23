@@ -33,22 +33,30 @@ public class XMlHandlerCacheEntry {
     this.tag = tag;
   }
 
-  /** @return Returns the parentNode. */
+  /**
+   * @return Returns the parentNode.
+   */
   public Node getParentNode() {
     return parentNode;
   }
 
-  /** @param parentNode The parentNode to set. */
+  /**
+   * @param parentNode The parentNode to set.
+   */
   public void setParentNode(Node parentNode) {
     this.parentNode = parentNode;
   }
 
-  /** @return Returns the tag. */
+  /**
+   * @return Returns the tag.
+   */
   public String getTag() {
     return tag;
   }
 
-  /** @param tag The tag to set. */
+  /**
+   * @param tag The tag to set.
+   */
   public void setTag(String tag) {
     this.tag = tag;
   }

@@ -16,6 +16,10 @@
  */
 package org.apache.hop.workflow.actions.getpop;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import jakarta.activation.DataHandler;
 import jakarta.activation.FileDataSource;
 import jakarta.mail.Flags.Flag;
@@ -23,6 +27,9 @@ import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
@@ -36,14 +43,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class WorkflowEntryGetPOPTest {
 

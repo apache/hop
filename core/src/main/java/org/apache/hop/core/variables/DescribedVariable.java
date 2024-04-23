@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.variables;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DescribedVariable {
 
@@ -69,7 +68,9 @@ public class DescribedVariable {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -83,7 +84,9 @@ public class DescribedVariable {
     return value;
   }
 
-  /** @param value The value to set */
+  /**
+   * @param value The value to set
+   */
   public void setValue(String value) {
     this.value = value;
   }
@@ -97,7 +100,9 @@ public class DescribedVariable {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

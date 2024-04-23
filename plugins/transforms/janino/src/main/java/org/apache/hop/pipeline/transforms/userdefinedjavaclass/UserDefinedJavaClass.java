@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
@@ -32,9 +34,6 @@ import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
-import java.util.Map;
 
 public class UserDefinedJavaClass
     extends BaseTransform<UserDefinedJavaClassMeta, UserDefinedJavaClassData> {

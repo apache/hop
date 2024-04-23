@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Holds temporary data (i.e. sampled rows). Implements the reservoir sampling algorithm "R" by
@@ -66,7 +65,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
   public ReservoirSamplingData() {
     super();
   }
-  
+
   /**
    * Set the meta data for the output format
    *

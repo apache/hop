@@ -46,22 +46,30 @@ public class AddSequenceData extends BaseTransformData implements ITransformData
     realSequenceName = null;
   }
 
-  /** @return Returns the db. */
+  /**
+   * @return Returns the db.
+   */
   public Database getDb() {
     return db;
   }
 
-  /** @param db The db to set. */
+  /**
+   * @param db The db to set.
+   */
   public void setDb(Database db) {
     this.db = db;
   }
 
-  /** @return Returns the lookup string usually "@@"+the name of the sequence. */
+  /**
+   * @return Returns the lookup string usually "@@"+the name of the sequence.
+   */
   public String getLookup() {
     return lookup;
   }
 
-  /** @param lookup the lookup string usually "@@"+the name of the sequence. */
+  /**
+   * @param lookup the lookup string usually "@@"+the name of the sequence.
+   */
   public void setLookup(String lookup) {
     this.lookup = lookup;
   }

@@ -17,18 +17,6 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopEofException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
@@ -44,6 +32,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 @ValueMetaPlugin(
     id = "9",

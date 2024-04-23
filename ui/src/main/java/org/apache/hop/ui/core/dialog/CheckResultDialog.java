@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
@@ -39,8 +40,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /** Dialog to display the results of a verify operation. */
 public class CheckResultDialog extends Dialog {

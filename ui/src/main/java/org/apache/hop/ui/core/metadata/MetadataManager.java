@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.core.metadata;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -40,12 +45,6 @@ import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * This is a utility class which allows you to create or edit metadata objects in a generic fashion
  */
@@ -60,7 +59,10 @@ public class MetadataManager<T extends IHopMetadata> {
   private Class<T> managedClass;
 
   public MetadataManager(
-      IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Shell parentShell) {
+      IVariables variables,
+      IHopMetadataProvider metadataProvider,
+      Class<T> managedClass,
+      Shell parentShell) {
     this.variables = variables;
     this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
@@ -420,7 +422,8 @@ public class MetadataManager<T extends IHopMetadata> {
       MetadataEditor<T> editor = this.createEditor(element);
       editor.setTitle(getManagedName());
 
-      // Always open this in a separate dialog so that we block until we have a name for the new element.
+      // Always open this in a separate dialog so that we block until we have a name for the new
+      // element.
       // Parent code can then use that name to fill in the proper widget.
       //
       MetadataEditorDialog dialog =
@@ -459,7 +462,11 @@ public class MetadataManager<T extends IHopMetadata> {
           element);
 
       MetadataEditor<T> editor = this.createEditor(element);
-      editor.setTitle(BaseMessages.getString(PKG, "MetadataManager.New.Label", TranslateUtil.translate(this.getManagedName(), managedClass)));
+      editor.setTitle(
+          BaseMessages.getString(
+              PKG,
+              "MetadataManager.New.Label",
+              TranslateUtil.translate(this.getManagedName(), managedClass)));
 
       MetadataPerspective.getInstance().addEditor(editor);
 

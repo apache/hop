@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.kafka.shared;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.LogChannel;
@@ -38,18 +49,6 @@ import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.SslConfigs;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class KafkaDialogHelper {
   private IVariables variables;
@@ -83,7 +82,10 @@ public class KafkaDialogHelper {
     Map<String, String> config = getConfig(optionsTable);
     CompletableFuture.supplyAsync(() -> listTopics(directBootstrapServers, config))
         .thenAccept(
-            topicMap -> HopGui.getInstance().getDisplay().syncExec(() -> populateTopics(topicMap, current)));
+            topicMap ->
+                HopGui.getInstance()
+                    .getDisplay()
+                    .syncExec(() -> populateTopics(topicMap, current)));
   }
 
   private void populateTopics(Map<String, List<PartitionInfo>> topicMap, String current) {
@@ -131,10 +133,10 @@ public class KafkaDialogHelper {
     comboVar.setText(current);
     try {
       IRowMeta rmi = pipelineMeta.getPrevTransformFields(variables, transformName);
-        for (int i = 0; i < rmi.size(); i++) {
-          IValueMeta vmb = rmi.getValueMeta(i);
-          comboVar.add(vmb.getName());
-        }
+      for (int i = 0; i < rmi.size(); i++) {
+        IValueMeta vmb = rmi.getValueMeta(i);
+        comboVar.add(vmb.getName());
+      }
     } catch (HopTransformException ex) {
       // do nothing
       LogChannel.UI.logError("Error getting fields", ex);

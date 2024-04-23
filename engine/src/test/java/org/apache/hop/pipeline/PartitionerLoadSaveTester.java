@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.hop.base.LoadSaveBase;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.base.LoadSaveBase;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
 public class PartitionerLoadSaveTester<T extends IPartitioner> extends LoadSaveBase<T> {
 
@@ -35,7 +34,8 @@ public class PartitionerLoadSaveTester<T extends IPartitioner> extends LoadSaveB
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
     super(
         clazz,
         attributes,
@@ -45,7 +45,8 @@ public class PartitionerLoadSaveTester<T extends IPartitioner> extends LoadSaveB
         fieldLoadSaveValidatorTypeMap);
   }
 
-  public PartitionerLoadSaveTester(Class<T> clazz, List<String> commonAttributes) throws HopException {
+  public PartitionerLoadSaveTester(Class<T> clazz, List<String> commonAttributes)
+      throws HopException {
     super(clazz, commonAttributes);
   }
 

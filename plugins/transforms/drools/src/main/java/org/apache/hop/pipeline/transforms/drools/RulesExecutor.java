@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.drools;
 
+import java.util.Arrays;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.i18n.BaseMessages;
@@ -24,8 +25,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Arrays;
 
 public class RulesExecutor extends BaseTransform<RulesExecutorMeta, RulesExecutorData> {
   private static final Class<?> PKG = Rules.class; // for i18n purposes

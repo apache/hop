@@ -17,6 +17,15 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -55,16 +64,6 @@ import org.apache.hop.ui.pipeline.transform.TransformErrorMetaDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class HopGuiPipelineTransformDelegate {
 
   // TODO: move i18n package to HopGui
@@ -72,8 +71,8 @@ public class HopGuiPipelineTransformDelegate {
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
-  private Map<String, ITransformDialog> dialogs = new HashMap<>(); 
-  
+  private Map<String, ITransformDialog> dialogs = new HashMap<>();
+
   public HopGuiPipelineTransformDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
@@ -156,11 +155,11 @@ public class HopGuiPipelineTransformDelegate {
 
       // Check if transform dialog is already open
       ITransformDialog dialog = dialogs.get(name);
-      if ( dialog!=null && !dialog.isDisposed()) {
-         dialog.setActive();
-         return null;
+      if (dialog != null && !dialog.isDisposed()) {
+        dialog.setActive();
+        return null;
       }
-      
+
       // Before we do anything, let's store the situation the way it
       // was...
       //
@@ -168,16 +167,14 @@ public class HopGuiPipelineTransformDelegate {
       dialog = getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
       if (dialog != null) {
         dialogs.put(name, dialog);
-        
+
         dialog.setMetadataProvider(hopGui.getMetadataProvider());
         transformMeta.getTransform().convertIOMetaToTransformNames();
         transformName = dialog.open();
-        
+
         dialogs.remove(name);
       }
 
-
-      
       if (!Utils.isEmpty(transformName)) {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //
@@ -316,7 +313,8 @@ public class HopGuiPipelineTransformDelegate {
             }
             if (nr > 2) {
               transformMeta.setName(newName);
-              MessageBox mb = new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
+              MessageBox mb =
+                  new MessageBox(hopGui.getActiveShell(), SWT.OK | SWT.ICON_INFORMATION);
               // "This transformName already exists.  HopGui changed the transformName to
               // ["+newName+"]"
               mb.setMessage(
@@ -420,83 +418,90 @@ public class HopGuiPipelineTransformDelegate {
    * @param name Name of the new transform to insert
    * @return The newly inserted TransformMeta object.
    */
-  public TransformMeta insertTransform(PipelineMeta pipelineMeta, PipelineHopMeta hop, String id, String name, Point location) {   
-    TransformMeta transformMeta = this.newTransform(pipelineMeta, id, name, name, false, false, location);
+  public TransformMeta insertTransform(
+      PipelineMeta pipelineMeta, PipelineHopMeta hop, String id, String name, Point location) {
+    TransformMeta transformMeta =
+        this.newTransform(pipelineMeta, id, name, name, false, false, location);
     return this.insertTransform(pipelineMeta, hop, transformMeta);
   }
-    
-  
+
   /**
    * Insert a transform by splitting a hop.
-   * 
-   * Split A-->--B by putting C in between
-   * 
+   *
+   * <p>Split A-->--B by putting C in between
+   *
    * @param pipelineMeta
    * @param hop
    * @param transformMeta
    * @return
    */
-  public TransformMeta insertTransform(PipelineMeta pipelineMeta, PipelineHopMeta hop, TransformMeta transformMeta) {
-      TransformMeta fromTransform = hop.getFromTransform();
-      TransformMeta toTransform = hop.getToTransform();
-      
-      // In case transform A targets B then we now need to target C
-      //
-      ITransformIOMeta fromIo = fromTransform.getTransform().getTransformIOMeta();
-      for (IStream stream : fromIo.getTargetStreams()) {
-        if (stream.getTransformMeta() != null && stream.getTransformMeta().equals(toTransform)) {
-          // This target stream was directed to B, now we need to direct it to C
-          stream.setTransformMeta(transformMeta);
-          fromTransform.getTransform().handleStreamSelection(stream);
-        }
-      }
+  public TransformMeta insertTransform(
+      PipelineMeta pipelineMeta, PipelineHopMeta hop, TransformMeta transformMeta) {
+    TransformMeta fromTransform = hop.getFromTransform();
+    TransformMeta toTransform = hop.getToTransform();
 
-      // In case transform B sources from A then we now need to source from C
-      //
-      ITransformIOMeta toIo = toTransform.getTransform().getTransformIOMeta();
-      for (IStream stream : toIo.getInfoStreams()) {
-        if (stream.getTransformMeta() != null
-            && stream.getTransformMeta().equals(fromTransform)) {
-          // This info stream was reading from B, now we need to direct it to C
-          stream.setTransformMeta(transformMeta);
-          toTransform.getTransform().handleStreamSelection(stream);
-        }
+    // In case transform A targets B then we now need to target C
+    //
+    ITransformIOMeta fromIo = fromTransform.getTransform().getTransformIOMeta();
+    for (IStream stream : fromIo.getTargetStreams()) {
+      if (stream.getTransformMeta() != null && stream.getTransformMeta().equals(toTransform)) {
+        // This target stream was directed to B, now we need to direct it to C
+        stream.setTransformMeta(transformMeta);
+        fromTransform.getTransform().handleStreamSelection(stream);
       }
-      
-      // In case there is error handling on A, we want to make it point to C now
-      //
-      TransformErrorMeta errorMeta = fromTransform.getTransformErrorMeta();
-      if (fromTransform.isDoingErrorHandling()
-          && toTransform.equals(errorMeta.getTargetTransform())) {
-        errorMeta.setTargetTransform(transformMeta);
-      }
-      
-      PipelineHopMeta newHop1 = new PipelineHopMeta(fromTransform, transformMeta);      
-      newHop1.setEnabled(hop.isEnabled());
-      if (pipelineMeta.findPipelineHop(newHop1) == null) {
-        pipelineMeta.addPipelineHop(newHop1);
-        hopGui.undoDelegate.addUndoNew(pipelineMeta, 
-            new PipelineHopMeta[] {newHop1},
-            new int[] { pipelineMeta.indexOfPipelineHop(newHop1)}, 
-            true);        
-      }
+    }
 
-      PipelineHopMeta newHop2 = new PipelineHopMeta(transformMeta, toTransform);
-      newHop2.setEnabled(hop.isEnabled());
-      if (pipelineMeta.findPipelineHop(newHop2) == null) {
-        pipelineMeta.addPipelineHop(newHop2);
-        hopGui.undoDelegate.addUndoNew(pipelineMeta, 
-            new PipelineHopMeta[] {newHop2},
-            new int[] { pipelineMeta.indexOfPipelineHop(newHop2)}, 
-            true);                        
-      }     
+    // In case transform B sources from A then we now need to source from C
+    //
+    ITransformIOMeta toIo = toTransform.getTransform().getTransformIOMeta();
+    for (IStream stream : toIo.getInfoStreams()) {
+      if (stream.getTransformMeta() != null && stream.getTransformMeta().equals(fromTransform)) {
+        // This info stream was reading from B, now we need to direct it to C
+        stream.setTransformMeta(transformMeta);
+        toTransform.getTransform().handleStreamSelection(stream);
+      }
+    }
 
-      hopGui.undoDelegate.addUndoDelete(pipelineMeta, new PipelineHopMeta[] {hop}, new int[] { pipelineMeta.indexOfPipelineHop(hop)}, true);
-      pipelineMeta.removePipelineHop(hop);
-            
-      return transformMeta;
-  }    
-  
+    // In case there is error handling on A, we want to make it point to C now
+    //
+    TransformErrorMeta errorMeta = fromTransform.getTransformErrorMeta();
+    if (fromTransform.isDoingErrorHandling()
+        && toTransform.equals(errorMeta.getTargetTransform())) {
+      errorMeta.setTargetTransform(transformMeta);
+    }
+
+    PipelineHopMeta newHop1 = new PipelineHopMeta(fromTransform, transformMeta);
+    newHop1.setEnabled(hop.isEnabled());
+    if (pipelineMeta.findPipelineHop(newHop1) == null) {
+      pipelineMeta.addPipelineHop(newHop1);
+      hopGui.undoDelegate.addUndoNew(
+          pipelineMeta,
+          new PipelineHopMeta[] {newHop1},
+          new int[] {pipelineMeta.indexOfPipelineHop(newHop1)},
+          true);
+    }
+
+    PipelineHopMeta newHop2 = new PipelineHopMeta(transformMeta, toTransform);
+    newHop2.setEnabled(hop.isEnabled());
+    if (pipelineMeta.findPipelineHop(newHop2) == null) {
+      pipelineMeta.addPipelineHop(newHop2);
+      hopGui.undoDelegate.addUndoNew(
+          pipelineMeta,
+          new PipelineHopMeta[] {newHop2},
+          new int[] {pipelineMeta.indexOfPipelineHop(newHop2)},
+          true);
+    }
+
+    hopGui.undoDelegate.addUndoDelete(
+        pipelineMeta,
+        new PipelineHopMeta[] {hop},
+        new int[] {pipelineMeta.indexOfPipelineHop(hop)},
+        true);
+    pipelineMeta.removePipelineHop(hop);
+
+    return transformMeta;
+  }
+
   public void editTransformPartitioning(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
     String[] schemaNames;
     try {

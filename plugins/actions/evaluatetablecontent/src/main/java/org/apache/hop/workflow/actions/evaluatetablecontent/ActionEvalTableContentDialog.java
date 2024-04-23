@@ -550,7 +550,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
           case SWT.NO:
             wSql.setText(sql);
             break;
-          case SWT.YES:            
+          case SWT.YES:
             try (Database db = new Database(loggingObject, variables, inf)) {
               db.connect();
               IRowMeta fields = db.getQueryFields(sql, false);

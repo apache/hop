@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
+import java.io.File;
+import java.io.Serializable;
+import java.text.Collator;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,13 +44,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.io.File;
-import java.io.Serializable;
-import java.text.Collator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 @InjectionSupported(
     localizationPrefix = "SortRows.Injection.",
     groups = {"FIELDS"})
@@ -56,7 +55,8 @@ import java.util.Locale;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SortRowsMeta.keyword",
     documentationUrl = "/pipeline/transforms/sort.html")
-public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData> implements Serializable {
+public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
+    implements Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
@@ -120,42 +120,58 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData> impl
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the ascending. */
+  /**
+   * @return Returns the ascending.
+   */
   public boolean[] getAscending() {
     return ascending;
   }
 
-  /** @param ascending The ascending to set. */
+  /**
+   * @param ascending The ascending to set.
+   */
   public void setAscending(boolean[] ascending) {
     this.ascending = ascending;
   }
 
-  /** @return Returns the directory. */
+  /**
+   * @return Returns the directory.
+   */
   public String getDirectory() {
     return directory;
   }
 
-  /** @param directory The directory to set. */
+  /**
+   * @param directory The directory to set.
+   */
   public void setDirectory(String directory) {
     this.directory = directory;
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public String[] getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFieldName(String[] fieldName) {
     this.fieldName = fieldName;
   }
 
-  /** @return Returns the prefix. */
+  /**
+   * @return Returns the prefix.
+   */
   public String getPrefix() {
     return prefix;
   }
 
-  /** @param prefix The prefix to set. */
+  /**
+   * @param prefix The prefix to set.
+   */
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
@@ -463,92 +479,128 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData> impl
     }
   }
 
-  /** @return Returns the sortSize. */
+  /**
+   * @return Returns the sortSize.
+   */
   public String getSortSize() {
     return sortSize;
   }
 
-  /** @param sortSize The sortSize to set. */
+  /**
+   * @param sortSize The sortSize to set.
+   */
   public void setSortSize(String sortSize) {
     this.sortSize = sortSize;
   }
 
-  /** @return Returns whether temporary files should be compressed */
+  /**
+   * @return Returns whether temporary files should be compressed
+   */
   public boolean getCompressFiles() {
     return compressFiles;
   }
 
-  /** @param compressFiles Whether to compress temporary files created during sorting */
+  /**
+   * @param compressFiles Whether to compress temporary files created during sorting
+   */
   public void setCompressFiles(boolean compressFiles) {
     this.compressFiles = compressFiles;
   }
 
-  /** @return the onlyPassingUniqueRows */
+  /**
+   * @return the onlyPassingUniqueRows
+   */
   public boolean isOnlyPassingUniqueRows() {
     return onlyPassingUniqueRows;
   }
 
-  /** @param onlyPassingUniqueRows the onlyPassingUniqueRows to set */
+  /**
+   * @param onlyPassingUniqueRows the onlyPassingUniqueRows to set
+   */
   public void setOnlyPassingUniqueRows(boolean onlyPassingUniqueRows) {
     this.onlyPassingUniqueRows = onlyPassingUniqueRows;
   }
 
-  /** @return the compressFilesVariable */
+  /**
+   * @return the compressFilesVariable
+   */
   public String getCompressFilesVariable() {
     return compressFilesVariable;
   }
 
-  /** @param compressFilesVariable the compressFilesVariable to set */
+  /**
+   * @param compressFilesVariable the compressFilesVariable to set
+   */
   public void setCompressFilesVariable(String compressFilesVariable) {
     this.compressFilesVariable = compressFilesVariable;
   }
 
-  /** @return the caseSensitive */
+  /**
+   * @return the caseSensitive
+   */
   public boolean[] getCaseSensitive() {
     return caseSensitive;
   }
 
-  /** @param caseSensitive the caseSensitive to set */
+  /**
+   * @param caseSensitive the caseSensitive to set
+   */
   public void setCaseSensitive(boolean[] caseSensitive) {
     this.caseSensitive = caseSensitive;
   }
 
-  /** @return the collatorEnabled */
+  /**
+   * @return the collatorEnabled
+   */
   public boolean[] getCollatorEnabled() {
     return collatorEnabled;
   }
 
-  /** @param collatorEnabled the collatorEnabled to set */
+  /**
+   * @param collatorEnabled the collatorEnabled to set
+   */
   public void setCollatorEnabled(boolean[] collatorEnabled) {
     this.collatorEnabled = collatorEnabled;
   }
 
-  /** @return the collatorStrength */
+  /**
+   * @return the collatorStrength
+   */
   public int[] getCollatorStrength() {
     return collatorStrength;
   }
 
-  /** @param collatorStrength the collatorStrength to set */
+  /**
+   * @param collatorStrength the collatorStrength to set
+   */
   public void setCollatorStrength(int[] collatorStrength) {
     this.collatorStrength = collatorStrength;
   }
 
-  /** @return the freeMemoryLimit */
+  /**
+   * @return the freeMemoryLimit
+   */
   public String getFreeMemoryLimit() {
     return freeMemoryLimit;
   }
 
-  /** @param freeMemoryLimit the freeMemoryLimit to set */
+  /**
+   * @param freeMemoryLimit the freeMemoryLimit to set
+   */
   public void setFreeMemoryLimit(String freeMemoryLimit) {
     this.freeMemoryLimit = freeMemoryLimit;
   }
 
-  /** @return the preSortedField */
+  /**
+   * @return the preSortedField
+   */
   public boolean[] getPreSortedField() {
     return preSortedField;
   }
 
-  /** @param preSorted the preSorteField to set */
+  /**
+   * @param preSorted the preSorteField to set
+   */
   public void setPreSortedField(boolean[] preSorted) {
     preSortedField = preSorted;
   }

@@ -17,12 +17,11 @@
 
 package org.apache.hop.neo4j.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraphRelationship {
 

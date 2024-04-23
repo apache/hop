@@ -17,17 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.mockito.ArgumentMatchers;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import static org.mockito.Mockito.when;
 
 /**
  * Util class to handle TransformMock creation in generic way.
@@ -56,8 +55,12 @@ public class TransformMockUtil {
   }
 
   public static MetaInject getTransform(Class<MetaInject> klass, TransformMockHelper mock)
-      throws NoSuchMethodException, SecurityException, InstantiationException,
-          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      throws NoSuchMethodException,
+          SecurityException,
+          InstantiationException,
+          IllegalAccessException,
+          IllegalArgumentException,
+          InvocationTargetException {
     Constructor<MetaInject> kons =
         klass.getConstructor(
             TransformMeta.class,
@@ -82,8 +85,12 @@ public class TransformMockUtil {
       Class<MetaInjectMeta> transformMetaClass,
       Class<MetaInjectData> dataClass,
       String transformName)
-      throws NoSuchMethodException, SecurityException, InstantiationException,
-          IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+      throws NoSuchMethodException,
+          SecurityException,
+          InstantiationException,
+          IllegalAccessException,
+          IllegalArgumentException,
+          InvocationTargetException {
     return TransformMockUtil.getTransform(
         transformClass,
         TransformMockUtil.getTransformMockHelper(transformMetaClass, dataClass, transformName));

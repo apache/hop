@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
@@ -41,16 +50,6 @@ import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.pipeline.transform.common.ICsvInputAwareImportProgressDialog;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.eclipse.swt.widgets.Shell;
-
-import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out what tables,

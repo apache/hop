@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.dbproc;
 
+import java.sql.SQLException;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
@@ -33,9 +35,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.SQLException;
-import java.util.List;
 
 /** Retrieves values from a database by calling database stored procedures or functions */
 public class DBProc extends BaseTransform<DBProcMeta, DBProcData> {

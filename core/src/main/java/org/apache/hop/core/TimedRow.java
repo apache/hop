@@ -33,7 +33,9 @@ public class TimedRow {
     this.row = row;
   }
 
-  /** @param row */
+  /**
+   * @param row
+   */
   public TimedRow(Object[] row) {
     this.logDate = new Date();
     this.row = row;
@@ -55,22 +57,30 @@ public class TimedRow {
     return str.toString();
   }
 
-  /** @return the row */
+  /**
+   * @return the row
+   */
   public Object[] getRow() {
     return row;
   }
 
-  /** @param row the row to set */
+  /**
+   * @param row the row to set
+   */
   public void setRow(Object[] row) {
     this.row = row;
   }
 
-  /** @return the logDate */
+  /**
+   * @return the logDate
+   */
   public Date getLogDate() {
     return logDate;
   }
 
-  /** @param logDate the logDate to set */
+  /**
+   * @param logDate the logDate to set
+   */
   public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }

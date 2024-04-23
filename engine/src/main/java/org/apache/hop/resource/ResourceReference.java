@@ -17,10 +17,9 @@
 
 package org.apache.hop.resource;
 
-import org.apache.hop.core.util.StringUtil;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.util.StringUtil;
 
 public class ResourceReference {
   private IResourceHolder resourceReferenceHolder;
@@ -41,22 +40,30 @@ public class ResourceReference {
     this.entries = new ArrayList<>();
   }
 
-  /** @return the resource reference holder */
+  /**
+   * @return the resource reference holder
+   */
   public IResourceHolder getReferenceHolder() {
     return resourceReferenceHolder;
   }
 
-  /** @param resourceReferenceHolder the resource reference holder to set */
+  /**
+   * @param resourceReferenceHolder the resource reference holder to set
+   */
   public void setReferenceHolder(IResourceHolder resourceReferenceHolder) {
     this.resourceReferenceHolder = resourceReferenceHolder;
   }
 
-  /** @return the entries */
+  /**
+   * @return the entries
+   */
   public List<ResourceEntry> getEntries() {
     return entries;
   }
 
-  /** @param entries the entries to set */
+  /**
+   * @param entries the entries to set
+   */
   public void setEntries(List<ResourceEntry> entries) {
     this.entries = entries;
   }

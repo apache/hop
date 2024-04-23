@@ -17,15 +17,14 @@
 
 package org.apache.hop.core.logging;
 
+import java.util.Date;
+import java.util.Map;
+import java.util.Queue;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.metrics.IMetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshot;
 import org.apache.hop.core.metrics.MetricsSnapshotType;
 import org.apache.hop.core.util.Utils;
-
-import java.util.Date;
-import java.util.Map;
-import java.util.Queue;
 
 public class LogChannel implements ILogChannel {
 
@@ -65,12 +64,15 @@ public class LogChannel implements ILogChannel {
     this(subject, parentObject, false, false);
   }
 
-
   public LogChannel(Object subject, ILoggingObject parentObject, boolean gatheringMetrics) {
     this(subject, parentObject, gatheringMetrics, false);
   }
 
-  public LogChannel(Object subject, ILoggingObject parentObject, boolean gatheringMetrics, boolean forceNewLoggingEntry) {
+  public LogChannel(
+      Object subject,
+      ILoggingObject parentObject,
+      boolean gatheringMetrics,
+      boolean forceNewLoggingEntry) {
     if (parentObject != null) {
       this.logLevel = parentObject.getLogLevel();
       this.containerObjectId = parentObject.getContainerId();
@@ -80,7 +82,8 @@ public class LogChannel implements ILogChannel {
     }
     this.gatheringMetrics = gatheringMetrics;
 
-    logChannelId = LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
+    logChannelId =
+        LoggingRegistry.getInstance().registerLoggingSource(subject, forceNewLoggingEntry);
   }
 
   @Override
@@ -253,25 +256,33 @@ public class LogChannel implements ILogChannel {
     this.logLevel = logLevel;
   }
 
-  /** @return the containerObjectId */
+  /**
+   * @return the containerObjectId
+   */
   @Override
   public String getContainerObjectId() {
     return containerObjectId;
   }
 
-  /** @param containerObjectId the containerObjectId to set */
+  /**
+   * @param containerObjectId the containerObjectId to set
+   */
   @Override
   public void setContainerObjectId(String containerObjectId) {
     this.containerObjectId = containerObjectId;
   }
 
-  /** @return the gatheringMetrics */
+  /**
+   * @return the gatheringMetrics
+   */
   @Override
   public boolean isGatheringMetrics() {
     return gatheringMetrics;
   }
 
-  /** @param gatheringMetrics the gatheringMetrics to set */
+  /**
+   * @param gatheringMetrics the gatheringMetrics to set
+   */
   @Override
   public void setGatheringMetrics(boolean gatheringMetrics) {
     this.gatheringMetrics = gatheringMetrics;
@@ -406,7 +417,9 @@ public class LogChannel implements ILogChannel {
     return simplified;
   }
 
-  /** @param simplified The simplified to set */
+  /**
+   * @param simplified The simplified to set
+   */
   public void setSimplified(boolean simplified) {
     this.simplified = simplified;
   }

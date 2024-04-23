@@ -30,6 +30,15 @@ import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -57,16 +66,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 /** Describes a Mail Workflow Entry. */
 @Action(
@@ -479,7 +478,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     this.authenticationPassword = authenticationPassword;
   }
 
-  public void setUseXOAUTH2( boolean usexoauth2 ) {
+  public void setUseXOAUTH2(boolean usexoauth2) {
     this.usexoauth2 = usexoauth2;
   }
 

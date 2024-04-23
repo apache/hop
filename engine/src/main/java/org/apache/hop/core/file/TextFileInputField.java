@@ -17,6 +17,12 @@
 
 package org.apache.hop.core.file;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.ITextFileInputField;
 import org.apache.hop.core.injection.Injection;
@@ -24,13 +30,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
 /** Describes a single field in a text file */
 public class TextFileInputField implements Cloneable, ITextFileInputField {

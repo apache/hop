@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -37,12 +42,6 @@ import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HopGuiWorkflowActionDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator

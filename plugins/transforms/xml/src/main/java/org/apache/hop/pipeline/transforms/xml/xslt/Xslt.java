@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.Properties;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.exception.HopException;
@@ -30,15 +37,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.Properties;
 
 /** Executes a XSL Transform on the values in the input stream. */
 public class Xslt extends BaseTransform<XsltMeta, XsltData> {

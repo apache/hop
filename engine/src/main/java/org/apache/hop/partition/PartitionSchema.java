@@ -17,15 +17,14 @@
 
 package org.apache.hop.partition;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A partition schema allow you to partition a transform according into a number of partitions that
@@ -106,32 +105,44 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
     }
   }
 
-  /** @return the partitionIDs */
+  /**
+   * @return the partitionIDs
+   */
   public List<String> getPartitionIDs() {
     return partitionIDs;
   }
 
-  /** @param partitionIDs the partitionIDs to set */
+  /**
+   * @param partitionIDs the partitionIDs to set
+   */
   public void setPartitionIDs(List<String> partitionIDs) {
     this.partitionIDs = partitionIDs;
   }
 
-  /** @return the dynamicallyDefined */
+  /**
+   * @return the dynamicallyDefined
+   */
   public boolean isDynamicallyDefined() {
     return dynamicallyDefined;
   }
 
-  /** @param dynamicallyDefined the dynamicallyDefined to set */
+  /**
+   * @param dynamicallyDefined the dynamicallyDefined to set
+   */
   public void setDynamicallyDefined(boolean dynamicallyDefined) {
     this.dynamicallyDefined = dynamicallyDefined;
   }
 
-  /** @return the number of partitions */
+  /**
+   * @return the number of partitions
+   */
   public String getNumberOfPartitions() {
     return numberOfPartitions;
   }
 
-  /** @param numberOfPartitions the number of partitions to set... */
+  /**
+   * @param numberOfPartitions the number of partitions to set...
+   */
   public void setNumberOfPartitions(String numberOfPartitions) {
     this.numberOfPartitions = numberOfPartitions;
   }

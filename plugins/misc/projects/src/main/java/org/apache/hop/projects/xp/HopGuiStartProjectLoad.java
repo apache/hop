@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.xp;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -34,8 +35,6 @@ import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import java.util.List;
 
 @ExtensionPoint(
     id = "HopGuiStartProjectLoad",
@@ -64,7 +63,8 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
 
         // Let's see in the audit logs what the last opened project is.
         //
-        List<AuditEvent> auditEvents = AuditManager.findEvents(
+        List<AuditEvent> auditEvents =
+            AuditManager.findEvents(
                 ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
                 ProjectsUtil.STRING_PROJECT_AUDIT_TYPE,
                 "open",
@@ -83,7 +83,7 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
           if (config.findProjectConfig(lastProjectName) == null) {
             // The last existing project to open was not found.
             //
-            lastProjectName=null;
+            lastProjectName = null;
           }
         }
 
@@ -98,7 +98,8 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
 
             // What was the last environment for this project?
             //
-            List<AuditEvent> envEvents = AuditManager.findEvents(
+            List<AuditEvent> envEvents =
+                AuditManager.findEvents(
                     ProjectsUtil.STRING_PROJECTS_AUDIT_GROUP,
                     ProjectsUtil.STRING_ENVIRONMENT_AUDIT_TYPE,
                     "open",
@@ -109,7 +110,7 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
             //
             for (AuditEvent envEvent : envEvents) {
               LifecycleEnvironment environment = config.findEnvironment(envEvent.getName());
-              if (environment!=null && lastProjectName.equals(environment.getProjectName())) {
+              if (environment != null && lastProjectName.equals(environment.getProjectName())) {
                 lastEnvironment = environment;
                 break;
               }
@@ -129,7 +130,8 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
         logChannelInterface.logBasic("No last projects history found");
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error initializing the Projects system", e);
+      new ErrorDialog(
+          hopGui.getActiveShell(), "Error", "Error initializing the Projects system", e);
     }
   }
 }

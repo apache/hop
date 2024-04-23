@@ -20,6 +20,11 @@ package org.apache.hop.vfs.azure;
 
 import com.microsoft.azure.storage.CloudStorageAccount;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,12 +40,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
-
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 public class AzureFileProvider extends AbstractOriginatingFileProvider {
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.testing.transforms.exectests;
 
+import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -32,8 +33,6 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.UnitTestResult;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.UnitTestUtil;
-
-import java.util.ArrayList;
 
 public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsData> {
 

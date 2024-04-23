@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import javax.xml.namespace.QName;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -68,16 +77,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import javax.xml.namespace.QName;
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
 
 public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class; // For Translator

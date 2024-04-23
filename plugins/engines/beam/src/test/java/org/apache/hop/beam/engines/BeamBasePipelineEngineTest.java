@@ -17,6 +17,10 @@
 
 package org.apache.hop.beam.engines;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.List;
 import org.apache.hop.beam.transform.PipelineTestBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -25,11 +29,6 @@ import org.apache.hop.pipeline.engine.EngineMetrics;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class BeamBasePipelineEngineTest extends PipelineTestBase {
 

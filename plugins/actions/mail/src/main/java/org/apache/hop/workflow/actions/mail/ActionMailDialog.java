@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.mail;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Random;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.ResultFile;
@@ -58,10 +61,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Random;
 
 /** Dialog that allows you to edit a ActionMail object. */
 public class ActionMailDialog extends ActionDialog implements IActionDialog {
@@ -515,22 +514,22 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
         });
 
     // USE connection with XOAUTH2
-    wlUseXOAUTH2 = new Label( wAuthentificationGroup, SWT.RIGHT );
-    wlUseXOAUTH2.setText( BaseMessages.getString( PKG, "ActionMail.UseXOAUTH2Mails.Label" ) );
-    PropsUi.setLook( wlUseXOAUTH2 );
+    wlUseXOAUTH2 = new Label(wAuthentificationGroup, SWT.RIGHT);
+    wlUseXOAUTH2.setText(BaseMessages.getString(PKG, "ActionMail.UseXOAUTH2Mails.Label"));
+    PropsUi.setLook(wlUseXOAUTH2);
     FormData fdlUseXOAUTH2 = new FormData();
-    fdlUseXOAUTH2.left = new FormAttachment( 0, 0 );
-    fdlUseXOAUTH2.top = new FormAttachment( wUseAuth, margin );
-    fdlUseXOAUTH2.right = new FormAttachment( middle, -margin );
-    wlUseXOAUTH2.setLayoutData( fdlUseXOAUTH2 );
-    wUseXOAUTH2 = new Button( wAuthentificationGroup, SWT.CHECK );
-    PropsUi.setLook( wUseXOAUTH2 );
+    fdlUseXOAUTH2.left = new FormAttachment(0, 0);
+    fdlUseXOAUTH2.top = new FormAttachment(wUseAuth, margin);
+    fdlUseXOAUTH2.right = new FormAttachment(middle, -margin);
+    wlUseXOAUTH2.setLayoutData(fdlUseXOAUTH2);
+    wUseXOAUTH2 = new Button(wAuthentificationGroup, SWT.CHECK);
+    PropsUi.setLook(wUseXOAUTH2);
     FormData fdUseXOAUTH2 = new FormData();
-    wUseXOAUTH2.setToolTipText( BaseMessages.getString( PKG, "ActionMail.UseXOAUTH2Mails.Tooltip" ) );
-    fdUseXOAUTH2.left = new FormAttachment( middle, margin );
-    fdUseXOAUTH2.top = new FormAttachment( wlUseXOAUTH2, 0 , SWT.CENTER);
-    fdUseXOAUTH2.right = new FormAttachment( 100, 0 );
-    wUseXOAUTH2.setLayoutData( fdUseXOAUTH2 );
+    wUseXOAUTH2.setToolTipText(BaseMessages.getString(PKG, "ActionMail.UseXOAUTH2Mails.Tooltip"));
+    fdUseXOAUTH2.left = new FormAttachment(middle, margin);
+    fdUseXOAUTH2.top = new FormAttachment(wlUseXOAUTH2, 0, SWT.CENTER);
+    fdUseXOAUTH2.right = new FormAttachment(100, 0);
+    wUseXOAUTH2.setLayoutData(fdUseXOAUTH2);
 
     // AuthUser line
     wAuthUser =

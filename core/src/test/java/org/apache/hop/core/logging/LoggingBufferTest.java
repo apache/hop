@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.logging;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class LoggingBufferTest {
 

@@ -17,9 +17,8 @@
 
 package org.apache.hop.beam.transforms.bigtable;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class BigtableColumn {
 
@@ -72,7 +71,9 @@ public class BigtableColumn {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -86,7 +87,9 @@ public class BigtableColumn {
     return family;
   }
 
-  /** @param family The family to set */
+  /**
+   * @param family The family to set
+   */
   public void setFamily(String family) {
     this.family = family;
   }
@@ -100,7 +103,9 @@ public class BigtableColumn {
     return sourceField;
   }
 
-  /** @param sourceField The sourceField to set */
+  /**
+   * @param sourceField The sourceField to set
+   */
   public void setSourceField(String sourceField) {
     this.sourceField = sourceField;
   }

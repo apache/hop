@@ -17,9 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.FMLookupValue;
+
 import com.wcohen.ss.Jaro;
 import com.wcohen.ss.JaroWinkler;
 import com.wcohen.ss.NeedlemanWunsch;
+import java.util.Iterator;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
@@ -40,11 +44,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Iterator;
-
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.FMLookupValue;
 
 /**
  * Performs a fuzzy match for each main stream field row An approximative match is done in a lookup

@@ -29,7 +29,6 @@ import static org.powermock.reflect.Whitebox.setInternalState;
 
 import java.io.ByteArrayInputStream;
 import java.net.HttpURLConnection;
-
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.HttpClientManager;

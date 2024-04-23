@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import java.util.List;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
@@ -24,8 +25,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-
-import java.util.List;
 
 /** This interface describes the methods of a Hop GUI perspective. */
 public interface IHopPerspective extends IActionContextHandlersProvider {
@@ -84,7 +83,9 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
 
   boolean hasNavigationNextFile();
 
-  /** @return The control of this perspective */
+  /**
+   * @return The control of this perspective
+   */
   Control getControl();
 
   /**
@@ -102,6 +103,8 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    */
   List<TabItemHandler> getItems();
 
-  /** @return A list of searchable items */
+  /**
+   * @return A list of searchable items
+   */
   List<ISearchable> getSearchables();
 }

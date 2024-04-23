@@ -16,6 +16,16 @@
  */
 package org.apache.hop.pipeline.transforms.streamlookup;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -33,17 +43,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;

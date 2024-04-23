@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
@@ -28,8 +29,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-
-import java.util.List;
 
 public class PipelineEngineFactory {
 

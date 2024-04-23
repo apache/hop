@@ -83,7 +83,6 @@ public interface ITransformData {
    */
   boolean isDisposed();
 
-
   /**
    * Gets beamContext
    *

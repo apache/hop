@@ -17,14 +17,13 @@
 
 package org.apache.hop.workflow;
 
+import java.util.ArrayList;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.ArrayList;
 
 public class WorkflowSvgPainter {
 

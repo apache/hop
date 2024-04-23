@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class HttpPostResultField {
 
@@ -95,7 +94,10 @@ public class HttpPostResultField {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     HttpPostResultField that = (HttpPostResultField) o;
-    return Objects.equals(code, that.code) && Objects.equals(name, that.name) && Objects.equals(responseTimeFieldName, that.responseTimeFieldName) && Objects.equals(responseHeaderFieldName, that.responseHeaderFieldName);
+    return Objects.equals(code, that.code)
+        && Objects.equals(name, that.name)
+        && Objects.equals(responseTimeFieldName, that.responseTimeFieldName)
+        && Objects.equals(responseHeaderFieldName, that.responseHeaderFieldName);
   }
 
   @Override

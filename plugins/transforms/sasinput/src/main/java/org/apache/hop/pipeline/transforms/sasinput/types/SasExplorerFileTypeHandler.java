@@ -21,6 +21,8 @@ package org.apache.hop.pipeline.transforms.sasinput.types;
 import com.epam.parso.Column;
 import com.epam.parso.ColumnFormat;
 import com.epam.parso.impl.SasFileReaderImpl;
+import java.io.InputStream;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -37,9 +39,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.InputStream;
-import java.util.List;
 
 /** How do we handle an SVG file in file explorer perspective? */
 public class SasExplorerFileTypeHandler extends BaseExplorerFileTypeHandler

@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -61,11 +65,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class JsonOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JsonOutputMeta.class; // For Translator
@@ -952,7 +951,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wAddToResult.setEnabled(activeFile);
     wbShowFiles.setEnabled(activeFile);
 
-    boolean activeOutputValue = !Objects.equals(wOperation.getText(), JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE);
+    boolean activeOutputValue =
+        !Objects.equals(wOperation.getText(), JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE);
 
     wlOutputValue.setEnabled(activeOutputValue);
     wOutputValue.setEnabled(activeOutputValue);

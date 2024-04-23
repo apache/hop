@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.zipfile;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -29,8 +30,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 @Transform(
     id = "ZipFile",
@@ -94,98 +93,136 @@ public class ZipFileMeta extends BaseTransformMeta<ZipFile, ZipFileData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the sourcefilenamefield. */
+  /**
+   * @return Returns the sourcefilenamefield.
+   */
   public String getSourceFilenameField() {
     return sourceFilenameField;
   }
 
-  /** @param sourceFilenameField The sourcefilenamefield to set. */
+  /**
+   * @param sourceFilenameField The sourcefilenamefield to set.
+   */
   public void setSourceFilenameField(String sourceFilenameField) {
     this.sourceFilenameField = sourceFilenameField;
   }
 
-  /** @return Returns the baseFolderField. */
+  /**
+   * @return Returns the baseFolderField.
+   */
   public String getBaseFolderField() {
     return baseFolderField;
   }
 
-  /** @param baseFolderField The baseFolderField to set. */
+  /**
+   * @param baseFolderField The baseFolderField to set.
+   */
   public void setBaseFolderField(String baseFolderField) {
     this.baseFolderField = baseFolderField;
   }
 
-  /** @return Returns the movetofolderfield. */
+  /**
+   * @return Returns the movetofolderfield.
+   */
   public String getMoveToFolderField() {
     return moveToFolderField;
   }
 
-  /** @param movetofolderfield The movetofolderfield to set. */
+  /**
+   * @param movetofolderfield The movetofolderfield to set.
+   */
   public void setMoveToFolderField(String movetofolderfield) {
     this.moveToFolderField = movetofolderfield;
   }
 
-  /** @return Returns the targetfilenamefield. */
+  /**
+   * @return Returns the targetfilenamefield.
+   */
   public String getTargetFilenameField() {
     return targetFilenameField;
   }
 
-  /** @param targetFilenameField The targetfilenamefield to set. */
+  /**
+   * @param targetFilenameField The targetfilenamefield to set.
+   */
   public void setTargetFilenameField(String targetFilenameField) {
     this.targetFilenameField = targetFilenameField;
   }
 
-  /** @return Returns if the fieldnames are added to the result */
+  /**
+   * @return Returns if the fieldnames are added to the result
+   */
   public boolean isAddResultFilenames() {
     return addResultFilenames;
   }
 
-  /** @return Return if destination file may be overwritten */
+  /**
+   * @return Return if destination file may be overwritten
+   */
   public boolean isOverwriteZipEntry() {
     return overwriteZipEntry;
   }
 
-  /** @return Return if parent folder should be created */
+  /**
+   * @return Return if parent folder should be created
+   */
   public boolean isCreateParentFolder() {
     return createParentFolder;
   }
 
-  /** @return Return if sourcefolder has to be kept */
+  /**
+   * @return Return if sourcefolder has to be kept
+   */
   public boolean isKeepSourceFolder() {
     return keepSourceFolder;
   }
 
-  /** @param value Set to true if sourcefolder has to be kept */
+  /**
+   * @param value Set to true if sourcefolder has to be kept
+   */
   public void setKeepSourceFolder(boolean value) {
     keepSourceFolder = value;
   }
 
-  /** @param addResultFilenames Add the result filenames to the result */
+  /**
+   * @param addResultFilenames Add the result filenames to the result
+   */
   public void setAddResultFilenames(boolean addResultFilenames) {
     this.addResultFilenames = addResultFilenames;
   }
 
-  /** @param overwriteZipEntry Overwrite the destination zipfile if exists */
+  /**
+   * @param overwriteZipEntry Overwrite the destination zipfile if exists
+   */
   public void setOverwriteZipEntry(boolean overwriteZipEntry) {
     this.overwriteZipEntry = overwriteZipEntry;
   }
 
-  /** @param createParentFolder Create parent folder if it does nto exist */
+  /**
+   * @param createParentFolder Create parent folder if it does nto exist
+   */
   public void setCreateParentFolder(boolean createParentFolder) {
     this.createParentFolder = createParentFolder;
   }
 
-  /** @return The opration type saved in the serialization */
+  /**
+   * @return The opration type saved in the serialization
+   */
   public String getOperationTypeMeta() {
     return getOperationTypeCode(operationType);
   }
 
-  /** @param operationTypeMeta OperationCode used by the serialization */
+  /**
+   * @param operationTypeMeta OperationCode used by the serialization
+   */
   public void setOperationTypeMeta(String operationTypeMeta) {
     this.operationTypeMeta = operationTypeMeta;
     this.operationType = getOperationTypeByCode(operationTypeMeta);
   }
 
-  /** @return The Integer value of the operation */
+  /**
+   * @return The Integer value of the operation
+   */
   public int getOperationType() {
     return operationType;
   }

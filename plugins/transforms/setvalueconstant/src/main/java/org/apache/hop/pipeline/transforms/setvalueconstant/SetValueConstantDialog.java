@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -46,9 +48,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SetValueConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetValueConstantMeta.class; // For Translator
@@ -301,7 +300,6 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     input.setUseVars(wUseVars.getSelection());
     int count = wFields.nrNonEmpty();
     List<SetValueConstantMeta.Field> fields = new ArrayList<>();
-
 
     for (int i = 0; i < count; i++) {
       TableItem ti = wFields.getNonEmpty(i);

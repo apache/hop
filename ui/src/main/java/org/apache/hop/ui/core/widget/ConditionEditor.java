@@ -17,13 +17,14 @@
 
 package org.apache.hop.ui.core.widget;
 
-import java.util.ArrayList;
-import org.apache.hop.core.Condition;
 import static org.apache.hop.core.Condition.Function.NOT_NULL;
 import static org.apache.hop.core.Condition.Function.NULL;
 import static org.apache.hop.core.Condition.Operator.AND;
 import static org.apache.hop.core.Condition.Operator.NONE;
 import static org.apache.hop.core.Condition.Operator.lookupType;
+
+import java.util.ArrayList;
+import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;

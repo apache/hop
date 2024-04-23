@@ -30,25 +30,34 @@ public class AreaOwner {
   public enum AreaType {
     /** The note pad area. */
     NOTE(true),
-    
+
     /** The transformation partitioning area. */
-    TRANSFORM_PARTITIONING(false),    
+    TRANSFORM_PARTITIONING(false),
     /** The transformation icon area. */
     TRANSFORM_ICON(true),
     /** The transformation name area. */
     TRANSFORM_NAME(true),
-    /** The transformation decoration information icon in the top left-hand corner indicates that it has a description. */
+    /**
+     * The transformation decoration information icon in the top left-hand corner indicates that it
+     * has a description.
+     */
     TRANSFORM_INFO_ICON(true),
-    /** The transformation decoration failure icon area in top right corner to indicate an execution error. */
+    /**
+     * The transformation decoration failure icon area in top right corner to indicate an execution
+     * error.
+     */
     TRANSFORM_FAILURE_ICON(false),
     /** The transformation decoration area for the number of execution copies. */
-    TRANSFORM_COPIES_TEXT(true),    
-    /** TODO:  Not used yet */
+    TRANSFORM_COPIES_TEXT(true),
+    /** TODO: Not used yet */
     TRANSFORM_DATA_SERVICE(false),
-    /** The transformation decoration data icon in the bottom right-hand corner to indicate that there are available output rows. */
+    /**
+     * The transformation decoration data icon in the bottom right-hand corner to indicate that
+     * there are available output rows.
+     */
     TRANSFORM_OUTPUT_DATA(true),
     /** The pipeline hop decoration */
-    TRANSFORM_TARGET_HOP_ICON(true),  
+    TRANSFORM_TARGET_HOP_ICON(true),
     /** TODO: ? */
     TRANSFORM_TARGET_HOP_ICON_OPTION(false),
 
@@ -65,44 +74,55 @@ public class AreaOwner {
     HOP_COPY_ICON(true),
     /** The pipeline hop decoration icon for error handling. */
     HOP_ERROR_ICON(true),
-    /** The pipeline hop decoration icon indicates that additional information is being sent to a transformation. */
+    /**
+     * The pipeline hop decoration icon indicates that additional information is being sent to a
+     * transformation.
+     */
     HOP_INFO_ICON(true),
     /** TODO: ? */
     HOP_INFO_TRANSFORM_COPIES_ERROR(false),
     /** TODO: ? */
     HOP_INFO_TRANSFORMS_PARTITIONED(false),
-    
-    /** The workflow hop decoration icon indicates the condition of the following action: true/false/unconditional. */
+
+    /**
+     * The workflow hop decoration icon indicates the condition of the following action:
+     * true/false/unconditional.
+     */
     WORKFLOW_HOP_ICON(true),
     /** The workflow hop decoration icon for parallel execution. */
     WORKFLOW_HOP_PARALLEL_ICON(true),
-    
+
     /** The action icon area. */
     ACTION_ICON(true),
     /** The action name area. */
     ACTION_NAME(true),
-    /** The action decoration information icon in the top left-hand corner that indicates that it has a description. */
+    /**
+     * The action decoration information icon in the top left-hand corner that indicates that it has
+     * a description.
+     */
     ACTION_INFO_ICON(true),
-    /** The action decoration busy icon at the top right that indicates that it is currently running. */
+    /**
+     * The action decoration busy icon at the top right that indicates that it is currently running.
+     */
     ACTION_BUSY(false),
     /** The action decoration success icon in top right corner to indicate an execution success. */
     ACTION_RESULT_SUCCESS(true),
     /** The action decoration failure icon in top right corner to indicate an execution error. */
     ACTION_RESULT_FAILURE(true),
-    /** TODO:  Not used yet */
+    /** TODO: Not used yet */
     ACTION_RESULT_CHECKPOINT(true),
 
     /** For custom row distribution plugin icon */
     ROW_DISTRIBUTION_ICON(false),
-    
+
     /** A custom area for plugins. */
     CUSTOM(true);
-    
+
     private final boolean hover;
-    
+
     AreaType(boolean hover) {
       this.hover = hover;
-    }    
+    }
 
     public boolean isSupportHover() {
       return hover;
@@ -132,7 +152,7 @@ public class AreaOwner {
       Object owner) {
     super();
     this.areaType = areaType;
-    this.area = new Rectangle((int)(x - offset.x), (int)(y - offset.y), width, height);
+    this.area = new Rectangle((int) (x - offset.x), (int) (y - offset.y), width, height);
     this.parent = parent;
     this.owner = owner;
   }
@@ -196,42 +216,58 @@ public class AreaOwner {
     return null;
   }
 
-  /** @return the area */
+  /**
+   * @return the area
+   */
   public Rectangle getArea() {
     return area;
   }
 
-  /** @param area the area to set */
+  /**
+   * @param area the area to set
+   */
   public void setArea(Rectangle area) {
     this.area = area;
   }
 
-  /** @return the owner */
+  /**
+   * @return the owner
+   */
   public Object getOwner() {
     return owner;
   }
 
-  /** @param owner the owner to set */
+  /**
+   * @param owner the owner to set
+   */
   public void setOwner(Object owner) {
     this.owner = owner;
   }
 
-  /** @return the parent */
+  /**
+   * @return the parent
+   */
   public Object getParent() {
     return parent;
   }
 
-  /** @param parent the parent to set */
+  /**
+   * @param parent the parent to set
+   */
   public void setParent(Object parent) {
     this.parent = parent;
   }
 
-  /** @return the areaType */
+  /**
+   * @return the areaType
+   */
   public AreaType getAreaType() {
     return areaType;
   }
 
-  /** @param areaType the areaType to set */
+  /**
+   * @param areaType the areaType to set
+   */
   public void setAreaType(AreaType areaType) {
     this.areaType = areaType;
   }

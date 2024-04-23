@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.DOUBLE_METAPHONE;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.METAPHONE;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.NONE;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.REFINED_SOUNDEX;
+import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.SOUNDEX;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -46,12 +52,6 @@ import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.DOUBLE_METAPHONE;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.METAPHONE;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.NONE;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.REFINED_SOUNDEX;
-import static org.apache.hop.pipeline.transforms.fuzzymatch.FuzzyMatchMeta.Algorithm.SOUNDEX;
-
 @Transform(
     id = "FuzzyMatch",
     image = "fuzzymatch.svg",
@@ -64,6 +64,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
 
   public static final String DEFAULT_SEPARATOR = ",";
+
   /** Algorithms type */
   @HopMetadataProperty(key = "algorithm", storeWithCode = true)
   private Algorithm algorithm;

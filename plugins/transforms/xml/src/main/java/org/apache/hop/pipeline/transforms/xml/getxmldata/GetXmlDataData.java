@@ -17,14 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.dom4j.Document;
-import org.dom4j.Node;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.text.DateFormatSymbols;
@@ -37,6 +29,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.dom4j.Document;
+import org.dom4j.Node;
 
 public class GetXmlDataData extends BaseTransformData implements ITransformData {
   public String thisline;

@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.gui.plugin;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
-
-import java.util.Map;
 
 /** This class represents a plugin type for GUI elements like menus and toolbars. */
 @PluginAnnotationType(GuiPlugin.class)

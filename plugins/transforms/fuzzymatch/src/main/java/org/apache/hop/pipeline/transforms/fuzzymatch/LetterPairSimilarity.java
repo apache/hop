@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
-import org.apache.hop.core.util.Utils;
-
 import java.util.ArrayList;
+import org.apache.hop.core.util.Utils;
 
 public class LetterPairSimilarity {
 
@@ -39,7 +38,9 @@ public class LetterPairSimilarity {
    * Best Regards, Simon
    */
 
-  /** @return an array of adjacent letter pairs contained in the input string */
+  /**
+   * @return an array of adjacent letter pairs contained in the input string
+   */
   private static String[] letterPairs(String str) {
     int numPairs = str.length() - 1;
     if (str.length() == 0) {
@@ -52,7 +53,9 @@ public class LetterPairSimilarity {
     return pairs;
   }
 
-  /** @return an ArrayList of 2-character Strings. */
+  /**
+   * @return an ArrayList of 2-character Strings.
+   */
   private static ArrayList<String> wordLetterPairs(String str) {
     ArrayList<String> allPairs = new ArrayList<>();
     // Tokenize the string and put the tokens/words into an array
@@ -68,7 +71,9 @@ public class LetterPairSimilarity {
     return allPairs;
   }
 
-  /** @return lexical similarity value in the range [0,1] */
+  /**
+   * @return lexical similarity value in the range [0,1]
+   */
   public static double getSimiliarity(String str1, String str2) {
     if (Utils.isEmpty(str1) && Utils.isEmpty(str2)) {
       return Double.valueOf(1);

@@ -17,10 +17,9 @@
 
 package org.apache.hop.parquet.transforms.output;
 
-import org.apache.parquet.io.PositionOutputStream;
-
 import java.io.IOException;
 import java.io.OutputStream;
+import org.apache.parquet.io.PositionOutputStream;
 
 public class ParquetOutputStream extends PositionOutputStream {
   private long position = 0;

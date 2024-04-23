@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class TableOutputField {
 
@@ -49,7 +48,9 @@ public class TableOutputField {
       injectionKeyDescription = "TableOutputMeta.Injection.FieldDatabase.Field")
   private String fieldDatabase;
 
-  /** @return Fields containing the values in the input stream to insert. */
+  /**
+   * @return Fields containing the values in the input stream to insert.
+   */
   public String getFieldStream() {
     return fieldStream;
   }
@@ -61,12 +62,16 @@ public class TableOutputField {
     this.fieldStream = fieldStream;
   }
 
-  /** @return Fields containing the fieldnames in the database insert. */
+  /**
+   * @return Fields containing the fieldnames in the database insert.
+   */
   public String getFieldDatabase() {
     return fieldDatabase;
   }
 
-  /** @param fieldDatabase The fields containing the names of the fields to insert. */
+  /**
+   * @param fieldDatabase The fields containing the names of the fields to insert.
+   */
   public void setFieldDatabase(String fieldDatabase) {
     this.fieldDatabase = fieldDatabase;
   }

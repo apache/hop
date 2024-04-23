@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline;
 
-import org.junit.Test;
-
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.mock;
+
+import org.junit.Test;
 
 public class PDI_11948_PipelineTest {
 

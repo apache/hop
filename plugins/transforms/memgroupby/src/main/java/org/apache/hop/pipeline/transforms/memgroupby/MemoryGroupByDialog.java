@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -47,8 +49,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MemoryGroupByDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MemoryGroupByMeta.class; // For Translator
@@ -250,7 +250,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
           if (transformMeta != null) {
             try {
               IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta);
-              
+
               // Remember these fields...
               for (int i = 0; i < row.size(); i++) {
                 inputFields.add(row.getValueMeta(i).getName());

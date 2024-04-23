@@ -19,6 +19,23 @@ package org.apache.hop.pipeline.transform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import java.io.Closeable;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.Const;
@@ -53,24 +70,6 @@ import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
-
-import java.io.Closeable;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * This class can be extended for the actual row processing of the implemented transform.
@@ -1312,7 +1311,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     // Do not call the row listeners for targeted rows.
-    // It can cause rows with varying layouts to arrive at the same listener without a way to keep them apart.
+    // It can cause rows with varying layouts to arrive at the same listener without a way to keep
+    // them apart.
 
     // Keep adding to terminator_rows buffer...
     if (terminator && terminatorRows != null) {
@@ -1719,14 +1719,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   }
 
   /**
-   * The first non-null row we get we'll lock in the row metadata.
-   * For scenarios with multiple inputs, we move the metadata around (e.g. Merge Rows).
+   * The first non-null row we get we'll lock in the row metadata. For scenarios with multiple
+   * inputs, we move the metadata around (e.g. Merge Rows).
    *
    * @param row The input row (not null!)
    * @param inputRowSet The row set we're reading from right now
    */
   private void obtainInputRowMeta(Object[] row, IRowSet inputRowSet) {
-    if (row==null) {
+    if (row == null) {
       return;
     }
 
@@ -1739,30 +1739,30 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // Extra sanity check
     //
-    if (row!=null && inputRowMeta == null) {
+    if (row != null && inputRowMeta == null) {
       int nr = 0;
       for (IRowSet rowSet : inputRowSets) {
         log.logMinimal(
-                "===> Input row set #"
-                        + nr
-                        + ", done? "
-                        + rowSet.isDone()
-                        + ", size="
-                        + rowSet.size()
-                        + ", metadata? "
-                        + (rowSet.getRowMeta() != null));
+            "===> Input row set #"
+                + nr
+                + ", done? "
+                + rowSet.isDone()
+                + ", size="
+                + rowSet.size()
+                + ", metadata? "
+                + (rowSet.getRowMeta() != null));
         nr++;
       }
       log.logMinimal("===> Current input row set nr=" + currentInputRowSetNr);
 
       throw new RuntimeException(
-              "No row metadata obtained for row "
-                      + Arrays.toString(row)
-                      + Const.CR
-                      + "inputRowSet.getRowMeta()="
-                      + inputRowSet.getRowMeta()
-                      + ", inputRowSets.size()="
-                      + inputRowSets.size());
+          "No row metadata obtained for row "
+              + Arrays.toString(row)
+              + Const.CR
+              + "inputRowSet.getRowMeta()="
+              + inputRowSet.getRowMeta()
+              + ", inputRowSets.size()="
+              + inputRowSets.size());
     }
   }
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import java.util.Set;
 import org.apache.hop.core.HopVersionProvider;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableRegistry;
@@ -45,8 +46,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Set;
 
 /** A dialog to display version information. */
 public class AboutDialog extends Dialog {
@@ -120,13 +119,15 @@ public class AboutDialog extends Dialog {
 
     Link wLink = new Link(composite, SWT.WRAP | SWT.MULTI);
     wLink.setText("<a href=\"https://hop.apache.org\">hop.apache.org</a>");
-    wLink.addListener(SWT.Selection, e -> {
-      try {
-        EnvironmentUtils.getInstance().openUrl("https://hop.apache.org");
-      } catch(Exception ex) {
-        new ErrorDialog(shell, "Error", "Error opening URL", ex);
-      }
-    });
+    wLink.addListener(
+        SWT.Selection,
+        e -> {
+          try {
+            EnvironmentUtils.getInstance().openUrl("https://hop.apache.org");
+          } catch (Exception ex) {
+            new ErrorDialog(shell, "Error", "Error opening URL", ex);
+          }
+        });
     wLink.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
     PropsUi.setLook(wLink);
 
@@ -167,16 +168,16 @@ public class AboutDialog extends Dialog {
   }
 
   protected String getVersion() {
-    HopVersionProvider versionProvider = new HopVersionProvider();    
+    HopVersionProvider versionProvider = new HopVersionProvider();
     return versionProvider.getVersion()[0];
   }
-  
+
   private String getProperties() {
     Set<String> names = VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);
     for (String name : JAVA_PROPERTIES) {
-      names.add(name);      
+      names.add(name);
     }
-         
+
     IVariables variables = HopGui.getInstance().getVariables();
     StringBuilder builder = new StringBuilder();
     for (String name : names) {

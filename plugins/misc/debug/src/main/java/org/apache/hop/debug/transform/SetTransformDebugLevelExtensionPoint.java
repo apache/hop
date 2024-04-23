@@ -17,6 +17,10 @@
 
 package org.apache.hop.debug.transform;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -32,11 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.IRowListener;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 @ExtensionPoint(
     id = "SetTransformDebugLevelExtensionPoint",

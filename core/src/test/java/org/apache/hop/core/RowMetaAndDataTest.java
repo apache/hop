@@ -17,6 +17,9 @@
 
 package org.apache.hop.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.injection.DefaultInjectionTypeConverter;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -31,9 +34,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class RowMetaAndDataTest {
   RowMeta rowsMeta;

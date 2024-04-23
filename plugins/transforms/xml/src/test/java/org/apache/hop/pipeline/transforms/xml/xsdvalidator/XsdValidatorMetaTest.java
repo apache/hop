@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
-import org.apache.hop.core.exception.HopException;
-import org.junit.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopException;
+import org.junit.Test;
 
 public class XsdValidatorMetaTest {
 

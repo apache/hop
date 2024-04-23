@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
 public class RecordsFromStreamMeta extends RowsFromResultMeta {
 
   public RecordsFromStreamMeta() {
-    super();  
+    super();
   }
 
   @Override
@@ -50,9 +50,10 @@ public class RecordsFromStreamMeta extends RowsFromResultMeta {
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    return new RecordsFromStream(transformMeta, this, (RecordsFromStreamData) data, copyNr, pipelineMeta, pipeline);
+    return new RecordsFromStream(
+        transformMeta, this, (RecordsFromStreamData) data, copyNr, pipelineMeta, pipeline);
   }
-  
+
   @Override
   public ITransformData createTransformData() {
     return new RecordsFromStreamData();

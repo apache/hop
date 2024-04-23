@@ -17,6 +17,15 @@
 
 package org.apache.hop.workflow.engines.remote;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -64,16 +73,6 @@ import org.apache.hop.www.HopServerWorkflowStatus;
 import org.apache.hop.www.RegisterPackageServlet;
 import org.apache.hop.www.RegisterWorkflowServlet;
 import org.apache.hop.www.WebResult;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @WorkflowEnginePlugin(
     id = "Remote",
@@ -389,7 +388,6 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         parametersMap.put(param, getVariable(param));
       }
 
-
       if (remoteWorkflowRunConfiguration.isExportingResources()) {
         // First export the workflow...
         //
@@ -679,7 +677,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowMeta;
   }
 
-  /** @param workflowMeta The workflowMeta to set */
+  /**
+   * @param workflowMeta The workflowMeta to set
+   */
   @Override
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
@@ -694,7 +694,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return pluginId;
   }
 
-  /** @param pluginId The pluginId to set */
+  /**
+   * @param pluginId The pluginId to set
+   */
   public void setPluginId(String pluginId) {
     this.pluginId = pluginId;
   }
@@ -708,7 +710,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowRunConfiguration;
   }
 
-  /** @param workflowRunConfiguration The workflowRunConfiguration to set */
+  /**
+   * @param workflowRunConfiguration The workflowRunConfiguration to set
+   */
   @Override
   public void setWorkflowRunConfiguration(WorkflowRunConfiguration workflowRunConfiguration) {
     this.workflowRunConfiguration = workflowRunConfiguration;
@@ -723,7 +727,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return previousResult;
   }
 
-  /** @param previousResult The previousResult to set */
+  /**
+   * @param previousResult The previousResult to set
+   */
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
   }
@@ -738,7 +744,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return result;
   }
 
-  /** @param result The result to set */
+  /**
+   * @param result The result to set
+   */
   @Override
   public void setResult(Result result) {
     this.result = result;
@@ -754,7 +762,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -770,7 +780,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return logChannel;
   }
 
-  /** @param logChannel The logChannel to set */
+  /**
+   * @param logChannel The logChannel to set
+   */
   public void setLogChannel(ILogChannel logChannel) {
     this.logChannel = logChannel;
   }
@@ -784,7 +796,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return loggingObject;
   }
 
-  /** @param loggingObject The loggingObject to set */
+  /**
+   * @param loggingObject The loggingObject to set
+   */
   public void setLoggingObject(LoggingObject loggingObject) {
     this.loggingObject = loggingObject;
   }
@@ -799,7 +813,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return logLevel;
   }
 
-  /** @param logLevel The logLevel to set */
+  /**
+   * @param logLevel The logLevel to set
+   */
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
@@ -814,7 +830,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return serverPollDelay;
   }
 
-  /** @param serverPollDelay The serverPollDelay to set */
+  /**
+   * @param serverPollDelay The serverPollDelay to set
+   */
   public void setServerPollDelay(long serverPollDelay) {
     this.serverPollDelay = serverPollDelay;
   }
@@ -828,7 +846,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return serverPollInterval;
   }
 
-  /** @param serverPollInterval The serverPollInterval to set */
+  /**
+   * @param serverPollInterval The serverPollInterval to set
+   */
   public void setServerPollInterval(long serverPollInterval) {
     this.serverPollInterval = serverPollInterval;
   }
@@ -842,7 +862,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return hopServer;
   }
 
-  /** @param hopServer The hopServer to set */
+  /**
+   * @param hopServer The hopServer to set
+   */
   public void setHopServer(HopServer hopServer) {
     this.hopServer = hopServer;
   }
@@ -857,7 +879,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return containerId;
   }
 
-  /** @param containerId The serverObjectId to set */
+  /**
+   * @param containerId The serverObjectId to set
+   */
   @Override
   public void setContainerId(String containerId) {
     this.containerId = containerId;
@@ -872,7 +896,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return lastLogLineNr;
   }
 
-  /** @param lastLogLineNr The lastLogLineNr to set */
+  /**
+   * @param lastLogLineNr The lastLogLineNr to set
+   */
   public void setLastLogLineNr(int lastLogLineNr) {
     this.lastLogLineNr = lastLogLineNr;
   }
@@ -887,13 +913,17 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return stopped;
   }
 
-  /** @param stopped The stopped to set */
+  /**
+   * @param stopped The stopped to set
+   */
   @Override
   public void setStopped(boolean stopped) {
     this.stopped = stopped;
   }
 
-  /** @param workflowStatus The workflowStatus to set */
+  /**
+   * @param workflowStatus The workflowStatus to set
+   */
   public void setWorkflowStatus(HopServerWorkflowStatus workflowStatus) {
     this.workflowStatus = workflowStatus;
   }
@@ -908,7 +938,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return interactive;
   }
 
-  /** @param interactive The interactive to set */
+  /**
+   * @param interactive The interactive to set
+   */
   @Override
   public void setInteractive(boolean interactive) {
     this.interactive = interactive;
@@ -924,7 +956,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return finished;
   }
 
-  /** @param finished The finished to set */
+  /**
+   * @param finished The finished to set
+   */
   @Override
   public void setFinished(boolean finished) {
     this.finished = finished;
@@ -940,7 +974,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return initialized;
   }
 
-  /** @param initialized The initialized to set */
+  /**
+   * @param initialized The initialized to set
+   */
   public void setInitialized(boolean initialized) {
     this.initialized = initialized;
   }
@@ -954,7 +990,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return running;
   }
 
-  /** @param running The running to set */
+  /**
+   * @param running The running to set
+   */
   public void setRunning(boolean running) {
     this.running = running;
   }
@@ -969,7 +1007,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return statusDescription;
   }
 
-  /** @param statusDescription The statusDescription to set */
+  /**
+   * @param statusDescription The statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
@@ -984,7 +1024,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return active;
   }
 
-  /** @param active The active to set */
+  /**
+   * @param active The active to set
+   */
   public void setActive(boolean active) {
     this.active = active;
   }
@@ -999,7 +1041,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return executionStartDate;
   }
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   public void setExecutionStartDate(Date executionStartDate) {
     this.executionStartDate = executionStartDate;
   }
@@ -1014,7 +1058,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return executionEndDate;
   }
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   public void setExecutionEndDate(Date executionEndDate) {
     this.executionEndDate = executionEndDate;
   }
@@ -1030,7 +1076,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowFinishedListeners;
   }
 
-  /** @param workflowFinishedListeners The workflowFinishedListeners to set */
+  /**
+   * @param workflowFinishedListeners The workflowFinishedListeners to set
+   */
   public void setWorkflowFinishedListeners(
       List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinishedListeners) {
     this.workflowFinishedListeners = workflowFinishedListeners;
@@ -1047,7 +1095,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowStartedListeners;
   }
 
-  /** @param workflowStartedListeners The workflowStartedListeners to set */
+  /**
+   * @param workflowStartedListeners The workflowStartedListeners to set
+   */
   public void setWorkflowStartedListeners(
       List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners) {
     this.workflowStartedListeners = workflowStartedListeners;
@@ -1063,7 +1113,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return actionListeners;
   }
 
-  /** @param actionListeners The actionListeners to set */
+  /**
+   * @param actionListeners The actionListeners to set
+   */
   public void setActionListeners(List<IActionListener> actionListeners) {
     this.actionListeners = actionListeners;
   }
@@ -1077,7 +1129,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return delegationListeners;
   }
 
-  /** @param delegationListeners The delegationListeners to set */
+  /**
+   * @param delegationListeners The delegationListeners to set
+   */
   public void setDelegationListeners(List<IDelegationListener> delegationListeners) {
     this.delegationListeners = delegationListeners;
   }
@@ -1092,7 +1146,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return activeActions;
   }
 
-  /** @param activeActions The activeActions to set */
+  /**
+   * @param activeActions The activeActions to set
+   */
   public void setActiveActions(Set<ActionMeta> activeActions) {
     this.activeActions = activeActions;
   }
@@ -1106,7 +1162,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return namedParams;
   }
 
-  /** @param namedParams The namedParams to set */
+  /**
+   * @param namedParams The namedParams to set
+   */
   public void setNamedParams(INamedParameters namedParams) {
     this.namedParams = namedParams;
   }
@@ -1121,7 +1179,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return extensionDataMap;
   }
 
-  /** @param extensionDataMap The extensionDataMap to set */
+  /**
+   * @param extensionDataMap The extensionDataMap to set
+   */
   public void setExtensionDataMap(Map<String, Object> extensionDataMap) {
     this.extensionDataMap = extensionDataMap;
   }
@@ -1135,7 +1195,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return sourceRows;
   }
 
-  /** @param sourceRows The sourceRows to set */
+  /**
+   * @param sourceRows The sourceRows to set
+   */
   @Override
   public void setSourceRows(List<RowMetaAndData> sourceRows) {
     this.sourceRows = sourceRows;
@@ -1150,7 +1212,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return startActionMeta;
   }
 
-  /** @param actionMeta The start action to set */
+  /**
+   * @param actionMeta The start action to set
+   */
   @Override
   public void setStartActionMeta(ActionMeta actionMeta) {
     this.startActionMeta = actionMeta;
@@ -1166,7 +1230,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return workflowTracker;
   }
 
-  /** @param workflowTracker The workflowTracker to set */
+  /**
+   * @param workflowTracker The workflowTracker to set
+   */
   public void setWorkflowTracker(WorkflowTracker workflowTracker) {
     this.workflowTracker = workflowTracker;
   }
@@ -1181,7 +1247,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return parentWorkflow;
   }
 
-  /** @param parentWorkflow The parentWorkflow to set */
+  /**
+   * @param parentWorkflow The parentWorkflow to set
+   */
   @Override
   public void setParentWorkflow(IWorkflowEngine<WorkflowMeta> parentWorkflow) {
     this.parentWorkflow = parentWorkflow;
@@ -1197,7 +1265,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return parentPipeline;
   }
 
-  /** @param parentPipeline The parentPipeline to set */
+  /**
+   * @param parentPipeline The parentPipeline to set
+   */
   @Override
   public void setParentPipeline(IPipelineEngine parentPipeline) {
     this.parentPipeline = parentPipeline;
@@ -1212,7 +1282,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return parentLoggingObject;
   }
 
-  /** @param parentLoggingObject The parentLoggingObject to set */
+  /**
+   * @param parentLoggingObject The parentLoggingObject to set
+   */
   public void setParentLoggingObject(ILoggingObject parentLoggingObject) {
     this.parentLoggingObject = parentLoggingObject;
   }
@@ -1237,7 +1309,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return forcingSeparateLogging;
   }
 
-  /** @param forcingSeparateLogging The forcingSeparateLogging to set */
+  /**
+   * @param forcingSeparateLogging The forcingSeparateLogging to set
+   */
   @Override
   public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
     this.forcingSeparateLogging = forcingSeparateLogging;
@@ -1253,7 +1327,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
     return gatheringMetrics;
   }
 
-  /** @param gatheringMetrics The gatheringMetrics to set */
+  /**
+   * @param gatheringMetrics The gatheringMetrics to set
+   */
   @Override
   public void setGatheringMetrics(boolean gatheringMetrics) {
     this.gatheringMetrics = gatheringMetrics;

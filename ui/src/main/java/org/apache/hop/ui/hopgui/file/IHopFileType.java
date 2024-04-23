@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.hopgui.file;
 
+import java.util.List;
+import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-
-import java.util.List;
-import java.util.Properties;
 
 public interface IHopFileType {
 
@@ -57,7 +56,9 @@ public interface IHopFileType {
 
   String CAPABILITY_HANDLE_METADATA = "HandleMetadata";
 
-  /** @return The name of this file type */
+  /**
+   * @return The name of this file type
+   */
   String getName();
 
   /**
@@ -67,13 +68,19 @@ public interface IHopFileType {
    */
   String getDefaultFileExtension();
 
-  /** @return The file type extensions. */
+  /**
+   * @return The file type extensions.
+   */
   String[] getFilterExtensions();
 
-  /** @return The file names (matching the extensions) */
+  /**
+   * @return The file names (matching the extensions)
+   */
   String[] getFilterNames();
 
-  /** @return The capabilities of this file handler */
+  /**
+   * @return The capabilities of this file handler
+   */
   Properties getCapabilities();
 
   /**

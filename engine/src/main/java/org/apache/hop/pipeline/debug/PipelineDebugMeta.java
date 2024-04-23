@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.debug;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -26,10 +29,6 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * For a certain pipeline, we want to be able to insert break-points into a pipeline. These
@@ -49,22 +48,30 @@ public class PipelineDebugMeta {
     transformDebugMetaMap = new HashMap<>();
   }
 
-  /** @return the referenced pipeline metadata */
+  /**
+   * @return the referenced pipeline metadata
+   */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /** @param pipelineMeta the pipeline metadata to reference */
+  /**
+   * @param pipelineMeta the pipeline metadata to reference
+   */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
 
-  /** @return the map that contains the debugging information per transform */
+  /**
+   * @return the map that contains the debugging information per transform
+   */
   public Map<TransformMeta, TransformDebugMeta> getTransformDebugMetaMap() {
     return transformDebugMetaMap;
   }
 
-  /** @param transformDebugMeta the map that contains the debugging information per transform */
+  /**
+   * @param transformDebugMeta the map that contains the debugging information per transform
+   */
   public void setTransformDebugMetaMap(Map<TransformMeta, TransformDebugMeta> transformDebugMeta) {
     this.transformDebugMetaMap = transformDebugMeta;
   }
@@ -219,7 +226,9 @@ public class PipelineDebugMeta {
     return total;
   }
 
-  /** @return the number of transforms used to preview or debug on */
+  /**
+   * @return the number of transforms used to preview or debug on
+   */
   public int getNrOfUsedTransforms() {
     int nr = 0;
 

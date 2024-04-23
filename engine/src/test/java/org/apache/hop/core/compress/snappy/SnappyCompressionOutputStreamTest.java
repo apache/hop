@@ -17,6 +17,11 @@
 
 package org.apache.hop.core.compress.snappy;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import org.apache.hop.core.compress.CompressionPluginType;
 import org.apache.hop.core.compress.CompressionProviderFactory;
 import org.apache.hop.core.compress.ICompressionProvider;
@@ -28,12 +33,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class SnappyCompressionOutputStreamTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

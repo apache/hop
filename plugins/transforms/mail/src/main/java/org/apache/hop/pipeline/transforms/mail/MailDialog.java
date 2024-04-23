@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.pipeline.transforms.mail;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -58,9 +59,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 public class MailDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MailMeta.class; // For Translator

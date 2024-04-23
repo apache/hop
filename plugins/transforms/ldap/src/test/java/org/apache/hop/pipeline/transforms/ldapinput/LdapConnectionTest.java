@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
@@ -28,9 +31,6 @@ import org.mockito.AdditionalAnswers;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LdapConnectionTest {

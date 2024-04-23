@@ -18,9 +18,8 @@
 
 package org.apache.hop.pipeline.transforms.input;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class InputField {
   @HopMetadataProperty private String name;
@@ -49,7 +48,10 @@ public class InputField {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     InputField that = (InputField) o;
-    return Objects.equals(name, that.name) && Objects.equals(type, that.type) && Objects.equals(length, that.length) && Objects.equals(precision, that.precision);
+    return Objects.equals(name, that.name)
+        && Objects.equals(type, that.type)
+        && Objects.equals(length, that.length)
+        && Objects.equals(precision, that.precision);
   }
 
   @Override

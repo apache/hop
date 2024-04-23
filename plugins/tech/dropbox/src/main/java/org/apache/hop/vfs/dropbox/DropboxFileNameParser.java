@@ -43,7 +43,7 @@ public class DropboxFileNameParser extends AbstractFileNameParser {
     StringBuilder name = new StringBuilder();
 
     String scheme = UriParser.extractScheme(context.getFileSystemManager().getSchemes(), uri, name);
-    
+
     UriParser.canonicalizePath(name, 0, name.length(), this);
 
     // Normalize separators in the path

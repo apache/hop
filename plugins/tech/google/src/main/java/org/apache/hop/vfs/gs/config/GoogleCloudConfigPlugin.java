@@ -54,8 +54,7 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
       type = GuiElementType.FILENAME,
       variables = true,
       label = "i18n::GoogleCloudPlugin.AccountKeyFile.Label",
-      toolTip =
-          "i18n::GoogleCloudPlugin.AccountKeyFile.Description")
+      toolTip = "i18n::GoogleCloudPlugin.AccountKeyFile.Description")
   @CommandLine.Option(
       names = {"-gck", "--google-cloud-service-account-key-file"},
       description = "Configure the path to a Google Cloud service account JSON key file")
@@ -142,7 +141,9 @@ public class GoogleCloudConfigPlugin implements IConfigOptions, IGuiPluginCompos
     return serviceAccountKeyFile;
   }
 
-  /** @param serviceAccountKeyFile The serviceAccountKeyFile to set */
+  /**
+   * @param serviceAccountKeyFile The serviceAccountKeyFile to set
+   */
   public void setServiceAccountKeyFile(String serviceAccountKeyFile) {
     this.serviceAccountKeyFile = serviceAccountKeyFile;
   }

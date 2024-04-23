@@ -43,7 +43,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class AzureWriterDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = AzureWriterMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      AzureWriterMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Text wTransformName;
   private TextVar wNamespace;

@@ -25,6 +25,10 @@ import com.datastax.oss.driver.api.querybuilder.QueryBuilder;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
 import com.datastax.oss.driver.api.querybuilder.schema.CreateTable;
 import com.datastax.oss.driver.api.querybuilder.schema.CreateTableStart;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -34,11 +38,6 @@ import org.apache.hop.databases.cassandra.spi.CqlRowHandler;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public class DriverKeyspace implements Keyspace {
 

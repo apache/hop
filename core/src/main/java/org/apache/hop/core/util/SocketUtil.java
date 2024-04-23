@@ -16,10 +16,9 @@
  */
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import org.apache.hop.core.exception.HopException;
 
 /** Utility class for socket related methods */
 public class SocketUtil {

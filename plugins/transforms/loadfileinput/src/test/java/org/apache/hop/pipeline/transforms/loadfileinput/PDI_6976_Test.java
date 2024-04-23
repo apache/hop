@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+import javax.tools.FileObject;
 import junit.framework.TestCase;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -27,16 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 import org.mockito.stubbing.Answer;
-
-import javax.tools.FileObject;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for LoadFileInputMeta class

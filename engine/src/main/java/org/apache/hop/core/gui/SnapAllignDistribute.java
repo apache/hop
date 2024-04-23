@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.hop.core.IAddUndoPosition;
-
 import java.util.List;
+import org.apache.hop.core.IAddUndoPosition;
 
 public class SnapAllignDistribute {
   private List<? extends IGuiPosition> elements;

@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.transforms.io;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
@@ -40,9 +42,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamOutput",
     image = "beam-output.svg",
@@ -51,7 +50,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamoutput.html")
-public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData> implements IBeamPipelineTransformHandler {
+public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "output_location")
   private String outputLocation;
@@ -202,7 +202,9 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
     return outputLocation;
   }
 
-  /** @param outputLocation The outputLocation to set */
+  /**
+   * @param outputLocation The outputLocation to set
+   */
   public void setOutputLocation(String outputLocation) {
     this.outputLocation = outputLocation;
   }
@@ -216,7 +218,9 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
     return fileDefinitionName;
   }
 
-  /** @param fileDefinitionName The fileDescriptionName to set */
+  /**
+   * @param fileDefinitionName The fileDescriptionName to set
+   */
   public void setFileDefinitionName(String fileDefinitionName) {
     this.fileDefinitionName = fileDefinitionName;
   }
@@ -230,7 +234,9 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
     return filePrefix;
   }
 
-  /** @param filePrefix The filePrefix to set */
+  /**
+   * @param filePrefix The filePrefix to set
+   */
   public void setFilePrefix(String filePrefix) {
     this.filePrefix = filePrefix;
   }
@@ -244,7 +250,9 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
     return fileSuffix;
   }
 
-  /** @param fileSuffix The fileSuffix to set */
+  /**
+   * @param fileSuffix The fileSuffix to set
+   */
   public void setFileSuffix(String fileSuffix) {
     this.fileSuffix = fileSuffix;
   }
@@ -258,7 +266,9 @@ public class BeamOutputMeta extends BaseTransformMeta<BeamOutput, BeamOutputData
     return windowed;
   }
 
-  /** @param windowed The windowed to set */
+  /**
+   * @param windowed The windowed to set
+   */
   public void setWindowed(boolean windowed) {
     this.windowed = windowed;
   }

@@ -17,8 +17,6 @@
 
 package org.apache.hop.pipeline.engine;
 
-import org.apache.hop.pipeline.performance.PerformanceSnapShot;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.pipeline.performance.PerformanceSnapShot;
 
 /** Describes the metrics you can get from an execution engine */
 public class EngineMetrics {
@@ -177,7 +176,9 @@ public class EngineMetrics {
     return startDate;
   }
 
-  /** @param startDate The startDate to set */
+  /**
+   * @param startDate The startDate to set
+   */
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
   }
@@ -191,7 +192,9 @@ public class EngineMetrics {
     return endDate;
   }
 
-  /** @param endDate The endDate to set */
+  /**
+   * @param endDate The endDate to set
+   */
   public void setEndDate(Date endDate) {
     this.endDate = endDate;
   }
@@ -205,7 +208,9 @@ public class EngineMetrics {
     return componentMetricsMap;
   }
 
-  /** @param componentMetricsMap The componentMetricsMap to set */
+  /**
+   * @param componentMetricsMap The componentMetricsMap to set
+   */
   public void setComponentMetricsMap(
       Map<IEngineComponent, Map<IEngineMetric, Long>> componentMetricsMap) {
     this.componentMetricsMap = componentMetricsMap;
@@ -220,7 +225,9 @@ public class EngineMetrics {
     return componentStatusMap;
   }
 
-  /** @param componentStatusMap The componentStatusMap to set */
+  /**
+   * @param componentStatusMap The componentStatusMap to set
+   */
   public void setComponentStatusMap(Map<IEngineComponent, String> componentStatusMap) {
     this.componentStatusMap = componentStatusMap;
   }
@@ -234,7 +241,9 @@ public class EngineMetrics {
     return componentSpeedMap;
   }
 
-  /** @param componentSpeedMap The componentSpeedMap to set */
+  /**
+   * @param componentSpeedMap The componentSpeedMap to set
+   */
   public void setComponentSpeedMap(Map<IEngineComponent, String> componentSpeedMap) {
     this.componentSpeedMap = componentSpeedMap;
   }
@@ -248,7 +257,9 @@ public class EngineMetrics {
     return componentRunningMap;
   }
 
-  /** @param componentRunningMap The componentRunningMap to set */
+  /**
+   * @param componentRunningMap The componentRunningMap to set
+   */
   public void setComponentRunningMap(Map<IEngineComponent, Boolean> componentRunningMap) {
     this.componentRunningMap = componentRunningMap;
   }
@@ -262,7 +273,9 @@ public class EngineMetrics {
     return components;
   }
 
-  /** @param components The components to set */
+  /**
+   * @param components The components to set
+   */
   public void setComponents(List<IEngineComponent> components) {
     this.components = components;
   }
@@ -276,7 +289,9 @@ public class EngineMetrics {
     return componentPerformanceSnapshots;
   }
 
-  /** @param componentPerformanceSnapshots The componentPerformanceSnapshots to set */
+  /**
+   * @param componentPerformanceSnapshots The componentPerformanceSnapshots to set
+   */
   public void setComponentPerformanceSnapshots(
       Map<IEngineComponent, List<PerformanceSnapShot>> componentPerformanceSnapshots) {
     this.componentPerformanceSnapshots = componentPerformanceSnapshots;

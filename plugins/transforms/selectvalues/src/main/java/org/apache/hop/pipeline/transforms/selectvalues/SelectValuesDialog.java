@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -58,15 +66,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SelectValuesMeta.class; // For Translator
@@ -707,7 +706,6 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     input.allocate(nrFields, nrremove, nrmeta);
 
-
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       input.getSelectFields()[i].setName(item.getText(1));
@@ -961,7 +959,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
     String[] fieldNames = entries.toArray(new String[entries.size()]);
 
-    if ( PropsUi.getInstance().isSortFieldByName() ) {
+    if (PropsUi.getInstance().isSortFieldByName()) {
       Const.sortStrings(fieldNames);
     }
 

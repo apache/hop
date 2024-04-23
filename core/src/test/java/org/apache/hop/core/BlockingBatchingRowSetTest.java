@@ -17,6 +17,14 @@
 
 package org.apache.hop.core;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -24,15 +32,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 /** Test class for the basic functionality of the blocking & batching row set. */
 public class BlockingBatchingRowSetTest {

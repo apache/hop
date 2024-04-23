@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.textfileinput;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopFileException;
@@ -46,17 +55,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
 public class TextFileInputTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -323,7 +324,9 @@ public class TextFileInputTest {
     return new TextFileInputField(name, -1, -1);
   }
 
-  /** @throws Exception */
+  /**
+   * @throws Exception
+   */
   @Test
   public void convertLineToRowTest() throws Exception {
     ILogChannel log = Mockito.mock(ILogChannel.class);

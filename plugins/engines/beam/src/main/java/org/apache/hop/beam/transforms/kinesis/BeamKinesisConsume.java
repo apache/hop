@@ -43,6 +43,7 @@ public class BeamKinesisConsume extends BaseTransform<BeamKinesisConsumeMeta, Du
     // Outside a Beam Runner this transform doesn't actually do anything, it's just metadata
     // This transform gets converted into Beam API calls in a pipeline
     //
-    throw new HopException("The Beam Kinesis Consume transform is only intended to be used in a Beam pipeline");
+    throw new HopException(
+        "The Beam Kinesis Consume transform is only intended to be used in a Beam pipeline");
   }
 }

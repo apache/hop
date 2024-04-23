@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -40,9 +42,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "XSDValidator",
@@ -160,7 +159,9 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
                     ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT));
   }
 
-  /** @return Returns the XSD filename. */
+  /**
+   * @return Returns the XSD filename.
+   */
   public String getXSDFilename() {
     return xsdFilename;
   }
@@ -173,7 +174,9 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
     return xmlStream;
   }
 
-  /** @param xdsFilename The XSD filename to set. */
+  /**
+   * @param xdsFilename The XSD filename to set.
+   */
   public void setXSDfilename(String xdsFilename) {
     this.xsdFilename = xdsFilename;
   }

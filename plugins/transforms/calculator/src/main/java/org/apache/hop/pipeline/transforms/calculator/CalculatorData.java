@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class CalculatorData extends BaseTransformData implements ITransformData {
   private IRowMeta outputRowMeta;

@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.normaliser;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -32,11 +36,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /*
 
@@ -74,31 +73,41 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
   private static final Class<?> PKG = NormaliserMeta.class; // For Translator
 
   /** Name of the new type-field */
-  @HopMetadataProperty(key="typefield", injectionKey = "TYPEFIELD", injectionKeyDescription = "NormaliserMeta.Injection.TYPEFIELD")
-  private String typeField; 
+  @HopMetadataProperty(
+      key = "typefield",
+      injectionKey = "TYPEFIELD",
+      injectionKeyDescription = "NormaliserMeta.Injection.TYPEFIELD")
+  private String typeField;
 
-  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS",
-  injectionGroupDescription = "NormaliserMeta.Injection.FIELDS")
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
+      injectionGroupDescription = "NormaliserMeta.Injection.FIELDS")
   private List<NormaliserField> normaliserFields;
 
   public NormaliserMeta() {
     super();
     this.normaliserFields = new ArrayList<>();
   }
-  
-  public NormaliserMeta(NormaliserMeta meta) {    
+
+  public NormaliserMeta(NormaliserMeta meta) {
     this();
     for (NormaliserField field : meta.normaliserFields) {
       normaliserFields.add(new NormaliserField(field));
     }
   }
 
-  /** @return Returns the typeField. */
+  /**
+   * @return Returns the typeField.
+   */
   public String getTypeField() {
     return typeField;
   }
 
-  /** @param typeField The typeField to set. */
+  /**
+   * @param typeField The typeField to set.
+   */
   public void setTypeField(String typeField) {
     this.typeField = typeField;
   }
@@ -113,7 +122,7 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
 
   public Set<String> getFieldNames() {
     Set<String> fieldNames = new HashSet<>();
-    
+
     for (NormaliserField field : normaliserFields) {
       if (field.getName() != null) {
         fieldNames.add(field.getName().toLowerCase());
@@ -122,10 +131,9 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     return fieldNames;
   }
 
-
   @Override
   public Object clone() {
-    return new NormaliserMeta(this);    
+    return new NormaliserMeta(this);
   }
 
   @Override
@@ -149,8 +157,8 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
     List<String> normOcc = new ArrayList<>();
     List<String> fieldOcc = new ArrayList<>();
     int maxlen = 0;
-    //for (int i = 0; i < normaliserFields.length; i++) {
-    for (NormaliserField field : normaliserFields) {      
+    // for (int i = 0; i < normaliserFields.length; i++) {
+    for (NormaliserField field : normaliserFields) {
       if (!normOcc.contains(field.getNorm())) {
         normOcc.add(field.getNorm());
         fieldOcc.add(field.getName());
@@ -189,7 +197,7 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
 
     // Now remove all the normalized fields...
     //
-    for (NormaliserField field : normaliserFields) {      
+    for (NormaliserField field : normaliserFields) {
       int idx = row.indexOfValue(field.getName());
       if (idx >= 0) {
         row.removeValueMeta(idx);
@@ -227,7 +235,7 @@ public class NormaliserMeta extends BaseTransformMeta<Normaliser, NormaliserData
       boolean errorFound = false;
 
       for (NormaliserField field : normaliserFields) {
-        IValueMeta  valueMeta = prev.searchValueMeta(field.getName());
+        IValueMeta valueMeta = prev.searchValueMeta(field.getName());
         if (valueMeta == null) {
           if (first) {
             first = false;

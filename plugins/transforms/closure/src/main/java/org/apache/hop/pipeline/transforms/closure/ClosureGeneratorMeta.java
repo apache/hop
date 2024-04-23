@@ -17,25 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.closure;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "ClosureGenerator",

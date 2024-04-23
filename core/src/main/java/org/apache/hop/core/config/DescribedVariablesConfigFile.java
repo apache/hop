@@ -38,7 +38,9 @@ public class DescribedVariablesConfigFile extends ConfigFile implements IConfigF
     return configFilename;
   }
 
-  /** @param configFilename The configFilename to set */
+  /**
+   * @param configFilename The configFilename to set
+   */
   @Override
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;

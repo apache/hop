@@ -17,7 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
+import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,10 +38,6 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
@@ -100,13 +99,14 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
         if (!Utils.isEmpty(fn.getReplaceField())) {
           data.replaceIndex[j] = data.outputRowMeta.indexOfValue(fn.getReplaceField());
 
-          // keep track of the formula fields and the fields they replace for formula parsing later on.
+          // keep track of the formula fields and the fields they replace for formula parsing later
+          // on.
           replaceMap.put(fn.getFieldName(), fn.getReplaceField());
           if (data.replaceIndex[j] < 0) {
             throw new HopException(
-                    "Unknown field specified to replace with a formula result: ["
-                            + fn.getReplaceField()
-                            + "]");
+                "Unknown field specified to replace with a formula result: ["
+                    + fn.getReplaceField()
+                    + "]");
           }
         } else {
           data.replaceIndex[j] = -1;
@@ -115,7 +115,6 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     }
 
     int tempIndex = getInputRowMeta().size();
-
 
     if (log.isRowLevel()) {
       logRowlevel("Read row #" + getLinesRead() + " : " + Arrays.toString(r));
@@ -132,7 +131,9 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
     for (int i = 0; i < meta.getFormulas().size(); i++) {
 
       FormulaMetaFunction formula = meta.getFormulas().get(i);
-      FormulaParser parser = new FormulaParser(formula, data.outputRowMeta, outputRowData, sheetRow, variables, replaceMap);
+      FormulaParser parser =
+          new FormulaParser(
+              formula, data.outputRowMeta, outputRowData, sheetRow, variables, replaceMap);
       try {
         CellValue cellValue = parser.getFormulaValue();
         CellType cellType = cellValue.getCellType();
@@ -163,7 +164,8 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
                 formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
                 break;
               case IValueMeta.TYPE_TIMESTAMP:
-                outputValue = Timestamp.from(DateUtil.getJavaDate(cellValue.getNumberValue()).toInstant());
+                outputValue =
+                    Timestamp.from(DateUtil.getJavaDate(cellValue.getNumberValue()).toInstant());
                 data.returnType[i] = FormulaData.RETURN_TYPE_TIMESTAMP;
                 formula.setNeedDataConversion(outputValueType != IValueMeta.TYPE_NUMBER);
                 break;
@@ -188,9 +190,11 @@ public class Formula extends BaseTransform<FormulaMeta, FormulaData> {
 
         int realIndex = (data.replaceIndex[i] < 0) ? tempIndex++ : data.replaceIndex[i];
 
-        outputRowData[realIndex] = getReturnValue(outputValue, data.returnType[i], realIndex, formula);
-      }catch(Exception e){
-        throw new HopException("Formula '" + formula.getFormula() + "' could not not be parsed ", e);
+        outputRowData[realIndex] =
+            getReturnValue(outputValue, data.returnType[i], realIndex, formula);
+      } catch (Exception e) {
+        throw new HopException(
+            "Formula '" + formula.getFormula() + "' could not not be parsed ", e);
       }
     }
 

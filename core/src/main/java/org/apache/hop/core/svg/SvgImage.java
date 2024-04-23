@@ -17,16 +17,14 @@
 
 package org.apache.hop.core.svg;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.xml.XmlHandler;
-import org.w3c.dom.Document;
-
-import javax.xml.XMLConstants;
+import java.io.StringWriter;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
+import org.w3c.dom.Document;
 
 /** Container for SVG image. */
 public class SvgImage {

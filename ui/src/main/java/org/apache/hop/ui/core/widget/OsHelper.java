@@ -17,16 +17,15 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class OsHelper {
 
@@ -129,7 +128,8 @@ public class OsHelper {
 
             break;
           case SWT.ID_PREFERENCES:
-            item.addListener(SWT.Selection, event -> HopGui.getConfigurationPerspective().activate());
+            item.addListener(
+                SWT.Selection, event -> HopGui.getConfigurationPerspective().activate());
 
             break;
           default:

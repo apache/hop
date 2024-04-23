@@ -40,7 +40,9 @@ public class VariableValue {
     return key;
   }
 
-  /** @param key The key to set */
+  /**
+   * @param key The key to set
+   */
   public void setKey(String key) {
     this.key = key;
   }
@@ -54,7 +56,9 @@ public class VariableValue {
     return value;
   }
 
-  /** @param value The value to set */
+  /**
+   * @param value The value to set
+   */
   public void setValue(String value) {
     this.value = value;
   }

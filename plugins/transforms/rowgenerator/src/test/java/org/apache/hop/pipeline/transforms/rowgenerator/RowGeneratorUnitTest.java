@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -29,10 +33,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 public class RowGeneratorUnitTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -40,7 +40,9 @@ public class RowGeneratorUnitTest {
 
   @Before
   public void setup() {
-    transformMockHelper = new TransformMockHelper("RowGenerator TEST", RowGeneratorMeta.class,RowGeneratorData.class);
+    transformMockHelper =
+        new TransformMockHelper(
+            "RowGenerator TEST", RowGeneratorMeta.class, RowGeneratorData.class);
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
@@ -50,7 +52,7 @@ public class RowGeneratorUnitTest {
   public void tearDown() {
     transformMockHelper.cleanUp();
   }
-  
+
   @BeforeClass
   public static void initEnvironment() throws Exception {
     HopEnvironment.init();
@@ -66,14 +68,14 @@ public class RowGeneratorUnitTest {
             0,
             transformMockHelper.pipelineMeta,
             transformMockHelper.pipeline);
-    
+
     // add variable to pipeline variable variables
     Variables variables = new Variables();
     variables.setVariable("ROW_LIMIT", "1440");
-    transformMockHelper.pipeline.setVariables(variables);        
-    
+    transformMockHelper.pipeline.setVariables(variables);
+
     when(transformMockHelper.iTransformMeta.getRowLimit()).thenReturn("${ROW_LIMIT}");
-    
+
     rowGenerator.initializeFrom(transformMockHelper.pipeline);
     rowGenerator.init();
 

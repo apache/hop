@@ -16,6 +16,11 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.FileType;
@@ -31,11 +36,6 @@ import org.apache.hop.vfs.s3.s3common.S3HopProperty;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /** Unit tests for S3FileSystem */
 public class S3FileSystemTest {

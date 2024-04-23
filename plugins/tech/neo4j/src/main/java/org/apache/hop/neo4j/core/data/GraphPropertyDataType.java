@@ -17,12 +17,11 @@
 
 package org.apache.hop.neo4j.core.data;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
-
-import java.time.LocalDate;
-import java.time.ZoneId;
 
 public enum GraphPropertyDataType {
   String("string"),
@@ -242,7 +241,9 @@ public enum GraphPropertyDataType {
     return importType;
   }
 
-  /** @param importType The importType to set */
+  /**
+   * @param importType The importType to set
+   */
   public void setImportType(java.lang.String importType) {
     this.importType = importType;
   }

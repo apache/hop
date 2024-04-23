@@ -17,10 +17,9 @@
 package org.apache.hop.vfs.s3.s3common;
 
 import com.amazonaws.services.s3.model.S3Object;
-import org.apache.commons.vfs2.util.MonitorInputStream;
-
 import java.io.IOException;
 import java.io.InputStream;
+import org.apache.commons.vfs2.util.MonitorInputStream;
 
 public class S3CommonFileInputStream extends MonitorInputStream {
 

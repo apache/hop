@@ -18,16 +18,15 @@
 
 package org.apache.hop.execution.sampler;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public abstract class ExecutionDataSamplerStoreBase<Store extends IExecutionDataSamplerStore>
     implements IExecutionDataSamplerStore {

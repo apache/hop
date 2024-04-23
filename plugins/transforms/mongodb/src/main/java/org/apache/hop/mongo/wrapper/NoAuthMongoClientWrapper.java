@@ -26,6 +26,10 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ReplicaSetStatus;
 import com.mongodb.ServerAddress;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
@@ -35,11 +39,6 @@ import org.apache.hop.mongo.Util;
 import org.apache.hop.mongo.wrapper.collection.DefaultMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.bson.Document;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Implementation of MongoClientWrapper which uses the MONGO-CR auth mechanism. Should only be

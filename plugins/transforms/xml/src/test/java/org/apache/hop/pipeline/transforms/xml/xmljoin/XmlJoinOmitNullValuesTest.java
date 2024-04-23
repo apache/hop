@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -29,15 +37,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /**
  * Test for XmlJoin transform

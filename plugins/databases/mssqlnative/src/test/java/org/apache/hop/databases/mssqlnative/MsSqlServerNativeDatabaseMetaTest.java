@@ -17,14 +17,14 @@
 
 package org.apache.hop.databases.mssqlnative;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.databases.mssql.MsSqlServerDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class MsSqlServerNativeDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

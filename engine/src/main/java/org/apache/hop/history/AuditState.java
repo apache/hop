@@ -65,7 +65,9 @@ public class AuditState {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -79,7 +81,9 @@ public class AuditState {
     return stateMap;
   }
 
-  /** @param stateMap The stateMap to set */
+  /**
+   * @param stateMap The stateMap to set
+   */
   public void setStateMap(Map<String, Object> stateMap) {
     this.stateMap = stateMap;
   }

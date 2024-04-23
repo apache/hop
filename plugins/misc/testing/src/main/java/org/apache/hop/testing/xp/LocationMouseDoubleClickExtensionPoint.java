@@ -17,6 +17,9 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -41,10 +44,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.testing.PipelineUnitTestSetLocationDialog;
 import org.eclipse.swt.events.MouseEvent;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ExtensionPoint(
     extensionPointId = "PipelineGraphMouseDown",
@@ -170,7 +169,8 @@ public class LocationMouseDoubleClickExtensionPoint
     HopGui hopGui = HopGui.getInstance();
 
     MetadataManager<DataSet> manager =
-        new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class, hopGui.getShell());
+        new MetadataManager<>(
+            hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class, hopGui.getShell());
     manager.editMetadata(dataSetName);
   }
 }

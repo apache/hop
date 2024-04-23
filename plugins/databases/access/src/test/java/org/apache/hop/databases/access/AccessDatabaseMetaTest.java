@@ -17,6 +17,10 @@
 
 package org.apache.hop.databases.access;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -31,10 +35,6 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 
 public class AccessDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -56,91 +56,94 @@ public class AccessDatabaseMetaTest {
     assertEquals(8388607, nativeMeta.getMaxTextFieldLength());
     assertEquals(
         "jdbc:ucanaccess://e://Dir//Contacts.accdb;showSchema=true;newDatabaseVersion=V2010",
-        nativeMeta.getURL(null, null, "e://Dir//Contacts.accdb")); // note - MS Access driver ignores the server and port
+        nativeMeta.getURL(
+            null,
+            null,
+            "e://Dir//Contacts.accdb")); // note - MS Access driver ignores the server and port
     String[] expectedReservedWords =
         new String[] {
-            "AND",
-            "ANY", 
-            "AS", 
-            "ALL",
-            "AT", 
-            "AVG", 
-            "BETWEEN", 
-            "BOTH", 
-            "BY", 
-            "CALL", 
-            "CASE", 
-            "CAST", 
-            "COALESCE", 
-            "CONSTRAINT", 
-            "CORRESPONDING", 
-            "CONVERT", 
-            "COUNT", 
-            "CREATE", 
-            "CROSS", 
-            "DEFAULT", 
-            "DISTINCT",
-            "DO", 
-            "DROP", 
-            "ELSE", 
-            "EVERY", 
-            "EXISTS", 
-            "EXCEPT", 
-            "FOR", 
-            "FROM", 
-            "FULL", 
-            "GRANT", 
-            "GROUP", 
-            "HAVING", 
-            "IN", 
-            "INNER", 
-            "INTERSECT", 
-            "INTO", 
-            "IS", 
-            "JOIN", 
-            "LEFT", 
-            "LEADING", 
-            "LIKE", 
-            "MAX", 
-            "MIN", 
-            "NATURAL", 
-            "NOT", 
-            "NULLIF", 
-            "ON", 
-            "ORDER",
-            "OR",
-            "OUTER",
-            "PRIMARY",
-            "REFERENCES", 
-            "RIGHT", 
-            "SELECT", 
-            "SET", 
-            "SOME", 
-            "STDDEV_POP", 
-            "STDDEV_SAMP", 
-            "SUM", 
-            "TABLE", 
-            "THEN", 
-            "TO", 
-            "TRAILING", 
-            "TRIGGER", 
-            "UNION", 
-            "UNIQUE", 
-            "USING", 
-            "USER", 
-            "VALUES", 
-            "VAR_POP", 
-            "VAR_SAMP", 
-            "WHEN", 
-            "WHERE", 
-            "WITH", 
-            "END"
+          "AND",
+          "ANY",
+          "AS",
+          "ALL",
+          "AT",
+          "AVG",
+          "BETWEEN",
+          "BOTH",
+          "BY",
+          "CALL",
+          "CASE",
+          "CAST",
+          "COALESCE",
+          "CONSTRAINT",
+          "CORRESPONDING",
+          "CONVERT",
+          "COUNT",
+          "CREATE",
+          "CROSS",
+          "DEFAULT",
+          "DISTINCT",
+          "DO",
+          "DROP",
+          "ELSE",
+          "EVERY",
+          "EXISTS",
+          "EXCEPT",
+          "FOR",
+          "FROM",
+          "FULL",
+          "GRANT",
+          "GROUP",
+          "HAVING",
+          "IN",
+          "INNER",
+          "INTERSECT",
+          "INTO",
+          "IS",
+          "JOIN",
+          "LEFT",
+          "LEADING",
+          "LIKE",
+          "MAX",
+          "MIN",
+          "NATURAL",
+          "NOT",
+          "NULLIF",
+          "ON",
+          "ORDER",
+          "OR",
+          "OUTER",
+          "PRIMARY",
+          "REFERENCES",
+          "RIGHT",
+          "SELECT",
+          "SET",
+          "SOME",
+          "STDDEV_POP",
+          "STDDEV_SAMP",
+          "SUM",
+          "TABLE",
+          "THEN",
+          "TO",
+          "TRAILING",
+          "TRIGGER",
+          "UNION",
+          "UNIQUE",
+          "USING",
+          "USER",
+          "VALUES",
+          "VAR_POP",
+          "VAR_SAMP",
+          "WHEN",
+          "WHERE",
+          "WITH",
+          "END"
         };
 
     assertArrayEquals(expectedReservedWords, nativeMeta.getReservedWords());
     assertFalse(nativeMeta.isSupportsFloatRoundingOnUpdate());
     assertEquals(255, nativeMeta.getMaxVARCHARLength());
-    assertFalse(nativeMeta.isSupportsSequences());  
+    assertFalse(nativeMeta.isSupportsSequences());
   }
 
   @Test
@@ -196,7 +199,8 @@ public class AccessDatabaseMetaTest {
             false,
             false));
 
-    assertEquals("TEXT",
+    assertEquals(
+        "TEXT",
         nativeMeta.getFieldDefinition(
             new ValueMetaString("FOO", nativeMeta.getMaxVARCHARLength() - 1, 0),
             "",

@@ -52,22 +52,30 @@ public class TargetTransformAttribute {
     return transformName.hashCode() ^ attributeKey.hashCode();
   }
 
-  /** @return the transform name */
+  /**
+   * @return the transform name
+   */
   public String getTransformName() {
     return transformName;
   }
 
-  /** @param transformName the transform name to set */
+  /**
+   * @param transformName the transform name to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
-  /** @return the attributeKey */
+  /**
+   * @return the attributeKey
+   */
   public String getAttributeKey() {
     return attributeKey;
   }
 
-  /** @param attributeKey the attributeKey to set */
+  /**
+   * @param attributeKey the attributeKey to set
+   */
   public void setAttributeKey(String attributeKey) {
     this.attributeKey = attributeKey;
   }

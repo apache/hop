@@ -16,12 +16,11 @@
  */
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class DateDetector {
 

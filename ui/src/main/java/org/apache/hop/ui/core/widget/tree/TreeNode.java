@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.core.widget.tree;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Image;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.Image;
 
 public class TreeNode {
   private String label;

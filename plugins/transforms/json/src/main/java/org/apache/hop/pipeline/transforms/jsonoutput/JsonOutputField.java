@@ -22,16 +22,15 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 /** Describes a single field in an Json output file */
 public class JsonOutputField implements Cloneable {
   @HopMetadataProperty(
-          key = "name",
-          injectionGroupKey = "FIELDS",
-          injectionKeyDescription = "JsonOutput.Injection.JSON_FIELDNAME"
-  )
+      key = "name",
+      injectionGroupKey = "FIELDS",
+      injectionKeyDescription = "JsonOutput.Injection.JSON_FIELDNAME")
   private String fieldName;
+
   @HopMetadataProperty(
-          key = "element",
-          injectionGroupKey = "FIELDS",
-          injectionKeyDescription = "JsonOutput.Injection.JSON_ELEMENTNAME"
-  )
+      key = "element",
+      injectionGroupKey = "FIELDS",
+      injectionKeyDescription = "JsonOutput.Injection.JSON_ELEMENTNAME")
   private String elementName;
 
   public JsonOutputField(
@@ -83,12 +82,16 @@ public class JsonOutputField implements Cloneable {
     this.fieldName = fieldname;
   }
 
-  /** @return Returns the elementName. */
+  /**
+   * @return Returns the elementName.
+   */
   public String getElementName() {
     return elementName;
   }
 
-  /** @param elementName The elementName to set. */
+  /**
+   * @param elementName The elementName to set.
+   */
   public void setElementName(String elementName) {
     this.elementName = elementName;
   }

@@ -18,6 +18,10 @@
 
 package org.apache.hop.ui.core.widgets;
 
+import java.io.OutputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -46,11 +50,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.io.OutputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @GuiPlugin
 public class TableViewExportToExcelToolbarButton {

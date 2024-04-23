@@ -18,10 +18,9 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class CFields {
   /** which fields do we use to look up a value? */

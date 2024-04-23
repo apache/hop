@@ -17,8 +17,8 @@
 
 package org.apache.hop.www;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.Comparator;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /** A carte object entry in the pipeline or workflow maps */
 @XmlRootElement
@@ -67,22 +67,30 @@ public class HopServerObjectEntry
     return compare(this, o);
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /** @return the id */
+  /**
+   * @return the id
+   */
   public String getId() {
     return id;
   }
 
-  /** @param id the id to set */
+  /**
+   * @param id the id to set
+   */
   public void setId(String id) {
     this.id = id;
   }

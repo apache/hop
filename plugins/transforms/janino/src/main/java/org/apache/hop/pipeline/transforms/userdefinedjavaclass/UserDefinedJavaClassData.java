@@ -16,11 +16,10 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.Map;
 
 public class UserDefinedJavaClassData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;

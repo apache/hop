@@ -945,7 +945,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            //Ignore widget selected event
+            // Ignore widget selected event
           }
         });
 

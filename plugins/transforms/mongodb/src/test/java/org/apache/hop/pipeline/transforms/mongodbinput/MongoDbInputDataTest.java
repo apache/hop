@@ -17,8 +17,22 @@
 
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -33,21 +47,6 @@ import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class MongoDbInputDataTest {
   private IHopMetadataProvider metadataProvider;

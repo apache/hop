@@ -32,7 +32,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
-import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
 
 @Transform(
@@ -98,7 +97,7 @@ public class SchemaMappingMeta extends BaseTransformMeta<SchemaMapping, SchemaMa
     try {
       IRowMeta selectedSchemaRowMeta = new RowMeta();
 
-      for (int i=0; i<sd.getRowMeta().size(); i++) {
+      for (int i = 0; i < sd.getRowMeta().size(); i++) {
         IValueMeta v = sd.getRowMeta().getValueMeta(i);
         if (mappingsMap.get(v.getName()) != null) {
           IValueMeta vInputItem = inputRowMeta.searchValueMeta(mappingsMap.get(v.getName()));

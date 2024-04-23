@@ -17,14 +17,14 @@
 
 package org.apache.hop.core.row;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class RowMetaAddRemoveValueTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

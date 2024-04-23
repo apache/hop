@@ -17,13 +17,13 @@
 
 package org.apache.hop.databases.redshift;
 
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.util.Utils;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.util.Utils;
+import org.junit.Test;
 
 public class SequenceMetaTest {
 

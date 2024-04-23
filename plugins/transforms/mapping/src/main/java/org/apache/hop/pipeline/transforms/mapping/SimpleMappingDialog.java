@@ -361,7 +361,8 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     addOutputMappingDefinitionTab(outputMapping, 1);
 
     // Prepare a regexp checker to see if the pipeline name contains a variable
-    // boolean containsVar = Pattern.matches("^[/\\w]*(\\$\\{\\w+})[/.\\w]*", mappingMeta.getFilename());
+    // boolean containsVar = Pattern.matches("^[/\\w]*(\\$\\{\\w+})[/.\\w]*",
+    // mappingMeta.getFilename());
     Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
     Matcher m = p.matcher(mappingMeta.getFilename());
 
@@ -778,11 +779,11 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
         loadPipeline();
       } catch (HopException e) {
         new ErrorDialog(
-                shell,
-                BaseMessages.getString(PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Title"),
-                BaseMessages.getString(
-                        PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Message"),
-                e);
+            shell,
+            BaseMessages.getString(PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Title"),
+            BaseMessages.getString(
+                PKG, "SimpleMappingDialog.ErrorLoadingSpecifiedPipeline.Message"),
+            e);
         return;
       }
     }

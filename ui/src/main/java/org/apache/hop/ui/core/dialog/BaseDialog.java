@@ -87,9 +87,11 @@ public abstract class BaseDialog extends Dialog {
   public static final int MEDIUM_SMALL_FIELD = 150;
   public static final int SMALL_FIELD = 50;
   public static final int SHELL_WIDTH_OFFSET = 16;
+
   @Deprecated
   public static final int VAR_ICON_WIDTH =
       GuiResource.getInstance().getImageVariableMini().getBounds().width;
+
   @Deprecated
   public static final int VAR_ICON_HEIGHT =
       GuiResource.getInstance().getImageVariableMini().getBounds().height;
@@ -120,6 +122,7 @@ public abstract class BaseDialog extends Dialog {
     return presentFileDialog(
         false, shell, null, null, null, filterExtensions, filterNames, folderAndFile);
   }
+
   public static final String presentFileDialog(
       boolean save,
       Shell shell,

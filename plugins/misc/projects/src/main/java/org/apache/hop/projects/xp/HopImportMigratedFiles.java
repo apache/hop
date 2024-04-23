@@ -17,6 +17,18 @@
 
 package org.apache.hop.projects.xp;
 
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.vfs2.FileFilterSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -34,19 +46,6 @@ import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 
 @ExtensionPoint(
     id = "HopImportMigratedFiles",
@@ -95,7 +94,9 @@ public class HopImportMigratedFiles implements IExtensionPoint<Object[]> {
       String projectHome,
       boolean skipExitingFiles,
       IProgressMonitor monitor)
-      throws TransformerConfigurationException, HopException, FileSystemException,
+      throws TransformerConfigurationException,
+          HopException,
+          FileSystemException,
           InterruptedException {
     TransformerFactory transformerFactory = XmlHandler.createSecureTransformerFactory();
     Transformer transformer = transformerFactory.newTransformer();

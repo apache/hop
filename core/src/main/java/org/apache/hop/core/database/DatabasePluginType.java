@@ -22,21 +22,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 
-/**
- * This class represents the transform plugin type.
- */
+/** This class represents the transform plugin type. */
 public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
   private static DatabasePluginType pluginType;
 
   private DatabasePluginType() {
     super(DatabaseMetaPlugin.class, "DATABASE", "Database");
 
-    String sharedJdbcFolders = Const.NVL(
-            System.getProperty(Const.HOP_SHARED_JDBC_FOLDERS),
-            "lib/jdbc"
-    );
+    String sharedJdbcFolders =
+        Const.NVL(System.getProperty(Const.HOP_SHARED_JDBC_FOLDERS), "lib/jdbc");
     if (StringUtils.isNotEmpty(sharedJdbcFolders)) {
-      for(String sharedJdbcFolder : sharedJdbcFolders.split(",")){
+      for (String sharedJdbcFolder : sharedJdbcFolders.split(",")) {
         getExtraLibraryFolders().add(sharedJdbcFolder.trim());
       }
     }

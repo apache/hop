@@ -16,9 +16,9 @@
  */
 package org.apache.hop.core.logging;
 
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /** Test for {@link HopLogLayout}. */
 public class HopLogLayoutTest {

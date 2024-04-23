@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.io.File;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.file.TextFileInputField;
@@ -26,13 +32,6 @@ import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.File;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class CsvInputTest extends CsvInputUnitTestBase {
 

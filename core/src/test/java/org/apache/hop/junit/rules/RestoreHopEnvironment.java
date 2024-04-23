@@ -17,6 +17,13 @@
 
 package org.apache.hop.junit.rules;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Properties;
+import java.util.TimeZone;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
@@ -36,14 +43,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.core.xml.XmlHandlerCache;
 import org.apache.hop.i18n.LanguageChoice;
 import org.junit.rules.ExternalResource;
-
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-import java.util.Properties;
-import java.util.TimeZone;
 
 public class RestoreHopEnvironment extends ExternalResource {
   private Properties originalProperties;

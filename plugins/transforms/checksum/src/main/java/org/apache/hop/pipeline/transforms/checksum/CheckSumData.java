@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
+import java.security.MessageDigest;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.security.MessageDigest;
 
 /** Data class for the Cheksum class */
 public class CheckSumData extends BaseTransformData implements ITransformData {

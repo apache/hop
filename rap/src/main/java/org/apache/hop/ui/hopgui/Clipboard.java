@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.client.service.ClientFileLoader;
@@ -29,9 +31,6 @@ import org.eclipse.rap.rwt.widgets.WidgetUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Widget;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Clipboard implemented as a custom widget. This class is meant to be instantiated only once per UI

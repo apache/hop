@@ -17,15 +17,15 @@
 
 package org.apache.hop.workflow.action;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.start.ActionStart;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 
 public class WorkflowActionMetaTest {
 

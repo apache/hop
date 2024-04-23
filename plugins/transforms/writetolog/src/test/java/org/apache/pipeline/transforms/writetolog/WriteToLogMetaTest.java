@@ -16,6 +16,11 @@
  */
 package org.apache.pipeline.transforms.writetolog;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -29,12 +34,6 @@ import org.apache.hop.pipeline.transforms.writetolog.WriteToLogMeta;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 public class WriteToLogMetaTest implements IInitializer<WriteToLogMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

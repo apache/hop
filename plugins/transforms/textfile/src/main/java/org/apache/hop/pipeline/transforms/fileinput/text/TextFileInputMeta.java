@@ -18,6 +18,9 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -58,10 +61,6 @@ import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.ui.pipeline.transform.common.TextFileLineUtil;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 @Transform(
     id = "TextFileInput2",
@@ -248,22 +247,30 @@ public class TextFileInputMeta
     this.schemaDefinition = schemaDefinition;
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String[] getFileName() {
     return inputFiles.fileName;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String[] fileName) {
     inputFiles.fileName = fileName;
   }
 
-  /** @return The array of filters for the metadata of this text file input transform. */
+  /**
+   * @return The array of filters for the metadata of this text file input transform.
+   */
   public TextFileFilter[] getFilter() {
     return filter;
   }
 
-  /** @param filter The array of filters to use */
+  /**
+   * @param filter The array of filters to use
+   */
   public void setFilter(TextFileFilter[] filter) {
     this.filter = filter;
   }
@@ -943,7 +950,9 @@ public class TextFileInputMeta
     return null;
   }
 
-  /** @param transforms optionally search the info transform in a list of transforms */
+  /**
+   * @param transforms optionally search the info transform in a list of transforms
+   */
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     acceptingTransform = TransformMeta.findTransform(transforms, inputFiles.acceptingTransformName);
@@ -1061,7 +1070,9 @@ public class TextFileInputMeta
     this.errorLineSkipped = errorLineSkipped;
   }
 
-  /** @param acceptingTransform The accepting Transform to set. */
+  /**
+   * @param acceptingTransform The accepting Transform to set.
+   */
   public void setAcceptingTransform(TransformMeta acceptingTransform) {
     this.acceptingTransform = acceptingTransform;
   }
@@ -1159,12 +1170,16 @@ public class TextFileInputMeta
     return content.encoding;
   }
 
-  /** @return the length */
+  /**
+   * @return the length
+   */
   public String getLength() {
     return content.length;
   }
 
-  /** @param length the length to set */
+  /**
+   * @param length the length to set
+   */
   public void setLength(String length) {
     content.length = length;
   }

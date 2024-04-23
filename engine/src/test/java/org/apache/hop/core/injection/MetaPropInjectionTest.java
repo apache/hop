@@ -17,6 +17,13 @@
 
 package org.apache.hop.core.injection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.injection.bean.BeanInjectionInfo;
 import org.apache.hop.core.injection.bean.BeanInjector;
@@ -30,14 +37,6 @@ import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class MetaPropInjectionTest {
 

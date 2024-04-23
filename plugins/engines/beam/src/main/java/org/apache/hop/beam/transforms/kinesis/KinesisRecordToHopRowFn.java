@@ -18,6 +18,7 @@
 
 package org.apache.hop.beam.transforms.kinesis;
 
+import java.nio.charset.StandardCharsets;
 import org.apache.beam.sdk.io.kinesis.KinesisRecord;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -31,9 +32,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 public class KinesisRecordToHopRowFn extends DoFn<KinesisRecord, HopRow> {
 

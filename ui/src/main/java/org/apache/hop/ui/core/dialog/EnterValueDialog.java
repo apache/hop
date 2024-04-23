@@ -397,12 +397,16 @@ public class EnterValueDialog extends Dialog {
     }
   }
 
-  /** @return the modalDialog */
+  /**
+   * @return the modalDialog
+   */
   public boolean isModalDialog() {
     return modalDialog;
   }
 
-  /** @param modalDialog the modalDialog to set */
+  /**
+   * @param modalDialog the modalDialog to set
+   */
   public void setModalDialog(boolean modalDialog) {
     this.modalDialog = modalDialog;
   }

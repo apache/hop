@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
@@ -32,15 +40,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 /** Note: In Europe (e.g. in UK), week starts on Monday. In USA, it starts on Sunday. */
 public class SelectValues_LocaleHandling_Test {

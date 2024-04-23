@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.abort;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
@@ -26,15 +34,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.EnumLoadSaveValidat
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Test;
 import org.w3c.dom.Node;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class AbortMetaTest {
 

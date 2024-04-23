@@ -17,13 +17,12 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.base.LoadSaveBase;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.base.LoadSaveBase;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 
 public class HopServerWorkflowStatusLoadSaveTester extends LoadSaveBase<HopServerWorkflowStatus> {
 
@@ -35,7 +34,8 @@ public class HopServerWorkflowStatusLoadSaveTester extends LoadSaveBase<HopServe
   public HopServerWorkflowStatusLoadSaveTester(
       Class<HopServerWorkflowStatus> clazz,
       List<String> attributes,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap) throws HopException {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap)
+      throws HopException {
     super(
         clazz,
         attributes,

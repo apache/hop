@@ -17,14 +17,6 @@
 
 package org.apache.hop.pipeline.transform.errorhandling;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transform.BaseTransform;
-
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -34,6 +26,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.ResultFile;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transform.BaseTransform;
 
 public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
   private static final Class<?> PKG = AbstractFileErrorHandler.class; // For Translator

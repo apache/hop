@@ -18,10 +18,9 @@
 
 package org.apache.hop.metadata.serializer.multi;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-
-import java.util.List;
 
 public class MultiMetadataSerializerTest extends MetadataTestBase {
 

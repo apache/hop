@@ -32,9 +32,7 @@ public class SimpleMappingMetaTest {
   @Test
   public void testSerialization() throws Exception {
     TransformSerializationTestUtil.testSerialization(
-            "/simple-mapping-transform.xml",
-            SimpleMappingMeta.class
-    );
+        "/simple-mapping-transform.xml", SimpleMappingMeta.class);
     /*Document document =
         XmlHandler.loadXmlFile(this.getClass().getResourceAsStream("/simple-mapping-transform.xml"));
     Node transformNode = XmlHandler.getSubNode(document, TransformMeta.XML_TAG);

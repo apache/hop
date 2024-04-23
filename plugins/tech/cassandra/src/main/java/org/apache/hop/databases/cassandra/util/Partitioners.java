@@ -35,12 +35,16 @@ public enum Partitioners {
     this.type = type;
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   public String getType() {
     return type;
   }

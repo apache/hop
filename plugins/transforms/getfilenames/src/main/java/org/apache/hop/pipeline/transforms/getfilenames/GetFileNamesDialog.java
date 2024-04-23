@@ -985,7 +985,12 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
       for (int i = 0; i < meta.getFilesList().size(); i++) {
         FileItem fi = meta.getFilesList().get(i);
-        wFilenameList.add(fi.getFileName(), fi.getFileMask(), fi.getExcludeFileMask(), fi.getFileRequired(), fi.getIncludeSubFolders());
+        wFilenameList.add(
+            fi.getFileName(),
+            fi.getFileMask(),
+            fi.getExcludeFileMask(),
+            fi.getFileRequired(),
+            fi.getIncludeSubFolders());
       }
     }
 

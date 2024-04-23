@@ -17,6 +17,13 @@
 
 package org.apache.hop.core.compress;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Collection;
+import java.util.HashMap;
 import org.apache.hop.core.compress.gzip.GzipCompressionProvider;
 import org.apache.hop.core.compress.hadoopsnappy.HadoopSnappyCompressionProvider;
 import org.apache.hop.core.compress.snappy.SnappyCompressionProvider;
@@ -29,14 +36,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Collection;
-import java.util.HashMap;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class CompressionProviderFactoryTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

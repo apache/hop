@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.gui.plugin.action;
 
+import java.lang.reflect.Method;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
-
-import java.lang.reflect.Method;
 
 public class GuiActionLambdaBuilder<T> {
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -67,8 +68,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
 
 public class YamlInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = YamlInputMeta.class; // For Translator
@@ -1243,7 +1242,6 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       field.setDecimalSymbol(item.getText(8));
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(YamlInputField.getTrimTypeByDesc(item.getText(10)));
-
 
       in.getInputFields()[i] = field;
     }

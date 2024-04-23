@@ -17,12 +17,11 @@
 
 package org.apache.test.util;
 
-import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 
 public class GetterSetterTester<T> {
   private final Map<String, IObjectTester<?>> objectTesterMap;

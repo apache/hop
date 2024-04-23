@@ -19,5 +19,4 @@ package org.apache.hop.core.injection.inheritance;
 import org.apache.hop.core.injection.InjectionSupported;
 
 @InjectionSupported(localizationPrefix = "")
-public class MetaBeanChild extends MetaBeanMiddle<String> {
-}
+public class MetaBeanChild extends MetaBeanMiddle<String> {}

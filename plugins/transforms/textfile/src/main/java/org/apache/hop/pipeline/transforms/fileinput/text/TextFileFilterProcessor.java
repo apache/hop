@@ -28,7 +28,9 @@ public class TextFileFilterProcessor {
   private String[] filtersString;
   private boolean stopProcessing;
 
-  /** @param filters The filters to process */
+  /**
+   * @param filters The filters to process
+   */
   public TextFileFilterProcessor(TextFileFilter[] filters, IVariables variables) {
     this.filters = filters;
     this.stopProcessing = false;

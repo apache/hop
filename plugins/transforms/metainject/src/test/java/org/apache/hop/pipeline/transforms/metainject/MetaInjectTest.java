@@ -17,6 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.logging.LogChannel;
@@ -33,21 +47,6 @@ import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({MetaInject.class})
@@ -265,7 +264,8 @@ public class MetaInjectTest {
   }
 
   @InjectionSupported(localizationPrefix = "", groups = "groups")
-  private static class InjectableTestTransformMeta extends BaseTransformMeta<MetaInject, MetaInjectData> {
+  private static class InjectableTestTransformMeta
+      extends BaseTransformMeta<MetaInject, MetaInjectData> {
 
     @Injection(name = "THERE")
     private String there;

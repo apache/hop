@@ -17,6 +17,9 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -78,10 +81,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 
 public class CypherBuilderDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =

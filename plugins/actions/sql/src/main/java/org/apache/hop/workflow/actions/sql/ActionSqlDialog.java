@@ -156,10 +156,12 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdSqlFromFile.top = new FormAttachment(wlSqlFromFile, 0, SWT.CENTER);
     fdSqlFromFile.right = new FormAttachment(100, 0);
     wSqlFromFile.setLayoutData(fdSqlFromFile);
-    wSqlFromFile.addListener(SWT.Selection, e -> {
-      activeSqlFromFile();
-      action.setChanged();
-    });
+    wSqlFromFile.addListener(
+        SWT.Selection,
+        e -> {
+          activeSqlFromFile();
+          action.setChanged();
+        });
 
     // Filename line
     wlFilename = new Label(shell, SWT.RIGHT);
@@ -240,10 +242,12 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdUseSubs.top = new FormAttachment(wlUseSubs, 0, SWT.CENTER);
     fdUseSubs.right = new FormAttachment(100, 0);
     wUseSubs.setLayoutData(fdUseSubs);
-    wUseSubs.addListener(SWT.Selection, e -> {
-      action.setUseVariableSubstitution(!action.isUseVariableSubstitution());
-      action.setChanged();
-    });
+    wUseSubs.addListener(
+        SWT.Selection,
+        e -> {
+          action.setUseVariableSubstitution(!action.isUseVariableSubstitution());
+          action.setChanged();
+        });
 
     wlPosition = new Label(shell, SWT.NONE);
     wlPosition.setText(BaseMessages.getString(PKG, "ActionSQL.LineNr.Label", "0"));
@@ -340,7 +344,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     action.setUseVariableSubstitution(wUseSubs.getSelection());
     action.setSqlFromFile(wSqlFromFile.getSelection());
     action.setSqlFilename(wFilename.getText());
-    action.setSendOneStatement(wSendOneStatement.getSelection());    
+    action.setSendOneStatement(wSendOneStatement.getSelection());
     action.setChanged();
 
     dispose();

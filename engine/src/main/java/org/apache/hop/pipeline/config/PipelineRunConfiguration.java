@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.DescribedVariable;
@@ -27,9 +29,6 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @HopMetadata(
     key = "pipeline-run-configuration",
@@ -202,15 +201,15 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   }
 
   /**
-   * Find the first default run configuration in the metadata and return it.
-   * Return null if there's no default.
+   * Find the first default run configuration in the metadata and return it. Return null if there's
+   * no default.
    *
    * @param metadataProvider
    * @return The default run configuration or null if none is specified.
    * @throws HopException
    */
-  public static final PipelineRunConfiguration findDefault(
-      IHopMetadataProvider metadataProvider) throws HopException {
+  public static final PipelineRunConfiguration findDefault(IHopMetadataProvider metadataProvider)
+      throws HopException {
     for (PipelineRunConfiguration runConfiguration :
         metadataProvider.getSerializer(PipelineRunConfiguration.class).loadAll()) {
       if (runConfiguration.isDefaultSelection()) {

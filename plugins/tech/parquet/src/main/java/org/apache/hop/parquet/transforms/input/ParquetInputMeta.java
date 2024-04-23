@@ -17,6 +17,8 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -27,9 +29,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "ParquetFileInput",
@@ -83,7 +82,9 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
     return filenameField;
   }
 
-  /** @param filenameField The filenameField to set */
+  /**
+   * @param filenameField The filenameField to set
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
@@ -97,7 +98,9 @@ public class ParquetInputMeta extends BaseTransformMeta<ParquetInput, ParquetInp
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<ParquetField> fields) {
     this.fields = fields;
   }

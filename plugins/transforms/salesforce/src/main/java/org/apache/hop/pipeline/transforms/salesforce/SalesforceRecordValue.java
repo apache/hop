@@ -18,7 +18,6 @@
 package org.apache.hop.pipeline.transforms.salesforce;
 
 import com.sforce.soap.partner.sobject.SObject;
-
 import java.util.Date;
 
 /** Store a record from Salesforce extraction. */

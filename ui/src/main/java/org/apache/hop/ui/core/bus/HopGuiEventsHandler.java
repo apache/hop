@@ -17,11 +17,10 @@
 
 package org.apache.hop.ui.core.bus;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.exception.HopException;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.exception.HopException;
 
 /**
  * This event handler contains event listeners per event ID and GUI ID. Suggestions for event IDs
@@ -209,7 +208,9 @@ public class HopGuiEventsHandler {
     return guiEventListenerMap;
   }
 
-  /** @param guiEventListenerMap The guiEventListenerMap to set */
+  /**
+   * @param guiEventListenerMap The guiEventListenerMap to set
+   */
   public void setGuiEventListenerMap(
       Map<String, Map<String, IHopGuiEventListener>> guiEventListenerMap) {
     this.guiEventListenerMap = guiEventListenerMap;

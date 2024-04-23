@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.nullif;
 
 import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -40,9 +41,9 @@ public class NullIfMetaTest {
     NullIfMeta meta =
         TransformSerializationTestUtil.testSerialization(
             "/null-if-transform.xml", NullIfMeta.class);
-    
+
     assertEquals(2, meta.getFields().size());
     assertEquals("fieldName", meta.getFields().get(0).getName());
-    assertEquals("two", meta.getFields().get(0).getValue());    
+    assertEquals("two", meta.getFields().get(0).getValue());
   }
 }

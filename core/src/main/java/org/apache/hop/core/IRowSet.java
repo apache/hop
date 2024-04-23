@@ -17,9 +17,8 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.row.IRowMeta;
 
 public interface IRowSet {
 
@@ -67,27 +66,41 @@ public interface IRowSet {
    */
   Object[] getRowWait(long timeout, TimeUnit tu);
 
-  /** @return Set indication that there is no more input */
+  /**
+   * @return Set indication that there is no more input
+   */
   void setDone();
 
-  /** @return Returns true if there is no more input and vice versa */
+  /**
+   * @return Returns true if there is no more input and vice versa
+   */
   boolean isDone();
 
-  /** @return Returns the origin transform name. */
+  /**
+   * @return Returns the origin transform name.
+   */
   String getOriginTransformName();
 
-  /** @return Returns the origin transform copy. */
+  /**
+   * @return Returns the origin transform copy.
+   */
   int getOriginTransformCopy();
 
-  /** @return Returns the destination transform name. */
+  /**
+   * @return Returns the destination transform name.
+   */
   String getDestinationTransformName();
 
-  /** @return Returns the destination transform copy. */
+  /**
+   * @return Returns the destination transform copy.
+   */
   int getDestinationTransformCopy();
 
   String getName();
 
-  /** @return Return the size (or max capacity) of the IRowSet */
+  /**
+   * @return Return the size (or max capacity) of the IRowSet
+   */
   int size();
 
   /**
@@ -96,19 +109,29 @@ public interface IRowSet {
    */
   void setThreadNameFromToCopy(String from, int fromCopy, String to, int toCopy);
 
-  /** @return the rowMeta */
+  /**
+   * @return the rowMeta
+   */
   IRowMeta getRowMeta();
 
-  /** @param rowMeta the rowMeta to set */
+  /**
+   * @param rowMeta the rowMeta to set
+   */
   void setRowMeta(IRowMeta rowMeta);
 
-  /** @return the targetHopServer */
+  /**
+   * @return the targetHopServer
+   */
   String getRemoteHopServerName();
 
-  /** @param remoteHopServerName the remote hop server to set */
+  /**
+   * @param remoteHopServerName the remote hop server to set
+   */
   void setRemoteHopServerName(String remoteHopServerName);
 
-  /** @return true if this row set is blocking. */
+  /**
+   * @return true if this row set is blocking.
+   */
   boolean isBlocking();
 
   /** Clear this rowset: remove all rows and remove the "done" flag. */

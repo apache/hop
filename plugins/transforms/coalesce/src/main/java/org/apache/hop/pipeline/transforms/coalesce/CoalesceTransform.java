@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.coalesce;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -28,9 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The Coalesce Transformation selects the first non null value from a group of input fields and
@@ -196,13 +195,16 @@ public class CoalesceTransform extends BaseTransform<CoalesceMeta, CoalesceData>
       int index = inputRowMeta.indexOfValue(fieldName);
       if (index >= 0) {
         Object data = row[index];
-        boolean isNotNull = data instanceof byte[] ?data != null && ((byte[]) data).length > 0 : row[index] != null;
+        boolean isNotNull =
+            data instanceof byte[]
+                ? data != null && ((byte[]) data).length > 0
+                : row[index] != null;
         if (!isTreatEmptyStringsAsNulls && data != null && isNotNull) {
           return index;
         } else if (isTreatEmptyStringsAsNulls
-                && row[index] != null
-                && isNotNull
-                && !Utils.isEmpty(data.toString())) {
+            && row[index] != null
+            && isNotNull
+            && !Utils.isEmpty(data.toString())) {
           return index;
         }
       }

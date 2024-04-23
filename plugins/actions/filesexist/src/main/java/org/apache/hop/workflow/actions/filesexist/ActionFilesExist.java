@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -32,9 +34,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.List;
 
 /** This defines a Files exist action. */
 @Action(

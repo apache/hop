@@ -16,10 +16,8 @@
  */
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -28,9 +26,10 @@ import java.io.DataOutputStream;
 import java.util.Locale;
 import java.util.Random;
 import java.util.TimeZone;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class ValueMetaBaseSerializationTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

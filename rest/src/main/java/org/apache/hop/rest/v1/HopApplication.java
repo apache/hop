@@ -24,7 +24,7 @@ import org.apache.hop.rest.Hop;
 
 @ApplicationPath("/api/v1/")
 public class HopApplication extends Application {
-    public HopApplication() {
-        Hop.getInstance();
-    }
+  public HopApplication() {
+    Hop.getInstance();
+  }
 }

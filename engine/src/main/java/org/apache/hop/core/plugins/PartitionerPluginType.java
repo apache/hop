@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.plugins;
 
+import java.util.Map;
 import org.apache.hop.core.annotations.PartitionerPlugin;
 import org.apache.hop.pipeline.IPartitioner;
-
-import java.util.Map;
 
 /** This is the partitioner plugin type. */
 @PluginMainClassType(IPartitioner.class)

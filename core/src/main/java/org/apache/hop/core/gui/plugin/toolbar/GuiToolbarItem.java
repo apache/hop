@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.gui.plugin.toolbar;
 
-import org.apache.hop.core.gui.plugin.BaseGuiElements;
-
 import java.lang.reflect.Method;
 import java.util.Objects;
+import org.apache.hop.core.gui.plugin.BaseGuiElements;
 
 /** This represents a list of GUI elements under a certain heading or ID */
 public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToolbarItem> {
@@ -129,7 +128,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return root;
   }
 
-  /** @param root The root to set */
+  /**
+   * @param root The root to set
+   */
   public void setRoot(String root) {
     this.root = root;
   }
@@ -143,7 +144,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -157,7 +160,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return label;
   }
 
-  /** @param label The label to set */
+  /**
+   * @param label The label to set
+   */
   public void setLabel(String label) {
     this.label = label;
   }
@@ -171,7 +176,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return toolTip;
   }
 
-  /** @param toolTip The toolTip to set */
+  /**
+   * @param toolTip The toolTip to set
+   */
   public void setToolTip(String toolTip) {
     this.toolTip = toolTip;
   }
@@ -185,7 +192,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(GuiToolbarElementType type) {
     this.type = type;
   }
@@ -199,7 +208,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return image;
   }
 
-  /** @param image The image to set */
+  /**
+   * @param image The image to set
+   */
   public void setImage(String image) {
     this.image = image;
   }
@@ -231,7 +242,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return password;
   }
 
-  /** @param password The password to set */
+  /**
+   * @param password The password to set
+   */
   public void setPassword(boolean password) {
     this.password = password;
   }
@@ -245,7 +258,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return getComboValuesMethod;
   }
 
-  /** @param getComboValuesMethod The getComboValuesMethod to set */
+  /**
+   * @param getComboValuesMethod The getComboValuesMethod to set
+   */
   public void setGetComboValuesMethod(String getComboValuesMethod) {
     this.getComboValuesMethod = getComboValuesMethod;
   }
@@ -259,7 +274,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return ignored;
   }
 
-  /** @param ignored The ignored to set */
+  /**
+   * @param ignored The ignored to set
+   */
   public void setIgnored(boolean ignored) {
     this.ignored = ignored;
   }
@@ -273,7 +290,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return addingSeparator;
   }
 
-  /** @param addingSeparator The addingSeparator to set */
+  /**
+   * @param addingSeparator The addingSeparator to set
+   */
   public void setAddingSeparator(boolean addingSeparator) {
     this.addingSeparator = addingSeparator;
   }
@@ -287,7 +306,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return classLoader;
   }
 
-  /** @param classLoader The classLoader to set */
+  /**
+   * @param classLoader The classLoader to set
+   */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }
@@ -301,7 +322,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return singleTon;
   }
 
-  /** @param singleTon The singleTon to set */
+  /**
+   * @param singleTon The singleTon to set
+   */
   public void setSingleTon(boolean singleTon) {
     this.singleTon = singleTon;
   }
@@ -315,7 +338,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return listenerClass;
   }
 
-  /** @param listenerClass The listenerClass to set */
+  /**
+   * @param listenerClass The listenerClass to set
+   */
   public void setListenerClass(String listenerClass) {
     this.listenerClass = listenerClass;
   }
@@ -329,7 +354,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return listenerMethod;
   }
 
-  /** @param listenerMethod The listenerMethod to set */
+  /**
+   * @param listenerMethod The listenerMethod to set
+   */
   public void setListenerMethod(String listenerMethod) {
     this.listenerMethod = listenerMethod;
   }
@@ -343,7 +370,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return extraWidth;
   }
 
-  /** @param extraWidth The extraWidth to set */
+  /**
+   * @param extraWidth The extraWidth to set
+   */
   public void setExtraWidth(int extraWidth) {
     this.extraWidth = extraWidth;
   }
@@ -357,7 +386,9 @@ public class GuiToolbarItem extends BaseGuiElements implements Comparable<GuiToo
     return alignRight;
   }
 
-  /** @param alignRight The alignRight to set */
+  /**
+   * @param alignRight The alignRight to set
+   */
   public void setAlignRight(boolean alignRight) {
     this.alignRight = alignRight;
   }

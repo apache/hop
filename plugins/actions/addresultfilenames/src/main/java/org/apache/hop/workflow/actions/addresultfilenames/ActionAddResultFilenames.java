@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.addresultfilenames;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -41,12 +46,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a 'add result filenames' action. */
 @Action(

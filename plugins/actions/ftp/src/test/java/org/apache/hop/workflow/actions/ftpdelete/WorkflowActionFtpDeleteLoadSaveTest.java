@@ -17,15 +17,14 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.junit.ClassRule;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
+import org.junit.ClassRule;
 
 public class WorkflowActionFtpDeleteLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionFtpDelete> {
@@ -39,30 +38,30 @@ public class WorkflowActionFtpDeleteLoadSaveTest
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "protocol",
-            "serverName",
-            "serverPort",
-            "userName",
-            "password",
-            "remoteDirectory",
-            "wildcard",
-            "timeout",
-            "activeConnection",
-            "useProxy",
-            "proxyHost",
-            "proxyPort",
-            "proxyUsername",
-            "proxyPassword",
-            "usePublicKey",
-            "keyFilename",
-            "keyFilePass",
-            "limitSuccess",
-            "successCondition",
-            "copyPrevious",
-            "socksProxyHost",
-            "socksProxyPort",
-            "socksProxyUsername",
-            "socksProxyPassword");
+        "protocol",
+        "serverName",
+        "serverPort",
+        "userName",
+        "password",
+        "remoteDirectory",
+        "wildcard",
+        "timeout",
+        "activeConnection",
+        "useProxy",
+        "proxyHost",
+        "proxyPort",
+        "proxyUsername",
+        "proxyPassword",
+        "usePublicKey",
+        "keyFilename",
+        "keyFilePass",
+        "limitSuccess",
+        "successCondition",
+        "copyPrevious",
+        "socksProxyHost",
+        "socksProxyPort",
+        "socksProxyUsername",
+        "socksProxyPassword");
   }
 
   @Override

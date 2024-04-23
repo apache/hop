@@ -17,6 +17,12 @@
 
 package org.apache.hop.core.row.value;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -24,13 +30,6 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.json.simple.JSONObject;
-
-import java.io.DataInputStream;
-import java.io.EOFException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /** This class will hand out value meta objects from the plugin registry. */
 public class ValueMetaFactory {
@@ -219,7 +218,7 @@ public class ValueMetaFactory {
 
   public static IValueMeta loadValueMetaFromJson(JSONObject jValue) throws HopPluginException {
     String name = (String) jValue.get("name");
-    long type = (long)jValue.get("type");
+    long type = (long) jValue.get("type");
 
     IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, (int) type);
     valueMeta.loadMetaFromJson(jValue);

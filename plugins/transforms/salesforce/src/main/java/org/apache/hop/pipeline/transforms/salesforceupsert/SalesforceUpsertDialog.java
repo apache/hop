@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.salesforceupsert;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -69,12 +74,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
@@ -587,7 +586,8 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
               setComboBoxes();
               // Dislay in red missing field names
-              HopGui.getInstance().getDisplay()
+              HopGui.getInstance()
+                  .getDisplay()
                   .asyncExec(
                       () -> {
                         if (!wReturn.isDisposed()) {
@@ -769,7 +769,6 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     int nrFields = wReturn.nrNonEmpty();
 
     meta.allocate(nrFields);
-
 
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
@@ -1015,7 +1014,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     List<String> entries = new ArrayList<>(keySet);
 
     String[] fieldNames = entries.toArray(new String[entries.size()]);
-    if ( PropsUi.getInstance().isSortFieldByName() ) {
+    if (PropsUi.getInstance().isSortFieldByName()) {
       Const.sortStrings(fieldNames);
     }
     // return fields

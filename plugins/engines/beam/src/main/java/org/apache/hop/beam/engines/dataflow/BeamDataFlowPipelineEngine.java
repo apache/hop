@@ -64,15 +64,17 @@ public class BeamDataFlowPipelineEngine extends BeamPipelineEngine
   @Override
   protected void updatePipelineState(IExecutionInfoLocation iLocation) throws HopException {
     ExecutionState executionState =
-            ExecutionStateBuilder.fromExecutor(BeamDataFlowPipelineEngine.this, -1).build();
+        ExecutionStateBuilder.fromExecutor(BeamDataFlowPipelineEngine.this, -1).build();
 
     // Add Dataflow specific information to the execution state.
     // This can then be picked up
     //
-    if (beamPipelineResults!=null) {
+    if (beamPipelineResults != null) {
       DataflowPipelineJob dataflowPipelineJob = (DataflowPipelineJob) beamPipelineResults;
       executionState.getDetails().put(DETAIL_DATAFLOW_JOB_ID, dataflowPipelineJob.getJobId());
-      executionState.getDetails().put(DETAIL_DATAFLOW_PROJECT_ID, dataflowPipelineJob.getProjectId());
+      executionState
+          .getDetails()
+          .put(DETAIL_DATAFLOW_PROJECT_ID, dataflowPipelineJob.getProjectId());
       executionState.getDetails().put(DETAIL_DATAFLOW_REGION, dataflowPipelineJob.getRegion());
     }
 

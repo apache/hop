@@ -18,6 +18,10 @@
 
 package org.apache.hop.execution.sampler.plugins.dataprof;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -32,11 +36,6 @@ import org.apache.hop.execution.sampler.ExecutionDataSamplerStoreBase;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 import org.apache.hop.execution.sampler.plugins.dataprof.BasicDataProfilingDataSampler.ProfilingType;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BasicDataProfilingDataSamplerStore
     extends ExecutionDataSamplerStoreBase<BasicDataProfilingDataSamplerStore>

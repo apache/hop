@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.webservices;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -34,10 +37,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 @Transform(
     id = "WebServiceLookup",
@@ -514,37 +513,51 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     this.outFieldContainerName = outFieldContainerName;
   }
 
-  /** @return the passingInputData */
+  /**
+   * @return the passingInputData
+   */
   public boolean isPassingInputData() {
     return passingInputData;
   }
 
-  /** @param passingInputData the passingInputData to set */
+  /**
+   * @param passingInputData the passingInputData to set
+   */
   public void setPassingInputData(boolean passingInputData) {
     this.passingInputData = passingInputData;
   }
 
-  /** @return the compatible */
+  /**
+   * @return the compatible
+   */
   public boolean isCompatible() {
     return compatible;
   }
 
-  /** @param compatible the compatible to set */
+  /**
+   * @param compatible the compatible to set
+   */
   public void setCompatible(boolean compatible) {
     this.compatible = compatible;
   }
 
-  /** @return the repeatingElementName */
+  /**
+   * @return the repeatingElementName
+   */
   public String getRepeatingElementName() {
     return repeatingElementName;
   }
 
-  /** @param repeatingElementName the repeatingElementName to set */
+  /**
+   * @param repeatingElementName the repeatingElementName to set
+   */
   public void setRepeatingElementName(String repeatingElementName) {
     this.repeatingElementName = repeatingElementName;
   }
 
-  /** @return true if the reply from the service is simply passed on as a String, mostly in XML */
+  /**
+   * @return true if the reply from the service is simply passed on as a String, mostly in XML
+   */
   public boolean isReturningReplyAsString() {
     return returningReplyAsString;
   }
@@ -557,12 +570,16 @@ public class WebServiceMeta extends BaseTransformMeta<WebService, WebServiceData
     this.returningReplyAsString = returningReplyAsString;
   }
 
-  /** @return the operationRequestName */
+  /**
+   * @return the operationRequestName
+   */
   public String getOperationRequestName() {
     return operationRequestName;
   }
 
-  /** @param operationRequestName the operationRequestName to set */
+  /**
+   * @param operationRequestName the operationRequestName to set
+   */
   public void setOperationRequestName(String operationRequestName) {
     this.operationRequestName = operationRequestName;
   }

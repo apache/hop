@@ -17,12 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.util.ArrayList;
@@ -30,6 +24,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Performs an insert/update/delete depending on the value of a field. */
 public class SynchronizeAfterMergeData extends BaseTransformData implements ITransformData {

@@ -17,6 +17,18 @@
 
 package org.apache.hop.core.xml;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import javax.xml.parsers.DocumentBuilder;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -26,22 +38,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.DocumentBuilder;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.math.BigDecimal;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-
 public class XmlHandlerUnitTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  /** @see <a href="https://en.wikipedia.org/wiki/Billion_laughs" /> */
+
+  /**
+   * @see <a href="https://en.wikipedia.org/wiki/Billion_laughs" />
+   */
   private static final String MALICIOUS_XML =
       "<?xml version=\"1.0\"?>\n"
           + "<!DOCTYPE lolz [\n"

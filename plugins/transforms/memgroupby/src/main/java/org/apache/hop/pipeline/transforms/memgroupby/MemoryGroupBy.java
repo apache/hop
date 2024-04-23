@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAll;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAny;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountDistinct;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Percentile;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +49,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
-
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAll;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAny;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountDistinct;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Percentile;
 
 /** Groups information based on aggregation rules. (sum, count, ...) */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> {

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,8 +39,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** This class knows how to handle the MetaData for the XML output transform */
 @Transform(
@@ -87,12 +86,16 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the zipped. */
+  /**
+   * @return Returns the zipped.
+   */
   public boolean isOmitXMLheader() {
     return omitXMLheader;
   }
 
-  /** @param omitXMLheader The omit XML header flag to set. */
+  /**
+   * @param omitXMLheader The omit XML header flag to set.
+   */
   public void setOmitXMLheader(boolean omitXMLheader) {
     this.omitXMLheader = omitXMLheader;
   }
@@ -107,12 +110,16 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     return omitNullValues;
   }
 
-  /** @return Returns the outputFields. */
+  /**
+   * @return Returns the outputFields.
+   */
   public XmlField[] getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields The outputFields to set. */
+  /**
+   * @param outputFields The outputFields to set.
+   */
   public void setOutputFields(XmlField[] outputFields) {
     this.outputFields = outputFields;
   }
@@ -347,12 +354,16 @@ public class AddXmlMeta extends BaseTransformMeta<AddXml, AddXmlData> {
     this.encoding = encoding;
   }
 
-  /** @return Returns the rootNode. */
+  /**
+   * @return Returns the rootNode.
+   */
   public String getRootNode() {
     return rootNode;
   }
 
-  /** @param rootNode The root node to set. */
+  /**
+   * @param rootNode The root node to set.
+   */
   public void setRootNode(String rootNode) {
     this.rootNode = rootNode;
   }

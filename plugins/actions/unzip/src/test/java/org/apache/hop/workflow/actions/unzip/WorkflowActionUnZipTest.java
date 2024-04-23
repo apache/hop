@@ -16,6 +16,10 @@
  */
 package org.apache.hop.workflow.actions.unzip;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -23,11 +27,6 @@ import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<ActionUnZip> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

@@ -105,15 +105,14 @@ public interface IExecutionInfoLocation extends Cloneable {
    * @return The state of the execution or null if not found
    * @throws HopException In case there was a problem reading the state
    */
-  ExecutionState getExecutionState(String executionId, boolean includeLogging)
-      throws HopException;
+  ExecutionState getExecutionState(String executionId, boolean includeLogging) throws HopException;
 
   /**
    * Load the logging text of an execution state separately.
    *
    * @param executionId The id of the execution to look for.
-   * @param sizeLimit The maximum amount of characters to load from the logging text.
-   *                  Set the limit to <=0 if you want to load everything up to a global limit of usually 20MB.
+   * @param sizeLimit The maximum amount of characters to load from the logging text. Set the limit
+   *     to <=0 if you want to load everything up to a global limit of usually 20MB.
    * @return The complete logging text
    * @throws HopException
    */

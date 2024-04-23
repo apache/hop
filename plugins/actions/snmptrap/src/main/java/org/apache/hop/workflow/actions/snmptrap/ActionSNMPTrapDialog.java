@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.snmptrap;
 
+import java.net.InetAddress;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -52,8 +53,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
-
-import java.net.InetAddress;
 
 /** This dialog allows you to edit the SNMPTrap action settings. */
 public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog {

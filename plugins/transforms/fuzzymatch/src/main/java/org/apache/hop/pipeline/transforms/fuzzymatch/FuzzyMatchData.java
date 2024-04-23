@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fuzzymatch;
 
+import java.util.HashSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.HashSet;
 
 public class FuzzyMatchData extends BaseTransformData implements ITransformData {
   public IRowMeta previousRowMeta;

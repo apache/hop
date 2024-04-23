@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.xp;
 
+import java.util.Collections;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -29,8 +30,6 @@ import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import java.util.Collections;
 
 @ExtensionPoint(
     id = "HopImportCreateProject",

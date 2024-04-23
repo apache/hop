@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.sortedmerge;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -46,9 +48,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SortedMergeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SortedMergeMeta.class; // For Translator
@@ -245,7 +244,6 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
     int nrFields = wFields.nrNonEmpty();
 
     input.allocate(nrFields);
-
 
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);

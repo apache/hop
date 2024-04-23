@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.eval;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -34,8 +35,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
-
-import java.util.List;
 
 /**
  * Action type to evaluate the result of a previous action. It uses a piece of javascript to do

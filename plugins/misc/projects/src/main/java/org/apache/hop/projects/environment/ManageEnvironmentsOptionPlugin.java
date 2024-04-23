@@ -17,6 +17,8 @@
 
 package org.apache.hop.projects.environment;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -34,9 +36,6 @@ import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
-
-import java.util.Arrays;
-import java.util.List;
 
 @ConfigPlugin(
     id = "ManageEnvironmentsOptionPlugin",
@@ -292,7 +291,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return createEnvironment;
   }
 
-  /** @param createEnvironment The createEnvironment to set */
+  /**
+   * @param createEnvironment The createEnvironment to set
+   */
   public void setCreateEnvironment(boolean createEnvironment) {
     this.createEnvironment = createEnvironment;
   }
@@ -306,7 +307,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return environmentName;
   }
 
-  /** @param environmentName The environmentName to set */
+  /**
+   * @param environmentName The environmentName to set
+   */
   public void setEnvironmentName(String environmentName) {
     this.environmentName = environmentName;
   }
@@ -320,7 +323,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return environmentPurpose;
   }
 
-  /** @param environmentPurpose The environmentPurpose to set */
+  /**
+   * @param environmentPurpose The environmentPurpose to set
+   */
   public void setEnvironmentPurpose(String environmentPurpose) {
     this.environmentPurpose = environmentPurpose;
   }
@@ -334,7 +339,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return environmentProject;
   }
 
-  /** @param environmentProject The environmentProject to set */
+  /**
+   * @param environmentProject The environmentProject to set
+   */
   public void setEnvironmentProject(String environmentProject) {
     this.environmentProject = environmentProject;
   }
@@ -348,7 +355,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return environmentConfigFiles;
   }
 
-  /** @param environmentConfigFiles The environmentConfigFiles to set */
+  /**
+   * @param environmentConfigFiles The environmentConfigFiles to set
+   */
   public void setEnvironmentConfigFiles(String[] environmentConfigFiles) {
     this.environmentConfigFiles = environmentConfigFiles;
   }
@@ -362,7 +371,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return modifyEnvironment;
   }
 
-  /** @param modifyEnvironment The modifyEnvironment to set */
+  /**
+   * @param modifyEnvironment The modifyEnvironment to set
+   */
   public void setModifyEnvironment(boolean modifyEnvironment) {
     this.modifyEnvironment = modifyEnvironment;
   }
@@ -376,7 +387,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return deleteEnvironment;
   }
 
-  /** @param deleteEnvironment The deleteEnvironment to set */
+  /**
+   * @param deleteEnvironment The deleteEnvironment to set
+   */
   public void setDeleteEnvironment(boolean deleteEnvironment) {
     this.deleteEnvironment = deleteEnvironment;
   }
@@ -390,7 +403,9 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     return listEnvironments;
   }
 
-  /** @param listEnvironments The listEnvironments to set */
+  /**
+   * @param listEnvironments The listEnvironments to set
+   */
   public void setListEnvironments(boolean listEnvironments) {
     this.listEnvironments = listEnvironments;
   }

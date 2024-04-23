@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -33,8 +34,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.ProgressMonitorAdapter;
@@ -26,8 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.lang.reflect.InvocationTargetException;
 
 public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   private static final Class<?> PKG = SearchFieldsProgressDialog.class; // For Translator
@@ -91,42 +90,58 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
     monitor.done();
   }
 
-  /** @return Returns the before. */
+  /**
+   * @return Returns the before.
+   */
   public boolean isBefore() {
     return before;
   }
 
-  /** @param before The before to set. */
+  /**
+   * @param before The before to set.
+   */
   public void setBefore(boolean before) {
     this.before = before;
   }
 
-  /** @return Returns the fields. */
+  /**
+   * @return Returns the fields.
+   */
   public IRowMeta getFields() {
     return fields;
   }
 
-  /** @param fields The fields to set. */
+  /**
+   * @param fields The fields to set.
+   */
   public void setFields(IRowMeta fields) {
     this.fields = fields;
   }
 
-  /** @return Returns the transform metadata */
+  /**
+   * @return Returns the transform metadata
+   */
   public TransformMeta getTransformMeta() {
     return transformMeta;
   }
 
-  /** @param transformMeta The transform metadata to set. */
+  /**
+   * @param transformMeta The transform metadata to set.
+   */
   public void setTransformMeta(TransformMeta transformMeta) {
     this.transformMeta = transformMeta;
   }
 
-  /** @return Returns the pipelineMeta. */
+  /**
+   * @return Returns the pipelineMeta.
+   */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /** @param pipelineMeta The pipelineMeta to set. */
+  /**
+   * @param pipelineMeta The pipelineMeta to set.
+   */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }

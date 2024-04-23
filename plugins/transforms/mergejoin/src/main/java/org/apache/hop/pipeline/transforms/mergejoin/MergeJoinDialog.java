@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -47,7 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.List;
 
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
@@ -284,12 +284,12 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     fdKeys2.bottom = new FormAttachment(wbKeys2, -2 * margin);
     fdKeys2.right = new FormAttachment(100, 0);
     wKeys2.setLayoutData(fdKeys2);
-   
+
     wTransform1.addListener(SWT.Modify, e -> updateFieldNames(ciKeys1[0], ciKeys2[0]));
     wTransform2.addListener(SWT.Modify, e -> updateFieldNames(ciKeys1[0], ciKeys2[0]));
 
     this.getData();
-    this.updateFieldNames(ciKeys1[0], ciKeys2[0]);   
+    this.updateFieldNames(ciKeys1[0], ciKeys2[0]);
     input.setChanged(backupChanged);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -417,26 +417,26 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
           e);
     }
   }
-  
+
   // Search the fields in the background
   //
-  private void updateFieldNames(ColumnInfo leftColumn, ColumnInfo rightColumn) {  
+  private void updateFieldNames(ColumnInfo leftColumn, ColumnInfo rightColumn) {
     final Runnable runnable =
         () -> {
           leftColumn.setComboValues(new String[] {""});
           rightColumn.setComboValues(new String[] {""});
-          
+
           TransformMeta transformMeta = pipelineMeta.findTransform(wTransform1.getText());
           if (transformMeta != null) {
             try {
               IRowMeta row = pipelineMeta.getTransformFields(variables, transformMeta);
-              String[] fieldNames = ConstUi.sortFieldNames(row.getFieldNames());              
+              String[] fieldNames = ConstUi.sortFieldNames(row.getFieldNames());
               leftColumn.setComboValues(fieldNames);
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
           }
-          
+
           transformMeta = pipelineMeta.findTransform(wTransform2.getText());
           if (transformMeta != null) {
             try {
@@ -446,8 +446,8 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
             } catch (HopException e) {
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
-          }          
+          }
         };
-    shell.getDisplay().asyncExec(runnable);    
+    shell.getDisplay().asyncExec(runnable);
   }
 }

@@ -43,7 +43,9 @@ public class Argument {
     return argument;
   }
 
-  /** @param argument The argument to set */
+  /**
+   * @param argument The argument to set
+   */
   public void setArgument(String argument) {
     this.argument = argument;
   }
@@ -57,7 +59,9 @@ public class Argument {
     return mask;
   }
 
-  /** @param mask The mask to set */
+  /**
+   * @param mask The mask to set
+   */
   public void setMask(String mask) {
     this.mask = mask;
   }

@@ -17,6 +17,17 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
@@ -39,18 +50,6 @@ import org.eclipse.rap.rwt.application.Application;
 import org.eclipse.rap.rwt.application.ApplicationConfiguration;
 import org.eclipse.rap.rwt.client.WebClient;
 import org.eclipse.rap.rwt.service.ResourceLoader;
-
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 public class HopWeb implements ApplicationConfiguration {
 
@@ -77,8 +76,7 @@ public class HopWeb implements ApplicationConfiguration {
 
       // Find metadata, perspective plugins
       //
-      List<IPlugin> plugins =
-              PluginRegistry.getInstance().getPlugins(MetadataPluginType.class);
+      List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins(MetadataPluginType.class);
       plugins.addAll(PluginRegistry.getInstance().getPlugins(HopPerspectivePluginType.class));
 
       // Add the plugin images as resources
@@ -164,7 +162,7 @@ public class HopWeb implements ApplicationConfiguration {
     }
     // See if the resource was already added.q
     //
-    if (SvgCache.findSvg(imageFilename)!=null) {
+    if (SvgCache.findSvg(imageFilename) != null) {
       return;
     }
 

@@ -18,6 +18,10 @@
 
 package org.apache.hop.neo4j.model.validation;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.model.GraphNode;
@@ -26,11 +30,6 @@ import org.neo4j.driver.Result;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /** This class will help you validate data input and your Neo4j data against a Graph Model */
 public class ModelValidator {
@@ -230,7 +229,9 @@ public class ModelValidator {
     return usedNodeProperties;
   }
 
-  /** @param usedNodeProperties The usedNodeProperties to set */
+  /**
+   * @param usedNodeProperties The usedNodeProperties to set
+   */
   public void setUsedNodeProperties(List<NodeProperty> usedNodeProperties) {
     this.usedNodeProperties = usedNodeProperties;
   }
@@ -244,7 +245,9 @@ public class ModelValidator {
     return graphModel;
   }
 
-  /** @param graphModel The graphModel to set */
+  /**
+   * @param graphModel The graphModel to set
+   */
   public void setGraphModel(GraphModel graphModel) {
     this.graphModel = graphModel;
   }
@@ -258,7 +261,9 @@ public class ModelValidator {
     return indexesList;
   }
 
-  /** @param indexesList The indexesList to set */
+  /**
+   * @param indexesList The indexesList to set
+   */
   public void setIndexesList(List<IndexDetails> indexesList) {
     this.indexesList = indexesList;
   }
@@ -272,7 +277,9 @@ public class ModelValidator {
     return constraintsList;
   }
 
-  /** @param constraintsList The constraintsList to set */
+  /**
+   * @param constraintsList The constraintsList to set
+   */
   public void setConstraintsList(List<ConstraintDetails> constraintsList) {
     this.constraintsList = constraintsList;
   }

@@ -21,6 +21,8 @@ import com.epam.parso.Column;
 import com.epam.parso.ColumnFormat;
 import com.epam.parso.SasFileProperties;
 import com.epam.parso.impl.SasFileReaderImpl;
+import java.io.InputStream;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -54,9 +56,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.InputStream;
-import java.util.List;
 
 public class SasInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SasInputMeta.class; // for Translator

@@ -17,6 +17,8 @@
 
 package org.apache.hop.projects.config;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
@@ -43,9 +45,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import picocli.CommandLine;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @ConfigPlugin(
     id = "ProjectsConfigOptionPlugin",
     description = "Configuration options for the global projects plugin")
@@ -64,7 +63,8 @@ public class ProjectsConfigOptionPlugin
   private static final String WIDGET_ID_DEFAULT_ENVIRONMENT = "10040-default-environment";
   private static final String WIDGET_ID_STANDARD_PARENT_PROJECT = "10050-standard-parent-project";
   private static final String WIDGET_ID_STANDARD_PROJECTS_FOLDER = "10060-standard-projects-folder";
-  private static final String WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT="10070-restrict-environments-to-active-project";
+  private static final String WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT =
+      "10070-restrict-environments-to-active-project";
   private static final String WIDGET_ID_DEFAULT_PROJECT_CONFIG_FILENAME =
       "10070-default-project-config-filename";
 
@@ -161,12 +161,10 @@ public class ProjectsConfigOptionPlugin
       parentId = ConfigPluginOptionsTab.GUI_WIDGETS_PARENT_ID,
       type = GuiElementType.CHECKBOX,
       variables = false,
-      label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message"
-  )
+      label = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message")
   @CommandLine.Option(
-          names = {"-eap", "--environments-for-active-project"},
-          description = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message"
-  )
+      names = {"-eap", "--environments-for-active-project"},
+      description = "i18n::ProjectConfig.RestrictEnvsToActiveProject.Message")
   private Boolean environmentsForActiveProject;
 
   /**
@@ -363,7 +361,8 @@ public class ProjectsConfigOptionPlugin
           break;
         case WIDGET_ID_RESTRICT_ENVIRONMENTS_TO_ACTIVE_PROJECT:
           environmentsForActiveProject = ((Button) control).getSelection();
-          ProjectsConfigSingleton.getConfig().setEnvironmentsForActiveProject(environmentsForActiveProject);
+          ProjectsConfigSingleton.getConfig()
+              .setEnvironmentsForActiveProject(environmentsForActiveProject);
           break;
       }
     }
@@ -389,7 +388,9 @@ public class ProjectsConfigOptionPlugin
     return projectsEnabled;
   }
 
-  /** @param projectsEnabled The projectsEnabled to set */
+  /**
+   * @param projectsEnabled The projectsEnabled to set
+   */
   public void setProjectsEnabled(Boolean projectsEnabled) {
     this.projectsEnabled = projectsEnabled;
   }
@@ -403,7 +404,9 @@ public class ProjectsConfigOptionPlugin
     return projectMandatory;
   }
 
-  /** @param projectMandatory The projectMandatory to set */
+  /**
+   * @param projectMandatory The projectMandatory to set
+   */
   public void setProjectMandatory(Boolean projectMandatory) {
     this.projectMandatory = projectMandatory;
   }
@@ -417,7 +420,9 @@ public class ProjectsConfigOptionPlugin
     return defaultProject;
   }
 
-  /** @param defaultProject The defaultProject to set */
+  /**
+   * @param defaultProject The defaultProject to set
+   */
   public void setDefaultProject(String defaultProject) {
     this.defaultProject = defaultProject;
   }
@@ -431,7 +436,9 @@ public class ProjectsConfigOptionPlugin
     return standardParentProject;
   }
 
-  /** @param standardParentProject The standardParentProject to set */
+  /**
+   * @param standardParentProject The standardParentProject to set
+   */
   public void setStandardParentProject(String standardParentProject) {
     this.standardParentProject = standardParentProject;
   }
@@ -445,7 +452,9 @@ public class ProjectsConfigOptionPlugin
     return environmentMandatory;
   }
 
-  /** @param environmentMandatory The environmentMandatory to set */
+  /**
+   * @param environmentMandatory The environmentMandatory to set
+   */
   public void setEnvironmentMandatory(Boolean environmentMandatory) {
     this.environmentMandatory = environmentMandatory;
   }
@@ -459,7 +468,9 @@ public class ProjectsConfigOptionPlugin
     return defaultEnvironment;
   }
 
-  /** @param defaultEnvironment The defaultEnvironment to set */
+  /**
+   * @param defaultEnvironment The defaultEnvironment to set
+   */
   public void setDefaultEnvironment(String defaultEnvironment) {
     this.defaultEnvironment = defaultEnvironment;
   }
@@ -473,7 +484,9 @@ public class ProjectsConfigOptionPlugin
     return standardProjectsFolder;
   }
 
-  /** @param standardProjectsFolder The standardProjectsFolder to set */
+  /**
+   * @param standardProjectsFolder The standardProjectsFolder to set
+   */
   public void setStandardProjectsFolder(String standardProjectsFolder) {
     this.standardProjectsFolder = standardProjectsFolder;
   }
@@ -487,7 +500,9 @@ public class ProjectsConfigOptionPlugin
     return defaultProjectConfigFile;
   }
 
-  /** @param defaultProjectConfigFile The defaultProjectConfigFile to set */
+  /**
+   * @param defaultProjectConfigFile The defaultProjectConfigFile to set
+   */
   public void setDefaultProjectConfigFile(String defaultProjectConfigFile) {
     this.defaultProjectConfigFile = defaultProjectConfigFile;
   }
@@ -501,7 +516,9 @@ public class ProjectsConfigOptionPlugin
     return environmentsForActiveProject;
   }
 
-  /** @param environmentsForActiveProject The environmentsForActiveProject flag to set */
+  /**
+   * @param environmentsForActiveProject The environmentsForActiveProject flag to set
+   */
   public void setEnvironmentsForActiveProject(Boolean environmentsForActiveProject) {
     this.environmentsForActiveProject = environmentsForActiveProject;
   }

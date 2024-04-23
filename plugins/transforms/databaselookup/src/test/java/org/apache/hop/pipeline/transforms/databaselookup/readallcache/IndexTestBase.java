@@ -17,19 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.List;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.BitSet;
-import java.util.List;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /**
  * This is a base class for several similar cases. All of them are checking how indexes work with

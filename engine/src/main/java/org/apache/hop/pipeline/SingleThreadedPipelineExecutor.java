@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -25,9 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SingleThreadedPipelineExecutor {
 

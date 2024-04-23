@@ -16,9 +16,8 @@
  */
 package org.apache.hop.base;
 
-import org.apache.hop.core.listeners.IFilenameChangedListener;
-
 import java.util.Objects;
+import org.apache.hop.core.listeners.IFilenameChangedListener;
 
 public class MockFilenameChangeListener implements IFilenameChangedListener {
 
@@ -59,7 +58,9 @@ public class MockFilenameChangeListener implements IFilenameChangedListener {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(int id) {
     this.id = id;
   }

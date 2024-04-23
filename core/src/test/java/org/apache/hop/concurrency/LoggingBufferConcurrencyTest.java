@@ -17,15 +17,14 @@
 
 package org.apache.hop.concurrency;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogMessage;
 import org.apache.hop.core.logging.LoggingBuffer;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class LoggingBufferConcurrencyTest {
 

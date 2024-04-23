@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.variables.IVariables;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class PipelineSvgPainter {
 

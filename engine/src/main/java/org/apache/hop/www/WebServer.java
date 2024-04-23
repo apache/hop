@@ -298,8 +298,8 @@ public class WebServer {
     // Start execution
     createListeners();
     // Temp disable shutdown listener #3367
-//    Thread monitor = new MonitorThread(server, hostname, shutdownPort);
-//    monitor.start();
+    //    Thread monitor = new MonitorThread(server, hostname, shutdownPort);
+    //    monitor.start();
     server.start();
   }
 
@@ -355,8 +355,8 @@ public class WebServer {
 
     // Temp disable shutdown listener #3367
     //    log.logBasic(
-//        BaseMessages.getString(
-//            PKG, "WebServer.Log.CreateShutDownListener", hostname, "" + shutdownPort));
+    //        BaseMessages.getString(
+    //            PKG, "WebServer.Log.CreateShutDownListener", hostname, "" + shutdownPort));
 
     server.setConnectors(new Connector[] {connector});
   }

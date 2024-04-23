@@ -73,7 +73,9 @@ public class AreaOwner {
     return x;
   }
 
-  /** @param x The x to set */
+  /**
+   * @param x The x to set
+   */
   public void setX(int x) {
     this.x = x;
   }
@@ -87,7 +89,9 @@ public class AreaOwner {
     return y;
   }
 
-  /** @param y The y to set */
+  /**
+   * @param y The y to set
+   */
   public void setY(int y) {
     this.y = y;
   }
@@ -101,7 +105,9 @@ public class AreaOwner {
     return width;
   }
 
-  /** @param width The width to set */
+  /**
+   * @param width The width to set
+   */
   public void setWidth(int width) {
     this.width = width;
   }
@@ -115,7 +121,9 @@ public class AreaOwner {
     return height;
   }
 
-  /** @param height The height to set */
+  /**
+   * @param height The height to set
+   */
   public void setHeight(int height) {
     this.height = height;
   }
@@ -129,7 +137,9 @@ public class AreaOwner {
     return areaType;
   }
 
-  /** @param areaType The areaType to set */
+  /**
+   * @param areaType The areaType to set
+   */
   public void setAreaType(AreaType areaType) {
     this.areaType = areaType;
   }
@@ -143,7 +153,9 @@ public class AreaOwner {
     return subject;
   }
 
-  /** @param subject The subject to set */
+  /**
+   * @param subject The subject to set
+   */
   public void setSubject(Object subject) {
     this.subject = subject;
   }

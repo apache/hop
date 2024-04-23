@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -41,8 +42,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class BeamConsumeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamConsume.class; // For Translator
@@ -215,7 +214,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdlMessageType.right = new FormAttachment(middle, -margin);
     wlMessageType.setLayoutData(fdlMessageType);
     wMessageType = new ComboVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wMessageType.setItems(new String[] { "String", "Avro Record" });
+    wMessageType.setItems(new String[] {"String", "Avro Record"});
     PropsUi.setLook(wMessageType);
     FormData fdMessageType = new FormData();
     fdMessageType.left = new FormAttachment(middle, 0);
@@ -242,7 +241,8 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     lastControl = wSchemaRegistryUrl;
 
     Label wlSchemaRegistrySubject = new Label(shell, SWT.RIGHT);
-    wlSchemaRegistrySubject.setText(BaseMessages.getString(PKG, "BeamConsumeDialog.SchemaRegistrySubject"));
+    wlSchemaRegistrySubject.setText(
+        BaseMessages.getString(PKG, "BeamConsumeDialog.SchemaRegistrySubject"));
     PropsUi.setLook(wlSchemaRegistrySubject);
     FormData fdlSchemaRegistrySubject = new FormData();
     fdlSchemaRegistrySubject.left = new FormAttachment(0, 0);
@@ -257,7 +257,7 @@ public class BeamConsumeDialog extends BaseTransformDialog implements ITransform
     fdSchemaRegistrySubject.right = new FormAttachment(100, 0);
     wSchemaRegistrySubject.setLayoutData(fdSchemaRegistrySubject);
     lastControl = wSchemaRegistrySubject;
-    
+
     Label wlUseProcessingTime = new Label(shell, SWT.RIGHT);
     wlUseProcessingTime.setText(BaseMessages.getString(PKG, "BeamProduceDialog.UseProcessingTime"));
     PropsUi.setLook(wlUseProcessingTime);

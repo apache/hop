@@ -19,6 +19,9 @@ package org.apache.hop.beam.core.fn;
 
 import com.google.api.services.bigquery.model.TableFieldSchema;
 import com.google.api.services.bigquery.model.TableSchema;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
+import java.util.List;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
 import org.apache.beam.sdk.io.gcp.bigquery.SchemaAndRecord;
@@ -33,10 +36,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
-import java.util.List;
 
 /** BigQuery Avro SchemaRecord to HopRow */
 public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndRecord, HopRow> {
@@ -56,9 +55,7 @@ public class BQSchemaAndRecordToHopFn implements SerializableFunction<SchemaAndR
   private transient SimpleDateFormat simpleDateTimeFormat;
   private transient SimpleDateFormat simpleDateFormat;
 
-  public BQSchemaAndRecordToHopFn(
-      String transformName,
-      String rowMetaJson) {
+  public BQSchemaAndRecordToHopFn(String transformName, String rowMetaJson) {
     this.transformName = transformName;
     this.rowMetaJson = rowMetaJson;
   }

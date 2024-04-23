@@ -17,10 +17,9 @@
 
 package org.apache.hop.metadata.api;
 
+import java.util.List;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
 import org.apache.hop.core.exception.HopException;
-
-import java.util.List;
 
 public interface IHopMetadataProvider {
 
@@ -29,7 +28,9 @@ public interface IHopMetadataProvider {
   <T extends IHopMetadata> IHopMetadataSerializer<T> getSerializer(Class<T> managedClass)
       throws HopException;
 
-  /** @return The password encoder/decoder used in the serializers for password encoding */
+  /**
+   * @return The password encoder/decoder used in the serializers for password encoding
+   */
   ITwoWayPasswordEncoder getTwoWayPasswordEncoder();
 
   /**

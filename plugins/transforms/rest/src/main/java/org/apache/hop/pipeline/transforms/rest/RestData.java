@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import javax.net.ssl.SSLContext;
+import javax.ws.rs.core.MediaType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
-
-import javax.net.ssl.SSLContext;
-import javax.ws.rs.core.MediaType;
 
 public class RestData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
@@ -34,12 +33,15 @@ public class RestData extends BaseTransformData implements ITransformData {
   public int indexOfUrlField;
 
   public String realUrl;
+
   /** Method */
   public String method;
+
   /** Index of method */
   public int indexOfMethod;
 
   public int nrheader;
+
   /** Headers */
   public int[] indexOfHeaderFields;
 

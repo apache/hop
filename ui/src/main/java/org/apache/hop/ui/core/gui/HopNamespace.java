@@ -52,7 +52,9 @@ public class HopNamespace {
     return getInstance().namespace;
   }
 
-  /** @param namespace The namespace to set */
+  /**
+   * @param namespace The namespace to set
+   */
   public static final void setNamespace(String namespace) {
     getInstance().namespace = namespace;
   }

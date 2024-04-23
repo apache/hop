@@ -34,32 +34,44 @@ public class TopLevelResource {
     this.resourceName = resourceName;
   }
 
-  /** @return the baseResourceName */
+  /**
+   * @return the baseResourceName
+   */
   public String getBaseResourceName() {
     return baseResourceName;
   }
 
-  /** @param baseResourceName the baseResourceName to set */
+  /**
+   * @param baseResourceName the baseResourceName to set
+   */
   public void setBaseResourceName(String baseResourceName) {
     this.baseResourceName = baseResourceName;
   }
 
-  /** @return the archiveName */
+  /**
+   * @return the archiveName
+   */
   public String getArchiveName() {
     return archiveName;
   }
 
-  /** @param archiveName the archiveName to set */
+  /**
+   * @param archiveName the archiveName to set
+   */
   public void setArchiveName(String archiveName) {
     this.archiveName = archiveName;
   }
 
-  /** @return the resourceName */
+  /**
+   * @return the resourceName
+   */
   public String getResourceName() {
     return resourceName;
   }
 
-  /** @param resourceName the resourceName to set */
+  /**
+   * @param resourceName the resourceName to set
+   */
   public void setResourceName(String resourceName) {
     this.resourceName = resourceName;
   }

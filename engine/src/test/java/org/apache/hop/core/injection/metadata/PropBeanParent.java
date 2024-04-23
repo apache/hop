@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.injection.metadata;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PropBeanParent {
 
@@ -59,7 +58,9 @@ public class PropBeanParent {
     return stringField;
   }
 
-  /** @param stringField The stringField to set */
+  /**
+   * @param stringField The stringField to set
+   */
   public void setStringField(String stringField) {
     this.stringField = stringField;
   }
@@ -73,7 +74,9 @@ public class PropBeanParent {
     return intField;
   }
 
-  /** @param intField The intField to set */
+  /**
+   * @param intField The intField to set
+   */
   public void setIntField(int intField) {
     this.intField = intField;
   }
@@ -87,7 +90,9 @@ public class PropBeanParent {
     return longField;
   }
 
-  /** @param longField The longField to set */
+  /**
+   * @param longField The longField to set
+   */
   public void setLongField(long longField) {
     this.longField = longField;
   }
@@ -101,7 +106,9 @@ public class PropBeanParent {
     return booleanField;
   }
 
-  /** @param booleanField The booleanField to set */
+  /**
+   * @param booleanField The booleanField to set
+   */
   public void setBooleanField(boolean booleanField) {
     this.booleanField = booleanField;
   }
@@ -115,7 +122,9 @@ public class PropBeanParent {
     return child;
   }
 
-  /** @param child The child to set */
+  /**
+   * @param child The child to set
+   */
   public void setChild(PropBeanChild child) {
     this.child = child;
   }
@@ -129,7 +138,9 @@ public class PropBeanParent {
     return children;
   }
 
-  /** @param children The children to set */
+  /**
+   * @param children The children to set
+   */
   public void setChildren(List<PropBeanListChild> children) {
     this.children = children;
   }
@@ -143,7 +154,9 @@ public class PropBeanParent {
     return strings;
   }
 
-  /** @param strings The strings to set */
+  /**
+   * @param strings The strings to set
+   */
   public void setStrings(List<String> strings) {
     this.strings = strings;
   }

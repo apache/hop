@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.StringUtil;
@@ -26,10 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /** Sets a field value to a constant if it is null */
 public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
@@ -82,12 +81,9 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
             Field field = meta.getFields().get(i);
             data.fieldnrs[i] = data.outputRowMeta.indexOfValue(field.getName());
             if (data.fieldnrs[i] < 0) {
-              logError(
-                  BaseMessages.getString(
-                      PKG, "IfNull.Log.CanNotFindField", field.getName()));
+              logError(BaseMessages.getString(PKG, "IfNull.Log.CanNotFindField", field.getName()));
               throw new HopException(
-                  BaseMessages.getString(
-                      PKG, "IfNull.Log.CanNotFindField", field.getName()));
+                  BaseMessages.getString(PKG, "IfNull.Log.CanNotFindField", field.getName()));
             }
             data.defaultValues[i] = resolve(field.getValue());
             data.defaultMasks[i] = resolve(field.getMask());
@@ -116,9 +112,7 @@ public class IfNull extends BaseTransform<IfNullMeta, IfNullData> {
             if (!alllistTypes.contains(valueType.getName())) {
               throw new HopException(
                   BaseMessages.getString(
-                      PKG,
-                      "IfNull.Log.CanNotFindValueType",
-                      valueType.getName()));
+                      PKG, "IfNull.Log.CanNotFindValueType", valueType.getName()));
             }
 
             data.ListTypes.put(valueType.getName(), i);

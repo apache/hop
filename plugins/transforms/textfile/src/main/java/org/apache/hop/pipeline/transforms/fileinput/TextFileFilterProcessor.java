@@ -22,7 +22,7 @@ package org.apache.hop.pipeline.transforms.fileinput;
  *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-@Deprecated(since="2.0")
+@Deprecated(since = "2.0")
 public class TextFileFilterProcessor {
 
   /** The filters to process */
@@ -30,7 +30,9 @@ public class TextFileFilterProcessor {
 
   private boolean stopProcessing;
 
-  /** @param filters The filters to process */
+  /**
+   * @param filters The filters to process
+   */
   public TextFileFilterProcessor(TextFileFilter[] filters) {
     this.filters = filters;
     this.stopProcessing = false;

@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
+import java.math.BigDecimal;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.math.BigDecimal;
 
 public class ValueMetaBaseLenientStringConversionTest {
 

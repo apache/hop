@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.javafilter;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -30,11 +34,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.codehaus.janino.ExpressionEvaluator;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
 public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
@@ -76,11 +75,14 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
           TransformMeta to = targetStreams.get(0).getTransformMeta();
           PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
           if (hop != null && hop.isEnabled()) {
-            data.trueRowSet = findOutputRowSet(getTransformName(), getCopy(),
-                targetStreams.get(0).getTransformName(), 0);
+            data.trueRowSet =
+                findOutputRowSet(
+                    getTransformName(), getCopy(), targetStreams.get(0).getTransformName(), 0);
             if (data.trueRowSet == null) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "JavaFilter.Log.TargetTransformInvalid",
+                  BaseMessages.getString(
+                      PKG,
+                      "JavaFilter.Log.TargetTransformInvalid",
                       targetStreams.get(0).getTransformName()));
             }
           }
@@ -92,11 +94,14 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
           TransformMeta to = targetStreams.get(1).getTransformMeta();
           PipelineHopMeta hop = getPipelineMeta().findPipelineHop(getTransformMeta(), to);
           if (hop != null && hop.isEnabled()) {
-            data.falseRowSet = findOutputRowSet(getTransformName(), getCopy(),
-                targetStreams.get(1).getTransformName(), 0);
+            data.falseRowSet =
+                findOutputRowSet(
+                    getTransformName(), getCopy(), targetStreams.get(1).getTransformName(), 0);
             if (data.falseRowSet == null) {
               throw new HopException(
-                  BaseMessages.getString(PKG, "JavaFilter.Log.TargetTransformInvalid",
+                  BaseMessages.getString(
+                      PKG,
+                      "JavaFilter.Log.TargetTransformInvalid",
                       targetStreams.get(1).getTransformName()));
             }
           }
@@ -121,10 +126,10 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
         if (data.trueRowSet != null) {
           if (log.isRowLevel()) {
             logRowlevel(
-              "Sending row to true  :"
-                  + data.trueTransformName
-                  + " : "
-                  + getInputRowMeta().getString(r));
+                "Sending row to true  :"
+                    + data.trueTransformName
+                    + " : "
+                    + getInputRowMeta().getString(r));
           }
           putRowTo(data.outputRowMeta, r, data.trueRowSet);
         }
@@ -132,10 +137,10 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> {
         if (data.falseRowSet != null) {
           if (log.isRowLevel()) {
             logRowlevel(
-              "Sending row to false :"
-                  + data.falseTransformName
-                  + " : "
-                  + getInputRowMeta().getString(r));
+                "Sending row to false :"
+                    + data.falseTransformName
+                    + " : "
+                    + getInputRowMeta().getString(r));
           }
           putRowTo(data.outputRowMeta, r, data.falseRowSet);
         }

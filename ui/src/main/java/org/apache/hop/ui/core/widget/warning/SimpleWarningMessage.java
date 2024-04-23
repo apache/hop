@@ -31,24 +31,32 @@ public class SimpleWarningMessage implements IWarningMessage {
     this.warningMessage = warningMessage;
   }
 
-  /** @return the warningMessage */
+  /**
+   * @return the warningMessage
+   */
   @Override
   public String getWarningMessage() {
     return warningMessage;
   }
 
-  /** @param warningMessage the warningMessage to set */
+  /**
+   * @param warningMessage the warningMessage to set
+   */
   public void setWarningMessage(String warningMessage) {
     this.warningMessage = warningMessage;
   }
 
-  /** @return the warning */
+  /**
+   * @return the warning
+   */
   @Override
   public boolean isWarning() {
     return warning;
   }
 
-  /** @param warning the warning to set */
+  /**
+   * @param warning the warning to set
+   */
   public void setWarning(boolean warning) {
     this.warning = warning;
   }

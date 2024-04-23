@@ -17,36 +17,6 @@
 
 package org.apache.hop.core.xml;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.IHopAttribute;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVfs;
-import org.owasp.encoder.Encode;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
@@ -68,6 +38,35 @@ import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.IHopAttribute;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.vfs.HopVfs;
+import org.owasp.encoder.Encode;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 
 /**
  * This class contains a number of (static) methods to facilitate the retrieval of information from
@@ -736,9 +735,9 @@ public class XmlHandler {
   public static TransformerFactory createSecureTransformerFactory() {
     TransformerFactory transformerFactory = TransformerFactory.newInstance();
     try {
-    transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-    } catch(IllegalArgumentException e) {
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      transformerFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+    } catch (IllegalArgumentException e) {
       // Ignore this: the library doesn't support these features.
       // We don't need to disable them.
     }

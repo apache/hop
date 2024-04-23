@@ -18,6 +18,7 @@
 
 package org.apache.hop.ui.www.service;
 
+import java.util.List;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -38,8 +39,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformCon
 import org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective;
 import org.apache.hop.www.service.WebService;
 import org.eclipse.swt.SWT;
-
-import java.util.List;
 
 @GuiPlugin
 public class WebServiceGuiPlugin {

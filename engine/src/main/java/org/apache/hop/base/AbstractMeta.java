@@ -282,7 +282,7 @@ public abstract class AbstractMeta
 
   /**
    * Find a database connection by it's name
-   * 
+   *
    * @param name The database name to look for
    * @param variables IVariables to use to resolve possible database name
    * @return The database connection or null if nothing was found.
@@ -293,10 +293,10 @@ public abstract class AbstractMeta
 
   /**
    * Find a database connection by it's name
-   * 
+   *
    * @param name The database name to look for
    * @param variables IVariables to use to resolve possible database name
-   * @param haltOnMissingMeta Raise an exception in case connection is missing 
+   * @param haltOnMissingMeta Raise an exception in case connection is missing
    * @returnThe database connection or null if nothing was found.
    */
   public DatabaseMeta findDatabase(String name, IVariables variables, boolean haltOnMissingMeta) {

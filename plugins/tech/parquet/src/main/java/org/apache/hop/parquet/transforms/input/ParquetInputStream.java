@@ -17,14 +17,13 @@
 
 package org.apache.hop.parquet.transforms.input;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.parquet.io.SeekableInputStream;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import org.apache.hop.core.exception.HopException;
+import org.apache.parquet.io.SeekableInputStream;
 
 public class ParquetInputStream extends SeekableInputStream {
 

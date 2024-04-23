@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.file.delegates;
 
+import java.util.List;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -26,8 +27,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-
-import java.util.List;
 
 public class HopGuiNotePadDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import java.io.InputStream;
@@ -1931,13 +1930,13 @@ public class TextFileInputDialog extends BaseTransformDialog
   private void addFieldsTabs() {
 
     SelectionListener lsSelection =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                fillFieldsLayoutFromSchema();
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            fillFieldsLayoutFromSchema();
+            input.setChanged();
+          }
+        };
 
     // Fields tab...
     //
@@ -1954,14 +1953,14 @@ public class TextFileInputDialog extends BaseTransformDialog
     PropsUi.setLook(wFieldsComp);
 
     wSchemaDefinition =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SchemaDefinition.class,
-                    wFieldsComp,
-                    SWT.NONE,
-                    BaseMessages.getString(PKG, "TextFileInputDialog.SchemaDefinition.Label"),
-                    BaseMessages.getString(PKG, "TextFileInputDialog.SchemaDefinition.Tooltip"));
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SchemaDefinition.class,
+            wFieldsComp,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "TextFileInputDialog.SchemaDefinition.Label"),
+            BaseMessages.getString(PKG, "TextFileInputDialog.SchemaDefinition.Tooltip"));
 
     PropsUi.setLook(wSchemaDefinition);
     FormData fdSchemaDefinition = new FormData();
@@ -1980,7 +1979,8 @@ public class TextFileInputDialog extends BaseTransformDialog
 
     Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wManualSchemaDefinition);
-    wManualSchemaDefinition.setText(BaseMessages.getString(PKG, "TextFileInputDialog.ManualSchemaDefinition.Label"));
+    wManualSchemaDefinition.setText(
+        BaseMessages.getString(PKG, "TextFileInputDialog.ManualSchemaDefinition.Label"));
 
     FormLayout manualSchemaDefinitionLayout = new FormLayout();
     manualSchemaDefinitionLayout.marginWidth = 10;
@@ -2075,7 +2075,7 @@ public class TextFileInputDialog extends BaseTransformDialog
     wFields =
         new TableView(
             variables,
-                wManualSchemaDefinition,
+            wManualSchemaDefinition,
             SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -2114,7 +2114,8 @@ public class TextFileInputDialog extends BaseTransformDialog
 
       MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
       mb.setMessage(
-              BaseMessages.getString(PKG, "TextFileInputDialog.Load.SchemaDefinition.Message", schemaName));
+          BaseMessages.getString(
+              PKG, "TextFileInputDialog.Load.SchemaDefinition.Message", schemaName));
       mb.setText(BaseMessages.getString(PKG, "TextFileInputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
@@ -2122,7 +2123,7 @@ public class TextFileInputDialog extends BaseTransformDialog
         if (!Utils.isEmpty(schemaName)) {
           try {
             SchemaDefinition schemaDefinition =
-                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
             if (schemaDefinition != null) {
               IRowMeta r = schemaDefinition.getRowMeta();
               if (r != null) {
@@ -2136,18 +2137,19 @@ public class TextFileInputDialog extends BaseTransformDialog
                     item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
                     item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
                     item.setText(
-                            5,
-                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                        5,
+                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
                     item.setText(
-                            6,
-                            valueMeta.getPrecision() >= 0
-                                    ? Integer.toString(valueMeta.getPrecision())
-                                    : "");
+                        6,
+                        valueMeta.getPrecision() >= 0
+                            ? Integer.toString(valueMeta.getPrecision())
+                            : "");
                     item.setText(7, Const.NVL(valueMeta.getCurrencySymbol(), ""));
                     item.setText(8, Const.NVL(valueMeta.getDecimalSymbol(), ""));
                     item.setText(9, Const.NVL(valueMeta.getGroupingSymbol(), ""));
-                    item.setText(12, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
-
+                    item.setText(
+                        12,
+                        Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                   }
                 }
               }
@@ -2456,9 +2458,7 @@ public class TextFileInputDialog extends BaseTransformDialog
       final boolean reloadAllFields,
       final List<String> newFieldNames) {
     final List<String> lowerCaseNewFieldNames =
-        newFieldNames == null
-            ? new ArrayList()
-            : newFieldNames;
+        newFieldNames == null ? new ArrayList() : newFieldNames;
     for (int i = 0; i < in.inputFields.length; i++) {
       BaseFileField field = in.inputFields[i];
 
@@ -2644,7 +2644,6 @@ public class TextFileInputDialog extends BaseTransformDialog
       field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
-
 
       meta.inputFields[i] = field;
     }

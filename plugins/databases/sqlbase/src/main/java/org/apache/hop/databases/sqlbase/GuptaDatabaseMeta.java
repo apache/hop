@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Gupta SQLBase specific information through static final members
- */
-@DatabaseMetaPlugin(type = "SQLBASE", typeDescription = "Gupta SQL Base", documentationUrl = "/database/databases/sqlbase.html")
+/** Contains Gupta SQLBase specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "SQLBASE",
+    typeDescription = "Gupta SQL Base",
+    documentationUrl = "/database/databases/sqlbase.html")
 @GuiPlugin(id = "GUI-SQLBaseDatabaseMeta")
 public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -44,7 +45,9 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return -1;
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return false;
@@ -70,13 +73,17 @@ public class GuptaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports catalogs */
+  /**
+   * @return true if the database supports catalogs
+   */
   @Override
   public boolean isSupportsCatalogs() {
     return false;

@@ -16,14 +16,13 @@
  */
 package org.apache.hop.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+
+import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.row.RowMeta;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
 
 public class QueueRowSetTest {
   Object[] row;

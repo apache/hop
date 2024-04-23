@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.context;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
@@ -25,9 +27,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
@@ -90,7 +89,9 @@ public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements I
     return pipelineMeta;
   }
 
-  /** @param pipelineMeta The pipelineMeta to set */
+  /**
+   * @param pipelineMeta The pipelineMeta to set
+   */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
@@ -104,7 +105,9 @@ public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements I
     return hopMeta;
   }
 
-  /** @param hopMeta The hopMeta to set */
+  /**
+   * @param hopMeta The hopMeta to set
+   */
   public void setHopMeta(PipelineHopMeta hopMeta) {
     this.hopMeta = hopMeta;
   }
@@ -118,7 +121,9 @@ public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements I
     return pipelineGraph;
   }
 
-  /** @param pipelineGraph The pipelineGraph to set */
+  /**
+   * @param pipelineGraph The pipelineGraph to set
+   */
   public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
@@ -132,7 +137,9 @@ public class HopGuiPipelineHopContext extends BaseGuiContextHandler implements I
     return click;
   }
 
-  /** @param click The click to set */
+  /**
+   * @param click The click to set
+   */
   public void setClick(Point click) {
     this.click = click;
   }

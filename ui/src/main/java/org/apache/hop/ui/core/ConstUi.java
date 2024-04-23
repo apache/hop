@@ -17,13 +17,13 @@
 
 package org.apache.hop.ui.core;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.TreeItem;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class is used to define a number of default values for various settings throughout Hop. It
@@ -226,27 +226,27 @@ public class ConstUi {
     }
     menu.setVisible(true);
   }
-  
+
   /**
    * Sort field names if options is enabled
-   * 
+   *
    * @param names
    */
   public static String[] sortFieldNames(List<String> names) {
     String[] result = names.toArray(new String[0]);
-    if ( PropsUi.getInstance().isSortFieldByName() ) {
+    if (PropsUi.getInstance().isSortFieldByName()) {
       Arrays.sort(result);
     }
     return result;
   }
-  
+
   /**
    * Sort field names if options is enabled
-   * 
+   *
    * @param names
    */
-  public static String[] sortFieldNames(String[] names) {    
-    if ( PropsUi.getInstance().isSortFieldByName() ) {
+  public static String[] sortFieldNames(String[] names) {
+    if (PropsUi.getInstance().isSortFieldByName()) {
       Arrays.sort(names);
     }
     return names;

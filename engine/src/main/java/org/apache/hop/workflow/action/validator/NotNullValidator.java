@@ -17,12 +17,11 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 /** Fails if a field's value is <code>null</code>. */
 public class NotNullValidator implements IActionValidator {

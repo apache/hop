@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.fn;
 
+import java.util.HashMap;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -28,9 +29,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.List;
 
 public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
 
@@ -46,10 +44,7 @@ public class PublishMessagesFn extends DoFn<HopRow, PubsubMessage> {
   private transient Counter readCounter;
   private transient Counter outputCounter;
 
-  public PublishMessagesFn(
-      String transformName,
-      int fieldIndex,
-      String rowMetaJson) {
+  public PublishMessagesFn(String transformName, int fieldIndex, String rowMetaJson) {
     this.transformName = transformName;
     this.fieldIndex = fieldIndex;
     this.rowMetaJson = rowMetaJson;

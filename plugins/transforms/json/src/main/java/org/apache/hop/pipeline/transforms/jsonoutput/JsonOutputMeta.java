@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -31,11 +35,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 /** This class knows how to handle the MetaData for the Json output transform */
 @Transform(
@@ -223,7 +222,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta<JsonOutput, JsonOutputDat
     nrRowsInBloc = "1";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
     extension = "json";
-    doNotOpenNewFileInit=true;
+    doNotOpenNewFileInit = true;
     int nrFields = 0;
 
     for (int i = 0; i < nrFields; i++) {

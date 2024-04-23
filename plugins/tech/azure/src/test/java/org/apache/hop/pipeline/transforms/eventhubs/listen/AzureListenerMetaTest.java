@@ -18,13 +18,12 @@
 
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
+import java.util.List;
 import junit.framework.TestCase;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
-
-import java.util.List;
 
 public class AzureListenerMetaTest extends TestCase {
 

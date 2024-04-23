@@ -19,7 +19,6 @@
 package org.apache.hop.pipeline.transforms.eventhubs.listen;
 
 import com.microsoft.azure.eventprocessorhost.ExceptionReceivedEventArgs;
-
 import java.util.function.Consumer;
 
 // The general notification handler is an object that derives from Consumer<> and takes an

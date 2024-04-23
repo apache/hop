@@ -17,6 +17,15 @@
 
 package org.apache.hop.imp;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+import javax.xml.transform.dom.DOMSource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -30,16 +39,6 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-
-import javax.xml.transform.dom.DOMSource;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Properties;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public abstract class HopImportBase implements IHopImport {
   protected ILogChannel log;
@@ -232,7 +231,9 @@ public abstract class HopImportBase implements IHopImport {
     return inputFolderName;
   }
 
-  /** @param inputFolderName The inputFolderName to set */
+  /**
+   * @param inputFolderName The inputFolderName to set
+   */
   public void setInputFolderName(String inputFolderName) {
     this.inputFolderName = inputFolderName;
   }
@@ -247,7 +248,9 @@ public abstract class HopImportBase implements IHopImport {
     return outputFolderName;
   }
 
-  /** @param outputFolderName The outputFolderName to set */
+  /**
+   * @param outputFolderName The outputFolderName to set
+   */
   public void setOutputFolderName(String outputFolderName) {
     this.outputFolderName = outputFolderName;
   }
@@ -261,7 +264,9 @@ public abstract class HopImportBase implements IHopImport {
     return connectionFileMap;
   }
 
-  /** @param connectionFileMap The connectionFileList to set */
+  /**
+   * @param connectionFileMap The connectionFileList to set
+   */
   public void setConnectionFileMap(TreeMap<String, String> connectionFileMap) {
     this.connectionFileMap = connectionFileMap;
   }
@@ -275,17 +280,23 @@ public abstract class HopImportBase implements IHopImport {
     return connectionsList;
   }
 
-  /** @param connectionsList The connectionsList to set */
+  /**
+   * @param connectionsList The connectionsList to set
+   */
   public void setConnectionsList(List<DatabaseMeta> connectionsList) {
     this.connectionsList = connectionsList;
   }
 
-  /** @param inputFolder The inputFolder to set */
+  /**
+   * @param inputFolder The inputFolder to set
+   */
   public void setInputFolder(FileObject inputFolder) {
     this.inputFolder = inputFolder;
   }
 
-  /** @param outputFolder The outputFolder to set */
+  /**
+   * @param outputFolder The outputFolder to set
+   */
   public void setOutputFolder(FileObject outputFolder) {
     this.outputFolder = outputFolder;
   }
@@ -308,7 +319,9 @@ public abstract class HopImportBase implements IHopImport {
     return migratedFilesMap;
   }
 
-  /** @param migratedFilesMap The migratedFilesMap to set */
+  /**
+   * @param migratedFilesMap The migratedFilesMap to set
+   */
   public void setMigratedFilesMap(HashMap<String, DOMSource> migratedFilesMap) {
     this.migratedFilesMap = migratedFilesMap;
   }
@@ -322,7 +335,9 @@ public abstract class HopImportBase implements IHopImport {
     return connectionCounter;
   }
 
-  /** @param connectionCounter The connectionCounter to set */
+  /**
+   * @param connectionCounter The connectionCounter to set
+   */
   public void setConnectionCounter(int connectionCounter) {
     this.connectionCounter = connectionCounter;
   }
@@ -336,7 +351,9 @@ public abstract class HopImportBase implements IHopImport {
     return variableCounter;
   }
 
-  /** @param variableCounter The variableCounter to set */
+  /**
+   * @param variableCounter The variableCounter to set
+   */
   public void setVariableCounter(int variableCounter) {
     this.variableCounter = variableCounter;
   }
@@ -351,7 +368,9 @@ public abstract class HopImportBase implements IHopImport {
     return skippingExistingTargetFiles;
   }
 
-  /** @param skippingExistingTargetFiles The skippingExistingTargetFiles to set */
+  /**
+   * @param skippingExistingTargetFiles The skippingExistingTargetFiles to set
+   */
   @Override
   public void setSkippingExistingTargetFiles(boolean skippingExistingTargetFiles) {
     this.skippingExistingTargetFiles = skippingExistingTargetFiles;
@@ -367,7 +386,9 @@ public abstract class HopImportBase implements IHopImport {
     return sharedXmlFilename;
   }
 
-  /** @param sharedXmlFilename The sharedXmlFilename to set */
+  /**
+   * @param sharedXmlFilename The sharedXmlFilename to set
+   */
   @Override
   public void setSharedXmlFilename(String sharedXmlFilename) {
     this.sharedXmlFilename = sharedXmlFilename;
@@ -383,7 +404,9 @@ public abstract class HopImportBase implements IHopImport {
     return kettlePropertiesFilename;
   }
 
-  /** @param kettlePropertiesFilename The kettlePropertiesFilename to set */
+  /**
+   * @param kettlePropertiesFilename The kettlePropertiesFilename to set
+   */
   @Override
   public void setKettlePropertiesFilename(String kettlePropertiesFilename) {
     this.kettlePropertiesFilename = kettlePropertiesFilename;
@@ -399,7 +422,9 @@ public abstract class HopImportBase implements IHopImport {
     return jdbcPropertiesFilename;
   }
 
-  /** @param jdbcPropertiesFilename The jdbcPropertiesFilename to set */
+  /**
+   * @param jdbcPropertiesFilename The jdbcPropertiesFilename to set
+   */
   @Override
   public void setJdbcPropertiesFilename(String jdbcPropertiesFilename) {
     this.jdbcPropertiesFilename = jdbcPropertiesFilename;
@@ -424,7 +449,9 @@ public abstract class HopImportBase implements IHopImport {
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -440,7 +467,9 @@ public abstract class HopImportBase implements IHopImport {
     return targetConfigFilename;
   }
 
-  /** @param targetConfigFilename The targetConfigFilename to set */
+  /**
+   * @param targetConfigFilename The targetConfigFilename to set
+   */
   @Override
   public void setTargetConfigFilename(String targetConfigFilename) {
     this.targetConfigFilename = targetConfigFilename;
@@ -471,7 +500,9 @@ public abstract class HopImportBase implements IHopImport {
     return collectedVariables;
   }
 
-  /** @param collectedVariables The collectedVariables to set */
+  /**
+   * @param collectedVariables The collectedVariables to set
+   */
   public void setCollectedVariables(IVariables collectedVariables) {
     this.collectedVariables = collectedVariables;
   }
@@ -485,7 +516,9 @@ public abstract class HopImportBase implements IHopImport {
     return monitor;
   }
 
-  /** @param monitor The monitor to set */
+  /**
+   * @param monitor The monitor to set
+   */
   public void setMonitor(IProgressMonitor monitor) {
     this.monitor = monitor;
   }
@@ -499,7 +532,9 @@ public abstract class HopImportBase implements IHopImport {
     return metadataTargetFolder;
   }
 
-  /** @param metadataTargetFolder The metadataTargetFolder to set */
+  /**
+   * @param metadataTargetFolder The metadataTargetFolder to set
+   */
   public void setMetadataTargetFolder(String metadataTargetFolder) {
     this.metadataTargetFolder = metadataTargetFolder;
   }
@@ -514,7 +549,9 @@ public abstract class HopImportBase implements IHopImport {
     return skippingHiddenFilesAndFolders;
   }
 
-  /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  /**
+   * @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set
+   */
   @Override
   public void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders) {
     this.skippingHiddenFilesAndFolders = skippingHiddenFilesAndFolders;
@@ -530,7 +567,9 @@ public abstract class HopImportBase implements IHopImport {
     return skippingFolders;
   }
 
-  /** @param skippingFolders The skippingFolders to set */
+  /**
+   * @param skippingFolders The skippingFolders to set
+   */
   @Override
   public void setSkippingFolders(boolean skippingFolders) {
     this.skippingFolders = skippingFolders;

@@ -18,12 +18,11 @@
 package org.apache.hop.pipeline.transforms.ssh;
 
 import com.trilead.ssh2.Session;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.Utils;
-
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
 
 public class SessionResult {
 

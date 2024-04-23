@@ -17,6 +17,7 @@
 
 package org.apache.hop.avro.transforms.avroinput;
 
+import java.io.InputStream;
 import org.apache.avro.file.DataFileStream;
 import org.apache.avro.generic.GenericDatumReader;
 import org.apache.avro.generic.GenericRecord;
@@ -29,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.InputStream;
 
 public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInputData> {
   /**

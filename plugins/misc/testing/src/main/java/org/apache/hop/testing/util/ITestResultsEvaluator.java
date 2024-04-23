@@ -18,11 +18,10 @@
 
 package org.apache.hop.testing.util;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.UnitTestResult;
-
-import java.util.List;
 
 public interface ITestResultsEvaluator {
 

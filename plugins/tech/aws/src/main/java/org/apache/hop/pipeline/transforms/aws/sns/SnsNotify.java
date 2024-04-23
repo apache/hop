@@ -27,225 +27,216 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class SnsNotify extends BaseTransform<SnsNotifyMeta, SnsNotifyData> {
 
-    public SnsNotify(
-            TransformMeta transformMeta,
-            SnsNotifyMeta meta,
-            SnsNotifyData data,
-            int copyNr,
-            PipelineMeta pipelineMeta,
-            Pipeline pipeline){
-        super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+  public SnsNotify(
+      TransformMeta transformMeta,
+      SnsNotifyMeta meta,
+      SnsNotifyData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
+    super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
+  }
+
+  @Override
+  public boolean init() {
+    data.aws_sns = new AwsSns(meta, getPipelineMeta(), this);
+    if (!data.aws_sns.getAWSConnection()) {
+      setErrors(1);
+      stopAll();
+      setOutputDone();
+      return false;
     }
 
-    @Override
-    public boolean init(){
-        data.aws_sns = new AwsSns(meta, getPipelineMeta(), this);
-        if (!data.aws_sns.getAWSConnection()) {
-            setErrors(1);
-            stopAll();
-            setOutputDone();
-            return false;
-        }
+    data.realMessageIDField = resolve(meta.getTFldMessageID());
 
-        data.realMessageIDField = resolve(meta.getTFldMessageID());
+    return super.init();
+  }
 
-        return super.init();
+  /** This methods gets the Input-Fields indices (if defined) or set them to -1 */
+  private void setFieldIndices() {
+    // topicARN
+
+    IRowMeta inputMeta = (IRowMeta) getInputRowMeta();
+
+    if (meta.getCInputtopicArn().equals("Y")) {
+      data.indexOfFieldtopARN = inputMeta.indexOfValue(meta.getTFldtopicARN());
+    } else {
+      data.indexOfFieldtopARN = -1;
     }
 
-    /**
-     *
-     * This methods gets the Input-Fields indices (if defined) or set them to -1
-     *
-     */
-    private void setFieldIndices() {
-        // topicARN
-
-        IRowMeta inputMeta = (IRowMeta) getInputRowMeta();
-
-        if (meta.getCInputtopicArn().equals("Y")) {
-            data.indexOfFieldtopARN = inputMeta.indexOfValue(meta.getTFldtopicARN());
-        } else {
-            data.indexOfFieldtopARN = -1;
-        }
-
-        // Subject
-        if (meta.getCInputSubject().equals("Y")) {
-            data.indexOfFieldSubject = inputMeta.indexOfValue(meta.getTFldSubject());
-        } else {
-            data.indexOfFieldSubject = -1;
-        }
-
-        // Message
-        if (meta.getCInputMessage().equals("Y")) {
-            data.indexOfFieldMessage = inputMeta.indexOfValue(meta.getTFldMessage());
-        } else {
-            data.indexOfFieldMessage = -1;
-        }
-
+    // Subject
+    if (meta.getCInputSubject().equals("Y")) {
+      data.indexOfFieldSubject = inputMeta.indexOfValue(meta.getTFldSubject());
+    } else {
+      data.indexOfFieldSubject = -1;
     }
 
-    /**
-     * Once the pipeline starts executing, the processRow() method is called repeatedly
-     * by Apache Hop for as long as it returns true. To indicate that a transform has finished processing rows
-     * this method must call setOutputDone() and return false;
-     *
-     * Transforms which process incoming rows typically call getRow() to read a single row from the
-     * input stream, change or add row content, call putRow() to pass the changed row on
-     * and return true. If getRow() returns null, no more rows are expected to come in,
-     * and the processRow() implementation calls setOutputDone() and returns false to
-     * indicate that it is done too.
-     *
-     * Transforms which generate rows typically construct a new row Object[] using a call to
-     * RowDataUtil.allocateRowData(numberOfFields), add row content, and call putRow() to
-     * pass the new row on. Above process may happen in a loop to generate multiple rows,
-     * at the end of which processRow() would call setOutputDone() and return false;
-     *
-     * @return true to indicate that the function should be called again, false if the transform is done
-     */
-    @Override
-    public boolean processRow() throws HopException {
+    // Message
+    if (meta.getCInputMessage().equals("Y")) {
+      data.indexOfFieldMessage = inputMeta.indexOfValue(meta.getTFldMessage());
+    } else {
+      data.indexOfFieldMessage = -1;
+    }
+  }
 
-        // get incoming row, getRow() potentially blocks waiting for more rows, returns null if no more rows expected
-        Object[] r = getRow();
+  /**
+   * Once the pipeline starts executing, the processRow() method is called repeatedly by Apache Hop
+   * for as long as it returns true. To indicate that a transform has finished processing rows this
+   * method must call setOutputDone() and return false;
+   *
+   * <p>Transforms which process incoming rows typically call getRow() to read a single row from the
+   * input stream, change or add row content, call putRow() to pass the changed row on and return
+   * true. If getRow() returns null, no more rows are expected to come in, and the processRow()
+   * implementation calls setOutputDone() and returns false to indicate that it is done too.
+   *
+   * <p>Transforms which generate rows typically construct a new row Object[] using a call to
+   * RowDataUtil.allocateRowData(numberOfFields), add row content, and call putRow() to pass the new
+   * row on. Above process may happen in a loop to generate multiple rows, at the end of which
+   * processRow() would call setOutputDone() and return false;
+   *
+   * @return true to indicate that the function should be called again, false if the transform is
+   *     done
+   */
+  @Override
+  public boolean processRow() throws HopException {
 
-        // if no more rows are expected, indicate transform is finished and processRow() should not be called again
-        if (r == null){
-            setOutputDone();
-            return false;
+    // get incoming row, getRow() potentially blocks waiting for more rows, returns null if no more
+    // rows expected
+    Object[] r = getRow();
+
+    // if no more rows are expected, indicate transform is finished and processRow() should not be
+    // called again
+    if (r == null) {
+      setOutputDone();
+      return false;
+    }
+
+    // Get Field Indices of InputRow
+    setFieldIndices();
+
+    // the "first" flag is inherited from the base transform implementation
+    // it is used to guard some processing tasks, like figuring out field indexes
+    // in the row structure that only need to be done once
+    boolean firstrow = false;
+
+    if (first) {
+      firstrow = true;
+      first = false;
+      // clone the input row structure and place it in our data object
+      data.outputRowMeta = (IRowMeta) getInputRowMeta().clone();
+      // use meta.getFields() to change it, so it reflects the output row structure
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
+    }
+
+    // Check if it is first row or notification is set for each row
+    if (meta.getNotifyPointShort().equals("each") || firstrow) {
+
+      try {
+
+        Object[] outputRow = sendSnsNotification(r);
+        if (outputRow != null) {
+          putRow(data.outputRowMeta, outputRow);
+          incrementLinesOutput();
+          incrementLinesWritten();
         }
 
-        // Get Field Indices of InputRow
-        setFieldIndices();
+      } catch (Exception e) {
 
-        // the "first" flag is inherited from the base transform implementation
-        // it is used to guard some processing tasks, like figuring out field indexes
-        // in the row structure that only need to be done once
-        boolean firstrow = false;
-
-        if (first) {
-            firstrow = true;
-            first = false;
-            // clone the input row structure and place it in our data object
-            data.outputRowMeta = (IRowMeta) getInputRowMeta().clone();
-            // use meta.getFields() to change it, so it reflects the output row structure
-            meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
-        }
-
-        // Check if it is first row or notification is set for each row
-        if (meta.getNotifyPointShort().equals("each") || firstrow) {
-
-            try {
-
-                Object[] outputRow = sendSnsNotification(r);
-                if (outputRow != null) {
-                    putRow(data.outputRowMeta, outputRow);
-                    incrementLinesOutput();
-                    incrementLinesWritten();
-                }
-
-            } catch (Exception e) {
-
-                if (getTransformMeta().isDoingErrorHandling()) {
-                    putError(getInputRowMeta(), r, 1L, e.getMessage(), "", "SNSNotifyError");
-
-                } else {
-                    logError( "AWS SNS Error: " + e.getMessage() );
-                    setErrors( 1 );
-                    stopAll();
-                    setOutputDone(); // signal end to receiver(s)
-                    return false;
-
-                }
-            }
+        if (getTransformMeta().isDoingErrorHandling()) {
+          putError(getInputRowMeta(), r, 1L, e.getMessage(), "", "SNSNotifyError");
 
         } else {
-            putRow(data.outputRowMeta, r);
-            incrementLinesWritten();
+          logError("AWS SNS Error: " + e.getMessage());
+          setErrors(1);
+          stopAll();
+          setOutputDone(); // signal end to receiver(s)
+          return false;
         }
+      }
 
-        // log progress if it is time to do so
-        if (checkFeedback(getLinesRead())) {
-            logBasic("Linenr " + getLinesRead()); // Some basic logging
-        }
-
-        // indicate that processRow() should be called again
-        return true;
+    } else {
+      putRow(data.outputRowMeta, r);
+      incrementLinesWritten();
     }
 
-    /**
-     *
-     * Prepare SNS Notification, send it and store MessageID
-     *
-     * @param row	Current processed row Object
-     * @return		Modified row Object or null on error
-     * @throws Exception
-     */
-    private Object[] sendSnsNotification(Object[] row) throws Exception {
+    // log progress if it is time to do so
+    if (checkFeedback(getLinesRead())) {
+      logBasic("Linenr " + getLinesRead()); // Some basic logging
+    }
 
-        try {
+    // indicate that processRow() should be called again
+    return true;
+  }
 
-            // Notification Content from fields or static input
-            String tARN = "";
-            String subject = "";
-            String message = "";
+  /**
+   * Prepare SNS Notification, send it and store MessageID
+   *
+   * @param row Current processed row Object
+   * @return Modified row Object or null on error
+   * @throws Exception
+   */
+  private Object[] sendSnsNotification(Object[] row) throws Exception {
 
-            // topicARN
-            if (data.indexOfFieldtopARN >= 0) {
-                tARN = getInputRowMeta().getString(row, data.indexOfFieldtopARN);
-            } else {
-                tARN = resolve(meta.getTValuetopicARN());
-            }
-            // Subject
-            if (data.indexOfFieldSubject >= 0) {
-                subject = getInputRowMeta().getString(row, data.indexOfFieldSubject);
-            } else {
-                subject = resolve(meta.getTValueSubject());
-            }
-            // Message
-            if (data.indexOfFieldMessage >= 0) {
-                message = getInputRowMeta().getString(row, data.indexOfFieldMessage);
-            } else {
-                message = resolve(meta.getTValueMessage());
-            }
+    try {
 
-            // Send notification and catch messageID
-            Object[] outputRowData = row;
+      // Notification Content from fields or static input
+      String tARN = "";
+      String subject = "";
+      String message = "";
 
-            String messageID = data.aws_sns.publishToSNS(tARN, subject, message);
+      // topicARN
+      if (data.indexOfFieldtopARN >= 0) {
+        tARN = getInputRowMeta().getString(row, data.indexOfFieldtopARN);
+      } else {
+        tARN = resolve(meta.getTValuetopicARN());
+      }
+      // Subject
+      if (data.indexOfFieldSubject >= 0) {
+        subject = getInputRowMeta().getString(row, data.indexOfFieldSubject);
+      } else {
+        subject = resolve(meta.getTValueSubject());
+      }
+      // Message
+      if (data.indexOfFieldMessage >= 0) {
+        message = getInputRowMeta().getString(row, data.indexOfFieldMessage);
+      } else {
+        message = resolve(meta.getTValueMessage());
+      }
 
-            if (messageID != null) {
+      // Send notification and catch messageID
+      Object[] outputRowData = row;
 
-                outputRowData = RowDataUtil.resizeArray(outputRowData, data.outputRowMeta.size());
+      String messageID = data.aws_sns.publishToSNS(tARN, subject, message);
 
-                int indexOfMessID = data.outputRowMeta.indexOfValue( data.realMessageIDField );
-                if (indexOfMessID >= 0) {
-                    outputRowData[indexOfMessID] = messageID;
-                }
-            }
+      if (messageID != null) {
 
-            return outputRowData;
+        outputRowData = RowDataUtil.resizeArray(outputRowData, data.outputRowMeta.size());
 
-        } catch (Exception e) {
-
-            //logError(e.getMessage());
-            throw e;
-
+        int indexOfMessID = data.outputRowMeta.indexOfValue(data.realMessageIDField);
+        if (indexOfMessID >= 0) {
+          outputRowData[indexOfMessID] = messageID;
         }
+      }
+
+      return outputRowData;
+
+    } catch (Exception e) {
+
+      // logError(e.getMessage());
+      throw e;
     }
+  }
 
-    /**
-     * This method is called by Apache Hop once the transform is done processing.
-     *
-     * The dispose() method is the counterpart to init() and should release any resources
-     * acquired for transform execution like file handles or database connections.
-     *
-     */
-    public void dispose() {
+  /**
+   * This method is called by Apache Hop once the transform is done processing.
+   *
+   * <p>The dispose() method is the counterpart to init() and should release any resources acquired
+   * for transform execution like file handles or database connections.
+   */
+  public void dispose() {
 
-        data.aws_sns.disconnectAWSConnection();
+    data.aws_sns.disconnectAWSConnection();
 
-        super.dispose();
-    }
-
-
+    super.dispose();
+  }
 }

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
+import java.math.BigDecimal;
+import java.net.InetAddress;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -33,12 +38,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.math.BigDecimal;
-import java.net.InetAddress;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 
 /** Generates a number of (empty or the same) rows */
 public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
@@ -82,7 +81,7 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
           String stringValue = field.getValue();
 
           // If the value is empty: consider it to be NULL.
-          if (stringValue == null || stringValue.isEmpty() ) {
+          if (stringValue == null || stringValue.isEmpty()) {
             rowData[i] = null;
 
             if (value.getType() == IValueMeta.TYPE_NONE) {
@@ -206,18 +205,22 @@ public class Constant extends BaseTransform<ConstantMeta, ConstantData> {
                   remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
                 }
                 break;
-              
+
               case IValueMeta.TYPE_INET:
                 try {
                   rowData[i] = InetAddress.getByName(stringValue);
                 } catch (Exception e) {
                   String message =
-                      BaseMessages.getString(PKG, "Constant.BuildRow.Error.Parsing.InternetAddress",
-                          value.getName(), stringValue, e.toString());
+                      BaseMessages.getString(
+                          PKG,
+                          "Constant.BuildRow.Error.Parsing.InternetAddress",
+                          value.getName(),
+                          stringValue,
+                          e.toString());
                   remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, message, null));
                 }
                 break;
-                
+
               default:
                 String message =
                     BaseMessages.getString(

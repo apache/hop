@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DeleteKeyField {
 

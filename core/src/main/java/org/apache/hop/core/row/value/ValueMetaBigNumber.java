@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.row.value;
 
+import java.math.BigDecimal;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-
-import java.math.BigDecimal;
 
 @ValueMetaPlugin(
     id = "6",

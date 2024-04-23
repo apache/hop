@@ -17,6 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -39,20 +52,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /** Tests for applying Format and Style from cell (from a template) when writing fields */
 public class ExcelWriterTransform_StyleFormatTest {

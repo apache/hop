@@ -19,13 +19,13 @@
 package org.apache.hop.execution;
 
 public enum ExecutionMetricsType {
-    Input,
-    Output,
-    Read,
-    Written,
-    Updated,
-    Rejected,
-    Errors,
-    BufferSizeInput,
-    BufferSizeOutput,
+  Input,
+  Output,
+  Read,
+  Written,
+  Updated,
+  Rejected,
+  Errors,
+  BufferSizeInput,
+  BufferSizeOutput,
 }

@@ -23,10 +23,6 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.UploadPartRequest;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.util.StorageUnitConverter;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -38,6 +34,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.StorageUnitConverter;
+import org.apache.hop.i18n.BaseMessages;
 
 /** Custom OutputStream that enables chunked uploads into S3 */
 public class S3CommonPipedOutputStream extends PipedOutputStream {
@@ -56,6 +55,7 @@ public class S3CommonPipedOutputStream extends PipedOutputStream {
   private Future<Boolean> result = null;
   private final String bucketId;
   private final String key;
+
   /** AWS Multipart part size. */
   private final int partSize;
 

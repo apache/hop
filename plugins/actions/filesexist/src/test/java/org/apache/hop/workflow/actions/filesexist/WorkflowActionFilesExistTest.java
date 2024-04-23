@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+
 import org.apache.hop.core.Result;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
@@ -28,11 +33,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 public class WorkflowActionFilesExistTest {
   private IWorkflowEngine<WorkflowMeta> workflow;

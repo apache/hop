@@ -16,13 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
+import java.util.Collections;
+import java.util.HashSet;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-
-import java.util.Collections;
-import java.util.HashSet;
 
 /**
  * Takes in RowMetas and find the union of them. Then maps the field of each row to its final

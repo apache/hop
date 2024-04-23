@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline;
 
+import java.io.IOException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
@@ -26,8 +27,6 @@ import org.apache.hop.server.HttpUtil;
 import org.json.simple.parser.ParseException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
 
 public class PipelineConfiguration {
   public static final String XML_TAG = "pipeline_configuration";
@@ -83,23 +82,31 @@ public class PipelineConfiguration {
     return new PipelineConfiguration(configNode);
   }
 
-  /** @return the pipelineExecutionConfiguration */
+  /**
+   * @return the pipelineExecutionConfiguration
+   */
   public PipelineExecutionConfiguration getPipelineExecutionConfiguration() {
     return pipelineExecutionConfiguration;
   }
 
-  /** @param pipelineExecutionConfiguration the pipelineExecutionConfiguration to set */
+  /**
+   * @param pipelineExecutionConfiguration the pipelineExecutionConfiguration to set
+   */
   public void setPipelineExecutionConfiguration(
       PipelineExecutionConfiguration pipelineExecutionConfiguration) {
     this.pipelineExecutionConfiguration = pipelineExecutionConfiguration;
   }
 
-  /** @return the pipelineMeta */
+  /**
+   * @return the pipelineMeta
+   */
   public PipelineMeta getPipelineMeta() {
     return pipelineMeta;
   }
 
-  /** @param pipelineMeta the pipelineMeta to set */
+  /**
+   * @param pipelineMeta the pipelineMeta to set
+   */
   public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }

@@ -21,6 +21,9 @@ import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
+import java.util.ArrayList;
+import java.util.List;
+import javax.security.auth.login.LoginContext;
 import org.apache.hop.mongo.AuthContext;
 import org.apache.hop.mongo.KerberosHelper;
 import org.apache.hop.mongo.MongoDbException;
@@ -29,10 +32,6 @@ import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
 import org.apache.hop.mongo.wrapper.collection.KerberosMongoCollectionWrapper;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
-
-import javax.security.auth.login.LoginContext;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implementation of MongoClientWrapper which uses the GSSAPI auth mechanism. Should only be

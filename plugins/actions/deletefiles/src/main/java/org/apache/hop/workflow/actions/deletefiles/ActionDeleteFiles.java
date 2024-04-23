@@ -19,6 +19,11 @@ package org.apache.hop.workflow.actions.deletefiles;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
@@ -49,12 +54,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a 'delete files' action. */
 @Action(

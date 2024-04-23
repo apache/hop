@@ -304,16 +304,17 @@ public class SshDialog extends BaseTransformDialog implements ITransformDialog {
 
     wbFilename.addListener(
         SWT.Selection,
-        e -> BaseDialog.presentFileDialog(
-            shell,
-            wPrivateKey,
-            variables,
-            new String[] {"*.pem", "*"},
-            new String[] {
-              BaseMessages.getString(PKG, "System.FileType.PEMFiles"),
-              BaseMessages.getString(PKG, "System.FileType.AllFiles")
-            },
-            true));
+        e ->
+            BaseDialog.presentFileDialog(
+                shell,
+                wPrivateKey,
+                variables,
+                new String[] {"*.pem", "*"},
+                new String[] {
+                  BaseMessages.getString(PKG, "System.FileType.PEMFiles"),
+                  BaseMessages.getString(PKG, "System.FileType.AllFiles")
+                },
+                true));
 
     // Private key
     Label wlPrivateKey = new Label(wSettingsGroup, SWT.RIGHT | SWT.SINGLE);

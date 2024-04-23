@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -31,18 +42,6 @@ import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class XsdValidatorIntTest {
 
@@ -193,7 +192,7 @@ public class XsdValidatorIntTest {
     long totalCount = 0;
     int readBytes = -1;
     do {
-      int todoBytes = (int)((limit < 0) ? buff.length : Math.min(limit-totalCount, buff.length));
+      int todoBytes = (int) ((limit < 0) ? buff.length : Math.min(limit - totalCount, buff.length));
       if (todoBytes > 0) {
         readBytes = inp.read(buff, 0, todoBytes);
         if (readBytes > 0) {

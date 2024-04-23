@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.search;
 
+import java.util.Iterator;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-
-import java.util.Iterator;
 
 /** A location where searchables can be found. */
 public interface ISearchablesLocation {

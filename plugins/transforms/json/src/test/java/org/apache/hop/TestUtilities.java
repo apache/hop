@@ -17,6 +17,17 @@
 
 package org.apache.hop;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 import junit.framework.ComparisonFailure;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -33,18 +44,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.sort.SortRowsMeta;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
 
 public class TestUtilities {
 
@@ -390,8 +389,7 @@ public class TestUtilities {
 
   public static Pipeline loadAndRunPipeline(String path, Object... parameters) throws Exception {
     PipelineMeta pipelineMeta =
-        new PipelineMeta(
-            path, new MemoryMetadataProvider(), Variables.getADefaultVariableSpace());
+        new PipelineMeta(path, new MemoryMetadataProvider(), Variables.getADefaultVariableSpace());
 
     Pipeline trans = new LocalPipelineEngine(pipelineMeta);
     if (parameters != null) {

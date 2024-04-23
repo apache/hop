@@ -89,7 +89,9 @@ public interface IHopImport {
    */
   boolean isSkippingExistingTargetFiles();
 
-  /** @param skippingExistingTargetFiles The skippingExistingTargetFiles to set */
+  /**
+   * @param skippingExistingTargetFiles The skippingExistingTargetFiles to set
+   */
   void setSkippingExistingTargetFiles(boolean skippingExistingTargetFiles);
 
   /**
@@ -99,7 +101,9 @@ public interface IHopImport {
    */
   String getSharedXmlFilename();
 
-  /** @param sharedXmlFilename The sharedXmlFilename to set */
+  /**
+   * @param sharedXmlFilename The sharedXmlFilename to set
+   */
   void setSharedXmlFilename(String sharedXmlFilename);
 
   /**
@@ -109,8 +113,11 @@ public interface IHopImport {
    */
   String getKettlePropertiesFilename();
 
-  /** @param kettlePropertiesFilename The kettlePropertiesFilename to set */
+  /**
+   * @param kettlePropertiesFilename The kettlePropertiesFilename to set
+   */
   void setKettlePropertiesFilename(String kettlePropertiesFilename);
+
   /**
    * Gets jdbcPropertiesFilename
    *
@@ -118,7 +125,9 @@ public interface IHopImport {
    */
   String getJdbcPropertiesFilename();
 
-  /** @param jdbcPropertiesFilename The jdbcPropertiesFilename to set */
+  /**
+   * @param jdbcPropertiesFilename The jdbcPropertiesFilename to set
+   */
   void setJdbcPropertiesFilename(String jdbcPropertiesFilename);
 
   /**
@@ -135,15 +144,21 @@ public interface IHopImport {
    */
   boolean isSkippingHiddenFilesAndFolders();
 
-  /** @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set */
+  /**
+   * @param skippingHiddenFilesAndFolders The skippingHiddenFilesAndFolders to set
+   */
   void setSkippingHiddenFilesAndFolders(boolean skippingHiddenFilesAndFolders);
 
-  /** @param targetConfigFilename The targetConfigFilename to set */
+  /**
+   * @param targetConfigFilename The targetConfigFilename to set
+   */
   void setTargetConfigFilename(String targetConfigFilename);
 
   boolean isSkippingFolders();
 
-  /** @param skippingFolders The skippingFolders to set */
+  /**
+   * @param skippingFolders The skippingFolders to set
+   */
   void setSkippingFolders(boolean skippingFolders);
 
   /**
@@ -153,6 +168,8 @@ public interface IHopImport {
    */
   MultiMetadataProvider getMetadataProvider();
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   void setMetadataProvider(MultiMetadataProvider metadataProvider);
 }

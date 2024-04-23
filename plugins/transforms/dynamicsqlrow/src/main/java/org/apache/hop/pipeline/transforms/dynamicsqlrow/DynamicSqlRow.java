@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.dynamicsqlrow;
 
+import java.sql.ResultSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
@@ -29,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.ResultSet;
 
 /** Run dynamic SQL. SQL is defined in a field. */
 public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData> {

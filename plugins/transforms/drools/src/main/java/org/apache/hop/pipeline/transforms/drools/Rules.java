@@ -28,18 +28,18 @@ public class Rules {
     private boolean external;
 
     public Row() {
-      this( new Hashtable<String, Object>(), false );
+      this(new Hashtable<String, Object>(), false);
     }
 
-    public Row( Map<String, Object> row ) {
-      this( row, false );
+    public Row(Map<String, Object> row) {
+      this(row, false);
     }
 
-    public Row( boolean external ) {
-      this( new Hashtable<String, Object>(), external );
+    public Row(boolean external) {
+      this(new Hashtable<String, Object>(), external);
     }
 
-    public Row( Map<String, Object> row, boolean external ) {
+    public Row(Map<String, Object> row, boolean external) {
       this.row = row;
       this.external = external;
     }
@@ -52,8 +52,8 @@ public class Rules {
       return external;
     }
 
-    public void addColumn( String columnName, Object value ) {
-      row.put( columnName, value );
+    public void addColumn(String columnName, Object value) {
+      row.put(columnName, value);
     }
   }
 
@@ -70,19 +70,19 @@ public class Rules {
       this.external = false;
     }
 
-    public Column( Boolean external ) {
+    public Column(Boolean external) {
       this.external = external;
     }
 
-    public Column( String name, String type, Object payload  ) {
+    public Column(String name, String type, Object payload) {
       this();
       this.name = name;
       this.type = type;
       this.payload = payload;
     }
 
-    public Column( Boolean external, String name, String type, Object payload  ) {
-      this( external );
+    public Column(Boolean external, String name, String type, Object payload) {
+      this(external);
       this.name = name;
       this.type = type;
       this.payload = payload;
@@ -92,7 +92,7 @@ public class Rules {
       return name;
     }
 
-    public void setName( String name ) {
+    public void setName(String name) {
       this.name = name;
     }
 
@@ -100,7 +100,7 @@ public class Rules {
       return type;
     }
 
-    public void setType( String type ) {
+    public void setType(String type) {
       this.type = type;
     }
 
@@ -108,11 +108,11 @@ public class Rules {
       return payload;
     }
 
-    public void setPayload( Object payload ) {
+    public void setPayload(Object payload) {
       this.payload = payload;
     }
 
-    public void setExternalSource( boolean external ) {
+    public void setExternalSource(boolean external) {
       this.external = external;
     }
 

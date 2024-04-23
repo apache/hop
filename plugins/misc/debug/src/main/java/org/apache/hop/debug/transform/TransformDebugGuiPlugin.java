@@ -17,6 +17,8 @@
 
 package org.apache.hop.debug.transform;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -29,9 +31,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @GuiPlugin
 public class TransformDebugGuiPlugin {

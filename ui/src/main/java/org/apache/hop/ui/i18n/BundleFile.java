@@ -17,11 +17,6 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.commons.collections4.properties.SortedProperties;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.changed.ChangedFlag;
-import org.apache.hop.core.exception.HopException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -34,6 +29,10 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.apache.commons.collections4.properties.SortedProperties;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.changed.ChangedFlag;
+import org.apache.hop.core.exception.HopException;
 
 public class BundleFile extends ChangedFlag {
 
@@ -170,7 +169,9 @@ public class BundleFile extends ChangedFlag {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -184,7 +185,9 @@ public class BundleFile extends ChangedFlag {
     return packageName;
   }
 
-  /** @param packageName The packageName to set */
+  /**
+   * @param packageName The packageName to set
+   */
   public void setPackageName(String packageName) {
     this.packageName = packageName;
   }
@@ -198,7 +201,9 @@ public class BundleFile extends ChangedFlag {
     return locale;
   }
 
-  /** @param locale The locale to set */
+  /**
+   * @param locale The locale to set
+   */
   public void setLocale(String locale) {
     this.locale = locale;
   }
@@ -212,7 +217,9 @@ public class BundleFile extends ChangedFlag {
     return contents;
   }
 
-  /** @param contents The contents to set */
+  /**
+   * @param contents The contents to set
+   */
   public void setContents(Map<String, String> contents) {
     this.contents = contents;
   }

@@ -17,6 +17,10 @@
 
 package org.apache.hop.workflow.actions.filecompare;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ICheckResult;
@@ -40,11 +44,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * This defines a 'file compare' action. It will compare 2 files in a binary way, and will either

@@ -47,7 +47,9 @@ public class CypherParameters {
     return cypher;
   }
 
-  /** @param cypher The cypher to set */
+  /**
+   * @param cypher The cypher to set
+   */
   public void setCypher(String cypher) {
     this.cypher = cypher;
   }
@@ -61,7 +63,9 @@ public class CypherParameters {
     return targetParameters;
   }
 
-  /** @param targetParameters The targetParameters to set */
+  /**
+   * @param targetParameters The targetParameters to set
+   */
   public void setTargetParameters(List<TargetParameter> targetParameters) {
     this.targetParameters = targetParameters;
   }

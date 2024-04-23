@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -29,8 +31,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "NullIf",
@@ -44,7 +44,10 @@ public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
 
   private static final Class<?> PKG = NullIfMeta.class; // For Translator
 
-  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS",
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
       injectionGroupDescription = "NullIf.Injection.FIELDS")
   private List<NullIfField> fields;
 
@@ -52,14 +55,14 @@ public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
     super();
     this.fields = new ArrayList<>();
   }
-  
-  public NullIfMeta(NullIfMeta meta) {    
+
+  public NullIfMeta(NullIfMeta meta) {
     this();
     for (NullIfField field : meta.fields) {
       fields.add(new NullIfField(field.getName(), field.getValue()));
     }
   }
-  
+
   public List<NullIfField> getFields() {
     return fields;
   }
@@ -70,7 +73,7 @@ public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
 
   @Override
   public Object clone() {
-    return new NullIfMeta(this);  
+    return new NullIfMeta(this);
   }
 
   @Override

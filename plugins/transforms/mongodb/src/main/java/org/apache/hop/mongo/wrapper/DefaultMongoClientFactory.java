@@ -21,7 +21,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-
 import java.util.List;
 
 public class DefaultMongoClientFactory implements MongoClientFactory {

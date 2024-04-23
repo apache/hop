@@ -72,22 +72,30 @@ public class ActionWorkflowRunner implements Runnable {
     finished = true;
   }
 
-  /** @param result The result to set. */
+  /**
+   * @param result The result to set.
+   */
   public void setResult(Result result) {
     this.result = result;
   }
 
-  /** @return Returns the result. */
+  /**
+   * @return Returns the result.
+   */
   public Result getResult() {
     return result;
   }
 
-  /** @return Returns the log. */
+  /**
+   * @return Returns the log.
+   */
   public ILogChannel getLog() {
     return log;
   }
 
-  /** @param log The log to set. */
+  /**
+   * @param log The log to set.
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }
@@ -101,22 +109,30 @@ public class ActionWorkflowRunner implements Runnable {
     return workflow;
   }
 
-  /** @param workflow The workflow to set */
+  /**
+   * @param workflow The workflow to set
+   */
   public void setWorkflow(IWorkflowEngine<WorkflowMeta> workflow) {
     this.workflow = workflow;
   }
 
-  /** @return Returns the entryNr. */
+  /**
+   * @return Returns the entryNr.
+   */
   public int getEntryNr() {
     return entryNr;
   }
 
-  /** @param entryNr The entryNr to set. */
+  /**
+   * @param entryNr The entryNr to set.
+   */
   public void setEntryNr(int entryNr) {
     this.entryNr = entryNr;
   }
 
-  /** @return Returns the finished. */
+  /**
+   * @return Returns the finished.
+   */
   public boolean isFinished() {
     return finished;
   }

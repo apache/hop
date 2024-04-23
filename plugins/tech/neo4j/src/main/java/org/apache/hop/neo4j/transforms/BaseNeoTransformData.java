@@ -18,11 +18,10 @@
 
 package org.apache.hop.neo4j.transforms;
 
-import org.apache.hop.pipeline.transform.BaseTransformData;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.pipeline.transform.BaseTransformData;
 
 public class BaseNeoTransformData extends BaseTransformData {
 

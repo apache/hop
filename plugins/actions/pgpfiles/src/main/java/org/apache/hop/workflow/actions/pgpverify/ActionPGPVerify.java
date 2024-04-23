@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.pgpverify;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -41,9 +43,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Map;
 
 /** This defines a PGP verify action. */
 @Action(

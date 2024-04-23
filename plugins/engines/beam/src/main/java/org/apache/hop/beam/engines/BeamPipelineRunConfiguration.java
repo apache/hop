@@ -42,7 +42,6 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
   @HopMetadataProperty
   protected String tempLocation;
 
-
   @GuiWidgetElement(
       order = "90050-general-options",
       parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
@@ -97,7 +96,9 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return userAgent;
   }
 
-  /** @param userAgent The userAgent to set */
+  /**
+   * @param userAgent The userAgent to set
+   */
   public void setUserAgent(String userAgent) {
     this.userAgent = userAgent;
   }
@@ -112,7 +113,9 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return tempLocation;
   }
 
-  /** @param tempLocation The tempLocation to set */
+  /**
+   * @param tempLocation The tempLocation to set
+   */
   public void setTempLocation(String tempLocation) {
     this.tempLocation = tempLocation;
   }
@@ -127,7 +130,9 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return streamingHopTransformsFlushInterval;
   }
 
-  /** @param streamingHopTransformsFlushInterval The streamingHopTransformsFlushInterval to set */
+  /**
+   * @param streamingHopTransformsFlushInterval The streamingHopTransformsFlushInterval to set
+   */
   public void setStreamingHopTransformsFlushInterval(String streamingHopTransformsFlushInterval) {
     this.streamingHopTransformsFlushInterval = streamingHopTransformsFlushInterval;
   }
@@ -142,7 +147,9 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return streamingHopTransformsBufferSize;
   }
 
-  /** @param streamingHopTransformsBufferSize The streamingHopTransformsBufferSize to set */
+  /**
+   * @param streamingHopTransformsBufferSize The streamingHopTransformsBufferSize to set
+   */
   public void setStreamingHopTransformsBufferSize(String streamingHopTransformsBufferSize) {
     this.streamingHopTransformsBufferSize = streamingHopTransformsBufferSize;
   }
@@ -157,7 +164,9 @@ public abstract class BeamPipelineRunConfiguration extends EmptyPipelineRunConfi
     return fatJar;
   }
 
-  /** @param fatJar The fatJar to set */
+  /**
+   * @param fatJar The fatJar to set
+   */
   public void setFatJar(String fatJar) {
     this.fatJar = fatJar;
   }

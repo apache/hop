@@ -17,13 +17,13 @@
 
 package org.apache.hop.vfs.s3.vfs;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileName;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 /** created by: rfellows date: 05/17/2012 */
 public class S3NFileNameTest {

@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -35,8 +36,6 @@ import org.apache.hop.pipeline.transforms.ldapinput.ILdapMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "LDAPOutput",
     name = "i18n::LdapOutput.Name",
@@ -45,7 +44,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::LdapOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapoutput.html")
-public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData> implements ILdapMeta {
+public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData>
+    implements ILdapMeta {
   private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
@@ -166,57 +166,77 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the input useCertificate. */
+  /**
+   * @return Returns the input useCertificate.
+   */
   @Override
   public boolean isUseCertificate() {
     return useCertificate;
   }
 
-  /** @return Returns the useCertificate. */
+  /**
+   * @return Returns the useCertificate.
+   */
   public void setUseCertificate(boolean value) {
     this.useCertificate = value;
   }
 
-  /** @return Returns the input trustAllCertificates. */
+  /**
+   * @return Returns the input trustAllCertificates.
+   */
   @Override
   public boolean isTrustAllCertificates() {
     return trustAllCertificates;
   }
 
-  /** @return Returns the input trustAllCertificates. */
+  /**
+   * @return Returns the input trustAllCertificates.
+   */
   public void setTrustAllCertificates(boolean value) {
     this.trustAllCertificates = value;
   }
 
-  /** @return Returns the trustStorePath. */
+  /**
+   * @return Returns the trustStorePath.
+   */
   @Override
   public String getTrustStorePassword() {
     return trustStorePassword;
   }
 
-  /** @param value the trustStorePassword to set. */
+  /**
+   * @param value the trustStorePassword to set.
+   */
   public void setTrustStorePassword(String value) {
     this.trustStorePassword = value;
   }
 
-  /** @return Returns the trustStorePath. */
+  /**
+   * @return Returns the trustStorePath.
+   */
   @Override
   public String getTrustStorePath() {
     return trustStorePath;
   }
 
-  /** @param value the trustStorePath to set. */
+  /**
+   * @param value the trustStorePath to set.
+   */
   public void setTrustStorePath(String value) {
     this.trustStorePath = value;
   }
 
-  /** @return Returns the protocol. */
+  /**
+   * @return Returns the protocol.
+   */
   @Override
   public String getProtocol() {
     return protocol;
   }
 
-  /** @param value the protocol to set. */
+  /**
+   * @param value the protocol to set.
+   */
   public void setProtocol(String value) {
     this.protocol = value;
   }
@@ -355,63 +375,87 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return derefAliasesTypeDesc[i];
   }
 
-  /** @return Returns the updateStream. */
+  /**
+   * @return Returns the updateStream.
+   */
   public String[] getUpdateStream() {
     return updateStream;
   }
 
-  /** @param updateStream The updateStream to set. */
+  /**
+   * @param updateStream The updateStream to set.
+   */
   public void setUpdateStream(String[] updateStream) {
     this.updateStream = updateStream;
   }
 
-  /** @return Returns the updateLookup. */
+  /**
+   * @return Returns the updateLookup.
+   */
   public String[] getUpdateLookup() {
     return updateLookup;
   }
 
-  /** @param updateLookup The updateLookup to set. */
+  /**
+   * @param updateLookup The updateLookup to set.
+   */
   public void setUpdateLookup(String[] updateLookup) {
     this.updateLookup = updateLookup;
   }
 
-  /** @return Returns the input useAuthentication. */
+  /**
+   * @return Returns the input useAuthentication.
+   */
   public boolean isUseAuthentication() {
     return useAuthentication;
   }
 
-  /** @param useAuthentication The useAuthentication to set. */
+  /**
+   * @param useAuthentication The useAuthentication to set.
+   */
   public void setUseAuthentication(boolean useAuthentication) {
     this.useAuthentication = useAuthentication;
   }
 
-  /** @return Returns the host name. */
+  /**
+   * @return Returns the host name.
+   */
   @Override
   public String getHost() {
     return host;
   }
 
-  /** @param host The host to set. */
+  /**
+   * @param host The host to set.
+   */
   public void setHost(String host) {
     this.host = host;
   }
 
-  /** @return Returns the user name. */
+  /**
+   * @return Returns the user name.
+   */
   public String getUserName() {
     return userName;
   }
 
-  /** @param userName The username to set. */
+  /**
+   * @param userName The username to set.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
@@ -424,23 +468,31 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return this.dnFieldName;
   }
 
-  /** @return Returns the Port. */
+  /**
+   * @return Returns the Port.
+   */
   @Override
   public String getPort() {
     return port;
   }
 
-  /** @param port The port to set. */
+  /**
+   * @param port The port to set.
+   */
   public void setPort(String port) {
     this.port = port;
   }
 
-  /** @return Returns the failIfNotExist. */
+  /**
+   * @return Returns the failIfNotExist.
+   */
   public boolean isFailIfNotExist() {
     return failIfNotExist;
   }
 
-  /** @param failIfNotExist The failIfNotExist to set. */
+  /**
+   * @param failIfNotExist The failIfNotExist to set.
+   */
   public void setFailIfNotExist(boolean failIfNotExist) {
     this.failIfNotExist = failIfNotExist;
   }
@@ -464,52 +516,72 @@ public class LdapOutputMeta extends BaseTransformMeta<LdapOutput, LdapOutputData
     return retval;
   }
 
-  /** @param value The deleteRDN filed. */
+  /**
+   * @param value The deleteRDN filed.
+   */
   public void setDeleteRDN(boolean value) {
     this.deleteRDN = value;
   }
 
-  /** @return Returns the deleteRDN. */
+  /**
+   * @return Returns the deleteRDN.
+   */
   public boolean isDeleteRDN() {
     return deleteRDN;
   }
 
-  /** @param value The newDnFieldName filed. */
+  /**
+   * @param value The newDnFieldName filed.
+   */
   public void setNewDnFieldName(String value) {
     this.newDnFieldName = value;
   }
 
-  /** @return Returns the newDnFieldName. */
+  /**
+   * @return Returns the newDnFieldName.
+   */
   public String getNewDnFieldName() {
     return newDnFieldName;
   }
 
-  /** @param value The oldDnFieldName filed. */
+  /**
+   * @param value The oldDnFieldName filed.
+   */
   public void setOldDnFieldName(String value) {
     this.oldDnFieldName = value;
   }
 
-  /** @return Returns the oldDnFieldName. */
+  /**
+   * @return Returns the oldDnFieldName.
+   */
   public String getOldDnFieldName() {
     return oldDnFieldName;
   }
 
-  /** @param searchBase The searchBase filed. */
+  /**
+   * @param searchBase The searchBase filed.
+   */
   public void setSearchBaseDN(String searchBase) {
     this.searchBase = searchBase;
   }
 
-  /** @return Returns the searchBase. */
+  /**
+   * @return Returns the searchBase.
+   */
   public String getSearchBaseDN() {
     return searchBase;
   }
 
-  /** @param multiValuedSeparator The multi-valued separator filed. */
+  /**
+   * @param multiValuedSeparator The multi-valued separator filed.
+   */
   public void setMultiValuedSeparator(String multiValuedSeparator) {
     this.multiValuedSeparator = multiValuedSeparator;
   }
 
-  /** @return Returns the multi valued separator. */
+  /**
+   * @return Returns the multi valued separator.
+   */
   public String getMultiValuedSeparator() {
     return multiValuedSeparator;
   }

@@ -17,6 +17,15 @@
 
 package org.apache.hop.workflow.actions.ftpput;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.hop.core.Const;
@@ -43,16 +52,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.apache.hop.workflow.actions.util.IFtpConnection;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines an FTP put action. */
 @Action(
@@ -206,34 +205,46 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     }
   }
 
-  /** @return Returns the binaryMode. */
+  /**
+   * @return Returns the binaryMode.
+   */
   @Override
   public boolean isBinaryMode() {
     return binaryMode;
   }
 
-  /** @param binaryMode The binaryMode to set. */
+  /**
+   * @param binaryMode The binaryMode to set.
+   */
   public void setBinaryMode(boolean binaryMode) {
     this.binaryMode = binaryMode;
   }
 
-  /** @param timeout The timeout to set. */
+  /**
+   * @param timeout The timeout to set.
+   */
   public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
 
-  /** @return Returns the timeout. */
+  /**
+   * @return Returns the timeout.
+   */
   @Override
   public int getTimeout() {
     return timeout;
   }
 
-  /** @return Returns the onlyGettingNewFiles. */
+  /**
+   * @return Returns the onlyGettingNewFiles.
+   */
   public boolean isOnlyPuttingNewFiles() {
     return onlyPuttingNewFiles;
   }
 
-  /** @param onlyPuttingNewFiles Only transfer new files to the remote host */
+  /**
+   * @param onlyPuttingNewFiles Only transfer new files to the remote host
+   */
   public void setOnlyPuttingNewFiles(boolean onlyPuttingNewFiles) {
     this.onlyPuttingNewFiles = onlyPuttingNewFiles;
   }
@@ -258,75 +269,103 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     this.controlEncoding = encoding;
   }
 
-  /** @return Returns the remoteDirectory. */
+  /**
+   * @return Returns the remoteDirectory.
+   */
   public String getRemoteDirectory() {
     return remoteDirectory;
   }
 
-  /** @param directory The remoteDirectory to set. */
+  /**
+   * @param directory The remoteDirectory to set.
+   */
   public void setRemoteDirectory(String directory) {
     this.remoteDirectory = directory;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   @Override
   public String getPassword() {
     return password;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the serverName. */
+  /**
+   * @return Returns the serverName.
+   */
   @Override
   public String getServerName() {
     return serverName;
   }
 
-  /** @param serverName The serverName to set. */
+  /**
+   * @param serverName The serverName to set.
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
 
-  /** @return Returns the userName. */
+  /**
+   * @return Returns the userName.
+   */
   @Override
   public String getUserName() {
     return userName;
   }
 
-  /** @param userName The userName to set. */
+  /**
+   * @param userName The userName to set.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /** @return Returns the wildcard. */
+  /**
+   * @return Returns the wildcard.
+   */
   public String getWildcard() {
     return wildcard;
   }
 
-  /** @param wildcard The wildcard to set. */
+  /**
+   * @param wildcard The wildcard to set.
+   */
   public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
 
-  /** @return Returns the localDirectory. */
+  /**
+   * @return Returns the localDirectory.
+   */
   public String getLocalDirectory() {
     return localDirectory;
   }
 
-  /** @param directory The localDirectory to set. */
+  /**
+   * @param directory The localDirectory to set.
+   */
   public void setLocalDirectory(String directory) {
     this.localDirectory = directory;
   }
 
-  /** @param remove The remove to set. */
+  /**
+   * @param remove The remove to set.
+   */
   public void setRemove(boolean remove) {
     this.remove = remove;
   }
 
-  /** @return Returns the remove. */
+  /**
+   * @return Returns the remove.
+   */
   public boolean getRemove() {
     return remove;
   }
@@ -340,101 +379,137 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     this.serverPort = serverPort;
   }
 
-  /** @return the activeConnection */
+  /**
+   * @return the activeConnection
+   */
   @Override
   public boolean isActiveConnection() {
     return activeConnection;
   }
 
-  /** @param activeConnection set to true to get an active FTP connection */
+  /**
+   * @param activeConnection set to true to get an active FTP connection
+   */
   public void setActiveConnection(boolean activeConnection) {
     this.activeConnection = activeConnection;
   }
 
-  /** @return Returns the hostname of the ftp-proxy. */
+  /**
+   * @return Returns the hostname of the ftp-proxy.
+   */
   @Override
   public String getProxyHost() {
     return proxyHost;
   }
 
-  /** @param proxyHost The hostname of the proxy. */
+  /**
+   * @param proxyHost The hostname of the proxy.
+   */
   public void setProxyHost(String proxyHost) {
     this.proxyHost = proxyHost;
   }
 
-  /** @return Returns the password which is used to authenticate at the proxy. */
+  /**
+   * @return Returns the password which is used to authenticate at the proxy.
+   */
   @Override
   public String getProxyPassword() {
     return proxyPassword;
   }
 
-  /** @param proxyPassword The password which is used to authenticate at the proxy. */
+  /**
+   * @param proxyPassword The password which is used to authenticate at the proxy.
+   */
   public void setProxyPassword(String proxyPassword) {
     this.proxyPassword = proxyPassword;
   }
 
-  /** @return Returns the port of the ftp-proxy. */
+  /**
+   * @return Returns the port of the ftp-proxy.
+   */
   @Override
   public String getProxyPort() {
     return proxyPort;
   }
 
-  /** @param proxyPort The port of the ftp-proxy. */
+  /**
+   * @param proxyPort The port of the ftp-proxy.
+   */
   public void setProxyPort(String proxyPort) {
     this.proxyPort = proxyPort;
   }
 
-  /** @return Returns the username which is used to authenticate at the proxy. */
+  /**
+   * @return Returns the username which is used to authenticate at the proxy.
+   */
   @Override
   public String getProxyUsername() {
     return proxyUsername;
   }
 
-  /** @param socksProxyHost The socks proxy host to set */
+  /**
+   * @param socksProxyHost The socks proxy host to set
+   */
   public void setSocksProxyHost(String socksProxyHost) {
     this.socksProxyHost = socksProxyHost;
   }
 
-  /** @param socksProxyPort The socks proxy port to set */
+  /**
+   * @param socksProxyPort The socks proxy port to set
+   */
   public void setSocksProxyPort(String socksProxyPort) {
     this.socksProxyPort = socksProxyPort;
   }
 
-  /** @param socksProxyUsername The socks proxy username to set */
+  /**
+   * @param socksProxyUsername The socks proxy username to set
+   */
   public void setSocksProxyUsername(String socksProxyUsername) {
     this.socksProxyUsername = socksProxyUsername;
   }
 
-  /** @param socksProxyPassword The socks proxy password to set */
+  /**
+   * @param socksProxyPassword The socks proxy password to set
+   */
   public void setSocksProxyPassword(String socksProxyPassword) {
     this.socksProxyPassword = socksProxyPassword;
   }
 
-  /** @return The sox proxy host name */
+  /**
+   * @return The sox proxy host name
+   */
   @Override
   public String getSocksProxyHost() {
     return this.socksProxyHost;
   }
 
-  /** @return The socks proxy port */
+  /**
+   * @return The socks proxy port
+   */
   @Override
   public String getSocksProxyPort() {
     return this.socksProxyPort;
   }
 
-  /** @return The socks proxy username */
+  /**
+   * @return The socks proxy username
+   */
   @Override
   public String getSocksProxyUsername() {
     return this.socksProxyUsername;
   }
 
-  /** @return The socks proxy password */
+  /**
+   * @return The socks proxy password
+   */
   @Override
   public String getSocksProxyPassword() {
     return this.socksProxyPassword;
   }
 
-  /** @param proxyUsername The username which is used to authenticate at the proxy. */
+  /**
+   * @param proxyUsername The username which is used to authenticate at the proxy.
+   */
   public void setProxyUsername(String proxyUsername) {
     this.proxyUsername = proxyUsername;
   }
@@ -559,7 +634,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
                           + ftpclient.getReplyString());
                 }
               }
-              if(binaryMode){
+              if (binaryMode) {
                 ftpclient.setFileType(FTP.BINARY_FILE_TYPE);
               }
               boolean success = ftpclient.storeFile(file, inputStream);

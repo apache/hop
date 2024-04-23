@@ -18,6 +18,12 @@
 
 package org.apache.hop.neo4j.execution.path.base;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,13 +53,6 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @GuiPlugin
 public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
   private Tree wTree;
@@ -79,9 +78,9 @@ public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
     Button wGo = new Button(tabComposite, SWT.PUSH);
     wGo.setText(BaseMessages.getString("System.Button.Open"));
     PropsUi.setLook(wGo);
-    wGo.addListener(SWT.Selection, e->openItem(wTree));
+    wGo.addListener(SWT.Selection, e -> openItem(wTree));
     BaseTransformDialog.positionBottomButtons(
-            tabComposite, new Button[] {wGo}, PropsUi.getMargin(), null);
+        tabComposite, new Button[] {wGo}, PropsUi.getMargin(), null);
 
     wTree = new Tree(tabComposite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wTree);
@@ -91,7 +90,7 @@ public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
     fdTree.bottom = new FormAttachment(wGo, -PropsUi.getMargin());
     fdTree.right = new FormAttachment(100, 0);
     wTree.setLayoutData(fdTree);
-    wTree.addListener(SWT.DefaultSelection, e->openItem(wTree));
+    wTree.addListener(SWT.DefaultSelection, e -> openItem(wTree));
     wTree.setHeaderVisible(true);
     {
       TreeColumn column = new TreeColumn(wTree, SWT.LEFT);
@@ -183,7 +182,7 @@ public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
   }
 
   private String formatDate(Date registrationDate) {
-    if (registrationDate==null) {
+    if (registrationDate == null) {
       return "";
     }
     return new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(registrationDate);
@@ -207,31 +206,33 @@ public class NeoExecutionViewerErrorTab extends NeoExecutionViewerTabBase {
     pathParams.put("executionId", executionId);
     String pathCypher = getPathToFailedCypher();
 
-    getSession().readTransaction(
-        tx -> {
-          Result pathResult = tx.run(pathCypher, pathParams);
+    getSession()
+        .readTransaction(
+            tx -> {
+              Result pathResult = tx.run(pathCypher, pathParams);
 
-          while (pathResult.hasNext()) {
-            Record pathRecord = pathResult.next();
-            Value pathValue = pathRecord.get(0);
-            Path path = pathValue.asPath();
-            List<PathResult> shortestPath = new ArrayList<>();
-            for (Node node : path.nodes()) {
-              PathResult nodeResult = new PathResult();
-              nodeResult.setId(LoggingCore.getStringValue(node, "id"));
-              nodeResult.setName(LoggingCore.getStringValue(node, "name"));
-              nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
-              nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
-              nodeResult.setRegistrationDate(LoggingCore.getDateValue(node, "registrationDate"));
-              nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
+              while (pathResult.hasNext()) {
+                Record pathRecord = pathResult.next();
+                Value pathValue = pathRecord.get(0);
+                Path path = pathValue.asPath();
+                List<PathResult> shortestPath = new ArrayList<>();
+                for (Node node : path.nodes()) {
+                  PathResult nodeResult = new PathResult();
+                  nodeResult.setId(LoggingCore.getStringValue(node, "id"));
+                  nodeResult.setName(LoggingCore.getStringValue(node, "name"));
+                  nodeResult.setType(LoggingCore.getStringValue(node, "executionType"));
+                  nodeResult.setFailed(LoggingCore.getBooleanValue(node, "failed"));
+                  nodeResult.setRegistrationDate(
+                      LoggingCore.getDateValue(node, "registrationDate"));
+                  nodeResult.setCopy(LoggingCore.getStringValue(node, "copyNr"));
 
-              shortestPath.add(0, nodeResult);
-            }
-            shortestPaths.add(shortestPath);
-          }
-          //
-          return null;
-        });
+                  shortestPath.add(0, nodeResult);
+                }
+                shortestPaths.add(shortestPath);
+              }
+              //
+              return null;
+            });
 
     return shortestPaths;
   }

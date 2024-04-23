@@ -18,6 +18,11 @@
 
 package org.apache.hop.neo4j.shared;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Date;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.neo4j.core.data.GraphData;
@@ -25,12 +30,6 @@ import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.json.simple.JSONValue;
 import org.neo4j.driver.Value;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.util.Date;
 
 public class NeoHopData {
 

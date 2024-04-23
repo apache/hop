@@ -17,15 +17,14 @@
 
 package org.apache.hop.avro.transforms.avrooutput;
 
-import org.apache.avro.Schema;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.avro.Schema;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
 public class AvroOutputField implements Cloneable, Comparable<AvroOutputField> {

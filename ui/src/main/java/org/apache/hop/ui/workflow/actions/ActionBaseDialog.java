@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.workflow.actions;
 
+import java.io.IOException;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -59,8 +60,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.IOException;
 
 public abstract class ActionBaseDialog extends ActionDialog {
   public static final Class<?> PKG = ActionBaseDialog.class;
@@ -215,7 +214,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdRunConfiguration.right = new FormAttachment(100, 0);
     fdRunConfiguration.top = new FormAttachment(wlRunConfiguration, Const.isOSX() ? 0 : 5);
     wRunConfiguration.setLayoutData(fdRunConfiguration);
-    
+
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -512,7 +511,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);    
+    fdTabFolder.top = new FormAttachment(wRunConfiguration, 20);
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(hSpacer, -15);
     wTabFolder.setLayoutData(fdTabFolder);
@@ -598,6 +597,6 @@ public abstract class ActionBaseDialog extends ActionDialog {
   protected abstract Image getImage();
 
   protected abstract int getParameterCount();
-  
+
   protected abstract Control createRunConfigurationControl();
 }

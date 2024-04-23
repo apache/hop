@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.core.gui;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
@@ -26,10 +29,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Listener;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class BaseGuiWidgets {
 
@@ -46,9 +45,7 @@ public class BaseGuiWidgets {
    */
   protected String guiPluginClassName;
 
-  /**
-   * The plugin object which is registered
-   */
+  /** The plugin object which is registered */
   protected Object guiPluginObject;
 
   public BaseGuiWidgets(String instanceId) {
@@ -211,7 +208,7 @@ public class BaseGuiWidgets {
         }
 
         Object guiPluginInstance =
-                findGuiPluginInstance(classLoader, listenerClassName, instanceId);
+            findGuiPluginInstance(classLoader, listenerClassName, instanceId);
         Method listenerMethod = guiPluginInstance.getClass().getDeclaredMethod(listenerMethodName);
         listenerMethod.invoke(guiPluginInstance);
 
@@ -222,7 +219,8 @@ public class BaseGuiWidgets {
                 + " in class "
                 + listenerClassName
                 + " : "
-                + exception.getMessage(), e);
+                + exception.getMessage(),
+            e);
       }
     };
   }

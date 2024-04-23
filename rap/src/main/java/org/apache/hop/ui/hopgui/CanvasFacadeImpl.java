@@ -26,7 +26,6 @@ import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 
 public class CanvasFacadeImpl extends CanvasFacade {

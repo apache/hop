@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.simpleeval;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -54,10 +55,10 @@ public class ActionSimpleEvalTest {
     assertEquals(SuccessStringCondition.EQUAL, action.getSuccessStringCondition());
     assertEquals(SuccessNumberCondition.BETWEEN, action.getSuccessNumberCondition());
     assertEquals(SuccessBooleanCondition.FALSE, action.getSuccessBooleanCondition());
-    
+
     assertEquals("100", action.getMinValue());
     assertEquals("200", action.getMaxValue());
-    
+
     assertFalse(action.isSuccessWhenVarSet());
   }
 }

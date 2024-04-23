@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.webserviceavailable;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
@@ -29,10 +32,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 /** This defines a webservice available action. */
 @Action(
@@ -89,7 +88,8 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     } catch (HopXmlException xe) {
       throw new HopXmlException(
           BaseMessages.getString(
-              PKG, "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
+              PKG,
+              "ActionWebServiceAvailable.ERROR_0001_Cannot_Load_Workflow_Action_From_Xml_Node"),
           xe);
     }
   }

@@ -18,6 +18,8 @@
 
 package org.apache.hop.reflection.probe.meta;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,9 +49,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Editor that allows you to change Pipeline Probe metadata

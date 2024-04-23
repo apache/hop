@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
 import com.google.common.base.Charsets;
 import java.io.BufferedReader;
 import java.nio.file.Files;
@@ -24,11 +29,6 @@ import java.nio.file.Paths;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetector;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetectorBuilder;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 public class DelimiterDetectorTest {
 

@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -29,17 +38,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.sql.PreparedStatement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-/** @see InsertUpdate */
+/**
+ * @see InsertUpdate
+ */
 public class InsertUpdateTestLazyConversion {
   TransformMockHelper<InsertUpdateMeta, InsertUpdateData> smh;
 

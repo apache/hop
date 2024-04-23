@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.core.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -27,9 +29,6 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 import org.neo4j.driver.types.Relationship;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraphData {
 
@@ -428,7 +427,9 @@ public class GraphData {
     return nodes;
   }
 
-  /** @param nodes The nodes to set */
+  /**
+   * @param nodes The nodes to set
+   */
   public void setNodes(List<GraphNodeData> nodes) {
     this.nodes = nodes;
   }
@@ -442,7 +443,9 @@ public class GraphData {
     return relationships;
   }
 
-  /** @param relationships The relationships to set */
+  /**
+   * @param relationships The relationships to set
+   */
   public void setRelationships(List<GraphRelationshipData> relationships) {
     this.relationships = relationships;
   }
@@ -456,7 +459,9 @@ public class GraphData {
     return sourcePipelineName;
   }
 
-  /** @param sourcePipelineName The sourcePipelineName to set */
+  /**
+   * @param sourcePipelineName The sourcePipelineName to set
+   */
   public void setSourcePipelineName(String sourcePipelineName) {
     this.sourcePipelineName = sourcePipelineName;
   }
@@ -470,7 +475,9 @@ public class GraphData {
     return sourceTransformName;
   }
 
-  /** @param sourceTransformName The sourceTransformName to set */
+  /**
+   * @param sourceTransformName The sourceTransformName to set
+   */
   public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }

@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.util;
 
-import org.w3c.dom.Node;
-
 import java.util.prefs.Preferences;
+import org.w3c.dom.Node;
 
 public interface IPluginProperty {
 
@@ -38,18 +37,28 @@ public interface IPluginProperty {
   /** The true value. */
   String BOOLEAN_STRING_TRUE = "Y";
 
-  /** @return true if value not null or 'false'. */
+  /**
+   * @return true if value not null or 'false'.
+   */
   boolean evaluate();
 
-  /** @param node preferences node */
+  /**
+   * @param node preferences node
+   */
   void saveToPreferences(final Preferences node);
 
-  /** @param node preferences node. */
+  /**
+   * @param node preferences node.
+   */
   void readFromPreferences(final Preferences node);
 
-  /** @param builder builder to append to. */
+  /**
+   * @param builder builder to append to.
+   */
   void appendXml(final StringBuilder builder);
 
-  /** @param node the node. */
+  /**
+   * @param node the node.
+   */
   void loadXml(final Node node);
 }

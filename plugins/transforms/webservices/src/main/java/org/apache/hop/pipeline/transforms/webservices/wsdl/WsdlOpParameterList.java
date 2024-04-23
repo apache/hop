@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.core.exception.HopTransformException;
-import org.w3c.dom.Element;
-
-import javax.wsdl.Binding;
-import javax.wsdl.Operation;
-import javax.wsdl.Part;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import javax.wsdl.Binding;
+import javax.wsdl.Operation;
+import javax.wsdl.Part;
+import org.apache.hop.core.exception.HopTransformException;
+import org.w3c.dom.Element;
 
 /** WsdlOpParameterList represents the list of parameters for an operation. */
 public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
@@ -73,7 +72,9 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
     return _parameterStyle;
   }
 
-  /** @return the operation for this parameter list */
+  /**
+   * @return the operation for this parameter list
+   */
   public Operation getOperation() {
     return _operation;
   }

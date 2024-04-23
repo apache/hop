@@ -23,9 +23,9 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.kafka.clients.producer.Producer;
 
 public class KafkaProducerOutputData extends BaseTransformData implements ITransformData {
-    public IValueMeta keyValueMeta;
-    public IValueMeta msgValueMeta;
-    public Producer<Object, Object> kafkaProducer;
+  public IValueMeta keyValueMeta;
+  public IValueMeta msgValueMeta;
+  public Producer<Object, Object> kafkaProducer;
   public int keyFieldIndex;
   public int messageFieldIndex;
   public boolean isOpen;

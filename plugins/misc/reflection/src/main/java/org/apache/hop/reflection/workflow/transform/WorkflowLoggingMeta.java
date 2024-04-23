@@ -149,7 +149,9 @@ public class WorkflowLoggingMeta extends BaseTransformMeta<WorkflowLogging, Work
     return loggingActionResults;
   }
 
-  /** @param loggingActionResults The loggingTransforms to set */
+  /**
+   * @param loggingActionResults The loggingTransforms to set
+   */
   public void setLoggingActionResults(boolean loggingActionResults) {
     this.loggingActionResults = loggingActionResults;
   }

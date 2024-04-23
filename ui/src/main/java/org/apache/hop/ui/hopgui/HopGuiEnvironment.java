@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
@@ -43,10 +46,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.SWT;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class HopGuiEnvironment extends HopClientEnvironment {
 
@@ -113,9 +112,11 @@ public class HopGuiEnvironment extends HopClientEnvironment {
             guiRegistry.addGuiToolbarElement(
                 guiPluginClassName, toolbarElement, method, classLoader);
           }
-          GuiToolbarElementFilter toolbarElementFilter = method.getAnnotation(GuiToolbarElementFilter.class);
+          GuiToolbarElementFilter toolbarElementFilter =
+              method.getAnnotation(GuiToolbarElementFilter.class);
           if (toolbarElementFilter != null) {
-            guiRegistry.addGuiToolbarItemFilter(guiPluginClassName, method, toolbarElementFilter, classLoader);
+            guiRegistry.addGuiToolbarItemFilter(
+                guiPluginClassName, method, toolbarElementFilter, classLoader);
           }
           GuiKeyboardShortcut shortcut = method.getAnnotation(GuiKeyboardShortcut.class);
           if (shortcut != null) {
@@ -154,12 +155,12 @@ public class HopGuiEnvironment extends HopClientEnvironment {
               guiRegistry.addCompositeGuiWidgetElement(guiWidgetElement, method, classLoader);
             } else {
               guiRegistry.addGuiWidgetElement(
-                      guiWidgetElement, method, guiPluginClassName, classLoader);
+                  guiWidgetElement, method, guiPluginClassName, classLoader);
             }
           }
 
           GuiTab guiTab = method.getAnnotation(GuiTab.class);
-          if(guiTab != null){
+          if (guiTab != null) {
             guiRegistry.addGuiTab(guiPluginClassName, method, guiTab, classLoader);
           }
         }

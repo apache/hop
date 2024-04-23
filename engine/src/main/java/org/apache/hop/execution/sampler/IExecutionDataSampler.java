@@ -28,8 +28,7 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 
 /** This describes methods for sampling data from */
 @HopMetadataObject(objectFactory = IExecutionDataSampler.ExecutionDataSamplerObjectFactory.class)
-public interface IExecutionDataSampler<Store extends IExecutionDataSamplerStore>
-    extends Cloneable {
+public interface IExecutionDataSampler<Store extends IExecutionDataSamplerStore> extends Cloneable {
 
   String getPluginId();
 
@@ -58,8 +57,7 @@ public interface IExecutionDataSampler<Store extends IExecutionDataSamplerStore>
    * @param rowMeta The row metadata
    * @param row The row data itself
    */
-  void sampleRow(
-          Store samplerStore, IStream.StreamType streamType, IRowMeta rowMeta, Object[] row)
+  void sampleRow(Store samplerStore, IStream.StreamType streamType, IRowMeta rowMeta, Object[] row)
       throws HopException;
 
   /**

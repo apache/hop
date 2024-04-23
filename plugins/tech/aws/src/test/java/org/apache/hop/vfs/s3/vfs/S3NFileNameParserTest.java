@@ -16,6 +16,10 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.provider.FileNameParser;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
@@ -23,10 +27,6 @@ import org.apache.hop.vfs.s3.s3n.vfs.S3NFileName;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileNameParser;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 /** Unit tests for S3FileNameParser */
 public class S3NFileNameParserTest {

@@ -17,11 +17,10 @@
 
 package org.apache.test.util.impl;
 
+import java.util.Collection;
 import org.apache.test.util.IObjectProvider;
 import org.apache.test.util.IObjectTester;
 import org.apache.test.util.IObjectValidator;
-
-import java.util.Collection;
 
 public class DefaultObjectTester<T> implements IObjectTester<T> {
   private final IObjectProvider<T> provider;

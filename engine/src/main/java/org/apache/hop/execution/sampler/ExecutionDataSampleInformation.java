@@ -18,31 +18,29 @@
 
 package org.apache.hop.execution.sampler;
 
-/**
- * Provides some extra information about a set of sample rows
- */
+/** Provides some extra information about a set of sample rows */
 public class ExecutionDataSampleInformation {
-    private String description;
+  private String description;
 
-    public ExecutionDataSampleInformation(String description) {
-        this.description = description;
-    }
+  public ExecutionDataSampleInformation(String description) {
+    this.description = description;
+  }
 
-    /**
-     * Gets description
-     *
-     * @return value of description
-     */
-    public String getDescription() {
-        return description;
-    }
+  /**
+   * Gets description
+   *
+   * @return value of description
+   */
+  public String getDescription() {
+    return description;
+  }
 
-    /**
-     * Sets description
-     *
-     * @param description value of description
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  /**
+   * Sets description
+   *
+   * @param description value of description
+   */
+  public void setDescription(String description) {
+    this.description = description;
+  }
 }

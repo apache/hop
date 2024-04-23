@@ -18,6 +18,14 @@
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -45,15 +53,6 @@ import org.apache.hop.pipeline.transform.TransformErrorMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Transform(
     id = "KafkaConsumer",

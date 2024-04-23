@@ -17,10 +17,9 @@
 
 package org.apache.hop.mongo;
 
-import org.apache.hop.mongo.KerberosUtil.JaasAuthenticationMode;
-
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
+import org.apache.hop.mongo.KerberosUtil.JaasAuthenticationMode;
 
 /** A collection of helper functions to make working with Hop and Kerberos easier. */
 public class KerberosHelper {

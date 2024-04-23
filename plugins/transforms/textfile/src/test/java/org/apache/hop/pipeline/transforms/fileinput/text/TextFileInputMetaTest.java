@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
@@ -25,14 +33,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputFiles;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 
 public class TextFileInputMetaTest {
   private static final String FILE_NAME_NULL = null;

@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.auth;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
-
-import java.util.Map;
 
 /** This class represents the authentication plugin type. */
 @PluginMainClassType(IAuthenticationProviderType.class)

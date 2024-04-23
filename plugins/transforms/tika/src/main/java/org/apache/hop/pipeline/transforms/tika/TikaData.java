@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.tika;
 
+import java.util.Date;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.Date;
 
 public class TikaData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;

@@ -189,7 +189,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return serverField;
   }
 
-  /** @param serverField The serverField to set */
+  /**
+   * @param serverField The serverField to set
+   */
   public void setServerField(String serverField) {
     this.serverField = serverField;
   }
@@ -203,7 +205,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return errorMessageField;
   }
 
-  /** @param errorMessageField The errorMessageField to set */
+  /**
+   * @param errorMessageField The errorMessageField to set
+   */
   public void setErrorMessageField(String errorMessageField) {
     this.errorMessageField = errorMessageField;
   }
@@ -217,7 +221,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return statusDescriptionField;
   }
 
-  /** @param statusDescriptionField The statusDescriptionField to set */
+  /**
+   * @param statusDescriptionField The statusDescriptionField to set
+   */
   public void setStatusDescriptionField(String statusDescriptionField) {
     this.statusDescriptionField = statusDescriptionField;
   }
@@ -231,7 +237,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return serverLoadField;
   }
 
-  /** @param serverLoadField The serverLoadField to set */
+  /**
+   * @param serverLoadField The serverLoadField to set
+   */
   public void setServerLoadField(String serverLoadField) {
     this.serverLoadField = serverLoadField;
   }
@@ -245,7 +253,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return memoryFreeField;
   }
 
-  /** @param memoryFreeField The memoryFreeField to set */
+  /**
+   * @param memoryFreeField The memoryFreeField to set
+   */
   public void setMemoryFreeField(String memoryFreeField) {
     this.memoryFreeField = memoryFreeField;
   }
@@ -259,7 +269,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return memoryTotalField;
   }
 
-  /** @param memoryTotalField The memoryTotalField to set */
+  /**
+   * @param memoryTotalField The memoryTotalField to set
+   */
   public void setMemoryTotalField(String memoryTotalField) {
     this.memoryTotalField = memoryTotalField;
   }
@@ -273,7 +285,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return cpuCoresField;
   }
 
-  /** @param cpuCoresField The cpuCoresField to set */
+  /**
+   * @param cpuCoresField The cpuCoresField to set
+   */
   public void setCpuCoresField(String cpuCoresField) {
     this.cpuCoresField = cpuCoresField;
   }
@@ -287,7 +301,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return cpuProcessTimeField;
   }
 
-  /** @param cpuProcessTimeField The cpuProcessTimeField to set */
+  /**
+   * @param cpuProcessTimeField The cpuProcessTimeField to set
+   */
   public void setCpuProcessTimeField(String cpuProcessTimeField) {
     this.cpuProcessTimeField = cpuProcessTimeField;
   }
@@ -301,7 +317,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return osNameField;
   }
 
-  /** @param osNameField The osNameField to set */
+  /**
+   * @param osNameField The osNameField to set
+   */
   public void setOsNameField(String osNameField) {
     this.osNameField = osNameField;
   }
@@ -315,7 +333,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return osVersionField;
   }
 
-  /** @param osVersionField The osVersionField to set */
+  /**
+   * @param osVersionField The osVersionField to set
+   */
   public void setOsVersionField(String osVersionField) {
     this.osVersionField = osVersionField;
   }
@@ -329,7 +349,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return osArchitectureField;
   }
 
-  /** @param osArchitectureField The osArchitectureField to set */
+  /**
+   * @param osArchitectureField The osArchitectureField to set
+   */
   public void setOsArchitectureField(String osArchitectureField) {
     this.osArchitectureField = osArchitectureField;
   }
@@ -343,7 +365,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return activePipelinesField;
   }
 
-  /** @param activePipelinesField The activePipelinesField to set */
+  /**
+   * @param activePipelinesField The activePipelinesField to set
+   */
   public void setActivePipelinesField(String activePipelinesField) {
     this.activePipelinesField = activePipelinesField;
   }
@@ -357,7 +381,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return activeWorkflowsField;
   }
 
-  /** @param activeWorkflowsField The activeWorkflowsField to set */
+  /**
+   * @param activeWorkflowsField The activeWorkflowsField to set
+   */
   public void setActiveWorkflowsField(String activeWorkflowsField) {
     this.activeWorkflowsField = activeWorkflowsField;
   }
@@ -371,7 +397,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return availableField;
   }
 
-  /** @param availableField The availableField to set */
+  /**
+   * @param availableField The availableField to set
+   */
   public void setAvailableField(String availableField) {
     this.availableField = availableField;
   }
@@ -385,7 +413,9 @@ public class GetServerStatusMeta extends BaseTransformMeta<GetServerStatus, GetS
     return responseNsField;
   }
 
-  /** @param responseNsField The responseNsField to set */
+  /**
+   * @param responseNsField The responseNsField to set
+   */
   public void setResponseNsField(String responseNsField) {
     this.responseNsField = responseNsField;
   }

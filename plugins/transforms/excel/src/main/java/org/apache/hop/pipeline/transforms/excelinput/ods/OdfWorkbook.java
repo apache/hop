@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.ods;
 
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
@@ -24,11 +28,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class OdfWorkbook implements IKWorkbook {
 

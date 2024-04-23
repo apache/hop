@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.javafilter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -41,12 +46,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class JavaFilterDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator

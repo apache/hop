@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -33,9 +35,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /** Add sequence depending of fields value change. */
 @Transform(
     id = "FieldsChangeSequence",
@@ -45,7 +44,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::FieldsChangeSequenceMeta.keyword",
     documentationUrl = "/pipeline/transforms/addfieldschangesequence.html")
-public class FieldsChangeSequenceMeta extends BaseTransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
+public class FieldsChangeSequenceMeta
+    extends BaseTransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
 
   /** by which fields to display? */
@@ -92,12 +92,16 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta<FieldsChangeSequ
     return start;
   }
 
-  /** @return Returns the resultfieldName. */
+  /**
+   * @return Returns the resultfieldName.
+   */
   public String getResultFieldName() {
     return resultFieldName;
   }
 
-  /** @param resultfieldName The resultfieldName to set. */
+  /**
+   * @param resultfieldName The resultfieldName to set.
+   */
   public void setResultFieldName(String resultfieldName) {
     this.resultFieldName = resultfieldName;
   }
@@ -107,12 +111,16 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta<FieldsChangeSequ
     return new FieldsChangeSequenceMeta(this);
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public List<FieldsChangeSequenceField> getFields() {
     return fields;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFields(List<FieldsChangeSequenceField> fieldName) {
     this.fields = fieldName;
   }

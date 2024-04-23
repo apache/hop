@@ -18,6 +18,8 @@
 
 package org.apache.hop.execution.sampler.plugins.dataprof;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -32,9 +34,6 @@ import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @GuiPlugin
 @ExecutionDataSamplerPlugin(
@@ -187,8 +186,8 @@ public class BasicDataProfilingDataSampler
       return;
     }
 
-     // By default, we only do data profiling on the end-points of a pipeline, the last transforms.
-     //
+    // By default, we only do data profiling on the end-points of a pipeline, the last transforms.
+    //
     if (onlyProfilingLastTransforms && !store.getSamplerMeta().isLastTransform()) {
       return;
     }

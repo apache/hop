@@ -44,7 +44,9 @@ public class AuditList {
     return names;
   }
 
-  /** @param names The names to set */
+  /**
+   * @param names The names to set
+   */
   public void setNames(List<String> names) {
     this.names = names;
   }

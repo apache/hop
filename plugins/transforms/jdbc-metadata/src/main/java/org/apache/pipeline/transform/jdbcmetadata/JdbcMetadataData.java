@@ -17,13 +17,12 @@
 
 package org.apache.pipeline.transform.jdbcmetadata;
 
+import java.lang.reflect.Method;
+import java.sql.Connection;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.lang.reflect.Method;
-import java.sql.Connection;
 
 public class JdbcMetadataData extends BaseTransformData implements ITransformData {
 

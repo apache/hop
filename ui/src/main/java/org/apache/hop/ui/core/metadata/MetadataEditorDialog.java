@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -32,9 +34,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
   private static final Class<?> PKG = MetadataEditorDialog.class; // For Translator

@@ -18,6 +18,7 @@
 
 package org.apache.hop.neo4j.transforms.output;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -41,8 +42,6 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "Neo4JOutput",
@@ -493,7 +492,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return connection;
   }
 
-  /** @param connection The connection to set */
+  /**
+   * @param connection The connection to set
+   */
   public void setConnection(String connection) {
     this.connection = connection;
   }
@@ -507,7 +508,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return batchSize;
   }
 
-  /** @param batchSize The batchSize to set */
+  /**
+   * @param batchSize The batchSize to set
+   */
   public void setBatchSize(String batchSize) {
     this.batchSize = batchSize;
   }
@@ -521,7 +524,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return creatingIndexes;
   }
 
-  /** @param creatingIndexes The creatingIndexes to set */
+  /**
+   * @param creatingIndexes The creatingIndexes to set
+   */
   public void setCreatingIndexes(boolean creatingIndexes) {
     this.creatingIndexes = creatingIndexes;
   }
@@ -535,7 +540,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return usingCreate;
   }
 
-  /** @param usingCreate The usingCreate to set */
+  /**
+   * @param usingCreate The usingCreate to set
+   */
   public void setUsingCreate(boolean usingCreate) {
     this.usingCreate = usingCreate;
   }
@@ -549,7 +556,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return onlyCreatingRelationships;
   }
 
-  /** @param onlyCreatingRelationships The onlyCreatingRelationships to set */
+  /**
+   * @param onlyCreatingRelationships The onlyCreatingRelationships to set
+   */
   public void setOnlyCreatingRelationships(boolean onlyCreatingRelationships) {
     this.onlyCreatingRelationships = onlyCreatingRelationships;
   }
@@ -563,7 +572,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return fromNodeProps;
   }
 
-  /** @param fromNodeProps The fromNodeProps to set */
+  /**
+   * @param fromNodeProps The fromNodeProps to set
+   */
   public void setFromNodeProps(String[] fromNodeProps) {
     this.fromNodeProps = fromNodeProps;
   }
@@ -577,7 +588,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return fromNodePropNames;
   }
 
-  /** @param fromNodePropNames The fromNodePropNames to set */
+  /**
+   * @param fromNodePropNames The fromNodePropNames to set
+   */
   public void setFromNodePropNames(String[] fromNodePropNames) {
     this.fromNodePropNames = fromNodePropNames;
   }
@@ -591,7 +604,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return fromNodePropTypes;
   }
 
-  /** @param fromNodePropTypes The fromNodePropTypes to set */
+  /**
+   * @param fromNodePropTypes The fromNodePropTypes to set
+   */
   public void setFromNodePropTypes(String[] fromNodePropTypes) {
     this.fromNodePropTypes = fromNodePropTypes;
   }
@@ -605,7 +620,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return fromNodePropPrimary;
   }
 
-  /** @param fromNodePropPrimary The fromNodePropPrimary to set */
+  /**
+   * @param fromNodePropPrimary The fromNodePropPrimary to set
+   */
   public void setFromNodePropPrimary(boolean[] fromNodePropPrimary) {
     this.fromNodePropPrimary = fromNodePropPrimary;
   }
@@ -619,7 +636,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return toNodeProps;
   }
 
-  /** @param toNodeProps The toNodeProps to set */
+  /**
+   * @param toNodeProps The toNodeProps to set
+   */
   public void setToNodeProps(String[] toNodeProps) {
     this.toNodeProps = toNodeProps;
   }
@@ -633,7 +652,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return toNodePropNames;
   }
 
-  /** @param toNodePropNames The toNodePropNames to set */
+  /**
+   * @param toNodePropNames The toNodePropNames to set
+   */
   public void setToNodePropNames(String[] toNodePropNames) {
     this.toNodePropNames = toNodePropNames;
   }
@@ -647,7 +668,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return toNodePropTypes;
   }
 
-  /** @param toNodePropTypes The toNodePropTypes to set */
+  /**
+   * @param toNodePropTypes The toNodePropTypes to set
+   */
   public void setToNodePropTypes(String[] toNodePropTypes) {
     this.toNodePropTypes = toNodePropTypes;
   }
@@ -661,7 +684,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return toNodePropPrimary;
   }
 
-  /** @param toNodePropPrimary The toNodePropPrimary to set */
+  /**
+   * @param toNodePropPrimary The toNodePropPrimary to set
+   */
   public void setToNodePropPrimary(boolean[] toNodePropPrimary) {
     this.toNodePropPrimary = toNodePropPrimary;
   }
@@ -675,7 +700,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return fromNodeLabels;
   }
 
-  /** @param fromNodeLabels The fromNodeLabels to set */
+  /**
+   * @param fromNodeLabels The fromNodeLabels to set
+   */
   public void setFromNodeLabels(String[] fromNodeLabels) {
     this.fromNodeLabels = fromNodeLabels;
   }
@@ -689,7 +716,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return toNodeLabels;
   }
 
-  /** @param toNodeLabels The toNodeLabels to set */
+  /**
+   * @param toNodeLabels The toNodeLabels to set
+   */
   public void setToNodeLabels(String[] toNodeLabels) {
     this.toNodeLabels = toNodeLabels;
   }
@@ -703,7 +732,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return relProps;
   }
 
-  /** @param relProps The relProps to set */
+  /**
+   * @param relProps The relProps to set
+   */
   public void setRelProps(String[] relProps) {
     this.relProps = relProps;
   }
@@ -717,7 +748,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return relPropNames;
   }
 
-  /** @param relPropNames The relPropNames to set */
+  /**
+   * @param relPropNames The relPropNames to set
+   */
   public void setRelPropNames(String[] relPropNames) {
     this.relPropNames = relPropNames;
   }
@@ -731,7 +764,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return relPropTypes;
   }
 
-  /** @param relPropTypes The relPropTypes to set */
+  /**
+   * @param relPropTypes The relPropTypes to set
+   */
   public void setRelPropTypes(String[] relPropTypes) {
     this.relPropTypes = relPropTypes;
   }
@@ -745,7 +780,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return key;
   }
 
-  /** @param key The key to set */
+  /**
+   * @param key The key to set
+   */
   public void setKey(String key) {
     this.key = key;
   }
@@ -759,7 +796,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return relationship;
   }
 
-  /** @param relationship The relationship to set */
+  /**
+   * @param relationship The relationship to set
+   */
   public void setRelationship(String relationship) {
     this.relationship = relationship;
   }
@@ -773,7 +812,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return fromNodeLabelValues;
   }
 
-  /** @param fromNodeLabelValues The fromNodeLabelValues to set */
+  /**
+   * @param fromNodeLabelValues The fromNodeLabelValues to set
+   */
   public void setFromNodeLabelValues(String[] fromNodeLabelValues) {
     this.fromNodeLabelValues = fromNodeLabelValues;
   }
@@ -787,7 +828,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return toNodeLabelValues;
   }
 
-  /** @param toNodeLabelValues The toNodeLabelValues to set */
+  /**
+   * @param toNodeLabelValues The toNodeLabelValues to set
+   */
   public void setToNodeLabelValues(String[] toNodeLabelValues) {
     this.toNodeLabelValues = toNodeLabelValues;
   }
@@ -801,7 +844,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return relationshipValue;
   }
 
-  /** @param relationshipValue The relationshipValue to set */
+  /**
+   * @param relationshipValue The relationshipValue to set
+   */
   public void setRelationshipValue(String relationshipValue) {
     this.relationshipValue = relationshipValue;
   }
@@ -815,7 +860,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return returningGraph;
   }
 
-  /** @param returningGraph The returningGraph to set */
+  /**
+   * @param returningGraph The returningGraph to set
+   */
   public void setReturningGraph(boolean returningGraph) {
     this.returningGraph = returningGraph;
   }
@@ -829,7 +876,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return returnGraphField;
   }
 
-  /** @param returnGraphField The returnGraphField to set */
+  /**
+   * @param returnGraphField The returnGraphField to set
+   */
   public void setReturnGraphField(String returnGraphField) {
     this.returnGraphField = returnGraphField;
   }
@@ -843,7 +892,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return readOnlyFromNode;
   }
 
-  /** @param readOnlyFromNode The readOnlyFromNode to set */
+  /**
+   * @param readOnlyFromNode The readOnlyFromNode to set
+   */
   public void setReadOnlyFromNode(boolean readOnlyFromNode) {
     this.readOnlyFromNode = readOnlyFromNode;
   }
@@ -857,7 +908,9 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
     return readOnlyToNode;
   }
 
-  /** @param readOnlyToNode The readOnlyToNode to set */
+  /**
+   * @param readOnlyToNode The readOnlyToNode to set
+   */
   public void setReadOnlyToNode(boolean readOnlyToNode) {
     this.readOnlyToNode = readOnlyToNode;
   }

@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.numberrange;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
 
 /** This class assigns numbers into ranges */
 public class NumberRangeSet {
@@ -63,7 +62,6 @@ public class NumberRangeSet {
   public static String getMultiValueSeparator() {
     return MULTI_VALUE_SEPARATOR;
   }
-
 
   /** Evaluates a value against all rules. Return empty value if input is not numeric. */
   public String evaluate(Double value) throws HopException {

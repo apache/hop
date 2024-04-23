@@ -22,16 +22,16 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ReplaceStringMetaTest {
-    @Test
-    public void testSerialization() throws Exception {
-        ReplaceStringMeta meta = TransformSerializationTestUtil.testSerialization("/replace-in-string-transform.xml",
-                ReplaceStringMeta.class);
+  @Test
+  public void testSerialization() throws Exception {
+    ReplaceStringMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/replace-in-string-transform.xml", ReplaceStringMeta.class);
 
-        Assert.assertEquals(6, meta.getFields().size());
-        ReplaceStringMeta.RSField field = meta.getFields().get(5);
-        Assert.assertEquals("strD", field.getFieldInStream());
-        Assert.assertTrue(field.isUsingRegEx());
-        Assert.assertEquals("[CIOKSX]", field.getReplaceString());
-    }
-
+    Assert.assertEquals(6, meta.getFields().size());
+    ReplaceStringMeta.RSField field = meta.getFields().get(5);
+    Assert.assertEquals("strD", field.getFieldInStream());
+    Assert.assertTrue(field.isUsingRegEx());
+    Assert.assertEquals("[CIOKSX]", field.getReplaceString());
+  }
 }

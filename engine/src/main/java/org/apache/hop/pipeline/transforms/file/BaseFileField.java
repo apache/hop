@@ -17,19 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.gui.ITextFileInputField;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.gui.ITextFileInputField;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
 
 /** Describes a single field in a text file */
 public class BaseFileField implements Cloneable, ITextFileInputField {

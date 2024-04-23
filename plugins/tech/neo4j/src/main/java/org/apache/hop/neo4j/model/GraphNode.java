@@ -17,12 +17,11 @@
 
 package org.apache.hop.neo4j.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraphNode {
 
@@ -138,7 +137,9 @@ public class GraphNode {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -152,7 +153,9 @@ public class GraphNode {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -166,7 +169,9 @@ public class GraphNode {
     return labels;
   }
 
-  /** @param labels The labels to set */
+  /**
+   * @param labels The labels to set
+   */
   public void setLabels(List<String> labels) {
     this.labels = labels;
   }
@@ -180,7 +185,9 @@ public class GraphNode {
     return properties;
   }
 
-  /** @param properties The properties to set */
+  /**
+   * @param properties The properties to set
+   */
   public void setProperties(List<GraphProperty> properties) {
     this.properties = properties;
   }
@@ -194,7 +201,9 @@ public class GraphNode {
     return presentation;
   }
 
-  /** @param presentation The presentation to set */
+  /**
+   * @param presentation The presentation to set
+   */
   public void setPresentation(GraphPresentation presentation) {
     this.presentation = presentation;
   }

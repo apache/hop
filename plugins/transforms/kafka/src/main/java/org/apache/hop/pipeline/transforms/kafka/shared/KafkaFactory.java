@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.kafka.shared;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerField;
 import org.apache.hop.pipeline.transforms.kafka.consumer.KafkaConsumerInputMeta;
 import org.apache.hop.pipeline.transforms.kafka.producer.KafkaProducerOutputMeta;
@@ -26,10 +29,6 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 public class KafkaFactory {
   private Function<Map<String, Object>, Consumer> consumerFunction;

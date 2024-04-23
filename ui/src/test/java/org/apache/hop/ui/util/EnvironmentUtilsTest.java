@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 import org.eclipse.swt.SWT;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,13 +31,6 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(SWT.class)

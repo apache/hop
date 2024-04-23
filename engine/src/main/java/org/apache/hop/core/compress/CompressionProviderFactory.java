@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.compress;
 
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
 
 public class CompressionProviderFactory implements ICompressionProviderFactory {
 

@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.actions.dostounix;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.vfs.HopVfs;
@@ -26,12 +31,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-
-import static org.junit.Assert.assertEquals;
 
 public class WorkflowEntryDosToUnix_ConversionIdempotency_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

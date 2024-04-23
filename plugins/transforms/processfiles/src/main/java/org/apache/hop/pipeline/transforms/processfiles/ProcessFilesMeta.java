@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.processfiles;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -29,8 +30,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 @Transform(
     id = "ProcessFiles",
@@ -131,22 +130,30 @@ public class ProcessFilesMeta extends BaseTransformMeta<ProcessFiles, ProcessFil
     return operationTypeDesc[i];
   }
 
-  /** @return Returns the sourcefilenamefield. */
+  /**
+   * @return Returns the sourcefilenamefield.
+   */
   public String getSourceFilenameField() {
     return sourceFilenameField;
   }
 
-  /** @param sourceFilenameFieldield The sourcefilenamefield to set. */
+  /**
+   * @param sourceFilenameFieldield The sourcefilenamefield to set.
+   */
   public void setSourceFilenameField(String sourceFilenameFieldield) {
     this.sourceFilenameField = sourceFilenameFieldield;
   }
 
-  /** @return Returns the targetfilenamefield. */
+  /**
+   * @return Returns the targetfilenamefield.
+   */
   public String getTargetFilenameField() {
     return targetFilenameField;
   }
 
-  /** @param targetFilenameField The targetFilenameField to set. */
+  /**
+   * @param targetFilenameField The targetFilenameField to set.
+   */
   public void setTargetFilenameField(String targetFilenameField) {
     this.targetFilenameField = targetFilenameField;
   }

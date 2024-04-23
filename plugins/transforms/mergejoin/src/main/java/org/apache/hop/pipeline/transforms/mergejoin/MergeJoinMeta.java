@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -40,9 +42,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "MergeJoin",
@@ -239,7 +238,9 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
     return joinType;
   }
 
-  /** @param joinType The joinType to set */
+  /**
+   * @param joinType The joinType to set
+   */
   public void setJoinType(String joinType) {
     this.joinType = joinType;
   }
@@ -253,7 +254,9 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
     return leftTransformName;
   }
 
-  /** @param leftTransformName The leftTransformName to set */
+  /**
+   * @param leftTransformName The leftTransformName to set
+   */
   public void setLeftTransformName(String leftTransformName) {
     this.leftTransformName = leftTransformName;
   }
@@ -267,7 +270,9 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
     return rightTransformName;
   }
 
-  /** @param rightTransformName The rightTransformName to set */
+  /**
+   * @param rightTransformName The rightTransformName to set
+   */
   public void setRightTransformName(String rightTransformName) {
     this.rightTransformName = rightTransformName;
   }
@@ -281,7 +286,9 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
     return keyFields1;
   }
 
-  /** @param keyFields1 The keyFields1 to set */
+  /**
+   * @param keyFields1 The keyFields1 to set
+   */
   public void setKeyFields1(List<String> keyFields1) {
     this.keyFields1 = keyFields1;
   }
@@ -295,7 +302,9 @@ public class MergeJoinMeta extends BaseTransformMeta<MergeJoin, MergeJoinData> {
     return keyFields2;
   }
 
-  /** @param keyFields2 The keyFields2 to set */
+  /**
+   * @param keyFields2 The keyFields2 to set
+   */
   public void setKeyFields2(List<String> keyFields2) {
     this.keyFields2 = keyFields2;
   }

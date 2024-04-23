@@ -16,9 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.mongodbinput;
 
-import org.apache.hop.mongo.wrapper.field.MongoField;
-
 import java.util.List;
+import org.apache.hop.mongo.wrapper.field.MongoField;
 
 public interface DiscoverFieldsCallback {
   void notifyFields(List<MongoField> fields);

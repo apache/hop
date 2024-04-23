@@ -56,7 +56,7 @@ public class ExecutionDataSamplerMeta {
     if (StringUtils.isEmpty(copyNr)) {
       return transformName;
     } else {
-      return transformName+"."+copyNr;
+      return transformName + "." + copyNr;
     }
   }
 

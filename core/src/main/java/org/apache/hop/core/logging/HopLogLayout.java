@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.hop.core.Const;
 
 public class HopLogLayout {
   private static final ThreadLocal<SimpleDateFormat> LOCAL_SIMPLE_DATE_PARSER =

@@ -98,61 +98,81 @@ public class Stream implements IStream {
     return transformMeta.getName();
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /** @param description the description to set */
+  /**
+   * @param description the description to set
+   */
   @Override
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** @return the streamType */
+  /**
+   * @return the streamType
+   */
   @Override
   public StreamType getStreamType() {
     return streamType;
   }
 
-  /** @param streamType the streamType to set */
+  /**
+   * @param streamType the streamType to set
+   */
   @Override
   public void setStreamType(StreamType streamType) {
     this.streamType = streamType;
   }
 
-  /** @return the transformMeta */
+  /**
+   * @return the transformMeta
+   */
   @Override
   public TransformMeta getTransformMeta() {
     return transformMeta;
   }
 
-  /** @param transformMeta the transformMeta to set */
+  /**
+   * @param transformMeta the transformMeta to set
+   */
   @Override
   public void setTransformMeta(TransformMeta transformMeta) {
     this.transformMeta = transformMeta;
   }
 
-  /** @return the streamIcon */
+  /**
+   * @return the streamIcon
+   */
   @Override
   public StreamIcon getStreamIcon() {
     return streamIcon;
   }
 
-  /** @param streamIcon the streamIcon to set */
+  /**
+   * @param streamIcon the streamIcon to set
+   */
   @Override
   public void setStreamIcon(StreamIcon streamIcon) {
     this.streamIcon = streamIcon;
   }
 
-  /** @return the subject */
+  /**
+   * @return the subject
+   */
   @Override
   public String getSubject() {
     return subject;
   }
 
-  /** @param subject the subject to set */
+  /**
+   * @param subject the subject to set
+   */
   @Override
   public void setSubject(String subject) {
     this.subject = subject;

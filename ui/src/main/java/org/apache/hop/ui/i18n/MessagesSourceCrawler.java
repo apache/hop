@@ -17,16 +17,6 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.vfs2.FileObject;
-import org.apache.commons.vfs2.FileSelectInfo;
-import org.apache.commons.vfs2.FileSelector;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.vfs.HopVfs;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -41,6 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.commons.vfs2.FileSelectInfo;
+import org.apache.commons.vfs2.FileSelector;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.i18n.BaseMessages;
 
 /** This class takes care of crawling through the source code */
 public class MessagesSourceCrawler {
@@ -534,7 +533,9 @@ public class MessagesSourceCrawler {
     }
   }
 
-  /** @return A sorted list of distinct occurrences of the used message package names */
+  /**
+   * @return A sorted list of distinct occurrences of the used message package names
+   */
   public List<String> getMessagesPackagesList(String sourceFolder) {
     Map<String, List<KeyOccurrence>> packageOccurrences =
         sourcePackageOccurrences.get(sourceFolder);
@@ -609,7 +610,9 @@ public class MessagesSourceCrawler {
     return sourceDirectories;
   }
 
-  /** @param sourceDirectories The sourceDirectories to set */
+  /**
+   * @param sourceDirectories The sourceDirectories to set
+   */
   public void setSourceDirectories(List<String> sourceDirectories) {
     this.sourceDirectories = sourceDirectories;
   }
@@ -623,7 +626,9 @@ public class MessagesSourceCrawler {
     return bundlesStore;
   }
 
-  /** @param bundlesStore The bundlesStore to set */
+  /**
+   * @param bundlesStore The bundlesStore to set
+   */
   public void setBundlesStore(BundlesStore bundlesStore) {
     this.bundlesStore = bundlesStore;
   }
@@ -637,7 +642,9 @@ public class MessagesSourceCrawler {
     return sourcePackageOccurrences;
   }
 
-  /** @param sourcePackageOccurrences The sourcePackageOccurrences to set */
+  /**
+   * @param sourcePackageOccurrences The sourcePackageOccurrences to set
+   */
   public void setSourcePackageOccurrences(
       Map<String, Map<String, List<KeyOccurrence>>> sourcePackageOccurrences) {
     this.sourcePackageOccurrences = sourcePackageOccurrences;
@@ -652,7 +659,9 @@ public class MessagesSourceCrawler {
     return filesToAvoid;
   }
 
-  /** @param filesToAvoid The filesToAvoid to set */
+  /**
+   * @param filesToAvoid The filesToAvoid to set
+   */
   public void setFilesToAvoid(List<String> filesToAvoid) {
     this.filesToAvoid = filesToAvoid;
   }
@@ -666,7 +675,9 @@ public class MessagesSourceCrawler {
     return packagePattern;
   }
 
-  /** @param packagePattern The packagePattern to set */
+  /**
+   * @param packagePattern The packagePattern to set
+   */
   public void setPackagePattern(Pattern packagePattern) {
     this.packagePattern = packagePattern;
   }
@@ -680,7 +691,9 @@ public class MessagesSourceCrawler {
     return importPattern;
   }
 
-  /** @param importPattern The importPattern to set */
+  /**
+   * @param importPattern The importPattern to set
+   */
   public void setImportPattern(Pattern importPattern) {
     this.importPattern = importPattern;
   }
@@ -694,7 +707,9 @@ public class MessagesSourceCrawler {
     return stringPkgPattern;
   }
 
-  /** @param stringPkgPattern The stringPkgPattern to set */
+  /**
+   * @param stringPkgPattern The stringPkgPattern to set
+   */
   public void setStringPkgPattern(Pattern stringPkgPattern) {
     this.stringPkgPattern = stringPkgPattern;
   }
@@ -708,7 +723,9 @@ public class MessagesSourceCrawler {
     return classPkgPatterns;
   }
 
-  /** @param classPkgPatterns The classPkgPatterns to set */
+  /**
+   * @param classPkgPatterns The classPkgPatterns to set
+   */
   public void setClassPkgPatterns(List<Pattern> classPkgPatterns) {
     this.classPkgPatterns = classPkgPatterns;
   }
@@ -722,7 +739,9 @@ public class MessagesSourceCrawler {
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }
@@ -736,7 +755,9 @@ public class MessagesSourceCrawler {
     return rootFolder;
   }
 
-  /** @param rootFolder The rootFolder to set */
+  /**
+   * @param rootFolder The rootFolder to set
+   */
   public void setRootFolder(String rootFolder) {
     this.rootFolder = rootFolder;
   }

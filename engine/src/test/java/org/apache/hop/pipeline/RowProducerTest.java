@@ -16,14 +16,6 @@
  */
 package org.apache.hop.pipeline;
 
-import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +25,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.junit.Before;
+import org.junit.Test;
 
 public class RowProducerTest {
 

@@ -16,6 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.normaliser;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -27,13 +33,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
 
 public class NormaliserTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

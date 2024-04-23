@@ -18,17 +18,16 @@
 package org.apache.hop.core.config;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.config.plugin.ConfigFile;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.DescribedVariable;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.config.plugin.ConfigFile;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.DescribedVariable;
 
 /**
  * This class keeps track of storing and retrieving all the configuration options in Hop. This
@@ -202,7 +201,9 @@ public class HopConfig extends ConfigFile implements IConfigFile {
     return configFilename;
   }
 
-  /** @param configFilename The configFilename to set */
+  /**
+   * @param configFilename The configFilename to set
+   */
   @Override
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;

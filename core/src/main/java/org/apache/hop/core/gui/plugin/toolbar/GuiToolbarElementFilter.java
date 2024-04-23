@@ -24,9 +24,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * We need a way to only show certain toolbar items in certain situations.
- * The static method that is annotated with this will receive the toolbar item ID and the GUI plugin object.
- * In return, it will give back a boolean saying true: show the toolbar item or false: don't show it.
+ * We need a way to only show certain toolbar items in certain situations. The static method that is
+ * annotated with this will receive the toolbar item ID and the GUI plugin object. In return, it
+ * will give back a boolean saying true: show the toolbar item or false: don't show it.
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

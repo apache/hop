@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.closure;
 
+import java.util.HashMap;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.i18n.BaseMessages;
@@ -24,8 +25,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashMap;
 
 /** Reads information from a database table by using freehand SQL */
 public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, ClosureGeneratorData> {

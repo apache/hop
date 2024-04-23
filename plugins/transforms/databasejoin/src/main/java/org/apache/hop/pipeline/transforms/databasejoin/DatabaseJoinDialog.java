@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -58,9 +60,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
@@ -363,7 +362,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
   protected void setComboBoxes() {
     // Something was changed in the row.
-    //    
+    //
     String[] fieldNames = ConstUi.sortFieldNames(inputFields);
     ciKey[0].setComboValues(fieldNames);
   }

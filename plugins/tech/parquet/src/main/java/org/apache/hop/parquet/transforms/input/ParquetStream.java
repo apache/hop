@@ -17,12 +17,11 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import org.apache.parquet.io.DelegatingSeekableInputStream;
 import org.apache.parquet.io.InputFile;
 import org.apache.parquet.io.SeekableInputStream;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 public class ParquetStream implements InputFile {
   private final byte[] data;

@@ -19,6 +19,17 @@ package org.apache.hop.databases.cassandra.util;
 import com.datastax.oss.driver.api.core.type.DataType;
 import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.google.common.base.Joiner;
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.zip.Deflater;
 import org.apache.cassandra.cql3.functions.types.LocalDate;
 import org.apache.cassandra.db.marshal.BooleanType;
 import org.apache.cassandra.db.marshal.DecimalType;
@@ -40,18 +51,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.databases.cassandra.datastax.DriverConnection;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.zip.Deflater;
 
 /** Static utility routines for various stuff. */
 public class CassandraUtils {
@@ -124,6 +123,7 @@ public class CassandraUtils {
         return DataTypes.BLOB;
     }
   }
+
   /**
    * Split a script containing one or more CQL statements (terminated by ;'s) into a list of
    * individual statements.

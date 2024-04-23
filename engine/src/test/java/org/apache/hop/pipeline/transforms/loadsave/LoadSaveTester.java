@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.loadsave;
 
+import static org.junit.Assert.assertNotSame;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -29,15 +37,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.DatabaseMetaLoadSav
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertNotSame;
-
 public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
 
   public LoadSaveTester(
@@ -47,7 +46,8 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-      IInitializer<T> metaInitializerIFace) throws HopException {
+      IInitializer<T> metaInitializerIFace)
+      throws HopException {
     super(
         clazz,
         attributes,
@@ -64,7 +64,8 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
     this(
         clazz,
         attributes,
@@ -75,19 +76,13 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
         null);
   }
 
-
   public LoadSaveTester(
       Class<T> clazz,
       List<String> attributes,
       Map<String, String> getterMap,
-      Map<String, String> setterMap) throws HopException {
-    this(
-        clazz,
-        attributes,
-        getterMap,
-        setterMap,
-        new HashMap<>(),
-        new HashMap<>());
+      Map<String, String> setterMap)
+      throws HopException {
+    this(clazz, attributes, getterMap, setterMap, new HashMap<>(), new HashMap<>());
   }
 
   public LoadSaveTester(Class<T> clazz, List<String> attributes) throws HopException {
@@ -147,7 +142,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
    * @deprecated the {@link #testSerialization()} method should be used instead, as additional tests
    *     may be added in the future to cover other topics related to transform serialization
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   // TODO Change method visibility to protected
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();

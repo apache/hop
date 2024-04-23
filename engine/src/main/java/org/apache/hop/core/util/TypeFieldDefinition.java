@@ -33,22 +33,30 @@ public class TypeFieldDefinition {
     this.fieldName = fieldName;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   public int getType() {
     return type;
   }
 
-  /** @param type the type to set */
+  /**
+   * @param type the type to set
+   */
   public void setType(int type) {
     this.type = type;
   }
 
-  /** @return the fieldName */
+  /**
+   * @return the fieldName
+   */
   public String getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName the fieldName to set */
+  /**
+   * @param fieldName the fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }

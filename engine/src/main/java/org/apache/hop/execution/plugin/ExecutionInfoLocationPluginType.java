@@ -27,7 +27,10 @@ import org.apache.hop.execution.IExecutionInfoLocation;
 public class ExecutionInfoLocationPluginType extends BasePluginType<ExecutionInfoLocationPlugin> {
 
   private ExecutionInfoLocationPluginType() {
-    super(ExecutionInfoLocationPlugin.class, "EXECUTION_INFO_LOCATIONS", "Execution Information Locations");
+    super(
+        ExecutionInfoLocationPlugin.class,
+        "EXECUTION_INFO_LOCATIONS",
+        "Execution Information Locations");
   }
 
   private static ExecutionInfoLocationPluginType pluginType;
@@ -53,5 +56,4 @@ public class ExecutionInfoLocationPluginType extends BasePluginType<ExecutionInf
   protected String extractName(ExecutionInfoLocationPlugin annotation) {
     return annotation.name();
   }
-
 }

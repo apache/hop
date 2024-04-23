@@ -161,7 +161,8 @@ public class GuiAction {
 
     string = StringUtil.removeDiacriticalMarks(string);
 
-    if (EnvUtil.getSystemProperty(Const.HOP_CONTEXT_DIALOG_STRICT_SEARCH, "N").equalsIgnoreCase("Y")) {
+    if (EnvUtil.getSystemProperty(Const.HOP_CONTEXT_DIALOG_STRICT_SEARCH, "N")
+        .equalsIgnoreCase("Y")) {
       // Use strict matching of strings
       return string.equalsIgnoreCase(filter);
     } else {

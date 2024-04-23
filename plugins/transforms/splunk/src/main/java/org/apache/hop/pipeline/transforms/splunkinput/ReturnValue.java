@@ -18,9 +18,8 @@
 
 package org.apache.hop.pipeline.transforms.splunkinput;
 
-import org.apache.hop.core.injection.Injection;
-
 import java.util.Objects;
+import org.apache.hop.core.injection.Injection;
 
 public class ReturnValue {
 
@@ -78,7 +77,9 @@ public class ReturnValue {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -92,7 +93,9 @@ public class ReturnValue {
     return splunkName;
   }
 
-  /** @param splunkName The splunkName to set */
+  /**
+   * @param splunkName The splunkName to set
+   */
   public void setSplunkName(String splunkName) {
     this.splunkName = splunkName;
   }
@@ -106,7 +109,9 @@ public class ReturnValue {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -120,7 +125,9 @@ public class ReturnValue {
     return length;
   }
 
-  /** @param length The length to set */
+  /**
+   * @param length The length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }
@@ -134,7 +141,9 @@ public class ReturnValue {
     return format;
   }
 
-  /** @param format The format to set */
+  /**
+   * @param format The format to set
+   */
   public void setFormat(String format) {
     this.format = format;
   }

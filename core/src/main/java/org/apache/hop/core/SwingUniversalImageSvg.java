@@ -17,17 +17,16 @@
 
 package org.apache.hop.core;
 
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Dimension2D;
+import java.awt.image.BufferedImage;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
 import org.apache.batik.bridge.GVTBuilder;
 import org.apache.batik.bridge.UserAgentAdapter;
 import org.apache.batik.gvt.GraphicsNode;
 import org.apache.hop.core.svg.SvgImage;
-
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Dimension2D;
-import java.awt.image.BufferedImage;
 
 public class SwingUniversalImageSvg extends SwingUniversalImage {
   private final SvgImage svg;

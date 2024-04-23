@@ -17,14 +17,13 @@
 
 package org.apache.hop.neo4j.core.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraphNodeData {
 
@@ -200,7 +199,9 @@ public class GraphNodeData {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -214,7 +215,9 @@ public class GraphNodeData {
     return labels;
   }
 
-  /** @param labels The labels to set */
+  /**
+   * @param labels The labels to set
+   */
   public void setLabels(List<String> labels) {
     this.labels = labels;
   }
@@ -228,7 +231,9 @@ public class GraphNodeData {
     return properties;
   }
 
-  /** @param properties The properties to set */
+  /**
+   * @param properties The properties to set
+   */
   public void setProperties(List<GraphPropertyData> properties) {
     this.properties = properties;
   }
@@ -242,7 +247,9 @@ public class GraphNodeData {
     return propertySetId;
   }
 
-  /** @param propertySetId The propertySetId to set */
+  /**
+   * @param propertySetId The propertySetId to set
+   */
   public void setPropertySetId(String propertySetId) {
     this.propertySetId = propertySetId;
   }

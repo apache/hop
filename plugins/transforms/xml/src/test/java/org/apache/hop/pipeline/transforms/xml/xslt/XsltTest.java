@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -38,13 +44,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class XsltTest extends TestCase {
 

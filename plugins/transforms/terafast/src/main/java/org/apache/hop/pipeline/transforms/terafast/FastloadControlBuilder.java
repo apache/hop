@@ -207,7 +207,9 @@ public class FastloadControlBuilder {
     return line("SHOW");
   }
 
-  /** @return this */
+  /**
+   * @return this
+   */
   public FastloadControlBuilder endLoading() {
     return line("END LOADING");
   }

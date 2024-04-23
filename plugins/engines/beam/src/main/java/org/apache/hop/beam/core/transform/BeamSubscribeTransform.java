@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
+import javax.annotation.Nullable;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubIO;
 import org.apache.beam.sdk.io.gcp.pubsub.PubsubMessage;
 import org.apache.beam.sdk.metrics.Counter;
@@ -36,9 +37,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 /** A transform to read data from a Google Cloud Platform PubSub topic */
 public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRow>> {
@@ -110,10 +108,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
         PCollection<String> stringPCollection = stringRead.expand(input);
         output =
             stringPCollection.apply(
-                transformName,
-                ParDo.of(
-                    new StringToHopRowFn(
-                        transformName, rowMetaJson)));
+                transformName, ParDo.of(new StringToHopRowFn(transformName, rowMetaJson)));
 
       } else if (BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase(messageType)) {
 
@@ -126,10 +121,7 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
         PCollection<PubsubMessage> messagesPCollection = messageRead.expand(input);
         output =
             messagesPCollection.apply(
-                transformName,
-                ParDo.of(
-                    new PubsubMessageToHopRowFn(
-                        transformName, rowMetaJson)));
+                transformName, ParDo.of(new PubsubMessageToHopRowFn(transformName, rowMetaJson)));
 
       } else {
         throw new RuntimeException("Unsupported message type: " + messageType);
@@ -152,7 +144,9 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     return transformName;
   }
 
-  /** @param transformName The transformName to set */
+  /**
+   * @param transformName The transformName to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
@@ -166,7 +160,9 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }
@@ -180,7 +176,9 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
     return messageType;
   }
 
-  /** @param messageType The messageType to set */
+  /**
+   * @param messageType The messageType to set
+   */
   public void setMessageType(String messageType) {
     this.messageType = messageType;
   }

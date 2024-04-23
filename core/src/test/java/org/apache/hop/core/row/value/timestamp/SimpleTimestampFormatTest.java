@@ -16,12 +16,7 @@
  */
 package org.apache.hop.core.row.value.timestamp;
 
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -32,8 +27,12 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /** User: Dzmitry Stsiapanau Date: 3/17/14 Time: 4:46 PM */
 public class SimpleTimestampFormatTest {

@@ -16,6 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.sql;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -31,13 +37,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ObjectValidator;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
@@ -112,40 +111,38 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
             this);
 
     IFieldLoadSaveValidatorFactory validatorFactory =
-            loadSaveTester.getFieldLoadSaveValidatorFactory();
+        loadSaveTester.getFieldLoadSaveValidatorFactory();
 
     validatorFactory.registerValidator(
-            validatorFactory.getName(ExecSqlArgumentItem.class),
-            new ObjectValidator<>(
-                    validatorFactory,
-                    ExecSqlArgumentItem.class,
-                    Arrays.asList("name"),
-                    new HashMap<String, String>() {
-                      {
-                        put("name", "getName");
-                      }
-                    },
-                    new HashMap<String, String>() {
-                      {
-                        put("name", "setName");
-                      }
-                    }));
+        validatorFactory.getName(ExecSqlArgumentItem.class),
+        new ObjectValidator<>(
+            validatorFactory,
+            ExecSqlArgumentItem.class,
+            Arrays.asList("name"),
+            new HashMap<String, String>() {
+              {
+                put("name", "getName");
+              }
+            },
+            new HashMap<String, String>() {
+              {
+                put("name", "setName");
+              }
+            }));
 
     validatorFactory.registerValidator(
-            validatorFactory.getName(List.class, ExecSqlArgumentItem.class),
-            new ListLoadSaveValidator<>(new ExecSqlArgumentItemFieldLoadSaveValidator()));
+        validatorFactory.getName(List.class, ExecSqlArgumentItem.class),
+        new ListLoadSaveValidator<>(new ExecSqlArgumentItemFieldLoadSaveValidator()));
   }
 
   public class ExecSqlArgumentItemFieldLoadSaveValidator
-          implements IFieldLoadSaveValidator<ExecSqlArgumentItem> {
+      implements IFieldLoadSaveValidator<ExecSqlArgumentItem> {
     final Random rand = new Random();
 
     @Override
     public ExecSqlArgumentItem getTestObject() {
 
-      ExecSqlArgumentItem field =
-              new ExecSqlArgumentItem(
-                      UUID.randomUUID().toString());
+      ExecSqlArgumentItem field = new ExecSqlArgumentItem(UUID.randomUUID().toString());
 
       return field;
     }
@@ -156,8 +153,7 @@ public class ExecSqlMetaTest implements IInitializer<ITransformMeta> {
         return false;
       }
       ExecSqlArgumentItem another = (ExecSqlArgumentItem) actual;
-      return new EqualsBuilder()
-              .append(testObject.getName(), another.getName()).isEquals();
+      return new EqualsBuilder().append(testObject.getName(), another.getName()).isEquals();
     }
   }
 

@@ -17,6 +17,19 @@
 
 package org.apache.hop.core.row.value;
 
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.IDatabase;
@@ -34,20 +47,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Spy;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class NettezaValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

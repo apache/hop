@@ -17,17 +17,16 @@
 
 package org.apache.hop.ui.hopgui.context;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.GuiRegistry;
-import org.apache.hop.core.gui.plugin.action.GuiAction;
-import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
-import org.apache.hop.core.logging.LogChannel;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
+import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.action.GuiActionFilter;
+import org.apache.hop.core.logging.LogChannel;
 
 public abstract class BaseGuiContextHandler<T extends IGuiContextHandler> {
 

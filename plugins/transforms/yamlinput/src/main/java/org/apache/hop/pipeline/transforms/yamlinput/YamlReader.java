@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -29,16 +38,6 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.yaml.snakeyaml.Yaml;
-
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Read YAML files, parse them and convert them to rows and writes these to one or more output

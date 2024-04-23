@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
+import java.util.Objects;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class QueryField {
   private static final Class<?> PKG = AnalyticQuery.class; // For Translator
@@ -130,7 +129,9 @@ public class QueryField {
     return aggregateField;
   }
 
-  /** @param aggregateField The aggregateField to set */
+  /**
+   * @param aggregateField The aggregateField to set
+   */
   public void setAggregateField(String aggregateField) {
     this.aggregateField = aggregateField;
   }
@@ -144,7 +145,9 @@ public class QueryField {
     return subjectField;
   }
 
-  /** @param subjectField The subjectField to set */
+  /**
+   * @param subjectField The subjectField to set
+   */
   public void setSubjectField(String subjectField) {
     this.subjectField = subjectField;
   }
@@ -158,7 +161,9 @@ public class QueryField {
     return aggregateType;
   }
 
-  /** @param aggregateType The aggregateType to set */
+  /**
+   * @param aggregateType The aggregateType to set
+   */
   public void setAggregateType(AggregateType aggregateType) {
     this.aggregateType = aggregateType;
   }
@@ -172,7 +177,9 @@ public class QueryField {
     return valueField;
   }
 
-  /** @param valueField The valueField to set */
+  /**
+   * @param valueField The valueField to set
+   */
   public void setValueField(int valueField) {
     this.valueField = valueField;
   }

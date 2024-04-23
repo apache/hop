@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
+import java.util.Arrays;
+import java.util.Comparator;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-
-import java.util.Arrays;
-import java.util.Comparator;
 
 abstract class Index {
 

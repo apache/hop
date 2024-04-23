@@ -17,6 +17,16 @@
 
 package org.apache.hop.workflow.actions.copyfiles;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.FileFilterSelector;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -49,17 +59,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a 'copy files' action. */
 @Action(
@@ -1239,7 +1238,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return copyEmptyFolders;
   }
 
-  /** @param copyEmptyFolders The copyEmptyFolders to set */
+  /**
+   * @param copyEmptyFolders The copyEmptyFolders to set
+   */
   public void setCopyEmptyFolders(boolean copyEmptyFolders) {
     this.copyEmptyFolders = copyEmptyFolders;
   }
@@ -1253,7 +1254,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return argFromPrevious;
   }
 
-  /** @param argFromPrevious The argFromPrevious to set */
+  /**
+   * @param argFromPrevious The argFromPrevious to set
+   */
   public void setArgFromPrevious(boolean argFromPrevious) {
     this.argFromPrevious = argFromPrevious;
   }
@@ -1267,7 +1270,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return overwriteFiles;
   }
 
-  /** @param overwriteFiles The overwriteFiles to set */
+  /**
+   * @param overwriteFiles The overwriteFiles to set
+   */
   public void setOverwriteFiles(boolean overwriteFiles) {
     this.overwriteFiles = overwriteFiles;
   }
@@ -1281,7 +1286,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return includeSubFolders;
   }
 
-  /** @param includeSubFolders The includeSubFolders to set */
+  /**
+   * @param includeSubFolders The includeSubFolders to set
+   */
   public void setIncludeSubFolders(boolean includeSubFolders) {
     this.includeSubFolders = includeSubFolders;
   }
@@ -1295,7 +1302,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return addResultFilenames;
   }
 
-  /** @param addResultFilenames The addResultFilenames to set */
+  /**
+   * @param addResultFilenames The addResultFilenames to set
+   */
   public void setAddResultFilenames(boolean addResultFilenames) {
     this.addResultFilenames = addResultFilenames;
   }
@@ -1309,7 +1318,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return removeSourceFiles;
   }
 
-  /** @param removeSourceFiles The removeSourceFiles to set */
+  /**
+   * @param removeSourceFiles The removeSourceFiles to set
+   */
   public void setRemoveSourceFiles(boolean removeSourceFiles) {
     this.removeSourceFiles = removeSourceFiles;
   }
@@ -1323,7 +1334,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return destinationIsAFile;
   }
 
-  /** @param destinationIsAFile The destinationIsAFile to set */
+  /**
+   * @param destinationIsAFile The destinationIsAFile to set
+   */
   public void setDestinationIsAFile(boolean destinationIsAFile) {
     this.destinationIsAFile = destinationIsAFile;
   }
@@ -1337,7 +1350,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return createDestinationFolder;
   }
 
-  /** @param createDestinationFolder The createDestinationFolder to set */
+  /**
+   * @param createDestinationFolder The createDestinationFolder to set
+   */
   public void setCreateDestinationFolder(boolean createDestinationFolder) {
     this.createDestinationFolder = createDestinationFolder;
   }
@@ -1351,7 +1366,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return sourceFileFolder;
   }
 
-  /** @param sourceFileFolder The sourceFileFolder to set */
+  /**
+   * @param sourceFileFolder The sourceFileFolder to set
+   */
   public void setSourceFileFolder(String[] sourceFileFolder) {
     this.sourceFileFolder = sourceFileFolder;
   }
@@ -1365,7 +1382,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return destinationFileFolder;
   }
 
-  /** @param destinationFileFolder The destinationFileFolder to set */
+  /**
+   * @param destinationFileFolder The destinationFileFolder to set
+   */
   public void setDestinationFileFolder(String[] destinationFileFolder) {
     this.destinationFileFolder = destinationFileFolder;
   }
@@ -1379,7 +1398,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return wildcard;
   }
 
-  /** @param wildcard The wildcard to set */
+  /**
+   * @param wildcard The wildcard to set
+   */
   public void setWildcard(String[] wildcard) {
     this.wildcard = wildcard;
   }
@@ -1393,7 +1414,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return listFilesRemove;
   }
 
-  /** @param listFilesRemove The listFilesRemove to set */
+  /**
+   * @param listFilesRemove The listFilesRemove to set
+   */
   public void setListFilesRemove(HashSet<String> listFilesRemove) {
     this.listFilesRemove = listFilesRemove;
   }
@@ -1407,7 +1430,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return listAddResult;
   }
 
-  /** @param listAddResult The listAddResult to set */
+  /**
+   * @param listAddResult The listAddResult to set
+   */
   public void setListAddResult(HashSet<String> listAddResult) {
     this.listAddResult = listAddResult;
   }
@@ -1421,7 +1446,9 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     return nbrFail;
   }
 
-  /** @param nbrFail The nbrFail to set */
+  /**
+   * @param nbrFail The nbrFail to set
+   */
   public void setNbrFail(int nbrFail) {
     this.nbrFail = nbrFail;
   }

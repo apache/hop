@@ -17,9 +17,8 @@
 
 package org.apache.hop.metadata.api;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
 
 /**
  * This metadata interface describes how an object T can be serialized and analyzed.
@@ -28,7 +27,9 @@ import java.util.List;
  */
 public interface IHopMetadataSerializer<T extends IHopMetadata> {
 
-  /** @return A description of the serialized metadata (type) */
+  /**
+   * @return A description of the serialized metadata (type)
+   */
   String getDescription();
 
   /**
@@ -75,7 +76,9 @@ public interface IHopMetadataSerializer<T extends IHopMetadata> {
    */
   boolean exists(String name) throws HopException;
 
-  /** @return The class of the objects which are saved and loaded. */
+  /**
+   * @return The class of the objects which are saved and loaded.
+   */
   Class<T> getManagedClass();
 
   /**

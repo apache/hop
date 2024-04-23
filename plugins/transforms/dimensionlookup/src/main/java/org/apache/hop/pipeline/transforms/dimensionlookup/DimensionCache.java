@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 
 /**
  * This class will act as a special purpose dimension Cache. The idea here is to not only cache the
@@ -231,52 +230,72 @@ public class DimensionCache implements Comparator<Object[]> {
     }
   }
 
-  /** @return the rowMeta */
+  /**
+   * @return the rowMeta
+   */
   public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
-  /** @param rowMeta the rowMeta to set */
+  /**
+   * @param rowMeta the rowMeta to set
+   */
   public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }
 
-  /** @return the rowCache */
+  /**
+   * @return the rowCache
+   */
   public List<Object[]> getRowCache() {
     return rowCache;
   }
 
-  /** @param rowCache the rowCache to set */
+  /**
+   * @param rowCache the rowCache to set
+   */
   public void setRowCache(List<Object[]> rowCache) {
     this.rowCache = rowCache;
   }
 
-  /** @return the keyIndexes */
+  /**
+   * @return the keyIndexes
+   */
   public int[] getKeyIndexes() {
     return keyIndexes;
   }
 
-  /** @param keyIndexes the keyIndexes to set */
+  /**
+   * @param keyIndexes the keyIndexes to set
+   */
   public void setKeyIndexes(int[] keyIndexes) {
     this.keyIndexes = keyIndexes;
   }
 
-  /** @return the fromDateIndex */
+  /**
+   * @return the fromDateIndex
+   */
   public int getFromDateIndex() {
     return fromDateIndex;
   }
 
-  /** @param fromDateIndex the fromDateIndex to set */
+  /**
+   * @param fromDateIndex the fromDateIndex to set
+   */
   public void setFromDateIndex(int fromDateIndex) {
     this.fromDateIndex = fromDateIndex;
   }
 
-  /** @return the toDateIndex */
+  /**
+   * @return the toDateIndex
+   */
   public int getToDateIndex() {
     return toDateIndex;
   }
 
-  /** @param toDateIndex the toDateIndex to set */
+  /**
+   * @param toDateIndex the toDateIndex to set
+   */
   public void setToDateIndex(int toDateIndex) {
     this.toDateIndex = toDateIndex;
   }

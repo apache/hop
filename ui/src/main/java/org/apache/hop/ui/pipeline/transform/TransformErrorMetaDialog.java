@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.pipeline.transform;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,8 +42,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 /** Dialog that allows you to edit the transform error handling meta-data */
 public class TransformErrorMetaDialog extends Dialog {

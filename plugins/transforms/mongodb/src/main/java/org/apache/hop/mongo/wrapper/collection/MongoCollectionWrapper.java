@@ -21,10 +21,9 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.Cursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
+import java.util.List;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
-
-import java.util.List;
 
 /**
  * Defines the wrapper interface for all interactions with a MongoCollection via a

@@ -17,6 +17,18 @@
 
 package org.apache.hop.core.row;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
+import java.security.MessageDigest;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.zip.Adler32;
+import java.util.zip.CRC32;
+import java.util.zip.CheckedInputStream;
 import org.apache.commons.codec.language.DoubleMetaphone;
 import org.apache.commons.codec.language.Metaphone;
 import org.apache.commons.codec.language.RefinedSoundex;
@@ -37,19 +49,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlCheck;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.security.MessageDigest;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
-import java.util.zip.Adler32;
-import java.util.zip.CRC32;
-import java.util.zip.CheckedInputStream;
-
 public class ValueDataUtil {
 
   private static final Log log = LogFactory.getLog(ValueDataUtil.class);
@@ -65,10 +64,12 @@ public class ValueDataUtil {
    * </ul>
    */
   private static final String SYS_PROPERTY_ROUND_2_MODE = "ROUND_2_MODE";
+
   /** Value of system property ROUND_2_MODE Provides correct rounding */
   private static final String SYS_PROPERTY_ROUND_2_MODE_DEFAULT_VALUE = "ROUND_HALF_CEILING";
 
   private static final int ROUND_2_MODE_DEFAULT_VALUE = Const.ROUND_HALF_CEILING;
+
   /** Value of system property ROUND_2_MODE Provides backward compatibility */
   private static final String SYS_PROPERTY_ROUND_2_MODE_BACKWARD_COMPATIBILITY_VALUE =
       "ROUND_HALF_EVEN";

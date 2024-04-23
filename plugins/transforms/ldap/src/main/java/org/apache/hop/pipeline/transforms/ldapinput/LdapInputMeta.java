@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -38,8 +39,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "LDAPInput",
     name = "i18n::LdapInput.Name",
@@ -48,7 +47,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::LdapInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/ldapinput.html")
-public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> implements ILdapMeta {
+public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData>
+    implements ILdapMeta {
   private static final Class<?> PKG = LdapInputMeta.class; // For Translator
 
   /** Flag indicating that we use authentication for connection */
@@ -131,92 +131,126 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the input useCertificate. */
+  /**
+   * @return Returns the input useCertificate.
+   */
   @Override
   public boolean isUseCertificate() {
     return useCertificate;
   }
 
-  /** @return Returns the useCertificate. */
+  /**
+   * @return Returns the useCertificate.
+   */
   public void setUseCertificate(boolean value) {
     this.useCertificate = value;
   }
 
-  /** @return Returns the input trustAllCertificates. */
+  /**
+   * @return Returns the input trustAllCertificates.
+   */
   @Override
   public boolean isTrustAllCertificates() {
     return trustAllCertificates;
   }
 
-  /** @return Returns the input trustAllCertificates. */
+  /**
+   * @return Returns the input trustAllCertificates.
+   */
   public void setTrustAllCertificates(boolean value) {
     this.trustAllCertificates = value;
   }
 
-  /** @return Returns the trustStorePath. */
+  /**
+   * @return Returns the trustStorePath.
+   */
   @Override
   public String getTrustStorePassword() {
     return trustStorePassword;
   }
 
-  /** @param value the trustStorePassword to set. */
+  /**
+   * @param value the trustStorePassword to set.
+   */
   public void setTrustStorePassword(String value) {
     this.trustStorePassword = value;
   }
 
-  /** @return Returns the trustStorePath. */
+  /**
+   * @return Returns the trustStorePath.
+   */
   @Override
   public String getTrustStorePath() {
     return trustStorePath;
   }
 
-  /** @param value the trustStorePath to set. */
+  /**
+   * @param value the trustStorePath to set.
+   */
   public void setTrustStorePath(String value) {
     this.trustStorePath = value;
   }
 
-  /** @return Returns the protocol. */
+  /**
+   * @return Returns the protocol.
+   */
   @Override
   public String getProtocol() {
     return protocol;
   }
 
-  /** @param value the protocol to set. */
+  /**
+   * @param value the protocol to set.
+   */
   public void setProtocol(String value) {
     this.protocol = value;
   }
 
-  /** @return Returns the input dynamicSearch. */
+  /**
+   * @return Returns the input dynamicSearch.
+   */
   public boolean isDynamicSearch() {
     return dynamicSearch;
   }
 
-  /** @return Returns the input dynamicSearch. */
+  /**
+   * @return Returns the input dynamicSearch.
+   */
   public void setDynamicSearch(boolean dynamicSearch) {
     this.dynamicSearch = dynamicSearch;
   }
 
-  /** @return Returns the input dynamicSeachFieldName. */
+  /**
+   * @return Returns the input dynamicSeachFieldName.
+   */
   public String getDynamicSearchFieldName() {
     return dynamicSeachFieldName;
   }
 
-  /** @return Returns the input dynamicSeachFieldName. */
+  /**
+   * @return Returns the input dynamicSeachFieldName.
+   */
   public void setDynamicSearchFieldName(String dynamicSeachFieldName) {
     this.dynamicSeachFieldName = dynamicSeachFieldName;
   }
 
-  /** @return Returns the input dynamicFilter. */
+  /**
+   * @return Returns the input dynamicFilter.
+   */
   public boolean isDynamicFilter() {
     return dynamicFilter;
   }
 
-  /** @param dynamicFilter the dynamicFilter to set. */
+  /**
+   * @param dynamicFilter the dynamicFilter to set.
+   */
   public void setDynamicFilter(boolean dynamicFilter) {
     this.dynamicFilter = dynamicFilter;
   }
 
-  /** @return Returns the input dynamicFilterFieldName. */
+  /**
+   * @return Returns the input dynamicFilterFieldName.
+   */
   public String getDynamicFilterFieldName() {
     return dynamicFilterFieldName;
   }
@@ -226,154 +260,214 @@ public class LdapInputMeta extends BaseTransformMeta<LdapInput, LdapInputData> i
     this.dynamicFilterFieldName = dynamicFilterFieldName;
   }
 
-  /** @return Returns the input useAuthentication. */
+  /**
+   * @return Returns the input useAuthentication.
+   */
   public boolean isUseAuthentication() {
     return useAuthentication;
   }
 
-  /** @param useAuthentication The useAuthentication to set. */
+  /**
+   * @param useAuthentication The useAuthentication to set.
+   */
   public void setUseAuthentication(boolean useAuthentication) {
     this.useAuthentication = useAuthentication;
   }
 
-  /** @return Returns the input usePaging. */
+  /**
+   * @return Returns the input usePaging.
+   */
   public boolean isPaging() {
     return usePaging;
   }
 
-  /** @param usePaging The usePaging to set. */
+  /**
+   * @param usePaging The usePaging to set.
+   */
   public void setPaging(boolean usePaging) {
     this.usePaging = usePaging;
   }
 
-  /** @return Returns the input fields. */
+  /**
+   * @return Returns the input fields.
+   */
   public LdapInputField[] getInputFields() {
     return inputFields;
   }
 
-  /** @param inputFields The input fields to set. */
+  /**
+   * @param inputFields The input fields to set.
+   */
   public void setInputFields(LdapInputField[] inputFields) {
     this.inputFields = inputFields;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   public boolean isIncludeRowNumber() {
     return includeRowNumber;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
 
-  /** @return Returns the host name. */
+  /**
+   * @return Returns the host name.
+   */
   @Override
   public String getHost() {
     return host;
   }
 
-  /** @param host The host to set. */
+  /**
+   * @param host The host to set.
+   */
   public void setHost(String host) {
     this.host = host;
   }
 
-  /** @return Returns the user name. */
+  /**
+   * @return Returns the user name.
+   */
   public String getUserName() {
     return userName;
   }
 
-  /** @param userName The username to set. */
+  /**
+   * @param userName The username to set.
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
 
-  /** @return Returns the Port. */
+  /**
+   * @return Returns the Port.
+   */
   @Override
   public String getPort() {
     return port;
   }
 
-  /** @param port The port to set. */
+  /**
+   * @param port The port to set.
+   */
   public void setPort(String port) {
     this.port = port;
   }
 
-  /** @return Returns the filter string. */
+  /**
+   * @return Returns the filter string.
+   */
   public String getFilterString() {
     return filterString;
   }
 
-  /** @param filterString The filter string to set. */
+  /**
+   * @param filterString The filter string to set.
+   */
   public void setFilterString(String filterString) {
     this.filterString = filterString;
   }
 
-  /** @return Returns the search string. */
+  /**
+   * @return Returns the search string.
+   */
   public String getSearchBase() {
     return searchBase;
   }
 
-  /** @param searchBase The filter Search Base to set. */
+  /**
+   * @param searchBase The filter Search Base to set.
+   */
   public void setSearchBase(String searchBase) {
     this.searchBase = searchBase;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public int getRowLimit() {
     return rowLimit;
   }
 
-  /** @param timeLimit The timeout time limit to set. */
+  /**
+   * @param timeLimit The timeout time limit to set.
+   */
   public void setTimeLimit(int timeLimit) {
     this.timeLimit = timeLimit;
   }
 
-  /** @return Returns the time limit. */
+  /**
+   * @return Returns the time limit.
+   */
   public int getTimeLimit() {
     return timeLimit;
   }
 
-  /** @param multiValuedSeparator The multi-valued separator filed. */
+  /**
+   * @param multiValuedSeparator The multi-valued separator filed.
+   */
   public void setMultiValuedSeparator(String multiValuedSeparator) {
     this.multiValuedSeparator = multiValuedSeparator;
   }
 
-  /** @return Returns the multi valued separator. */
+  /**
+   * @return Returns the multi valued separator.
+   */
   public String getMultiValuedSeparator() {
     return multiValuedSeparator;
   }
 
-  /** @param pagesize The pagesize. */
+  /**
+   * @param pagesize The pagesize.
+   */
   public void setPageSize(String pagesize) {
     this.pagesize = pagesize;
   }
 
-  /** @return Returns the pagesize. */
+  /**
+   * @return Returns the pagesize.
+   */
   public String getPageSize() {
     return pagesize;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(int rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }

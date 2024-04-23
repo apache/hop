@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class RightKey {
   @HopMetadataProperty(
@@ -64,7 +63,9 @@ public class RightKey {
     return key;
   }
 
-  /** @param key The key to set */
+  /**
+   * @param key The key to set
+   */
   public void setKey(String key) {
     this.key = key;
   }

@@ -17,6 +17,10 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -53,11 +57,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ParquetInputDialog extends BaseTransformDialog implements ITransformDialog {
 

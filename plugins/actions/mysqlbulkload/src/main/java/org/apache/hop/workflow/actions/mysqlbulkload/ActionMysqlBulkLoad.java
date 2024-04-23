@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkload;
 
+import java.io.File;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
@@ -47,9 +49,6 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.util.List;
 
 /** This defines a MySQL action. */
 @Action(
@@ -250,8 +249,8 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
           }
 
           if (connection != null) {
-            // User has specified a connection, We can continue ...           
-            try ( Database db = new Database(this, this, connection)) {
+            // User has specified a connection, We can continue ...
+            try (Database db = new Database(this, this, connection)) {
               db.connect();
               // Get schemaname
               String realSchemaname = resolve(schemaname);

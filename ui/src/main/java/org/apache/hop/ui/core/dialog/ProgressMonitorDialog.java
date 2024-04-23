@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
@@ -35,8 +36,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
 
 /** A modal dialog that displays progress during a long running operation. */
 public class ProgressMonitorDialog {

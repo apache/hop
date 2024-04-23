@@ -17,11 +17,10 @@
 
 package org.apache.hop.metadata.serializer.xml.classes;
 
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IIntCodeConverter;
-
-import java.util.Objects;
 
 public class Field {
 

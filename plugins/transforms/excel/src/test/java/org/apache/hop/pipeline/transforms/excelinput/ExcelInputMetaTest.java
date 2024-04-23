@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
 
 public class ExcelInputMetaTest {
 

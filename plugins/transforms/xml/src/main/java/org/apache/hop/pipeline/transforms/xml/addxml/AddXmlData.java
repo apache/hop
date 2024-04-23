@@ -17,10 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.io.OutputStreamWriter;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
@@ -28,6 +24,9 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.zip.ZipOutputStream;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class AddXmlData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;

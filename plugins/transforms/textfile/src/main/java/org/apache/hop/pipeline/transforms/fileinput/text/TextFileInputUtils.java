@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -30,11 +34,6 @@ import org.apache.hop.pipeline.transform.errorhandling.AbstractFileErrorHandler;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputAdditionalField;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 /** Some common methods for text file parsing. */
 public class TextFileInputUtils {

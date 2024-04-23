@@ -63,42 +63,58 @@ public class TextFileFilter implements Cloneable {
     }
   }
 
-  /** @return Returns the filterLastLine. */
+  /**
+   * @return Returns the filterLastLine.
+   */
   public boolean isFilterLastLine() {
     return filterLastLine;
   }
 
-  /** @param filterLastLine The filterLastLine to set. */
+  /**
+   * @param filterLastLine The filterLastLine to set.
+   */
   public void setFilterLastLine(boolean filterLastLine) {
     this.filterLastLine = filterLastLine;
   }
 
-  /** @return Returns the filterPositive. */
+  /**
+   * @return Returns the filterPositive.
+   */
   public boolean isFilterPositive() {
     return filterPositive;
   }
 
-  /** @param filterPositive The filterPositive to set. */
+  /**
+   * @param filterPositive The filterPositive to set.
+   */
   public void setFilterPositive(boolean filterPositive) {
     this.filterPositive = filterPositive;
   }
 
-  /** @return Returns the filterPosition. */
+  /**
+   * @return Returns the filterPosition.
+   */
   public int getFilterPosition() {
     return filterPosition;
   }
 
-  /** @param filterPosition The filterPosition to set. */
+  /**
+   * @param filterPosition The filterPosition to set.
+   */
   public void setFilterPosition(int filterPosition) {
     this.filterPosition = filterPosition;
   }
 
-  /** @return Returns the filterString. */
+  /**
+   * @return Returns the filterString.
+   */
   public String getFilterString() {
     return filterString;
   }
 
-  /** @param filterString The filterString to set. */
+  /**
+   * @param filterString The filterString to set.
+   */
   public void setFilterString(String filterString) {
     this.filterString = filterString;
   }

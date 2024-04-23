@@ -17,6 +17,21 @@
  */
 package org.apache.hop.databases.hive;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -42,22 +57,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class HiveDatabaseMetaTest {
   HiveDatabaseMeta nativeMeta;
@@ -86,7 +85,9 @@ public class HiveDatabaseMetaTest {
     assertEquals(0, nativeMeta.getNotFoundTK(false));
     assertEquals("org.apache.hive.jdbc.HiveDriver", nativeMeta.getDriverClass());
     assertEquals("jdbc:hive2://FOO:BAR/WIBBLE", nativeMeta.getURL("FOO", "BAR", "WIBBLE"));
-    assertEquals("jdbc:hive2://FOO1:BAR1,FOO2:BAR2/WIBBLE", nativeMeta.getURL("FOO1,FOO2", "BAR1,BAR2", "WIBBLE"));
+    assertEquals(
+        "jdbc:hive2://FOO1:BAR1,FOO2:BAR2/WIBBLE",
+        nativeMeta.getURL("FOO1,FOO2", "BAR1,BAR2", "WIBBLE"));
     assertEquals("jdbc:hive2://FOO/WIBBLE", nativeMeta.getURL("FOO", "", "WIBBLE"));
     assertEquals("&", nativeMeta.getExtraOptionSeparator());
     assertEquals("?", nativeMeta.getExtraOptionIndicator());
@@ -96,141 +97,141 @@ public class HiveDatabaseMetaTest {
     assertFalse(nativeMeta.isSupportsSynonyms());
     assertArrayEquals(
         new String[] {
-                "ALL",
-                "ALTER",
-                "AND",
-                "ARRAY",
-                "AS",
-                "AUTHORIZATION",
-                "BETWEEN",
-                "BIGINT",
-                "BINARY",
-                "BOOLEAN",
-                "BOTH",
-                "BY",
-                "CACHE",
-                "CASE",
-                "CAST",
-                "CHAR",
-                "COLUMN",
-                "COMMIT",
-                "CONF",
-                "CONSTRAINT",
-                "CREATE",
-                "CROSS",
-                "CUBE",
-                "CURRENT",
-                "CURRENT_DATE",
-                "CURRENT_TIMESTAMP",
-                "CURSOR",
-                "DATABASE",
-                "DATE",
-                "DAYOFWEEK",
-                "DECIMAL",
-                "DELETE",
-                "DESCRIBE",
-                "DISTINCT",
-                "DOUBLE",
-                "DROP",
-                "ELSE",
-                "END",
-                "EXCHANGE",
-                "EXISTS",
-                "EXTENDED",
-                "EXTERNAL",
-                "EXTRACT",
-                "FALSE",
-                "FETCH",
-                "FLOAT",
-                "FLOOR",
-                "FOLLOWING",
-                "FOR",
-                "FOREIGN",
-                "FROM",
-                "FULL",
-                "FUNCTION",
-                "GRANT",
-                "GROUP",
-                "GROUPING",
-                "HAVING",
-                "IF",
-                "IMPORT",
-                "IN",
-                "INNER",
-                "INSERT",
-                "INT",
-                "INTEGER",
-                "INTERSECT",
-                "INTERVAL",
-                "INTO",
-                "IS",
-                "JOIN",
-                "LATERAL",
-                "LEFT",
-                "LESS",
-                "LIKE",
-                "LOCAL",
-                "MACRO",
-                "MAP",
-                "MORE",
-                "NONE",
-                "NOT",
-                "NULL",
-                "OF",
-                "ON",
-                "ONLY",
-                "OR",
-                "ORDER",
-                "OUT",
-                "OUTER",
-                "OVER",
-                "PARTIALSCAN",
-                "PARTITION",
-                "PERCENT",
-                "PRECEDING",
-                "PRECISION",
-                "PRESERVE",
-                "PRIMARY",
-                "PROCEDURE",
-                "RANGE",
-                "READS",
-                "REDUCE",
-                "REFERENCES",
-                "REGEXP",
-                "REVOKE",
-                "RIGHT",
-                "RLIKE",
-                "ROLLBACK",
-                "ROLLUP",
-                "ROW",
-                "ROWS",
-                "SELECT",
-                "SET",
-                "SMALLINT",
-                "START",
-                "TABLE",
-                "TABLESAMPLE",
-                "THEN",
-                "TIMESTAMP",
-                "TO",
-                "TRANSFORM",
-                "TRIGGER",
-                "TRUE",
-                "TRUNCATE",
-                "UNBOUNDED",
-                "UNION",
-                "UNIQUEJOIN",
-                "UPDATE",
-                "USER",
-                "USING",
-                "UTC_TMESTAMP",
-                "VALUES",
-                "VARCHAR",
-                "VIEWS",
-                "WHEN",
-                "WHERE",
-                "WINDOW",
-                "WITH",
+          "ALL",
+          "ALTER",
+          "AND",
+          "ARRAY",
+          "AS",
+          "AUTHORIZATION",
+          "BETWEEN",
+          "BIGINT",
+          "BINARY",
+          "BOOLEAN",
+          "BOTH",
+          "BY",
+          "CACHE",
+          "CASE",
+          "CAST",
+          "CHAR",
+          "COLUMN",
+          "COMMIT",
+          "CONF",
+          "CONSTRAINT",
+          "CREATE",
+          "CROSS",
+          "CUBE",
+          "CURRENT",
+          "CURRENT_DATE",
+          "CURRENT_TIMESTAMP",
+          "CURSOR",
+          "DATABASE",
+          "DATE",
+          "DAYOFWEEK",
+          "DECIMAL",
+          "DELETE",
+          "DESCRIBE",
+          "DISTINCT",
+          "DOUBLE",
+          "DROP",
+          "ELSE",
+          "END",
+          "EXCHANGE",
+          "EXISTS",
+          "EXTENDED",
+          "EXTERNAL",
+          "EXTRACT",
+          "FALSE",
+          "FETCH",
+          "FLOAT",
+          "FLOOR",
+          "FOLLOWING",
+          "FOR",
+          "FOREIGN",
+          "FROM",
+          "FULL",
+          "FUNCTION",
+          "GRANT",
+          "GROUP",
+          "GROUPING",
+          "HAVING",
+          "IF",
+          "IMPORT",
+          "IN",
+          "INNER",
+          "INSERT",
+          "INT",
+          "INTEGER",
+          "INTERSECT",
+          "INTERVAL",
+          "INTO",
+          "IS",
+          "JOIN",
+          "LATERAL",
+          "LEFT",
+          "LESS",
+          "LIKE",
+          "LOCAL",
+          "MACRO",
+          "MAP",
+          "MORE",
+          "NONE",
+          "NOT",
+          "NULL",
+          "OF",
+          "ON",
+          "ONLY",
+          "OR",
+          "ORDER",
+          "OUT",
+          "OUTER",
+          "OVER",
+          "PARTIALSCAN",
+          "PARTITION",
+          "PERCENT",
+          "PRECEDING",
+          "PRECISION",
+          "PRESERVE",
+          "PRIMARY",
+          "PROCEDURE",
+          "RANGE",
+          "READS",
+          "REDUCE",
+          "REFERENCES",
+          "REGEXP",
+          "REVOKE",
+          "RIGHT",
+          "RLIKE",
+          "ROLLBACK",
+          "ROLLUP",
+          "ROW",
+          "ROWS",
+          "SELECT",
+          "SET",
+          "SMALLINT",
+          "START",
+          "TABLE",
+          "TABLESAMPLE",
+          "THEN",
+          "TIMESTAMP",
+          "TO",
+          "TRANSFORM",
+          "TRIGGER",
+          "TRUE",
+          "TRUNCATE",
+          "UNBOUNDED",
+          "UNION",
+          "UNIQUEJOIN",
+          "UPDATE",
+          "USER",
+          "USING",
+          "UTC_TMESTAMP",
+          "VALUES",
+          "VARCHAR",
+          "VIEWS",
+          "WHEN",
+          "WHERE",
+          "WINDOW",
+          "WITH",
         },
         nativeMeta.getReservedWords());
 
@@ -459,7 +460,6 @@ public class HiveDatabaseMetaTest {
 
     return resultSetMetaData;
   }
-
 
   @Test
   public void testReleaseSavepoint() {

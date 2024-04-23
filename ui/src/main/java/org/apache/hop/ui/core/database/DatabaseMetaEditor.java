@@ -17,9 +17,15 @@
 
 package org.apache.hop.ui.core.database;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -27,8 +33,6 @@ import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementFilter;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
@@ -45,7 +49,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -68,14 +71,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(description = "This is the editor for database connection metadata")
 /**
@@ -285,18 +280,18 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     fdConnectionType.right = new FormAttachment(wToolBar, -margin);
     wConnectionType.setLayoutData(fdConnectionType);
     Control lastControl = wConnectionType;
-    
+
     // JDBC Driver information
     //
     Label wlDriverInfo = new Label(wGeneralComp, SWT.RIGHT);
     PropsUi.setLook(wlDriverInfo);
-    wlDriverInfo.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.InstalledDriver"));    
+    wlDriverInfo.setText(BaseMessages.getString(PKG, "DatabaseDialog.label.InstalledDriver"));
     FormData fdlDriverInfo = new FormData();
     fdlDriverInfo.top = new FormAttachment(lastControl, margin * 2);
     fdlDriverInfo.left = new FormAttachment(0, 0);
     fdlDriverInfo.right = new FormAttachment(middle, -margin);
     wlDriverInfo.setLayoutData(fdlDriverInfo);
-    
+
     wDriverInfo = new Label(wGeneralComp, SWT.LEFT);
     wDriverInfo.setEnabled(false);
     PropsUi.setLook(wDriverInfo);
@@ -492,7 +487,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     busyChangingConnectionType.set(false);
   }
-  
+
   private void addAdvancedTab() {
 
     CTabItem wAdvancedTab = new CTabItem(wTabFolder, SWT.NONE);
@@ -804,7 +799,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
 
     wName.setText(Const.NVL(databaseMeta.getName(), ""));
     wConnectionType.setText(Const.NVL(databaseMeta.getPluginName(), ""));
-    
+
     wUsername.setText(Const.NVL(databaseMeta.getUsername(), ""));
     wPassword.setText(Const.NVL(databaseMeta.getPassword(), ""));
 
@@ -874,28 +869,26 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta> {
     }
   }
 
-  /**
-   *  Update JDBC driver information and version
-   */
+  /** Update JDBC driver information and version */
   protected void updateDriverInfo() {
     try {
       DatabaseMeta databaseMeta = new DatabaseMeta();
       this.getWidgetsContent(databaseMeta);
-      
+
       wDriverInfo.setText("");
       String driverName = databaseMeta.getDriverClass(getVariables());
-      if ( !Utils.isEmpty(driverName) ) {
+      if (!Utils.isEmpty(driverName)) {
         ClassLoader classLoader = databaseMeta.getIDatabase().getClass().getClassLoader();
         Class<?> driver = classLoader.loadClass(driverName);
-        
-        if ( driver.getPackage().getImplementationVersion()!=null ) {
-          driverName = driverName+" ("+driver.getPackage().getImplementationVersion()+")";
+
+        if (driver.getPackage().getImplementationVersion() != null) {
+          driverName = driverName + " (" + driver.getPackage().getImplementationVersion() + ")";
         }
-        
+
         wDriverInfo.setText(driverName);
       }
     } catch (Exception e) {
-      wDriverInfo.setText("No driver installed");          
+      wDriverInfo.setText("No driver installed");
     }
   }
 

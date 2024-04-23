@@ -17,14 +17,14 @@
 
 package org.apache.hop.core.hash;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.RowMeta;
-import org.junit.Test;
-
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.RowMeta;
+import org.junit.Test;
 
 public class ByteArrayHashIndexTest {
 

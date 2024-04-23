@@ -17,10 +17,6 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.changed.ChangedFlag;
-import org.apache.hop.core.exception.HopException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.changed.ChangedFlag;
+import org.apache.hop.core.exception.HopException;
 
 /**
  * This class contains a messages store: for a certain Locale and for a certain messages package, it
@@ -286,32 +285,44 @@ public class MessagesStore extends ChangedFlag {
         + filename;
   }
 
-  /** @return the locale */
+  /**
+   * @return the locale
+   */
   public String getLocale() {
     return locale;
   }
 
-  /** @param locale the locale to set */
+  /**
+   * @param locale the locale to set
+   */
   public void setLocale(String locale) {
     this.locale = locale;
   }
 
-  /** @return the messagesPackage */
+  /**
+   * @return the messagesPackage
+   */
   public String getMessagesPackage() {
     return messagesPackage;
   }
 
-  /** @param messagesPackage the messagesPackage to set */
+  /**
+   * @param messagesPackage the messagesPackage to set
+   */
   public void setMessagesPackage(String messagesPackage) {
     this.messagesPackage = messagesPackage;
   }
 
-  /** @return the map */
+  /**
+   * @return the map
+   */
   public Map<String, String> getMessagesMap() {
     return messagesMap;
   }
 
-  /** @param messsagesMap the map to set */
+  /**
+   * @param messsagesMap the map to set
+   */
   public void setMessagesMap(Map<String, String> messsagesMap) {
     this.messagesMap = messsagesMap;
   }

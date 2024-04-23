@@ -17,22 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.sql.Connection;
-import java.util.Map;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -46,6 +30,21 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.sql.Connection;
+import java.util.Map;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 public class TableOutputTest {
   private DatabaseMeta databaseMeta;

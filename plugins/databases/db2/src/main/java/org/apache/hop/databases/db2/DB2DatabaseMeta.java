@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains DB2 specific information through static final members
- */
-@DatabaseMetaPlugin(type = "DB2", typeDescription = "DB2", documentationUrl = "/database/databases/db2.html")
+/** Contains DB2 specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "DB2",
+    typeDescription = "DB2",
+    documentationUrl = "/database/databases/db2.html")
 @GuiPlugin(id = "GUI-DB2DatabaseMeta")
 public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -62,7 +63,9 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "jdbc:db2://" + hostname + ":" + port + "/" + databaseName;
   }
 
-  /** @return true if the database supports schemas, DB2 supports it (v7 and v8 for sure). */
+  /**
+   * @return true if the database supports schemas, DB2 supports it (v7 and v8 for sure).
+   */
   @Override
   public boolean isSupportsSchemas() {
     return true;
@@ -728,7 +731,9 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports sequences */
+  /**
+   * @return true if the database supports sequences
+   */
   @Override
   public boolean isSupportsSequences() {
     return true;
@@ -818,7 +823,9 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports newlines in a SQL statements. */
+  /**
+   * @return true if the database supports newlines in a SQL statements.
+   */
   @Override
   public boolean isSupportsNewLinesInSql() {
     return false;

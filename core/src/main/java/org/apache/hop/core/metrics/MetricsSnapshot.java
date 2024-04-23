@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.metrics;
 
+import java.util.Date;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.IMetrics;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.StringUtil;
-
-import java.util.Date;
 
 public class MetricsSnapshot implements IMetricsSnapshot {
 
@@ -126,69 +125,93 @@ public class MetricsSnapshot implements IMetricsSnapshot {
         + type.toString();
   }
 
-  /** @return the date */
+  /**
+   * @return the date
+   */
   @Override
   public Date getDate() {
     return date;
   }
 
-  /** @param date the date to set */
+  /**
+   * @param date the date to set
+   */
   @Override
   public void setDate(Date date) {
     this.date = date;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   public MetricsSnapshotType getType() {
     return type;
   }
 
-  /** @param type the type to set */
+  /**
+   * @param type the type to set
+   */
   public void setType(MetricsSnapshotType type) {
     this.type = type;
   }
 
-  /** @return the subject */
+  /**
+   * @return the subject
+   */
   @Override
   public String getSubject() {
     return subject;
   }
 
-  /** @param subject the subject to set */
+  /**
+   * @param subject the subject to set
+   */
   public void setSubject(String subject) {
     this.subject = subject;
   }
 
-  /** @return the value */
+  /**
+   * @return the value
+   */
   @Override
   public Long getValue() {
     return value;
   }
 
-  /** @param value the value to set */
+  /**
+   * @param value the value to set
+   */
   @Override
   public void setValue(Long value) {
     this.value = value;
   }
 
-  /** @return the logChannelId */
+  /**
+   * @return the logChannelId
+   */
   @Override
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /** @param logChannelId the logChannelId to set */
+  /**
+   * @param logChannelId the logChannelId to set
+   */
   public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
 
-  /** @return the metric */
+  /**
+   * @return the metric
+   */
   @Override
   public IMetrics getMetric() {
     return metric;
   }
 
-  /** @param metric the metric to set */
+  /**
+   * @param metric the metric to set
+   */
   public void setMetric(IMetrics metric) {
     this.metric = metric;
   }

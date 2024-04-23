@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.writetofile;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -36,9 +39,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.List;
 
 /**
  * This defines a 'write to file' action. Its main use would be to create empty trigger files that
@@ -57,12 +57,16 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
 
   @HopMetadataProperty(key = "filename")
   private String filename;
+
   @HopMetadataProperty(key = "createParentFolder")
   private boolean createParentFolder;
+
   @HopMetadataProperty(key = "appendFile")
   private boolean appendFile;
+
   @HopMetadataProperty(key = "content")
   private String content;
+
   @HopMetadataProperty(key = "encoding")
   private String encoding;
 

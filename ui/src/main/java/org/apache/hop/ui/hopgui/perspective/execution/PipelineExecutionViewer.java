@@ -892,7 +892,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
           break;
       }
     }
-    
+
     redraw();
   }
 
@@ -1248,6 +1248,7 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
     // If we're still here, return the pipeline log channel ID
     return getLogChannelId();
   }
+
   /**
    * Gets pipelineMeta
    *

@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -44,13 +50,6 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolTip;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
@@ -266,11 +265,13 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
     Set<String> hopVariablesSet = VariableRegistry.getInstance().getVariableNames();
 
     // The Deprecated variables...
-    Set<String> deprecatedSet = new HashSet<>(VariableRegistry.getInstance().getDeprecatedVariableNames());
+    Set<String> deprecatedSet =
+        new HashSet<>(VariableRegistry.getInstance().getDeprecatedVariableNames());
 
     // The Hop system settings variables
     //
-    Set<String> hopSystemSettings = VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);        
+    Set<String> hopSystemSettings =
+        VariableRegistry.getInstance().getVariableNames(VariableScope.SYSTEM);
 
     Map<String, String> pluginsPrefixesMap = new HashMap<>();
 

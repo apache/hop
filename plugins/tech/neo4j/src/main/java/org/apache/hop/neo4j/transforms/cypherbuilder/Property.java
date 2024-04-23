@@ -18,10 +18,9 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder;
 
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class Property implements Cloneable {
 
@@ -115,19 +114,18 @@ public class Property implements Cloneable {
   }
 
   /**
-   * alias.property={parameter} or alias.property=expression
-   * or alias.property=unwindAlias.parameter
+   * alias.property={parameter} or alias.property=expression or alias.property=unwindAlias.parameter
    *
    * @param unwindAlias unwind alias if there's any
    * @return The Cypher set clause for this property
    */
   public String getSetCypherClause(String unwindAlias) {
-    String cypher = alias + "." + name+"=";
+    String cypher = alias + "." + name + "=";
     if (StringUtils.isEmpty(expression)) {
       if (StringUtils.isEmpty(unwindAlias)) {
         cypher += "{" + parameter + "}";
       } else {
-        cypher += unwindAlias+"."+parameter;
+        cypher += unwindAlias + "." + parameter;
       }
     } else {
       cypher += expression;

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.poi;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.exception.HopException;
@@ -28,10 +31,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 
 public class PoiWorkbook implements IKWorkbook {
 
@@ -84,7 +83,7 @@ public class PoiWorkbook implements IKWorkbook {
   @Override
   public void close() {
     try {
-      if (workbook!=null) {
+      if (workbook != null) {
         workbook.close();
       }
       if (poifs != null) {

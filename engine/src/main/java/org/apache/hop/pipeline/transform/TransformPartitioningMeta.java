@@ -49,14 +49,12 @@ public class TransformPartitioningMeta implements Cloneable {
 
   private int methodType;
 
-  @HopMetadataProperty
-  private String method;
+  @HopMetadataProperty private String method;
 
   @HopMetadataProperty(storeWithName = true)
   private PartitionSchema partitionSchema;
 
-  @HopMetadataProperty
-  private IPartitioner partitioner;
+  @HopMetadataProperty private IPartitioner partitioner;
 
   private boolean hasChanged = false;
 
@@ -92,7 +90,9 @@ public class TransformPartitioningMeta implements Cloneable {
     }
   }
 
-  /** @return true if the partition schema names are the same. */
+  /**
+   * @return true if the partition schema names are the same.
+   */
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
@@ -143,12 +143,16 @@ public class TransformPartitioningMeta implements Cloneable {
     return description;
   }
 
-  /** @return the partitioningMethod */
+  /**
+   * @return the partitioningMethod
+   */
   public int getMethodType() {
     return methodType;
   }
 
-  /** @param method the partitioning method to set */
+  /**
+   * @param method the partitioning method to set
+   */
   public void setMethod(String method) throws HopPluginException {
     if (!method.equals(this.method)) {
       this.method = method;
@@ -275,12 +279,16 @@ public class TransformPartitioningMeta implements Cloneable {
     return methodType != PARTITIONING_METHOD_NONE;
   }
 
-  /** @return the partitionSchema */
+  /**
+   * @return the partitionSchema
+   */
   public PartitionSchema getPartitionSchema() {
     return partitionSchema;
   }
 
-  /** @param partitionSchema the partitionSchema to set */
+  /**
+   * @param partitionSchema the partitionSchema to set
+   */
   public void setPartitionSchema(PartitionSchema partitionSchema) {
     this.partitionSchema = partitionSchema;
     hasChanged = true;

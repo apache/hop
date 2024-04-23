@@ -16,13 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.calculator;
 
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.Random;
-import java.util.UUID;
 
 public class CalculatorMetaTest {
 

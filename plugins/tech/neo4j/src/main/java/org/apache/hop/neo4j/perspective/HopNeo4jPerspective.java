@@ -17,6 +17,11 @@
 
 package org.apache.hop.neo4j.perspective;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -82,12 +87,6 @@ import org.neo4j.driver.Session;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "HopNeo4jPerspective",
@@ -920,7 +919,8 @@ public class HopNeo4jPerspective implements IHopPerspective {
     }
   }
 
-  private void openItem(NeoConnection connection, String id, String name, String type) throws HopConfigException {
+  private void openItem(NeoConnection connection, String id, String name, String type)
+      throws HopConfigException {
 
     try (Driver driver = connection.getDriver(hopGui.getLog(), hopGui.getVariables())) {
       try (Session session =
@@ -1161,7 +1161,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -1175,7 +1177,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
     return parent;
   }
 
-  /** @param parent The parent to set */
+  /**
+   * @param parent The parent to set
+   */
   public void setParent(Composite parent) {
     this.parent = parent;
   }
@@ -1190,7 +1194,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
     return composite;
   }
 
-  /** @param composite The composite to set */
+  /**
+   * @param composite The composite to set
+   */
   public void setComposite(Composite composite) {
     this.composite = composite;
   }

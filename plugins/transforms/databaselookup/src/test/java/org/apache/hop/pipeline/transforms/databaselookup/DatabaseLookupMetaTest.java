@@ -17,6 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -37,19 +49,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class DatabaseLookupMetaTest {
 

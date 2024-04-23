@@ -38,7 +38,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-
 /** This dialog allows you to enter a number. */
 public class EnterNumberDialog extends Dialog {
   private static final Class<?> PKG = EnterNumberDialog.class; // For Translator

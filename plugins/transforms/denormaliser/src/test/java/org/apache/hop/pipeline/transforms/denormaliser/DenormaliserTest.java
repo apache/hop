@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.denormaliser;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -28,14 +35,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 public class DenormaliserTest {
 

@@ -17,20 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.mockito.Matchers.any;
@@ -42,6 +28,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 import static org.powermock.api.mockito.PowerMockito.spy;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 public class DatabaseJoinTest {
 

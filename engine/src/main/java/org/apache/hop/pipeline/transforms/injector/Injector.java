@@ -28,8 +28,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * Executor class to allow a java program to inject rows of data into a pipeline. This transform can
  * be used as a starting point in such a "headless" pipeline.
  */
-public class Injector extends BaseTransform<InjectorMeta, InjectorData>
-{
+public class Injector extends BaseTransform<InjectorMeta, InjectorData> {
 
   private static final Class<?> PKG = InjectorMeta.class; // For Translator
 

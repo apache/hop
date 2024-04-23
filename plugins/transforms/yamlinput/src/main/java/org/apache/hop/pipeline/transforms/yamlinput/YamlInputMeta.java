@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -43,10 +46,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "YamlInput",
@@ -126,17 +125,23 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return the add result filesname flag */
+  /**
+   * @return the add result filesname flag
+   */
   public boolean addResultFile() {
     return addResultFile;
   }
 
-  /** @return the validating flag */
+  /**
+   * @return the validating flag
+   */
   public boolean isValidating() {
     return validating;
   }
 
-  /** @param validating the validating flag to set */
+  /**
+   * @param validating the validating flag to set
+   */
   public void setValidating(boolean validating) {
     this.validating = validating;
   }
@@ -145,12 +150,16 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     this.addResultFile = addResultFile;
   }
 
-  /** @return Returns the input fields. */
+  /**
+   * @return Returns the input fields.
+   */
   public YamlInputField[] getInputFields() {
     return inputFields;
   }
 
-  /** @param inputFields The input fields to set. */
+  /**
+   * @param inputFields The input fields to set.
+   */
   public void setInputFields(YamlInputField[] inputFields) {
     this.inputFields = inputFields;
   }
@@ -170,17 +179,23 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     return inFields;
   }
 
-  /** @param inFields set the inFields. */
+  /**
+   * @param inFields set the inFields.
+   */
   public void setInFields(boolean inFields) {
     this.inFields = inFields;
   }
 
-  /** @return Returns the fileMask. */
+  /**
+   * @return Returns the fileMask.
+   */
   public String[] getFileMask() {
     return fileMask;
   }
 
-  /** @param fileMask The fileMask to set. */
+  /**
+   * @param fileMask The fileMask to set.
+   */
   public void setFileMask(String[] fileMask) {
     this.fileMask = fileMask;
   }
@@ -201,92 +216,128 @@ public class YamlInputMeta extends BaseTransformMeta<YamlInput, YamlInputData> {
     }
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String[] getFileName() {
     return fileName;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String[] fileName) {
     this.fileName = fileName;
   }
 
-  /** @return Returns the filenameField. */
+  /**
+   * @return Returns the filenameField.
+   */
   public String getFilenameField() {
     return filenameField;
   }
 
-  /** @param filenameField The filenameField to set. */
+  /**
+   * @param filenameField The filenameField to set.
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
 
-  /** @return Returns the includeFilename. */
+  /**
+   * @return Returns the includeFilename.
+   */
   public boolean includeFilename() {
     return includeFilename;
   }
 
-  /** @param includeFilename The includeFilename to set. */
+  /**
+   * @param includeFilename The includeFilename to set.
+   */
   public void setIncludeFilename(boolean includeFilename) {
     this.includeFilename = includeFilename;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   public boolean includeRowNumber() {
     return includeRowNumber;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public long getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(long rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return the IsIgnoreEmptyFile flag */
+  /**
+   * @return the IsIgnoreEmptyFile flag
+   */
   public boolean isIgnoreEmptyFile() {
     return isIgnoreEmptyFile;
   }
 
-  /** @param isIgnoreEmptyFile the isIgnoreEmptyFile to set */
+  /**
+   * @param isIgnoreEmptyFile the isIgnoreEmptyFile to set
+   */
   public void setIgnoreEmptyFile(boolean isIgnoreEmptyFile) {
     this.isIgnoreEmptyFile = isIgnoreEmptyFile;
   }
 
-  /** @return the doNotFailIfNoFile flag */
+  /**
+   * @return the doNotFailIfNoFile flag
+   */
   public boolean isdoNotFailIfNoFile() {
     return doNotFailIfNoFile;
   }
 
-  /** @param doNotFailIfNoFile the doNotFailIfNoFile to set */
+  /**
+   * @param doNotFailIfNoFile the doNotFailIfNoFile to set
+   */
   public void setdoNotFailIfNoFile(boolean doNotFailIfNoFile) {
     this.doNotFailIfNoFile = doNotFailIfNoFile;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   public String getEncoding() {
     return encoding;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }

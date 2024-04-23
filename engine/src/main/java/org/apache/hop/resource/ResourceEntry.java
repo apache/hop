@@ -43,22 +43,30 @@ public class ResourceEntry {
     this.resourcetype = resourcetype;
   }
 
-  /** @return the resource */
+  /**
+   * @return the resource
+   */
   public String getResource() {
     return resource;
   }
 
-  /** @param resource the resource to set */
+  /**
+   * @param resource the resource to set
+   */
   public void setResource(String resource) {
     this.resource = resource;
   }
 
-  /** @return the resourcetype */
+  /**
+   * @return the resourcetype
+   */
   public ResourceType getResourcetype() {
     return resourcetype;
   }
 
-  /** @param resourcetype the resourcetype to set */
+  /**
+   * @param resourcetype the resourcetype to set
+   */
   public void setResourcetype(ResourceType resourcetype) {
     this.resourcetype = resourcetype;
   }

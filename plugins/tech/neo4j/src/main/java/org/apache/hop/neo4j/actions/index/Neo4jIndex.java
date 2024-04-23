@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.actions.index;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -28,9 +30,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Action(
     id = "NEO4J_INDEX",
@@ -216,7 +215,9 @@ public class Neo4jIndex extends ActionBase implements IAction {
     return connection;
   }
 
-  /** @param connection The connection to set */
+  /**
+   * @param connection The connection to set
+   */
   public void setConnection(NeoConnection connection) {
     this.connection = connection;
   }
@@ -230,7 +231,9 @@ public class Neo4jIndex extends ActionBase implements IAction {
     return indexUpdates;
   }
 
-  /** @param indexUpdates The indexUpdates to set */
+  /**
+   * @param indexUpdates The indexUpdates to set
+   */
   public void setIndexUpdates(List<IndexUpdate> indexUpdates) {
     this.indexUpdates = indexUpdates;
   }

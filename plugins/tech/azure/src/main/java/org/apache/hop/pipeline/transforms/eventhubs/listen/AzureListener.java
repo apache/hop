@@ -22,6 +22,10 @@ import com.microsoft.azure.eventhubs.ConnectionStringBuilder;
 import com.microsoft.azure.eventhubs.EventHubClient;
 import com.microsoft.azure.eventprocessorhost.EventProcessorHost;
 import com.microsoft.azure.eventprocessorhost.EventProcessorOptions;
+import java.util.LinkedList;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -36,11 +40,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.LinkedList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
 
 public class AzureListener extends BaseTransform<AzureListenerMeta, AzureListenerData> {
 

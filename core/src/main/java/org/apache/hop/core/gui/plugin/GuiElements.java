@@ -17,15 +17,14 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.util.StringUtil;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.util.StringUtil;
 
 /** This represents a list of GUI elements under a certain heading or ID */
 public class GuiElements extends BaseGuiElements implements Comparable<GuiElements> {

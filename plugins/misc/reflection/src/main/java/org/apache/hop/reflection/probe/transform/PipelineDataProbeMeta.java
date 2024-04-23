@@ -37,7 +37,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/pipeline-data-probe.html",
     image = "probe.svg",
     keywords = "i18n::PipelineDataProbeMeta.keyword")
-public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, PipelineDataProbeData> {
+public class PipelineDataProbeMeta
+    extends BaseTransformMeta<PipelineDataProbe, PipelineDataProbeData> {
 
   @HopMetadataProperty(key = "log_transforms")
   private boolean loggingTransforms;
@@ -106,7 +107,9 @@ public class PipelineDataProbeMeta extends BaseTransformMeta<PipelineDataProbe, 
     return loggingTransforms;
   }
 
-  /** @param loggingTransforms The loggingTransforms to set */
+  /**
+   * @param loggingTransforms The loggingTransforms to set
+   */
   public void setLoggingTransforms(boolean loggingTransforms) {
     this.loggingTransforms = loggingTransforms;
   }

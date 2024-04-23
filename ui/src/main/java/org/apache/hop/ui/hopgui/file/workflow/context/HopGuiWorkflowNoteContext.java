@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -25,9 +27,6 @@ import org.apache.hop.ui.hopgui.context.BaseGuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
@@ -86,7 +85,9 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
     return workflowMeta;
   }
 
-  /** @param workflowMeta The workflowMeta to set */
+  /**
+   * @param workflowMeta The workflowMeta to set
+   */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
   }
@@ -100,7 +101,9 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
     return notePadMeta;
   }
 
-  /** @param notePadMeta The notePadMeta to set */
+  /**
+   * @param notePadMeta The notePadMeta to set
+   */
   public void setNotePadMeta(NotePadMeta notePadMeta) {
     this.notePadMeta = notePadMeta;
   }
@@ -114,7 +117,9 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
     return workflowGraph;
   }
 
-  /** @param workflowGraph The pipelineGraph to set */
+  /**
+   * @param workflowGraph The pipelineGraph to set
+   */
   public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -128,7 +133,9 @@ public class HopGuiWorkflowNoteContext extends BaseGuiContextHandler implements 
     return click;
   }
 
-  /** @param click The click to set */
+  /**
+   * @param click The click to set
+   */
   public void setClick(Point click) {
     this.click = click;
   }

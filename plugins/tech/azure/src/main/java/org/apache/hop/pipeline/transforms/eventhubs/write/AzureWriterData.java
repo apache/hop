@@ -21,12 +21,11 @@ package org.apache.hop.pipeline.transforms.eventhubs.write;
 import com.microsoft.azure.eventhubs.ConnectionStringBuilder;
 import com.microsoft.azure.eventhubs.EventData;
 import com.microsoft.azure.eventhubs.EventHubClient;
+import java.util.LinkedList;
+import java.util.concurrent.ScheduledExecutorService;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.LinkedList;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class AzureWriterData extends BaseTransformData implements ITransformData {
 

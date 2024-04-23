@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby.beam;
 
+import java.math.BigDecimal;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -31,8 +32,6 @@ import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigDecimal;
 
 public class GroupByFn extends DoFn<KV<HopRow, Iterable<HopRow>>, HopRow> {
 

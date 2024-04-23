@@ -17,6 +17,8 @@
 
 package org.apache.hop.beam.transforms.pubsub;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.beam.core.HopRow;
@@ -36,9 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamPublish",
     name = "i18n::BeamPublishDialog.DialogTitle",
@@ -47,7 +46,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamPublishMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamgcppublisher.html")
-public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishData> implements IBeamPipelineTransformHandler {
+public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishData>
+    implements IBeamPipelineTransformHandler {
 
   public static final String TOPIC = "topic";
   public static final String MESSAGE_TYPE = "message_type";
@@ -159,7 +159,9 @@ public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishD
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }
@@ -173,7 +175,9 @@ public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishD
     return messageType;
   }
 
-  /** @param messageType The messageType to set */
+  /**
+   * @param messageType The messageType to set
+   */
   public void setMessageType(String messageType) {
     this.messageType = messageType;
   }
@@ -187,7 +191,9 @@ public class BeamPublishMeta extends BaseTransformMeta<BeamPublish, BeamPublishD
     return messageField;
   }
 
-  /** @param messageField The messageField to set */
+  /**
+   * @param messageField The messageField to set
+   */
   public void setMessageField(String messageField) {
     this.messageField = messageField;
   }

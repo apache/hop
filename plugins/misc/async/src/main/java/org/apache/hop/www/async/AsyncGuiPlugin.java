@@ -17,6 +17,9 @@
 
 package org.apache.hop.www.async;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -28,10 +31,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.workflow.action.ActionMeta;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @GuiPlugin
 public class AsyncGuiPlugin {

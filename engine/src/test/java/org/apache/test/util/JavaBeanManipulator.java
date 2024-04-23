@@ -17,16 +17,15 @@
 
 package org.apache.test.util;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.pipeline.transforms.loadsave.getter.FieldGetter;
 import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
 import org.apache.hop.pipeline.transforms.loadsave.getter.MethodGetter;
 import org.apache.hop.pipeline.transforms.loadsave.setter.FieldSetter;
 import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
 import org.apache.hop.pipeline.transforms.loadsave.setter.MethodSetter;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class JavaBeanManipulator<T> {
   private final Class<? extends T> clazz;

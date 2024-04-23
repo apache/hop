@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Method;
+import java.util.Collections;
 import junit.framework.Assert;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
@@ -26,13 +32,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.reflect.Method;
-import java.util.Collections;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for "Set field value to a constant" transform

@@ -17,13 +17,13 @@
 
 package org.apache.hop.avro.transforms.avroinput;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
 import org.w3c.dom.Node;
-
-import static org.junit.Assert.assertEquals;
 
 public class AvroInputMetaTest {
 

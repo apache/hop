@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.changefileencoding;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -45,9 +47,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ChangeFileEncodingDialog.class; // For Translator

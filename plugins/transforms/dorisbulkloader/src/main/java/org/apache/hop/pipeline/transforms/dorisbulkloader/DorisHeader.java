@@ -18,9 +18,8 @@
 
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DorisHeader {
   @HopMetadataProperty private String name;

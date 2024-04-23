@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 public class CheckTransformsExtension {
   private final List<ICheckResult> remarks;

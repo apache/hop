@@ -17,11 +17,11 @@
  */
 package org.apache.hop.database.cassandra.util;
 
-import org.apache.hop.databases.cassandra.util.CqlFunctions;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import org.apache.hop.databases.cassandra.util.CqlFunctions;
+import org.junit.Test;
 
 public class CqlFunctionsTest {
 

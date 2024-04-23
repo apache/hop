@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.text;
 
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -33,9 +35,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 
 /** This handles a text file in the file explorer perspective: open, save, ... */
 public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
@@ -112,19 +111,19 @@ public class BaseTextExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
           "Error reading contents of file '" + explorerFile.getFilename() + "'", e);
     }
   }
-  
+
   @Override
   public void selectAll() {
     wText.selectAll();
   }
-  
+
   @Override
   public void unselectAll() {
     wText.setSelection(0, 0);
-  }  
+  }
 
   @Override
   public void copySelectedToClipboard() {
     wText.copy();
-  }  
+  }
 }

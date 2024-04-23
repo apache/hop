@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.formula;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,9 +52,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FormulaDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FormulaDialog.class; // For Translator
@@ -290,6 +289,7 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
               FormulaDialog.this.fieldNames = fieldNames;
             });
   }
+
   /** Copy information from the meta-data currentMeta to the dialog fields. */
   public void getData() {
 

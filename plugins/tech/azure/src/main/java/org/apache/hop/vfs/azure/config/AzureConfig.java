@@ -26,8 +26,7 @@ public class AzureConfig {
   private String key;
   private String emulatorUrl;
 
-  public AzureConfig() {
-  }
+  public AzureConfig() {}
 
   public AzureConfig(AzureConfig config) {
     this();
@@ -45,7 +44,9 @@ public class AzureConfig {
     return account;
   }
 
-  /** @param account The account to set */
+  /**
+   * @param account The account to set
+   */
   public void setAccount(String account) {
     this.account = account;
   }
@@ -59,26 +60,26 @@ public class AzureConfig {
     return key;
   }
 
-  /** @param key The key to set */
+  /**
+   * @param key The key to set
+   */
   public void setKey(String key) {
     this.key = key;
   }
 
+  /**
+   * Gets emulatorUrl
+   *
+   * @return the url of the Azure Emulator
+   */
+  public String getEmulatorUrl() {
+    return emulatorUrl;
+  }
 
-/**
-* Gets emulatorUrl
- *
- * @return the url of the Azure Emulator
-*/
-    public String getEmulatorUrl() {
-        return emulatorUrl;
-    }
-
-/**
-*
- * @param emulatorUrl The emulatorUrl to set
-*/
-    public void setEmulatorUrl(String emulatorUrl) {
-        this.emulatorUrl = emulatorUrl;
-    }
+  /**
+   * @param emulatorUrl The emulatorUrl to set
+   */
+  public void setEmulatorUrl(String emulatorUrl) {
+    this.emulatorUrl = emulatorUrl;
+  }
 }

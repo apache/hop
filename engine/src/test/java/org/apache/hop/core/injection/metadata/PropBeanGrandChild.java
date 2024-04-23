@@ -42,7 +42,9 @@ public class PropBeanGrandChild {
     return grandChildName;
   }
 
-  /** @param grandChildName The grandChildName to set */
+  /**
+   * @param grandChildName The grandChildName to set
+   */
   public void setGrandChildName(String grandChildName) {
     this.grandChildName = grandChildName;
   }
@@ -56,7 +58,9 @@ public class PropBeanGrandChild {
     return grandChildDescription;
   }
 
-  /** @param grandChildDescription The grandChildDescription to set */
+  /**
+   * @param grandChildDescription The grandChildDescription to set
+   */
   public void setGrandChildDescription(String grandChildDescription) {
     this.grandChildDescription = grandChildDescription;
   }

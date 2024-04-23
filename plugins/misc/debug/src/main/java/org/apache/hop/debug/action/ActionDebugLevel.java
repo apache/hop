@@ -86,7 +86,9 @@ public class ActionDebugLevel implements Cloneable {
     return logLevel;
   }
 
-  /** @param logLevel The logLevel to set */
+  /**
+   * @param logLevel The logLevel to set
+   */
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
   }
@@ -100,7 +102,9 @@ public class ActionDebugLevel implements Cloneable {
     return loggingResult;
   }
 
-  /** @param loggingResult The loggingResult to set */
+  /**
+   * @param loggingResult The loggingResult to set
+   */
   public void setLoggingResult(boolean loggingResult) {
     this.loggingResult = loggingResult;
   }
@@ -114,7 +118,9 @@ public class ActionDebugLevel implements Cloneable {
     return loggingVariables;
   }
 
-  /** @param loggingVariables The loggingVariables to set */
+  /**
+   * @param loggingVariables The loggingVariables to set
+   */
   public void setLoggingVariables(boolean loggingVariables) {
     this.loggingVariables = loggingVariables;
   }
@@ -128,7 +134,9 @@ public class ActionDebugLevel implements Cloneable {
     return loggingResultRows;
   }
 
-  /** @param loggingResultRows The loggingResultRows to set */
+  /**
+   * @param loggingResultRows The loggingResultRows to set
+   */
   public void setLoggingResultRows(boolean loggingResultRows) {
     this.loggingResultRows = loggingResultRows;
   }
@@ -142,7 +150,9 @@ public class ActionDebugLevel implements Cloneable {
     return loggingResultFiles;
   }
 
-  /** @param loggingResultFiles The loggingResultFiles to set */
+  /**
+   * @param loggingResultFiles The loggingResultFiles to set
+   */
   public void setLoggingResultFiles(boolean loggingResultFiles) {
     this.loggingResultFiles = loggingResultFiles;
   }

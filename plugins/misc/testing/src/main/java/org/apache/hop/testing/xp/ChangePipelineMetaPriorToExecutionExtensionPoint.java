@@ -17,6 +17,8 @@
 
 package org.apache.hop.testing.xp;
 
+import java.io.OutputStream;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -33,9 +35,6 @@ import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
-
-import java.io.OutputStream;
-import java.util.List;
 
 @ExtensionPoint(
     extensionPointId = "PipelinePrepareExecution",

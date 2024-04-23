@@ -17,18 +17,17 @@
 
 package org.apache.hop.www;
 
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.http.entity.ContentType;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 public class BaseHttpServlet extends HttpServlet {
 
@@ -92,7 +91,7 @@ public class BaseHttpServlet extends HttpServlet {
       throws ServletException, IOException {
     if (req.getContentLength() > 0 && req.getContentType() != null) {
       String encoding = getContentEncoding(req.getContentType());
-      if(encoding != null){
+      if (encoding != null) {
         req.setCharacterEncoding(encoding);
       }
     }
@@ -190,12 +189,16 @@ public class BaseHttpServlet extends HttpServlet {
     this.variables = serverConfig.getVariables();
   }
 
-  /** @param pipelineMap The pipelineMap to set */
+  /**
+   * @param pipelineMap The pipelineMap to set
+   */
   public void setPipelineMap(PipelineMap pipelineMap) {
     this.pipelineMap = pipelineMap;
   }
 
-  /** @param workflowMap The workflowMap to set */
+  /**
+   * @param workflowMap The workflowMap to set
+   */
   public void setWorkflowMap(WorkflowMap workflowMap) {
     this.workflowMap = workflowMap;
   }
@@ -209,7 +212,9 @@ public class BaseHttpServlet extends HttpServlet {
     return serverConfig;
   }
 
-  /** @param serverConfig The serverConfig to set */
+  /**
+   * @param serverConfig The serverConfig to set
+   */
   public void setServerConfig(HopServerConfig serverConfig) {
     this.serverConfig = serverConfig;
   }
@@ -223,7 +228,9 @@ public class BaseHttpServlet extends HttpServlet {
     return log;
   }
 
-  /** @param log The log to set */
+  /**
+   * @param log The log to set
+   */
   public void setLog(ILogChannel log) {
     this.log = log;
   }

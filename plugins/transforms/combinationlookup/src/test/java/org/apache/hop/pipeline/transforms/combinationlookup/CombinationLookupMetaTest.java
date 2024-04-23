@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -29,8 +31,6 @@ import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import static org.junit.Assert.assertEquals;
 
 public class CombinationLookupMetaTest {
   @Before

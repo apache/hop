@@ -19,6 +19,11 @@ package org.apache.hop.pipeline.transforms.standardizephonenumber;
 
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,12 +41,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
-
 @Transform(
     id = "StandardizePhoneNumber",
     image = "standardizephonenumber.svg",
@@ -50,7 +49,9 @@ import java.util.Set;
     categoryDescription =
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataQuality",
     documentationUrl = "/pipeline/transforms/standardizephonenumber.html")
-public class StandardizePhoneNumberMeta extends BaseTransformMeta<StandardizePhoneNumber, StandardizePhoneNumberData> implements Serializable {
+public class StandardizePhoneNumberMeta
+    extends BaseTransformMeta<StandardizePhoneNumber, StandardizePhoneNumberData>
+    implements Serializable {
 
   private static final Class<?> PKG = StandardizePhoneNumberMeta.class; // For Translator
 

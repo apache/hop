@@ -26,10 +26,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
-/**
- * Contains H2 specific information through static final members
- */
-@DatabaseMetaPlugin(type = "H2", typeDescription = "H2", documentationUrl = "/database/databases/h2.html")
+/** Contains H2 specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "H2",
+    typeDescription = "H2",
+    documentationUrl = "/database/databases/h2.html")
 @GuiPlugin(id = "GUI-H2DatabaseMeta")
 public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -37,7 +38,9 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     return super.getNotFoundTK(useAutoinc);
@@ -80,7 +83,9 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;

@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
@@ -38,9 +41,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class HopGuiPipelineClipboardDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
@@ -140,8 +140,8 @@ public class HopGuiPipelineClipboardDelegate {
             min.y = p.y;
           }
         }
-      }      
-      
+      }
+
       // Load the hops...
       Node hopsNode = XmlHandler.getSubNode(pipelineNode, PipelineMeta.XML_TAG_ORDER);
       nr = XmlHandler.countNodes(hopsNode, PipelineHopMeta.XML_HOP_TAG);
@@ -251,24 +251,25 @@ public class HopGuiPipelineClipboardDelegate {
     }
     pipelineGraph.redraw();
   }
-  
-  private void pasteNoXmlContent(PipelineMeta pipelineMeta, String clipboardContent, Point location) {
+
+  private void pasteNoXmlContent(
+      PipelineMeta pipelineMeta, String clipboardContent, Point location) {
     try {
-        // Add a notepad
-        //
-        NotePadMeta notePadMeta =
-            new NotePadMeta(
-                clipboardContent,
-                location.x,
-                location.y,
-                ConstUi.NOTE_MIN_SIZE,
-                ConstUi.NOTE_MIN_SIZE);
-        pipelineMeta.addNote(notePadMeta);
-        hopGui.undoDelegate.addUndoNew(
-            pipelineMeta,
-            new NotePadMeta[] {notePadMeta},
-            new int[] {pipelineMeta.indexOfNote(notePadMeta)});
-        shiftLocation(location);
+      // Add a notepad
+      //
+      NotePadMeta notePadMeta =
+          new NotePadMeta(
+              clipboardContent,
+              location.x,
+              location.y,
+              ConstUi.NOTE_MIN_SIZE,
+              ConstUi.NOTE_MIN_SIZE);
+      pipelineMeta.addNote(notePadMeta);
+      hopGui.undoDelegate.addUndoNew(
+          pipelineMeta,
+          new NotePadMeta[] {notePadMeta},
+          new int[] {pipelineMeta.indexOfNote(notePadMeta)});
+      shiftLocation(location);
     } catch (Exception e) {
       // "Error pasting transforms...",
       // "I was unable to paste transforms to this pipeline"
@@ -279,15 +280,15 @@ public class HopGuiPipelineClipboardDelegate {
           e);
     }
   }
-  
+
   public void shiftLocation(Point location) {
     location.x = location.x + (int) (10 * PropsUi.getInstance().getZoomFactor());
     location.y = location.y + (int) (5 * PropsUi.getInstance().getZoomFactor());
   }
-  
+
   public void copySelected(
       PipelineMeta pipelineMeta, List<TransformMeta> transforms, List<NotePadMeta> notes) {
-    if (transforms == null || transforms.size()+notes.size() == 0) {
+    if (transforms == null || transforms.size() + notes.size() == 0) {
       return;
     }
 
@@ -351,7 +352,9 @@ public class HopGuiPipelineClipboardDelegate {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -365,7 +368,9 @@ public class HopGuiPipelineClipboardDelegate {
     return pipelineGraph;
   }
 
-  /** @param pipelineGraph The pipelineGraph to set */
+  /**
+   * @param pipelineGraph The pipelineGraph to set
+   */
   public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }

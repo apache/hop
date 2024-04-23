@@ -19,6 +19,10 @@
 package org.apache.hop.pipeline.transforms.dorisbulkloader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.UUID;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.json.HopJson;
@@ -31,16 +35,12 @@ import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.UUID;
-
 public class DorisStreamLoad {
   private static final byte[] JSON_ARRAY_START =
       LoadConstants.JSON_ARRAY_START.getBytes(StandardCharsets.UTF_8);
   private static final byte[] JSON_ARRAY_END =
       LoadConstants.JSON_ARRAY_END.getBytes(StandardCharsets.UTF_8);
+
   /** used to serialize or deserialize json string */
   private static final ObjectMapper OBJECT_MAPPER = HopJson.newMapper();
 

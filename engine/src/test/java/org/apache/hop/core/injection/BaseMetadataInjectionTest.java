@@ -17,6 +17,14 @@
 
 package org.apache.hop.core.injection;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -33,15 +41,6 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.After;
 import org.junit.Ignore;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 /** Base class for test metadata injection. */
 @Ignore

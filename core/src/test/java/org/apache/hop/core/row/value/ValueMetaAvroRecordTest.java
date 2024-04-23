@@ -18,8 +18,16 @@
 
 package org.apache.hop.core.row.value;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericRecord;
@@ -29,14 +37,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class ValueMetaAvroRecordTest {
 
@@ -118,7 +118,7 @@ public class ValueMetaAvroRecordTest {
 
     GenericRecord cloned = (GenericRecord) valueMeta.cloneValueData(genericRecord);
 
-    assertFalse(genericRecord==cloned);
+    assertFalse(genericRecord == cloned);
     verifyGenericRecords(genericRecord, cloned);
   }
 
@@ -132,12 +132,12 @@ public class ValueMetaAvroRecordTest {
     valueMeta.setSchema(schema);
 
     assertEquals(
-        "Avro Generic Record {\"type\":\"record\",\"name\":\"all_values\",\"namespace\":\"hop.apache.org\"" +
-                ",\"doc\":\"No documentation URL for now\",\"fields\":[{\"name\":\"id\",\"type\":" +
-                "[\"long\",\"null\"]},{\"name\":\"sysdate\",\"type\":[\"string\",\"null\"]}," +
-                "{\"name\":\"num\",\"type\":[\"double\",\"null\"]},{\"name\":\"int\",\"type\":" +
-                "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]}," +
-                "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]}",
+        "Avro Generic Record {\"type\":\"record\",\"name\":\"all_values\",\"namespace\":\"hop.apache.org\""
+            + ",\"doc\":\"No documentation URL for now\",\"fields\":[{\"name\":\"id\",\"type\":"
+            + "[\"long\",\"null\"]},{\"name\":\"sysdate\",\"type\":[\"string\",\"null\"]},"
+            + "{\"name\":\"num\",\"type\":[\"double\",\"null\"]},{\"name\":\"int\",\"type\":"
+            + "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]},"
+            + "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]}",
         valueMeta.toStringMeta());
   }
 
@@ -154,7 +154,8 @@ public class ValueMetaAvroRecordTest {
 
     ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
     DataInputStream dataInputStream = new DataInputStream(inputStream);
-    ValueMetaAvroRecord loaded = (ValueMetaAvroRecord) ValueMetaFactory.loadValueMeta(dataInputStream);
+    ValueMetaAvroRecord loaded =
+        (ValueMetaAvroRecord) ValueMetaFactory.loadValueMeta(dataInputStream);
 
     assertEquals(valueMeta.getName(), loaded.getName());
     assertEquals(valueMeta.getSchema().toString(true), loaded.getSchema().toString(true));
@@ -169,22 +170,23 @@ public class ValueMetaAvroRecordTest {
     valueMeta.storeMetaInJson(jValue);
     ObjectMapper mapper = new ObjectMapper();
     JsonNode valueNode = mapper.readTree(jValue.toJSONString());
-    JsonNode expectJsonNode = mapper.readTree(
-            "{\"schema\":{\"name\":\"all_values\",\"namespace\":\"hop.apache.org\",\"doc\":" +
-            "\"No documentation URL for now\",\"type\":\"record\",\"fields\":[{\"name\":\"id\",\"type\":" +
-            "[\"long\",\"null\"]},{\"name\":\"sysdate\",\"type\":[\"string\",\"null\"]}," +
-            "{\"name\":\"num\",\"type\":[\"double\",\"null\"]},{\"name\":\"int\",\"type\":" +
-            "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]}," +
-            "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]},\"precision\":-1,\"name\":" +
-            "\"test\",\"length\":-1,\"conversionMask\":null,\"type\":20}"
-    );
-    assertEquals(valueNode,expectJsonNode);
+    JsonNode expectJsonNode =
+        mapper.readTree(
+            "{\"schema\":{\"name\":\"all_values\",\"namespace\":\"hop.apache.org\",\"doc\":"
+                + "\"No documentation URL for now\",\"type\":\"record\",\"fields\":[{\"name\":\"id\",\"type\":"
+                + "[\"long\",\"null\"]},{\"name\":\"sysdate\",\"type\":[\"string\",\"null\"]},"
+                + "{\"name\":\"num\",\"type\":[\"double\",\"null\"]},{\"name\":\"int\",\"type\":"
+                + "[\"long\",\"null\"]},{\"name\":\"str\",\"type\":[\"string\",\"null\"]},"
+                + "{\"name\":\"uuid\",\"type\":[\"string\",\"null\"]}]},\"precision\":-1,\"name\":"
+                + "\"test\",\"length\":-1,\"conversionMask\":null,\"type\":20}");
+    assertEquals(valueNode, expectJsonNode);
 
     // Read it back...
     //
     JSONObject jLoaded = (JSONObject) new JSONParser().parse(valueNode.toString());
 
-    ValueMetaAvroRecord loaded = (ValueMetaAvroRecord) ValueMetaFactory.loadValueMetaFromJson(jLoaded);
+    ValueMetaAvroRecord loaded =
+        (ValueMetaAvroRecord) ValueMetaFactory.loadValueMetaFromJson(jLoaded);
 
     assertEquals(valueMeta.getName(), loaded.getName());
     assertEquals(valueMeta.getSchema().toString(true), loaded.getSchema().toString(true));
@@ -203,7 +205,8 @@ public class ValueMetaAvroRecordTest {
 
     // Read it back...
     //
-    ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+    ByteArrayInputStream byteArrayInputStream =
+        new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
     DataInputStream inputStream = new DataInputStream(byteArrayInputStream);
     GenericRecord verify = (GenericRecord) valueMeta.readData(inputStream);
 

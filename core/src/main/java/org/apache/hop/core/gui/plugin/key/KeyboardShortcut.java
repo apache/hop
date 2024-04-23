@@ -86,10 +86,10 @@ public class KeyboardShortcut {
       str.append("Delete");
     }
     // Digit
-    else if ( (keyCode >= 48 && keyCode <= 57) || "+-/*".indexOf(keyCode)>=0) {
+    else if ((keyCode >= 48 && keyCode <= 57) || "+-/*".indexOf(keyCode) >= 0) {
       str.append(((char) keyCode));
     }
-     
+
     if ((keyCode & (1 << 24)) != 0) {
       switch (keyCode & (0xFFFF)) {
         case 1:
@@ -181,7 +181,7 @@ public class KeyboardShortcut {
           break;
       }
     }
-    
+
     return str.toString();
   }
 
@@ -216,7 +216,9 @@ public class KeyboardShortcut {
     return osx;
   }
 
-  /** @param osx The osx to set */
+  /**
+   * @param osx The osx to set
+   */
   public void setOsx(boolean osx) {
     this.osx = osx;
   }
@@ -230,7 +232,9 @@ public class KeyboardShortcut {
     return alt;
   }
 
-  /** @param alt The alt to set */
+  /**
+   * @param alt The alt to set
+   */
   public void setAlt(boolean alt) {
     this.alt = alt;
   }
@@ -244,7 +248,9 @@ public class KeyboardShortcut {
     return control;
   }
 
-  /** @param control The control to set */
+  /**
+   * @param control The control to set
+   */
   public void setControl(boolean control) {
     this.control = control;
   }
@@ -258,7 +264,9 @@ public class KeyboardShortcut {
     return shift;
   }
 
-  /** @param shift The shift to set */
+  /**
+   * @param shift The shift to set
+   */
   public void setShift(boolean shift) {
     this.shift = shift;
   }
@@ -272,7 +280,9 @@ public class KeyboardShortcut {
     return command;
   }
 
-  /** @param command The command to set */
+  /**
+   * @param command The command to set
+   */
   public void setCommand(boolean command) {
     this.command = command;
   }
@@ -286,7 +296,9 @@ public class KeyboardShortcut {
     return keyCode;
   }
 
-  /** @param keyCode The keyCode to set */
+  /**
+   * @param keyCode The keyCode to set
+   */
   public void setKeyCode(int keyCode) {
     this.keyCode = keyCode;
   }
@@ -300,7 +312,9 @@ public class KeyboardShortcut {
     return parentMethodName;
   }
 
-  /** @param parentMethodName The parentMethodName to set */
+  /**
+   * @param parentMethodName The parentMethodName to set
+   */
   public void setParentMethodName(String parentMethodName) {
     this.parentMethodName = parentMethodName;
   }

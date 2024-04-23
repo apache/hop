@@ -17,12 +17,11 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkload;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class WorkflowActionMysqlBulkLoadLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionMysqlBulkLoad> {
@@ -36,20 +35,20 @@ public class WorkflowActionMysqlBulkLoadLoadSaveTest
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "schemaname",
-            "tablename",
-            "filename",
-            "separator",
-            "enclosed",
-            "escaped",
-            "linestarted",
-            "lineterminated",
-            "replacedata",
-            "ignorelines",
-            "listattribut",
-            "localInfile",
-            "prorityvalue",
-            "addFileToResult",
-            "database");
+        "schemaname",
+        "tablename",
+        "filename",
+        "separator",
+        "enclosed",
+        "escaped",
+        "linestarted",
+        "lineterminated",
+        "replacedata",
+        "ignorelines",
+        "listattribut",
+        "localInfile",
+        "prorityvalue",
+        "addFileToResult",
+        "database");
   }
 }

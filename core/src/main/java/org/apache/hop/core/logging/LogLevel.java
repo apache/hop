@@ -63,7 +63,7 @@ public enum LogLevel implements IEnumHasCodeAndDescription {
   public String getDescription() {
     return logLevelDescriptions[level];
   }
-  
+
   /**
    * Return the log level for a certain log level code
    *
@@ -74,25 +74,26 @@ public enum LogLevel implements IEnumHasCodeAndDescription {
   public static LogLevel getLogLevelForCode(String code) {
     return IEnumHasCode.lookupCode(LogLevel.class, code, LogLevel.BASIC);
   }
-  
+
   /**
    * Return the log level for a certain log level code
    *
    * @param code the code to look for
    * @return the log level or BASIC if nothing matches.
-   */  
+   */
   public static LogLevel lookupCode(final String code) {
     return IEnumHasCode.lookupCode(LogLevel.class, code, LogLevel.BASIC);
   }
-  
+
   /**
    * Return the log level for a certain log level description
    *
    * @param description the description to look for
    * @return the log level or BASIC if nothing matches.
-   */  
+   */
   public static LogLevel lookupDescription(final String description) {
-    return IEnumHasCodeAndDescription.lookupDescription(LogLevel.class, description, LogLevel.BASIC);
+    return IEnumHasCodeAndDescription.lookupDescription(
+        LogLevel.class, description, LogLevel.BASIC);
   }
 
   /**
@@ -103,50 +104,67 @@ public enum LogLevel implements IEnumHasCodeAndDescription {
     return getLevel() <= filterLogLevel.getLevel();
   }
 
-  /** @return true if this level is Error or lower */
+  /**
+   * @return true if this level is Error or lower
+   */
   public boolean isError() {
     return this == ERROR;
   }
 
-  /** @return True if this level is Minimal or lower (which is nothing) */
+  /**
+   * @return True if this level is Minimal or lower (which is nothing)
+   */
   public boolean isNothing() {
     return this.level >= NOTHING.level;
   }
 
-  /** @return True if this level is Minimal */
+  /**
+   * @return True if this level is Minimal
+   */
   public boolean isMinimal() {
     return this.level >= MINIMAL.level;
   }
 
-  /** @return True if this level is Basic */
+  /**
+   * @return True if this level is Basic
+   */
   public boolean isBasic() {
     return this.level >= BASIC.level;
   }
 
-  /** @return True if this level is Detailed */
+  /**
+   * @return True if this level is Detailed
+   */
   public boolean isDetailed() {
     return this.level >= DETAILED.level;
   }
 
-  /** @return True if this level is Debug */
+  /**
+   * @return True if this level is Debug
+   */
   public boolean isDebug() {
     return this.level >= DEBUG.level;
   }
 
-  /** @return True if this level is Row level */
+  /**
+   * @return True if this level is Row level
+   */
   public boolean isRowlevel() {
     return this.level >= ROWLEVEL.level;
   }
 
-  /** 
+  /**
    * Return an array of log level descriptions, sorted by level (0==Nothing, 6=Row Level)
+   *
    * @return An array of log level descriptions
    */
   public static String[] getLogLevelDescriptions() {
     return IEnumHasCodeAndDescription.getDescriptions(LogLevel.class);
   }
 
-  /** @return An array of log level codes, sorted by level (0==Nothing, 6=Row Level) */
+  /**
+   * @return An array of log level codes, sorted by level (0==Nothing, 6=Row Level)
+   */
   public static String[] logLogLevelCodes() {
     return IEnumHasCode.getCodes(LogLevel.class);
   }

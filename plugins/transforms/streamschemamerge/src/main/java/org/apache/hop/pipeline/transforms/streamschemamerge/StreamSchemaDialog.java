@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
+import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -42,8 +43,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class StreamSchemaDialog extends BaseTransformDialog implements ITransformDialog {
 

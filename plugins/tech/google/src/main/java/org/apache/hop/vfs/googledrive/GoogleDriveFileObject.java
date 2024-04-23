@@ -32,13 +32,6 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileType;
-import org.apache.commons.vfs2.provider.AbstractFileName;
-import org.apache.commons.vfs2.provider.AbstractFileObject;
-import org.apache.hop.vfs.googledrive.config.GoogleDriveConfigSingleton;
-import org.apache.hop.vfs.googledrive.util.CustomDataStoreFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -51,6 +44,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileType;
+import org.apache.commons.vfs2.provider.AbstractFileName;
+import org.apache.commons.vfs2.provider.AbstractFileObject;
+import org.apache.hop.vfs.googledrive.config.GoogleDriveConfigSingleton;
+import org.apache.hop.vfs.googledrive.util.CustomDataStoreFactory;
 
 public class GoogleDriveFileObject extends AbstractFileObject {
 

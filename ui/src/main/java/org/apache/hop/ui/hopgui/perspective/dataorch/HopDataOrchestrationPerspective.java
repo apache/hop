@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -63,12 +68,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 @HopPerspectivePlugin(
     id = "100-HopDataOrchestrationPerspective",

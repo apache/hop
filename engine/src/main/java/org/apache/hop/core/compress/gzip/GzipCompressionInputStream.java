@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.compress.gzip;
 
-import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.ICompressionProvider;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
+import org.apache.hop.core.compress.CompressionInputStream;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 public class GzipCompressionInputStream extends CompressionInputStream {
 

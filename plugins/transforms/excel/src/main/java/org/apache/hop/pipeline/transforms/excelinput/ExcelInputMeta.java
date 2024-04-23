@@ -108,10 +108,9 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
   private boolean startsWithHeader;
 
   @HopMetadataProperty(
-          key = "schema_definition",
-          injectionKeyDescription = "The fields schema definition")
+      key = "schema_definition",
+      injectionKeyDescription = "The fields schema definition")
   private String schemaDefinition;
-
 
   /** Stop reading when you hit an empty row. */
   @HopMetadataProperty(

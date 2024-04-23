@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.metastructure;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -33,8 +34,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 @Transform(
     id = "TransformMetaStructure",
     name = "i18n::TransformMetaStructure.Transform.Name",
@@ -43,7 +42,8 @@ import java.util.List;
     keywords = "i18n::TransformMetaStructureMeta.keyword",
     documentationUrl = "/pipeline/transforms/metastructure.html",
     image = "metastructure.svg")
-public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaStructure, TransformMetaStructureData> {
+public class TransformMetaStructureMeta
+    extends BaseTransformMeta<TransformMetaStructure, TransformMetaStructureData> {
 
   private static final Class<?> PKG = TransformMetaStructureMeta.class; // needed by Translator
 
@@ -74,14 +74,14 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includePrecisionField;
-  
+
   @HopMetadataProperty private String precisionFieldname;
 
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeMaskField;
 
   @HopMetadataProperty private String maskFieldname;
-  
+
   @HopMetadataProperty(defaultBoolean = true)
   private boolean includeOriginField;
 
@@ -187,7 +187,7 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
       IValueMeta maskFieldValue = new ValueMetaString(maskFieldname);
       maskFieldValue.setOrigin(name);
       inputRowMeta.addValueMeta(maskFieldValue);
-    }    
+    }
     // Origin
     if (includeOriginField) {
       IValueMeta originFieldValue = new ValueMetaString(originFieldname);
@@ -274,7 +274,7 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
   public void setMaskFieldname(String name) {
     this.maskFieldname = name;
   }
-  
+
   public String getOriginFieldname() {
     return originFieldname;
   }
@@ -334,11 +334,11 @@ public class TransformMetaStructureMeta extends BaseTransformMeta<TransformMetaS
   public boolean isIncludeMaskField() {
     return includeMaskField;
   }
-  
+
   public void setIncludeMaskField(boolean include) {
     this.includeMaskField = include;
   }
-  
+
   public boolean isIncludeOriginField() {
     return includeOriginField;
   }

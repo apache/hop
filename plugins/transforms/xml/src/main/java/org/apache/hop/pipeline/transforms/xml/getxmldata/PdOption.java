@@ -18,65 +18,65 @@
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
 public class PdOption {
-    private boolean isValidating;
-    private boolean useUrl;
-    private boolean useSnippet;
-    private String encoding;
-    private boolean isXmlSourceFile;
-    private String loopXPath;
+  private boolean isValidating;
+  private boolean useUrl;
+  private boolean useSnippet;
+  private String encoding;
+  private boolean isXmlSourceFile;
+  private String loopXPath;
 
-    PdOption() {
-        isValidating = false;
-        useUrl = false;
-        useSnippet = false;
-        encoding = null;
-        isXmlSourceFile = false;
-        loopXPath = "";
-    }
+  PdOption() {
+    isValidating = false;
+    useUrl = false;
+    useSnippet = false;
+    encoding = null;
+    isXmlSourceFile = false;
+    loopXPath = "";
+  }
 
-    public void setValidating(boolean validating) {
-        isValidating = validating;
-    }
+  public void setValidating(boolean validating) {
+    isValidating = validating;
+  }
 
-    public void setUseUrl(boolean useUrl) {
-        this.useUrl = useUrl;
-    }
+  public void setUseUrl(boolean useUrl) {
+    this.useUrl = useUrl;
+  }
 
-    public void setUseSnippet(boolean useSnippet) {
-        this.useSnippet = useSnippet;
-    }
+  public void setUseSnippet(boolean useSnippet) {
+    this.useSnippet = useSnippet;
+  }
 
-    //if the encoding is not null, the source must be a file
-    public void setEncoding(String encoding) {
-        this.encoding = encoding;
-        this.isXmlSourceFile=true;
-    }
+  // if the encoding is not null, the source must be a file
+  public void setEncoding(String encoding) {
+    this.encoding = encoding;
+    this.isXmlSourceFile = true;
+  }
 
-    public boolean isValidating() {
-        return isValidating;
-    }
+  public boolean isValidating() {
+    return isValidating;
+  }
 
-    public boolean isUseUrl() {
-        return useUrl;
-    }
+  public boolean isUseUrl() {
+    return useUrl;
+  }
 
-    public boolean isUseSnippet() {
-        return useSnippet;
-    }
+  public boolean isUseSnippet() {
+    return useSnippet;
+  }
 
-    public String getEncoding() {
-        return encoding;
-    }
+  public String getEncoding() {
+    return encoding;
+  }
 
-    public boolean isXmlSourceIsFile() {
-        return isXmlSourceFile;
-    }
+  public boolean isXmlSourceIsFile() {
+    return isXmlSourceFile;
+  }
 
-    public String getLoopXPath() {
-        return loopXPath;
-    }
+  public String getLoopXPath() {
+    return loopXPath;
+  }
 
-    public void setLoopXPath(String loopXPath) {
-        this.loopXPath = loopXPath;
-    }
+  public void setLoopXPath(String loopXPath) {
+    this.loopXPath = loopXPath;
+  }
 }

@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class UpdateLookupField {
 
@@ -80,22 +79,30 @@ public class UpdateLookupField {
     updateFields = new ArrayList<>();
   }
 
-  /** @return the schemaName */
+  /**
+   * @return the schemaName
+   */
   public String getSchemaName() {
     return schemaName;
   }
 
-  /** @param schemaName the schemaName to set */
+  /**
+   * @param schemaName the schemaName to set
+   */
   public void setSchemaName(String schemaName) {
     this.schemaName = schemaName;
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName The tableName to set. */
+  /**
+   * @param tableName The tableName to set.
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }

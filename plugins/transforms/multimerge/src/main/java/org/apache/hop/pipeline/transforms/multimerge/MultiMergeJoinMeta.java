@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.multimerge;
 
+import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -39,8 +40,6 @@ import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @InjectionSupported(localizationPrefix = "MultiMergeJoin.Injection.")
 @Transform(

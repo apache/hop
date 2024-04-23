@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
@@ -35,12 +40,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 /** Writes rows to a database table. */
 public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData> {

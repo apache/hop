@@ -25,6 +25,7 @@ public class LockFile {
 
   /** name of file to check */
   private String filename;
+
   /** lock indicator */
   private boolean locked;
 

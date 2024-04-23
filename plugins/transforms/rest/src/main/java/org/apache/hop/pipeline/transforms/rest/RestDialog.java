@@ -17,12 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.rest;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -30,7 +30,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -58,8 +57,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-import java.util.ArrayList;
-import java.util.List;
 
 public class RestDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = RestMeta.class; // For Translator
@@ -428,7 +425,11 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     return transformName;
   }
 
-  private void setupMatrixParamTabContent(ModifyListener lsMod, int margin, CTabItem wMatrixParametersTab, Composite wMatrixParametersComp) {
+  private void setupMatrixParamTabContent(
+      ModifyListener lsMod,
+      int margin,
+      CTabItem wMatrixParametersTab,
+      Composite wMatrixParametersComp) {
     wlMatrixParameters = new Label(wMatrixParametersComp, SWT.NONE);
     wlMatrixParameters.setText(BaseMessages.getString(PKG, "RestDialog.Parameters.Label"));
     PropsUi.setLook(wlMatrixParameters);
@@ -492,7 +493,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     // END of Matrix Parameters Tab
   }
 
-  private void setupParameterTabContent(ModifyListener lsMod, int margin, Composite wParametersComp) {
+  private void setupParameterTabContent(
+      ModifyListener lsMod, int margin, Composite wParametersComp) {
     wlParameters = new Label(wParametersComp, SWT.NONE);
     wlParameters.setText(BaseMessages.getString(PKG, "RestDialog.Parameters.Label"));
     PropsUi.setLook(wlParameters);
@@ -543,7 +545,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wGet.addListener(SWT.Selection, e -> getParametersFields(wParameters));
   }
 
-  private Button setupHeaderTabContent(ModifyListener lsMod, int margin, Composite wAdditionalComp) {
+  private Button setupHeaderTabContent(
+      ModifyListener lsMod, int margin, Composite wAdditionalComp) {
     Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "RestDialog.Headers.Label"));
     PropsUi.setLook(wlFields);
@@ -624,13 +627,14 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
         });
   }
 
-  private void activateTrustoreFields(){
+  private void activateTrustoreFields() {
     wTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wbTrustStoreFile.setEnabled(!wIgnoreSsl.getSelection());
     wTrustStorePassword.setEnabled(!wIgnoreSsl.getSelection());
   }
 
-  private void setupTrustorePwdLine(ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore, Button wbTrustStoreFile) {
+  private void setupTrustorePwdLine(
+      ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore, Button wbTrustStoreFile) {
     // TrustStorePassword line
     Label wlTrustStorePassword = new Label(gSSLTrustStore, SWT.RIGHT);
     wlTrustStorePassword.setText(
@@ -652,7 +656,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wTrustStorePassword.setLayoutData(fdTrustStorePassword);
   }
 
-  private Button setupTrustoreFileLine(ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore) {
+  private Button setupTrustoreFileLine(
+      ModifyListener lsMod, int middle, int margin, Group gSSLTrustStore) {
     // TrustStoreFile line
     Label wlTrustStoreFile = new Label(gSSLTrustStore, SWT.RIGHT);
     wlTrustStoreFile.setText(BaseMessages.getString(PKG, "RestDialog.TrustStoreFile.Label"));
@@ -836,7 +841,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     return gHttpAuth;
   }
 
-  private void setupResponseHeaderLine(ModifyListener lsMod, int middle, int margin, Group gSettings, Group gOutputFields) {
+  private void setupResponseHeaderLine(
+      ModifyListener lsMod, int middle, int margin, Group gSettings, Group gOutputFields) {
     // Response header line...
     Label wlResponseHeader = new Label(gOutputFields, SWT.RIGHT);
     wlResponseHeader.setText(BaseMessages.getString(PKG, "RestDialog.ResponseHeader.Label"));
@@ -862,7 +868,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     gOutputFields.setLayoutData(fdOutputFields);
   }
 
-  private void setupResponseTimeLine(ModifyListener lsMod, int middle, int margin, Group gOutputFields) {
+  private void setupResponseTimeLine(
+      ModifyListener lsMod, int middle, int margin, Group gOutputFields) {
     // Response time line...
     Label wlResponseTime = new Label(gOutputFields, SWT.RIGHT);
     wlResponseTime.setText(BaseMessages.getString(PKG, "RestDialog.ResponseTime.Label"));
@@ -882,7 +889,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wResponseTime.setLayoutData(fdResponseTime);
   }
 
-  private void setupStatusCodeLine(ModifyListener lsMod, int middle, int margin, Group gOutputFields) {
+  private void setupStatusCodeLine(
+      ModifyListener lsMod, int middle, int margin, Group gOutputFields) {
     // Resultcode line...
     Label wlResultCode = new Label(gOutputFields, SWT.RIGHT);
     wlResultCode.setText(BaseMessages.getString(PKG, "RestDialog.ResultCode.Label"));
@@ -902,7 +910,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wResultCode.setLayoutData(fdResultCode);
   }
 
-  private void setupResultLine(ModifyListener lsMod, int middle, int margin, Group gSettings, Group gOutputFields) {
+  private void setupResultLine(
+      ModifyListener lsMod, int middle, int margin, Group gSettings, Group gOutputFields) {
     // Result line...
     Label wlResult = new Label(gOutputFields, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "RestDialog.Result.Label"));
@@ -1066,7 +1075,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
         });
   }
 
-  private void setupUrlFieldNameLine(ModifyListener lsMod, int middle, int margin, Group gSettings) {
+  private void setupUrlFieldNameLine(
+      ModifyListener lsMod, int middle, int margin, Group gSettings) {
     // UrlField Line
     wlUrlField = new Label(gSettings, SWT.RIGHT);
     wlUrlField.setText(BaseMessages.getString(PKG, "RestDialog.UrlField.Label"));
@@ -1115,7 +1125,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
         });
   }
 
-  private void setupUrlLine(ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
+  private void setupUrlLine(
+      ModifyListener lsMod, int middle, int margin, Composite wGeneralComp, Group gSettings) {
     wlUrl = new Label(gSettings, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "RestDialog.URL.Label"));
     PropsUi.setLook(wlUrl);
@@ -1193,37 +1204,39 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     wMatrixParameters.setEnabled(activateParams);
     wMatrixGet.setEnabled(activateParams);
   }
-  
+
   //
   // Search the fields in the background
   //
   protected void setComboBoxes() {
-    final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-        if (transformMeta != null) {
-          try {
-            IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+    final Runnable runnable =
+        new Runnable() {
+          @Override
+          public void run() {
+            TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+            if (transformMeta != null) {
+              try {
+                IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
 
-            // Remember these fields...
-            for (int i = 0; i < rowMeta.size(); i++) {
-              inputFields.add(rowMeta.getValueMeta(i).getName());
+                // Remember these fields...
+                for (int i = 0; i < rowMeta.size(); i++) {
+                  inputFields.add(rowMeta.getValueMeta(i).getName());
+                }
+
+                String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+                colinfoparams[0].setComboValues(fieldNames);
+                colinf[0].setComboValues(fieldNames);
+                wUrlField.setItems(fieldNames);
+                wBody.setItems(fieldNames);
+                wMethodField.setItems(fieldNames);
+              } catch (HopException e) {
+                log.logError(
+                    toString(),
+                    BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+              }
             }
-
-            String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
-            colinfoparams[0].setComboValues(fieldNames);
-            colinf[0].setComboValues(fieldNames);
-            wUrlField.setItems(fieldNames);
-            wBody.setItems(fieldNames);
-            wMethodField.setItems(fieldNames);
-          } catch (HopException e) {
-            log.logError(toString(),
-                BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
           }
-        }
-      }
-    };
+        };
     shell.getDisplay().asyncExec(runnable);
   }
 

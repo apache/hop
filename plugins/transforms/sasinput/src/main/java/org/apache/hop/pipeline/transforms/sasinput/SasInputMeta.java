@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.sasinput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -34,9 +36,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "SASInput",
@@ -159,22 +158,30 @@ public class SasInputMeta extends BaseTransformMeta<SasInput, SasInputData> {
     }
   }
 
-  /** @return Returns the acceptingField. */
+  /**
+   * @return Returns the acceptingField.
+   */
   public String getAcceptingField() {
     return acceptingField;
   }
 
-  /** @param acceptingField The acceptingField to set. */
+  /**
+   * @param acceptingField The acceptingField to set.
+   */
   public void setAcceptingField(String acceptingField) {
     this.acceptingField = acceptingField;
   }
 
-  /** @return the outputFields */
+  /**
+   * @return the outputFields
+   */
   public List<SasInputField> getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields the outputFields to set */
+  /**
+   * @param outputFields the outputFields to set
+   */
   public void setOutputFields(List<SasInputField> outputFields) {
     this.outputFields = outputFields;
   }

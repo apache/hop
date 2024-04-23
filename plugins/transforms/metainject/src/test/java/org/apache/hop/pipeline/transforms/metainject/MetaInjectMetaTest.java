@@ -17,6 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -32,16 +41,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class MetaInjectMetaTest {
 

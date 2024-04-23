@@ -58,7 +58,9 @@ public class FakeField {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -72,7 +74,9 @@ public class FakeField {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -86,7 +90,9 @@ public class FakeField {
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }

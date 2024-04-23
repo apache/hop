@@ -17,6 +17,11 @@
 
 package org.apache.hop.www.async.xp;
 
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -35,12 +40,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.HopServerPipelineStatus;
 import org.apache.hop.www.async.AsyncWebService;
 import org.apache.hop.www.async.Defaults;
-
-import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @ExtensionPoint(
     id = "PeriodicPipelineStatusUpdateExtensionPoint",

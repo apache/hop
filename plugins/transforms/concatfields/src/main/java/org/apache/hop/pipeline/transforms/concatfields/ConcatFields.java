@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.concatfields;
 
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -29,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
 
 public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsData> {
 

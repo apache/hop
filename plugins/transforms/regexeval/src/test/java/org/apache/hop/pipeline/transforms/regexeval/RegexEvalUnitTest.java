@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.regex.Pattern;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -25,13 +31,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.regex.Pattern;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class RegexEvalUnitTest {
   private TransformMockHelper<RegexEvalMeta, RegexEvalData> transformMockHelper;

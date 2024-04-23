@@ -19,7 +19,10 @@ package org.apache.hop.core;
 import picocli.CommandLine.IVersionProvider;
 
 public class HopVersionProvider implements IVersionProvider {
-  private static final String[] VERSION = {HopEnvironment.class.getPackage().getImplementationVersion()};  
+  private static final String[] VERSION = {
+    HopEnvironment.class.getPackage().getImplementationVersion()
+  };
+
   public String[] getVersion() {
     return VERSION;
   }

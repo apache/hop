@@ -17,6 +17,9 @@
 
 package org.apache.hop.core.util;
 
+import java.util.List;
+import java.util.prefs.BackingStoreException;
+import java.util.prefs.Preferences;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -30,11 +33,8 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.w3c.dom.Node;
 
-import java.util.List;
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
-public abstract class AbstractTransformMeta<Main extends ITransform, Data extends ITransformData> extends BaseTransformMeta<Main, Data> {
+public abstract class AbstractTransformMeta<Main extends ITransform, Data extends ITransformData>
+    extends BaseTransformMeta<Main, Data> {
 
   private static final String CONNECTION_NAME = "connection";
 
@@ -51,12 +51,16 @@ public abstract class AbstractTransformMeta<Main extends ITransform, Data extend
     this.connectionName = this.propertyFactory.createString(CONNECTION_NAME);
   }
 
-  /** @return the propertyFactory */
+  /**
+   * @return the propertyFactory
+   */
   public PluginPropertyFactory getPropertyFactory() {
     return this.propertyFactory;
   }
 
-  /** @return the properties */
+  /**
+   * @return the properties
+   */
   public KeyValueSet getProperties() {
     return this.propertyFactory.getProperties();
   }
@@ -87,7 +91,9 @@ public abstract class AbstractTransformMeta<Main extends ITransform, Data extend
     initDbMeta(databaseMeta);
   }
 
-  /** @param databaseList A list of available DatabaseMeta in this pipeline. */
+  /**
+   * @param databaseList A list of available DatabaseMeta in this pipeline.
+   */
   private void initDbMeta(final List<DatabaseMeta> databaseList) {
     if (!StringUtils.isEmpty(this.connectionName.getValue())) {
       this.dbMeta = DatabaseMeta.findDatabase(databaseList, this.connectionName.getValue());
@@ -104,22 +110,30 @@ public abstract class AbstractTransformMeta<Main extends ITransform, Data extend
     return PluginPropertyHandler.toXml(this.getProperties());
   }
 
-  /** @return the connectionName */
+  /**
+   * @return the connectionName
+   */
   public StringPluginProperty getConnectionName() {
     return this.connectionName;
   }
 
-  /** @param connectionName the connectionName to set */
+  /**
+   * @param connectionName the connectionName to set
+   */
   public void setConnectionName(final StringPluginProperty connectionName) {
     this.connectionName = connectionName;
   }
 
-  /** @return the dbMeta */
+  /**
+   * @return the dbMeta
+   */
   public DatabaseMeta getDbMeta() {
     return this.dbMeta;
   }
 
-  /** @param dbMeta the dbMeta to set */
+  /**
+   * @param dbMeta the dbMeta to set
+   */
   public void setDbMeta(final DatabaseMeta dbMeta) {
     this.dbMeta = dbMeta;
   }

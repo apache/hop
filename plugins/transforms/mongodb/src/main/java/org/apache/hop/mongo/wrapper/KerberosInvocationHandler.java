@@ -17,15 +17,14 @@
 
 package org.apache.hop.mongo.wrapper;
 
-import org.apache.hop.mongo.AuthContext;
-import org.apache.hop.mongo.MongoDbException;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
+import org.apache.hop.mongo.AuthContext;
+import org.apache.hop.mongo.MongoDbException;
 
 /**
  * Handles proxying all method calls through an AuthContext. This allows methods to be executed as
