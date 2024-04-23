@@ -32,7 +32,7 @@ import org.apache.hop.metadata.api.IHopMetadata;
     name = "Asynchronous Web Service",
     description = "Allows you to run a long running workflow asynchronously",
     image = "ui/images/server.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/async-web-service.html")
+    documentationUrl = "metadata-types/async-web-service.html")
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
