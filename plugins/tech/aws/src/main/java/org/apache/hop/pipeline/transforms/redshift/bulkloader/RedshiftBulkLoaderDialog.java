@@ -278,6 +278,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wCancel.addListener(SWT.Selection, c -> cancel());
     wCreate.addListener(SWT.Selection, c -> sql());
     wGetFields.addListener(SWT.Selection, c -> get());
+    wbTable.addListener(SWT.Selection, c -> getTableName());
 
     // Set the shell size, based upon previous time...
     setSize();
