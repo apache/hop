@@ -341,26 +341,26 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdTruncate.right = new FormAttachment(100, 0);
     wTruncate.setLayoutData(fdTruncate);
     SelectionAdapter lsTruncMod =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent arg0) {
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            input.setChanged();
+          }
+        };
     wTruncate.addSelectionListener(lsTruncMod);
     wTruncate.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                toggleSpecifyFieldsFlags();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleSpecifyFieldsFlags();
+          }
+        });
     Control lastControl = wlTruncate;
 
     // Truncate only when have rows
     Label wlOnlyWhenHaveRows = new Label(wGeneralComp, SWT.RIGHT);
     wlOnlyWhenHaveRows.setText(
-            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.OnlyWhenHaveRows.Label"));
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.OnlyWhenHaveRows.Label"));
     PropsUi.setLook(wlOnlyWhenHaveRows);
     FormData fdlOnlyWhenHaveRows = new FormData();
     fdlOnlyWhenHaveRows.top = new FormAttachment(lastControl, margin);
@@ -376,12 +376,12 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wOnlyWhenHaveRows.setLayoutData(fdTruncateWhenHaveRows);
 
     SelectionAdapter lsSelMod =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent arg0) {
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            input.setChanged();
+          }
+        };
 
     wOnlyWhenHaveRows.addSelectionListener(lsSelMod);
     lastControl = wlOnlyWhenHaveRows;
@@ -389,7 +389,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     // Specify fields
     Label wlSpecifyFields = new Label(wGeneralComp, SWT.RIGHT);
     wlSpecifyFields.setText(
-            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.SpecifyFields.Label"));
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.SpecifyFields.Label"));
     PropsUi.setLook(wlSpecifyFields);
     FormData fdlSpecifyFields = new FormData();
     fdlSpecifyFields.top = new FormAttachment(lastControl, margin);
@@ -409,12 +409,12 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     // If the flag is off, gray out the fields tab e.g.
     wSpecifyFields.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent arg0) {
-                toggleSpecifyFieldsFlags();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            toggleSpecifyFieldsFlags();
+          }
+        });
 
     Label wlStreamToS3Csv = new Label(wGeneralComp, SWT.RIGHT);
     wlStreamToS3Csv.setText(
@@ -521,8 +521,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     CTabItem wAwsAuthTab = new CTabItem(wTabFolder, SWT.NONE);
     wAwsAuthTab.setText(
-        BaseMessages.getString(
-            PKG, "RedshiftBulkLoaderDialog.AwsAuthTab.Label")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.AwsAuthTab.Label")); // $NON-NLS-1$
 
     Composite wAwsAuthComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wAwsAuthComp);
@@ -534,7 +533,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     wlAwsAuthType = new Label(wAwsAuthComp, SWT.RIGHT);
     wlAwsAuthType.setText(
-            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.AuthenticationType.Label"));
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.AuthenticationType.Label"));
     PropsUi.setLook(wlAwsAuthType);
     FormData fdlAwsAuthType = new FormData();
     fdlAwsAuthType.top = new FormAttachment(0, margin);
@@ -554,9 +553,10 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     Control lastControl = wlAwsAuthType;
 
     wlUseSystemVars = new Label(wAwsAuthComp, SWT.RIGHT);
-    wlUseSystemVars.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Label"));
+    wlUseSystemVars.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Label"));
     wlUseSystemVars.setToolTipText(
-            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
     PropsUi.setLook(wlUseSystemVars);
     FormData fdlUseSystemVars = new FormData();
     fdlUseSystemVars.top = new FormAttachment(lastControl, margin);
@@ -574,12 +574,12 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     lastControl = wlUseSystemVars;
 
     wUseSystemVars.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                toggleKeysSelection();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleKeysSelection();
+          }
+        });
 
     wlAccessKeyId = new Label(wAwsAuthComp, SWT.RIGHT);
     wlAccessKeyId.setText("AWS_ACCESS_KEY_ID");
@@ -596,6 +596,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdUseAccessKeyId.left = new FormAttachment(middle, 0);
     fdUseAccessKeyId.right = new FormAttachment(100, 0);
     wAccessKeyId.setLayoutData(fdUseAccessKeyId);
+    wAccessKeyId.addModifyListener(lsMod);
+
     lastControl = wAccessKeyId;
 
     wlSecretAccessKey = new Label(wAwsAuthComp, SWT.RIGHT);
@@ -613,13 +615,10 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdSecretAccessKey.left = new FormAttachment(middle, 0);
     fdSecretAccessKey.right = new FormAttachment(100, 0);
     wSecretAccessKey.setLayoutData(fdSecretAccessKey);
-    lastControl = wSecretAccessKey;
+    wSecretAccessKey.addModifyListener(lsMod);
 
-    // Start with system variables enabled and AWS keys disabled by default
-    wlAccessKeyId.setEnabled(false);
-    wAccessKeyId.setEnabled(false);
-    wlSecretAccessKey.setEnabled(false);
-    wSecretAccessKey.setEnabled(false);
+    lastControl = wSecretAccessKey;
+    toggleKeysSelection();
 
     wlAwsIamRole = new Label(wAwsAuthComp, SWT.RIGHT);
     wlAwsIamRole.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.IamRole.Label"));
@@ -637,20 +636,18 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdIamRole.left = new FormAttachment(middle, 0);
     fdIamRole.right = new FormAttachment(100, 0);
     wAwsIamRole.setLayoutData(fdIamRole);
+    wAwsIamRole.addModifyListener(lsMod);
 
-    lastControl = wlAwsIamRole;
-    // Credentials are enabled by default.
     wlAwsIamRole.setEnabled(false);
     wAwsIamRole.setEnabled(false);
 
     wAwsAuthType.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                toggleAuthSelection();
-              }
-            });
-
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleAuthSelection();
+          }
+        });
 
     FormData fdAwsAuthComp = new FormData();
     fdAwsAuthComp.left = new FormAttachment(0, 0);
@@ -667,8 +664,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText(
-        BaseMessages.getString(
-            PKG, "RedshiftBulkLoaderDialog.FieldsTab.Label")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.FieldsTab.Label")); // $NON-NLS-1$
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wFieldsComp);
@@ -1153,13 +1149,17 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         if (null != schemas && schemas.length > 0) {
           schemas = Const.sortStrings(schemas);
           EnterSelectionDialog dialog =
-                  new EnterSelectionDialog(
-                          shell,
-                          schemas,
-                          BaseMessages.getString(
-                                  PKG, "RedshiftBulkLoaderDialog.AvailableSchemas.Title", wConnection.getText()),
-                          BaseMessages.getString(
-                                  PKG, "RedshiftBulkLoaderDialog.AvailableSchemas.Message", wConnection.getText()));
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG,
+                      "RedshiftBulkLoaderDialog.AvailableSchemas.Title",
+                      wConnection.getText()),
+                  BaseMessages.getString(
+                      PKG,
+                      "RedshiftBulkLoaderDialog.AvailableSchemas.Message",
+                      wConnection.getText()));
           String d = dialog.open();
           if (d != null) {
             wSchema.setText(Const.NVL(d, ""));
@@ -1167,17 +1167,18 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
           }
 
         } else {
-          org.apache.hop.ui.core.dialog.MessageBox mb = new org.apache.hop.ui.core.dialog.MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          org.apache.hop.ui.core.dialog.MessageBox mb =
+              new org.apache.hop.ui.core.dialog.MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
           mb.setMessage(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.NoSchema.Error"));
           mb.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.GetSchemas.Error"));
           mb.open();
         }
       } catch (Exception e) {
         new ErrorDialog(
-                shell,
-                BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
-                BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ErrorGettingSchemas"),
-                e);
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ErrorGettingSchemas"),
+            e);
       }
     }
   }
@@ -1325,16 +1326,9 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   }
 
   public void toggleKeysSelection() {
-    if (wUseSystemVars.getSelection()) {
-      wlAccessKeyId.setEnabled(false);
-      wAccessKeyId.setEnabled(false);
-      wlSecretAccessKey.setEnabled(false);
-      wSecretAccessKey.setEnabled(false);
-    } else {
-      wlAccessKeyId.setEnabled(true);
-      wAccessKeyId.setEnabled(true);
-      wlSecretAccessKey.setEnabled(true);
-      wSecretAccessKey.setEnabled(true);
-    }
+    wlAccessKeyId.setEnabled(!wUseSystemVars.getSelection());
+    wAccessKeyId.setEnabled(!wUseSystemVars.getSelection());
+    wlSecretAccessKey.setEnabled(!wUseSystemVars.getSelection());
+    wSecretAccessKey.setEnabled(!wUseSystemVars.getSelection());
   }
 }
