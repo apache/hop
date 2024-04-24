@@ -37,8 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::BaseTransform.TypeLongDesc.GoogleAnalytics",
     description = "i18n::BaseTransform.TypeTooltipDesc.GoogleAnalytics",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/pipeline/transforms/googleanalytics.html")
+    documentationUrl = "pipeline/transforms/google-analytics.html")
 public class GoogleAnalyticsMeta extends BaseTransformMeta<GoogleAnalytics, GoogleAnalyticsData> {
 
   public static final String[] TYPE_SAMPLING_LEVEL_CODE =

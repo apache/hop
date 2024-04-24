@@ -51,8 +51,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::BaseTransform.TypeLongDesc.VerticaBulkLoaderMessage",
     description = "i18n::BaseTransform.TypeTooltipDesc.VerticaBulkLoaderMessage",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-    documentationUrl =
-        "https://hop.apache.org/manual/latest/plugins/transforms/verticabulkloader.html",
+    documentationUrl = "pipeline/transforms/verticabulkloader.html",
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "vertica5")
 public class VerticaBulkLoaderMeta

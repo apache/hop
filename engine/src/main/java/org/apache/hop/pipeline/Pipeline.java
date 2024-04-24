@@ -249,7 +249,7 @@ public abstract class Pipeline
    * export.
    */
   public static final String CONFIGURATION_IN_EXPORT_FILENAME =
-      "__job_execution_configuration__.xml";
+      "__pipeline_execution_configuration__.xml";
 
   /** Whether safe mode is enabled. */
   private boolean safeModeEnabled;

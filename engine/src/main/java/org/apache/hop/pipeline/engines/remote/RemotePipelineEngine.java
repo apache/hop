@@ -305,7 +305,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     hopServer.getLogChannel().setLogLevel(executionConfiguration.getLogLevel());
 
     try {
-      if (executionConfiguration.isPassingExport()) {
+      if (remotePipelineRunConfiguration.isExportingResources()) {
 
         // First export the workflow...
         //
