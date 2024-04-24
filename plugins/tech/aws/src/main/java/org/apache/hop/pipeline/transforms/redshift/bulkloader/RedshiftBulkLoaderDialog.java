@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -198,6 +199,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wConnection.addModifyListener(lsMod);
     wConnection.addModifyListener(event -> toggleSpecifyFieldsFlags());
 
+    Control lastControl = wConnection;
+
     // Schema line...
     Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText(
@@ -206,8 +209,16 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(lastControl, margin * 2);
     wlSchema.setLayoutData(fdlSchema);
+
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString("System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.right = new FormAttachment(100, 0);
+    fdbSchema.top = new FormAttachment(lastControl, margin * 2);
+    wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
@@ -215,9 +226,11 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wSchema.addFocusListener(lsFocusLost);
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(lastControl, margin * 2);
     fdSchema.right = new FormAttachment(100, 0);
     wSchema.setLayoutData(fdSchema);
+
+    lastControl = wSchema;
 
     // Table line...
     Label wlTable = new Label(shell, SWT.RIGHT);
@@ -226,7 +239,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
-    fdlTable.top = new FormAttachment(wSchema, margin);
+    fdlTable.top = new FormAttachment(lastControl, margin);
     wlTable.setLayoutData(fdlTable);
 
     Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -234,7 +247,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wbTable.setText(BaseMessages.getString("System.Button.Browse"));
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wSchema, margin);
+    fdbTable.top = new FormAttachment(lastControl, margin);
     wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -242,7 +255,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
     FormData fdTable = new FormData();
-    fdTable.top = new FormAttachment(wSchema, margin);
+    fdTable.top = new FormAttachment(lastControl, margin);
     fdTable.left = new FormAttachment(middle, 0);
     fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
@@ -255,7 +268,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
 
-    Control lastControl = wTable;
+    lastControl = wTable;
+
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
@@ -1127,6 +1141,45 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     }
 
     dispose();
+  }
+
+  private void getSchemaName() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+
+        if (null != schemas && schemas.length > 0) {
+          schemas = Const.sortStrings(schemas);
+          EnterSelectionDialog dialog =
+                  new EnterSelectionDialog(
+                          shell,
+                          schemas,
+                          BaseMessages.getString(
+                                  PKG, "RedshiftBulkLoaderDialog.AvailableSchemas.Title", wConnection.getText()),
+                          BaseMessages.getString(
+                                  PKG, "RedshiftBulkLoaderDialog.AvailableSchemas.Message", wConnection.getText()));
+          String d = dialog.open();
+          if (d != null) {
+            wSchema.setText(Const.NVL(d, ""));
+            setTableFieldCombo();
+          }
+
+        } else {
+          org.apache.hop.ui.core.dialog.MessageBox mb = new org.apache.hop.ui.core.dialog.MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.NoSchema.Error"));
+          mb.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.GetSchemas.Error"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+                shell,
+                BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+                BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ErrorGettingSchemas"),
+                e);
+      }
+    }
   }
 
   private void getTableName() {
