@@ -197,7 +197,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
       wConnection.select(0);
     }
     wConnection.addModifyListener(lsMod);
-    wConnection.addModifyListener(event -> toggleSpecifyFieldsFlags());
 
     Control lastControl = wConnection;
 
@@ -300,6 +299,9 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     getData();
     setTableFieldCombo();
     input.setChanged(backupChanged);
+
+    toggleSpecifyFieldsFlags();
+    toggleKeysSelection();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
     return transformName;
@@ -485,14 +487,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlCopyFromFile.right = new FormAttachment(middle, -margin);
     wlCopyFromFile.setLayoutData(fdlCopyFromFile);
 
-    Button wbCopyFromFile = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbCopyFromFile);
-    wbCopyFromFile.setText(BaseMessages.getString("System.Button.Browse"));
-    FormData fdbCopyFromFile = new FormData();
-    fdbCopyFromFile.top = new FormAttachment(lastControl, margin);
-    fdbCopyFromFile.right = new FormAttachment(100, 0);
-    wbCopyFromFile.setLayoutData(fdbCopyFromFile);
-
     wCopyFromFilename = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCopyFromFilename);
     wCopyFromFilename.addModifyListener(lsMod);
@@ -502,7 +496,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     FormData fdCopyFromFile = new FormData();
     fdCopyFromFile.top = new FormAttachment(lastControl, margin);
     fdCopyFromFile.left = new FormAttachment(middle, 0);
-    fdCopyFromFile.right = new FormAttachment(wbCopyFromFile, -margin);
+    fdCopyFromFile.right = new FormAttachment(100, -margin);
     wCopyFromFilename.setLayoutData(fdCopyFromFile);
 
     FormData fdGeneralComp = new FormData();
@@ -608,7 +602,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlSecretAccessKey.left = new FormAttachment(0, 0);
     fdlSecretAccessKey.right = new FormAttachment(middle, -margin);
     wlSecretAccessKey.setLayoutData(fdlSecretAccessKey);
-    wSecretAccessKey = new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wSecretAccessKey = new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSecretAccessKey);
     FormData fdSecretAccessKey = new FormData();
     fdSecretAccessKey.top = new FormAttachment(lastControl, margin);
@@ -618,7 +612,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wSecretAccessKey.addModifyListener(lsMod);
 
     lastControl = wSecretAccessKey;
-    toggleKeysSelection();
 
     wlAwsIamRole = new Label(wAwsAuthComp, SWT.RIGHT);
     wlAwsIamRole.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.IamRole.Label"));
@@ -1051,8 +1044,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         item.setText(2, vbf.getStreamField());
       }
     }
-
-    toggleSpecifyFieldsFlags();
 
     wTransformName.selectAll();
   }
