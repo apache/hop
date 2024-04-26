@@ -190,7 +190,7 @@ limitations under the License.
       <field>
         <length>-1</length>
         <name>avro_file_url</name>
-        <nullif>https://github.com/apache/hop/raw/master/integration-tests/transforms/files/userdata1.avro</nullif>
+        <nullif>https://github.com/apache/hop/raw/main/integration-tests/transforms/files/userdata1.avro</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
