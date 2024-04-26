@@ -602,7 +602,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlSecretAccessKey.left = new FormAttachment(0, 0);
     fdlSecretAccessKey.right = new FormAttachment(middle, -margin);
     wlSecretAccessKey.setLayoutData(fdlSecretAccessKey);
-    wSecretAccessKey = new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    wSecretAccessKey =
+        new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
     PropsUi.setLook(wSecretAccessKey);
     FormData fdSecretAccessKey = new FormData();
     fdSecretAccessKey.top = new FormAttachment(lastControl, margin);
