@@ -145,7 +145,8 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabase(), null);
+    wConnection =
+        addConnectionLine(shell, wTransformName, input.getConnection(), e -> input.setChanged());
 
     // schemaname fieldname ...
     wlSchemaName = new Label(shell, SWT.RIGHT);
@@ -228,7 +229,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     // Include Catalogs
     wlIncludeCatalog = new Label(wSettings, SWT.RIGHT);
     wlIncludeCatalog.setText(
-        BaseMessages.getString(PKG, "GetCatalogNamesDialog.IncludeCatalog.Label"));
+        BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeCatalog.Label"));
     PropsUi.setLook(wlIncludeCatalog);
     FormData fdlIncludeCatalog = new FormData();
     fdlIncludeCatalog.left = new FormAttachment(0, -margin);
@@ -246,8 +247,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
 
     // Include Schemas
     Label wlIncludeSchema = new Label(wSettings, SWT.RIGHT);
-    wlIncludeSchema.setText(
-        BaseMessages.getString(PKG, "GetSchemaNamesDialog.IncludeSchema.Label"));
+    wlIncludeSchema.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeSchema.Label"));
     PropsUi.setLook(wlIncludeSchema);
     FormData fdlincludeSchema = new FormData();
     fdlincludeSchema.left = new FormAttachment(0, -margin);
@@ -257,7 +257,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeSchema = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeSchema);
     wIncludeSchema.setToolTipText(
-        BaseMessages.getString(PKG, "GetSchemaNamesDialog.IncludeSchema.Tooltip"));
+        BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeSchema.Tooltip"));
     FormData fdincludeSchema = new FormData();
     fdincludeSchema.left = new FormAttachment(middle, -margin);
     fdincludeSchema.top = new FormAttachment(wlIncludeSchema, 0, SWT.CENTER);
@@ -558,8 +558,8 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
       logDebug(toString(), BaseMessages.getString(PKG, "GetTableNamesDialog.Log.GettingKeyInfo"));
     }
 
-    if (input.getDatabase() != null) {
-      wConnection.setText(input.getDatabase().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     if (input.getSchemaName() != null) {
       wSchemaName.setText(input.getSchemaName());
@@ -629,8 +629,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     }
     transformName = wTransformName.getText(); // return value
 
-    getInfo(input);
-    if (input.getDatabase() == null) {
+    if (Utils.isEmpty(wConnection.getText())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "GetTableNamesDialog.InvalidConnection.DialogMessage"));
@@ -640,16 +639,12 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     }
 
     input.setChanged();
+    getInfo(input);
     dispose();
   }
 
   private void getInfo(GetTableNamesMeta info) {
-    try {
-      info.setDatabase(DatabaseMeta.loadDatabase(getMetadataProvider(), wConnection.getText()));
-    } catch (Exception e) {
-      info.setDatabase(null);
-      new ErrorDialog(shell, "Error", "Error loading database connection", e);
-    }
+    info.setConnection(wConnection.getText());
     info.setSchemaName(wSchemaName.getText());
     info.setTableNameFieldName(wTableNameField.getText());
     info.setSqlCreationFieldName(wSqlCreationField.getText());
@@ -662,12 +657,20 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     info.setIncludeProcedure(wIncludeProcedure.getSelection());
     info.setIncludeSynonym(wIncludeSynonym.getSelection());
     info.setAddSchemaInOutput(wAddSchemaInOutput.getSelection());
-
     info.setDynamicSchema(wDynamicSchema.getSelection());
     info.setSchemaNameField(wSchemaField.getText());
   }
 
   private boolean checkUserInput(GetTableNamesMeta meta) {
+
+    if (Utils.isEmpty(meta.getConnection())) {
+      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+      mb.setMessage(
+          BaseMessages.getString(PKG, "GetTableNamesDialog.InvalidConnection.DialogMessage"));
+      mb.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.InvalidConnection.DialogTitle"));
+      mb.open();
+      return false;
+    }
 
     if (Utils.isEmpty(meta.getTableNameFieldName())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
@@ -688,14 +691,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     GetTableNamesMeta oneMeta = new GetTableNamesMeta();
 
     getInfo(oneMeta);
-    if (oneMeta.getDatabase() == null) {
-      MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-      mb.setMessage(
-          BaseMessages.getString(PKG, "GetTableNamesDialog.InvalidConnection.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "GetTableNamesDialog.InvalidConnection.DialogTitle"));
-      mb.open();
-      return;
-    }
+
     if (!checkUserInput(oneMeta)) {
       return;
     }
