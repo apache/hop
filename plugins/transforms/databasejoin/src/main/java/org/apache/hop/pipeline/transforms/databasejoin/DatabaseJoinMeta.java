@@ -60,6 +60,15 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection")
   private String connection;
 
+  @HopMetadataProperty(key = "cache", injectionKeyDescription = "DatabaseJoinMeta.Injection.Cache")
+  private boolean cached;
+
+  /** Limit the cache size to this! */
+  @HopMetadataProperty(
+      key = "cache_size",
+      injectionKeyDescription = "DatabaseJoinMeta.Injection.CacheSize")
+  private int cacheSize;
+
   /** SQL Statement */
   @HopMetadataProperty(key = "sql", injectionKeyDescription = "DatabaseJoinMeta.Injection.SQL")
   private String sql;
@@ -108,6 +117,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     for (ParameterField field : clone.parameters) {
       parameters.add(new ParameterField(field));
     }
+    this.cached = clone.cached;
+    this.cacheSize = clone.cacheSize;
   }
 
   public String getConnection() {
@@ -116,6 +127,38 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
 
   public void setConnection(String connection) {
     this.connection = connection;
+  }
+
+  /**
+   * Gets cached
+   *
+   * @return value of cached
+   */
+  public boolean isCached() {
+    return cached;
+  }
+
+  /**
+   * @param cached The cached to set
+   */
+  public void setCached(boolean cached) {
+    this.cached = cached;
+  }
+
+  /**
+   * Gets cacheSize
+   *
+   * @return value of cacheSize
+   */
+  public int getCacheSize() {
+    return cacheSize;
+  }
+
+  /**
+   * @param cacheSize The cacheSize to set
+   */
+  public void setCacheSize(int cacheSize) {
+    this.cacheSize = cacheSize;
   }
 
   /**

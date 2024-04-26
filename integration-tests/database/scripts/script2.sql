@@ -31,3 +31,23 @@ VALUES ('10', 'aa'),
        ('40', 'dd'),
        ('50', 'ee')
 ;
+
+DROP TABLE IF EXISTS public.foo;
+
+CREATE TABLE public.foo
+(
+    id          integer,
+    name        varchar(255),
+    description text
+);
+
+INSERT INTO foo (id, name, description) VALUES (1, 'Alice', 'Dont judge each day by the harvest you reap but by the seeds that you plant. -Robert Louis Stevenson');
+INSERT INTO foo (id, name, description) VALUES (2, 'Charlie', 'The way to get started is to quit talking and begin doing. -Walt Disney');
+INSERT INTO foo (id, name, description) VALUES (3, 'Charlie', 'Life is what happens when youre busy making other plans. -John Lennon');
+INSERT INTO foo (id, name, description) VALUES (4, 'Alice', 'The way to get started is to quit talking and begin doing. -Walt Disney');
+INSERT INTO foo (id, name, description) VALUES (5, 'Charlie', 'Your time is limited, dont waste it living someone elses life. -Steve Jobs');
+INSERT INTO foo (id, name, description) VALUES (6, 'Bob', 'Spread love everywhere you go. -Mother Teresa');
+INSERT INTO foo (id, name, description) VALUES (7, 'Alice', 'Life is what happens when youre busy making other plans. -John Lennon');
+INSERT INTO foo (id, name, description) VALUES (8, 'Bob', 'If life were predictable it would cease to be life, and be without flavor. -Eleanor Roosevelt');
+INSERT INTO foo (id, name, description) VALUES (9, 'Bob', 'If you look at what you have in life, youll always have more. -Oprah Winfrey');
+INSERT INTO foo (id, name, description) VALUES (10, 'Alice', 'Your time is limited, dont waste it living someone elses life. -Steve Jobs');

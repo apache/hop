@@ -84,6 +84,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
   private final List<String> inputFields = new ArrayList<>();
 
+  private Button wCache;
+
+  private Label wlCacheSize;
+  private Text wCacheSize;
+
   public DatabaseJoinDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
     super(parent, variables, (BaseTransformMeta) in, tr, sname);
@@ -133,13 +138,57 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     // Connection line
     wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
 
+    // ICache?
+    Label wlCache = new Label(shell, SWT.RIGHT);
+    wlCache.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.Cache.Label"));
+    PropsUi.setLook(wlCache);
+    FormData fdlCache = new FormData();
+    fdlCache.left = new FormAttachment(0, 0);
+    fdlCache.right = new FormAttachment(middle, -margin);
+    fdlCache.top = new FormAttachment(wConnection, margin);
+    wlCache.setLayoutData(fdlCache);
+    wCache = new Button(shell, SWT.CHECK);
+    PropsUi.setLook(wCache);
+    FormData fdCache = new FormData();
+    fdCache.left = new FormAttachment(middle, 0);
+    fdCache.top = new FormAttachment(wlCache, 0, SWT.CENTER);
+    wCache.setLayoutData(fdCache);
+    wCache.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            enableFields();
+          }
+        });
+
+    // ICache size line
+    wlCacheSize = new Label(shell, SWT.RIGHT);
+    wlCacheSize.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.CacheSize.Label"));
+    PropsUi.setLook(wlCacheSize);
+    wlCacheSize.setEnabled(input.isCached());
+    FormData fdlCacheSize = new FormData();
+    fdlCacheSize.left = new FormAttachment(0, 0);
+    fdlCacheSize.right = new FormAttachment(middle, -margin);
+    fdlCacheSize.top = new FormAttachment(wCache, margin);
+    wlCacheSize.setLayoutData(fdlCacheSize);
+    wCacheSize = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wCacheSize);
+    wCacheSize.setEnabled(input.isCached());
+    wCacheSize.addModifyListener(lsMod);
+    FormData fdCacheSize = new FormData();
+    fdCacheSize.left = new FormAttachment(middle, 0);
+    fdCacheSize.right = new FormAttachment(100, 0);
+    fdCacheSize.top = new FormAttachment(wCache, margin);
+    wCacheSize.setLayoutData(fdCacheSize);
+
     // SQL editor...
     Label wlSql = new Label(shell, SWT.NONE);
     wlSql.setText(BaseMessages.getString(PKG, "DatabaseJoinDialog.SQL.Label"));
     PropsUi.setLook(wlSql);
     FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment(0, 0);
-    fdlSql.top = new FormAttachment(wConnection, margin * 2);
+    fdlSql.top = new FormAttachment(wlCache, margin * 2);
     wlSql.setLayoutData(fdlSql);
 
     wSql =
@@ -360,6 +409,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     return transformName;
   }
 
+  private void enableFields() {
+    wCacheSize.setEnabled(wCache.getSelection());
+    wlCacheSize.setEnabled(wCache.getSelection());
+  }
+
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
@@ -380,6 +434,10 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     logDebug(BaseMessages.getString(PKG, "DatabaseJoinDialog.Log.GettingKeyInfo"));
 
     wConnection.setText(Const.NVL(input.getConnection(), ""));
+
+    wCache.setSelection(input.isCached());
+    wCacheSize.setText("" + input.getCacheSize());
+
     wSql.setText(Const.NVL(input.getSql(), ""));
     wLimit.setText("" + input.getRowLimit());
     wOuter.setSelection(input.isOuterJoin());
@@ -397,6 +455,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
     wParam.setRowNums();
     wParam.optWidth(true);
+
+    enableFields();
 
     wTransformName.selectAll();
     wTransformName.setFocus();
@@ -416,6 +476,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     int nrparam = wParam.nrNonEmpty();
 
     input.setConnection(wConnection.getText());
+    input.setCached(wCache.getSelection());
+    input.setCacheSize(Const.toInt(wCacheSize.getText(), 0));
     input.setRowLimit(Const.toInt(wLimit.getText(), 0));
     input.setSql(wSql.getText());
     input.setOuterJoin(wOuter.getSelection());

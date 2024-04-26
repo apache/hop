@@ -22,10 +22,12 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transforms.databasejoin.cache.DatabaseCache;
 
 public class DatabaseJoinData extends BaseTransformData implements ITransformData {
   public Database db;
   public PreparedStatement pstmt;
+  public DatabaseCache cache;
 
   IRowMeta outputRowMeta;
   IRowMeta lookupRowMeta;
@@ -39,5 +41,6 @@ public class DatabaseJoinData extends BaseTransformData implements ITransformDat
 
     db = null;
     notfound = null;
+    cache = null;
   }
 }

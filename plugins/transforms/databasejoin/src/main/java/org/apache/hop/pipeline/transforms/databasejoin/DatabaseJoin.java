@@ -18,6 +18,8 @@
 package org.apache.hop.pipeline.transforms.databasejoin;
 
 import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,6 +35,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transforms.databasejoin.cache.DatabaseCache;
 
 /**
  * Use values from input streams to joins with values in a database. Freehand SQL can be used to do
@@ -101,38 +104,28 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         lookupRowData[i] = rowData[data.keynrs[i]];
       }
 
-      // Set the values on the prepared statement (for faster exec.)
-      rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
+      List<Object[]> adds = getFromCacheOrFetch(lookupRowData);
 
-      // Get a row from the database...
-      //
-      Object[] add = data.db.getRow(rs);
       IRowMeta addMeta = data.db.getReturnRowMeta();
 
-      incrementLinesInput();
-
       int counter = 0;
-      while (add != null && (meta.getRowLimit() == 0 || counter < meta.getRowLimit())) {
-        counter++;
+      for (Object[] add : adds) {
+        if (add != null && (meta.getRowLimit() == 0 || counter < meta.getRowLimit())) {
+          counter++;
 
-        Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
-        int newIndex = rowMeta.size();
-        for (int i = 0; i < addMeta.size(); i++) {
-          newRow[newIndex++] = add[i];
-        }
-        // we have to clone, otherwise we only get the last new value
-        putRow(data.outputRowMeta, data.outputRowMeta.cloneRow(newRow));
+          Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
+          int newIndex = rowMeta.size();
+          for (int i = 0; i < addMeta.size(); i++) {
+            newRow[newIndex++] = add[i];
+          }
+          // we have to clone, otherwise we only get the last new value
+          putRow(data.outputRowMeta, data.outputRowMeta.cloneRow(newRow));
 
-        if (log.isRowLevel()) {
-          logRowlevel(
-              BaseMessages.getString(PKG, "DatabaseJoin.Log.PutoutRow")
-                  + data.outputRowMeta.getString(newRow));
-        }
-
-        // Get a new row
-        if (meta.getRowLimit() == 0 || counter < meta.getRowLimit()) {
-          add = data.db.getRow(rs);
-          incrementLinesInput();
+          if (log.isRowLevel()) {
+            logRowlevel(
+                BaseMessages.getString(PKG, "DatabaseJoin.Log.PutoutRow")
+                    + data.outputRowMeta.getString(newRow));
+          }
         }
       }
 
@@ -151,10 +144,37 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         putRow(data.outputRowMeta, newRow);
       }
 
-      data.db.closeQuery(rs);
     } finally {
       dbLock.unlock();
     }
+  }
+
+  private List<Object[]> getFromCacheOrFetch(Object[] lookupRowData) throws HopDatabaseException {
+    if (meta.isCached()) {
+      List<Object[]> adds = data.cache.getRowsFromCache(data.lookupRowMeta, lookupRowData);
+      if (adds != null) {
+        return adds;
+      } else {
+        List<Object[]> fromDatabase = fetchFromDatabase(lookupRowData);
+        data.cache.putRowsIntoCache(data.lookupRowMeta, lookupRowData, fromDatabase);
+        return fromDatabase;
+      }
+    }
+    return fetchFromDatabase(lookupRowData);
+  }
+
+  private List<Object[]> fetchFromDatabase(Object[] lookupRowData) throws HopDatabaseException {
+    List<Object[]> result = new ArrayList<>();
+
+    ResultSet rs = data.db.openQuery(data.pstmt, data.lookupRowMeta, lookupRowData);
+    Object[] add = data.db.getRow(rs);
+    while (add != null) {
+      result.add(add);
+      incrementLinesInput();
+      add = data.db.getRow(rs);
+    }
+    data.db.closeQuery(rs);
+    return result;
   }
 
   @Override
@@ -267,6 +287,10 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           }
           data.db.setQueryLimit(meta.getRowLimit());
 
+          if (meta.isCached()) {
+            data.cache = new DatabaseCache(meta.getCacheSize());
+          }
+
           return true;
         } catch (HopException e) {
           logError(
@@ -301,6 +325,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         data.db.disconnect();
         data.db = null;
       }
+      data.cache = null;
       dbLock.unlock();
     }
   }
