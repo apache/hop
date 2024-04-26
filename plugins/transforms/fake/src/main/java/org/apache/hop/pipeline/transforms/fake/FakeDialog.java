@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.fake;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -200,8 +201,12 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
       Method[] methods = fakerType.getFakerClass().getDeclaredMethods();
       ArrayList<String> tempNames = new ArrayList<>();
       for (Method method : methods) {
-        // ignore Methods needing parameters for now
-        if (method.getParameterCount() == 0) {
+        // Ignore methods needing parameters for now
+        // or that doesn't return type (String, long or Date)
+        if (method.getParameterCount() == 0
+            && (method.getReturnType().isAssignableFrom(String.class)
+                || method.getReturnType().isAssignableFrom(long.class)
+                || method.getReturnType().isAssignableFrom(Date.class))) {
           tempNames.add(method.getName());
         }
       }

@@ -17,13 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.fake;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
+import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -80,16 +83,38 @@ public class FakeMeta extends BaseTransformMeta<Fake, FakeData> {
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
     for (FakeField field : fields) {
       if (field.isValid()) {
-        IValueMeta v = null;
-        if (field.getType().equals("DateAndTime")) {
-          v = new ValueMetaDate(field.getName());
-        } else {
-          v = new ValueMetaString(field.getName());
+
+        try {
+          FakerType type = FakerType.valueOf(field.getType());
+          Method method = type.getFakerClass().getMethod(field.getTopic());
+          Class<?> returnType = method.getReturnType();
+
+          IValueMeta valueMeta = null;
+          if (returnType.isAssignableFrom(String.class)) {
+            valueMeta = new ValueMetaString(field.getName());
+          } else if (returnType.isAssignableFrom(long.class)) {
+            valueMeta = new ValueMetaInteger(field.getName());
+          } else if (returnType.isAssignableFrom(Date.class)) {
+            valueMeta = new ValueMetaDate(field.getName());
+          }
+
+          if (valueMeta != null) {
+            valueMeta.setOrigin(name);
+            rowMeta.addValueMeta(valueMeta);
+          } else {
+            log.logError("Error unsupported faker return type");
+          }
+        } catch (NoSuchMethodException e) {
+          log.logError(
+              "Error getting faker object or method for type "
+                  + field.getType()
+                  + " and topic "
+                  + field.getTopic(),
+              e);
         }
-        v.setOrigin(name);
-        rowMeta.addValueMeta(v);
       }
     }
   }

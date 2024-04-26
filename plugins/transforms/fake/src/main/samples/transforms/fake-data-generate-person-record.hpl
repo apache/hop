@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-
 Licensed to the Apache Software Foundation (ASF) under one or more
 contributor license agreements.  See the NOTICE file distributed with
 this work for additional information regarding copyright ownership.
 The ASF licenses this file to You under the Apache License, Version 2.0
 (the "License"); you may not use this file except in compliance with
 the License.  You may obtain a copy of the License at
-
       http://www.apache.org/licenses/LICENSE-2.0
-
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
 -->
 <pipeline>
   <info>
@@ -34,30 +30,28 @@ limitations under the License.
     <created_date>2021/04/28 15:29:02.042</created_date>
     <modified_user>-</modified_user>
     <modified_date>2021/04/28 15:29:02.042</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
     <notepad>
-      <note>Fake Data transform generates data based on categories
-</note>
-      <xloc>80</xloc>
-      <yloc>48</yloc>
-      <width>299</width>
-      <heigth>41</heigth>
+      <backgroundcolorblue>251</backgroundcolorblue>
+      <backgroundcolorgreen>232</backgroundcolorgreen>
+      <backgroundcolorred>201</backgroundcolorred>
+      <bordercolorblue>90</bordercolorblue>
+      <bordercolorgreen>58</bordercolorgreen>
+      <bordercolorred>14</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>90</fontcolorblue>
+      <fontcolorgreen>58</fontcolorgreen>
+      <fontcolorred>14</fontcolorred>
+      <fontitalic>N</fontitalic>
       <fontname>Segoe UI</fontname>
       <fontsize>11</fontsize>
-      <fontbold>N</fontbold>
-      <fontitalic>N</fontitalic>
-      <fontcolorred>14</fontcolorred>
-      <fontcolorgreen>58</fontcolorgreen>
-      <fontcolorblue>90</fontcolorblue>
-      <backgroundcolorred>201</backgroundcolorred>
-      <backgroundcolorgreen>232</backgroundcolorgreen>
-      <backgroundcolorblue>251</backgroundcolorblue>
-      <bordercolorred>14</bordercolorred>
-      <bordercolorgreen>58</bordercolorgreen>
-      <bordercolorblue>90</bordercolorblue>
+      <height>41</height>
+      <xloc>80</xloc>
+      <yloc>48</yloc>
+      <note>Fake Data transform generates data based on categories
+</note>
+      <width>305</width>
     </notepad>
   </notepads>
   <order>
@@ -87,8 +81,8 @@ limitations under the License.
 </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <never_ending>N</never_ending>
     <limit>1000</limit>
+    <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
@@ -107,44 +101,59 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <locale>en</locale>
     <fields>
       <field>
         <name>fullName</name>
-        <type>Name</type>
         <topic>fullName</topic>
+        <type>Name</type>
+      </field>
+      <field>
+        <name>Birthday</name>
+        <topic>birthday</topic>
+        <type>DateAndTime</type>
       </field>
       <field>
         <name>bloodGroup</name>
-        <type>Name</type>
         <topic>bloodGroup</topic>
+        <type>Name</type>
       </field>
       <field>
         <name>creditCardNumber</name>
-        <type>Business</type>
         <topic>creditCardNumber</topic>
+        <type>Business</type>
       </field>
       <field>
         <name>cellNumber</name>
-        <type>PhoneNumber</type>
         <topic>cellPhone</topic>
+        <type>PhoneNumber</type>
       </field>
       <field>
         <name>favouriteBook</name>
-        <type>Book</type>
         <topic>title</topic>
+        <type>Book</type>
       </field>
       <field>
         <name>workplace</name>
-        <type>Company</type>
         <topic>name</topic>
+        <type>Company</type>
       </field>
       <field>
         <name>programmingLanguage</name>
-        <type>ProgrammingLanguage</type>
         <topic>name</topic>
+        <type>ProgrammingLanguage</type>
+      </field>
+      <field>
+        <name>Digit</name>
+        <topic>digit</topic>
+        <type>Number</type>
+      </field>
+      <field>
+        <name>Number</name>
+        <topic>randomNumber</topic>
+        <type>Number</type>
       </field>
     </fields>
+    <locale>en</locale>
     <attributes/>
     <GUI>
       <xloc>288</xloc>
