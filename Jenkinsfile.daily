@@ -85,17 +85,17 @@ pipeline {
                 sh "mvn $MAVEN_PARAMS clean install"
             }
         }
-        // stage('Code Quality') {
-        //     tools{
-        //         jdk 'jdk_17_latest'
-        //     }
-        //     steps {
-        //         echo 'Checking Code Quality on SonarCloud'
-        //         withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-        //             sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-        //         }
-        //     }
-        // }
+        stage('Code Quality') {
+            tools{
+                jdk 'jdk_17_latest'
+            }
+            steps {
+                echo 'Checking Code Quality on SonarCloud'
+                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
+                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.token=${SONAR_TOKEN}'
+                }
+            }
+        }
         stage('Create Docker image & Run Tests'){
             steps {
                     sh 'cp $GCP_CREDS google-key-apache-hop-it.json'
