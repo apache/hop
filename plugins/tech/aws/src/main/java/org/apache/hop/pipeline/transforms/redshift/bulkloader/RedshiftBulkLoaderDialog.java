@@ -50,6 +50,7 @@ import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -119,8 +120,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   private static final String AWS_IAM_ROLE = "IAM Role";
   private String[] awsAuthOptions = new String[] {AWS_CREDENTIALS, AWS_IAM_ROLE};
 
-  private Label wlAwsAuthentication;
-  private ComboVar wAwsAuthentication;
+  private Label wlAwsAuthType;
+  private ComboVar wAwsAuthType;
   private Label wlUseSystemVars;
   private Button wUseSystemVars;
   private Label wlAccessKeyId;
@@ -143,23 +144,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
   /** Open the dialog. */
   public String open() {
-    FormData fdDoMapping;
-    FormData fdGetFields;
-    Label wlFields;
-    FormData fdSpecifyFields;
-    Label wlSpecifyFields;
-    FormData fdbTable;
-    FormData fdlTable;
-    Button wbTable;
-    FormData fdSchema;
-    FormData fdlSchema;
-    Label wlSchema;
-    FormData fdMainComp;
-    CTabItem wFieldsTab;
-    CTabItem wMainTab;
-    FormData fdTabFolder;
-    CTabFolder wTabFolder;
-    Label wlTruncate;
+
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
@@ -212,45 +197,56 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
       wConnection.select(0);
     }
     wConnection.addModifyListener(lsMod);
-    wConnection.addModifyListener(event -> setFlags());
+
+    Control lastControl = wConnection;
 
     // Schema line...
-    wlSchema = new Label(shell, SWT.RIGHT);
+    Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.TargetSchema.Label")); // $NON-NLS-1$
     PropsUi.setLook(wlSchema);
-    fdlSchema = new FormData();
+    FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment(0, 0);
     fdlSchema.right = new FormAttachment(middle, -margin);
-    fdlSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdlSchema.top = new FormAttachment(lastControl, margin * 2);
     wlSchema.setLayoutData(fdlSchema);
+
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    PropsUi.setLook(wbSchema);
+    wbSchema.setText(BaseMessages.getString("System.Button.Browse"));
+    FormData fdbSchema = new FormData();
+    fdbSchema.right = new FormAttachment(100, 0);
+    fdbSchema.top = new FormAttachment(lastControl, margin * 2);
+    wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wSchema);
     wSchema.addModifyListener(lsMod);
     wSchema.addFocusListener(lsFocusLost);
-    fdSchema = new FormData();
+    FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment(middle, 0);
-    fdSchema.top = new FormAttachment(wConnection, margin * 2);
+    fdSchema.top = new FormAttachment(lastControl, margin * 2);
     fdSchema.right = new FormAttachment(100, 0);
     wSchema.setLayoutData(fdSchema);
+
+    lastControl = wSchema;
 
     // Table line...
     Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.TargetTable.Label"));
     PropsUi.setLook(wlTable);
-    fdlTable = new FormData();
+    FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment(0, 0);
     fdlTable.right = new FormAttachment(middle, -margin);
-    fdlTable.top = new FormAttachment(wSchema, margin);
+    fdlTable.top = new FormAttachment(lastControl, margin);
     wlTable.setLayoutData(fdlTable);
 
-    wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbTable);
     wbTable.setText(BaseMessages.getString("System.Button.Browse"));
-    fdbTable = new FormData();
+    FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment(100, 0);
-    fdbTable.top = new FormAttachment(wSchema, margin);
+    fdbTable.top = new FormAttachment(lastControl, margin);
     wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
@@ -258,150 +254,91 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wTable.addModifyListener(lsMod);
     wTable.addFocusListener(lsFocusLost);
     FormData fdTable = new FormData();
-    fdTable.top = new FormAttachment(wSchema, margin);
+    fdTable.top = new FormAttachment(lastControl, margin);
     fdTable.left = new FormAttachment(middle, 0);
     fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
-    Control lastControl = wTable;
 
-    SelectionAdapter lsSelMod =
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent arg0) {
-            input.setChanged();
-          }
-        };
+    // Some buttons
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString("System.Button.OK"));
+    wCreate = new Button(shell, SWT.PUSH);
+    wCreate.setText(BaseMessages.getString("System.Button.SQL"));
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
 
-    wlAwsAuthentication = new Label(shell, SWT.RIGHT);
-    wlAwsAuthentication.setText(
-        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.Options.Label"));
-    PropsUi.setLook(wlAwsAuthentication);
-    FormData fdlAwsAuthentication = new FormData();
-    fdlAwsAuthentication.top = new FormAttachment(lastControl, margin);
-    fdlAwsAuthentication.left = new FormAttachment(0, 0);
-    fdlAwsAuthentication.right = new FormAttachment(middle, -margin);
-    wlAwsAuthentication.setLayoutData(fdlAwsAuthentication);
-    wAwsAuthentication = new ComboVar(variables, shell, SWT.BORDER | SWT.READ_ONLY);
-    wAwsAuthentication.setItems(awsAuthOptions);
-    wAwsAuthentication.setText(awsAuthOptions[0]);
-    PropsUi.setLook(wAwsAuthentication);
-    FormData fdAwsAuthentication = new FormData();
-    fdAwsAuthentication.top = new FormAttachment(lastControl, margin);
-    fdAwsAuthentication.left = new FormAttachment(middle, 0);
-    fdAwsAuthentication.right = new FormAttachment(100, 0);
-    wAwsAuthentication.setLayoutData(fdAwsAuthentication);
-    lastControl = wlAwsAuthentication;
+    lastControl = wTable;
 
-    wlUseSystemVars = new Label(shell, SWT.RIGHT);
-    wlUseSystemVars.setText("Use AWS system variables");
-    wlUseSystemVars.setToolTipText(
-        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
-    PropsUi.setLook(wlUseSystemVars);
-    FormData fdlUseSystemVars = new FormData();
-    fdlUseSystemVars.top = new FormAttachment(lastControl, margin);
-    fdlUseSystemVars.left = new FormAttachment(0, 0);
-    fdlUseSystemVars.right = new FormAttachment(middle, -margin);
-    wlUseSystemVars.setLayoutData(fdlUseSystemVars);
-    wUseSystemVars = new Button(shell, SWT.CHECK);
-    wUseSystemVars.setSelection(true);
-    PropsUi.setLook(wUseSystemVars);
-    FormData fdUseSystemVars = new FormData();
-    fdUseSystemVars.top = new FormAttachment(lastControl, margin * 3);
-    fdUseSystemVars.left = new FormAttachment(middle, 0);
-    fdUseSystemVars.right = new FormAttachment(100, 0);
-    wUseSystemVars.setLayoutData(fdUseSystemVars);
-    lastControl = wlUseSystemVars;
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
-    wUseSystemVars.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            toggleKeysSelection();
-          }
-        });
+    addGeneralTab(wTabFolder, margin, middle, lsMod, lsFocusLost);
+    addAwsAuthenticationTab(wTabFolder, margin, middle, lsMod);
+    addFieldsTab(wTabFolder, margin, middle, lsMod);
 
-    wlAccessKeyId = new Label(shell, SWT.RIGHT);
-    wlAccessKeyId.setText("AWS_ACCESS_KEY_ID");
-    PropsUi.setLook(wlAccessKeyId);
-    FormData fdlAccessKeyId = new FormData();
-    fdlAccessKeyId.top = new FormAttachment(lastControl, margin);
-    fdlAccessKeyId.left = new FormAttachment(0, 0);
-    fdlAccessKeyId.right = new FormAttachment(middle, -margin);
-    wlAccessKeyId.setLayoutData(fdlAccessKeyId);
-    wAccessKeyId = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wAccessKeyId);
-    FormData fdUseAccessKeyId = new FormData();
-    fdUseAccessKeyId.top = new FormAttachment(lastControl, margin);
-    fdUseAccessKeyId.left = new FormAttachment(middle, 0);
-    fdUseAccessKeyId.right = new FormAttachment(100, 0);
-    wAccessKeyId.setLayoutData(fdUseAccessKeyId);
-    lastControl = wAccessKeyId;
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.top = new FormAttachment(lastControl, margin);
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
+    wTabFolder.setLayoutData(fdTabFolder);
+    wTabFolder.setSelection(0);
 
-    wlSecretAccessKey = new Label(shell, SWT.RIGHT);
-    wlSecretAccessKey.setText("AWS_SECRET_ACCESS_KEY");
-    PropsUi.setLook(wlSecretAccessKey);
-    FormData fdlSecretAccessKey = new FormData();
-    fdlSecretAccessKey.top = new FormAttachment(lastControl, margin);
-    fdlSecretAccessKey.left = new FormAttachment(0, 0);
-    fdlSecretAccessKey.right = new FormAttachment(middle, -margin);
-    wlSecretAccessKey.setLayoutData(fdlSecretAccessKey);
-    wSecretAccessKey = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    PropsUi.setLook(wSecretAccessKey);
-    FormData fdSecretAccessKey = new FormData();
-    fdSecretAccessKey.top = new FormAttachment(lastControl, margin);
-    fdSecretAccessKey.left = new FormAttachment(middle, 0);
-    fdSecretAccessKey.right = new FormAttachment(100, 0);
-    wSecretAccessKey.setLayoutData(fdSecretAccessKey);
-    lastControl = wSecretAccessKey;
+    setButtonPositions(new Button[] {wOk, wCancel, wCreate}, margin, null);
 
-    // Start with system variables enabled and AWS keys disabled by default
-    wlAccessKeyId.setEnabled(false);
-    wAccessKeyId.setEnabled(false);
-    wlSecretAccessKey.setEnabled(false);
-    wSecretAccessKey.setEnabled(false);
+    // Add listeners
+    wOk.addListener(SWT.Selection, c -> ok());
+    wCancel.addListener(SWT.Selection, c -> cancel());
+    wCreate.addListener(SWT.Selection, c -> sql());
+    wGetFields.addListener(SWT.Selection, c -> get());
+    wbTable.addListener(SWT.Selection, c -> getTableName());
 
-    wlAwsIamRole = new Label(shell, SWT.RIGHT);
-    wlAwsIamRole.setText("IAM Role");
-    PropsUi.setLook(wlAwsIamRole);
-    FormData fdlIamRole = new FormData();
-    fdlIamRole.top = new FormAttachment(lastControl, margin);
-    fdlIamRole.left = new FormAttachment(0, 0);
-    fdlIamRole.right = new FormAttachment(middle, -margin);
-    wlAwsIamRole.setLayoutData(fdlIamRole);
-    wAwsIamRole = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    wAwsIamRole.getTextWidget().setMessage("arn:aws:iam::<aws-account-id>:role/<role-name>");
-    PropsUi.setLook(wAwsIamRole);
-    FormData fdIamRole = new FormData();
-    fdIamRole.top = new FormAttachment(lastControl, margin);
-    fdIamRole.left = new FormAttachment(middle, 0);
-    fdIamRole.right = new FormAttachment(100, 0);
-    wAwsIamRole.setLayoutData(fdIamRole);
-    lastControl = wlAwsIamRole;
-    // Credentials are enabled by default.
-    wlAwsIamRole.setEnabled(false);
-    wAwsIamRole.setEnabled(false);
+    // Set the shell size, based upon previous time...
+    setSize();
 
-    wAwsAuthentication.addSelectionListener(
-        new SelectionAdapter() {
-          @Override
-          public void widgetSelected(SelectionEvent e) {
-            toggleAuthSelection();
-          }
-        });
+    getData();
+    setTableFieldCombo();
+    input.setChanged(backupChanged);
+
+    toggleSpecifyFieldsFlags();
+    toggleKeysSelection();
+
+    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
+    return transformName;
+  }
+
+  private void addGeneralTab(
+      CTabFolder wTabFolder,
+      int margin,
+      int middle,
+      ModifyListener lsMod,
+      FocusListener lsFocusLost) {
+
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralTab.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.GeneralTab.Label")); // $NON-NLS-1$
+
+    FormLayout generalLayout = new FormLayout();
+    generalLayout.marginWidth = 3;
+    generalLayout.marginHeight = 3;
+
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wGeneralComp);
+    wGeneralComp.setLayout(generalLayout);
 
     // Truncate table
-    wlTruncate = new Label(shell, SWT.RIGHT);
+    Label wlTruncate = new Label(wGeneralComp, SWT.RIGHT);
     wlTruncate.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.TruncateTable.Label"));
     PropsUi.setLook(wlTruncate);
     FormData fdlTruncate = new FormData();
-    fdlTruncate.top = new FormAttachment(lastControl, margin);
+    fdlTruncate.top = new FormAttachment(0, margin);
     fdlTruncate.left = new FormAttachment(0, 0);
     fdlTruncate.right = new FormAttachment(middle, -margin);
     wlTruncate.setLayoutData(fdlTruncate);
-    wTruncate = new Button(shell, SWT.CHECK);
+    wTruncate = new Button(wGeneralComp, SWT.CHECK);
     PropsUi.setLook(wTruncate);
     FormData fdTruncate = new FormData();
-    fdTruncate.top = new FormAttachment(lastControl, margin * 3);
+    fdTruncate.top = new FormAttachment(0, margin);
     fdTruncate.left = new FormAttachment(middle, 0);
     fdTruncate.right = new FormAttachment(100, 0);
     wTruncate.setLayoutData(fdTruncate);
@@ -417,13 +354,13 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            setFlags();
+            toggleSpecifyFieldsFlags();
           }
         });
-    lastControl = wlTruncate;
+    Control lastControl = wlTruncate;
 
     // Truncate only when have rows
-    Label wlOnlyWhenHaveRows = new Label(shell, SWT.RIGHT);
+    Label wlOnlyWhenHaveRows = new Label(wGeneralComp, SWT.RIGHT);
     wlOnlyWhenHaveRows.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.OnlyWhenHaveRows.Label"));
     PropsUi.setLook(wlOnlyWhenHaveRows);
@@ -432,20 +369,27 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlOnlyWhenHaveRows.left = new FormAttachment(0, 0);
     fdlOnlyWhenHaveRows.right = new FormAttachment(middle, -margin);
     wlOnlyWhenHaveRows.setLayoutData(fdlOnlyWhenHaveRows);
-    wOnlyWhenHaveRows = new Button(shell, SWT.CHECK);
-    wOnlyWhenHaveRows.setToolTipText(
-        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.OnlyWhenHaveRows.Tooltip"));
+    wOnlyWhenHaveRows = new Button(wGeneralComp, SWT.CHECK);
     PropsUi.setLook(wOnlyWhenHaveRows);
     FormData fdTruncateWhenHaveRows = new FormData();
-    fdTruncateWhenHaveRows.top = new FormAttachment(lastControl, margin * 3);
+    fdTruncateWhenHaveRows.top = new FormAttachment(lastControl, margin);
     fdTruncateWhenHaveRows.left = new FormAttachment(middle, 0);
     fdTruncateWhenHaveRows.right = new FormAttachment(100, 0);
     wOnlyWhenHaveRows.setLayoutData(fdTruncateWhenHaveRows);
+
+    SelectionAdapter lsSelMod =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent arg0) {
+            input.setChanged();
+          }
+        };
+
     wOnlyWhenHaveRows.addSelectionListener(lsSelMod);
     lastControl = wlOnlyWhenHaveRows;
 
     // Specify fields
-    wlSpecifyFields = new Label(shell, SWT.RIGHT);
+    Label wlSpecifyFields = new Label(wGeneralComp, SWT.RIGHT);
     wlSpecifyFields.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.SpecifyFields.Label"));
     PropsUi.setLook(wlSpecifyFields);
@@ -454,14 +398,15 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdlSpecifyFields.left = new FormAttachment(0, 0);
     fdlSpecifyFields.right = new FormAttachment(middle, -margin);
     wlSpecifyFields.setLayoutData(fdlSpecifyFields);
-    wSpecifyFields = new Button(shell, SWT.CHECK);
+    wSpecifyFields = new Button(wGeneralComp, SWT.CHECK);
     PropsUi.setLook(wSpecifyFields);
-    fdSpecifyFields = new FormData();
-    fdSpecifyFields.top = new FormAttachment(lastControl, margin * 3);
+    FormData fdSpecifyFields = new FormData();
+    fdSpecifyFields.top = new FormAttachment(lastControl, margin);
     fdSpecifyFields.left = new FormAttachment(middle, 0);
     fdSpecifyFields.right = new FormAttachment(100, 0);
     wSpecifyFields.setLayoutData(fdSpecifyFields);
     wSpecifyFields.addSelectionListener(lsSelMod);
+
     lastControl = wlSpecifyFields;
 
     // If the flag is off, gray out the fields tab e.g.
@@ -469,57 +414,33 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
-            setFlags();
+            toggleSpecifyFieldsFlags();
           }
         });
 
-    wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
-
-    // ////////////////////////
-    // START OF KEY TAB ///
-    // /
-    wMainTab = new CTabItem(wTabFolder, SWT.NONE);
-    wMainTab.setText(
-        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.MainTab.CTabItem")); // $NON-NLS-1$
-
-    FormLayout mainLayout = new FormLayout();
-    mainLayout.marginWidth = 3;
-    mainLayout.marginHeight = 3;
-
-    Composite wMainComp = new Composite(wTabFolder, SWT.NONE);
-    PropsUi.setLook(wMainComp);
-    wMainComp.setLayout(mainLayout);
-
-    fdMainComp = new FormData();
-    fdMainComp.left = new FormAttachment(0, 0);
-    fdMainComp.top = new FormAttachment(0, 0);
-    fdMainComp.right = new FormAttachment(100, 0);
-    fdMainComp.bottom = new FormAttachment(100, 0);
-    wMainComp.setLayoutData(fdMainComp);
-
-    Label wlStreamToS3Csv = new Label(wMainComp, SWT.RIGHT);
+    Label wlStreamToS3Csv = new Label(wGeneralComp, SWT.RIGHT);
     wlStreamToS3Csv.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.Label"));
     wlStreamToS3Csv.setToolTipText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
     PropsUi.setLook(wlStreamToS3Csv);
     FormData fdlStreamToS3Csv = new FormData();
-    fdlStreamToS3Csv.top = new FormAttachment(0, margin * 2);
+    fdlStreamToS3Csv.top = new FormAttachment(lastControl, margin);
     fdlStreamToS3Csv.left = new FormAttachment(0, 0);
     fdlStreamToS3Csv.right = new FormAttachment(middle, -margin);
     wlStreamToS3Csv.setLayoutData(fdlStreamToS3Csv);
 
-    wStreamToS3Csv = new Button(wMainComp, SWT.CHECK);
+    wStreamToS3Csv = new Button(wGeneralComp, SWT.CHECK);
     wStreamToS3Csv.setToolTipText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.StreamCsvToS3.ToolTip"));
     PropsUi.setLook(wStreamToS3Csv);
     FormData fdStreamToS3Csv = new FormData();
-    fdStreamToS3Csv.top = new FormAttachment(0, margin * 4);
+    fdStreamToS3Csv.top = new FormAttachment(lastControl, margin);
     fdStreamToS3Csv.left = new FormAttachment(middle, 0);
     fdStreamToS3Csv.right = new FormAttachment(100, 0);
     wStreamToS3Csv.setLayoutData(fdStreamToS3Csv);
     wStreamToS3Csv.setSelection(true);
+
     lastControl = wlStreamToS3Csv;
 
     wStreamToS3Csv.addSelectionListener(
@@ -533,7 +454,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
           }
         });
 
-    Label wlLoadFromExistingFile = new Label(wMainComp, SWT.RIGHT);
+    Label wlLoadFromExistingFile = new Label(wGeneralComp, SWT.RIGHT);
     wlLoadFromExistingFile.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.LoadFromExistingFile.Label"));
     wlLoadFromExistingFile.setToolTipText(
@@ -546,9 +467,9 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wlLoadFromExistingFile.setLayoutData(fdlLoadFromExistingFile);
 
     wLoadFromExistingFileFormat =
-        new ComboVar(variables, wMainComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
+        new ComboVar(variables, wGeneralComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
     FormData fdLoadFromExistingFile = new FormData();
-    fdLoadFromExistingFile.top = new FormAttachment(lastControl, margin * 2);
+    fdLoadFromExistingFile.top = new FormAttachment(lastControl, margin);
     fdLoadFromExistingFile.left = new FormAttachment(middle, 0);
     fdLoadFromExistingFile.right = new FormAttachment(100, 0);
     wLoadFromExistingFileFormat.setLayoutData(fdLoadFromExistingFile);
@@ -556,47 +477,188 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wLoadFromExistingFileFormat.setItems(fileFormats);
     lastControl = wLoadFromExistingFileFormat;
 
-    Label wlCopyFromFile = new Label(wMainComp, SWT.RIGHT);
+    Label wlCopyFromFile = new Label(wGeneralComp, SWT.RIGHT);
     wlCopyFromFile.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.CopyFromFile.Label"));
     PropsUi.setLook(wlCopyFromFile);
     FormData fdlCopyFromFile = new FormData();
-    fdlCopyFromFile.top = new FormAttachment(lastControl, margin * 2);
+    fdlCopyFromFile.top = new FormAttachment(lastControl, margin);
     fdlCopyFromFile.left = new FormAttachment(0, 0);
     fdlCopyFromFile.right = new FormAttachment(middle, -margin);
     wlCopyFromFile.setLayoutData(fdlCopyFromFile);
 
-    Button wbCopyFromFile = new Button(wMainComp, SWT.PUSH | SWT.CENTER);
-    PropsUi.setLook(wbCopyFromFile);
-    wbCopyFromFile.setText(BaseMessages.getString("System.Button.Browse"));
-    FormData fdbCopyFromFile = new FormData();
-    fdbCopyFromFile.top = new FormAttachment(lastControl, margin * 2);
-    fdbCopyFromFile.right = new FormAttachment(100, 0);
-    wbCopyFromFile.setLayoutData(fdbCopyFromFile);
-
-    wCopyFromFilename = new TextVar(variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wCopyFromFilename = new TextVar(variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     PropsUi.setLook(wCopyFromFilename);
     wCopyFromFilename.addModifyListener(lsMod);
     wCopyFromFilename.addFocusListener(lsFocusLost);
     wCopyFromFilename.getTextWidget().setMessage("s3://<FILENAME_IN_BUCKET>");
 
     FormData fdCopyFromFile = new FormData();
-    fdCopyFromFile.top = new FormAttachment(lastControl, margin * 2);
+    fdCopyFromFile.top = new FormAttachment(lastControl, margin);
     fdCopyFromFile.left = new FormAttachment(middle, 0);
-    fdCopyFromFile.right = new FormAttachment(wbCopyFromFile, -margin);
+    fdCopyFromFile.right = new FormAttachment(100, -margin);
     wCopyFromFilename.setLayoutData(fdCopyFromFile);
-    lastControl = wCopyFromFilename;
 
-    wMainComp.layout();
-    wMainTab.setControl(wMainComp);
+    FormData fdGeneralComp = new FormData();
+    fdGeneralComp.left = new FormAttachment(0, 0);
+    fdGeneralComp.top = new FormAttachment(0, 0);
+    fdGeneralComp.right = new FormAttachment(100, 0);
+    fdGeneralComp.bottom = new FormAttachment(100, 0);
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
-    //
-    // Fields tab...
-    //
-    wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
+    wGeneralComp.layout();
+    wGeneralTab.setControl(wGeneralComp);
+  }
+
+  private void addAwsAuthenticationTab(
+      CTabFolder wTabFolder, int margin, int middle, ModifyListener lsMod) {
+
+    CTabItem wAwsAuthTab = new CTabItem(wTabFolder, SWT.NONE);
+    wAwsAuthTab.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.AwsAuthTab.Label")); // $NON-NLS-1$
+
+    Composite wAwsAuthComp = new Composite(wTabFolder, SWT.NONE);
+    PropsUi.setLook(wAwsAuthComp);
+
+    FormLayout awsAuthCompLayout = new FormLayout();
+    awsAuthCompLayout.marginWidth = Const.FORM_MARGIN;
+    awsAuthCompLayout.marginHeight = Const.FORM_MARGIN;
+    wAwsAuthComp.setLayout(awsAuthCompLayout);
+
+    wlAwsAuthType = new Label(wAwsAuthComp, SWT.RIGHT);
+    wlAwsAuthType.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.AuthenticationType.Label"));
+    PropsUi.setLook(wlAwsAuthType);
+    FormData fdlAwsAuthType = new FormData();
+    fdlAwsAuthType.top = new FormAttachment(0, margin);
+    fdlAwsAuthType.left = new FormAttachment(0, 0);
+    fdlAwsAuthType.right = new FormAttachment(middle, -margin);
+    wlAwsAuthType.setLayoutData(fdlAwsAuthType);
+    wAwsAuthType = new ComboVar(variables, wAwsAuthComp, SWT.BORDER | SWT.READ_ONLY);
+    wAwsAuthType.setItems(awsAuthOptions);
+    wAwsAuthType.setText(awsAuthOptions[0]);
+    PropsUi.setLook(wAwsAuthType);
+    FormData fdAwsAuthType = new FormData();
+    fdAwsAuthType.top = new FormAttachment(0, margin);
+    fdAwsAuthType.left = new FormAttachment(middle, 0);
+    fdAwsAuthType.right = new FormAttachment(100, 0);
+    wAwsAuthType.setLayoutData(fdAwsAuthType);
+
+    Control lastControl = wlAwsAuthType;
+
+    wlUseSystemVars = new Label(wAwsAuthComp, SWT.RIGHT);
+    wlUseSystemVars.setText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Label"));
+    wlUseSystemVars.setToolTipText(
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.Authenticate.UseSystemVars.Tooltip"));
+    PropsUi.setLook(wlUseSystemVars);
+    FormData fdlUseSystemVars = new FormData();
+    fdlUseSystemVars.top = new FormAttachment(lastControl, margin);
+    fdlUseSystemVars.left = new FormAttachment(0, 0);
+    fdlUseSystemVars.right = new FormAttachment(middle, -margin);
+    wlUseSystemVars.setLayoutData(fdlUseSystemVars);
+    wUseSystemVars = new Button(wAwsAuthComp, SWT.CHECK);
+    wUseSystemVars.setSelection(true);
+    PropsUi.setLook(wUseSystemVars);
+    FormData fdUseSystemVars = new FormData();
+    fdUseSystemVars.top = new FormAttachment(lastControl, margin);
+    fdUseSystemVars.left = new FormAttachment(middle, 0);
+    fdUseSystemVars.right = new FormAttachment(100, 0);
+    wUseSystemVars.setLayoutData(fdUseSystemVars);
+    lastControl = wlUseSystemVars;
+
+    wUseSystemVars.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleKeysSelection();
+          }
+        });
+
+    wlAccessKeyId = new Label(wAwsAuthComp, SWT.RIGHT);
+    wlAccessKeyId.setText("AWS_ACCESS_KEY_ID");
+    PropsUi.setLook(wlAccessKeyId);
+    FormData fdlAccessKeyId = new FormData();
+    fdlAccessKeyId.top = new FormAttachment(lastControl, margin);
+    fdlAccessKeyId.left = new FormAttachment(0, 0);
+    fdlAccessKeyId.right = new FormAttachment(middle, -margin);
+    wlAccessKeyId.setLayoutData(fdlAccessKeyId);
+    wAccessKeyId = new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    PropsUi.setLook(wAccessKeyId);
+    FormData fdUseAccessKeyId = new FormData();
+    fdUseAccessKeyId.top = new FormAttachment(lastControl, margin);
+    fdUseAccessKeyId.left = new FormAttachment(middle, 0);
+    fdUseAccessKeyId.right = new FormAttachment(100, 0);
+    wAccessKeyId.setLayoutData(fdUseAccessKeyId);
+    wAccessKeyId.addModifyListener(lsMod);
+
+    lastControl = wAccessKeyId;
+
+    wlSecretAccessKey = new Label(wAwsAuthComp, SWT.RIGHT);
+    wlSecretAccessKey.setText("AWS_SECRET_ACCESS_KEY");
+    PropsUi.setLook(wlSecretAccessKey);
+    FormData fdlSecretAccessKey = new FormData();
+    fdlSecretAccessKey.top = new FormAttachment(lastControl, margin);
+    fdlSecretAccessKey.left = new FormAttachment(0, 0);
+    fdlSecretAccessKey.right = new FormAttachment(middle, -margin);
+    wlSecretAccessKey.setLayoutData(fdlSecretAccessKey);
+    wSecretAccessKey =
+        new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.PASSWORD);
+    PropsUi.setLook(wSecretAccessKey);
+    FormData fdSecretAccessKey = new FormData();
+    fdSecretAccessKey.top = new FormAttachment(lastControl, margin);
+    fdSecretAccessKey.left = new FormAttachment(middle, 0);
+    fdSecretAccessKey.right = new FormAttachment(100, 0);
+    wSecretAccessKey.setLayoutData(fdSecretAccessKey);
+    wSecretAccessKey.addModifyListener(lsMod);
+
+    lastControl = wSecretAccessKey;
+
+    wlAwsIamRole = new Label(wAwsAuthComp, SWT.RIGHT);
+    wlAwsIamRole.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.IamRole.Label"));
+    PropsUi.setLook(wlAwsIamRole);
+    FormData fdlIamRole = new FormData();
+    fdlIamRole.top = new FormAttachment(lastControl, margin);
+    fdlIamRole.left = new FormAttachment(0, 0);
+    fdlIamRole.right = new FormAttachment(middle, -margin);
+    wlAwsIamRole.setLayoutData(fdlIamRole);
+    wAwsIamRole = new TextVar(variables, wAwsAuthComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wAwsIamRole.getTextWidget().setMessage("arn:aws:iam::<aws-account-id>:role/<role-name>");
+    PropsUi.setLook(wAwsIamRole);
+    FormData fdIamRole = new FormData();
+    fdIamRole.top = new FormAttachment(lastControl, margin);
+    fdIamRole.left = new FormAttachment(middle, 0);
+    fdIamRole.right = new FormAttachment(100, 0);
+    wAwsIamRole.setLayoutData(fdIamRole);
+    wAwsIamRole.addModifyListener(lsMod);
+
+    wlAwsIamRole.setEnabled(false);
+    wAwsIamRole.setEnabled(false);
+
+    wAwsAuthType.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            toggleAuthSelection();
+          }
+        });
+
+    FormData fdAwsAuthComp = new FormData();
+    fdAwsAuthComp.left = new FormAttachment(0, 0);
+    fdAwsAuthComp.top = new FormAttachment(0, 0);
+    fdAwsAuthComp.right = new FormAttachment(100, 0);
+    fdAwsAuthComp.bottom = new FormAttachment(100, 0);
+    wAwsAuthComp.setLayoutData(fdAwsAuthComp);
+
+    wAwsAuthComp.layout();
+    wAwsAuthTab.setControl(wAwsAuthComp);
+  }
+
+  private void addFieldsTab(CTabFolder wTabFolder, int margin, int middle, ModifyListener lsMod) {
+
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText(
-        BaseMessages.getString(
-            PKG, "RedshiftBulkLoaderDialog.FieldsTab.CTabItem.Title")); // $NON-NLS-1$
+        BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.FieldsTab.Label")); // $NON-NLS-1$
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wFieldsComp);
@@ -607,7 +669,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wFieldsComp.setLayout(fieldsCompLayout);
 
     // The fields table
-    wlFields = new Label(wFieldsComp, SWT.NONE);
+    Label wlFields = new Label(wFieldsComp, SWT.NONE);
     wlFields.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.InsertFields.Label")); // $NON-NLS-1$
     PropsUi.setLook(wlFields);
@@ -649,7 +711,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wGetFields = new Button(wFieldsComp, SWT.PUSH);
     wGetFields.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.GetFields.Button")); // $NON-NLS-1$
-    fdGetFields = new FormData();
+    FormData fdGetFields = new FormData();
     fdGetFields.top = new FormAttachment(wlFields, margin);
     fdGetFields.right = new FormAttachment(100, 0);
     wGetFields.setLayoutData(fdGetFields);
@@ -657,7 +719,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     wDoMapping = new Button(wFieldsComp, SWT.PUSH);
     wDoMapping.setText(
         BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.DoMapping.Button")); // $NON-NLS-1$
-    fdDoMapping = new FormData();
+    FormData fdDoMapping = new FormData();
     fdDoMapping.top = new FormAttachment(wGetFields, margin);
     fdDoMapping.right = new FormAttachment(100, 0);
     wDoMapping.setLayoutData(fdDoMapping);
@@ -677,6 +739,8 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     fdFields.bottom = new FormAttachment(100, -2 * margin);
     wFields.setLayoutData(fdFields);
 
+    getFieldsFromPrevious();
+
     FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment(0, 0);
     fdFieldsComp.top = new FormAttachment(0, 0);
@@ -686,6 +750,9 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
 
     wFieldsComp.layout();
     wFieldsTab.setControl(wFieldsComp);
+  }
+
+  private void getFieldsFromPrevious() {
 
     //
     // Search the fields in the background
@@ -713,40 +780,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
           }
         };
     new Thread(runnable).start();
-
-    // Some buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString("System.Button.OK"));
-    wCreate = new Button(shell, SWT.PUSH);
-    wCreate.setText(BaseMessages.getString("System.Button.SQL"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString("System.Button.Cancel"));
-
-    setButtonPositions(new Button[] {wOk, wCancel, wCreate}, margin, null);
-
-    fdTabFolder = new FormData();
-    fdTabFolder.left = new FormAttachment(0, 0);
-    fdTabFolder.top = new FormAttachment(wlSpecifyFields, margin);
-    fdTabFolder.right = new FormAttachment(100, 0);
-    fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
-    wTabFolder.setLayoutData(fdTabFolder);
-    wTabFolder.setSelection(0);
-
-    // Add listeners
-    wOk.addListener(SWT.Selection, c -> ok());
-    wCancel.addListener(SWT.Selection, c -> cancel());
-    wCreate.addListener(SWT.Selection, c -> sql());
-    wGetFields.addListener(SWT.Selection, c -> get());
-
-    // Set the shell size, based upon previous time...
-    setSize();
-
-    getData();
-    setTableFieldCombo();
-    input.setChanged(backupChanged);
-
-    BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
-    return transformName;
   }
 
   /**
@@ -953,7 +986,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     ciFields[1].setComboValues(fieldNames);
   }
 
-  public void setFlags() {
+  public void toggleSpecifyFieldsFlags() {
     boolean specifyFields = wSpecifyFields.getSelection();
     wFields.setEnabled(specifyFields);
     wGetFields.setEnabled(specifyFields);
@@ -972,7 +1005,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
       wTable.setText(input.getTableName());
     }
     if (input.isUseCredentials()) {
-      wAwsAuthentication.setText(awsAuthOptions[0]);
+      wAwsAuthType.setText(awsAuthOptions[0]);
       wUseSystemVars.setSelection(input.isUseSystemEnvVars());
       if (!input.isUseSystemEnvVars()) {
         if (!StringUtil.isEmpty(input.getAwsAccessKeyId())) {
@@ -983,7 +1016,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
         }
       }
     } else if (input.isUseAwsIamRole()) {
-      wAwsAuthentication.setText(awsAuthOptions[1]);
+      wAwsAuthType.setText(awsAuthOptions[1]);
       if (!StringUtils.isEmpty(input.getAwsIamRole())) {
         wAwsIamRole.setText(input.getAwsIamRole());
       }
@@ -1013,8 +1046,6 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
       }
     }
 
-    setFlags();
-
     wTransformName.selectAll();
   }
 
@@ -1034,7 +1065,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     if (!StringUtils.isEmpty(wTable.getText())) {
       info.setTablename(wTable.getText());
     }
-    if (wAwsAuthentication.getText().equals(AWS_CREDENTIALS)) {
+    if (wAwsAuthType.getText().equals(AWS_CREDENTIALS)) {
       info.setUseCredentials(true);
       info.setUseAwsIamRole(false);
       if (wUseSystemVars.getSelection()) {
@@ -1048,7 +1079,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
           info.setAwsSecretAccessKey(wSecretAccessKey.getText());
         }
       }
-    } else if (wAwsAuthentication.getText().equals(AWS_IAM_ROLE)) {
+    } else if (wAwsAuthType.getText().equals(AWS_IAM_ROLE)) {
       info.setUseCredentials(false);
       info.setUseAwsIamRole(true);
       if (!StringUtils.isEmpty(wAwsIamRole.getText())) {
@@ -1098,6 +1129,50 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
     }
 
     dispose();
+  }
+
+  private void getSchemaName() {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+        database.connect();
+        String[] schemas = database.getSchemas();
+
+        if (null != schemas && schemas.length > 0) {
+          schemas = Const.sortStrings(schemas);
+          EnterSelectionDialog dialog =
+              new EnterSelectionDialog(
+                  shell,
+                  schemas,
+                  BaseMessages.getString(
+                      PKG,
+                      "RedshiftBulkLoaderDialog.AvailableSchemas.Title",
+                      wConnection.getText()),
+                  BaseMessages.getString(
+                      PKG,
+                      "RedshiftBulkLoaderDialog.AvailableSchemas.Message",
+                      wConnection.getText()));
+          String d = dialog.open();
+          if (d != null) {
+            wSchema.setText(Const.NVL(d, ""));
+            setTableFieldCombo();
+          }
+
+        } else {
+          org.apache.hop.ui.core.dialog.MessageBox mb =
+              new org.apache.hop.ui.core.dialog.MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          mb.setMessage(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.NoSchema.Error"));
+          mb.setText(BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.GetSchemas.Error"));
+          mb.open();
+        }
+      } catch (Exception e) {
+        new ErrorDialog(
+            shell,
+            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, "RedshiftBulkLoaderDialog.ErrorGettingSchemas"),
+            e);
+      }
+    }
   }
 
   private void getTableName() {
@@ -1218,7 +1293,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   }
 
   public void toggleAuthSelection() {
-    if (wAwsAuthentication.getText().equals("Credentials")) {
+    if (wAwsAuthType.getText().equals("Credentials")) {
       wlUseSystemVars.setEnabled(true);
       wUseSystemVars.setEnabled(true);
       wlAccessKeyId.setEnabled(true);
@@ -1229,7 +1304,7 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
       wlAwsIamRole.setEnabled(false);
       wAwsIamRole.setEnabled(false);
     }
-    if (wAwsAuthentication.getText().equals("IAM Role")) {
+    if (wAwsAuthType.getText().equals("IAM Role")) {
       wlUseSystemVars.setEnabled(false);
       wUseSystemVars.setEnabled(false);
       wlAccessKeyId.setEnabled(false);
@@ -1243,16 +1318,9 @@ public class RedshiftBulkLoaderDialog extends BaseTransformDialog implements ITr
   }
 
   public void toggleKeysSelection() {
-    if (wUseSystemVars.getSelection()) {
-      wlAccessKeyId.setEnabled(false);
-      wAccessKeyId.setEnabled(false);
-      wlSecretAccessKey.setEnabled(false);
-      wSecretAccessKey.setEnabled(false);
-    } else {
-      wlAccessKeyId.setEnabled(true);
-      wAccessKeyId.setEnabled(true);
-      wlSecretAccessKey.setEnabled(true);
-      wSecretAccessKey.setEnabled(true);
-    }
+    wlAccessKeyId.setEnabled(!wUseSystemVars.getSelection());
+    wAccessKeyId.setEnabled(!wUseSystemVars.getSelection());
+    wlSecretAccessKey.setEnabled(!wUseSystemVars.getSelection());
+    wSecretAccessKey.setEnabled(!wUseSystemVars.getSelection());
   }
 }
