@@ -38,6 +38,7 @@ import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
 
+import java.io.File;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -85,7 +86,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
 
     if (row == null) {
-      closeFile();
+      if (!data.filesClosed) closeFile();
       setOutputDone();
       return false;
     }
@@ -123,7 +124,8 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         && !meta.isFilenameInField()) {
       // Close file and start a new one...
       //
-      closeFile();
+      if (!data.filesClosed) closeFile();
+
       openNewFile(row);
     } else if (meta.isFilenameInField()) {
       openNewFile(row);
@@ -135,8 +137,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       data.writers.get(data.currentFilename).write(new RowMetaAndData(getInputRowMeta(), row));
       incrementLinesOutput();
 
-      if (!meta.isFilenameInField())
-        data.splitRowCount++;
+      if (!meta.isFilenameInField()) data.splitRowCount++;
 
     } catch (Exception e) {
       throw new HopException("Error writing row to parquet file", e);
@@ -151,7 +152,6 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     // Calculate the filename...
     //
     String filename = buildFilename(row, getPipeline().getExecutionStartDate());
-    // TODO Da terminare per gestire i casi in cui ci sono situazioni da non gestire in caso il nome del file sia in un campo
     if (!data.writers.containsKey(filename)) {
       data.splitRowCount = 0;
       data.split++;
@@ -180,6 +180,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       MessageType messageType = new AvroSchemaConverter().convert(data.avroSchema);
 
       try {
+        logDebug("Opening file: " + filename);
         FileObject fileObject = HopVfs.getFileObject(filename);
 
         // See if we need to create the parent folder(s)...
@@ -320,7 +321,10 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
       filename += meta.getCompressionCodec().getExtension();
     } else {
-      filename = (String) row[data.filenameFieldIndex]  + "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
+      filename =
+          (String) row[data.filenameFieldIndex]
+              + "."
+              + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
     }
     return filename;
   }
@@ -328,20 +332,22 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
   private void closeFile() throws HopException {
 
     Set<String> filesToClose = data.writers.keySet();
-    for (String file : filesToClose) {
+    for (String filename : filesToClose) {
       try {
-        // Close connections of any managed writer
-        data.writers.get(file).close();
+        // Close connections of any managed
+        data.writers.get(filename).close();
+        logDebug("Closed file: " + filename);
       } catch (Exception e) {
-        throw new HopException("Error closing file " + file, e);
+        throw new HopException("Error closing file " + filename, e);
       }
     }
+    data.filesClosed = true;
   }
 
   @Override
   public void batchComplete() throws HopException {
     if (!data.isBeamContext()) {
-      closeFile();
+      if (!data.filesClosed) closeFile();
     }
   }
 
@@ -356,6 +362,18 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
   @Override
   public void finishBundle() throws HopException {
-    closeFile();
+    if (!data.filesClosed) closeFile();
+  }
+
+  @Override
+  public void dispose() {
+    if (!data.filesClosed) {
+      try {
+        closeFile();
+      } catch (HopException e) {
+        logError("Error while closing parquets files", e);
+      }
+    }
+    super.dispose();
   }
 }

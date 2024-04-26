@@ -40,7 +40,7 @@ public class ParquetOutputData extends BaseTransformData implements ITransformDa
 //  public OutputStream outputStream;
 //  public ParquetOutputFile outputFile;
   public HashMap<String, ParquetWriter<RowMetaAndData>> writers = new HashMap<>();
-
+  public boolean filesClosed = false;
   public String currentFilename;
 
   public int split = 0;
