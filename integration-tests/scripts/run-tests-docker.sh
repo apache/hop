@@ -48,7 +48,7 @@ if [ -z "${JENKINS_USER}" ]; then
 fi
 
 if [ -z "${JENKINS_UID}" ]; then
-  JENKINS_UID="1000"
+  JENKINS_UID="1001"
 fi
 
 if [ -z "${JENKINS_GROUP}" ]; then
@@ -56,7 +56,7 @@ if [ -z "${JENKINS_GROUP}" ]; then
 fi
 
 if [ -z "${JENKINS_GID}" ]; then
-  JENKINS_GID="1000"
+  JENKINS_GID="1001"
 fi
 
 if [ -z "${SUREFIRE_REPORT}" ]; then

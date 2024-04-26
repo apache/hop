@@ -15,7 +15,7 @@
 # limitations under the License.
 #
 
-FROM ubuntu
+FROM ubuntu:22.04
 MAINTAINER Apache Hop
 
 # Argument Branch name, used to download correct version
