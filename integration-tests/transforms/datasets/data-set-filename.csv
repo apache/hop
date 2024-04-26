@@ -1,3 +1,5 @@
-field1,field2,field3,target1,target2
-Z,Y,X,One,Two
-W,V,U,Three,Four
+file,count,values
+f1,3,"A, C, D"
+f2,2,"B, G"
+f3,4,"F, H, I, L"
+f4,1,M

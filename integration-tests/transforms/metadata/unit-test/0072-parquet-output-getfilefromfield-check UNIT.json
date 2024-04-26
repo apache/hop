@@ -1,0 +1,35 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "file",
+          "data_set_field": "file"
+        },
+        {
+          "transform_field": "count",
+          "data_set_field": "count"
+        },
+        {
+          "transform_field": "values",
+          "data_set_field": "values"
+        }
+      ],
+      "field_order": [
+        "file",
+        "count",
+        "values"
+      ],
+      "data_set_name": "golden-parquetoutput-dataset",
+      "transform_name": "Final check"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0072-parquet-output-getfilefromfield-check UNIT",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0072-parquet-output-getfilefromfield-check.hpl",
+  "test_type": "UNIT_TEST"
+}

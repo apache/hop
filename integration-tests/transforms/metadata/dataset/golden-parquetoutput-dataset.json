@@ -1,0 +1,32 @@
+{
+  "base_filename": "data-set-filename.csv",
+  "name": "golden-parquetoutput-dataset",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "file",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "count",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "values",
+      "field_format": ""
+    }
+  ],
+  "folder_name": ""
+}
