@@ -46,7 +46,9 @@ public class ParquetField {
     return sourceFieldName;
   }
 
-  /** @param sourceFieldName The sourceFieldName to set */
+  /**
+   * @param sourceFieldName The sourceFieldName to set
+   */
   public void setSourceFieldName(String sourceFieldName) {
     this.sourceFieldName = sourceFieldName;
   }
@@ -60,7 +62,9 @@ public class ParquetField {
     return targetFieldName;
   }
 
-  /** @param targetFieldName The targetFieldName to set */
+  /**
+   * @param targetFieldName The targetFieldName to set
+   */
   public void setTargetFieldName(String targetFieldName) {
     this.targetFieldName = targetFieldName;
   }

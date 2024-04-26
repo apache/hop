@@ -38,7 +38,6 @@ import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
 
-import java.io.File;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -86,7 +85,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     }
 
     if (row == null) {
-      if (!data.filesClosed) closeFile();
+      if (!data.filesClosed) closeFiles();
       setOutputDone();
       return false;
     }
@@ -120,11 +119,12 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     //
     if (meta.isFilenameIncludingSplitNr()
         && data.maxSplitSizeRows > 0
-        && data.splitRowCount >= data.maxSplitSizeRows
-        && !meta.isFilenameInField()) {
+        && data.splitRowCount >= data.maxSplitSizeRows) {
       // Close file and start a new one...
       //
-      if (!data.filesClosed) closeFile();
+      closeFile(data.currentFilename);
+      // File is closed. Remove it from the list of opened writers
+      data.writers.remove(data.currentFilename);
 
       openNewFile(row);
     } else if (meta.isFilenameInField()) {
@@ -329,10 +329,8 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     return filename;
   }
 
-  private void closeFile() throws HopException {
+  private void closeFile(String filename) throws HopException {
 
-    Set<String> filesToClose = data.writers.keySet();
-    for (String filename : filesToClose) {
       try {
         // Close connections of any managed
         data.writers.get(filename).close();
@@ -341,13 +339,20 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         throw new HopException("Error closing file " + filename, e);
       }
     }
+
+  private void closeFiles() throws HopException {
+
+    Set<String> filesToClose = data.writers.keySet();
+    for (String filename : filesToClose) {
+      closeFile(filename);
+    }
     data.filesClosed = true;
   }
 
   @Override
   public void batchComplete() throws HopException {
     if (!data.isBeamContext()) {
-      if (!data.filesClosed) closeFile();
+      if (!data.filesClosed) closeFiles();
     }
   }
 
@@ -362,14 +367,14 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
   @Override
   public void finishBundle() throws HopException {
-    if (!data.filesClosed) closeFile();
+    if (!data.filesClosed) closeFiles();
   }
 
   @Override
   public void dispose() {
     if (!data.filesClosed) {
       try {
-        closeFile();
+        closeFiles();
       } catch (HopException e) {
         logError("Error while closing parquets files", e);
       }

@@ -2,6 +2,7 @@
   "variableValues": [],
   "database_replacements": [],
   "autoOpening": true,
+  "basePath": "",
   "golden_data_sets": [
     {
       "field_mappings": [
@@ -28,8 +29,10 @@
     }
   ],
   "input_data_sets": [],
-  "name": "0072-parquet-output-getfilefromfield-check UNIT",
+  "name": "0073-parquet-output-getfilefromfield-check UNIT",
+  "description": "",
+  "persist_filename": "",
   "trans_test_tweaks": [],
-  "pipeline_filename": "./0072-parquet-output-getfilefromfield-check.hpl",
+  "pipeline_filename": "./0073-parquet-output-getfilefromfield-check.hpl",
   "test_type": "UNIT_TEST"
 }

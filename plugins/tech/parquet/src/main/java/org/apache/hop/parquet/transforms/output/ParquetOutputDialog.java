@@ -174,7 +174,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wTabFolder.setLayoutData(fdTabFolder);
 
     getData();
-    activateFilenameField();
+    toggleUponFilenameInFieldSelection();
     wTabFolder.setSelection(0);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -271,7 +271,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
               @Override
               public void widgetSelected(SelectionEvent e) {
                 input.setChanged();
-                activateFilenameField();
+                toggleUponFilenameInFieldSelection();
               }
             });
 
@@ -369,7 +369,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     fdFilenameIncludeDateTime.top = new FormAttachment(wlFilenameIncludeDateTime, 0, SWT.CENTER);
     fdFilenameIncludeDateTime.right = new FormAttachment(100, 0);
     wFilenameIncludeDateTime.setLayoutData(fdFilenameIncludeDateTime);
-    wFilenameIncludeDateTime.addListener(SWT.Selection, e -> enableFields());
+    wFilenameIncludeDateTime.addListener(SWT.Selection, e -> toggleUponIncludeDateTimeSelection());
     lastControl = wlFilenameIncludeDateTime;
 
     wlFilenameDateTimeFormat = new Label(wGeneralComp, SWT.RIGHT);
@@ -425,7 +425,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     fdFilenameIncludeSplitNr.top = new FormAttachment(wlFilenameIncludeSplitNr, 0, SWT.CENTER);
     fdFilenameIncludeSplitNr.right = new FormAttachment(100, 0);
     wFilenameIncludeSplitNr.setLayoutData(fdFilenameIncludeSplitNr);
-    wFilenameIncludeSplitNr.addListener(SWT.Selection, e -> enableFields());
+    wFilenameIncludeSplitNr.addListener(SWT.Selection, e -> toggleUponIncludeDateTimeSelection());
     lastControl = wlFilenameIncludeSplitNr;
 
     wlFilenameSplitSize = new Label(wGeneralComp, SWT.RIGHT);
@@ -510,7 +510,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     }
   }
 
-  private void activateFilenameField() {
+  private void toggleUponFilenameInFieldSelection() {
 
     wlFilenameField.setEnabled(wFilenameInField.getSelection());
     wFilenameField.setEnabled(wFilenameInField.getSelection());
@@ -524,12 +524,6 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wFilenameIncludeTime.setEnabled(!wFilenameInField.getSelection());
     wlFilenameIncludeDate.setEnabled(!wFilenameInField.getSelection());
     wFilenameIncludeDate.setEnabled(!wFilenameInField.getSelection());
-    wlFilenameIncludeSplitNr.setEnabled(!wFilenameInField.getSelection());
-    wFilenameIncludeSplitNr.setEnabled(!wFilenameInField.getSelection());
-    wlFilenameSplitSize.setEnabled(!wFilenameInField.getSelection());
-    wFilenameSplitSize.setEnabled(!wFilenameInField.getSelection());
-    wlFilenameIncludeCopyNr.setEnabled(!wFilenameInField.getSelection());
-    wFilenameIncludeCopyNr.setEnabled(!wFilenameInField.getSelection());
 
   }
 
@@ -726,7 +720,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
   }
 
 
-  private void enableFields() {
+  private void toggleUponIncludeDateTimeSelection() {
     wlFilenameDateTimeFormat.setEnabled(wFilenameIncludeDateTime.getSelection());
     wFilenameDateTimeFormat.setEnabled(wFilenameIncludeDateTime.getSelection());
 
@@ -781,7 +775,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
       item.setText(2, Const.NVL(field.getTargetFieldName(), ""));
     }
     wFields.optimizeTableView();
-    enableFields();
+    toggleUponIncludeDateTimeSelection();
   }
 
   private void ok() {
