@@ -60,16 +60,14 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection")
   private String connection;
 
-    @HopMetadataProperty(
-        key = "cache",
-        injectionKeyDescription = "DatabaseJoinMeta.Injection.Cache")
-    private boolean cached;
+  @HopMetadataProperty(key = "cache", injectionKeyDescription = "DatabaseJoinMeta.Injection.Cache")
+  private boolean cached;
 
-    /** Limit the cache size to this! */
-    @HopMetadataProperty(
-        key = "cache_size",
-        injectionKeyDescription = "DatabaseJoinMeta.Injection.CacheSize")
-    private int cacheSize;
+  /** Limit the cache size to this! */
+  @HopMetadataProperty(
+      key = "cache_size",
+      injectionKeyDescription = "DatabaseJoinMeta.Injection.CacheSize")
+  private int cacheSize;
 
   /** SQL Statement */
   @HopMetadataProperty(key = "sql", injectionKeyDescription = "DatabaseJoinMeta.Injection.SQL")
@@ -104,8 +102,6 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       injectionKeyDescription = "DatabaseJoinMeta.Injection.ReplaceVariables")
   private boolean replaceVariables;
 
-
-
   public DatabaseJoinMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -133,40 +129,41 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     this.connection = connection;
   }
 
-    /**
-     * Gets cached
-     *
-     * @return value of cached
-     */
-    public boolean isCached() {
-        return cached;
-    }
+  /**
+   * Gets cached
+   *
+   * @return value of cached
+   */
+  public boolean isCached() {
+    return cached;
+  }
 
-    /**
-     * @param cached The cached to set
-     */
-    public void setCached(boolean cached) {
-        this.cached = cached;
-    }
+  /**
+   * @param cached The cached to set
+   */
+  public void setCached(boolean cached) {
+    this.cached = cached;
+  }
 
-    /**
-     * Gets cacheSize
-     *
-     * @return value of cacheSize
-     */
-    public int getCacheSize() {
-        return cacheSize;
-    }
+  /**
+   * Gets cacheSize
+   *
+   * @return value of cacheSize
+   */
+  public int getCacheSize() {
+    return cacheSize;
+  }
 
-    /**
-     * @param cacheSize The cacheSize to set
-     */
-    public void setCacheSize(int cacheSize) {
-        this.cacheSize = cacheSize;
-    }
+  /**
+   * @param cacheSize The cacheSize to set
+   */
+  public void setCacheSize(int cacheSize) {
+    this.cacheSize = cacheSize;
+  }
 
-
-  /** @return Returns the outerJoin. */
+  /**
+   * @return Returns the outerJoin.
+   */
   public boolean isOuterJoin() {
     return outerJoin;
   }

@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin.cache;
 
-import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.row.IRowMeta;
 
 public class DatabaseCache {
 
