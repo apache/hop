@@ -67,7 +67,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
@@ -115,7 +117,7 @@ public abstract class Workflow extends Variables
   protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
 
   /** The parent pipeline */
-  protected IPipelineEngine parentPipeline;
+  protected IPipelineEngine<PipelineMeta> parentPipeline;
 
   /** The parent logging interface to reference */
   protected ILoggingObject parentLoggingObject;
@@ -145,8 +147,11 @@ public abstract class Workflow extends Variables
   protected boolean interactive;
 
   protected List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
-      workflowFinishedListeners;
-  protected List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners;
+      executionFinishedListeners;
+  protected List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
+      executionStartedListeners;
+  protected List<IExecutionStoppedListener<IWorkflowEngine<WorkflowMeta>>>
+      executionStoppedListeners;
 
   protected List<IActionListener> actionListeners;
 
@@ -193,8 +198,9 @@ public abstract class Workflow extends Variables
   private void init() {
     status = new AtomicInteger();
 
-    workflowStartedListeners = Collections.synchronizedList(new ArrayList<>());
-    workflowFinishedListeners = Collections.synchronizedList(new ArrayList<>());
+    executionStartedListeners = Collections.synchronizedList(new ArrayList<>());
+    executionFinishedListeners = Collections.synchronizedList(new ArrayList<>());
+    executionStoppedListeners = Collections.synchronizedList(new ArrayList<>());
     actionListeners = new ArrayList<>();
 
     // this map is being modified concurrently and must be thread-safe
@@ -293,7 +299,7 @@ public abstract class Workflow extends Variables
 
       // Run the workflow
       //
-      fireWorkflowStartedListeners();
+      fireExecutionStartedListeners();
 
       result = executeFromStart();
     } catch (Throwable je) {
@@ -314,12 +320,13 @@ public abstract class Workflow extends Variables
       setStopped(false);
     } finally {
       try {
+        executionEndDate = new Date();
+
         ExtensionPointHandler.callExtensionPoint(
             log, this, HopExtensionPoint.WorkflowFinish.id, this);
 
-        executionEndDate = new Date();
-
-        fireWorkflowFinishListeners();
+        log.logBasic(BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"));
+        fireExecutionFinishedListeners();
 
         // release unused vfs connections
         HopVfs.freeUnusedResources();
@@ -464,12 +471,12 @@ public abstract class Workflow extends Variables
       }
       // Save this result...
       workflowTracker.addWorkflowTracker(new WorkflowTracker(workflowMeta, jerEnd));
-      log.logBasic(BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"));
 
       setActive(false);
       if (!isStopped()) {
         setFinished(true);
       }
+
       return res;
     } finally {
       log.snap(Metrics.METRIC_WORKFLOW_STOP);
@@ -522,35 +529,105 @@ public abstract class Workflow extends Variables
   }
 
   @Override
-  public void addWorkflowFinishedListener(
-      IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
-    synchronized (workflowFinishedListeners) {
-      workflowFinishedListeners.add(finishedListener);
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void addWorkflowStartedListener(
+      IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    addExecutionStartedListener(listener);
+  }
+
+  @Override
+  public void addExecutionStartedListener(
+      IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.add(listener);
     }
   }
 
   @Override
+  public void removeExecutionStartedListener(
+      IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.remove(listener);
+    }
+  }
+
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void fireWorkflowStartedListeners() throws HopException {
+    fireExecutionStartedListeners();
+  }
+
+  @Override
+  public void fireExecutionStartedListeners() throws HopException {
+    synchronized (executionStartedListeners) {
+      for (IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> listener :
+          executionStartedListeners) {
+        listener.started(this);
+      }
+    }
+  }
+
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
+  public void addWorkflowFinishedListener(
+      IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    addExecutionFinishedListener(listener);
+  }
+
+  @Override
+  public void addExecutionFinishedListener(
+      IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.add(listener);
+    }
+  }
+
+  @Override
+  public void removeExecutionFinishedListener(
+      IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.remove(listener);
+    }
+  }
+
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowFinishListeners() throws HopException {
-    synchronized (workflowFinishedListeners) {
-      for (IExecutionFinishedListener listener : workflowFinishedListeners) {
+    fireExecutionFinishedListeners();
+  }
+
+  @Override
+  public void fireExecutionFinishedListeners() throws HopException {
+    synchronized (executionFinishedListeners) {
+      for (IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>> listener :
+          executionFinishedListeners) {
         listener.finished(this);
       }
     }
   }
 
   @Override
-  public void addWorkflowStartedListener(
-      IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>> finishedListener) {
-    synchronized (workflowStartedListeners) {
-      workflowStartedListeners.add(finishedListener);
+  public void addExecutionStoppedListener(
+      IExecutionStoppedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.add(listener);
     }
   }
 
   @Override
-  public void fireWorkflowStartedListeners() throws HopException {
-    synchronized (workflowStartedListeners) {
-      for (IExecutionStartedListener listener : workflowStartedListeners) {
-        listener.started(this);
+  public void removeExecutionStoppedListener(
+      IExecutionStoppedListener<IWorkflowEngine<WorkflowMeta>> listener) {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.remove(listener);
+    }
+  }
+
+  @Override
+  public void fireExecutionStoppedListeners() {
+    synchronized (executionStoppedListeners) {
+      for (IExecutionStoppedListener<IWorkflowEngine<WorkflowMeta>> listener :
+          executionStoppedListeners) {
+        listener.stopped(this);
       }
     }
   }
@@ -968,6 +1045,9 @@ public abstract class Workflow extends Variables
   @Override
   public void stopExecution() {
     setStopped(true);
+
+    log.logBasic(BaseMessages.getString(PKG, "Workflow.Log.StopWorkflowExecution"));
+    fireExecutionStoppedListeners();
   }
 
   /** Sets the stopped. */
@@ -1543,12 +1623,12 @@ public abstract class Workflow extends Variables
   }
 
   @Override
-  public IPipelineEngine getParentPipeline() {
+  public IPipelineEngine<PipelineMeta> getParentPipeline() {
     return parentPipeline;
   }
 
   @Override
-  public void setParentPipeline(IPipelineEngine parentPipeline) {
+  public void setParentPipeline(IPipelineEngine<PipelineMeta> parentPipeline) {
     this.parentPipeline = parentPipeline;
   }
 
@@ -1605,17 +1685,19 @@ public abstract class Workflow extends Variables
    * @return value of workflowFinishedListeners
    */
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>>
       getWorkflowFinishedListeners() {
-    return workflowFinishedListeners;
+    return executionFinishedListeners;
   }
 
   /**
    * @param workflowFinishedListeners The workflowFinishedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setWorkflowFinishedListeners(
       List<IExecutionFinishedListener<IWorkflowEngine<WorkflowMeta>>> workflowFinishedListeners) {
-    this.workflowFinishedListeners = workflowFinishedListeners;
+    this.executionFinishedListeners = workflowFinishedListeners;
   }
 
   /**
@@ -1624,17 +1706,19 @@ public abstract class Workflow extends Variables
    * @return value of workflowStartedListeners
    */
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>>
       getWorkflowStartedListeners() {
-    return workflowStartedListeners;
+    return executionStartedListeners;
   }
 
   /**
    * @param workflowStartedListeners The workflowStartedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setWorkflowStartedListeners(
       List<IExecutionStartedListener<IWorkflowEngine<WorkflowMeta>>> workflowStartedListeners) {
-    this.workflowStartedListeners = workflowStartedListeners;
+    this.executionStartedListeners = workflowStartedListeners;
   }
 
   /**

@@ -125,7 +125,7 @@ public abstract class BeamPipelineEngine extends Variables
   protected Result previousResult;
 
   protected ILoggingObject parent;
-  protected IPipelineEngine parentPipeline;
+  protected IPipelineEngine<PipelineMeta> parentPipeline;
   protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
   protected LogLevel logLevel;
 
@@ -393,7 +393,7 @@ public abstract class BeamPipelineEngine extends Variables
                     // In any case, fire the finished listeners...
                     // This basically sets the finished flag in this pipeline
                     //
-                    firePipelineExecutionFinishedListeners();
+                    fireExecutionFinishedListeners();
                     populateEngineMetrics(); // get the final state
                     if (refreshTimer != null) {
                       refreshTimer.cancel(); // no more needed
@@ -574,7 +574,7 @@ public abstract class BeamPipelineEngine extends Variables
             setRunning(false);
             executionEndDate = new Date();
             if (beamEngineRunConfiguration.isRunningAsynchronous()) {
-              firePipelineExecutionFinishedListeners();
+              fireExecutionFinishedListeners();
             }
             logChannel.logBasic("Beam pipeline execution has finished.");
           }
@@ -583,7 +583,7 @@ public abstract class BeamPipelineEngine extends Variables
         case STOPPED:
         case CANCELLED:
           if (!isStopped()) {
-            firePipelineExecutionStoppedListeners();
+            fireExecutionStoppedListeners();
             cancelRefreshTimer = true;
           }
           setStopped(true);
@@ -701,11 +701,6 @@ public abstract class BeamPipelineEngine extends Variables
     // Not supported
   }
 
-  /**
-   * Adds a pipeline started listener.
-   *
-   * @param executionStartedListener the pipeline started listener
-   */
   @Override
   public void addExecutionStartedListener(IExecutionStartedListener executionStartedListener) {
     synchronized (executionStartedListener) {
@@ -713,15 +708,26 @@ public abstract class BeamPipelineEngine extends Variables
     }
   }
 
-  /**
-   * Adds a pipeline finished listener.
-   *
-   * @param executionFinishedListener the pipeline finished listener
-   */
+  @Override
+  public void removeExecutionStartedListener(
+      IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.remove(listener);
+    }
+  }
+
   @Override
   public void addExecutionFinishedListener(IExecutionFinishedListener executionFinishedListener) {
     synchronized (executionFinishedListener) {
       executionFinishedListeners.add(executionFinishedListener);
+    }
+  }
+
+  @Override
+  public void removeExecutionFinishedListener(
+      IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.remove(listener);
     }
   }
 
@@ -888,7 +894,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   @Override
-  public IPipelineEngine getActiveSubPipeline(final String subPipelineName) {
+  public IPipelineEngine<PipelineMeta> getActiveSubPipeline(final String subPipelineName) {
     return activeSubPipelines.get(subPipelineName);
   }
 
@@ -921,7 +927,7 @@ public abstract class BeamPipelineEngine extends Variables
    * @return value of parentPipeline
    */
   @Override
-  public IPipelineEngine getParentPipeline() {
+  public IPipelineEngine<PipelineMeta> getParentPipeline() {
     return parentPipeline;
   }
 
@@ -929,7 +935,7 @@ public abstract class BeamPipelineEngine extends Variables
    * @param parentPipeline The parentPipeline to set
    */
   @Override
-  public void setParentPipeline(IPipelineEngine parentPipeline) {
+  public void setParentPipeline(IPipelineEngine<PipelineMeta> parentPipeline) {
     this.parentPipeline = parentPipeline;
   }
 
@@ -956,6 +962,7 @@ public abstract class BeamPipelineEngine extends Variables
    *
    * @return value of executionStartedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionStartedListeners() {
     return executionStartedListeners;
@@ -964,18 +971,10 @@ public abstract class BeamPipelineEngine extends Variables
   /**
    * @param executionStartedListeners The executionStartedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStartedListeners(
       List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
     this.executionStartedListeners = executionStartedListeners;
-  }
-
-  private void fireExecutionStartedListeners() throws HopException {
-    synchronized (executionStartedListeners) {
-      for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
-          executionStartedListeners) {
-        listener.started(this);
-      }
-    }
   }
 
   /**
@@ -983,6 +982,7 @@ public abstract class BeamPipelineEngine extends Variables
    *
    * @return value of executionFinishedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionFinishedListeners() {
     return executionFinishedListeners;
@@ -991,6 +991,7 @@ public abstract class BeamPipelineEngine extends Variables
   /**
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionFinishedListeners(
       List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
     this.executionFinishedListeners = executionFinishedListeners;
@@ -998,14 +999,28 @@ public abstract class BeamPipelineEngine extends Variables
 
   @Override
   public void addExecutionStoppedListener(
-      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) throws HopException {
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) {
     synchronized (executionStoppedListeners) {
       executionStoppedListeners.add(listener);
     }
   }
 
   @Override
+  public void removeExecutionStoppedListener(
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.remove(listener);
+    }
+  }
+
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStartedListeners() throws HopException {
+    fireExecutionStartedListeners();
+  }
+
+  @Override
+  public void fireExecutionStartedListeners() throws HopException {
     synchronized (executionStartedListeners) {
       for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
           executionStartedListeners) {
@@ -1015,7 +1030,13 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionFinishedListeners() throws HopException {
+    fireExecutionFinishedListeners();
+  }
+
+  @Override
+  public void fireExecutionFinishedListeners() throws HopException {
     synchronized (executionFinishedListeners) {
       for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
           executionFinishedListeners) {
@@ -1045,7 +1066,13 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() throws HopException {
+    fireExecutionStoppedListeners();
+  }
+
+  @Override
+  public void fireExecutionStoppedListeners() throws HopException {
     synchronized (executionStoppedListeners) {
       for (IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener :
           executionStoppedListeners) {
@@ -1181,6 +1208,7 @@ public abstract class BeamPipelineEngine extends Variables
    *
    * @return value of executionStoppedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionStoppedListeners() {
     return executionStoppedListeners;
@@ -1189,6 +1217,7 @@ public abstract class BeamPipelineEngine extends Variables
   /**
    * @param executionStoppedListeners The executionStoppedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStoppedListeners(
       List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners) {
     this.executionStoppedListeners = executionStoppedListeners;

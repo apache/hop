@@ -3717,9 +3717,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           updateGui();
 
-          // Attach a listener to notify us that the pipeline has finished.
+          // Attach a listener to notify us that the workflow has finished.
           //
-          workflow.addWorkflowFinishedListener(
+          workflow.addExecutionFinishedListener(
               workflow -> HopGuiWorkflowGraph.this.workflowFinished());
 
           // Show the execution results views

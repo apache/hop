@@ -51,7 +51,7 @@ public class LogWorkflowExecutionTimeExtensionPoint
 
     final long startTime = System.currentTimeMillis();
 
-    workflow.addWorkflowFinishedListener(
+    workflow.addExecutionFinishedListener(
         workflow1 -> {
           Date startDate = workflow1.getExecutionStartDate();
           Date endDate = workflow1.getExecutionEndDate();

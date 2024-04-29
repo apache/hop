@@ -1063,7 +1063,7 @@ public abstract class Pipeline
 
       // Just for safety, fire the pipeline finished listeners...
       try {
-        firePipelineExecutionFinishedListeners();
+        fireExecutionFinishedListeners();
       } catch (HopException e) {
         // listeners produces errors
         log.logError(BaseMessages.getString(PKG, "Pipeline.FinishListeners.Exception"));
@@ -1109,7 +1109,7 @@ public abstract class Pipeline
     ExtensionPointHandler.callExtensionPoint(
         log, this, HopExtensionPoint.PipelineStartThreads.id, this);
 
-    firePipelineExecutionStartedListeners();
+    fireExecutionStartedListeners();
 
     for (int i = 0; i < transforms.size(); i++) {
       final TransformMetaDataCombi sid = transforms.get(i);
@@ -1137,7 +1137,7 @@ public abstract class Pipeline
                 executionEndDate = new Date();
 
                 try {
-                  firePipelineExecutionFinishedListeners();
+                  fireExecutionFinishedListeners();
                 } catch (Exception e) {
                   transform.setErrors(transform.getErrors() + 1L);
                   log.logError(
@@ -1293,7 +1293,7 @@ public abstract class Pipeline
     // So we fire the execution finished listeners here.
     //
     if (transforms.isEmpty()) {
-      firePipelineExecutionFinishedListeners();
+      fireExecutionFinishedListeners();
     }
 
     if (log.isDetailed()) {
@@ -1312,16 +1312,23 @@ public abstract class Pipeline
    * @throws HopException if any errors occur during notification
    */
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionFinishedListeners() throws HopException {
+    fireExecutionFinishedListeners();
+  }
+
+  @Override
+  public void fireExecutionFinishedListeners() throws HopException {
     synchronized (executionFinishedListeners) {
       if (executionFinishedListeners.size() == 0) {
         return;
       }
       // prevent Exception from one listener to block others execution
       List<HopException> badGuys = new ArrayList<>(executionFinishedListeners.size());
-      for (IExecutionFinishedListener executionListener : executionFinishedListeners) {
+      for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionFinishedListeners) {
         try {
-          executionListener.finished(this);
+          listener.finished(this);
         } catch (HopException e) {
           badGuys.add(e);
         }
@@ -1357,10 +1364,17 @@ public abstract class Pipeline
    * @throws HopException if any errors occur during notification
    */
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStartedListeners() throws HopException {
+    fireExecutionStartedListeners();
+  }
+
+  @Override
+  public void fireExecutionStartedListeners() throws HopException {
     synchronized (executionStartedListeners) {
-      for (IExecutionStartedListener executionListener : executionStartedListeners) {
-        executionListener.started(this);
+      for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionStartedListeners) {
+        listener.started(this);
       }
     }
   }
@@ -1595,7 +1609,7 @@ public abstract class Pipeline
     }
     transforms.stream().filter(this::isInputTransform).forEach(combi -> stopTransform(combi, true));
 
-    firePipelineExecutionStoppedListeners();
+    fireExecutionStoppedListeners();
   }
 
   private boolean isInputTransform(TransformMetaDataCombi combi) {
@@ -1617,7 +1631,7 @@ public abstract class Pipeline
     setStopped(true);
     isAlreadyStopped.set(true);
 
-    firePipelineExecutionStoppedListeners();
+    fireExecutionStoppedListeners();
   }
 
   public void stopTransform(TransformMetaDataCombi combi, boolean safeStop) {
@@ -1638,11 +1652,16 @@ public abstract class Pipeline
   }
 
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() {
-    // Fire the stopped listener...
-    //
+    fireExecutionStoppedListeners();
+  }
+
+  @Override
+  public void fireExecutionStoppedListeners() {
     synchronized (executionStoppedListeners) {
-      for (IExecutionStoppedListener listener : executionStoppedListeners) {
+      for (IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener :
+          executionStoppedListeners) {
         listener.stopped(this);
       }
     }
@@ -2483,39 +2502,51 @@ public abstract class Pipeline
     this.transformPerformanceSnapShots = transformPerformanceSnapShots;
   }
 
-  /**
-   * Adds a pipeline started listener.
-   *
-   * @param executionStartedListener the pipeline started listener
-   */
   @Override
-  public void addExecutionStartedListener(IExecutionStartedListener executionStartedListener) {
-    synchronized (executionStartedListener) {
-      executionStartedListeners.add(executionStartedListener);
+  public void addExecutionStartedListener(
+      IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.add(listener);
     }
   }
 
-  /**
-   * Adds a pipeline finished listener.
-   *
-   * @param executionFinishedListener the pipeline finished listener
-   */
   @Override
-  public void addExecutionFinishedListener(IExecutionFinishedListener executionFinishedListener) {
-    synchronized (executionFinishedListener) {
-      executionFinishedListeners.add(executionFinishedListener);
+  public void removeExecutionStartedListener(
+      IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.remove(listener);
     }
   }
 
-  /**
-   * Adds a pipeline stopped listener.
-   *
-   * @param executionStoppedListener the pipeline stopped listener
-   */
   @Override
-  public void addExecutionStoppedListener(IExecutionStoppedListener executionStoppedListener) {
-    synchronized (executionStoppedListener) {
-      executionStoppedListeners.add(executionStoppedListener);
+  public void addExecutionFinishedListener(
+      IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.add(listener);
+    }
+  }
+
+  @Override
+  public void removeExecutionFinishedListener(
+      IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.remove(listener);
+    }
+  }
+
+  @Override
+  public void addExecutionStoppedListener(
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.add(listener);
+    }
+  }
+
+  @Override
+  public void removeExecutionStoppedListener(
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.remove(listener);
     }
   }
 
@@ -2524,6 +2555,7 @@ public abstract class Pipeline
    *
    * @param executionStoppedListeners the list of stop-event listeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStoppedListeners(
       List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners) {
     this.executionStoppedListeners = Collections.synchronizedList(executionStoppedListeners);
@@ -2535,6 +2567,7 @@ public abstract class Pipeline
    *
    * @return the list of stop-event listeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionStoppedListeners() {
     return executionStoppedListeners;
@@ -3543,6 +3576,7 @@ public abstract class Pipeline
    *
    * @return value of executionStartedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionStartedListeners() {
     return executionStartedListeners;
@@ -3551,6 +3585,7 @@ public abstract class Pipeline
   /**
    * @param executionStartedListeners The executionStartedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStartedListeners(
       List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
     this.executionStartedListeners = executionStartedListeners;
@@ -3561,6 +3596,7 @@ public abstract class Pipeline
    *
    * @return value of executionFinishedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionFinishedListeners() {
     return executionFinishedListeners;
@@ -3569,6 +3605,7 @@ public abstract class Pipeline
   /**
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionFinishedListeners(
       List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
     this.executionFinishedListeners = executionFinishedListeners;
