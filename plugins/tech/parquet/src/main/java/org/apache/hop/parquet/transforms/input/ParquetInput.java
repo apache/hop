@@ -18,7 +18,7 @@
 package org.apache.hop.parquet.transforms.input;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
@@ -29,7 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.parquet.hadoop.ParquetReader;
 
 public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputData> {
   public ParquetInput(
@@ -48,6 +47,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
     Object[] row = getRow();
     if (row == null) {
       // No more files, we're done.
+      closeFile();
       setOutputDone();
       return false;
     }
@@ -75,30 +75,48 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
 
     try {
       long size = fileObject.getContent().getSize();
-      InputStream inputStream = HopVfs.getInputStream(fileObject);
+      data.inputStream = HopVfs.getInputStream(fileObject);
 
       // Reads the whole file into memory...
       //
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream((int) size);
-      IOUtils.copy(inputStream, outputStream);
+      IOUtils.copy(data.inputStream, outputStream);
       ParquetStream inputFile = new ParquetStream(outputStream.toByteArray(), filename);
 
       ParquetReadSupport readSupport = new ParquetReadSupport(meta.getFields());
-      ParquetReader<RowMetaAndData> reader =
-          new ParquetReaderBuilder<>(readSupport, inputFile).build();
+      data.reader = new ParquetReaderBuilder<>(readSupport, inputFile).build();
 
-      RowMetaAndData r = reader.read();
+      RowMetaAndData r = data.reader.read();
       while (r != null && !isStopped()) {
         // Add r to the input rows...
         //
         Object[] outputRow = RowDataUtil.addRowData(row, getInputRowMeta().size(), r.getData());
         putRow(data.outputRowMeta, outputRow);
-        r = reader.read();
+        r = data.reader.read();
       }
     } catch (Exception e) {
       throw new HopException("Error read file " + filename, e);
     }
 
     return true;
+  }
+
+  public void closeFile() {
+    if (!data.readerClosed) {
+      try {
+        data.reader.close();
+        data.inputStream.close();
+      } catch (IOException e) {
+        logError("Unable to properly close parquet reader!");
+      }
+      data.readerClosed = true;
+    }
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
+
+    closeFile();
   }
 }
