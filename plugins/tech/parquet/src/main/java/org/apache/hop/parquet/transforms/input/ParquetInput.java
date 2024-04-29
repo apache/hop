@@ -18,7 +18,7 @@
 package org.apache.hop.parquet.transforms.input;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.RowMetaAndData;
@@ -29,14 +29,8 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.parquet.hadoop.ParquetReader;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
-public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputData>
-{
+public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputData> {
   public ParquetInput(
       TransformMeta transformMeta,
       ParquetInputMeta meta,
@@ -90,8 +84,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
       ParquetStream inputFile = new ParquetStream(outputStream.toByteArray(), filename);
 
       ParquetReadSupport readSupport = new ParquetReadSupport(meta.getFields());
-      data.reader =
-          new ParquetReaderBuilder<>(readSupport, inputFile).build();
+      data.reader = new ParquetReaderBuilder<>(readSupport, inputFile).build();
 
       RowMetaAndData r = data.reader.read();
       while (r != null && !isStopped()) {
@@ -110,13 +103,13 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
 
   public void closeFile() {
     if (!data.readerClosed) {
-        try {
-            data.reader.close();
-            data.inputStream.close();
-        } catch (IOException e) {
-            logError("Unable to properly close parquet reader!");
-        }
-        data.readerClosed = true;
+      try {
+        data.reader.close();
+        data.inputStream.close();
+      } catch (IOException e) {
+        logError("Unable to properly close parquet reader!");
+      }
+      data.readerClosed = true;
     }
   }
 
