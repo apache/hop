@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.gettablenames;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -377,59 +378,67 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
   @Override
   public boolean init() {
 
-    if (!super.init()) {
-      return false;
-    }
-    if (Utils.isEmpty(meta.getTableNameFieldName())) {
-      logError(BaseMessages.getString(PKG, "GetTableNames.Error.TableNameFieldNameMissing"));
-      return false;
-    }
-    String realSchemaName = resolve(meta.getSchemaName());
-    if (!Utils.isEmpty(realSchemaName)) {
-      data.realSchemaName = realSchemaName;
-    }
-    data.realTableNameFieldName = resolve(meta.getTableNameFieldName());
-    data.realObjectTypeFieldName = resolve(meta.getObjectTypeFieldName());
-    data.realIsSystemObjectFieldName = resolve(meta.isSystemObjectFieldName());
-    data.realSqlCreationFieldName = resolve(meta.getSqlCreationFieldName());
-    if (!meta.isIncludeCatalog()
-        && !meta.isIncludeSchema()
-        && !meta.isIncludeTable()
-        && !meta.isIncludeView()
-        && !meta.isIncludeProcedure()
-        && !meta.isIncludeSynonym()) {
-      logError(BaseMessages.getString(PKG, "GetTableNames.Error.IncludeAtLeastOneType"));
-      return false;
-    }
+    if (super.init()) {
 
-    try {
-      // Create the output row meta-data
-      data.outputRowMeta = new RowMeta();
-      meta.getFields(
-          data.outputRowMeta, getTransformName(), null, null, this, metadataProvider); // get the
-      // metadata
-      // populated
-    } catch (Exception e) {
-      logError("Error initializing transform: " + e.toString());
-      logError(Const.getStackTracker(e));
-      return false;
-    }
-
-    data.db = new Database(this, this, meta.getDatabase());
-    try {
-      data.db.connect();
-
-      if (log.isDetailed()) {
-        logDetailed(BaseMessages.getString(PKG, "GetTableNames.Log.ConnectedToDB"));
+      DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+      if (databaseMeta == null) {
+        logError(BaseMessages.getString(PKG, "GetTableNames.Error.InvalidConnection"));
+        return false;
       }
 
-      return true;
-    } catch (HopException e) {
-      logError(BaseMessages.getString(PKG, "GetTableNames.Log.DBException") + e.getMessage());
-      if (data.db != null) {
-        data.db.disconnect();
+      if (Utils.isEmpty(meta.getTableNameFieldName())) {
+        logError(BaseMessages.getString(PKG, "GetTableNames.Error.TableNameFieldNameMissing"));
+        return false;
+      }
+
+      String realSchemaName = resolve(meta.getSchemaName());
+      if (!Utils.isEmpty(realSchemaName)) {
+        data.realSchemaName = realSchemaName;
+      }
+      data.realTableNameFieldName = resolve(meta.getTableNameFieldName());
+      data.realObjectTypeFieldName = resolve(meta.getObjectTypeFieldName());
+      data.realIsSystemObjectFieldName = resolve(meta.isSystemObjectFieldName());
+      data.realSqlCreationFieldName = resolve(meta.getSqlCreationFieldName());
+      if (!meta.isIncludeCatalog()
+          && !meta.isIncludeSchema()
+          && !meta.isIncludeTable()
+          && !meta.isIncludeView()
+          && !meta.isIncludeProcedure()
+          && !meta.isIncludeSynonym()) {
+        logError(BaseMessages.getString(PKG, "GetTableNames.Error.IncludeAtLeastOneType"));
+        return false;
+      }
+
+      try {
+        // Create the output row meta-data
+        data.outputRowMeta = new RowMeta();
+        meta.getFields(
+            data.outputRowMeta, getTransformName(), null, null, this, metadataProvider); // get
+        // the
+        // metadata
+        // populated
+      } catch (Exception e) {
+        logError("Error initializing transform: " + e.toString());
+        logError(Const.getStackTracker(e));
+        return false;
+      }
+
+      data.db = new Database(this, variables, databaseMeta);
+      try {
+        data.db.connect();
+        if (log.isDetailed()) {
+          logDetailed(BaseMessages.getString(PKG, "GetTableNames.Log.ConnectedToDB"));
+        }
+
+        return true;
+      } catch (HopException e) {
+        logError(BaseMessages.getString(PKG, "GetTableNames.Log.DBException") + e.getMessage());
+        if (data.db != null) {
+          data.db.disconnect();
+        }
       }
     }
+
     return false;
   }
 

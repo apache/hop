@@ -51,13 +51,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTableNamesData> {
   private static final Class<?> PKG = GetTableNamesMeta.class; // For Translator
 
-  /** database connection */
+  /** The database connection */
   @HopMetadataProperty(
-      storeWithName = true,
       key = "connection",
       injectionKey = "CONNECTIONNAME",
       injectionKeyDescription = "GetTableNames.Injection.CONNECTION_NAME")
-  private DatabaseMeta database;
+  private String connection;
 
   @HopMetadataProperty(
       key = "schemaname",
@@ -150,7 +149,7 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
 
   public GetTableNamesMeta(GetTableNamesMeta m) {
     this();
-    this.database = m.database == null ? null : new DatabaseMeta(m.database);
+    this.connection = m.connection;
     this.schemaName = m.schemaName;
     this.tableNameFieldName = m.tableNameFieldName;
     this.sqlCreationFieldName = m.sqlCreationFieldName;
@@ -174,7 +173,7 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
 
   @Override
   public void setDefault() {
-    database = null;
+    connection = null;
     schemaName = null;
     includeCatalog = false;
     includeSchema = false;
@@ -247,9 +246,16 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
     CheckResult cr;
     String errorMessage = "";
 
-    if (database == null) {
-      errorMessage = BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.InvalidConnection");
-      cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+    if (databaseMeta == null) {
+      cr =
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  PKG,
+                  "GetTableNamesMeta.CheckResult.InvalidConnection",
+                  variables.resolve(connection)),
+              transformMeta);
       remarks.add(cr);
     }
     if (Utils.isEmpty(tableNameFieldName)) {
@@ -262,6 +268,17 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
           BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.TableNameFieldNameOK");
       cr = new CheckResult(ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta);
       remarks.add(cr);
+    }
+
+    if (!isIncludeCatalog()
+        && !isIncludeSchema()
+        && !isIncludeTable()
+        && !isIncludeView()
+        && !isIncludeProcedure()
+        && !isIncludeSynonym()) {
+      errorMessage =
+          BaseMessages.getString(PKG, "GetTableNamesMeta.CheckResult.IncludeAtLeastOneType");
+      remarks.add(new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta));
     }
 
     // See if we have input streams leading to this transform!
@@ -287,18 +304,12 @@ public class GetTableNamesMeta extends BaseTransformMeta<GetTableNames, GetTable
     return true;
   }
 
-  /**
-   * @return Returns the database.
-   */
-  public DatabaseMeta getDatabase() {
-    return database;
+  public String getConnection() {
+    return connection;
   }
 
-  /**
-   * @param database The database to set.
-   */
-  public void setDatabase(DatabaseMeta database) {
-    this.database = database;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**
