@@ -239,7 +239,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     wIncludeCatalog = new Button(wSettings, SWT.CHECK);
     PropsUi.setLook(wIncludeCatalog);
     wIncludeCatalog.setToolTipText(
-        BaseMessages.getString(PKG, "GetCatalogNamesDialog.IncludeCatalog.Tooltip"));
+        BaseMessages.getString(PKG, "GetTableNamesDialog.IncludeCatalog.Tooltip"));
     FormData fdIncludeCatalog = new FormData();
     fdIncludeCatalog.left = new FormAttachment(middle, -margin);
     fdIncludeCatalog.top = new FormAttachment(wlIncludeCatalog, 0, SWT.CENTER);
