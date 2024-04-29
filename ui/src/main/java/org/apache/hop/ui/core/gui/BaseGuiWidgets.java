@@ -220,7 +220,7 @@ public class BaseGuiWidgets {
                 + listenerClassName
                 + " : "
                 + exception.getMessage(),
-            e);
+            exception);
       }
     };
   }
