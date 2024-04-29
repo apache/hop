@@ -532,7 +532,7 @@ public class TextFileInputMeta
     content.nrLinesDocHeader = 0;
     content.fileCompression = "None";
     content.noEmptyLines = true;
-    content.fileFormat = "DOS";
+    content.fileFormat = "mixed";
     content.fileType = "CSV";
     content.includeFilename = false;
     content.filenameField = "";
