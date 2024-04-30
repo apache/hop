@@ -17,14 +17,13 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.util.DataSetConst;
-
-import java.util.Map;
 
 @ExtensionPoint(
     id = "TestingVariablesControlSpaceSortOrderPrefix",

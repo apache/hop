@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -39,8 +40,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "MailInput",
@@ -382,7 +381,9 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     this.includesubfolders = includesubfolders;
   }
 
-  /** @return Returns the useproxy. */
+  /**
+   * @return Returns the useproxy.
+   */
   public boolean isUseProxy() {
     return this.useproxy;
   }
@@ -399,7 +400,9 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     return this.proxyusername;
   }
 
-  /** @return Returns the usedynamicfolder. */
+  /**
+   * @return Returns the usedynamicfolder.
+   */
   public boolean isDynamicFolder() {
     return this.usedynamicfolder;
   }
@@ -552,27 +555,37 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     this.valueimaplist = value;
   }
 
-  /** @return Returns the input fields. */
+  /**
+   * @return Returns the input fields.
+   */
   public MailInputField[] getInputFields() {
     return inputFields;
   }
 
-  /** @param inputFields The input fields to set. */
+  /**
+   * @param inputFields The input fields to set.
+   */
   public void setInputFields(MailInputField[] inputFields) {
     this.inputFields = inputFields;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
 
-  /** @param delete The delete to set. */
+  /**
+   * @param delete The delete to set.
+   */
   public void setDelete(boolean delete) {
     this.delete = delete;
   }
 
-  /** @return Returns the delete. */
+  /**
+   * @return Returns the delete.
+   */
   public boolean getDelete() {
     return delete;
   }
@@ -593,21 +606,24 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     this.imapfolder = folder;
   }
 
-  /** @param usessl The usessl to set. */
+  /**
+   * @param usessl The usessl to set.
+   */
   public void setUseSSL(boolean usessl) {
     this.usessl = usessl;
   }
 
-  /** @return Returns the usessl. */
+  /**
+   * @return Returns the usessl.
+   */
   public boolean isUseSSL() {
     return usessl;
   }
 
   /**
-   * @param usexoauth2
-   *          The usexoauth2 to set.
+   * @param usexoauth2 The usexoauth2 to set.
    */
-  public void setUseXOAUTH2( boolean usexoauth2 ) {
+  public void setUseXOAUTH2(boolean usexoauth2) {
     this.usexoauth2 = usexoauth2;
   }
 
@@ -618,7 +634,9 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     return usexoauth2;
   }
 
-  /** @param password The password to set. */
+  /**
+   * @param password The password to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }

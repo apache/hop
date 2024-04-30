@@ -16,9 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
-import org.apache.hop.i18n.BaseMessages;
-
 import java.util.regex.Pattern;
+import org.apache.hop.i18n.BaseMessages;
 
 public class MonetDbVersion implements Comparable<MonetDbVersion> {
   private static final Class<?> PKG =
@@ -87,17 +86,23 @@ public class MonetDbVersion implements Comparable<MonetDbVersion> {
     parseVersion(productVersion);
   }
 
-  /** @return the minorVersion */
+  /**
+   * @return the minorVersion
+   */
   public Integer getMinorVersion() {
     return minorVersion;
   }
 
-  /** @return the majorVersion */
+  /**
+   * @return the majorVersion
+   */
   public Integer getMajorVersion() {
     return majorVersion;
   }
 
-  /** @return the patchVersion */
+  /**
+   * @return the patchVersion
+   */
   public Integer getPatchVersion() {
     return patchVersion;
   }

@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file.workflow;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.file.IHasFilename;
@@ -42,11 +46,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.start.ActionStart;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
 @HopFileTypePlugin(
     id = "HopFile-Workflow-Plugin",

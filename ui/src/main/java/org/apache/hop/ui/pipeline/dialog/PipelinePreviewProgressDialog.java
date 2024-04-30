@@ -86,7 +86,7 @@ public class PipelinePreviewProgressDialog {
   public PipelineMeta open(final boolean showErrorDialogs) {
     final HopGui hopGui = HopGui.getInstance();
 
-    if(!EnvironmentUtils.getInstance().isWeb()){
+    if (!EnvironmentUtils.getInstance().isWeb()) {
       IRunnableWithProgress op = monitor -> doPreview(hopGui, monitor, showErrorDialogs);
 
       try {
@@ -94,26 +94,26 @@ public class PipelinePreviewProgressDialog {
 
         // Run something in the background to cancel active database queries, force this if needed!
         Runnable run =
-                () -> {
-                  IProgressMonitor monitor = pmd.getProgressMonitor();
-                  while (pmd.getShell() == null
-                          || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-                    try {
-                      Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                      // Ignore
-                    }
-                  }
+            () -> {
+              IProgressMonitor monitor = pmd.getProgressMonitor();
+              while (pmd.getShell() == null
+                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  // Ignore
+                }
+              }
 
-                  if (monitor.isCanceled()) { // Disconnect and see what happens!
+              if (monitor.isCanceled()) { // Disconnect and see what happens!
 
-                    try {
-                      pipeline.stopAll();
-                    } catch (Exception e) {
-                      /* Ignore */
-                    }
-                  }
-                };
+                try {
+                  pipeline.stopAll();
+                } catch (Exception e) {
+                  /* Ignore */
+                }
+              }
+            };
 
         // Start the cancel tracker in the background!
         new Thread(run).start();
@@ -122,19 +122,19 @@ public class PipelinePreviewProgressDialog {
       } catch (InvocationTargetException | InterruptedException e) {
         if (showErrorDialogs) {
           new ErrorDialog(
-                  shell,
-                  BaseMessages.getString(
-                          PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogTitle"),
-                  BaseMessages.getString(
-                          PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogMessage"),
-                  e);
+              shell,
+              BaseMessages.getString(
+                  PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogTitle"),
+              BaseMessages.getString(
+                  PKG, "PipelinePreviewProgressDialog.ErrorLoadingPipeline.DialogMessage"),
+              e);
         }
         pipelineMeta = null;
       }
-    }else{
-        Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-        shell.setCursor(cursor);
-        doPreview(hopGui, null, showErrorDialogs);
+    } else {
+      Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+      shell.setCursor(cursor);
+      doPreview(hopGui, null, showErrorDialogs);
     }
 
     return pipelineMeta;
@@ -142,9 +142,10 @@ public class PipelinePreviewProgressDialog {
 
   private void doPreview(
       final HopGui hopGui, final IProgressMonitor progressMonitor, final boolean showErrorDialogs) {
-    if(progressMonitor != null){
+    if (progressMonitor != null) {
       progressMonitor.beginTask(
-              BaseMessages.getString(PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title"), 100);
+          BaseMessages.getString(PKG, "PipelinePreviewProgressDialog.Monitor.BeginTask.Title"),
+          100);
     }
 
     // This pipeline is ready to run in preview!
@@ -174,8 +175,8 @@ public class PipelinePreviewProgressDialog {
       // It makes no sense to continue, so just stop running...
       //
       if (progressMonitor != null && !progressMonitor.isCanceled()) {
-          progressMonitor.done();
-        }
+        progressMonitor.done();
+      }
       return;
     }
 
@@ -200,12 +201,12 @@ public class PipelinePreviewProgressDialog {
         (pipelineDebugMeta, transformDebugMeta, rowBufferMeta, rowBuffer) -> {
           String transformName = transformDebugMeta.getTransformMeta().getName();
           previewComplete.add(transformName);
-          if(progressMonitor != null){
+          if (progressMonitor != null) {
             progressMonitor.subTask(
-                    BaseMessages.getString(
-                            PKG,
-                            "PipelinePreviewProgressDialog.SubTask.TransformPreviewFinished",
-                            transformName));
+                BaseMessages.getString(
+                    PKG,
+                    "PipelinePreviewProgressDialog.SubTask.TransformPreviewFinished",
+                    transformName));
           }
         });
     // set the appropriate listeners on the pipeline...
@@ -251,7 +252,7 @@ public class PipelinePreviewProgressDialog {
       int worked = pct - previousPct;
 
       if (progressMonitor != null && (worked > 0)) {
-          progressMonitor.worked(worked);
+        progressMonitor.worked(worked);
       }
       previousPct = pct;
 
@@ -276,7 +277,7 @@ public class PipelinePreviewProgressDialog {
             .getBuffer(pipeline.getLogChannel().getLogChannelId(), true)
             .toString();
 
-    if(progressMonitor != null){
+    if (progressMonitor != null) {
       progressMonitor.done();
     }
   }
@@ -319,22 +320,30 @@ public class PipelinePreviewProgressDialog {
     return null;
   }
 
-  /** @return true is the preview was canceled by the user */
+  /**
+   * @return true is the preview was canceled by the user
+   */
   public boolean isCancelled() {
     return cancelled;
   }
 
-  /** @return The logging text from the latest preview run */
+  /**
+   * @return The logging text from the latest preview run
+   */
   public String getLoggingText() {
     return loggingText;
   }
 
-  /** @return The pipeline object that executed the preview PipelineMeta */
+  /**
+   * @return The pipeline object that executed the preview PipelineMeta
+   */
   public Pipeline getPipeline() {
     return pipeline;
   }
 
-  /** @return the pipelineDebugMeta */
+  /**
+   * @return the pipelineDebugMeta
+   */
   public PipelineDebugMeta getPipelineDebugMeta() {
     return pipelineDebugMeta;
   }

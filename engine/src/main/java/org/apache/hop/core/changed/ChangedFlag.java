@@ -18,7 +18,6 @@
 package org.apache.hop.core.changed;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;

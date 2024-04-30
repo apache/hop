@@ -17,6 +17,13 @@
 
 package org.apache.hop.ui.hopgui.perspective.execution;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -81,14 +88,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.w3c.dom.Node;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "150-HopExecutionPerspective",
@@ -465,9 +464,9 @@ public class ExecutionPerspective implements IHopPerspective, TabClosable {
       IExecutionInfoLocation iLocation = location.getExecutionInfoLocation();
 
       Execution execution = iLocation.findLastExecution(executionType, name);
-      
-      // Ignore if never executed 
-      if ( execution!=null ) {
+
+      // Ignore if never executed
+      if (execution != null) {
         ExecutionState executionState = iLocation.getExecutionState(execution.getId());
         createExecutionViewer(location.getName(), execution, executionState);
       }

@@ -61,7 +61,9 @@ public class BQField {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -75,7 +77,9 @@ public class BQField {
     return newName;
   }
 
-  /** @param newName The newName to set */
+  /**
+   * @param newName The newName to set
+   */
   public void setNewName(String newName) {
     this.newName = newName;
   }
@@ -89,7 +93,9 @@ public class BQField {
     return hopType;
   }
 
-  /** @param hopType The hopType to set */
+  /**
+   * @param hopType The hopType to set
+   */
   public void setHopType(String hopType) {
     this.hopType = hopType;
   }

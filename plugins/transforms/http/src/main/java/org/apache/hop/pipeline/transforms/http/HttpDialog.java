@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -60,10 +63,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
-
 public class HttpDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = HttpMeta.class; // For Translator
 
@@ -105,7 +104,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
   private ColumnInfo[] colinfHeaders;
 
   private final List<String> inputFields = new ArrayList<>();
-  
+
   private boolean gotEncodings = false;
 
   private TextVar wConnectionTimeOut;
@@ -117,7 +116,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
   public HttpDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (HttpMeta) in;  
+    input = (HttpMeta) in;
   }
 
   @Override
@@ -167,9 +166,9 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     // START Settings GROUP
 
     Group gSettings = setupSettingGroup(wGeneralComp);
-    lastControl = setupUrlLine(lsMod,  lastControl, gSettings);
-    lastControl = setupUrlInFieldLine( lastControl, gSettings);
-    lastControl = setupIgnoreSslLine (lastControl, gSettings);
+    lastControl = setupUrlLine(lsMod, lastControl, gSettings);
+    lastControl = setupUrlInFieldLine(lastControl, gSettings);
+    lastControl = setupIgnoreSslLine(lastControl, gSettings);
     lastControl = setupUrlFieldNameLine(lsMod, lastControl, gSettings);
     lastControl = setupEncodingLine(lsMod, lastControl, gSettings);
     setupConnectionTimeoutLine(lsMod, gSettings);
@@ -261,7 +260,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     wAdditionalComp.setLayout(addLayout);
     PropsUi.setLook(wAdditionalComp);
 
-    setupParamBlock(lsMod,lastControl, wAdditionalComp);
+    setupParamBlock(lsMod, lastControl, wAdditionalComp);
     setupHeadBlock(lsMod, wAdditionalComp);
 
     //
@@ -374,7 +373,8 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     wHeaders.setLayoutData(fdHeaders);
   }
 
-  private void setupParamBlock(ModifyListener lsMod, Control lastControl, Composite wAdditionalComp) {
+  private void setupParamBlock(
+      ModifyListener lsMod, Control lastControl, Composite wAdditionalComp) {
     int margin = props.getMargin();
     Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "HTTPDialog.Parameters.Label"));
@@ -612,7 +612,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     wResultCode.setLayoutData(fdResultCode);
   }
 
-  private void setupResultLine(ModifyListener lsMod,  Control lastControl, Group gOutputFields) {
+  private void setupResultLine(ModifyListener lsMod, Control lastControl, Group gOutputFields) {
     // Result line...
     //
     int margin = props.getMargin();
@@ -755,7 +755,8 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     return lastControl;
   }
 
-  private Control setupUrlFieldNameLine(ModifyListener lsMod, Control lastControl, Group gSettings) {
+  private Control setupUrlFieldNameLine(
+      ModifyListener lsMod, Control lastControl, Group gSettings) {
     // UrlField Line
     //
     int margin = props.getMargin();
@@ -861,7 +862,8 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     return lastControl;
   }
 
-  private Control setupUrlLine(ModifyListener lsMod, Control transformNameControl, Group gSettings) {
+  private Control setupUrlLine(
+      ModifyListener lsMod, Control transformNameControl, Group gSettings) {
     // The URL to use
     //
     int margin = props.getMargin();
@@ -1057,7 +1059,6 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
       logDebug(
           BaseMessages.getString(PKG, "HTTPDialog.Log.FoundArguments", String.valueOf(nrargs)));
     }
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrargs; i++) {
       TableItem item = wFields.getNonEmpty(i);
       input.getArgumentField()[i] = item.getText(1);
@@ -1068,7 +1069,6 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
       logDebug(
           BaseMessages.getString(PKG, "HTTPDialog.Log.FoundHeaders", String.valueOf(nrheaders)));
     }
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrheaders; i++) {
       TableItem item = wHeaders.getNonEmpty(i);
       input.getHeaderField()[i] = item.getText(1);

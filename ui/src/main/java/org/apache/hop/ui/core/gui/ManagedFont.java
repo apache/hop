@@ -54,22 +54,30 @@ public class ManagedFont {
     }
   }
 
-  /** @return Returns the font. */
+  /**
+   * @return Returns the font.
+   */
   public Font getFont() {
     return font;
   }
 
-  /** @return true if this is a system font. */
+  /**
+   * @return true if this is a system font.
+   */
   public boolean isSystemFont() {
     return systemFont;
   }
 
-  /** @param font the font to set */
+  /**
+   * @param font the font to set
+   */
   public void setFont(Font font) {
     this.font = font;
   }
 
-  /** @param systemFont the systemFont to set */
+  /**
+   * @param systemFont the systemFont to set
+   */
   public void setSystemFont(boolean systemFont) {
     this.systemFont = systemFont;
   }

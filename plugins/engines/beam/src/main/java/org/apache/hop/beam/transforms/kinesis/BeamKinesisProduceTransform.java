@@ -18,6 +18,9 @@
 package org.apache.hop.beam.transforms.kinesis;
 
 import com.amazonaws.regions.Regions;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 import org.apache.beam.sdk.io.kinesis.KinesisIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -35,10 +38,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>, PDone> {
 
@@ -124,12 +123,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
       // Convert to PCollection of KV<String, byte[]>
       //
       PCollection<byte[]> messages =
-          input.apply(
-              ParDo.of(
-                  new HopRowToMessage(
-                      transformName,
-                      rowMetaJson,
-                      messageIndex)));
+          input.apply(ParDo.of(new HopRowToMessage(transformName, rowMetaJson, messageIndex)));
 
       // Write to Kinesis stream with <String, byte[]>
       //
@@ -159,10 +153,7 @@ public class BeamKinesisProduceTransform extends PTransform<PCollection<HopRow>,
     private transient Counter outputCounter;
     private transient Counter readCounter;
 
-    public HopRowToMessage(
-        String transformName,
-        String rowMetaJson,
-        int messageIndex) {
+    public HopRowToMessage(String transformName, String rowMetaJson, int messageIndex) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
       this.messageIndex = messageIndex;

@@ -18,6 +18,9 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -39,10 +42,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.databaselookup.readallcache.ReadAllCache;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /** Looks up values in a database using keys from input streams. */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> {
@@ -170,8 +169,12 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       for (int i : data.trimIndexes) {
         IValueMeta expected = data.returnMeta.getValueMeta(i);
         add[i] =
-                expected.convertDataFromString(
-                        (String) add[i], expected, "", "", ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i]));
+            expected.convertDataFromString(
+                (String) add[i],
+                expected,
+                "",
+                "",
+                ValueMetaBase.getTrimTypeByCode(data.returnTrimTypes[i]));
       }
 
       // Only verify the data types if the data comes from the DB, NOT when we have a cache hit

@@ -17,12 +17,11 @@
 
 package org.apache.hop.ui.core.widget.text;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 
 public class UrlFormatRule extends FormatRule {
   private static final int LINK_TEXT = 0;

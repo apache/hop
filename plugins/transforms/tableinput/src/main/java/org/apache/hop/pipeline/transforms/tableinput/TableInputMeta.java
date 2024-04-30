@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -48,8 +49,6 @@ import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "TableInput",
     image = "tableinput.svg",
@@ -59,7 +58,6 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/tableinput.html",
     keywords = "i18n::TableInputMeta.keyword")
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
-
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
@@ -85,32 +83,44 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     super();
   }
 
-  /** @return Returns true if the transform should be run per row */
+  /**
+   * @return Returns true if the transform should be run per row
+   */
   public boolean isExecuteEachInputRow() {
     return executeEachInputRow;
   }
 
-  /** @param oncePerRow true if the transform should be run per row */
+  /**
+   * @param oncePerRow true if the transform should be run per row
+   */
   public void setExecuteEachInputRow(boolean oncePerRow) {
     this.executeEachInputRow = oncePerRow;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public String getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(String rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return Returns the sql. */
+  /**
+   * @return Returns the sql.
+   */
   public String getSql() {
     return sql;
   }
 
-  /** @param sql The sql to set. */
+  /**
+   * @param sql The sql to set.
+   */
   public void setSql(String sql) {
     this.sql = sql;
   }
@@ -412,13 +422,14 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     }
   }
 
-  /** @param transforms optionally search the info transform in a list of transforms */
+  /**
+   * @param transforms optionally search the info transform in a list of transforms
+   */
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     List<IStream> infoStreams = getTransformIOMeta().getInfoStreams();
     for (IStream stream : infoStreams) {
-      stream.setTransformMeta(
-          TransformMeta.findTransform(transforms, stream.getSubject()));
+      stream.setTransformMeta(TransformMeta.findTransform(transforms, stream.getSubject()));
     }
   }
 
@@ -470,12 +481,16 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
     }
   }
 
-  /** @return Returns the variableReplacementActive. */
+  /**
+   * @return Returns the variableReplacementActive.
+   */
   public boolean isVariableReplacementActive() {
     return variableReplacementActive;
   }
 
-  /** @param variableReplacementActive The variableReplacementActive to set. */
+  /**
+   * @param variableReplacementActive The variableReplacementActive to set.
+   */
   public void setVariableReplacementActive(boolean variableReplacementActive) {
     this.variableReplacementActive = variableReplacementActive;
   }

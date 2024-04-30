@@ -17,6 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.cypher;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 import org.apache.hop.neo4j.shared.NeoConnection;
@@ -25,9 +27,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.Transaction;
-
-import java.util.List;
-import java.util.Map;
 
 public class CypherData extends BaseTransformData implements ITransformData {
 

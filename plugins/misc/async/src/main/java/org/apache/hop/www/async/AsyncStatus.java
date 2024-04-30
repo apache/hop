@@ -18,13 +18,12 @@
 package org.apache.hop.www.async;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.apache.hop.www.HopServerPipelineStatus;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.www.HopServerPipelineStatus;
 
 public class AsyncStatus {
   private String service;
@@ -58,7 +57,9 @@ public class AsyncStatus {
     return service;
   }
 
-  /** @param service The service to set */
+  /**
+   * @param service The service to set
+   */
   public void setService(String service) {
     this.service = service;
   }
@@ -72,7 +73,9 @@ public class AsyncStatus {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -86,7 +89,9 @@ public class AsyncStatus {
     return logDate;
   }
 
-  /** @param logDate The logDate to set */
+  /**
+   * @param logDate The logDate to set
+   */
   public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }
@@ -100,7 +105,9 @@ public class AsyncStatus {
     return startDate;
   }
 
-  /** @param startDate The startDate to set */
+  /**
+   * @param startDate The startDate to set
+   */
   public void setStartDate(Date startDate) {
     this.startDate = startDate;
   }
@@ -114,7 +121,9 @@ public class AsyncStatus {
     return endDate;
   }
 
-  /** @param endDate The endDate to set */
+  /**
+   * @param endDate The endDate to set
+   */
   public void setEndDate(Date endDate) {
     this.endDate = endDate;
   }
@@ -128,7 +137,9 @@ public class AsyncStatus {
     return statusDescription;
   }
 
-  /** @param statusDescription The statusDescription to set */
+  /**
+   * @param statusDescription The statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
@@ -142,7 +153,9 @@ public class AsyncStatus {
     return statusVariables;
   }
 
-  /** @param statusVariables The statusVariables to set */
+  /**
+   * @param statusVariables The statusVariables to set
+   */
   public void setStatusVariables(Map<String, String> statusVariables) {
     this.statusVariables = statusVariables;
   }
@@ -156,7 +169,9 @@ public class AsyncStatus {
     return pipelineStatuses;
   }
 
-  /** @param pipelineStatuses The pipelineStatuses to set */
+  /**
+   * @param pipelineStatuses The pipelineStatuses to set
+   */
   public void setPipelineStatuses(List<HopServerPipelineStatus> pipelineStatuses) {
     this.pipelineStatuses = pipelineStatuses;
   }

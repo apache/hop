@@ -18,10 +18,9 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder.operation;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Parameter;
-
-import java.util.List;
 
 public class MatchOperation extends BaseOperation {
   public MatchOperation() {
@@ -38,7 +37,8 @@ public class MatchOperation extends BaseOperation {
   }
 
   @Override
-  public String getCypherClause(String unwindAlias, List<Parameter> parameters) throws HopException {
+  public String getCypherClause(String unwindAlias, List<Parameter> parameters)
+      throws HopException {
     // MATCH
     StringBuilder cypher = new StringBuilder(operationType.keyWord());
     // (m:Movie

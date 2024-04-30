@@ -16,6 +16,27 @@
  */
 package org.apache.hop.base;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.changed.IHopObserver;
@@ -35,28 +56,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.CountDownLatch;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class AbstractMetaTest {
   AbstractMeta meta;
@@ -269,7 +268,6 @@ public class AbstractMetaTest {
     assertEquals(2, indexes.length);
   }
 
-
   @Test
   public void testAddDeleteModifyObserver() throws Exception {
     IHopObserver observer = mock(IHopObserver.class);
@@ -345,9 +343,7 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setName(String newName) {
-
-    }
+    public void setName(String newName) {}
 
     @Override
     public boolean isNameSynchronizedWithFilename() {
@@ -355,9 +351,7 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
-
-    }
+    public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {}
 
     @Override
     public String getDescription() {
@@ -365,9 +359,7 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setDescription(String description) {
-
-    }
+    public void setDescription(String description) {}
 
     @Override
     public String getExtendedDescription() {
@@ -375,9 +367,7 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setExtendedDescription(String extendedDescription) {
-
-    }
+    public void setExtendedDescription(String extendedDescription) {}
 
     // Reuse this method to set a mock internal variable variables
     @Override
@@ -395,14 +385,10 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setCreatedDate(Date createdDate) {
-
-    }
+    public void setCreatedDate(Date createdDate) {}
 
     @Override
-    public void setCreatedUser(String createdUser) {
-
-    }
+    public void setCreatedUser(String createdUser) {}
 
     @Override
     public String getCreatedUser() {
@@ -410,9 +396,7 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setModifiedDate(Date modifiedDate) {
-
-    }
+    public void setModifiedDate(Date modifiedDate) {}
 
     @Override
     public Date getModifiedDate() {
@@ -420,9 +404,7 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setModifiedUser(String modifiedUser) {
-
-    }
+    public void setModifiedUser(String modifiedUser) {}
 
     @Override
     public String getModifiedUser() {

@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
@@ -48,11 +52,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class ConfigurationDialog extends Dialog {
 
@@ -156,7 +155,9 @@ public abstract class ConfigurationDialog extends Dialog {
     dispose();
   }
 
-  /** @return True if all is OK. Returns false if there is an error in the configuration */
+  /**
+   * @return True if all is OK. Returns false if there is an error in the configuration
+   */
   public abstract boolean getInfo();
 
   protected void getParamsData() {
@@ -192,7 +193,9 @@ public abstract class ConfigurationDialog extends Dialog {
     wParams.optWidth(true);
   }
 
-  /** @param configuration the configuration to set */
+  /**
+   * @param configuration the configuration to set
+   */
   public void setConfiguration(IExecutionConfiguration configuration) {
     this.configuration = configuration;
   }
@@ -285,7 +288,10 @@ public abstract class ConfigurationDialog extends Dialog {
             false,
             null,
             PropsUi.getInstance(),
-            false, null, false, false);
+            false,
+            null,
+            false,
+            false);
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment(0, 0);
     fdParams.right = new FormAttachment(100, 0);
@@ -331,7 +337,10 @@ public abstract class ConfigurationDialog extends Dialog {
             false,
             null,
             PropsUi.getInstance(),
-            false, null, true, false);
+            false,
+            null,
+            true,
+            false);
 
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment(0, 0);

@@ -19,6 +19,11 @@ package org.apache.hop.pipeline.transforms.salesforceinsert;
 
 import com.sforce.soap.partner.Field;
 import com.sforce.soap.partner.FieldType;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -71,12 +76,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
@@ -548,7 +547,8 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
               setComboBoxes();
               // Dislay in red missing field names
-              HopGui.getInstance().getDisplay()
+              HopGui.getInstance()
+                  .getDisplay()
                   .asyncExec(
                       () -> {
                         if (!wReturn.isDisposed()) {
@@ -713,7 +713,6 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     meta.allocate(nrFields);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       meta.getUpdateLookup()[i] = item.getText(1);

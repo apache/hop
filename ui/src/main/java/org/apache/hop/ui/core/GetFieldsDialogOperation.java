@@ -17,9 +17,8 @@
 
 package org.apache.hop.ui.core;
 
-import org.eclipse.swt.widgets.Shell;
-
 import java.util.List;
+import org.eclipse.swt.widgets.Shell;
 
 public class GetFieldsDialogOperation {
   private Shell shell;

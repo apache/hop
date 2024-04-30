@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.config;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.Map;
+import org.apache.hop.core.exception.HopException;
 
 public interface IHopConfigSerializer {
 

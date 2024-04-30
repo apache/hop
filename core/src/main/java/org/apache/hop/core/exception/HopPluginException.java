@@ -34,12 +34,16 @@ public class HopPluginException extends HopException {
     super(message, cause);
   }
 
-  /** @param message */
+  /**
+   * @param message
+   */
   public HopPluginException(String message) {
     super(message);
   }
 
-  /** @param cause */
+  /**
+   * @param cause
+   */
   public HopPluginException(Throwable cause) {
     super(cause);
   }

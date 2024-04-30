@@ -43,7 +43,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-
 /** This dialog allows you to edit a Action Abort object. */
 public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionAbortDialog.class; // For Translator
@@ -151,8 +150,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, (Event e) -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, 0, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, 0, null);
 
     getData();
 

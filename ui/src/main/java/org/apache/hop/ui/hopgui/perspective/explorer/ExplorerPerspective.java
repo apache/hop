@@ -17,6 +17,13 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -90,14 +97,6 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @HopPerspectivePlugin(
     id = "300-HopExplorerPerspective",
@@ -506,22 +505,26 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
       TreeItemFolder tif = (TreeItemFolder) item.getData();
       if (tif != null && tif.fileType != null) {
         FileObject fileObject = HopVfs.getFileObject(tif.path);
-        
-        String header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
-        String message = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
-        if ( fileObject.isFolder() ) {
-          header = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header");
-          message = BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message");
+
+        String header =
+            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Header");
+        String message =
+            BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFile.Confirmation.Message");
+        if (fileObject.isFolder()) {
+          header =
+              BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Header");
+          message =
+              BaseMessages.getString(PKG, "ExplorerPerspective.DeleteFolder.Confirmation.Message");
         }
-        
+
         MessageBox box = new MessageBox(hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION);
         box.setText(header);
         box.setMessage(message + Const.CR + Const.CR + tif.path);
-        
+
         int answer = box.open();
         if ((answer & SWT.YES) != 0) {
           int deleted = fileObject.deleteAll();
-          if (deleted>0) {
+          if (deleted > 0) {
             refresh();
           }
         }
@@ -577,7 +580,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
 
       text.selectAll();
       text.setFocus();
-      PropsUi.setLook(text);      
+      PropsUi.setLook(text);
       treeEditor.setEditor(text, item);
     }
   }

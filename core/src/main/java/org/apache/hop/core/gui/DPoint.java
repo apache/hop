@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** A point but with double precision */
 public class DPoint {

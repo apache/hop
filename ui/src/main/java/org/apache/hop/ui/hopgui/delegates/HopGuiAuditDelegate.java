@@ -120,7 +120,8 @@ public class HopGuiAuditDelegate {
               }
             }
           } catch (Exception e) {
-            new ErrorDialog(hopGui.getActiveShell(), "Error", "Error opening file '" + filename + "'", e);
+            new ErrorDialog(
+                hopGui.getActiveShell(), "Error", "Error opening file '" + filename + "'", e);
           }
         }
 
@@ -178,7 +179,8 @@ public class HopGuiAuditDelegate {
 
   /** Remember all the open files per perspective */
   public void writeLastOpenFiles() {
-    // When we're re-opening files at the start of the Hop GUI, we don't need to save the open files list.
+    // When we're re-opening files at the start of the Hop GUI, we don't need to save the open files
+    // list.
     // Things get chaotic otherwise.
     //
     if (hopGui.isReOpeningFiles()) {

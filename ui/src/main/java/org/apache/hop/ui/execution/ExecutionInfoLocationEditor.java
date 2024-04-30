@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.execution;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -45,12 +50,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(description = "Editor for execution information location metadata")
 /**
@@ -254,8 +253,8 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     addGuiCompositeWidgets();
 
     FormData fdMainSComp = new FormData();
-    fdMainSComp.top = new FormAttachment(0,0);
-    fdMainSComp.left = new FormAttachment(0,0);
+    fdMainSComp.top = new FormAttachment(0, 0);
+    fdMainSComp.left = new FormAttachment(0, 0);
     fdMainSComp.right = new FormAttachment(95, 0);
     fdMainSComp.bottom = new FormAttachment(95, 0);
     wMainSComp.setLayoutData(fdMainSComp);

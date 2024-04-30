@@ -120,7 +120,6 @@ public final class ExecutionStateBuilder {
         addMetric(componentMetrics, engineMetrics, component, Pipeline.METRIC_BUFFER_OUT);
 
         builder.addMetrics(componentMetrics);
-
       }
     }
 

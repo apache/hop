@@ -18,19 +18,18 @@
 package org.apache.hop.core;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.xml.XmlHandler;
-import org.w3c.dom.Node;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.xml.XmlHandler;
+import org.w3c.dom.Node;
 
 /**
  * Describes the result of the execution of a Pipeline or a Job. The information available includes

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,9 +38,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "CheckSum",
@@ -345,7 +344,9 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<Field> fields) {
     this.fields = fields;
   }
@@ -359,7 +360,9 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     return resultFieldName;
   }
 
-  /** @param resultFieldName The resultFieldName to set */
+  /**
+   * @param resultFieldName The resultFieldName to set
+   */
   public void setResultFieldName(String resultFieldName) {
     this.resultFieldName = resultFieldName;
   }
@@ -373,7 +376,9 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     return checkSumType;
   }
 
-  /** @param checkSumType The checkSumType to set */
+  /**
+   * @param checkSumType The checkSumType to set
+   */
   public void setCheckSumType(CheckSumType checkSumType) {
     this.checkSumType = checkSumType;
   }
@@ -387,7 +392,9 @@ public class CheckSumMeta extends BaseTransformMeta<CheckSum, CheckSumData> {
     return resultType;
   }
 
-  /** @param resultType The resultType to set */
+  /**
+   * @param resultType The resultType to set
+   */
   public void setResultType(ResultType resultType) {
     this.resultType = resultType;
   }

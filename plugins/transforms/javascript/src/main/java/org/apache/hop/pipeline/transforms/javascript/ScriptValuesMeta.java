@@ -18,6 +18,12 @@
 package org.apache.hop.pipeline.transforms.javascript;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Properties;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -51,13 +57,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.math.BigDecimal;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
 
 @Transform(
     id = "ScriptValueMod",
@@ -840,7 +839,6 @@ public class ScriptValuesMeta extends BaseTransformMeta<ScriptValues, ScriptValu
       URL u = new URL("jar:file:" + strJar + "!/");
       // We never know what else the script wants to load with the class loader, so lets not close
       // it just like that.
-      @SuppressWarnings("resource")
       HopURLClassLoader kl = new HopURLClassLoader(new URL[] {u}, cl);
       Class<?> toRun = kl.loadClass(strClassName);
       return toRun;

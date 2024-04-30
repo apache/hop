@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class HttpPostLookupField {
 

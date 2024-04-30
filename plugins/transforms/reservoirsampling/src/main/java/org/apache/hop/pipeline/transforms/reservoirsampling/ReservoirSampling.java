@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.pipeline.Pipeline;
@@ -24,9 +26,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingData.PROC_MODE;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, ReservoirSamplingData> {
 

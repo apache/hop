@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.database.Database;
@@ -43,8 +44,6 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /** Dialog to display the results of an SQL generation operation. */
 public class SqlStatementsDialog extends Dialog {

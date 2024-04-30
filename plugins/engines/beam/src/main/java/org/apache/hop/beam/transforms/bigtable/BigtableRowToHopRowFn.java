@@ -22,6 +22,10 @@ import com.google.bigtable.v2.Column;
 import com.google.bigtable.v2.Family;
 import com.google.bigtable.v2.Row;
 import com.google.protobuf.Descriptors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -38,11 +42,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
   private final String counterName;
@@ -62,10 +61,7 @@ public class BigtableRowToHopRowFn extends DoFn<Row, HopRow> {
   private static final Logger LOG = LoggerFactory.getLogger(HopToBigtableFn.class);
 
   public BigtableRowToHopRowFn(
-      String counterName,
-      String rowMetaJson,
-      String keyField,
-      String columnsJson) {
+      String counterName, String rowMetaJson, String keyField, String columnsJson) {
     this.counterName = counterName;
     this.rowMetaJson = rowMetaJson;
     this.keyField = keyField;

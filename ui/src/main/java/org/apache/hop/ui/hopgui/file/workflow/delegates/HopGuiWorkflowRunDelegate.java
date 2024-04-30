@@ -18,6 +18,10 @@
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -35,11 +39,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class HopGuiWorkflowRunDelegate {
   private static final Class<?> PKG = HopGui.class; // For Translator
 
@@ -54,7 +53,9 @@ public class HopGuiWorkflowRunDelegate {
    */
   private List<WorkflowMeta> workflowMap;
 
-  /** @param hopGui */
+  /**
+   * @param hopGui
+   */
   public HopGuiWorkflowRunDelegate(HopGui hopGui, HopGuiWorkflowGraph workflowGraph) {
     this.hopGui = hopGui;
     this.workflowGraph = workflowGraph;
@@ -150,7 +151,9 @@ public class HopGuiWorkflowRunDelegate {
     return workflowGraph;
   }
 
-  /** @param workflowGraph The workflowGraph to set */
+  /**
+   * @param workflowGraph The workflowGraph to set
+   */
   public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -164,7 +167,9 @@ public class HopGuiWorkflowRunDelegate {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -178,7 +183,9 @@ public class HopGuiWorkflowRunDelegate {
     return workflowExecutionConfiguration;
   }
 
-  /** @param workflowExecutionConfiguration The workflowExecutionConfiguration to set */
+  /**
+   * @param workflowExecutionConfiguration The workflowExecutionConfiguration to set
+   */
   public void setWorkflowExecutionConfiguration(
       WorkflowExecutionConfiguration workflowExecutionConfiguration) {
     this.workflowExecutionConfiguration = workflowExecutionConfiguration;
@@ -193,7 +200,9 @@ public class HopGuiWorkflowRunDelegate {
     return workflowMap;
   }
 
-  /** @param jobMap The workflowMap to set */
+  /**
+   * @param jobMap The workflowMap to set
+   */
   public void setWorkflowMap(List<WorkflowMeta> jobMap) {
     this.workflowMap = jobMap;
   }

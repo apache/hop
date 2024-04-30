@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.w3c.dom.Element;
-
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.schema.Schema;
 import java.util.HashMap;
 import java.util.List;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
+import org.w3c.dom.Element;
 
 /** Represents a map of all named complex types in the WSDL. */
 public final class WsdlComplexTypes implements java.io.Serializable {

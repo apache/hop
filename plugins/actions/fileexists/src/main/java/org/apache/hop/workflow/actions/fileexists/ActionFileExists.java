@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.fileexists;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -38,9 +40,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * The File Exists action verifies that a specified file exists on the server on which Hop is

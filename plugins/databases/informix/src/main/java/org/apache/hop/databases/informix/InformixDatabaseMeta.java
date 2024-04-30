@@ -27,11 +27,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Informix specific information through static final members
-
- */
-@DatabaseMetaPlugin(type = "INFORMIX", typeDescription = "Informix", documentationUrl = "/database/databases/informix.html")
+/** Contains Informix specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "INFORMIX",
+    typeDescription = "Informix",
+    documentationUrl = "/database/databases/informix.html")
 @GuiPlugin(id = "GUI-InformixDatabaseMeta")
 public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -57,7 +57,9 @@ public class InformixDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return -1;
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {

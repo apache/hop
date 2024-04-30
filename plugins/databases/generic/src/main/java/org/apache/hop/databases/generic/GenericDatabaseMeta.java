@@ -17,6 +17,8 @@
 
 package org.apache.hop.databases.generic;
 
+import java.sql.SQLException;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -28,13 +30,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 
-import java.sql.SQLException;
-import java.util.Map;
-
-/**
- * Contains Generic Database Connection information through static final members
- */
-@DatabaseMetaPlugin(type = "GENERIC", typeDescription = "Generic database", documentationUrl = "/database/databases.html")
+/** Contains Generic Database Connection information through static final members */
+@DatabaseMetaPlugin(
+    type = "GENERIC",
+    typeDescription = "Generic database",
+    documentationUrl = "/database/databases.html")
 @GuiPlugin(description = "Generic database GUI Plugin")
 public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final String ATRRIBUTE_CUSTOM_DRIVER_CLASS = "CUSTOM_DRIVER_CLASS";
@@ -71,7 +71,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       parentId = DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID)
   protected String driverClass;
 
-  /** @param driverClass The driverClass to set */
+  /**
+   * @param driverClass The driverClass to set
+   */
   public void setDriverClass(String driverClass) {
     getAttributes().put(ATRRIBUTE_CUSTOM_DRIVER_CLASS, driverClass);
   }
@@ -94,7 +96,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoIncrement) {
     if (isSupportsAutoInc() && useAutoIncrement) {
@@ -118,7 +122,9 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;

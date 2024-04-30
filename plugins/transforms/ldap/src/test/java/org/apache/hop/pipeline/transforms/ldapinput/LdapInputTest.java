@@ -16,18 +16,18 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 /** Tests LDAP Input Transform */
 public class LdapInputTest {

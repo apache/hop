@@ -17,6 +17,8 @@
 
 package org.apache.hop.debug.action;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -27,9 +29,6 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @GuiPlugin
 public class ActionDebugGuiPlugin {
@@ -83,7 +82,8 @@ public class ActionDebugGuiPlugin {
         debugLevel = new ActionDebugLevel();
       }
 
-      ActionDebugLevelDialog dialog = new ActionDebugLevelDialog(hopGui.getActiveShell(), debugLevel);
+      ActionDebugLevelDialog dialog =
+          new ActionDebugLevelDialog(hopGui.getActiveShell(), debugLevel);
       if (dialog.open()) {
         DebugLevelUtil.storeActionDebugLevel(
             debugGroupAttributesMap, action.toString(), debugLevel);

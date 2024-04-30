@@ -17,19 +17,18 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.functors.TruePredicate;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.functors.TruePredicate;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
 
@@ -98,17 +97,23 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
     return keyValue;
   }
 
-  /** @return keys. */
+  /**
+   * @return keys.
+   */
   public List<String> keys() {
     return new ArrayList<>(this.entries.keySet());
   }
 
-  /** @return key values/entries. */
+  /**
+   * @return key values/entries.
+   */
   public List<KeyValue<?>> keyValues() {
     return new ArrayList<>(this.entries.values());
   }
 
-  /** @return values. */
+  /**
+   * @return values.
+   */
   public List<Object> values() {
     final List<Object> result = new ArrayList<>();
     for (KeyValue<?> keyValue : this.entries.values()) {
@@ -117,7 +122,9 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
     return result;
   }
 
-  /** @return entries as map. */
+  /**
+   * @return entries as map.
+   */
   public Map<String, Object> toMap() {
     final Map<String, Object> map = new TreeMap<>();
     for (KeyValue<?> keyValue : this.entries.values()) {
@@ -175,12 +182,16 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
     return this.entries.containsKey(key);
   }
 
-  /** @return size. */
+  /**
+   * @return size.
+   */
   public int size() {
     return this.entries.size();
   }
 
-  /** @return true if empty. */
+  /**
+   * @return true if empty.
+   */
   public boolean isEmpty() {
     return this.entries.isEmpty();
   }
@@ -195,7 +206,9 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
     return this;
   }
 
-  /** @return string representation. */
+  /**
+   * @return string representation.
+   */
   public String toMultiLineString() {
     final ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE);
     for (KeyValue<?> keyValue : this.entries.values()) {

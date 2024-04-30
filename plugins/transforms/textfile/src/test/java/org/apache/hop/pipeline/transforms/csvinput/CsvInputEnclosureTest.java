@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
+import java.io.File;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.QueueRowSet;
 import org.apache.hop.core.file.TextFileInputField;
@@ -26,12 +31,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.File;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 public class CsvInputEnclosureTest extends CsvInputUnitTestBase {
   private static final String QUOTATION_AND_EXCLAMATION_MARK = "\"!";

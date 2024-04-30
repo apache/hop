@@ -34,7 +34,7 @@ public class HopRow implements Serializable {
   }
 
   public HopRow(Object[] row, int optionalSize) {
-    assert optionalSize<=row.length : "optionalSize needs to be <= row length";
+    assert optionalSize <= row.length : "optionalSize needs to be <= row length";
     this.row = row;
     this.optionalSize = optionalSize;
   }
@@ -74,11 +74,13 @@ public class HopRow implements Serializable {
   }
 
   /**
-   * This only addresses the actual filled in items in the object array, not any possible trailing null values.
+   * This only addresses the actual filled in items in the object array, not any possible trailing
+   * null values.
+   *
    * @return the populated (actual) length of the row (optionalSize<=row.length).
    */
   public int length() {
-    return optionalSize<0 ? ( row==null ? 0 : row.length ) : optionalSize;
+    return optionalSize < 0 ? (row == null ? 0 : row.length) : optionalSize;
   }
 
   @Override
@@ -99,7 +101,7 @@ public class HopRow implements Serializable {
     if (row == null) {
       return false;
     }
-    if (row.length==0) {
+    if (row.length == 0) {
       return false;
     }
     for (int i = 0; i < row.length; i++) {
@@ -119,7 +121,9 @@ public class HopRow implements Serializable {
     return row;
   }
 
-  /** @param row The row to set */
+  /**
+   * @param row The row to set
+   */
   public void setRow(Object[] row) {
     this.row = row;
   }

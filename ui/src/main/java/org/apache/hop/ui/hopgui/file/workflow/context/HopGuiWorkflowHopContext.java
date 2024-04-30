@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.context;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionLambdaBuilder;
@@ -27,15 +29,15 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements IGuiContextHandler {
 
   public static final String CONTEXT_ID = "HopGuiWorkflowHopContext";
 
-  private static String ROUTING_CATEGORY = TranslateUtil.translate("i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text", HopGuiWorkflowGraph.class);
-  
+  private static String ROUTING_CATEGORY =
+      TranslateUtil.translate(
+          "i18n::HopGuiWorkflowGraph.ContextualAction.Category.Routing.Text",
+          HopGuiWorkflowGraph.class);
+
   private WorkflowMeta workflowMeta;
   private WorkflowHopMeta hopMeta;
   private HopGuiWorkflowGraph workflowGraph;
@@ -73,8 +75,8 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
     //
     List<GuiAction> pluginActions = getPluginActions(true);
     if (pluginActions != null) {
-      for (GuiAction pluginAction : pluginActions) {              
-        if ( isGuiActionAvailable(pluginAction)  ) {
+      for (GuiAction pluginAction : pluginActions) {
+        if (isGuiActionAvailable(pluginAction)) {
           actions.add(lambdaBuilder.createLambda(pluginAction, this, workflowGraph));
         }
       }
@@ -84,20 +86,20 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
   }
 
   protected boolean isGuiActionAvailable(final GuiAction guiAction) {
-    if (hopMeta==null) {
+    if (hopMeta == null) {
       return false;
     }
-    
+
     // Filter routing action on the first hop after Start
     //
-    // TODO: Find a more robust way to detect routing actions 
-    if ( hopMeta.getFromAction().isStart() && guiAction.getCategory().equals(ROUTING_CATEGORY) ) {
+    // TODO: Find a more robust way to detect routing actions
+    if (hopMeta.getFromAction().isStart() && guiAction.getCategory().equals(ROUTING_CATEGORY)) {
       return false;
     }
-    
+
     return true;
   }
-  
+
   /**
    * Gets workflowMeta
    *
@@ -107,7 +109,9 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
     return workflowMeta;
   }
 
-  /** @param workflowMeta The workflowMeta to set */
+  /**
+   * @param workflowMeta The workflowMeta to set
+   */
   public void setWorkflowMeta(WorkflowMeta workflowMeta) {
     this.workflowMeta = workflowMeta;
   }
@@ -121,7 +125,9 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
     return hopMeta;
   }
 
-  /** @param hopMeta The hopMeta to set */
+  /**
+   * @param hopMeta The hopMeta to set
+   */
   public void setHopMeta(WorkflowHopMeta hopMeta) {
     this.hopMeta = hopMeta;
   }
@@ -135,7 +141,9 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
     return workflowGraph;
   }
 
-  /** @param workflowGraph The pipelineGraph to set */
+  /**
+   * @param workflowGraph The pipelineGraph to set
+   */
   public void setWorkflowGraph(HopGuiWorkflowGraph workflowGraph) {
     this.workflowGraph = workflowGraph;
   }
@@ -149,7 +157,9 @@ public class HopGuiWorkflowHopContext extends BaseGuiContextHandler implements I
     return click;
   }
 
-  /** @param click The click to set */
+  /**
+   * @param click The click to set
+   */
   public void setClick(Point click) {
     this.click = click;
   }

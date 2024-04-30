@@ -17,10 +17,9 @@
 
 package org.apache.hop.workflow;
 
-import org.apache.hop.core.Result;
-
 import java.util.Comparator;
 import java.util.Date;
+import org.apache.hop.core.Result;
 
 /**
  * This class holds the result of a action after it was executed. Things we want to keep track of
@@ -88,62 +87,86 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     }
   }
 
-  /** @param result The result to set. */
+  /**
+   * @param result The result to set.
+   */
   public void setResult(Result result) {
     this.result = result;
   }
 
-  /** @return Returns the result. */
+  /**
+   * @return Returns the result.
+   */
   public Result getResult() {
     return result;
   }
 
-  /** @return Returns the comment. */
+  /**
+   * @return Returns the comment.
+   */
   public String getComment() {
     return comment;
   }
 
-  /** @param comment The comment to set. */
+  /**
+   * @param comment The comment to set.
+   */
   public void setComment(String comment) {
     this.comment = comment;
   }
 
-  /** @return Returns the reason. */
+  /**
+   * @return Returns the reason.
+   */
   public String getReason() {
     return reason;
   }
 
-  /** @param reason The reason to set. */
+  /**
+   * @param reason The reason to set.
+   */
   public void setReason(String reason) {
     this.reason = reason;
   }
 
-  /** @return Returns the logDate. */
+  /**
+   * @return Returns the logDate.
+   */
   public Date getLogDate() {
     return logDate;
   }
 
-  /** @param logDate The logDate to set. */
+  /**
+   * @param logDate The logDate to set.
+   */
   public void setLogDate(Date logDate) {
     this.logDate = logDate;
   }
 
-  /** @return the actionName */
+  /**
+   * @return the actionName
+   */
   public String getActionName() {
     return actionName;
   }
 
-  /** @param actionName the actionName to set */
+  /**
+   * @param actionName the actionName to set
+   */
   public void setActionName(String actionName) {
     this.actionName = actionName;
   }
 
-  /** @return the actionFilename */
+  /**
+   * @return the actionFilename
+   */
   public String getActionFilename() {
     return actionFilename;
   }
 
-  /** @param actionFilename the actionFilename to set */
+  /**
+   * @param actionFilename the actionFilename to set
+   */
   public void setActionFilename(String actionFilename) {
     this.actionFilename = actionFilename;
   }
@@ -181,12 +204,16 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
     return logChannelId;
   }
 
-  /** @return the checkpoint */
+  /**
+   * @return the checkpoint
+   */
   public boolean isCheckpoint() {
     return checkpoint;
   }
 
-  /** @param checkpoint the checkpoint to set */
+  /**
+   * @param checkpoint the checkpoint to set
+   */
   public void setCheckpoint(boolean checkpoint) {
     this.checkpoint = checkpoint;
   }

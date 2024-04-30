@@ -17,15 +17,14 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.hop.core.encryption.Encr;
-import org.apache.hop.core.variables.IVariables;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.variables.IVariables;
 
 public class Utils {
 

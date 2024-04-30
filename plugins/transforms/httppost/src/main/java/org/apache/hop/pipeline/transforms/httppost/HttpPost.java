@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.httppost;
 
 import static org.apache.hop.pipeline.transforms.httppost.HttpPostMeta.DEFAULT_ENCODING;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
@@ -28,7 +29,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -63,8 +63,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONObject;
-
-import com.google.common.annotations.VisibleForTesting;
 
 /** Make a HTTP Post call */
 public class HttpPost extends BaseTransform<HttpPostMeta, HttpPostData> {

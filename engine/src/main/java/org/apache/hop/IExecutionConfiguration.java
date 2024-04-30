@@ -17,12 +17,11 @@
 
 package org.apache.hop;
 
+import java.util.Map;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
-
-import java.util.Map;
 
 public interface IExecutionConfiguration extends Cloneable, IXml {
 

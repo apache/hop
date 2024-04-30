@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
+import java.sql.PreparedStatement;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.sql.PreparedStatement;
 
 public class UpdateData extends BaseTransformData implements ITransformData {
   public Database db;

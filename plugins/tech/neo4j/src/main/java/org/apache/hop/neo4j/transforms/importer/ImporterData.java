@@ -18,10 +18,9 @@
 
 package org.apache.hop.neo4j.transforms.importer;
 
+import java.util.List;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.List;
 
 public class ImporterData extends BaseTransformData implements ITransformData {
 

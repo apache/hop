@@ -18,14 +18,13 @@
 
 package org.apache.hop.execution.profiling;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This data profile makes it easy to specify what kind of information you want to capture about the

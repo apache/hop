@@ -277,31 +277,33 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     getData();
-        
-    // Search the fields in the background
-    shell.getDisplay().asyncExec(() -> {
-        String keyValue = wKeyField.getText();
-        try {
-            IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
-            
-            if (rowMeta != null) {
-              String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
 
-              for (String fieldName:fieldNames) {
-                wKeyField.add(fieldName);
-              }              
-              ciKey[0].setComboValues(fieldNames);  
-              ciTarget[1].setComboValues(fieldNames);
-            }
-        } catch (Exception e) {
-          logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-        }
-        finally {
-          if (keyValue != null) {
-            wKeyField.setText(keyValue);
-          }          
-        }
-    });
+    // Search the fields in the background
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              String keyValue = wKeyField.getText();
+              try {
+                IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformName);
+
+                if (rowMeta != null) {
+                  String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+
+                  for (String fieldName : fieldNames) {
+                    wKeyField.add(fieldName);
+                  }
+                  ciKey[0].setComboValues(fieldNames);
+                  ciTarget[1].setComboValues(fieldNames);
+                }
+              } catch (Exception e) {
+                logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+              } finally {
+                if (keyValue != null) {
+                  wKeyField.setText(keyValue);
+                }
+              }
+            });
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
@@ -399,7 +401,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
 
     for (int i = 0; i < sizegroup; i++) {
       TableItem item = wGroup.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
       DenormaliserGroupField groupfield = new DenormaliserGroupField();
       groupfield.setName(item.getText(1));
       input.getGroupFields().add(groupfield);
@@ -423,7 +424,6 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
       field.setTargetAggregationType(
           DenormaliserTargetField.DenormaliseAggregation.getTypeWithDescription(item.getText(12)));
 
-      // CHECKSTYLE:Indentation:OFF
       input.getDenormaliserTargetFields().add(field);
     }
 

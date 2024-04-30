@@ -19,9 +19,8 @@
 package org.apache.hop.neo4j.execution.builder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.hop.core.json.HopJson;
-
 import java.util.Map;
+import org.apache.hop.core.json.HopJson;
 
 public class CypherMergeBuilder extends BaseCypherBuilder {
   private CypherMergeBuilder() {

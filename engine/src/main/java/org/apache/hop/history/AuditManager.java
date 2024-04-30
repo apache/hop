@@ -16,16 +16,15 @@
  */
 package org.apache.hop.history;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.history.local.LocalAuditManager;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.history.local.LocalAuditManager;
 
 public class AuditManager {
   private static AuditManager instance;
@@ -56,7 +55,9 @@ public class AuditManager {
     return activeAuditManager;
   }
 
-  /** @param activeAuditManager The activeAuditManager to set */
+  /**
+   * @param activeAuditManager The activeAuditManager to set
+   */
   public void setActiveAuditManager(IAuditManager activeAuditManager) {
     this.activeAuditManager = activeAuditManager;
   }

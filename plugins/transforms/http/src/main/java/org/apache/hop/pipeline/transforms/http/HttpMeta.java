@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.http;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -37,8 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "Http",
@@ -104,114 +103,158 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the connectionTimeout. */
+  /**
+   * @return Returns the connectionTimeout.
+   */
   public String getConnectionTimeout() {
     return connectionTimeout;
   }
 
-  /** @param connectionTimeout The connectionTimeout to set. */
+  /**
+   * @param connectionTimeout The connectionTimeout to set.
+   */
   public void setConnectionTimeout(String connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
   }
 
-  /** @return Returns the closeIdleConnectionsTime. */
+  /**
+   * @return Returns the closeIdleConnectionsTime.
+   */
   public String getCloseIdleConnectionsTime() {
     return closeIdleConnectionsTime;
   }
 
-  /** @param closeIdleConnectionsTime The connectionTimeout to set. */
+  /**
+   * @param closeIdleConnectionsTime The connectionTimeout to set.
+   */
   public void setCloseIdleConnectionsTime(String closeIdleConnectionsTime) {
     this.closeIdleConnectionsTime = closeIdleConnectionsTime;
   }
 
-  /** @return Returns the socketTimeout. */
+  /**
+   * @return Returns the socketTimeout.
+   */
   public String getSocketTimeout() {
     return socketTimeout;
   }
 
-  /** @param socketTimeout The socketTimeout to set. */
+  /**
+   * @param socketTimeout The socketTimeout to set.
+   */
   public void setSocketTimeout(String socketTimeout) {
     this.socketTimeout = socketTimeout;
   }
 
-  /** @return Returns the argument. */
+  /**
+   * @return Returns the argument.
+   */
   public String[] getArgumentField() {
     return argumentField;
   }
 
-  /** @param argument The argument to set. */
+  /**
+   * @param argument The argument to set.
+   */
   public void setArgumentField(String[] argument) {
     this.argumentField = argument;
   }
 
-  /** @return Returns the headerFields. */
+  /**
+   * @return Returns the headerFields.
+   */
   public String[] getHeaderField() {
 
     return headerField;
   }
 
-  /** @param headerField The headerField to set. */
+  /**
+   * @param headerField The headerField to set.
+   */
   public void setHeaderField(String[] headerField) {
 
     this.headerField = headerField;
   }
 
-  /** @return Returns the argumentDirection. */
+  /**
+   * @return Returns the argumentDirection.
+   */
   public String[] getArgumentParameter() {
     return argumentParameter;
   }
 
-  /** @param argumentDirection The argumentDirection to set. */
+  /**
+   * @param argumentDirection The argumentDirection to set.
+   */
   public void setArgumentParameter(String[] argumentDirection) {
     this.argumentParameter = argumentDirection;
   }
 
-  /** @return Returns the headerParameter. */
+  /**
+   * @return Returns the headerParameter.
+   */
   public String[] getHeaderParameter() {
     return headerParameter;
   }
 
-  /** @param headerParameter The headerParameter to set. */
+  /**
+   * @param headerParameter The headerParameter to set.
+   */
   public void setHeaderParameter(String[] headerParameter) {
     this.headerParameter = headerParameter;
   }
 
-  /** @return Returns the procedure. */
+  /**
+   * @return Returns the procedure.
+   */
   public String getUrl() {
     return url;
   }
 
-  /** @param procedure The procedure to set. */
+  /**
+   * @param procedure The procedure to set.
+   */
   public void setUrl(String procedure) {
     this.url = procedure;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getFieldName() {
     return fieldName;
   }
 
-  /** @param resultName The resultName to set. */
+  /**
+   * @param resultName The resultName to set.
+   */
   public void setFieldName(String resultName) {
     this.fieldName = resultName;
   }
 
-  /** @return Is the url coded in a field? */
+  /**
+   * @return Is the url coded in a field?
+   */
   public boolean isUrlInField() {
     return urlInField;
   }
 
-  /** @param urlInField Is the url coded in a field? */
+  /**
+   * @param urlInField Is the url coded in a field?
+   */
   public void setUrlInField(boolean urlInField) {
     this.urlInField = urlInField;
   }
 
-  /** @return The field name that contains the url. */
+  /**
+   * @return The field name that contains the url.
+   */
   public String getUrlField() {
     return urlField;
   }
 
-  /** @param urlField name of the field that contains the url */
+  /**
+   * @param urlField name of the field that contains the url
+   */
   public void setUrlField(String urlField) {
     this.urlField = urlField;
   }
@@ -357,8 +400,7 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     return retval.toString();
   }
 
-  private void readData(Node transformNode)
-      throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
       int nrargs;
 
@@ -475,12 +517,16 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     return true;
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   public String getEncoding() {
     return encoding;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
@@ -548,17 +594,23 @@ public class HttpMeta extends BaseTransformMeta<Http, HttpData> {
     this.httpPassword = httpPassword;
   }
 
-  /** @return */
+  /**
+   * @return
+   */
   public String getHttpPassword() {
     return httpPassword;
   }
 
-  /** @return the resultCodeFieldName */
+  /**
+   * @return the resultCodeFieldName
+   */
   public String getResultCodeFieldName() {
     return resultCodeFieldName;
   }
 
-  /** @param resultCodeFieldName the resultCodeFieldName to set */
+  /**
+   * @param resultCodeFieldName the resultCodeFieldName to set
+   */
   public void setResultCodeFieldName(String resultCodeFieldName) {
     this.resultCodeFieldName = resultCodeFieldName;
   }

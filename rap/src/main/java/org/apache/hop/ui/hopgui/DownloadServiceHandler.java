@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.hopgui;
 
-import org.eclipse.rap.rwt.service.ServiceHandler;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.eclipse.rap.rwt.service.ServiceHandler;
 
 public class DownloadServiceHandler implements ServiceHandler {
 

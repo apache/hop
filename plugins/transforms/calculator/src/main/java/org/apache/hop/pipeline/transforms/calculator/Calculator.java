@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileNotFoundException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -32,10 +35,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
-
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
@@ -84,7 +83,6 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
       // Calculate the indexes of the values and arguments in the target data or temporary data
       // We do this in advance to save time later on.
       //
-      // CHECKSTYLE:Indentation:OFF
       for (int i = 0; i < meta.getFunctions().size(); i++) {
         CalculatorMetaFunction function = meta.getFunctions().get(i);
         data.getFieldIndexes()[i] = new FieldIndexes();
@@ -617,11 +615,15 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             resultType = targetMeta.getType();
             break;
           case BASE64_ENCODE:
-            if(dataA != null){
-              if(metaA.getType() == IValueMeta.TYPE_BINARY) {
-                calcData[index] = Base64.getEncoder().withoutPadding().encodeToString(metaA.getBinary(dataA));
+            if (dataA != null) {
+              if (metaA.getType() == IValueMeta.TYPE_BINARY) {
+                calcData[index] =
+                    Base64.getEncoder().withoutPadding().encodeToString(metaA.getBinary(dataA));
               } else {
-                calcData[index] = Base64.getEncoder().withoutPadding().encodeToString(metaA.getString(dataA).getBytes());
+                calcData[index] =
+                    Base64.getEncoder()
+                        .withoutPadding()
+                        .encodeToString(metaA.getString(dataA).getBytes());
               }
             } else {
               calcData[index] = null;
@@ -629,13 +631,13 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> {
             resultType = IValueMeta.TYPE_STRING;
             break;
           case BASE64_DECODE:
-            if(dataA != null){
+            if (dataA != null) {
               byte[] tmpDecoded = Base64.getDecoder().decode(metaA.getString(dataA));
-              if(targetMeta.getType() == IValueMeta.TYPE_BINARY) {
+              if (targetMeta.getType() == IValueMeta.TYPE_BINARY) {
                 calcData[index] = tmpDecoded;
               } else {
                 String tmpDecodedString = new String(tmpDecoded);
-                calcData[index] = targetMeta.convertData(metaA, tmpDecodedString);  
+                calcData[index] = targetMeta.convertData(metaA, tmpDecodedString);
               }
             } else {
               calcData[index] = null;

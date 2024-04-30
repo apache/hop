@@ -17,13 +17,6 @@
 
 package org.apache.hop.server;
 
-import junit.framework.Assert;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,6 +25,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.GZIPOutputStream;
+import junit.framework.Assert;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class HttpUtilTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

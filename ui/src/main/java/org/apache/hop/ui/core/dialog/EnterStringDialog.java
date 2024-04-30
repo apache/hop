@@ -212,12 +212,16 @@ public class EnterStringDialog extends Dialog {
     dispose();
   }
 
-  /** @return the mandatory */
+  /**
+   * @return the mandatory
+   */
   public boolean isMandatory() {
     return mandatory;
   }
 
-  /** @param mandatory the manditory to set */
+  /**
+   * @param mandatory the manditory to set
+   */
   public void setMandatory(boolean mandatory) {
     this.mandatory = mandatory;
   }
@@ -231,7 +235,9 @@ public class EnterStringDialog extends Dialog {
     return echoChar;
   }
 
-  /** @param echoChar The echoChar to set */
+  /**
+   * @param echoChar The echoChar to set
+   */
   public void setEchoChar(char echoChar) {
     this.echoChar = echoChar;
   }

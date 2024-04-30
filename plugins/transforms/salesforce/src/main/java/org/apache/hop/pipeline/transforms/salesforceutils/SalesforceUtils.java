@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceutils;
 
+import java.util.regex.Pattern;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.regex.Pattern;
 
 /** Utility class to process salesforce specific features. */
 public class SalesforceUtils {

@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.tika;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -36,12 +41,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.tika.metadata.Metadata;
 import org.json.simple.JSONObject;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.util.Date;
-import java.util.List;
 
 public class Tika extends BaseTransform<TikaMeta, TikaData> {
   private static final Class<?> PKG =

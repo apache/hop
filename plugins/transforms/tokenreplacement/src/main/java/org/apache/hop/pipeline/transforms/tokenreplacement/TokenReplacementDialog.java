@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -58,10 +61,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class TokenReplacementDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
@@ -1502,7 +1501,7 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
       TableItem item = wFields.getNonEmpty(i);
       field.setName(item.getText(2));
       field.setTokenName(item.getText(1));
-      // CHECKSTYLE:Indentation:OFF
+
       tfoi.getTokenReplacementFields()[i] = field;
     }
   }

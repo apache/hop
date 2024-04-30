@@ -18,6 +18,13 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.base;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -32,14 +39,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.eclipse.swt.SWT;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler {
 
@@ -153,13 +152,12 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
   @Override
   public void updateGui() {
     hopGui
-    .getDisplay()
-    .asyncExec(
-        () ->
-            hopGui.handleFileCapabilities(
-                this.getFileType(), this.hasChanged(), false, false));
+        .getDisplay()
+        .asyncExec(
+            () ->
+                hopGui.handleFileCapabilities(this.getFileType(), this.hasChanged(), false, false));
   }
-  
+
   @Override
   public void selectAll() {}
 
@@ -248,7 +246,9 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }
@@ -262,7 +262,9 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
     return perspective;
   }
 
-  /** @param perspective The perspective to set */
+  /**
+   * @param perspective The perspective to set
+   */
   public void setPerspective(ExplorerPerspective perspective) {
     this.perspective = perspective;
   }
@@ -276,7 +278,9 @@ public abstract class BaseExplorerFileTypeHandler implements IHopFileTypeHandler
     return explorerFile;
   }
 
-  /** @param explorerFile The explorerFile to set */
+  /**
+   * @param explorerFile The explorerFile to set
+   */
   public void setExplorerFile(ExplorerFile explorerFile) {
     this.explorerFile = explorerFile;
   }

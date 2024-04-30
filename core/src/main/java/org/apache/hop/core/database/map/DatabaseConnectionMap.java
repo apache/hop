@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.database.map;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.util.Utils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.util.Utils;
 
 /**
  * This class contains a map between on the one hand
@@ -70,8 +69,7 @@ public class DatabaseConnectionMap {
     map.remove(key);
   }
 
-  private String createEntryKey(
-      String connectionGroup, String partitionID, Database database) {
+  private String createEntryKey(String connectionGroup, String partitionID, Database database) {
     StringBuilder key = new StringBuilder(connectionGroup);
 
     key.append(':').append(database.getDatabaseMeta().getName());

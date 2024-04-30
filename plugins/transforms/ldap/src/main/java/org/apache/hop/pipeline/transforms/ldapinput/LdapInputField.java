@@ -16,12 +16,11 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.HashSet;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.HashSet;
 
 /** Describes an LDAP Input */
 public class LdapInputField implements Cloneable {

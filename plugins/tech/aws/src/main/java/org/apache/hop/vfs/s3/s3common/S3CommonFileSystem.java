@@ -29,6 +29,8 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
+import java.io.File;
+import java.util.Collection;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -36,9 +38,6 @@ import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.vfs.s3.amazon.s3.S3Util;
-
-import java.io.File;
-import java.util.Collection;
 
 public abstract class S3CommonFileSystem extends AbstractFileSystem {
 
@@ -51,7 +50,6 @@ public abstract class S3CommonFileSystem extends AbstractFileSystem {
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   protected void addCapabilities(Collection caps) {
     caps.addAll(S3CommonFileProvider.capabilities);
   }

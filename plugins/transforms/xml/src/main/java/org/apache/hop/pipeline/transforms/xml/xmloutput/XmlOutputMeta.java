@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -44,12 +49,6 @@ import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "XMLOutput",
@@ -136,82 +135,114 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the dateInFilename. */
+  /**
+   * @return Returns the dateInFilename.
+   */
   public boolean isDateInFilename() {
     return dateInFilename;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @return Returns the extension. */
+  /**
+   * @return Returns the extension.
+   */
   public String getExtension() {
     return extension;
   }
 
-  /** @param extension The extension to set. */
+  /**
+   * @param extension The extension to set.
+   */
   public void setExtension(String extension) {
     this.extension = extension;
   }
 
-  /** @return Returns the "do not open new file at init" flag. */
+  /**
+   * @return Returns the "do not open new file at init" flag.
+   */
   public boolean isDoNotOpenNewFileInit() {
     return doNotOpenNewFileInit;
   }
 
-  /** @param doNotOpenNewFileInit The "do not open new file at init" flag to set. */
+  /**
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
+   */
   public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String getFileName() {
     return fileName;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
 
-  /** @return Returns the splitEvery. */
+  /**
+   * @return Returns the splitEvery.
+   */
   public int getSplitEvery() {
     return splitEvery;
   }
 
-  /** @param splitEvery The splitEvery to set. */
+  /**
+   * @param splitEvery The splitEvery to set.
+   */
   public void setSplitEvery(int splitEvery) {
     this.splitEvery = splitEvery;
   }
 
-  /** @return Returns the transformNrInFilename. */
+  /**
+   * @return Returns the transformNrInFilename.
+   */
   public boolean isTransformNrInFilename() {
     return transformNrInFilename;
   }
 
-  /** @param transformNrInFilename The transformNrInFilename to set. */
+  /**
+   * @param transformNrInFilename The transformNrInFilename to set.
+   */
   public void setTransformNrInFilename(boolean transformNrInFilename) {
     this.transformNrInFilename = transformNrInFilename;
   }
 
-  /** @return Returns the timeInFilename. */
+  /**
+   * @return Returns the timeInFilename.
+   */
   public boolean isTimeInFilename() {
     return timeInFilename;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @return Returns the add to result filesname. */
+  /**
+   * @return Returns the add to result filesname.
+   */
   public boolean isAddToResultFiles() {
     return addToResultFilenames;
   }
 
-  /** @param addtoresultfilenamesin The addtoresultfilenames to set. */
+  /**
+   * @param addtoresultfilenamesin The addtoresultfilenames to set.
+   */
   public void setAddToResultFiles(boolean addtoresultfilenamesin) {
     this.addToResultFilenames = addtoresultfilenamesin;
   }
@@ -232,22 +263,30 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     this.dateTimeFormat = dateTimeFormat;
   }
 
-  /** @return Returns the zipped. */
+  /**
+   * @return Returns the zipped.
+   */
   public boolean isZipped() {
     return zipped;
   }
 
-  /** @param zipped The zipped to set. */
+  /**
+   * @param zipped The zipped to set.
+   */
   public void setZipped(boolean zipped) {
     this.zipped = zipped;
   }
 
-  /** @return Returns the outputFields. */
+  /**
+   * @return Returns the outputFields.
+   */
   public XmlField[] getOutputFields() {
     return outputFields;
   }
 
-  /** @param outputFields The outputFields to set. */
+  /**
+   * @param outputFields The outputFields to set.
+   */
   public void setOutputFields(XmlField[] outputFields) {
     this.outputFields = outputFields;
   }
@@ -635,32 +674,44 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
     this.encoding = encoding;
   }
 
-  /** @return Returns the mainElement. */
+  /**
+   * @return Returns the mainElement.
+   */
   public String getMainElement() {
     return mainElement;
   }
 
-  /** @param mainElement The mainElement to set. */
+  /**
+   * @param mainElement The mainElement to set.
+   */
   public void setMainElement(String mainElement) {
     this.mainElement = mainElement;
   }
 
-  /** @return Returns the repeatElement. */
+  /**
+   * @return Returns the repeatElement.
+   */
   public String getRepeatElement() {
     return repeatElement;
   }
 
-  /** @param repeatElement The repeatElement to set. */
+  /**
+   * @param repeatElement The repeatElement to set.
+   */
   public void setRepeatElement(String repeatElement) {
     this.repeatElement = repeatElement;
   }
 
-  /** @return Returns the nameSpace. */
+  /**
+   * @return Returns the nameSpace.
+   */
   public String getNameSpace() {
     return nameSpace;
   }
 
-  /** @param nameSpace The nameSpace to set. */
+  /**
+   * @param nameSpace The nameSpace to set.
+   */
   public void setNameSpace(String nameSpace) {
     this.nameSpace = nameSpace;
   }

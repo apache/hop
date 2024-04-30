@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -73,9 +75,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // For Translator
@@ -949,7 +948,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
                     colInfo.setComboValues(new String[] {});
                   }
                   // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user 
+                  // filled, but no problem for the user
                 }
               }
             }
@@ -1112,7 +1111,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       logDebug(
           BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Log.FoundKeys", nrkeys + ""));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       inf.getKeyLookup()[i] = item.getText(1);

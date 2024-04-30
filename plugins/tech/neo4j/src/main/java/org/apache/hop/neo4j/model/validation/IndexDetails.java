@@ -18,9 +18,8 @@
 
 package org.apache.hop.neo4j.model.validation;
 
-import org.neo4j.driver.Record;
-
 import java.util.List;
+import org.neo4j.driver.Record;
 
 public class IndexDetails {
   private int id;
@@ -58,7 +57,9 @@ public class IndexDetails {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(int id) {
     this.id = id;
   }
@@ -72,7 +73,9 @@ public class IndexDetails {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -86,7 +89,9 @@ public class IndexDetails {
     return state;
   }
 
-  /** @param state The state to set */
+  /**
+   * @param state The state to set
+   */
   public void setState(String state) {
     this.state = state;
   }
@@ -100,7 +105,9 @@ public class IndexDetails {
     return populationPercent;
   }
 
-  /** @param populationPercent The populationPercent to set */
+  /**
+   * @param populationPercent The populationPercent to set
+   */
   public void setPopulationPercent(float populationPercent) {
     this.populationPercent = populationPercent;
   }
@@ -114,7 +121,9 @@ public class IndexDetails {
     return uniqueness;
   }
 
-  /** @param uniqueness The uniqueness to set */
+  /**
+   * @param uniqueness The uniqueness to set
+   */
   public void setUniqueness(String uniqueness) {
     this.uniqueness = uniqueness;
   }
@@ -128,7 +137,9 @@ public class IndexDetails {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -142,7 +153,9 @@ public class IndexDetails {
     return entityType;
   }
 
-  /** @param entityType The entityType to set */
+  /**
+   * @param entityType The entityType to set
+   */
   public void setEntityType(String entityType) {
     this.entityType = entityType;
   }
@@ -156,7 +169,9 @@ public class IndexDetails {
     return labelsOrTypes;
   }
 
-  /** @param labelsOrTypes The labelsOrTypes to set */
+  /**
+   * @param labelsOrTypes The labelsOrTypes to set
+   */
   public void setLabelsOrTypes(List<String> labelsOrTypes) {
     this.labelsOrTypes = labelsOrTypes;
   }
@@ -170,7 +185,9 @@ public class IndexDetails {
     return properties;
   }
 
-  /** @param properties The properties to set */
+  /**
+   * @param properties The properties to set
+   */
   public void setProperties(List<String> properties) {
     this.properties = properties;
   }
@@ -184,7 +201,9 @@ public class IndexDetails {
     return provider;
   }
 
-  /** @param provider The provider to set */
+  /**
+   * @param provider The provider to set
+   */
   public void setProvider(String provider) {
     this.provider = provider;
   }

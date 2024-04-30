@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
@@ -42,10 +45,6 @@ import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class TransformClassBase {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
@@ -481,7 +480,6 @@ public abstract class TransformClassBase {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   public static void getFields(
       boolean clearResultFields,
       IRowMeta row,

@@ -17,6 +17,12 @@
 
 package org.apache.hop.ui.hopgui.context;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.IGuiActionLambda;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -27,13 +33,6 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GuiContextUtil {
 
@@ -177,14 +176,14 @@ public class GuiContextUtil {
           HopGui.getInstance()
               .getDisplay()
               .asyncExec(
-                      () -> {
-                        try {
-                          IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
-                          actionLambda.executeAction(dialog.isShiftClicked(), dialog.isCtrlClicked());
-                        } catch (Exception e) {
-                          new ErrorDialog(parent, "Error", "An error occurred executing action", e);
-                        }
-                      });
+                  () -> {
+                    try {
+                      IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
+                      actionLambda.executeAction(dialog.isShiftClicked(), dialog.isCtrlClicked());
+                    } catch (Exception e) {
+                      new ErrorDialog(parent, "Error", "An error occurred executing action", e);
+                    }
+                  });
 
         } else {
           return contextDialog.isFocusLost();

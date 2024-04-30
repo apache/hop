@@ -199,7 +199,7 @@ public class EnterStringsDialog extends Dialog {
 
           if (valueMeta.getName().equalsIgnoreCase(name)) {
             String stringValue = item.getText(2);
-            // CHECKSTYLE:Indentation:OFF
+
             strings.getData()[j] = stringValue;
           }
         }
@@ -219,37 +219,51 @@ public class EnterStringsDialog extends Dialog {
     dispose();
   }
 
-  /** @return Returns the readOnly. */
+  /**
+   * @return Returns the readOnly.
+   */
   public boolean isReadOnly() {
     return readOnly;
   }
 
-  /** @param readOnly The readOnly to set. */
+  /**
+   * @param readOnly The readOnly to set.
+   */
   public void setReadOnly(boolean readOnly) {
     this.readOnly = readOnly;
   }
 
-  /** @return the message */
+  /**
+   * @return the message
+   */
   public String getMessage() {
     return message;
   }
 
-  /** @param message the message to set */
+  /**
+   * @param message the message to set
+   */
   public void setMessage(String message) {
     this.message = message;
   }
 
-  /** @return the title */
+  /**
+   * @return the title
+   */
   public String getTitle() {
     return title;
   }
 
-  /** @param title the title to set */
+  /**
+   * @param title the title to set
+   */
   public void setTitle(String title) {
     this.title = title;
   }
 
-  /** @param shellImage the shellImage to set */
+  /**
+   * @param shellImage the shellImage to set
+   */
   public void setShellImage(Image shellImage) {
     this.shellImage = shellImage;
   }

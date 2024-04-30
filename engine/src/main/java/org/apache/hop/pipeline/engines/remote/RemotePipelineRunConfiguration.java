@@ -129,7 +129,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return hopServerName;
   }
 
-  /** @param hopServerName The hopServerName to set */
+  /**
+   * @param hopServerName The hopServerName to set
+   */
   public void setHopServerName(String hopServerName) {
     this.hopServerName = hopServerName;
   }
@@ -143,7 +145,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return runConfigurationName;
   }
 
-  /** @param runConfigurationName The runConfigurationName to set */
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
   public void setRunConfigurationName(String runConfigurationName) {
     this.runConfigurationName = runConfigurationName;
   }
@@ -157,7 +161,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return serverPollDelay;
   }
 
-  /** @param serverPollDelay The serverPollDelay to set */
+  /**
+   * @param serverPollDelay The serverPollDelay to set
+   */
   public void setServerPollDelay(String serverPollDelay) {
     this.serverPollDelay = serverPollDelay;
   }
@@ -171,7 +177,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return serverPollInterval;
   }
 
-  /** @param serverPollInterval The serverPollInterval to set */
+  /**
+   * @param serverPollInterval The serverPollInterval to set
+   */
   public void setServerPollInterval(String serverPollInterval) {
     this.serverPollInterval = serverPollInterval;
   }
@@ -185,7 +193,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return exportingResources;
   }
 
-  /** @param exportingResources The exportingResources to set */
+  /**
+   * @param exportingResources The exportingResources to set
+   */
   public void setExportingResources(boolean exportingResources) {
     this.exportingResources = exportingResources;
   }
@@ -199,7 +209,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return namedResourcesSourceFolder;
   }
 
-  /** @param namedResourcesSourceFolder The namedResourcesSourceFolder to set */
+  /**
+   * @param namedResourcesSourceFolder The namedResourcesSourceFolder to set
+   */
   public void setNamedResourcesSourceFolder(String namedResourcesSourceFolder) {
     this.namedResourcesSourceFolder = namedResourcesSourceFolder;
   }
@@ -213,7 +225,9 @@ public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguratio
     return namedResourcesTargetFolder;
   }
 
-  /** @param namedResourcesTargetFolder The namedResourcesTargetFolder to set */
+  /**
+   * @param namedResourcesTargetFolder The namedResourcesTargetFolder to set
+   */
   public void setNamedResourcesTargetFolder(String namedResourcesTargetFolder) {
     this.namedResourcesTargetFolder = namedResourcesTargetFolder;
   }

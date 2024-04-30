@@ -22,9 +22,13 @@ package org.apache.hop.core;
  * CheckResult remark.
  */
 public interface ICheckResultSource {
-  /** @return The name of the source generating the CheckResult */
+  /**
+   * @return The name of the source generating the CheckResult
+   */
   String getName();
 
-  /** @return The description of the source generating the CheckResult */
+  /**
+   * @return The description of the source generating the CheckResult
+   */
   String getDescription();
 }

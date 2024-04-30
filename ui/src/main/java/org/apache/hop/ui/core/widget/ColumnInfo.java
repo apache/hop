@@ -17,13 +17,12 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.function.Supplier;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionListener;
-
-import java.util.function.Supplier;
 
 /** Used to define the behaviour and the content of a Table column in a TableView object. */
 public class ColumnInfo {
@@ -224,12 +223,16 @@ public class ColumnInfo {
     return comboValueSupplier.get();
   }
 
-  /** @return the numeric */
+  /**
+   * @return the numeric
+   */
   public boolean isNumeric() {
     return numeric;
   }
 
-  /** @param numeric the numeric to set */
+  /**
+   * @param numeric the numeric to set
+   */
   public void setNumeric(boolean numeric) {
     this.numeric = numeric;
   }
@@ -270,32 +273,44 @@ public class ColumnInfo {
     return hidingNegativeValues;
   }
 
-  /** @return the valueMeta */
+  /**
+   * @return the valueMeta
+   */
   public IValueMeta getValueMeta() {
     return valueMeta;
   }
 
-  /** @param valueMeta the valueMeta to set */
+  /**
+   * @param valueMeta the valueMeta to set
+   */
   public void setValueMeta(IValueMeta valueMeta) {
     this.valueMeta = valueMeta;
   }
 
-  /** @return the usingVariables */
+  /**
+   * @return the usingVariables
+   */
   public boolean isUsingVariables() {
     return usingVariables;
   }
 
-  /** @param usingVariables the usingVariables to set */
+  /**
+   * @param usingVariables the usingVariables to set
+   */
   public void setUsingVariables(boolean usingVariables) {
     this.usingVariables = usingVariables;
   }
 
-  /** @return the password */
+  /**
+   * @return the password
+   */
   public boolean isPasswordField() {
     return passwordField;
   }
 
-  /** @param password the password to set */
+  /**
+   * @param password the password to set
+   */
   public void setPasswordField(boolean password) {
     this.passwordField = password;
   }
@@ -308,23 +323,31 @@ public class ColumnInfo {
     this.fieldTypeColumn = fieldTypeColumn;
   }
 
-  /** @return the comboValuesSelectionListener */
+  /**
+   * @return the comboValuesSelectionListener
+   */
   public IComboValuesSelectionListener getComboValuesSelectionListener() {
     return comboValuesSelectionListener;
   }
 
-  /** @param comboValuesSelectionListener the comboValuesSelectionListener to set */
+  /**
+   * @param comboValuesSelectionListener the comboValuesSelectionListener to set
+   */
   public void setComboValuesSelectionListener(
       IComboValuesSelectionListener comboValuesSelectionListener) {
     this.comboValuesSelectionListener = comboValuesSelectionListener;
   }
 
-  /** @return the disabledListener */
+  /**
+   * @return the disabledListener
+   */
   public IFieldDisabledListener getDisabledListener() {
     return disabledListener;
   }
 
-  /** @param disabledListener the disabledListener to set */
+  /**
+   * @param disabledListener the disabledListener to set
+   */
   public void setDisabledListener(IFieldDisabledListener disabledListener) {
     this.disabledListener = disabledListener;
   }
@@ -350,7 +373,9 @@ public class ColumnInfo {
     return this.width;
   }
 
-  /** @return if should be resized to accommodate contents */
+  /**
+   * @return if should be resized to accommodate contents
+   */
   public boolean isAutoResize() {
     return autoResize;
   }

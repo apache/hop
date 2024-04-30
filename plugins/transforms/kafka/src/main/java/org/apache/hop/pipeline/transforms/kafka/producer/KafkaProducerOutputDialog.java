@@ -18,6 +18,10 @@
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopTransformException;
@@ -55,11 +59,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 public class KafkaProducerOutputDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -439,13 +438,13 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     boolean fieldFound = false;
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields(variables, transformName);
-        String[] fieldNames = r.getFieldNames();
-        for (int count = 0; count < fieldNames.length; count++) {
-          if (fieldName.equals(fieldNames[count])) {
-            fieldFound = true;
-            break;
-          }
+      String[] fieldNames = r.getFieldNames();
+      for (int count = 0; count < fieldNames.length; count++) {
+        if (fieldName.equals(fieldNames[count])) {
+          fieldFound = true;
+          break;
         }
+      }
     } catch (HopTransformException ke) {
       new ErrorDialog(
           shell,

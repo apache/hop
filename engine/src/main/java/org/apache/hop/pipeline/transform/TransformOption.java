@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.util.List;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.List;
 
 public class TransformOption {
   private static final Class<?> PKG = TransformOption.class; // For Translator

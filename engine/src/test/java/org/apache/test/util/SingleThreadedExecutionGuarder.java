@@ -17,6 +17,8 @@
 
 package org.apache.test.util;
 
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -31,8 +33,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
 
 /**
  * This is a base class for creating guard tests, that check a transform cannot be executed in the

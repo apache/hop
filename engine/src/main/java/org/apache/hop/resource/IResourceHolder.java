@@ -19,10 +19,14 @@ package org.apache.hop.resource;
 
 public interface IResourceHolder {
 
-  /** @return The name of the holder of the resource */
+  /**
+   * @return The name of the holder of the resource
+   */
   String getName();
 
-  /** @return The description of the holder of the resource */
+  /**
+   * @return The description of the holder of the resource
+   */
   String getDescription();
 
   /**

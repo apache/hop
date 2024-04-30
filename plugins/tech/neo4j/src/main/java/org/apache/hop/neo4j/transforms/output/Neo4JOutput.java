@@ -17,6 +17,15 @@
 
 package org.apache.hop.neo4j.transforms.output;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -41,16 +50,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputData> {
 
@@ -278,7 +277,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         }
       }
       if (noFromKey) {
-        throw new HopException("Please specify at least one or more primary key properties in the 'from' node");
+        throw new HopException(
+            "Please specify at least one or more primary key properties in the 'from' node");
       }
       boolean noToKey = true;
       for (boolean key : meta.getToNodePropPrimary()) {
@@ -288,7 +288,8 @@ public class Neo4JOutput extends BaseNeoTransform<Neo4JOutputMeta, Neo4JOutputDa
         }
       }
       if (noToKey) {
-        throw new HopException("Please specify at least one or more primary key properties in the 'to' node");
+        throw new HopException(
+            "Please specify at least one or more primary key properties in the 'to' node");
       }
     }
   }

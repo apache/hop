@@ -26,6 +26,13 @@ package org.apache.hop.pipeline.transforms.pgbulkloader;
 //
 
 import com.google.common.annotations.VisibleForTesting;
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -41,14 +48,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.PGCopyOutputStream;
-
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
 
 /** Performs a bulk load to a postgres table. */
 public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderData> {

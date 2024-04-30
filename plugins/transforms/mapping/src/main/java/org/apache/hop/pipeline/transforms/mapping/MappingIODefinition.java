@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.HopMetadataWrapper;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -28,11 +28,8 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /** Helps to define the input or output specifications for the Mapping transform. */
-@HopMetadataWrapper(tag="mapping")
+@HopMetadataWrapper(tag = "mapping")
 public class MappingIODefinition implements Cloneable {
 
   public static final String XML_TAG = "mapping";
@@ -108,11 +105,9 @@ public class MappingIODefinition implements Cloneable {
     this();
 
     XmlMetadataUtil.deSerializeFromXml(
-        this,
-        mappingNode,
-        MappingIODefinition.class,
-        new MemoryMetadataProvider());
+        this, mappingNode, MappingIODefinition.class, new MemoryMetadataProvider());
   }
+
   /*
     inputTransformName = XmlHandler.getTagValue(mappingNode, "input_transform");
     outputTransformName = XmlHandler.getTagValue(mappingNode, "output_transform");
@@ -136,6 +131,7 @@ public class MappingIODefinition implements Cloneable {
 
     return XmlMetadataUtil.serializeObjectToXml(this);
   }
+
   /*
 
     StringBuilder xml = new StringBuilder(200);

@@ -18,13 +18,12 @@
 
 package org.apache.hop.neo4j.core.data;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Relationship;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GraphRelationshipData {
 
@@ -160,7 +159,9 @@ public class GraphRelationshipData {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -174,7 +175,9 @@ public class GraphRelationshipData {
     return label;
   }
 
-  /** @param label The label to set */
+  /**
+   * @param label The label to set
+   */
   public void setLabel(String label) {
     this.label = label;
   }
@@ -188,7 +191,9 @@ public class GraphRelationshipData {
     return properties;
   }
 
-  /** @param properties The properties to set */
+  /**
+   * @param properties The properties to set
+   */
   public void setProperties(List<GraphPropertyData> properties) {
     this.properties = properties;
   }
@@ -202,7 +207,9 @@ public class GraphRelationshipData {
     return sourceNodeId;
   }
 
-  /** @param sourceNodeId The sourceNodeId to set */
+  /**
+   * @param sourceNodeId The sourceNodeId to set
+   */
   public void setSourceNodeId(String sourceNodeId) {
     this.sourceNodeId = sourceNodeId;
   }
@@ -216,7 +223,9 @@ public class GraphRelationshipData {
     return targetNodeId;
   }
 
-  /** @param targetNodeId The targetNodeId to set */
+  /**
+   * @param targetNodeId The targetNodeId to set
+   */
   public void setTargetNodeId(String targetNodeId) {
     this.targetNodeId = targetNodeId;
   }
@@ -230,7 +239,9 @@ public class GraphRelationshipData {
     return propertySetId;
   }
 
-  /** @param propertySetId The propertySetId to set */
+  /**
+   * @param propertySetId The propertySetId to set
+   */
   public void setPropertySetId(String propertySetId) {
     this.propertySetId = propertySetId;
   }

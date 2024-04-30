@@ -18,6 +18,8 @@
 
 package org.apache.hop.git;
 
+import java.util.Map;
+import java.util.Optional;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -25,9 +27,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-
-import java.util.Map;
-import java.util.Optional;
 
 public class HopDiff {
   public static String ATTR_GIT = "Git";

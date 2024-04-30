@@ -29,8 +29,7 @@ public class GGroup {
       injectionGroupDescription = "MemoryGroupBy.Injection.FIELDS")
   private String field;
 
-  public GGroup() {
-  }
+  public GGroup() {}
 
   public GGroup(GGroup g) {
     this.field = g.field;

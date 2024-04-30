@@ -17,6 +17,20 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.StringJoiner;
+import java.util.TreeSet;
 import org.apache.commons.math3.stat.descriptive.rank.Percentile;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -41,21 +55,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.StringJoiner;
-import java.util.TreeSet;
 
 /** Groups data based on aggregation rules. (sum, count, ...) */
 public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
@@ -89,9 +88,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         return false;
       }
 
-      allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);      
+      allNullsAreZero = getVariableBoolean(Const.HOP_AGGREGATION_ALL_NULLS_ARE_ZERO, false);
       minNullIsValued = getVariableBoolean(Const.HOP_AGGREGATION_MIN_NULL_IS_VALUED, false);
-      
+
       // What is the output looking like?
       //
       data.inputRowMeta = getInputRowMeta();
@@ -160,11 +159,14 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
       data.groupnrs = new int[meta.getGroupingFields().size()];
       for (int i = 0; i < meta.getGroupingFields().size(); i++) {
-        data.groupnrs[i] = data.inputRowMeta.indexOfValue(meta.getGroupingFields().get(i).getName());
+        data.groupnrs[i] =
+            data.inputRowMeta.indexOfValue(meta.getGroupingFields().get(i).getName());
         if ((r != null) && (data.groupnrs[i] < 0)) {
           logError(
               BaseMessages.getString(
-                  PKG, "GroupBy.Log.GroupFieldCouldNotFound", meta.getGroupingFields().get(i).getName()));
+                  PKG,
+                  "GroupBy.Log.GroupFieldCouldNotFound",
+                  meta.getGroupingFields().get(i).getName()));
           setErrors(1);
           stopAll();
           return false;
@@ -409,7 +411,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
    * @param row
    * @throws HopValueException
    */
-  @SuppressWarnings("unchecked")
   void calcAggregate(Object[] row) throws HopValueException {
     for (int i = 0; i < data.subjectnrs.length; i++) {
       Aggregation aggregation = meta.getAggregations().get(i);
@@ -570,7 +571,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           if (subj != null) {
             SortedSet<Object> set = (SortedSet<Object>) value;
             set.add(subj);
-          }          
+          }
         default:
           break;
       }
@@ -652,7 +653,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
         case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
           vMeta = new ValueMetaString(fieldName);
           v = new TreeSet<>();
-          break;          
+          break;
         default:
           // TODO raise an error here because we cannot continue successfully maybe the UI should
           // validate this
@@ -740,7 +741,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           if (aggType == Aggregation.TYPE_GROUP_PERCENTILE) {
             percentile = Double.parseDouble(aggregation.getValue());
           }
-          @SuppressWarnings("unchecked")
           List<Double> valuesList = (List<Double>) data.agg[i];
           double[] values = new double[valuesList.size()];
           for (int v = 0; v < values.length; v++) {
@@ -753,7 +753,6 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           if (aggType == Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK) {
             percentileValue = Double.parseDouble(aggregation.getValue());
           }
-          @SuppressWarnings("unchecked")
           List<Double> latenciesList = (List<Double>) data.agg[i];
           Collections.sort(latenciesList);
           Double[] latencies = new Double[latenciesList.size()];
@@ -792,7 +791,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           }
         case Aggregation.TYPE_GROUP_CONCAT_COMMA:
         case Aggregation.TYPE_GROUP_CONCAT_STRING:
-        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:          
+        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
           ag = ((StringBuilder) ag).toString();
           break;
         case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
@@ -801,12 +800,12 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           if (!Utils.isEmpty(aggregation.getValue())) {
             separator = resolve(aggregation.getValue());
           }
-          StringJoiner joiner = new StringJoiner(separator);         
-          for (Object value: (SortedSet<Object>) ag) {
-              joiner.add(subjMeta.getString(value));
+          StringJoiner joiner = new StringJoiner(separator);
+          for (Object value : (SortedSet<Object>) ag) {
+            joiner.add(subjMeta.getString(value));
           }
           ag = joiner.toString();
-          break;           
+          break;
         default:
           break;
       }

@@ -17,13 +17,14 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 
-/** @param <T> type of value */
+/**
+ * @param <T> type of value
+ */
 public class KeyValue<T> implements Serializable {
 
   /** The default true values. */
@@ -84,17 +85,23 @@ public class KeyValue<T> implements Serializable {
     }
   }
 
-  /** @return the key, never null. */
+  /**
+   * @return the key, never null.
+   */
   public String getKey() {
     return this.key;
   }
 
-  /** @return the value */
+  /**
+   * @return the value
+   */
   public T getValue() {
     return this.value;
   }
 
-  /** @param value the value to set */
+  /**
+   * @param value the value to set
+   */
   public void setValue(final T value) {
     this.value = value;
   }
@@ -108,7 +115,9 @@ public class KeyValue<T> implements Serializable {
     return this;
   }
 
-  /** @return value. */
+  /**
+   * @return value.
+   */
   public T value() {
     return this.value;
   }
@@ -169,7 +178,9 @@ public class KeyValue<T> implements Serializable {
     return returnValue;
   }
 
-  /** @return string value or null if value is null. */
+  /**
+   * @return string value or null if value is null.
+   */
   public String stringValue() {
     if (this.value == null) {
       return null;

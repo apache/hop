@@ -18,6 +18,7 @@
 
 package org.apache.hop.reflection.workflow.transform;
 
+import java.util.List;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
@@ -32,8 +33,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.List;
 
 public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, WorkflowLoggingData> {
 
@@ -190,7 +189,9 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     return loggingWorkflow;
   }
 
-  /** @param loggingWorkflow The loggingWorkflow to set */
+  /**
+   * @param loggingWorkflow The loggingWorkflow to set
+   */
   public void setLoggingWorkflow(IWorkflowEngine<WorkflowMeta> loggingWorkflow) {
     this.loggingWorkflow = loggingWorkflow;
   }
@@ -204,7 +205,9 @@ public class WorkflowLogging extends BaseTransform<WorkflowLoggingMeta, Workflow
     return loggingPhase;
   }
 
-  /** @param loggingPhase The loggingPhase to set */
+  /**
+   * @param loggingPhase The loggingPhase to set
+   */
   public void setLoggingPhase(String loggingPhase) {
     this.loggingPhase = loggingPhase;
   }

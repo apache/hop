@@ -18,8 +18,6 @@
 package org.apache.hop.concurrency;
 
 import com.google.common.base.Throwables;
-import org.junit.Assert;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +31,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.junit.Assert;
 
 /**
  * This class is aimed to be a general runner for concurrency tests. You need to follow a convention
@@ -60,7 +59,6 @@ class ConcurrencyTestRunner<M, B> {
    * @param condition stop condition
    * @throws Exception exception
    */
-  @SuppressWarnings("unchecked")
   static void runAndCheckNoExceptionRaised(
       List<? extends Callable<?>> monitoredTasks,
       List<? extends Callable<?>> backgroundTasks,
@@ -137,7 +135,6 @@ class ConcurrencyTestRunner<M, B> {
 
       for (int i = 0; i < background.size(); i++) {
         Future<? extends B> future = background.get(i);
-        // CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
         while (!future.isDone()) {
           // wait: condition flag is cleared, thus background tasks must complete by convention
         }

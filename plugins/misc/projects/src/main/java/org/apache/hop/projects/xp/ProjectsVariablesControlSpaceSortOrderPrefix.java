@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.xp;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -24,8 +25,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.util.Defaults;
 import org.apache.hop.projects.util.ProjectsUtil;
-
-import java.util.Map;
 
 @ExtensionPoint(
     id = "ProjectsVariablesControlSpaceSortOrderPrefix",

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.janino;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -31,9 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.codehaus.janino.ExpressionEvaluator;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Calculate new field values using pre-defined functions. */
 public class Janino extends BaseTransform<JaninoMeta, JaninoData> {

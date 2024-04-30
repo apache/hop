@@ -33,7 +33,10 @@ import org.apache.hop.core.util.Utils;
  *
  * <p>https://clickhouse.tech/docs/en/sql-reference/
  */
-@DatabaseMetaPlugin(type = "CLICKHOUSE", typeDescription = "ClickHouse", documentationUrl = "/database/databases/clickhouse.html")
+@DatabaseMetaPlugin(
+    type = "CLICKHOUSE",
+    typeDescription = "ClickHouse",
+    documentationUrl = "/database/databases/clickhouse.html")
 @GuiPlugin(id = "GUI-ClickhouseDatabaseMeta")
 public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -264,31 +267,41 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     return "&";
   }
 
-  /** @return true if all fields should always be quoted in db */
+  /**
+   * @return true if all fields should always be quoted in db
+   */
   @Override
   public boolean isQuoteAllFields() {
     return false;
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
   }
 
-  /** @return true if the database supports schemas */
+  /**
+   * @return true if the database supports schemas
+   */
   @Override
   public boolean isSupportsSchemas() {
     return false;
   }
 
-  /** @return true if the database supports transactions. */
+  /**
+   * @return true if the database supports transactions.
+   */
   @Override
   public boolean isSupportsTransactions() {
     return false;
   }
 
-  /** @return true if the database supports views */
+  /**
+   * @return true if the database supports views
+   */
   @Override
   public boolean isSupportsViews() {
     return true;

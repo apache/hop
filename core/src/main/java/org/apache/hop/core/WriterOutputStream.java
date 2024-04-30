@@ -17,11 +17,10 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.util.Utils;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import org.apache.hop.core.util.Utils;
 
 /** This class provides a simple wrapper to disguise a Writer as an OutputStream. */
 public class WriterOutputStream extends OutputStream {

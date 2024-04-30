@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -62,10 +65,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class XmlOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = XmlOutputMeta.class; // For Translator
@@ -114,7 +113,6 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
   private ColumnInfo[] colinf;
 
   private final List<String> inputFields = new ArrayList<>();
-
 
   public XmlOutputDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
@@ -1008,7 +1006,6 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
       field.setGroupingSymbol(item.getText(index++));
       field.setNullString(item.getText(index++));
 
-      // CHECKSTYLE:Indentation:OFF
       xmlOutputMeta.getOutputFields()[i] = field;
     }
   }

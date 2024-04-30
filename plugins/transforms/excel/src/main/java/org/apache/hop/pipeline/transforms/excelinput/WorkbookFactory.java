@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import java.io.InputStream;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.poi.PoiWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.staxpoi.StaxPoiWorkbook;
-
-import java.io.InputStream;
 
 public class WorkbookFactory {
 

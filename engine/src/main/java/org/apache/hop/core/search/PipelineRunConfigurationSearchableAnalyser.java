@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.core.variables.DescribedVariable;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.variables.DescribedVariable;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 @SearchableAnalyserPlugin(
     id = "PipelineRunConfigurationSearchableAnalyser",

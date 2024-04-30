@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.List;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 public class PipelinePainterFlyoutExtension {
 

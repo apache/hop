@@ -17,6 +17,11 @@
 
 package org.apache.hop.search;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -51,12 +56,6 @@ import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 import picocli.CommandLine.Parameters;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 @Command(versionProvider = HopVersionProvider.class)
 public class HopSearch implements Runnable, IHasHopMetadataProvider {
 
@@ -66,11 +65,12 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
       description = "Displays this help message and quits.")
   private boolean helpRequested;
 
-  @Option(names = {"-v", "--version"},
+  @Option(
+      names = {"-v", "--version"},
       versionHelp = true,
       description = "Print version information and exit")
   private boolean versionRequested;
-  
+
   @Parameters(description = "The string to search for")
   private String searchString;
 
@@ -233,7 +233,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return cmd;
   }
 
-  /** @param cmd The cmd to set */
+  /**
+   * @param cmd The cmd to set
+   */
   public void setCmd(CommandLine cmd) {
     this.cmd = cmd;
   }
@@ -248,7 +250,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   @Override
   public void setMetadataProvider(MultiMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
@@ -263,7 +267,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return helpRequested;
   }
 
-  /** @param helpRequested The helpRequested to set */
+  /**
+   * @param helpRequested The helpRequested to set
+   */
   public void setHelpRequested(boolean helpRequested) {
     this.helpRequested = helpRequested;
   }
@@ -277,7 +283,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -291,7 +299,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return searchablesLocations;
   }
 
-  /** @param searchablesLocations The searchablesLocations to set */
+  /**
+   * @param searchablesLocations The searchablesLocations to set
+   */
   public void setSearchablesLocations(List<ISearchablesLocation> searchablesLocations) {
     this.searchablesLocations = searchablesLocations;
   }
@@ -305,7 +315,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return searchString;
   }
 
-  /** @param searchString The searchString to set */
+  /**
+   * @param searchString The searchString to set
+   */
   public void setSearchString(String searchString) {
     this.searchString = searchString;
   }
@@ -319,7 +331,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return caseInsensitive;
   }
 
-  /** @param caseInsensitive The caseInsensitive to set */
+  /**
+   * @param caseInsensitive The caseInsensitive to set
+   */
   public void setCaseInsensitive(Boolean caseInsensitive) {
     this.caseInsensitive = caseInsensitive;
   }
@@ -333,7 +347,9 @@ public class HopSearch implements Runnable, IHasHopMetadataProvider {
     return regularExpression;
   }
 
-  /** @param regularExpression The regularExpression to set */
+  /**
+   * @param regularExpression The regularExpression to set
+   */
   public void setRegularExpression(Boolean regularExpression) {
     this.regularExpression = regularExpression;
   }

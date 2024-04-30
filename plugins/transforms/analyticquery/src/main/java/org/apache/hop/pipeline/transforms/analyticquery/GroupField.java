@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.analyticquery;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class GroupField {
 
@@ -59,7 +58,9 @@ public class GroupField {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }

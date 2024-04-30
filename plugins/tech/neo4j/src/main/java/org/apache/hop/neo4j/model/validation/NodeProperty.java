@@ -39,7 +39,9 @@ public class NodeProperty {
     return nodeName;
   }
 
-  /** @param nodeName The nodeName to set */
+  /**
+   * @param nodeName The nodeName to set
+   */
   public void setNodeName(String nodeName) {
     this.nodeName = nodeName;
   }
@@ -53,7 +55,9 @@ public class NodeProperty {
     return propertyName;
   }
 
-  /** @param propertyName The propertyName to set */
+  /**
+   * @param propertyName The propertyName to set
+   */
   public void setPropertyName(String propertyName) {
     this.propertyName = propertyName;
   }

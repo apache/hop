@@ -108,7 +108,7 @@ The name of that file is <errorline dir>/filename.<date_time>.<errorline extensi
 
 === Fields tab
 
-The fields tab is for specifying the fields that must be read from the Excel files. You can choose to use a xref:metadata-types/schema-file-definition.adoc[Schema Definition] or to define the required fields' layout manually.
+The fields tab is for specifying the fields that must be read from the Excel files. You can choose to use a xref:metadata-types/static-schema-definition.adoc[Schema Definition] or to define the required fields' layout manually.
 
 Use _Get fields from header_ row to fill in the available fields if the sheets have a header row automatically.
 
@@ -118,7 +118,7 @@ Note: In the case of Number to Date conversion (for example, 20051028--> October
 
 |===
 |Option|Description
-|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we want to reference.
+|Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we want to reference.
 |Name|The name of the field.
 |Type|The field's data type; String, Date or Number.
 |Length|The length option depends on the field type.

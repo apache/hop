@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.workflow;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -38,8 +39,6 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardD
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
-
-import java.util.List;
 
 /**
  * This is a convenient way to add a workflow you just designed to another workflow in the form of
@@ -113,11 +112,9 @@ public class ActionWorkflowGuiPlugin {
     StringBuilder xml = new StringBuilder(5000).append(XmlHandler.getXmlHeader());
     xml.append(XmlHandler.openTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
         .append(Const.CR);
-    xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS))
-        .append(Const.CR);
+    xml.append(XmlHandler.openTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
     xml.append(actionMeta.getXml());
-    xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS))
-        .append(Const.CR);
+    xml.append(XmlHandler.closeTag(WorkflowMeta.XML_TAG_ACTIONS)).append(Const.CR);
     xml.append(XmlHandler.closeTag(HopGuiWorkflowClipboardDelegate.XML_TAG_WORKFLOW_ACTIONS))
         .append(Const.CR);
 

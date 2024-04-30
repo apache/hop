@@ -142,7 +142,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return filenameField;
   }
 
-  /** @param filenameField The filenameField to set */
+  /**
+   * @param filenameField The filenameField to set
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
@@ -156,7 +158,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return fileTypeField;
   }
 
-  /** @param fileTypeField The fileTypeField to set */
+  /**
+   * @param fileTypeField The fileTypeField to set
+   */
   public void setFileTypeField(String fileTypeField) {
     this.fileTypeField = fileTypeField;
   }
@@ -170,7 +174,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return baseFolder;
   }
 
-  /** @param baseFolder The baseFolder to set */
+  /**
+   * @param baseFolder The baseFolder to set
+   */
   public void setBaseFolder(String baseFolder) {
     this.baseFolder = baseFolder;
   }
@@ -184,7 +190,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return adminCommand;
   }
 
-  /** @param adminCommand The adminCommand to set */
+  /**
+   * @param adminCommand The adminCommand to set
+   */
   public void setAdminCommand(String adminCommand) {
     this.adminCommand = adminCommand;
   }
@@ -198,7 +206,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return reportFile;
   }
 
-  /** @param reportFile The reportFile to set */
+  /**
+   * @param reportFile The reportFile to set
+   */
   public void setReportFile(String reportFile) {
     this.reportFile = reportFile;
   }
@@ -212,7 +222,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return maxMemory;
   }
 
-  /** @param maxMemory The maxMemory to set */
+  /**
+   * @param maxMemory The maxMemory to set
+   */
   public void setMaxMemory(String maxMemory) {
     this.maxMemory = maxMemory;
   }
@@ -226,7 +238,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return skippingDuplicateNodes;
   }
 
-  /** @param skippingDuplicateNodes The ignoringDuplicateNodes to set */
+  /**
+   * @param skippingDuplicateNodes The ignoringDuplicateNodes to set
+   */
   public void setSkippingDuplicateNodes(boolean skippingDuplicateNodes) {
     this.skippingDuplicateNodes = skippingDuplicateNodes;
   }
@@ -240,7 +254,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return ignoringExtraColumns;
   }
 
-  /** @param ignoringExtraColumns The ignoringExtraColumns to set */
+  /**
+   * @param ignoringExtraColumns The ignoringExtraColumns to set
+   */
   public void setIgnoringExtraColumns(boolean ignoringExtraColumns) {
     this.ignoringExtraColumns = ignoringExtraColumns;
   }
@@ -254,7 +270,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return highIo;
   }
 
-  /** @param highIo The highIo to set */
+  /**
+   * @param highIo The highIo to set
+   */
   public void setHighIo(boolean highIo) {
     this.highIo = highIo;
   }
@@ -268,7 +286,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return databaseName;
   }
 
-  /** @param databaseName The databaseFilename to set */
+  /**
+   * @param databaseName The databaseFilename to set
+   */
   public void setDatabaseName(String databaseName) {
     this.databaseName = databaseName;
   }
@@ -282,7 +302,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return multiLine;
   }
 
-  /** @param multiLine The multiLine to set */
+  /**
+   * @param multiLine The multiLine to set
+   */
   public void setMultiLine(boolean multiLine) {
     this.multiLine = multiLine;
   }
@@ -296,7 +318,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return skippingBadRelationships;
   }
 
-  /** @param skippingBadRelationships The skippingBadRelationships to set */
+  /**
+   * @param skippingBadRelationships The skippingBadRelationships to set
+   */
   public void setSkippingBadRelationships(boolean skippingBadRelationships) {
     this.skippingBadRelationships = skippingBadRelationships;
   }
@@ -310,7 +334,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return readBufferSize;
   }
 
-  /** @param readBufferSize The readBufferSize to set */
+  /**
+   * @param readBufferSize The readBufferSize to set
+   */
   public void setReadBufferSize(String readBufferSize) {
     this.readBufferSize = readBufferSize;
   }
@@ -324,7 +350,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return cacheOnHeap;
   }
 
-  /** @param cacheOnHeap The cacheOnHeap to set */
+  /**
+   * @param cacheOnHeap The cacheOnHeap to set
+   */
   public void setCacheOnHeap(boolean cacheOnHeap) {
     this.cacheOnHeap = cacheOnHeap;
   }
@@ -338,7 +366,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return ignoringEmptyStrings;
   }
 
-  /** @param ignoringEmptyStrings The ignoringEmptyStrings to set */
+  /**
+   * @param ignoringEmptyStrings The ignoringEmptyStrings to set
+   */
   public void setIgnoringEmptyStrings(boolean ignoringEmptyStrings) {
     this.ignoringEmptyStrings = ignoringEmptyStrings;
   }
@@ -352,7 +382,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return quotingLegacyStyle;
   }
 
-  /** @param quotingLegacyStyle The quotingLegacyStyle to set */
+  /**
+   * @param quotingLegacyStyle The quotingLegacyStyle to set
+   */
   public void setQuotingLegacyStyle(boolean quotingLegacyStyle) {
     this.quotingLegacyStyle = quotingLegacyStyle;
   }
@@ -366,7 +398,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return normalizingTypes;
   }
 
-  /** @param normalizingTypes The normalizingTypes to set */
+  /**
+   * @param normalizingTypes The normalizingTypes to set
+   */
   public void setNormalizingTypes(boolean normalizingTypes) {
     this.normalizingTypes = normalizingTypes;
   }
@@ -380,7 +414,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return skippingBadEntriesLogging;
   }
 
-  /** @param skippingBadEntriesLogging The skippingBadEntriesLogging to set */
+  /**
+   * @param skippingBadEntriesLogging The skippingBadEntriesLogging to set
+   */
   public void setSkippingBadEntriesLogging(boolean skippingBadEntriesLogging) {
     this.skippingBadEntriesLogging = skippingBadEntriesLogging;
   }
@@ -394,7 +430,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return trimmingStrings;
   }
 
-  /** @param trimmingStrings The trimmingStrings to set */
+  /**
+   * @param trimmingStrings The trimmingStrings to set
+   */
   public void setTrimmingStrings(boolean trimmingStrings) {
     this.trimmingStrings = trimmingStrings;
   }
@@ -408,7 +446,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return badTolerance;
   }
 
-  /** @param badTolerance The badTollerance to set */
+  /**
+   * @param badTolerance The badTollerance to set
+   */
   public void setBadTolerance(String badTolerance) {
     this.badTolerance = badTolerance;
   }
@@ -422,7 +462,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return processors;
   }
 
-  /** @param processors The processors to set */
+  /**
+   * @param processors The processors to set
+   */
   public void setProcessors(String processors) {
     this.processors = processors;
   }
@@ -436,7 +478,9 @@ public class ImporterMeta extends BaseTransformMeta<Importer, ImporterData> {
     return verbose;
   }
 
-  /** @param verbose The verbose to set */
+  /**
+   * @param verbose The verbose to set
+   */
   public void setVerbose(boolean verbose) {
     this.verbose = verbose;
   }

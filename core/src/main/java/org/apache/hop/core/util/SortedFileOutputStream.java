@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.logging.ILogChannel;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Vector;
+import org.apache.hop.core.logging.ILogChannel;
 
 public class SortedFileOutputStream extends FileOutputStream {
   /** Internal buffer to catch output. Before really writing output, the properties get sorted. */

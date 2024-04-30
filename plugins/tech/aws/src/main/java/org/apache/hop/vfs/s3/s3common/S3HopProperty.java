@@ -22,9 +22,9 @@ import org.apache.hop.core.variables.Variable;
 
 /** Class that handles operations dealing with hop property file. */
 public class S3HopProperty {
-  
+
   // TODO: Provide variable description
-  @Variable(description="")
+  @Variable(description = "")
   public static final String HOP_S3_VFS_PART_SIZE = "HOP_S3_VFS_PART_SIZE";
 
   public String getPartSize() {

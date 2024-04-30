@@ -75,24 +75,24 @@ public class DatabaseFactory implements IDatabaseFactory {
     return databaseTestResults;
   }
 
-  private StringBuilder appendConnectionInfo(IVariables variables, StringBuilder report,
-      Database db, DatabaseMeta databaseMeta) {
+  private StringBuilder appendConnectionInfo(
+      IVariables variables, StringBuilder report, Database db, DatabaseMeta databaseMeta) {
 
     // Check to see if the interface is of a type GenericDatabaseMeta, since it does not have
     // hostname and port fields
-    if ( "GENERIC".equals(databaseMeta.getPluginId()) ) {
+    if ("GENERIC".equals(databaseMeta.getPluginId())) {
       String customDriverClass =
           databaseMeta.getAttributes().get(NoneDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS);
-      append(report, "GenericDatabaseMeta.report.customUrl",
-          db.resolve(databaseMeta.getManualUrl()));
+      append(
+          report, "GenericDatabaseMeta.report.customUrl", db.resolve(databaseMeta.getManualUrl()));
       append(report, "GenericDatabaseMeta.report.customDriverClass", db.resolve(customDriverClass));
 
       return report;
     } else {
       append(report, "DatabaseMeta.report.Hostname", db.resolve(databaseMeta.getHostname()));
       append(report, "DatabaseMeta.report.Port", db.resolve(databaseMeta.getPort()));
-      append(report, "DatabaseMeta.report.DatabaseName",
-          db.resolve(databaseMeta.getDatabaseName()));
+      append(
+          report, "DatabaseMeta.report.DatabaseName", db.resolve(databaseMeta.getDatabaseName()));
 
       String url = "";
       try {

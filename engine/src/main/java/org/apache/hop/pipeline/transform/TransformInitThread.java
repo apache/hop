@@ -94,12 +94,16 @@ public class TransformInitThread implements Runnable {
     return ok;
   }
 
-  /** @return Returns the combi. */
+  /**
+   * @return Returns the combi.
+   */
   public TransformMetaDataCombi getCombi() {
     return combi;
   }
 
-  /** @param combi The combi to set. */
+  /**
+   * @param combi The combi to set.
+   */
   public void setCombi(TransformMetaDataCombi combi) {
     this.combi = combi;
   }
@@ -113,17 +117,23 @@ public class TransformInitThread implements Runnable {
     return pipeline;
   }
 
-  /** @param pipeline The pipeline to set */
+  /**
+   * @param pipeline The pipeline to set
+   */
   public void setPipeline(Pipeline pipeline) {
     this.pipeline = pipeline;
   }
 
-  /** @return the doIt */
+  /**
+   * @return the doIt
+   */
   public boolean isDoIt() {
     return doIt;
   }
 
-  /** @param doIt the doIt to set */
+  /**
+   * @param doIt the doIt to set
+   */
   public void setDoIt(boolean doIt) {
     this.doIt = doIt;
   }

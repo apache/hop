@@ -17,6 +17,18 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -48,19 +60,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /** User: Dzmitry Stsiapanau Date: 10/18/13 Time: 2:23 PM */
 public class TextFileOutputTest {
@@ -470,9 +469,9 @@ public class TextFileOutputTest {
                 Mockito.anyInt(),
                 Mockito.anyString(),
                 Mockito.anyInt(),
-                    Mockito.anyBoolean(),
-                    Mockito.anyString(),
-                    Mockito.anyInt(),
+                Mockito.anyBoolean(),
+                Mockito.anyString(),
+                Mockito.anyInt(),
                 Mockito.anyBoolean(),
                 Mockito.any(TextFileOutputMeta.class)))
         .thenReturn(pathToFile);

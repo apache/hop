@@ -17,9 +17,8 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
-import org.apache.hop.databases.cassandra.util.CassandraUtils;
-
 import java.util.Map;
+import org.apache.hop.databases.cassandra.util.CassandraUtils;
 
 public abstract class AbstractSSTableWriter {
   private static final int DEFAULT_BUFFER_SIZE_MB = 16;

@@ -17,9 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary;
 
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -29,6 +26,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
 
 public class ColumnSpec {
   private static final byte BYTE_ZERO = (byte) 0;

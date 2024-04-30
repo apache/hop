@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
@@ -57,8 +58,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.List;
 
 /** Dialog that allows the user to launch SQL statements towards the database. */
 public class SqlEditor {

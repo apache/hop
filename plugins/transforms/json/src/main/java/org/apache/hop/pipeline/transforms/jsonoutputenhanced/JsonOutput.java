@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -43,11 +48,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   private static final Class<?> PKG =
@@ -127,9 +127,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   public void manageRowItems(Object[] row) throws HopException {
 
     ObjectNode itemNode;
-    
+
     boolean sameGroup = sameGroup(prevRow, row);
-    
+
     if (meta.isUseSingleItemPerGroup()) {
       /*
        * If grouped rows are forced to produce a single item, reuse the same itemNode as long as the
@@ -138,9 +138,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       if (!sameGroup || currentNode == null) {
         currentNode = new ObjectNode(nc);
       }
-      
+
       itemNode = currentNode;
-    
+
     } else {
       // Create a new object with specified fields
       itemNode = new ObjectNode(nc);
@@ -158,7 +158,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
       String jsonAttributeName = getJsonAttributeName(outputField);
       boolean putBlank = !outputField.isRemoveIfBlank();
-      
+
       /*
        * Prepare the array node to collect all values of a field inside a group into an array. Skip
        * fields appearing in the grouped fields since they are always unique per group.
@@ -170,7 +170,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         } else {
           arNode = (ArrayNode) itemNode.get(jsonAttributeName);
         }
-        // In case whe have an array to store data, the flag to remove blanks is effectivly deactivated.
+        // In case whe have an array to store data, the flag to remove blanks is effectivly
+        // deactivated.
         putBlank = false;
       }
 
@@ -271,7 +272,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     if (!meta.isUseSingleItemPerGroup() || data.jsonKeyGroupItems.size() == 0) {
       data.jsonKeyGroupItems.add(itemNode);
     }
-    
+
     prevRow = data.inputRowMeta.cloneRow(row); // copy the row to previous
     data.nrRow++;
 
@@ -418,9 +419,15 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     try {
       if (meta.getJsonBloc() != null && meta.getJsonBloc().length() > 0) {
         // TBD Try to understand if this can have a performance impact and do it better...
-        theNode.set(meta.getJsonBloc(),
-            mapper.readTree(mapper.writeValueAsString(jsonItemsList.size() > 1 ? jsonItemsList
-                : (!meta.isUseArrayWithSingleInstance() ? jsonItemsList.get(0) : jsonItemsList))));
+        theNode.set(
+            meta.getJsonBloc(),
+            mapper.readTree(
+                mapper.writeValueAsString(
+                    jsonItemsList.size() > 1
+                        ? jsonItemsList
+                        : (!meta.isUseArrayWithSingleInstance()
+                            ? jsonItemsList.get(0)
+                            : jsonItemsList))));
         if (meta.isJsonPrittified()) {
           data.jsonSerialized = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(theNode);
         } else {
@@ -507,7 +514,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
         throw new HopException(BaseMessages.getString(PKG, "JsonOutput.Exception.FieldNotFound"));
       JsonOutputField field = meta.getOutputFields()[i];
       field.setElementName(variables.resolve(field.getElementName()));
-      
+
       /*
        * Mark all output fields that are part of the group key fields. This way we can avoid
        * collecting unique values of each group inside an array. Feature #3287
@@ -548,8 +555,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   }
 
   private void createParentFolder(String filename) throws HopTransformException {
-    if (!meta.isCreateParentFolder())
-      return;
+    if (!meta.isCreateParentFolder()) return;
     // Check for parent folder
     FileObject parentfolder = null;
     try {
@@ -583,8 +589,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
   public boolean openNewFile() {
 
-    if (data.writer != null)
-      return true;
+    if (data.writer != null) return true;
     boolean retval = false;
     try {
 
@@ -634,8 +639,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
   }
 
   private boolean closeFile() {
-    if (data.writer == null)
-      return true;
+    if (data.writer == null) return true;
     boolean retval = false;
 
     try {

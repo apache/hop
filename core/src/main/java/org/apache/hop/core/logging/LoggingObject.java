@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.logging;
 
+import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.util.Utils;
-
-import java.util.Date;
 
 public class LoggingObject implements ILoggingObject {
 
@@ -204,68 +203,92 @@ public class LoggingObject implements ILoggingObject {
     parent = loggingObject;
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   @Override
   public String getObjectName() {
     return objectName;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setObjectName(String name) {
     this.objectName = name;
   }
 
-  /** @return the filename */
+  /**
+   * @return the filename
+   */
   @Override
   public String getFilename() {
     return filename;
   }
 
-  /** @param filename the filename to set */
+  /**
+   * @param filename the filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /** @return the id */
+  /**
+   * @return the id
+   */
   @Override
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /** @param logChannelId the id to set */
+  /**
+   * @param logChannelId the id to set
+   */
   public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
 
-  /** @return the parent */
+  /**
+   * @return the parent
+   */
   @Override
   public ILoggingObject getParent() {
     return parent;
   }
 
-  /** @param parent the parent to set */
+  /**
+   * @param parent the parent to set
+   */
   public void setParent(ILoggingObject parent) {
     this.parent = parent;
   }
 
-  /** @return the objectType */
+  /**
+   * @return the objectType
+   */
   @Override
   public LoggingObjectType getObjectType() {
     return objectType;
   }
 
-  /** @param objectType the objectType to set */
+  /**
+   * @param objectType the objectType to set
+   */
   public void setObjectType(LoggingObjectType objectType) {
     this.objectType = objectType;
   }
 
-  /** @return the copy */
+  /**
+   * @return the copy
+   */
   @Override
   public String getObjectCopy() {
     return objectCopy;
   }
 
-  /** @param objectCopy the copy to set */
+  /**
+   * @param objectCopy the copy to set
+   */
   public void setObjectCopy(String objectCopy) {
     this.objectCopy = objectCopy;
   }
@@ -279,47 +302,63 @@ public class LoggingObject implements ILoggingObject {
     this.logLevel = logLevel;
   }
 
-  /** @return the serverObjectId */
+  /**
+   * @return the serverObjectId
+   */
   @Override
   public String getContainerId() {
     return containerObjectId;
   }
 
-  /** @param serverObjectId the serverObjectId to set */
+  /**
+   * @param serverObjectId the serverObjectId to set
+   */
   public void setCarteObjectId(String serverObjectId) {
     this.containerObjectId = serverObjectId;
   }
 
-  /** @return the registrationDate */
+  /**
+   * @return the registrationDate
+   */
   @Override
   public Date getRegistrationDate() {
     return registrationDate;
   }
 
-  /** @param registrationDate the registrationDate to set */
+  /**
+   * @param registrationDate the registrationDate to set
+   */
   public void setRegistrationDate(Date registrationDate) {
     this.registrationDate = registrationDate;
   }
 
-  /** @return the gatheringMetrics */
+  /**
+   * @return the gatheringMetrics
+   */
   @Override
   public boolean isGatheringMetrics() {
     return gatheringMetrics;
   }
 
-  /** @param gatheringMetrics the gatheringMetrics to set */
+  /**
+   * @param gatheringMetrics the gatheringMetrics to set
+   */
   @Override
   public void setGatheringMetrics(boolean gatheringMetrics) {
     this.gatheringMetrics = gatheringMetrics;
   }
 
-  /** @return the forcingSeparateLogging */
+  /**
+   * @return the forcingSeparateLogging
+   */
   @Override
   public boolean isForcingSeparateLogging() {
     return forcingSeparateLogging;
   }
 
-  /** @param forcingSeparateLogging the forcingSeparateLogging to set */
+  /**
+   * @param forcingSeparateLogging the forcingSeparateLogging to set
+   */
   @Override
   public void setForcingSeparateLogging(boolean forcingSeparateLogging) {
     this.forcingSeparateLogging = forcingSeparateLogging;

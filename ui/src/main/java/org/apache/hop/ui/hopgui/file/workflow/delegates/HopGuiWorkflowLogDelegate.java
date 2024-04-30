@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import java.util.ArrayList;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -46,8 +47,6 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import java.util.ArrayList;
-
 @GuiPlugin(description = "Workflow Graph Log Delegate")
 public class HopGuiWorkflowLogDelegate {
   private static final Class<?> PKG = HopGuiWorkflowGraph.class; // For Translator
@@ -55,7 +54,8 @@ public class HopGuiWorkflowLogDelegate {
   private static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowLogDelegate-ToolBar";
   public static final String TOOLBAR_ICON_CLEAR_LOG_VIEW = "ToolbarIcon-10000-ClearLog";
   public static final String TOOLBAR_ICON_SHOW_ERROR_LINES = "ToolbarIcon-10010-ShowErrorLines";
-  public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD = "ToolbarIcon-10020-LogCopyToClipboard";
+  public static final String TOOLBAR_ICON_LOG_COPY_TO_CLIPBOARD =
+      "ToolbarIcon-10020-LogCopyToClipboard";
   public static final String TOOLBAR_ICON_LOG_PAUSE_RESUME = "ToolbarIcon-10030-LogPauseResume";
 
   private HopGui hopGui;
@@ -73,7 +73,9 @@ public class HopGuiWorkflowLogDelegate {
 
   private HopGuiLogBrowser logBrowser;
 
-  /** @param hopGui */
+  /**
+   * @param hopGui
+   */
   public HopGuiWorkflowLogDelegate(HopGui hopGui, HopGuiWorkflowGraph workflowGraph) {
     this.hopGui = hopGui;
     this.workflowGraph = workflowGraph;
@@ -257,7 +259,9 @@ public class HopGuiWorkflowLogDelegate {
     }
   }
 
-  /** @return the workflow log tab */
+  /**
+   * @return the workflow log tab
+   */
   public CTabItem getWorkflowLogTab() {
     return workflowLogTab;
   }

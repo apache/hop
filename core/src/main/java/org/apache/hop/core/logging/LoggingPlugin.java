@@ -31,7 +31,9 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface LoggingPlugin {
-  /** @return The ID of the logging plug-in */
+  /**
+   * @return The ID of the logging plug-in
+   */
   String id();
 
   String classLoaderGroup() default "";

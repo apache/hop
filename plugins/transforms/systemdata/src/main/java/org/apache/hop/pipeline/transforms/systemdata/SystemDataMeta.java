@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -41,9 +43,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.Arrays;
-import java.util.List;
-
 @InjectionSupported(localizationPrefix = "SystemDataMeta.Injection.")
 @Transform(
     id = "SystemInfo",
@@ -66,22 +65,30 @@ public class SystemDataMeta extends BaseTransformMeta<SystemData, SystemDataData
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public String[] getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFieldName(String[] fieldName) {
     this.fieldName = fieldName;
   }
 
-  /** @return Returns the fieldType. */
+  /**
+   * @return Returns the fieldType.
+   */
   public SystemDataTypes[] getFieldType() {
     return fieldType;
   }
 
-  /** @param fieldType The fieldType to set. */
+  /**
+   * @param fieldType The fieldType to set.
+   */
   public void setFieldType(SystemDataTypes[] fieldType) {
     this.fieldType = fieldType;
   }

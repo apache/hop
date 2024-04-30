@@ -17,6 +17,17 @@
 
 package org.apache.hop.core.svg;
 
+import static org.apache.batik.svggen.DOMGroupManager.DRAW;
+import static org.apache.batik.svggen.DOMGroupManager.FILL;
+
+import java.awt.font.TextLayout;
+import java.io.StringWriter;
+import java.text.DecimalFormat;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.DOMGroupManager;
@@ -28,19 +39,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.awt.font.TextLayout;
-import java.io.StringWriter;
-import java.text.DecimalFormat;
-
-import static org.apache.batik.svggen.DOMGroupManager.DRAW;
-import static org.apache.batik.svggen.DOMGroupManager.FILL;
 
 public class HopSvgGraphics2D extends SVGGraphics2D {
 
@@ -149,7 +147,8 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
     svgG.setAttributeNS(W3_URL, "xmlns:dc", "http://purl.org/dc/elements/1.1/");
     svgG.setAttributeNS(W3_URL, "xmlns:cc", "http://creativecommons.org/ns#");
     svgG.setAttributeNS(W3_URL, "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-    svgG.setAttributeNS(W3_URL, "xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd");
+    svgG.setAttributeNS(
+        W3_URL, "xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd");
     svgG.setAttributeNS(W3_URL, "xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape");
 
     // Add all the elements from the SVG Image...

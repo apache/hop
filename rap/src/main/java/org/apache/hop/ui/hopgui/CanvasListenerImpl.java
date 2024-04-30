@@ -17,12 +17,11 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class CanvasListenerImpl extends ClientListener implements ISingletonProvider {
 

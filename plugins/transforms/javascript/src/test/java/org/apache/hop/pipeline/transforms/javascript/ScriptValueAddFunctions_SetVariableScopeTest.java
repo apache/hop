@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.pipeline.Pipeline;
@@ -26,11 +31,6 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 
 public class ScriptValueAddFunctions_SetVariableScopeTest {
   private static final String VARIABLE_NAME = "variable-name";

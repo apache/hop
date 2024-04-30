@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.constant;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -42,8 +43,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ConstantMeta.class; // For Translator
@@ -275,8 +274,6 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     List<ConstantField> fields = input.getFields();
     fields.clear();
 
-    // CHECKSTYLE:Indentation:OFF
-    // CHECKSTYLE:LineLength:OFF
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       boolean isEmptyStringFlag =

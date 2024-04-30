@@ -17,13 +17,12 @@
 
 package org.apache.hop.www;
 
-import org.apache.hop.i18n.BaseMessages;
-
+import java.io.IOException;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.apache.hop.i18n.BaseMessages;
 
 public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetRootServlet.class; // For Translator
@@ -56,7 +55,7 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
             + BaseMessages.getString(PKG, "GetRootServlet.HopHopServer.Title")
             + "</TITLE>");
     out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");    
+    out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
     out.println("</HEAD>");
     out.println("<BODY>");
     out.println("<H2>" + BaseMessages.getString(PKG, "GetRootServlet.HopServerMenu") + "</H2>");

@@ -18,13 +18,12 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.commons.io.FileUtils;
-
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.io.FileUtils;
 
 public class StorageUnitConverter {
 

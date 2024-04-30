@@ -17,6 +17,9 @@
 
 package org.apache.hop.workflow.actions.repeat;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -51,10 +54,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class RepeatDialog extends ActionDialog implements IActionDialog {
 
@@ -350,7 +349,8 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileTimeAdded;
 
     wlLogFileRepetitionAdded = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileRepetitionAdded.setText(BaseMessages.getString(PKG, "Repeat.AddReptNumToFilename.Label"));
+    wlLogFileRepetitionAdded.setText(
+        BaseMessages.getString(PKG, "Repeat.AddReptNumToFilename.Label"));
     PropsUi.setLook(wlLogFileRepetitionAdded);
     FormData fdlLogFileRepetitionAdded = new FormData();
     fdlLogFileRepetitionAdded.left = new FormAttachment(0, 0);
@@ -384,7 +384,8 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     lastLogControl = wlLogFileAppended;
 
     wlLogFileUpdateInterval = new Label(wLogFileGroup, SWT.RIGHT);
-    wlLogFileUpdateInterval.setText(BaseMessages.getString(PKG, "Repeat.LogFileUpdateInterval.Label"));
+    wlLogFileUpdateInterval.setText(
+        BaseMessages.getString(PKG, "Repeat.LogFileUpdateInterval.Label"));
     PropsUi.setLook(wlLogFileUpdateInterval);
     FormData fdlLogFileUpdateInterval = new FormData();
     fdlLogFileUpdateInterval.left = new FormAttachment(0, 0);
@@ -442,8 +443,16 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     ColumnInfo[] columnInfos =
         new ColumnInfo[] {
-          new ColumnInfo(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Name.Column.Header"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
-          new ColumnInfo(BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Value.Column.Header"), ColumnInfo.COLUMN_TYPE_TEXT, false, false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Name.Column.Header"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "Repeat.ParmsVarGroup.Value.Column.Header"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false,
+              false),
         };
     columnInfos[1].setUsingVariables(true);
 
@@ -548,9 +557,11 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     // Get the run configurations for both pipelines and workflows
     //
     MetadataManager<PipelineRunConfiguration> prcManager =
-        new MetadataManager<>(variables, getMetadataProvider(), PipelineRunConfiguration.class, shell);
+        new MetadataManager<>(
+            variables, getMetadataProvider(), PipelineRunConfiguration.class, shell);
     MetadataManager<WorkflowRunConfiguration> wrcManager =
-        new MetadataManager<>(variables, getMetadataProvider(), WorkflowRunConfiguration.class, shell);
+        new MetadataManager<>(
+            variables, getMetadataProvider(), WorkflowRunConfiguration.class, shell);
     List<String> entries = new ArrayList<>();
     try {
       prcManager.getNames().forEach(name -> entries.add("Pipeline" + COLON_SEPARATOR + name));

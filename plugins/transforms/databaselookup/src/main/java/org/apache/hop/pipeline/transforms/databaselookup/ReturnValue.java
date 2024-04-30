@@ -79,7 +79,9 @@ public class ReturnValue {
     return tableField;
   }
 
-  /** @param tableField The tableField to set */
+  /**
+   * @param tableField The tableField to set
+   */
   public void setTableField(String tableField) {
     this.tableField = tableField;
   }
@@ -93,7 +95,9 @@ public class ReturnValue {
     return newName;
   }
 
-  /** @param newName The newName to set */
+  /**
+   * @param newName The newName to set
+   */
   public void setNewName(String newName) {
     this.newName = newName;
   }
@@ -107,7 +111,9 @@ public class ReturnValue {
     return defaultValue;
   }
 
-  /** @param defaultValue The defaultValue to set */
+  /**
+   * @param defaultValue The defaultValue to set
+   */
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
   }
@@ -121,7 +127,9 @@ public class ReturnValue {
     return defaultType;
   }
 
-  /** @param defaultType The defaultType to set */
+  /**
+   * @param defaultType The defaultType to set
+   */
   public void setDefaultType(String defaultType) {
     this.defaultType = defaultType;
   }

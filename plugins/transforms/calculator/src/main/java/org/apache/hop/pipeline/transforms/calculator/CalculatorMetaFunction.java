@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import java.util.Objects;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IEnumHasCode;
-
-import java.util.Objects;
 
 public class CalculatorMetaFunction implements Cloneable {
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
@@ -352,14 +351,13 @@ public class CalculatorMetaFunction implements Cloneable {
         BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Remainder"),
         IValueMeta.TYPE_NUMBER),
     BASE64_ENCODE(
-            "BASE64_ENCODE",
-            BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Encode"),
-            IValueMeta.TYPE_STRING),
+        "BASE64_ENCODE",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Encode"),
+        IValueMeta.TYPE_STRING),
     BASE64_DECODE(
-            "BASE64_DECODE",
-            BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Decode"),
-            IValueMeta.TYPE_STRING)
-    ;
+        "BASE64_DECODE",
+        BaseMessages.getString(PKG, "CalculatorMetaFunction.CalcFunctions.Base64Decode"),
+        IValueMeta.TYPE_STRING);
 
     private String code;
     private String description;
@@ -612,7 +610,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -626,7 +626,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return calcType;
   }
 
-  /** @param calcType The calcType to set */
+  /**
+   * @param calcType The calcType to set
+   */
   public void setCalcType(CalculationType calcType) {
     this.calcType = calcType;
   }
@@ -640,7 +642,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return fieldA;
   }
 
-  /** @param fieldA The fieldA to set */
+  /**
+   * @param fieldA The fieldA to set
+   */
   public void setFieldA(String fieldA) {
     this.fieldA = fieldA;
   }
@@ -654,7 +658,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return fieldB;
   }
 
-  /** @param fieldB The fieldB to set */
+  /**
+   * @param fieldB The fieldB to set
+   */
   public void setFieldB(String fieldB) {
     this.fieldB = fieldB;
   }
@@ -668,7 +674,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return fieldC;
   }
 
-  /** @param fieldC The fieldC to set */
+  /**
+   * @param fieldC The fieldC to set
+   */
   public void setFieldC(String fieldC) {
     this.fieldC = fieldC;
   }
@@ -682,7 +690,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return valueType;
   }
 
-  /** @param valueType The valueType to set */
+  /**
+   * @param valueType The valueType to set
+   */
   public void setValueType(String valueType) {
     this.valueType = valueType;
   }
@@ -696,7 +706,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return valueLength;
   }
 
-  /** @param valueLength The valueLength to set */
+  /**
+   * @param valueLength The valueLength to set
+   */
   public void setValueLength(int valueLength) {
     this.valueLength = valueLength;
   }
@@ -710,7 +722,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return valuePrecision;
   }
 
-  /** @param valuePrecision The valuePrecision to set */
+  /**
+   * @param valuePrecision The valuePrecision to set
+   */
   public void setValuePrecision(int valuePrecision) {
     this.valuePrecision = valuePrecision;
   }
@@ -724,7 +738,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return conversionMask;
   }
 
-  /** @param conversionMask The conversionMask to set */
+  /**
+   * @param conversionMask The conversionMask to set
+   */
   public void setConversionMask(String conversionMask) {
     this.conversionMask = conversionMask;
   }
@@ -738,7 +754,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return decimalSymbol;
   }
 
-  /** @param decimalSymbol The decimalSymbol to set */
+  /**
+   * @param decimalSymbol The decimalSymbol to set
+   */
   public void setDecimalSymbol(String decimalSymbol) {
     this.decimalSymbol = decimalSymbol;
   }
@@ -752,7 +770,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return groupingSymbol;
   }
 
-  /** @param groupingSymbol The groupingSymbol to set */
+  /**
+   * @param groupingSymbol The groupingSymbol to set
+   */
   public void setGroupingSymbol(String groupingSymbol) {
     this.groupingSymbol = groupingSymbol;
   }
@@ -766,7 +786,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return currencySymbol;
   }
 
-  /** @param currencySymbol The currencySymbol to set */
+  /**
+   * @param currencySymbol The currencySymbol to set
+   */
   public void setCurrencySymbol(String currencySymbol) {
     this.currencySymbol = currencySymbol;
   }
@@ -780,7 +802,9 @@ public class CalculatorMetaFunction implements Cloneable {
     return removedFromResult;
   }
 
-  /** @param removedFromResult The removedFromResult to set */
+  /**
+   * @param removedFromResult The removedFromResult to set
+   */
   public void setRemovedFromResult(boolean removedFromResult) {
     this.removedFromResult = removedFromResult;
   }

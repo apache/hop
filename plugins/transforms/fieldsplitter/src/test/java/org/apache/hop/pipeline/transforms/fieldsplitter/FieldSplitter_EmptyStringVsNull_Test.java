@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
+import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
 import java.util.Arrays;
 import java.util.List;
 import org.apache.hop.core.Const;
@@ -32,11 +37,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class FieldSplitter_EmptyStringVsNull_Test {
   private TransformMockHelper<FieldSplitterMeta, ITransformData> helper;

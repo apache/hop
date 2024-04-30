@@ -27,7 +27,7 @@ public abstract class BaseHopMeta<T> {
   public static final String XML_FROM_TAG = "from";
   public static final String XML_TO_TAG = "to";
   public static final String XML_ENABLED_TAG = "enabled";
-  
+
   public boolean split = false;
   protected T from;
   protected T to;
@@ -91,12 +91,15 @@ public abstract class BaseHopMeta<T> {
     return split;
   }
 
-  /** @param split The split to set */
+  /**
+   * @param split The split to set
+   */
   public void setSplit(boolean split) {
     this.split = split;
   }
-  
-  protected boolean getTagValueAsBoolean(final Node node, final String tag, final boolean defaultValue) {
+
+  protected boolean getTagValueAsBoolean(
+      final Node node, final String tag, final boolean defaultValue) {
     String value = XmlHandler.getTagValue(node, tag);
     if (value == null) {
       return defaultValue;

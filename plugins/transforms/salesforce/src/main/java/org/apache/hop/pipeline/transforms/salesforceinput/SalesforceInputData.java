@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
+import java.util.GregorianCalendar;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
-
-import java.util.GregorianCalendar;
 
 public class SalesforceInputData extends SalesforceTransformData {
   public int nr_repeats;

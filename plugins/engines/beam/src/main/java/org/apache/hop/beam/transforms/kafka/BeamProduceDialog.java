@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -40,8 +41,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class BeamProduceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BeamProduce.class; // For Translator
@@ -90,8 +89,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    BaseTransformDialog.positionBottomButtons(
-            shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -181,27 +179,27 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     lastControl = wMessageField;
 
     ColumnInfo[] columns =
-            new ColumnInfo[] {
-                    new ColumnInfo(
-                            BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Parameter"),
-                            ColumnInfo.COLUMN_TYPE_TEXT,
-                            false),
-                    new ColumnInfo(
-                            BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Value"),
-                            ColumnInfo.COLUMN_TYPE_TEXT,
-                            false),
-                    new ColumnInfo(
-                            BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Type"),
-                            ColumnInfo.COLUMN_TYPE_CCOMBO,
-                            ConfigOption.Type.getTypeNames(),
-                            false),
-            };
+        new ColumnInfo[] {
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Parameter"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Value"),
+              ColumnInfo.COLUMN_TYPE_TEXT,
+              false),
+          new ColumnInfo(
+              BaseMessages.getString(PKG, "BeamProduceDialog.ConfigOptions.Column.Type"),
+              ColumnInfo.COLUMN_TYPE_CCOMBO,
+              ConfigOption.Type.getTypeNames(),
+              false),
+        };
     columns[0].setUsingVariables(true);
     columns[1].setUsingVariables(true);
 
     wConfigOptions =
-            new TableView(
-                    variables, shell, SWT.NONE, columns, input.getConfigOptions().size(), null, props);
+        new TableView(
+            variables, shell, SWT.NONE, columns, input.getConfigOptions().size(), null, props);
     PropsUi.setLook(wConfigOptions);
     FormData fdConfigOptions = new FormData();
     fdConfigOptions.left = new FormAttachment(0, 0);
@@ -209,7 +207,6 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     fdConfigOptions.top = new FormAttachment(lastControl, margin);
     fdConfigOptions.bottom = new FormAttachment(wOk, -margin * 2);
     wConfigOptions.setLayoutData(fdConfigOptions);
-
 
     getData();
 

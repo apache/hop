@@ -23,9 +23,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- * This annotation signals to the plugin system that the class is a database metadata plugin.
- */
+/** This annotation signals to the plugin system that the class is a database metadata plugin. */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
@@ -35,6 +33,6 @@ public @interface DatabaseMetaPlugin {
   String typeDescription();
 
   String classLoaderGroup() default "";
-  
+
   String documentationUrl() default "";
 }

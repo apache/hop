@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fieldschangesequence;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,9 +52,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FieldsChangeSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // For Translator
@@ -347,7 +346,6 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     List<FieldsChangeSequenceField> fieldName = new ArrayList<>();
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
       fieldName.add(new FieldsChangeSequenceField(ti.getText(1)));
     }
     input.setFields(fieldName);

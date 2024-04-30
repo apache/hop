@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.cubeoutput;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -35,9 +37,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "CubeOutput",
     image = "cubeoutput.svg",
@@ -55,7 +54,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
 
   @HopMetadataProperty(key = "filename_create_parent_folders")
   private boolean filenameCreatingParentFolders;
-  
+
   /** Flag: add the filenames to result filenames */
   @HopMetadataProperty(key = "add_to_result_filenames")
   private boolean addToResultFilenames;
@@ -70,7 +69,7 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
 
   public CubeOutputMeta(CubeOutputMeta m) {
     this.filename = m.filename;
-    this.filenameCreatingParentFolders = m.filenameCreatingParentFolders;    
+    this.filenameCreatingParentFolders = m.filenameCreatingParentFolders;
     this.addToResultFilenames = m.addToResultFilenames;
     this.doNotOpenNewFileInit = m.doNotOpenNewFileInit;
   }
@@ -175,14 +174,14 @@ public class CubeOutputMeta extends BaseTransformMeta<CubeOutput, CubeOutputData
     this.filename = filename;
   }
 
-  /**
-   * Gets filename creating parent folders
-   */
+  /** Gets filename creating parent folders */
   public boolean isFilenameCreatingParentFolders() {
     return filenameCreatingParentFolders;
   }
 
-  /** @param filenameCreatingParentFolders The filenameCreatingParentFolders to set */
+  /**
+   * @param filenameCreatingParentFolders The filenameCreatingParentFolders to set
+   */
   public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
     this.filenameCreatingParentFolders = filenameCreatingParentFolders;
   }

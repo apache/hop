@@ -86,7 +86,9 @@ public class ParquetField {
     return sourceField;
   }
 
-  /** @param sourceField The sourceField to set */
+  /**
+   * @param sourceField The sourceField to set
+   */
   public void setSourceField(String sourceField) {
     this.sourceField = sourceField;
   }
@@ -100,7 +102,9 @@ public class ParquetField {
     return targetField;
   }
 
-  /** @param targetField The targetField to set */
+  /**
+   * @param targetField The targetField to set
+   */
   public void setTargetField(String targetField) {
     this.targetField = targetField;
   }
@@ -114,7 +118,9 @@ public class ParquetField {
     return targetType;
   }
 
-  /** @param targetType The targetType to set */
+  /**
+   * @param targetType The targetType to set
+   */
   public void setTargetType(String targetType) {
     this.targetType = targetType;
   }
@@ -128,7 +134,9 @@ public class ParquetField {
     return targetFormat;
   }
 
-  /** @param targetFormat The targetFormat to set */
+  /**
+   * @param targetFormat The targetFormat to set
+   */
   public void setTargetFormat(String targetFormat) {
     this.targetFormat = targetFormat;
   }
@@ -142,7 +150,9 @@ public class ParquetField {
     return targetLength;
   }
 
-  /** @param targetLength The targetLength to set */
+  /**
+   * @param targetLength The targetLength to set
+   */
   public void setTargetLength(String targetLength) {
     this.targetLength = targetLength;
   }
@@ -156,7 +166,9 @@ public class ParquetField {
     return targetPrecision;
   }
 
-  /** @param targetPrecision The targetPrecision to set */
+  /**
+   * @param targetPrecision The targetPrecision to set
+   */
   public void setTargetPrecision(String targetPrecision) {
     this.targetPrecision = targetPrecision;
   }

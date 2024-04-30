@@ -18,6 +18,8 @@
 
 package org.apache.hop.pipeline.transforms.splunkinput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
@@ -35,9 +37,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "SplunkInput",
@@ -158,7 +157,9 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
     return connectionName;
   }
 
-  /** @param connectionName The connectionName to set */
+  /**
+   * @param connectionName The connectionName to set
+   */
   public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
@@ -172,7 +173,9 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
     return query;
   }
 
-  /** @param query The query to set */
+  /**
+   * @param query The query to set
+   */
   public void setQuery(String query) {
     this.query = query;
   }
@@ -186,7 +189,9 @@ public class SplunkInputMeta extends BaseTransformMeta<SplunkInput, SplunkInputD
     return returnValues;
   }
 
-  /** @param returnValues The returnValues to set */
+  /**
+   * @param returnValues The returnValues to set
+   */
   public void setReturnValues(List<ReturnValue> returnValues) {
     this.returnValues = returnValues;
   }

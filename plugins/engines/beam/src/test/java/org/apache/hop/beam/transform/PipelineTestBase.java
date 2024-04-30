@@ -17,6 +17,10 @@
 
 package org.apache.hop.beam.transform;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.beam.core.BeamHop;
 import org.apache.hop.beam.engines.direct.BeamDirectPipelineEngine;
@@ -69,11 +73,6 @@ import org.apache.hop.pipeline.transforms.streamlookup.StreamLookupMeta;
 import org.apache.hop.pipeline.transforms.switchcase.SwitchCaseMeta;
 import org.junit.Before;
 import org.junit.Ignore;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 public class PipelineTestBase {
 

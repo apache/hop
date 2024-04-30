@@ -17,12 +17,12 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.apache.hop.core.row.IRowMeta;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
 

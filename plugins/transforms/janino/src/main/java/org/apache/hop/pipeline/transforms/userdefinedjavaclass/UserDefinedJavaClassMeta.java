@@ -20,6 +20,13 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import java.io.IOException;
+import java.io.StringReader;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -50,14 +57,6 @@ import org.codehaus.janino.ClassBodyEvaluator;
 import org.codehaus.janino.Scanner;
 import org.w3c.dom.Node;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @InjectionSupported(
     localizationPrefix = "UserDefinedJavaClass.Injection.",
     groups = {"PARAMETERS", "TARGET_TRANSFORMS", "INFO_TRANSFORMS", "JAVA_CLASSES", "FIELD_INFO"})
@@ -69,7 +68,8 @@ import java.util.stream.Collectors;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::UserDefinedJavaClassMeta.keyword",
     documentationUrl = "/pipeline/transforms/userdefinedjavaclass.html")
-public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
+public class UserDefinedJavaClassMeta
+    extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   public enum ElementNames {
@@ -238,7 +238,6 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaC
     return rtn;
   }
 
-  @SuppressWarnings("unchecked")
   public void cookClasses() {
     cookErrors.clear();
     ClassLoader clsloader = UserDefinedJavaClass.class.getClassLoader();
@@ -738,32 +737,44 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaC
     return true;
   }
 
-  /** @return the clearingResultFields */
+  /**
+   * @return the clearingResultFields
+   */
   public boolean isClearingResultFields() {
     return clearingResultFields;
   }
 
-  /** @param clearingResultFields the clearingResultFields to set */
+  /**
+   * @param clearingResultFields the clearingResultFields to set
+   */
   public void setClearingResultFields(boolean clearingResultFields) {
     this.clearingResultFields = clearingResultFields;
   }
 
-  /** @return the infoTransformDefinitions */
+  /**
+   * @return the infoTransformDefinitions
+   */
   public List<InfoTransformDefinition> getInfoTransformDefinitions() {
     return infoTransformDefinitions;
   }
 
-  /** @param infoTransformDefinitions the infoTransformDefinitions to set */
+  /**
+   * @param infoTransformDefinitions the infoTransformDefinitions to set
+   */
   public void setInfoTransformDefinitions(List<InfoTransformDefinition> infoTransformDefinitions) {
     this.infoTransformDefinitions = infoTransformDefinitions;
   }
 
-  /** @return the targetTransformDefinitions */
+  /**
+   * @return the targetTransformDefinitions
+   */
   public List<TargetTransformDefinition> getTargetTransformDefinitions() {
     return targetTransformDefinitions;
   }
 
-  /** @param targetTransformDefinitions the targetTransformDefinitions to set */
+  /**
+   * @param targetTransformDefinitions the targetTransformDefinitions to set
+   */
   public void setTargetTransformDefinitions(
       List<TargetTransformDefinition> targetTransformDefinitions) {
     this.targetTransformDefinitions = targetTransformDefinitions;
@@ -774,12 +785,16 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta<UserDefinedJavaC
     return true;
   }
 
-  /** @return the usageParameters */
+  /**
+   * @return the usageParameters
+   */
   public List<UsageParameter> getUsageParameters() {
     return usageParameters;
   }
 
-  /** @param usageParameters the usageParameters to set */
+  /**
+   * @param usageParameters the usageParameters to set
+   */
   public void setUsageParameters(List<UsageParameter> usageParameters) {
     this.usageParameters = usageParameters;
   }

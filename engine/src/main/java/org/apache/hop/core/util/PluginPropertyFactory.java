@@ -32,7 +32,9 @@ public class PluginPropertyFactory {
     this.properties = properties;
   }
 
-  /** @return the properties */
+  /**
+   * @return the properties
+   */
   public KeyValueSet getProperties() {
     return this.properties;
   }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -33,9 +35,6 @@ import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @ExtensionPoint(
     extensionPointId = "PipelineFinish",

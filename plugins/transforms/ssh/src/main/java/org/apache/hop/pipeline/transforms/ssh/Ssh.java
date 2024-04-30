@@ -134,7 +134,7 @@ public class Ssh extends BaseTransform<SshMeta, SshData> {
         logDebug(
             BaseMessages.getString(
                 PKG,
-                    "SSH.Log.ExecutedSshCommand",
+                "SSH.Log.ExecutedSshCommand",
                 data.commands,
                 sessionresult.getStdOut(),
                 sessionresult.getStdErr()));

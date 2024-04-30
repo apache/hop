@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
-import org.apache.hop.core.IRowSet;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hop.core.IRowSet;
 
 public class KeyToRowSetMap {
 

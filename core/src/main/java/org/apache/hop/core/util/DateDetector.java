@@ -16,18 +16,16 @@
  */
 package org.apache.hop.core.util;
 
-import org.apache.commons.collections4.BidiMap;
-import org.apache.commons.collections4.bidimap.DualHashBidiMap;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.collections4.BidiMap;
+import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 
 public class DateDetector {
 
   private static final String LOCALE_en_US = "en_US";
 
-  @SuppressWarnings("serial")
   static final BidiMap<String, String> DATE_FORMAT_TO_REGEXPS_US =
       new DualHashBidiMap<String, String>() {
         {
@@ -109,7 +107,6 @@ public class DateDetector {
         }
       };
 
-  @SuppressWarnings("serial")
   static final BidiMap DATE_FORMAT_TO_REGEXPS =
       new DualHashBidiMap() {
         {

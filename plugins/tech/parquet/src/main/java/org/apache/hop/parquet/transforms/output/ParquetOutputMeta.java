@@ -17,14 +17,13 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.metadata.CompressionCodecName;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "ParquetFileOutput",
@@ -164,7 +163,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameBase;
   }
 
-  /** @param filenameBase The filenameBase to set */
+  /**
+   * @param filenameBase The filenameBase to set
+   */
   public void setFilenameBase(String filenameBase) {
     this.filenameBase = filenameBase;
   }
@@ -178,7 +179,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameExtension;
   }
 
-  /** @param filenameExtension The filenameExtension to set */
+  /**
+   * @param filenameExtension The filenameExtension to set
+   */
   public void setFilenameExtension(String filenameExtension) {
     this.filenameExtension = filenameExtension;
   }
@@ -192,7 +195,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameIncludingDate;
   }
 
-  /** @param filenameIncludingDate The filenameIncludingDate to set */
+  /**
+   * @param filenameIncludingDate The filenameIncludingDate to set
+   */
   public void setFilenameIncludingDate(boolean filenameIncludingDate) {
     this.filenameIncludingDate = filenameIncludingDate;
   }
@@ -206,7 +211,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameIncludingTime;
   }
 
-  /** @param filenameIncludingTime The filenameIncludingTime to set */
+  /**
+   * @param filenameIncludingTime The filenameIncludingTime to set
+   */
   public void setFilenameIncludingTime(boolean filenameIncludingTime) {
     this.filenameIncludingTime = filenameIncludingTime;
   }
@@ -220,7 +227,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameIncludingDateTime;
   }
 
-  /** @param filenameIncludingDateTime The filenameIncludingDateTime to set */
+  /**
+   * @param filenameIncludingDateTime The filenameIncludingDateTime to set
+   */
   public void setFilenameIncludingDateTime(boolean filenameIncludingDateTime) {
     this.filenameIncludingDateTime = filenameIncludingDateTime;
   }
@@ -234,7 +243,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameDateTimeFormat;
   }
 
-  /** @param filenameDateTimeFormat The filenameDateTimeFormat to set */
+  /**
+   * @param filenameDateTimeFormat The filenameDateTimeFormat to set
+   */
   public void setFilenameDateTimeFormat(String filenameDateTimeFormat) {
     this.filenameDateTimeFormat = filenameDateTimeFormat;
   }
@@ -248,7 +259,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameIncludingCopyNr;
   }
 
-  /** @param filenameIncludingCopyNr The filenameIncludingCopyNr to set */
+  /**
+   * @param filenameIncludingCopyNr The filenameIncludingCopyNr to set
+   */
   public void setFilenameIncludingCopyNr(boolean filenameIncludingCopyNr) {
     this.filenameIncludingCopyNr = filenameIncludingCopyNr;
   }
@@ -262,7 +275,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameIncludingSplitNr;
   }
 
-  /** @param filenameIncludingSplitNr The filenameIncludingSplitNr to set */
+  /**
+   * @param filenameIncludingSplitNr The filenameIncludingSplitNr to set
+   */
   public void setFilenameIncludingSplitNr(boolean filenameIncludingSplitNr) {
     this.filenameIncludingSplitNr = filenameIncludingSplitNr;
   }
@@ -276,7 +291,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return fileSplitSize;
   }
 
-  /** @param fileSplitSize The filenameIncludingSplitSize to set */
+  /**
+   * @param fileSplitSize The filenameIncludingSplitSize to set
+   */
   public void setFileSplitSize(String fileSplitSize) {
     this.fileSplitSize = fileSplitSize;
   }
@@ -290,7 +307,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return filenameCreatingParentFolders;
   }
 
-  /** @param filenameCreatingParentFolders The filenameCreatingParentFolders to set */
+  /**
+   * @param filenameCreatingParentFolders The filenameCreatingParentFolders to set
+   */
   public void setFilenameCreatingParentFolders(boolean filenameCreatingParentFolders) {
     this.filenameCreatingParentFolders = filenameCreatingParentFolders;
   }
@@ -304,7 +323,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return compressionCodec;
   }
 
-  /** @param compressionCodec The compressionCodec to set */
+  /**
+   * @param compressionCodec The compressionCodec to set
+   */
   public void setCompressionCodec(CompressionCodecName compressionCodec) {
     this.compressionCodec = compressionCodec;
   }
@@ -318,7 +339,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return version;
   }
 
-  /** @param version The version to set */
+  /**
+   * @param version The version to set
+   */
   public void setVersion(ParquetVersion version) {
     this.version = version;
   }
@@ -332,7 +355,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return rowGroupSize;
   }
 
-  /** @param rowGroupSize The rowGroupSize to set */
+  /**
+   * @param rowGroupSize The rowGroupSize to set
+   */
   public void setRowGroupSize(String rowGroupSize) {
     this.rowGroupSize = rowGroupSize;
   }
@@ -346,7 +371,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return dataPageSize;
   }
 
-  /** @param dataPageSize The dataPageSize to set */
+  /**
+   * @param dataPageSize The dataPageSize to set
+   */
   public void setDataPageSize(String dataPageSize) {
     this.dataPageSize = dataPageSize;
   }
@@ -360,7 +387,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return dictionaryPageSize;
   }
 
-  /** @param dictionaryPageSize The dictionaryPageSize to set */
+  /**
+   * @param dictionaryPageSize The dictionaryPageSize to set
+   */
   public void setDictionaryPageSize(String dictionaryPageSize) {
     this.dictionaryPageSize = dictionaryPageSize;
   }
@@ -374,7 +403,9 @@ public class ParquetOutputMeta extends BaseTransformMeta<ParquetOutput, ParquetO
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<ParquetField> fields) {
     this.fields = fields;
   }

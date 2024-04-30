@@ -18,6 +18,8 @@
 
 package org.apache.hop.avro.transforms.avroencode;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -33,9 +35,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "AvroEncode",
@@ -74,7 +73,8 @@ public class AvroEncodeMeta extends BaseTransformMeta<AvroEncode, AvroEncodeData
       IRowMeta[] info,
       TransformMeta nextTransform,
       IVariables variables,
-      IHopMetadataProvider metadataProvider) throws HopTransformException {
+      IHopMetadataProvider metadataProvider)
+      throws HopTransformException {
 
     try {
       Schema schema =
@@ -84,7 +84,8 @@ public class AvroEncodeMeta extends BaseTransformMeta<AvroEncode, AvroEncodeData
               variables.resolve(getDocumentation()),
               rowMeta,
               sourceFields);
-      ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord(variables.resolve(outputFieldName), schema);
+      ValueMetaAvroRecord valueMeta =
+          new ValueMetaAvroRecord(variables.resolve(outputFieldName), schema);
       rowMeta.addValueMeta(valueMeta);
     } catch (Exception e) {
       throw new HopTransformException(

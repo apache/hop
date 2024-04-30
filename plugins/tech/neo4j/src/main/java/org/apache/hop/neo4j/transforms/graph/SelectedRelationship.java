@@ -17,9 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
-import org.apache.hop.neo4j.model.GraphRelationship;
-
 import java.util.Objects;
+import org.apache.hop.neo4j.model.GraphRelationship;
 
 public class SelectedRelationship {
   private SelectedNode sourceNode;
@@ -71,7 +70,9 @@ public class SelectedRelationship {
     return sourceNode;
   }
 
-  /** @param sourceNode The sourceNode to set */
+  /**
+   * @param sourceNode The sourceNode to set
+   */
   public void setSourceNode(SelectedNode sourceNode) {
     this.sourceNode = sourceNode;
   }
@@ -85,7 +86,9 @@ public class SelectedRelationship {
     return targetNode;
   }
 
-  /** @param targetNode The targetNode to set */
+  /**
+   * @param targetNode The targetNode to set
+   */
   public void setTargetNode(SelectedNode targetNode) {
     this.targetNode = targetNode;
   }
@@ -99,7 +102,9 @@ public class SelectedRelationship {
     return relationship;
   }
 
-  /** @param relationship The relationship to set */
+  /**
+   * @param relationship The relationship to set
+   */
   public void setRelationship(GraphRelationship relationship) {
     this.relationship = relationship;
   }

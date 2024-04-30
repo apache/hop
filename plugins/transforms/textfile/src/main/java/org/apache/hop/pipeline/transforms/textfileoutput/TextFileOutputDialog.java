@@ -1027,13 +1027,13 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     //
 
     SelectionListener lsSelection =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                fillFieldsLayoutFromSchema();
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            fillFieldsLayoutFromSchema();
+            input.setChanged();
+          }
+        };
 
     CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -1048,14 +1048,14 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     PropsUi.setLook(wFieldsComp);
 
     wSchemaDefinition =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SchemaDefinition.class,
-                    wFieldsComp,
-                    SWT.NONE,
-                    BaseMessages.getString(PKG, "TextFileOutputDialog.SchemaDefinition.Label"),
-                    BaseMessages.getString(PKG, "TextFileOutputDialog.SchemaDefinition.Tooltip"));
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SchemaDefinition.class,
+            wFieldsComp,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "TextFileOutputDialog.SchemaDefinition.Label"),
+            BaseMessages.getString(PKG, "TextFileOutputDialog.SchemaDefinition.Tooltip"));
 
     PropsUi.setLook(wSchemaDefinition);
     FormData fdSchemaDefinition = new FormData();
@@ -1074,7 +1074,8 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
     Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wManualSchemaDefinition);
-    wManualSchemaDefinition.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.ManualSchemaDefinition.Label"));
+    wManualSchemaDefinition.setText(
+        BaseMessages.getString(PKG, "TextFileOutputDialog.ManualSchemaDefinition.Label"));
 
     FormLayout manualSchemaDefinitionLayout = new FormLayout();
     manualSchemaDefinitionLayout.marginWidth = 10;
@@ -1157,7 +1158,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFields =
         new TableView(
             variables,
-                wManualSchemaDefinition,
+            wManualSchemaDefinition,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -1269,7 +1270,8 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
       MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
       mb.setMessage(
-              BaseMessages.getString(PKG, "TextFileOutputDialog.Load.SchemaDefinition.Message", schemaName));
+          BaseMessages.getString(
+              PKG, "TextFileOutputDialog.Load.SchemaDefinition.Message", schemaName));
       mb.setText(BaseMessages.getString(PKG, "TextFileOutputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
@@ -1277,7 +1279,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
         if (!Utils.isEmpty(schemaName)) {
           try {
             SchemaDefinition schemaDefinition =
-                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
             if (schemaDefinition != null) {
               IRowMeta r = schemaDefinition.getRowMeta();
               if (r != null) {
@@ -1292,17 +1294,18 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
                     item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
                     item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
                     item.setText(
-                            4,
-                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                        4,
+                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
                     item.setText(
-                            5,
-                            valueMeta.getPrecision() >= 0
-                                    ? Integer.toString(valueMeta.getPrecision())
-                                    : "");
+                        5,
+                        valueMeta.getPrecision() >= 0
+                            ? Integer.toString(valueMeta.getPrecision())
+                            : "");
                     item.setText(6, Const.NVL(valueMeta.getCurrencySymbol(), ""));
                     item.setText(7, Const.NVL(valueMeta.getDecimalSymbol(), ""));
                     item.setText(8, Const.NVL(valueMeta.getGroupingSymbol(), ""));
-                    item.setText(9, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+                    item.setText(
+                        9, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                   }
                 }
               }
@@ -1627,7 +1630,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
       field.setGroupingSymbol(item.getText(8));
       field.setTrimType(ValueMetaString.getTrimTypeByDesc(item.getText(9)));
       field.setNullString(item.getText(10));
-      // CHECKSTYLE:Indentation:OFF
+
       tfoi.getOutputFields()[i] = field;
     }
   }

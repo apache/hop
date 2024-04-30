@@ -17,12 +17,11 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
 
 /** Read the messages files for the source folders of the specified locale. */
 public class SourceStore {

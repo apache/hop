@@ -17,6 +17,10 @@
 
 package org.apache.hop.projects.search;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
@@ -39,11 +43,6 @@ import org.apache.hop.ui.hopgui.search.HopGuiMetadataSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiPipelineSearchable;
 import org.apache.hop.ui.hopgui.search.HopGuiWorkflowSearchable;
 import org.apache.hop.workflow.WorkflowMeta;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
 
 // TODO: implement lazy loading of the searchables.
 //

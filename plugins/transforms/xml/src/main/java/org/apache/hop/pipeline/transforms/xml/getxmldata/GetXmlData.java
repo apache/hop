@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import java.io.InputStream;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.zip.GZIPInputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
@@ -50,13 +56,6 @@ import org.dom4j.Node;
 import org.dom4j.XPath;
 import org.dom4j.io.SAXReader;
 import org.dom4j.tree.AbstractNode;
-
-import java.io.InputStream;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 /**
  * Read XML files, parse them and convert them to rows and writes these to one or more output
@@ -280,7 +279,6 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
   }
 
   public void prepareNSMap(Element l) {
-    @SuppressWarnings("unchecked")
     List<Namespace> namespacesList = l.declaredNamespaces();
     for (Namespace ns : namespacesList) {
       if (ns.getPrefix().trim().length() == 0) {
@@ -306,7 +304,6 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       }
     }
 
-    @SuppressWarnings("unchecked")
     List<Element> elementsList = l.elements();
     for (Element e : elementsList) {
       prepareNSMap(e);
@@ -558,7 +555,6 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
     return path;
   }
 
-  @SuppressWarnings("unchecked")
   private boolean applyXPath() {
     try {
       XPath xpath = data.document.createXPath(data.PathValue);

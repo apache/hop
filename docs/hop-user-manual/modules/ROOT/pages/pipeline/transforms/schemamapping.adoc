@@ -38,14 +38,14 @@ The Schema Mapping transform maps fields from and incoming stream over a specifi
 !===
 |===
 
-Schema mapping is a useful mapping transform to precede transforms like xref:pipeline/transforms/textfileoutput.adoc[Text File Output] or xref:pipeline/transforms/excelwriter.adoc[Excel Writer] when we decide to refer to a xref:metadata-types/schema-file-definition.adoc[Schema Definition] to map the output layout of the file. By preceding these transforms with the Schema Mapping, the incoming stream will be already setup according to the expected output layout definition.
+Schema mapping is a useful mapping transform to precede transforms like xref:pipeline/transforms/textfileoutput.adoc[Text File Output] or xref:pipeline/transforms/excelwriter.adoc[Excel Writer] when we decide to refer to a xref:metadata-types/static-schema-definition.adoc[Schema Definition] to map the output layout of the file. By preceding these transforms with the Schema Mapping, the incoming stream will be already setup according to the expected output layout definition.
 
 == Options
 
 [options="header"]
 |===
 |Option|Description
-|Schema Definition|Name of the xref:metadata-types/schema-file-definition.adoc[Schema Definition] that we are going to map to the incoming stream.
+|Schema Definition|Name of the xref:metadata-types/static-schema-definition.adoc[Schema Definition] that we are going to map to the incoming stream.
 |Schema Fields|The set of schema fields that are mapped to stream fields.
 |Stream Fields name|The set of stream fields that are mapped to schema fields.
 |===

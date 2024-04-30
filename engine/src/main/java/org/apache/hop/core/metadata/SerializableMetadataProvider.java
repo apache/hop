@@ -19,6 +19,7 @@ package org.apache.hop.core.metadata;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonToken;
+import java.io.ByteArrayInputStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadata;
@@ -30,8 +31,6 @@ import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
-
-import java.io.ByteArrayInputStream;
 
 /**
  * This metadata implementation is an in-memory metadata which serializes using JSON. In other
@@ -50,7 +49,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider
    * @param source the source store to copy over
    */
   public SerializableMetadataProvider(IHopMetadataProvider source) throws HopException {
-    this.description = "Serializable metadata provider (source is "+source.getDescription()+")";
+    this.description = "Serializable metadata provider (source is " + source.getDescription() + ")";
 
     // What is the list of available classes?
     //

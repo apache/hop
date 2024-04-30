@@ -17,10 +17,6 @@
 
 package org.apache.hop.ui.i18n;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.util.Assert;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -32,6 +28,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.util.Assert;
 
 public class BundlesStore {
 
@@ -311,7 +310,9 @@ public class BundlesStore {
     return bundleRootFolders;
   }
 
-  /** @param bundleRootFolders The bundleRootFolders to set */
+  /**
+   * @param bundleRootFolders The bundleRootFolders to set
+   */
   public void setBundleRootFolders(List<String> bundleRootFolders) {
     this.bundleRootFolders = bundleRootFolders;
   }
@@ -325,7 +326,9 @@ public class BundlesStore {
     return packageLanguageBundleMap;
   }
 
-  /** @param packageLanguageBundleMap The packageLanguageBundleMap to set */
+  /**
+   * @param packageLanguageBundleMap The packageLanguageBundleMap to set
+   */
   public void setPackageLanguageBundleMap(
       Map<String, Map<String, BundleFile>> packageLanguageBundleMap) {
     this.packageLanguageBundleMap = packageLanguageBundleMap;

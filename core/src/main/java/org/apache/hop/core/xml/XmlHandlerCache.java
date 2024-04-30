@@ -81,7 +81,9 @@ public class XmlHandlerCache {
     return -1;
   }
 
-  /** @return the number of cache hits for your statistical pleasure. */
+  /**
+   * @return the number of cache hits for your statistical pleasure.
+   */
   public int getCacheHits() {
     return cacheHits.get();
   }

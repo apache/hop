@@ -25,13 +25,12 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DecimalNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.LongNode;
+import java.math.BigDecimal;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
-
-import java.math.BigDecimal;
 
 @ValueMetaPlugin(id = "11", name = "JSON", description = "JSON object", image = "json.svg")
 public class ValueMetaJson extends ValueMetaBase implements IValueMeta {

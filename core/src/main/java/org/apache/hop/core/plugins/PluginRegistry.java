@@ -17,21 +17,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginClassMapException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.EnvUtil;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -55,6 +40,20 @@ import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopPluginClassMapException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.util.EnvUtil;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 
 /**
  * This singleton provides access to all the plugins in the Hop universe.<br>
@@ -93,7 +92,9 @@ public class PluginRegistry {
   /** Initialize the registry, keep private to keep this a singleton */
   private PluginRegistry() {}
 
-  /** @return The one and only PluginRegistry instance */
+  /**
+   * @return The one and only PluginRegistry instance
+   */
   public static PluginRegistry getInstance() {
     return pluginRegistry;
   }
@@ -201,7 +202,9 @@ public class PluginRegistry {
     }
   }
 
-  /** @return An unmodifiable list of plugin types */
+  /**
+   * @return An unmodifiable list of plugin types
+   */
   public List<Class<? extends IPluginType>> getPluginTypes() {
     lock.readLock().lock();
     try {
@@ -339,7 +342,8 @@ public class PluginRegistry {
     URL[] urls = new URL[jarFiles.size()];
     for (int i = 0; i < jarFiles.size(); i++) {
       File jarFile = new File(jarFiles.get(i));
-      urls[i] = new URL(URLDecoder.decode(jarFile.toURI().toURL().toString(), StandardCharsets.UTF_8));
+      urls[i] =
+          new URL(URLDecoder.decode(jarFile.toURI().toURL().toString(), StandardCharsets.UTF_8));
     }
     ClassLoader classLoader = getClass().getClassLoader();
     String[] patterns = parentClassloaderPatternMap.get(plugin);
@@ -361,7 +365,8 @@ public class PluginRegistry {
 
     for (String jarFile : plugin.getLibraries()) {
       File jarfile = new File(jarFile);
-      ucl.addURL(new URL(URLDecoder.decode(jarfile.toURI().toURL().toString(), StandardCharsets.UTF_8)));
+      ucl.addURL(
+          new URL(URLDecoder.decode(jarfile.toURI().toURL().toString(), StandardCharsets.UTF_8)));
     }
   }
 
@@ -402,7 +407,6 @@ public class PluginRegistry {
    * @return The instantiated class
    * @throws HopPluginException In case there was a class loading problem somehow
    */
-  @SuppressWarnings("unchecked")
   public <T> T loadClass(IPlugin plugin, Class<T> pluginClass) throws HopPluginException {
     if (plugin == null) {
       throw new HopPluginException(
@@ -710,7 +714,9 @@ public class PluginRegistry {
     return getPlugin(pluginType, pluginId);
   }
 
-  /** @return a unique list of all the transform plugin package names */
+  /**
+   * @return a unique list of all the transform plugin package names
+   */
   public List<String> getPluginPackages(Class<? extends IPluginType> pluginType) {
     Set<String> list = new TreeSet<>();
     for (IPlugin plugin : getPlugins(pluginType)) {
@@ -795,7 +801,6 @@ public class PluginRegistry {
    * @return the name of the class
    * @throws HopPluginException In case there is something wrong
    */
-  @SuppressWarnings("unchecked")
   public <T> T getClass(IPlugin plugin, String className) throws HopPluginException {
     try {
       if (plugin.isNativePlugin()) {
@@ -843,7 +848,6 @@ public class PluginRegistry {
    * @return the name of the class
    * @throws HopPluginException In case there is something wrong
    */
-  @SuppressWarnings("unchecked")
   public <T> T getClass(IPlugin plugin, T classType) throws HopPluginException {
     String className = plugin.getClassMap().get(classType);
     if (className == null) {

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutputenhanced;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -62,10 +65,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.List;
 
 public class JsonOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JsonOutputMeta.class; // needed by Translator!!
@@ -570,7 +569,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
             input.setChanged();
           }
         });
-    
+
     Label wlUseSingleItemPerGroup = new Label(wSettings, SWT.RIGHT);
     wlUseSingleItemPerGroup.setText(
         BaseMessages.getString(PKG, "JsonOutputDialog.UseSingleItemPerGroup.Label"));
@@ -586,8 +585,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     PropsUi.setLook(wUseSingleItemPerGroup);
     FormData fdUseSingleItemPerGroup = new FormData();
     fdUseSingleItemPerGroup.left = new FormAttachment(middle, 0);
-    fdUseSingleItemPerGroup.top =
-        new FormAttachment(wlUseSingleItemPerGroup, 0, SWT.CENTER);
+    fdUseSingleItemPerGroup.top = new FormAttachment(wlUseSingleItemPerGroup, 0, SWT.CENTER);
     fdUseSingleItemPerGroup.right = new FormAttachment(100, 0);
     wUseSingleItemPerGroup.setLayoutData(fdUseSingleItemPerGroup);
     wUseSingleItemPerGroup.addSelectionListener(
@@ -960,7 +958,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         new FocusListener() {
           @Override
           public void focusLost(FocusEvent e) {
-            //Ignore event
+            // Ignore event
           }
 
           @Override
@@ -1138,7 +1136,6 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
           BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(4)));
       field.setRemoveIfBlank(
           BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(5)));
-      // CHECKSTYLE:Indentation:OFF
       jsometa.getOutputFields()[i] = field;
     }
   }

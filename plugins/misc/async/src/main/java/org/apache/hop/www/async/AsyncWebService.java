@@ -17,6 +17,8 @@
 
 package org.apache.hop.www.async;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
@@ -25,15 +27,12 @@ import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @HopMetadata(
     key = "async-web-service",
     name = "Asynchronous Web Service",
     description = "Allows you to run a long running workflow asynchronously",
     image = "ui/images/server.svg",
-    documentationUrl = "https://hop.apache.org/manual/latest/metadata-types/async-web-service.html")
+    documentationUrl = "metadata-types/async-web-service.html")
 public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty private boolean enabled;
@@ -52,7 +51,8 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
       boolean enabled,
       String filename,
       String statusVariables,
-      String bodyContentVariable, String runConfigurationName) {
+      String bodyContentVariable,
+      String runConfigurationName) {
     super(name);
     this.enabled = enabled;
     this.filename = filename;
@@ -88,7 +88,9 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
     return enabled;
   }
 
-  /** @param enabled The enabled to set */
+  /**
+   * @param enabled The enabled to set
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -102,7 +104,9 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -116,7 +120,9 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
     return statusVariables;
   }
 
-  /** @param statusVariables The statusVariables to set */
+  /**
+   * @param statusVariables The statusVariables to set
+   */
   public void setStatusVariables(String statusVariables) {
     this.statusVariables = statusVariables;
   }
@@ -130,7 +136,9 @@ public class AsyncWebService extends HopMetadataBase implements IHopMetadata {
     return bodyContentVariable;
   }
 
-  /** @param bodyContentVariable The bodyContentVariable to set */
+  /**
+   * @param bodyContentVariable The bodyContentVariable to set
+   */
   public void setBodyContentVariable(String bodyContentVariable) {
     this.bodyContentVariable = bodyContentVariable;
   }

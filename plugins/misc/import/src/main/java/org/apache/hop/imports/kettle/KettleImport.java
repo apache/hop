@@ -17,6 +17,27 @@
 
 package org.apache.hop.imports.kettle;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.vfs2.FileFilterSelector;
 import org.apache.commons.vfs2.FileObject;
@@ -48,28 +69,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @ImportPlugin(
     id = "kettle",
@@ -575,7 +574,11 @@ public class KettleImport extends HopImportBase implements IHopImport {
                 entryType = EntryType.FORMULA;
               }
               if (childNode.getNodeName().equals("type")
-                  && childNode.getChildNodes().item(0).getNodeValue().equals("PentahoGoogleSheetsPluginInputMeta")){
+                  && childNode
+                      .getChildNodes()
+                      .item(0)
+                      .getNodeValue()
+                      .equals("PentahoGoogleSheetsPluginInputMeta")) {
                 entryType = EntryType.GOOGLE_SHEETS_INPUT;
               }
               if (childNode.getNodeName().equals("type")
@@ -650,7 +653,9 @@ public class KettleImport extends HopImportBase implements IHopImport {
         } else if (entryType == EntryType.FORMULA
             && currentNode.getNodeName().equals("value_type")) {
           String formulaType = currentNode.getFirstChild().getNodeValue();
-          currentNode.getFirstChild().setNodeValue(Integer.toString(ValueMetaFactory.getIdForValueMeta(formulaType)));
+          currentNode
+              .getFirstChild()
+              .setNodeValue(Integer.toString(ValueMetaFactory.getIdForValueMeta(formulaType)));
         }
 
         if (entryType == EntryType.JOB || entryType == EntryType.TRANS) {
@@ -690,29 +695,29 @@ public class KettleImport extends HopImportBase implements IHopImport {
         }
       }
 
-      if(entryType == EntryType.SIMPLE_MAPPING
-              && currentNode.getNodeName().equals("transform")){
+      if (entryType == EntryType.SIMPLE_MAPPING && currentNode.getNodeName().equals("transform")) {
 
         Node filenameNode = null;
         String transName = "";
         String directoryPath = "";
         // get trans name, file name, path, set correct filename when needed.
-        for(int j=0; j <currentNode.getChildNodes().getLength(); j++){
-          if(currentNode.getChildNodes().item(j).getNodeName().equals("directory_path")){
+        for (int j = 0; j < currentNode.getChildNodes().getLength(); j++) {
+          if (currentNode.getChildNodes().item(j).getNodeName().equals("directory_path")) {
             directoryPath = currentNode.getChildNodes().item(j).getTextContent();
             currentNode.removeChild(currentNode.getChildNodes().item(j));
           }
-          if(currentNode.getChildNodes().item(j).getNodeName().equals("trans_name")){
+          if (currentNode.getChildNodes().item(j).getNodeName().equals("trans_name")) {
             transName = currentNode.getChildNodes().item(j).getTextContent();
             currentNode.removeChild(currentNode.getChildNodes().item(j));
           }
-          if(currentNode.getChildNodes().item(j).getNodeName().equals("filename")){
+          if (currentNode.getChildNodes().item(j).getNodeName().equals("filename")) {
             filenameNode = currentNode.getChildNodes().item(j);
           }
         }
 
-        // if we have a trans name and directory path, use it to update the mapping pipeline filename.
-        if(!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)){
+        // if we have a trans name and directory path, use it to update the mapping pipeline
+        // filename.
+        if (!StringUtils.isEmpty(transName) && !StringUtils.isEmpty(directoryPath)) {
           filenameNode.setTextContent("${PROJECT_HOME}" + directoryPath + "/" + transName + ".hpl");
         }
 
@@ -722,20 +727,19 @@ public class KettleImport extends HopImportBase implements IHopImport {
         currentNode.appendChild(runConfigElement);
       }
 
-      if(entryType == EntryType.GOOGLE_SHEETS_INPUT
-              && currentNode.getNodeName().equals("jsonCredentialPath")){
+      if (entryType == EntryType.GOOGLE_SHEETS_INPUT
+          && currentNode.getNodeName().equals("jsonCredentialPath")) {
         String jsonCredentialKeyPath = currentNode.getTextContent();
         currentNode.setTextContent(jsonCredentialKeyPath.replace('\\', '/'));
       }
-      if(entryType == EntryType.GOOGLE_SHEETS_INPUT
-              && currentNode.getNodeName().equals("field")){
+      if (entryType == EntryType.GOOGLE_SHEETS_INPUT && currentNode.getNodeName().equals("field")) {
 
         // get the second (1) child node to replace data types
-        for(int j=0; j < currentNode.getChildNodes().getLength(); j++){
+        for (int j = 0; j < currentNode.getChildNodes().getLength(); j++) {
           Node childNode = currentNode.getChildNodes().item(j);
-          if(childNode.getNodeName().equals("type")){
+          if (childNode.getNodeName().equals("type")) {
             String typeNodeValue = childNode.getTextContent();
-            switch(typeNodeValue){
+            switch (typeNodeValue) {
               case "Avro Record":
                 childNode.setTextContent("20");
                 break;
@@ -769,14 +773,15 @@ public class KettleImport extends HopImportBase implements IHopImport {
               case "Timestamp":
                 childNode.setTextContent("9");
                 break;
-              // default to String
+                // default to String
               default:
                 childNode.setTextContent("2");
                 break;
             }
-          }if(childNode.getNodeName().equals("trim_type")){
+          }
+          if (childNode.getNodeName().equals("trim_type")) {
             String trimTypeNode = childNode.getTextContent();
-            switch(trimTypeNode){
+            switch (trimTypeNode) {
               case "none":
                 childNode.setTextContent("0");
                 break;
@@ -789,7 +794,7 @@ public class KettleImport extends HopImportBase implements IHopImport {
               case "both":
                 childNode.setTextContent("3");
                 break;
-              // don't trim if not known
+                // don't trim if not known
               default:
                 childNode.setTextContent("0");
                 break;

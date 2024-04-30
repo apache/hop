@@ -18,6 +18,7 @@ package org.apache.hop.pipeline.transforms.valuemapper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
@@ -25,7 +26,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class ValueMapperMetaTest {
-  
+
   @Before
   public void setUpLoadSave() throws Exception {
     HopEnvironment.init();
@@ -42,13 +43,12 @@ public class ValueMapperMetaTest {
     // Test serialization with null source attribute
     assertNull(meta.getValues().get(0).getSource());
     assertEquals("[${NOT_DEFINED}]", meta.getValues().get(0).getTarget());
-    
+
     assertEquals("BE", meta.getValues().get(1).getSource());
     assertEquals("Belgium", meta.getValues().get(1).getTarget());
-        
+
     assertEquals("Country_Code", meta.getFieldToUse());
     assertEquals("Country_Name", meta.getTargetField());
-    assertEquals("[${NOT_FOUND}]", meta.getNonMatchDefault());    
+    assertEquals("[${NOT_FOUND}]", meta.getNonMatchDefault());
   }
 }
-

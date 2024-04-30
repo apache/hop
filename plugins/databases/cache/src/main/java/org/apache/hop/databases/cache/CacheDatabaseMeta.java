@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains InterSystems Cache specific information through static final members
- */
-@DatabaseMetaPlugin(type = "CACHE", typeDescription = "InterSystems Cache", documentationUrl = "/database/databases/cache.html")
+/** Contains InterSystems Cache specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "CACHE",
+    typeDescription = "InterSystems Cache",
+    documentationUrl = "/database/databases/cache.html")
 @GuiPlugin(id = "GUI-CacheDatabaseMeta")
 public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -54,7 +55,9 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return false;
@@ -198,7 +201,9 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports newlines in a SQL statements. */
+  /**
+   * @return true if the database supports newlines in a SQL statements.
+   */
   @Override
   public boolean isSupportsNewLinesInSql() {
     return false;

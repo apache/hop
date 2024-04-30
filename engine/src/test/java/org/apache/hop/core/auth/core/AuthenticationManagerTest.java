@@ -17,6 +17,16 @@
 
 package org.apache.hop.core.auth.core;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.auth.DelegatingKerberosConsumer;
 import org.apache.hop.core.auth.DelegatingKerberosConsumerForClassloaderBridging;
 import org.apache.hop.core.auth.DelegatingNoAuthConsumer;
@@ -30,17 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class AuthenticationManagerTest {
   private AuthenticationManager manager;
   private NoAuthenticationAuthenticationProvider noAuthenticationAuthenticationProvider;
@@ -52,7 +51,6 @@ public class AuthenticationManagerTest {
     manager.registerAuthenticationProvider(noAuthenticationAuthenticationProvider);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testNoAuthProviderAndConsumer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
@@ -68,7 +66,6 @@ public class AuthenticationManagerTest {
     verify(consumer).consume(noAuthenticationAuthenticationProvider);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testUsernamePasswordProviderConsumer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
@@ -88,7 +85,6 @@ public class AuthenticationManagerTest {
     verify(consumer).consume(usernamePasswordAuthenticationProvider);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testKerberosProviderConsumer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
@@ -107,7 +103,6 @@ public class AuthenticationManagerTest {
     verify(consumer).consume(kerberosAuthenticationProvider);
   }
 
-  @SuppressWarnings("rawtypes")
   @Test
   public void testGetSupportedPerformers()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
@@ -135,7 +130,6 @@ public class AuthenticationManagerTest {
     assertEquals(0, ids.size());
   }
 
-  @SuppressWarnings("rawtypes")
   @Test
   public void testRegisterUnregisterProvider() throws AuthenticationFactoryException {
     manager.registerConsumerClass(DelegatingNoAuthConsumer.class);
@@ -175,7 +169,6 @@ public class AuthenticationManagerTest {
     assertEquals(0, ids.size());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testRegisterConsumerFactory()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
@@ -199,7 +192,6 @@ public class AuthenticationManagerTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testClassLoaderBridgingPerformer()
       throws AuthenticationConsumptionException, AuthenticationFactoryException {
     manager.setAuthenticationPerformerFactory(
@@ -228,7 +220,6 @@ public class AuthenticationManagerTest {
     IAuthenticationConsumer<Object, IKerberosAuthenticationProviderProxy> consumer =
         mock(IAuthenticationConsumer.class);
 
-    @SuppressWarnings("rawtypes")
     IAuthenticationPerformer<Object, IAuthenticationConsumer> performer =
         manager.getAuthenticationPerformer(
             Object.class, IAuthenticationConsumer.class, kerberosAuthenticationProvider.getId());

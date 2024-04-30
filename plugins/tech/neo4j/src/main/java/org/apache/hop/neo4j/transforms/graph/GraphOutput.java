@@ -17,6 +17,17 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -47,18 +58,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.neo4j.driver.Result;
 import org.neo4j.driver.summary.Notification;
 import org.neo4j.driver.summary.ResultSummary;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputData> {
 
@@ -1150,8 +1149,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
 
                 // With this value we can now look up the target label
                 //
-                Map<String, String> valueLabelMap =
-                    data.nodeValueLabelMergeMap.get(node.getName());
+                Map<String, String> valueLabelMap = data.nodeValueLabelMergeMap.get(node.getName());
                 if (valueLabelMap == null) {
                   throw new HopException(
                       "No field-to-label mapping was specified for node " + node.getName());
@@ -1182,7 +1180,9 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
           throw new HopException("No node labels could be found for node: " + node.getName());
         }
 
-        SelectedNode selectedNode = new SelectedNode(node, targetHint, new ArrayList<>(labels), new ArrayList<>(labelsToSet));
+        SelectedNode selectedNode =
+            new SelectedNode(
+                node, targetHint, new ArrayList<>(labels), new ArrayList<>(labelsToSet));
         nodesSet.add(selectedNode);
 
         nodeProperties.add(
@@ -1649,15 +1649,15 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
     return id.toString();
   }
 
-  public void checkGraphProperty(GraphProperty graphProperty){
-    // check if the graph property contains any special characters. Escape with a backtick if it does.
+  public void checkGraphProperty(GraphProperty graphProperty) {
+    // check if the graph property contains any special characters. Escape with a backtick if it
+    // does.
     String graphPropertyValue = graphProperty.getName();
     Pattern p = Pattern.compile("[^A-Za-z0-9]");
     Matcher m = p.matcher(graphPropertyValue);
-    if(m.find()){
+    if (m.find()) {
       graphPropertyValue = "`" + graphPropertyValue + "`";
       graphProperty.setName(graphPropertyValue);
     }
   }
-
 }

@@ -20,6 +20,10 @@ package org.apache.hop.databases.cassandra.datastax;
 import com.datastax.oss.driver.api.core.metadata.schema.ColumnMetadata;
 import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata;
 import com.datastax.oss.driver.api.core.type.DataType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
@@ -32,13 +36,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.databases.cassandra.spi.ITableMetaData;
 import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.Selector;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
 
 public class TableMetaData implements ITableMetaData {
 
@@ -94,7 +91,7 @@ public class TableMetaData implements ITableMetaData {
   @Override
   public List<String> getKeyColumnNames() {
     List<String> names = new ArrayList<>();
-    meta.getPartitionKey().forEach(cm->names.add(cm.getName().asCql(false)));
+    meta.getPartitionKey().forEach(cm -> names.add(cm.getName().asCql(false)));
     return names;
   }
 
@@ -102,7 +99,7 @@ public class TableMetaData implements ITableMetaData {
   public IValueMeta getValueMetaForColumn(String colName) throws HopException {
     Optional<ColumnMetadata> optionalColumn = meta.getColumn(colName);
     if (optionalColumn.isEmpty()) {
-      throw new HopException("Column "+colName+" is not present");
+      throw new HopException("Column " + colName + " is not present");
     }
     return getValueMetaForColumn(optionalColumn.get());
   }
@@ -114,7 +111,7 @@ public class TableMetaData implements ITableMetaData {
         name = name.substring(1);
       }
       if (name.endsWith("\"")) {
-        name = name.substring(0, name.length()-1);
+        name = name.substring(0, name.length() - 1);
       }
       return toValueMeta(name, column.getType());
     }

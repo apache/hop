@@ -17,6 +17,9 @@
 
 package org.apache.hop.beam.transforms.kafka;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.coders.AvroCoder;
@@ -41,10 +44,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 @Transform(
     id = "BeamKafkaProduce",
     name = "Beam Kafka Produce",
@@ -53,7 +52,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.BigData",
     keywords = "i18n::BeamProduceMeta.keyword",
     documentationUrl = "/pipeline/transforms/beamkafkaproduce.html")
-public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> implements IBeamPipelineTransformHandler {
+public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData>
+    implements IBeamPipelineTransformHandler {
 
   @HopMetadataProperty(key = "bootstrap_servers")
   private String bootstrapServers;
@@ -133,18 +133,19 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
       parameters[i] = variables.resolve(option.getParameter());
       values[i] = variables.resolve(option.getValue());
       types[i] =
-              option.getType() == null ? ConfigOption.Type.String.name() : option.getType().name();
+          option.getType() == null ? ConfigOption.Type.String.name() : option.getType().name();
     }
 
     String messageFieldName = variables.resolve(getMessageField());
     IValueMeta messageValueMeta = rowMeta.searchValueMeta(messageFieldName);
-    if (messageValueMeta==null) {
-      throw new HopException("Error finding message/value field "+messageFieldName+" in the input rows");
+    if (messageValueMeta == null) {
+      throw new HopException(
+          "Error finding message/value field " + messageFieldName + " in the input rows");
     }
 
     // Register a coder for the short time that KV<HopRow, GenericRecord> exists in Beam
     //
-    if (messageValueMeta.getType()==IValueMeta.TYPE_AVRO) {
+    if (messageValueMeta.getType() == IValueMeta.TYPE_AVRO) {
       ValueMetaAvroRecord valueMetaAvroRecord = (ValueMetaAvroRecord) messageValueMeta;
       Schema schema = valueMetaAvroRecord.getSchema();
       AvroCoder<GenericRecord> coder = AvroCoder.of(schema);
@@ -190,7 +191,9 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }
@@ -204,7 +207,9 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
     return keyField;
   }
 
-  /** @param keyField The keyField to set */
+  /**
+   * @param keyField The keyField to set
+   */
   public void setKeyField(String keyField) {
     this.keyField = keyField;
   }
@@ -218,7 +223,9 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
     return messageField;
   }
 
-  /** @param messageField The messageField to set */
+  /**
+   * @param messageField The messageField to set
+   */
   public void setMessageField(String messageField) {
     this.messageField = messageField;
   }
@@ -232,7 +239,9 @@ public class BeamProduceMeta extends BaseTransformMeta<BeamProduce, DummyData> i
     return bootstrapServers;
   }
 
-  /** @param bootstrapServers The bootstrapServers to set */
+  /**
+   * @param bootstrapServers The bootstrapServers to set
+   */
   public void setBootstrapServers(String bootstrapServers) {
     this.bootstrapServers = bootstrapServers;
   }

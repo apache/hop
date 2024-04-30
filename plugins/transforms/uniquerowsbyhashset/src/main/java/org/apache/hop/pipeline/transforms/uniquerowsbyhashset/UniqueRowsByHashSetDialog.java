@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.uniquerowsbyhashset;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -48,9 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // For Translator
@@ -338,7 +337,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
 
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
-      // CHECKSTYLE:Indentation:OFF
+
       input.getCompareFields()[i] = item.getText(1);
     }
 

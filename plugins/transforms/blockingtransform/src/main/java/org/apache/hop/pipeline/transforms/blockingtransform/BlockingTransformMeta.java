@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.blockingtransform;
 
+import java.io.File;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -31,9 +33,6 @@ import org.apache.hop.pipeline.PipelineMeta.PipelineType;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.io.File;
-import java.util.List;
-
 @Transform(
     id = "BlockingTransform",
     image = "blockingtransform.svg",
@@ -42,7 +41,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::BlockingTransformMeta.keyword",
     documentationUrl = "/pipeline/transforms/blockingtransform.html")
-public class BlockingTransformMeta extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
+public class BlockingTransformMeta
+    extends BaseTransformMeta<BlockingTransform, BlockingTransformData> {
 
   private static final Class<?> PKG = BlockingTransformMeta.class; // For Translator
 
@@ -164,37 +164,51 @@ public class BlockingTransformMeta extends BaseTransformMeta<BlockingTransform, 
     // Default: no values are added to the row in the transform
   }
 
-  /** @return Returns the cacheSize. */
+  /**
+   * @return Returns the cacheSize.
+   */
   public int getCacheSize() {
     return cacheSize;
   }
 
-  /** @param cacheSize The cacheSize to set. */
+  /**
+   * @param cacheSize The cacheSize to set.
+   */
   public void setCacheSize(int cacheSize) {
     this.cacheSize = cacheSize;
   }
 
-  /** @return Returns the prefix. */
+  /**
+   * @return Returns the prefix.
+   */
   public String getPrefix() {
     return prefix;
   }
 
-  /** @param prefix The prefix to set. */
+  /**
+   * @param prefix The prefix to set.
+   */
   public void setPrefix(String prefix) {
     this.prefix = prefix;
   }
 
-  /** @return Returns whether temporary files should be compressed */
+  /**
+   * @return Returns whether temporary files should be compressed
+   */
   public boolean isCompressFiles() {
     return compressFiles;
   }
 
-  /** @param compressFiles Whether to compress temporary files created during sorting */
+  /**
+   * @param compressFiles Whether to compress temporary files created during sorting
+   */
   public void setCompressFiles(boolean compressFiles) {
     this.compressFiles = compressFiles;
   }
 
-  /** @return true when all rows are passed and false when only the last one is passed. */
+  /**
+   * @return true when all rows are passed and false when only the last one is passed.
+   */
   public boolean isPassAllRows() {
     return passAllRows;
   }
@@ -207,7 +221,9 @@ public class BlockingTransformMeta extends BaseTransformMeta<BlockingTransform, 
     this.passAllRows = passAllRows;
   }
 
-  /** @return The directory to store the temporary files in. */
+  /**
+   * @return The directory to store the temporary files in.
+   */
   public String getDirectory() {
     return directory;
   }

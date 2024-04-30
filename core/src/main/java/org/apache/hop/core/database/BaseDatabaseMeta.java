@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -18,16 +17,6 @@
 
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.plugin.GuiElementType;
-import org.apache.hop.core.gui.plugin.GuiWidgetElement;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -37,6 +26,15 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.gui.plugin.GuiElementType;
+import org.apache.hop.core.gui.plugin.GuiWidgetElement;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /**
  * This class contains the basic information on a database connection. It is not intended to be used
@@ -1618,7 +1616,9 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     return false;
   }
 
-  /** @return true if the database is a DuckDb variant. */
+  /**
+   * @return true if the database is a DuckDb variant.
+   */
   public boolean isDuckDbVariant() {
     return false;
   }

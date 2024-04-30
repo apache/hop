@@ -17,6 +17,10 @@
 
 package org.apache.hop.core.svg;
 
+import java.awt.geom.Rectangle2D;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.DocumentLoader;
@@ -32,11 +36,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
-
-import java.awt.geom.Rectangle2D;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SvgCache {
   private static SvgCache instance;

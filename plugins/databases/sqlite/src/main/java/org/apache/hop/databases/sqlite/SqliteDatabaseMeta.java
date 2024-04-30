@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains SQLite specific information through static final members
- */
-@DatabaseMetaPlugin(type = "SQLITE", typeDescription = "SQLite", documentationUrl = "/database/databases/sqlite.html")
+/** Contains SQLite specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "SQLITE",
+    typeDescription = "SQLite",
+    documentationUrl = "/database/databases/sqlite.html")
 @GuiPlugin(id = "GUI-SQLiteDatabaseMeta")
 public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -36,7 +37,9 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -65,7 +68,9 @@ public class SqliteDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;

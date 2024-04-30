@@ -1,4 +1,3 @@
-// CHECKSTYLE:Indentation:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -22,6 +21,10 @@
 
 package org.apache.hop.pipeline.transforms.edi2xml.grammar;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import org.antlr.runtime.BitSet;
 import org.antlr.runtime.IntStream;
 import org.antlr.runtime.MismatchedSetException;
@@ -38,12 +41,6 @@ import org.antlr.stringtemplate.StringTemplateGroup;
 import org.antlr.stringtemplate.language.AngleBracketTemplateLexer;
 import org.apache.commons.lang.StringEscapeUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
-@SuppressWarnings({"all", "warnings", "unchecked"})
 public class FastSimpleGenericEdifactDirectXMLParser extends Parser {
   public static final String[] tokenNames =
       new String[] {

@@ -31,7 +31,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface GuiMenuElement {
 
-  /** @return The root to which this menu item belongs. For example see HopGui.ID_MAIN_MENU */
+  /**
+   * @return The root to which this menu item belongs. For example see HopGui.ID_MAIN_MENU
+   */
   String root();
 
   /**

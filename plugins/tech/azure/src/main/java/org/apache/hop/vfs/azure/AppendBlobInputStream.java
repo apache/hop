@@ -19,7 +19,6 @@
 package org.apache.hop.vfs.azure;
 
 import com.microsoft.azure.storage.blob.BlobInputStream;
-
 import java.io.IOException;
 import java.io.InputStream;
 

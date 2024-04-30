@@ -66,24 +66,32 @@ public class SslConfiguration {
     setKeyStoreType(XmlHandler.getTagValue(sslConfigNode, XML_TAG_KEY_STORE_TYPE));
   }
 
-  /** @return the keyStoreType */
+  /**
+   * @return the keyStoreType
+   */
   public String getKeyStoreType() {
     return keyStoreType;
   }
 
-  /** @param keyStoreType the keyStoreType to set */
+  /**
+   * @param keyStoreType the keyStoreType to set
+   */
   public void setKeyStoreType(String keyStoreType) {
     if (keyStoreType != null) {
       this.keyStoreType = keyStoreType;
     }
   }
 
-  /** @return the keyStorePath */
+  /**
+   * @return the keyStorePath
+   */
   public String getKeyStore() {
     return keyStore;
   }
 
-  /** @param keyStore the keyStore to set */
+  /**
+   * @param keyStore the keyStore to set
+   */
   public void setKeyStore(String keyStore) {
     Validate.notNull(
         keyStore,
@@ -96,12 +104,16 @@ public class SslConfiguration {
     this.keyStore = keyStore;
   }
 
-  /** @return the keyStorePassword */
+  /**
+   * @return the keyStorePassword
+   */
   public String getKeyStorePassword() {
     return keyStorePassword;
   }
 
-  /** @param keyStorePassword the keyStorePassword to set */
+  /**
+   * @param keyStorePassword the keyStorePassword to set
+   */
   public void setKeyStorePassword(String keyStorePassword) {
     Validate.notNull(
         keyStorePassword,
@@ -114,12 +126,16 @@ public class SslConfiguration {
     this.keyStorePassword = keyStorePassword;
   }
 
-  /** @return the keyPassword */
+  /**
+   * @return the keyPassword
+   */
   public String getKeyPassword() {
     return (this.keyPassword != null) ? this.keyPassword : getKeyStorePassword();
   }
 
-  /** @param keyPassword the keyPassword to set */
+  /**
+   * @param keyPassword the keyPassword to set
+   */
   public void setKeyPassword(String keyPassword) {
     this.keyPassword = keyPassword;
   }

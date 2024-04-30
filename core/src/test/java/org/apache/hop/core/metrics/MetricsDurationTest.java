@@ -17,21 +17,19 @@
 
 package org.apache.hop.core.metrics;
 
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Calendar;
 import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class MetricsDurationTest {
 
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   @Test
-  @SuppressWarnings("deprecation")
   public void test() {
     Date startDate = new Date((2016 - 1900), Calendar.JANUARY, 10);
     Long duration = Long.valueOf(4L);

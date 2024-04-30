@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import java.io.BufferedInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -53,20 +60,13 @@ import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLi
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
-import java.io.BufferedInputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Read all sorts of text files, convert them to rows and writes these to one or more output
  * streams.
+ *
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
-@Deprecated(since="2.0")
+@Deprecated(since = "2.0")
 public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInputData> {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
@@ -170,7 +170,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     return null;
   }
 
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public static final String[] guessStringsFromLine(
       ILogChannel log, String line, TextFileInputMeta inf, String delimiter) throws HopException {
     return guessStringsFromLine(

@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata.util.delimiters;
 
-import org.apache.hop.core.logging.ILogChannel;
-
 import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.logging.ILogChannel;
 
 public class DelimiterDetectorBuilder {
 

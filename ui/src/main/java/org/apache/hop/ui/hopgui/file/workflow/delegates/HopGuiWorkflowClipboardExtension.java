@@ -17,11 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import java.io.File;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowMeta;
-
-import java.io.File;
 
 public class HopGuiWorkflowClipboardExtension {
   public String filename;

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -30,9 +32,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Transform(
     id = "SetValueField",
     image = "setvaluefield.svg",
@@ -43,13 +42,13 @@ import java.util.List;
     documentationUrl = "/pipeline/transforms/setvaluefield.html")
 public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValueFieldData> {
   private static final Class<?> PKG = SetValueFieldMeta.class; // For Translator
-  
+
   @HopMetadataProperty(
       key = "field",
       groupKey = "fields",
       injectionGroupDescription = "SetValueField.Injection.SetFields")
   private List<SetField> fields = new ArrayList<>();
-    
+
   public SetValueFieldMeta() {
     super();
   }
@@ -60,7 +59,7 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
       fields.add(new SetField(field));
     }
   }
-  
+
   public List<SetField> getFields() {
     return fields;
   }
@@ -126,7 +125,7 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
     }
     remarks.add(cr);
 
-    if (fields==null || fields.isEmpty()) {
+    if (fields == null || fields.isEmpty()) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
@@ -135,7 +134,7 @@ public class SetValueFieldMeta extends BaseTransformMeta<SetValueField, SetValue
       remarks.add(cr);
     } else {
       int i = 1;
-      for (SetField field:fields) {
+      for (SetField field : fields) {
         if (Utils.isEmpty(field.getReplaceByField())) {
           cr =
               new CheckResult(

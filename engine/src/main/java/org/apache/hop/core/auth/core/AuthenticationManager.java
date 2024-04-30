@@ -17,16 +17,15 @@
 
 package org.apache.hop.core.auth.core;
 
-import org.apache.hop.core.auth.core.impl.DefaultAuthenticationConsumerFactory;
-import org.apache.hop.core.auth.core.impl.DefaultAuthenticationPerformerFactory;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import org.apache.hop.core.auth.core.impl.DefaultAuthenticationConsumerFactory;
+import org.apache.hop.core.auth.core.impl.DefaultAuthenticationPerformerFactory;
+import org.apache.hop.i18n.BaseMessages;
 
 public class AuthenticationManager {
   private static final Class<?> PKG = AuthenticationManager.class; // For Translator
@@ -91,7 +90,6 @@ public class AuthenticationManager {
     for (Entry<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> entry :
         createTypeMap.entrySet()) {
       for (IAuthenticationProvider provider : authenticationProviders) {
-        @SuppressWarnings("unchecked")
         IAuthenticationPerformer<ReturnType, CreateArgType> authenticationPerformer =
             (IAuthenticationPerformer<ReturnType, CreateArgType>)
                 authenticationPerformerFactory.create(provider, entry.getValue());

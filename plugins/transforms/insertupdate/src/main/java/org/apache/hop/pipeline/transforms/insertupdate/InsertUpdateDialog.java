@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -64,11 +68,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class InsertUpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
@@ -90,7 +89,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
 
   /** List of ColumnInfo that should have the field names of the selected database table */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
-  
+
   /** List of ColumnInfo that should have the field names of the input fields */
   private final List<ColumnInfo> inputFieldColumns = new ArrayList<>();
 
@@ -300,9 +299,9 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {""},
             false);
-    
-    tableFieldColumns.add(ciKey[0]);    
-    inputFieldColumns.add(ciKey[2]);    
+
+    tableFieldColumns.add(ciKey[0]);
+    inputFieldColumns.add(ciKey[2]);
     inputFieldColumns.add(ciKey[3]);
 
     wKey =
@@ -374,10 +373,10 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
             BaseMessages.getString(PKG, "InsertUpdateDialog.ColumnInfo.Update"),
             ColumnInfo.COLUMN_TYPE_CCOMBO,
             new String[] {"Y", "N"});
-    
+
     tableFieldColumns.add(ciReturn[0]);
-    inputFieldColumns.add(ciReturn[1]); 
-    
+    inputFieldColumns.add(ciReturn[1]);
+
     wReturn =
         new TableView(
             variables,
@@ -427,24 +426,25 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     return transformName;
   }
 
-  /**
-   * Search the fields in the background
-   */
+  /** Search the fields in the background */
   protected void setInputFieldCombo() {
-    shell.getDisplay().asyncExec(() -> {
-      TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
-      if (transformMeta != null) {
-        try {
-          IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);          
-          String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
-          for (ColumnInfo colInfo : inputFieldColumns) {
-            colInfo.setComboValues(fieldNames);
-          }
-        } catch (HopException e) {
-          logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
-        }
-      }
-    });
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+              if (transformMeta != null) {
+                try {
+                  IRowMeta rowMeta = pipelineMeta.getPrevTransformFields(variables, transformMeta);
+                  String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+                  for (ColumnInfo colInfo : inputFieldColumns) {
+                    colInfo.setComboValues(fieldNames);
+                  }
+                } catch (HopException e) {
+                  logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
+                }
+              }
+            });
   }
 
   /**
@@ -683,7 +683,6 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
 
     inf.getInsertUpdateLookupField().getLookupKeys().clear();
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       InsertUpdateKeyField keyField =
@@ -724,43 +723,47 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void setTableFieldCombo() {
-    shell.getDisplay().asyncExec(() -> {
-      if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
-        final String tableName = wTable.getText();
-        final String connectionName = wConnection.getText();
-        final String schemaName = wSchema.getText();
+    shell
+        .getDisplay()
+        .asyncExec(
+            () -> {
+              if (!wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed()) {
+                final String tableName = wTable.getText();
+                final String connectionName = wConnection.getText();
+                final String schemaName = wSchema.getText();
 
-        // clear
-        for (ColumnInfo colInfo : tableFieldColumns) {
-          colInfo.setComboValues(new String[] {});
-        }
-        if (!Utils.isEmpty(tableName)) {
-          DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
-          if (databaseMeta != null) {
-            try (Database database = new Database(loggingObject, variables, databaseMeta)) {
-              database.connect();
+                // clear
+                for (ColumnInfo colInfo : tableFieldColumns) {
+                  colInfo.setComboValues(new String[] {});
+                }
+                if (!Utils.isEmpty(tableName)) {
+                  DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
+                  if (databaseMeta != null) {
+                    try (Database database = new Database(loggingObject, variables, databaseMeta)) {
+                      database.connect();
 
-              IRowMeta rowMeta = database.getTableFieldsMeta(variables.resolve(schemaName),
-                  variables.resolve(tableName));
-              if (null != rowMeta) {
-                String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
-                if (null != fieldNames) {
-                  for (ColumnInfo colInfo : tableFieldColumns) {
-                    colInfo.setComboValues(fieldNames);
+                      IRowMeta rowMeta =
+                          database.getTableFieldsMeta(
+                              variables.resolve(schemaName), variables.resolve(tableName));
+                      if (null != rowMeta) {
+                        String[] fieldNames = Const.sortStrings(rowMeta.getFieldNames());
+                        if (null != fieldNames) {
+                          for (ColumnInfo colInfo : tableFieldColumns) {
+                            colInfo.setComboValues(fieldNames);
+                          }
+                        }
+                      }
+                    } catch (Exception e) {
+                      for (ColumnInfo colInfo : tableFieldColumns) {
+                        colInfo.setComboValues(new String[] {});
+                      }
+                      // ignore any errors here. drop downs will not be
+                      // filled, but no problem for the user
+                    }
                   }
                 }
               }
-            } catch (Exception e) {
-              for (ColumnInfo colInfo : tableFieldColumns) {
-                colInfo.setComboValues(new String[] {});
-              }
-              // ignore any errors here. drop downs will not be
-              // filled, but no problem for the user
-            }
-          }
-        }
-      }
-    });
+            });
   }
 
   private void ok() {

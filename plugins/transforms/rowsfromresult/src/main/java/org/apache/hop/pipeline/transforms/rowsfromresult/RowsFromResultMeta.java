@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.rowsfromresult;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -36,8 +37,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "RowsFromResult",
     image = "rowsfromresult.svg",
@@ -54,42 +53,58 @@ public class RowsFromResultMeta extends BaseTransformMeta<RowsFromResult, RowsFr
   private int[] length;
   private int[] precision;
 
-  /** @return Returns the length. */
+  /**
+   * @return Returns the length.
+   */
   public int[] getLength() {
     return length;
   }
 
-  /** @param length The length to set. */
+  /**
+   * @param length The length to set.
+   */
   public void setLength(int[] length) {
     this.length = length;
   }
 
-  /** @return Returns the name. */
+  /**
+   * @return Returns the name.
+   */
   public String[] getFieldname() {
     return fieldname;
   }
 
-  /** @param name The name to set. */
+  /**
+   * @param name The name to set.
+   */
   public void setFieldname(String[] name) {
     this.fieldname = name;
   }
 
-  /** @return Returns the precision. */
+  /**
+   * @return Returns the precision.
+   */
   public int[] getPrecision() {
     return precision;
   }
 
-  /** @param precision The precision to set. */
+  /**
+   * @param precision The precision to set.
+   */
   public void setPrecision(int[] precision) {
     this.precision = precision;
   }
 
-  /** @return Returns the type. */
+  /**
+   * @return Returns the type.
+   */
   public int[] getType() {
     return type;
   }
 
-  /** @param type The type to set. */
+  /**
+   * @param type The type to set.
+   */
   public void setType(int[] type) {
     this.type = type;
   }

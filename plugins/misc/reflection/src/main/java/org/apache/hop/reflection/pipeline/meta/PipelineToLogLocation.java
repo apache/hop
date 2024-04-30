@@ -17,46 +17,43 @@
 
 package org.apache.hop.reflection.pipeline.meta;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PipelineToLogLocation {
 
-    @HopMetadataProperty private String pipelineToLogFilename;
+  @HopMetadataProperty private String pipelineToLogFilename;
 
-    public PipelineToLogLocation(){
+  public PipelineToLogLocation() {}
 
+  public PipelineToLogLocation(String pipelineTologFilename) {
+    this.pipelineToLogFilename = pipelineTologFilename;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
 
-    public PipelineToLogLocation(String pipelineTologFilename){
-        this.pipelineToLogFilename = pipelineTologFilename;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
 
-    @Override
-    public boolean equals(Object o){
-        if(this == o){
-            return true;
-        }
+    PipelineToLogLocation that = (PipelineToLogLocation) o;
+    return Objects.equals(pipelineToLogFilename, that.pipelineToLogFilename);
+  }
 
-        if(o == null || getClass() != o.getClass()){
-            return false;
-        }
+  @Override
+  public int hashCode() {
+    return Objects.hash(pipelineToLogFilename);
+  }
 
-        PipelineToLogLocation that = (PipelineToLogLocation) o;
-        return Objects.equals(pipelineToLogFilename, that.pipelineToLogFilename);
-    }
+  public String getPipelineToLogFilename() {
+    return pipelineToLogFilename;
+  }
 
-    @Override
-    public int hashCode(){
-        return Objects.hash(pipelineToLogFilename);
-    }
-
-    public String getPipelineToLogFilename(){
-        return pipelineToLogFilename;
-    }
-
-    public void setPipelineToLogFilename(String pipelineToLogFilename){
-        this.pipelineToLogFilename = pipelineToLogFilename;
-    }
+  public void setPipelineToLogFilename(String pipelineToLogFilename) {
+    this.pipelineToLogFilename = pipelineToLogFilename;
+  }
 }

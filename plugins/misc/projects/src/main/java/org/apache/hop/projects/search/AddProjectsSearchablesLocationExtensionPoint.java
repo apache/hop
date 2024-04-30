@@ -17,6 +17,7 @@
 
 package org.apache.hop.projects.search;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -26,8 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
-
-import java.util.List;
 
 @ExtensionPoint(
     id = "AddProjectsSearchablesLocationExtensionPoint",

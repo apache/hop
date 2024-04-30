@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.engines;
 
+import java.util.Objects;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
-
-import java.util.Objects;
 
 public class EmptyPipelineRunConfiguration extends Variables
     implements IPipelineEngineRunConfiguration {
@@ -72,7 +71,9 @@ public class EmptyPipelineRunConfiguration extends Variables
     return pluginId;
   }
 
-  /** @param pluginId The pluginId to set */
+  /**
+   * @param pluginId The pluginId to set
+   */
   @Override
   public void setEnginePluginId(String pluginId) {
     this.pluginId = pluginId;
@@ -88,7 +89,9 @@ public class EmptyPipelineRunConfiguration extends Variables
     return pluginName;
   }
 
-  /** @param pluginName The pluginName to set */
+  /**
+   * @param pluginName The pluginName to set
+   */
   @Override
   public void setEnginePluginName(String pluginName) {
     this.pluginName = pluginName;

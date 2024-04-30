@@ -17,9 +17,8 @@
 
 package org.apache.hop.ui.hopgui.delegates;
 
-import org.apache.hop.ui.core.dialog.IDirectoryDialog;
-
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.ui.core.dialog.IDirectoryDialog;
 
 public class HopGuiDirectoryDialogExtension {
   public AtomicBoolean doIt;
@@ -39,7 +38,9 @@ public class HopGuiDirectoryDialogExtension {
     return doIt;
   }
 
-  /** @param doIt The doIt to set */
+  /**
+   * @param doIt The doIt to set
+   */
   public void setDoIt(AtomicBoolean doIt) {
     this.doIt = doIt;
   }
@@ -53,7 +54,9 @@ public class HopGuiDirectoryDialogExtension {
     return directoryDialog;
   }
 
-  /** @param directoryDialog The directoryDialog to set */
+  /**
+   * @param directoryDialog The directoryDialog to set
+   */
   public void setDirectoryDialog(IDirectoryDialog directoryDialog) {
     this.directoryDialog = directoryDialog;
   }

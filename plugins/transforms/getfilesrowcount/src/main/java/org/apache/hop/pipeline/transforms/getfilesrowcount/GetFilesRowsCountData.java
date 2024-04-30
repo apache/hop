@@ -23,8 +23,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.io.InputStream;
-
 public class GetFilesRowsCountData extends BaseTransformData implements ITransformData {
   public String thisLine;
   public IRowMeta outputRowMeta;

@@ -17,11 +17,12 @@
 
 package org.apache.hop.core.util;
 
+import java.util.ArrayList;
 import org.apache.commons.collections4.Closure;
 
-import java.util.ArrayList;
-
-/** @param <T> type. */
+/**
+ * @param <T> type.
+ */
 public class AddClosureArrayList<T> extends ArrayList<T> implements Closure {
 
   /** Serial version UID. */
@@ -33,7 +34,6 @@ public class AddClosureArrayList<T> extends ArrayList<T> implements Closure {
    * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
    */
   @Override
-  @SuppressWarnings("unchecked")
   public void execute(final Object input) {
     this.add((T) input);
   }

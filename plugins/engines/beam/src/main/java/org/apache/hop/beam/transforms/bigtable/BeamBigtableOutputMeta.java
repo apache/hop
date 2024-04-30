@@ -19,6 +19,9 @@ package org.apache.hop.beam.transforms.bigtable;
 
 import com.google.bigtable.v2.Mutation;
 import com.google.protobuf.ByteString;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.io.gcp.bigtable.BigtableIO;
 import org.apache.beam.sdk.transforms.ParDo;
 import org.apache.beam.sdk.values.KV;
@@ -42,10 +45,6 @@ import org.apache.hop.pipeline.transforms.dummy.Dummy;
 import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "BeamBigtableOutput",
@@ -132,14 +131,14 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
     // Verify that each column has qualifier, a family value and a source:
     //
     for (BigtableColumn column : columns) {
-      if ( StringUtils.isEmpty(column.getName())) {
+      if (StringUtils.isEmpty(column.getName())) {
         throw new HopException("Every column needs to have a name");
       }
-      if ( StringUtils.isEmpty(column.getFamily())) {
-        throw new HopException("Every column needs to have a family value: "+column.getName());
+      if (StringUtils.isEmpty(column.getFamily())) {
+        throw new HopException("Every column needs to have a family value: " + column.getName());
       }
-      if ( StringUtils.isEmpty(column.getSourceField())) {
-        throw new HopException("Every column needs to have a source field: "+column.getName());
+      if (StringUtils.isEmpty(column.getSourceField())) {
+        throw new HopException("Every column needs to have a source field: " + column.getName());
       }
     }
 
@@ -168,10 +167,7 @@ public class BeamBigtableOutputMeta extends BaseTransformMeta<Dummy, DummyData>
 
     HopToBigtableFn function =
         new HopToBigtableFn(
-            keyIndex,
-            j.toJSONString(),
-            transformMeta.getName(),
-            JsonRowMeta.toJson(rowMeta));
+            keyIndex, j.toJSONString(), transformMeta.getName(), JsonRowMeta.toJson(rowMeta));
 
     PCollection<KV<ByteString, Iterable<Mutation>>> bigtableInput =
         input.apply(transformMeta.getName(), ParDo.of(function));

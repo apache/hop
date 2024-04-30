@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.snowflake.bulkloader;
 
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.compress.CompressionOutputStream;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -24,12 +28,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-@SuppressWarnings("WeakerAccess")
 public class SnowflakeBulkLoaderData extends BaseTransformData implements ITransformData {
 
   // When the meta.splitSize is exceeded the file being written is closed and a new file is created.

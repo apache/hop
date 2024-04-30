@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
 
 public class SQLFileOutputData extends BaseTransformData implements ITransformData {
   public int splitnr;

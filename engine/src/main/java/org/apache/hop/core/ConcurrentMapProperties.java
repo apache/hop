@@ -16,8 +16,6 @@
  */
 package org.apache.hop.core;
 
-import org.apache.commons.collections4.IteratorUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -37,6 +35,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import org.apache.commons.collections4.IteratorUtils;
 
 /** Thread Safe version of Java Properties class. */
 public class ConcurrentMapProperties extends Properties {
@@ -129,7 +128,6 @@ public class ConcurrentMapProperties extends Properties {
     return storageMap.containsKey(key);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public synchronized Enumeration<Object> elements() {
     return (Enumeration<Object>) IteratorUtils.asEnumeration(storageMap.values().iterator());
@@ -150,7 +148,6 @@ public class ConcurrentMapProperties extends Properties {
     return storageMap.getOrDefault(key, defaultValue);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public synchronized Enumeration<Object> keys() {
     return (Enumeration<Object>) IteratorUtils.asEnumeration(storageMap.keySet().iterator());

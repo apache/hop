@@ -46,7 +46,9 @@ public class HistoryResults {
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }
@@ -60,7 +62,9 @@ public class HistoryResults {
     return lastExecutions;
   }
 
-  /** @param lastExecutions The lastExecutions to set */
+  /**
+   * @param lastExecutions The lastExecutions to set
+   */
   public void setLastExecutions(List<HistoryResult> lastExecutions) {
     this.lastExecutions = lastExecutions;
   }
@@ -74,7 +78,9 @@ public class HistoryResults {
     return subjectName;
   }
 
-  /** @param subjectName The subjectName to set */
+  /**
+   * @param subjectName The subjectName to set
+   */
   public void setSubjectName(String subjectName) {
     this.subjectName = subjectName;
   }
@@ -88,7 +94,9 @@ public class HistoryResults {
     return subjectType;
   }
 
-  /** @param subjectType The subjectType to set */
+  /**
+   * @param subjectType The subjectType to set
+   */
   public void setSubjectType(String subjectType) {
     this.subjectType = subjectType;
   }
@@ -102,7 +110,9 @@ public class HistoryResults {
     return subjectCopy;
   }
 
-  /** @param subjectCopy The subjectCopy to set */
+  /**
+   * @param subjectCopy The subjectCopy to set
+   */
   public void setSubjectCopy(String subjectCopy) {
     this.subjectCopy = subjectCopy;
   }
@@ -116,7 +126,9 @@ public class HistoryResults {
     return parentName;
   }
 
-  /** @param parentName The parentName to set */
+  /**
+   * @param parentName The parentName to set
+   */
   public void setParentName(String parentName) {
     this.parentName = parentName;
   }
@@ -130,7 +142,9 @@ public class HistoryResults {
     return parentType;
   }
 
-  /** @param parentType The parentType to set */
+  /**
+   * @param parentType The parentType to set
+   */
   public void setParentType(String parentType) {
     this.parentType = parentType;
   }

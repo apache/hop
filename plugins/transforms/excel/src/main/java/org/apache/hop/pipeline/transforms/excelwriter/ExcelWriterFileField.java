@@ -126,9 +126,9 @@ public class ExcelWriterFileField {
       injectionKeyDescription = "ExcelWriterMeta.Injection.DateInFilename.Field")
   private boolean dateInFilename;
 
-
   /** Flag: create parent folder, default to true */
-  @HopMetadataProperty(injectionKeyDescription = "ExcelWriterMeta.Injection.CreateParentFolder.Field")
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExcelWriterMeta.Injection.CreateParentFolder.Field")
   private boolean createParentFolder;
 
   public boolean isCreateParentFolder() {
@@ -155,62 +155,86 @@ public class ExcelWriterFileField {
     this.ifSheetExists = ifSheetExists;
   }
 
-  /** @param transformNrInFilename The transformNrInFilename to set. */
+  /**
+   * @param transformNrInFilename The transformNrInFilename to set.
+   */
   public void setTransformNrInFilename(boolean transformNrInFilename) {
     this.transformNrInFilename = transformNrInFilename;
   }
 
-  /** @return the streamingData */
+  /**
+   * @return the streamingData
+   */
   public boolean isStreamingData() {
     return streamingData;
   }
 
-  /** @param streamingData the streamingData to set */
+  /**
+   * @param streamingData the streamingData to set
+   */
   public void setStreamingData(boolean streamingData) {
     this.streamingData = streamingData;
   }
 
-  /** @return Returns the "do not open new file at init" flag. */
+  /**
+   * @return Returns the "do not open new file at init" flag.
+   */
   public boolean isDoNotOpenNewFileInit() {
     return doNotOpenNewFileInit;
   }
 
-  /** @param doNotOpenNewFileInit The "do not open new file at init" flag to set. */
+  /**
+   * @param doNotOpenNewFileInit The "do not open new file at init" flag to set.
+   */
   public void setDoNotOpenNewFileInit(boolean doNotOpenNewFileInit) {
     this.doNotOpenNewFileInit = doNotOpenNewFileInit;
   }
 
-  /** @return Returns the splitEvery. */
+  /**
+   * @return Returns the splitEvery.
+   */
   public int getSplitEvery() {
     return splitEvery;
   }
 
-  /** @param splitEvery The splitEvery to set. */
+  /**
+   * @param splitEvery The splitEvery to set.
+   */
   public void setSplitEvery(int splitEvery) {
     this.splitEvery = splitEvery >= 0 ? splitEvery : 0;
   }
 
-  /** @return Returns the transformNrInFilename. */
+  /**
+   * @return Returns the transformNrInFilename.
+   */
   public boolean isTransformNrInFilename() {
     return transformNrInFilename;
   }
 
-  /** @return Returns the password. */
+  /**
+   * @return Returns the password.
+   */
   public String getPassword() {
     return password;
   }
 
-  /** @param password teh passwoed to set. */
+  /**
+   * @param password teh passwoed to set.
+   */
   public void setPassword(String password) {
     this.password = password;
   }
 
-  /** @return Returns the sheet name. */
+  /**
+   * @return Returns the sheet name.
+   */
   public String getSheetname() {
     return sheetname;
   }
 
-  /** @param sheetname The sheet name. */
+  /**
+   * @param sheetname The sheet name.
+   */
   public void setSheetname(String sheetname) {
     this.sheetname = sheetname;
   }
@@ -223,52 +247,72 @@ public class ExcelWriterFileField {
     this.protectedBy = protectedBy;
   }
 
-  /** @return Returns the extension. */
+  /**
+   * @return Returns the extension.
+   */
   public String getExtension() {
     return extension;
   }
 
-  /** @param extension The extension to set. */
+  /**
+   * @param extension The extension to set.
+   */
   public void setExtension(String extension) {
     this.extension = extension;
   }
 
-  /** @return Returns the dateInFilename. */
+  /**
+   * @return Returns the dateInFilename.
+   */
   public boolean isDateInFilename() {
     return dateInFilename;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @return Returns the timeInFilename. */
+  /**
+   * @return Returns the timeInFilename.
+   */
   public boolean isTimeInFilename() {
     return timeInFilename;
   }
 
-  /** @return Returns the protectsheet. */
+  /**
+   * @return Returns the protectsheet.
+   */
   public boolean isProtectsheet() {
     return protectsheet;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @param protectsheet the value to set. */
+  /**
+   * @param protectsheet the value to set.
+   */
   public void setProtectsheet(boolean protectsheet) {
     this.protectsheet = protectsheet;
   }
 
-  /** @return Returns the autosizecolums. */
+  /**
+   * @return Returns the autosizecolums.
+   */
   public boolean isAutosizecolums() {
     return autosizecolums;
   }
 
-  /** @param autosizecolums The autosizecolums to set. */
+  /**
+   * @param autosizecolums The autosizecolums to set.
+   */
   public void setAutosizecolums(boolean autosizecolums) {
     this.autosizecolums = autosizecolums;
   }
@@ -289,32 +333,44 @@ public class ExcelWriterFileField {
     this.dateTimeFormat = dateTimeFormat;
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String getFileName() {
     return fileName;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
 
-  /** @return Is the file name coded in a field? */
+  /**
+   * @return Is the file name coded in a field?
+   */
   public boolean isFileNameInField() {
     return fileNameInField;
   }
 
-  /** @param fileNameInField Is the file name coded in a field? */
+  /**
+   * @param fileNameInField Is the file name coded in a field?
+   */
   public void setFileNameInField(boolean fileNameInField) {
     this.fileNameInField = fileNameInField;
   }
 
-  /** @return The field name that contains the output file name. */
+  /**
+   * @return The field name that contains the output file name.
+   */
   public String getFileNameField() {
     return fileNameField;
   }
 
-  /** @param fileNameField Name of the field that contains the file name */
+  /**
+   * @param fileNameField Name of the field that contains the file name
+   */
   public void setFileNameField(String fileNameField) {
     this.fileNameField = fileNameField;
   }

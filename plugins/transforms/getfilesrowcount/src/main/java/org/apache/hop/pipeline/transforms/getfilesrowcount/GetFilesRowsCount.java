@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.getfilesrowcount;
 
+import static org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta.SeparatorFormat.CRLF;
+
+import java.io.InputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ResultFile;
@@ -31,10 +34,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta.SeparatorFormat;
-
-import java.io.InputStream;
-
-import static org.apache.hop.pipeline.transforms.getfilesrowcount.GetFilesRowsCountMeta.SeparatorFormat.CRLF;
 
 /** Read all files, count rows number */
 public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetFilesRowsCountData> {

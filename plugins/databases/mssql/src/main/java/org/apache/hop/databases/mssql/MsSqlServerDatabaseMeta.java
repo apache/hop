@@ -17,6 +17,7 @@
 
 package org.apache.hop.databases.mssql;
 
+import java.sql.ResultSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.Database;
@@ -31,12 +32,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 
-import java.sql.ResultSet;
-
-/**
- * Contains MS SQL specific information through static final members
- */
-@DatabaseMetaPlugin(type = "MSSQL", typeDescription = "MS SQL Server", documentationUrl = "/database/databases/mssql.html")
+/** Contains MS SQL specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "MSSQL",
+    typeDescription = "MS SQL Server",
+    documentationUrl = "/database/databases/mssql.html")
 @GuiPlugin(id = "GUI-MSSQLServerDatabaseMeta")
 public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
@@ -75,7 +75,9 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return usingDoubleDigit;
   }
 
-  /** @param usingDoubleDigit The usingDoubleDigit to set */
+  /**
+   * @param usingDoubleDigit The usingDoubleDigit to set
+   */
   public void setUsingDoubleDigit(boolean usingDoubleDigit) {
     this.usingDoubleDigit = usingDoubleDigit;
   }
@@ -143,13 +145,17 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     }
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;
@@ -333,7 +339,9 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     return retval;
   }
 
-  /** @return The SQL on this database to get a list of stored procedures. */
+  /**
+   * @return The SQL on this database to get a list of stored procedures.
+   */
   @Override
   public String getSqlListOfProcedures() {
     return "select o.name "

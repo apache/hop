@@ -98,42 +98,58 @@ public class WorkflowExecutorParameters implements Cloneable {
     return xml.toString();
   }
 
-  /** @return the field name to use */
+  /**
+   * @return the field name to use
+   */
   public String[] getField() {
     return field;
   }
 
-  /** @param field the input field name to set */
+  /**
+   * @param field the input field name to set
+   */
   public void setField(String[] field) {
     this.field = field;
   }
 
-  /** @return the variable */
+  /**
+   * @return the variable
+   */
   public String[] getVariable() {
     return variable;
   }
 
-  /** @param variable the variable to set */
+  /**
+   * @param variable the variable to set
+   */
   public void setVariable(String[] variable) {
     this.variable = variable;
   }
 
-  /** @return the inheritingAllVariables */
+  /**
+   * @return the inheritingAllVariables
+   */
   public boolean isInheritingAllVariables() {
     return inheritingAllVariables;
   }
 
-  /** @param inheritingAllVariables the inheritingAllVariables to set */
+  /**
+   * @param inheritingAllVariables the inheritingAllVariables to set
+   */
   public void setInheritingAllVariables(boolean inheritingAllVariables) {
     this.inheritingAllVariables = inheritingAllVariables;
   }
 
-  /** @return the input */
+  /**
+   * @return the input
+   */
   public String[] getInput() {
     return input;
   }
 
-  /** @param input the input to set */
+  /**
+   * @param input the input to set
+   */
   public void setInput(String[] input) {
     this.input = input;
   }

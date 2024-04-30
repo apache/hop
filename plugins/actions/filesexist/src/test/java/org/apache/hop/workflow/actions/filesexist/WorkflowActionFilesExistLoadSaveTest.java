@@ -17,12 +17,11 @@
 
 package org.apache.hop.workflow.actions.filesexist;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class WorkflowActionFilesExistLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionFilesExist> {

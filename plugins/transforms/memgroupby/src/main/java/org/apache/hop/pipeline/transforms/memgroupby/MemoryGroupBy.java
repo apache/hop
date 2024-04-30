@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAll;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAny;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountDistinct;
+import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Percentile;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +49,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
-
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAll;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountAny;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.CountDistinct;
-import static org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta.GroupType.Percentile;
 
 /** Groups information based on aggregation rules. (sum, count, ...) */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> {
@@ -236,7 +236,6 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
    * @param r
    * @throws HopException
    */
-  @SuppressWarnings("unchecked")
   void addToAggregate(Object[] r) throws HopException {
 
     Object[] groupData = new Object[data.groupMeta.size()];
@@ -518,7 +517,6 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           if (agg.getType() == Percentile) {
             percentile = Double.parseDouble(agg.getValueField());
           }
-          @SuppressWarnings("unchecked")
           List<Double> valuesList = (List<Double>) aggregate.agg[i];
           double[] values = new double[valuesList.size()];
           for (int v = 0; v < values.length; v++) {

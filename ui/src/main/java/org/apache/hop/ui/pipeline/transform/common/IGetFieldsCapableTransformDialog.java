@@ -17,15 +17,6 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.ui.core.widget.TableView;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -35,6 +26,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.ui.core.widget.TableView;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
 
 /**
  * An interface providing functionality for any transform dialog that has the "get fields"

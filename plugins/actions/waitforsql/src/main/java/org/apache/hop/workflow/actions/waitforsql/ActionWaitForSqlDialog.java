@@ -666,7 +666,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       mb.setMessage(BaseMessages.getString(PKG, "ActionWaitForSQL.ConnectionNoLongerAvailable"));
       mb.setText(BaseMessages.getString(PKG, "ActionWaitForSQL.DialogCaptionError4"));
       mb.open();
-    }    
+    }
   }
 
   public void setPosition() {
@@ -750,8 +750,9 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private void getTableName() {
     DatabaseMeta databaseMeta = workflowMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog(shell, SWT.NONE, variables,
-          databaseMeta, getWorkflowMeta().getDatabases());
+      DatabaseExplorerDialog std =
+          new DatabaseExplorerDialog(
+              shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases());
       std.setSelectedSchemaAndTable(wSchemaname.getText(), wTablename.getText());
       if (std.open()) {
         wTablename.setText(Const.NVL(std.getTableName(), ""));

@@ -18,6 +18,13 @@
 
 package org.apache.hop.git;
 
+import static org.apache.hop.git.HopDiff.ADDED;
+import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
+import static org.apache.hop.git.HopDiff.CHANGED;
+import static org.apache.hop.git.HopDiff.REMOVED;
+import static org.apache.hop.git.HopDiff.getPipelineHopName;
+
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -29,14 +36,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-
-import java.util.Map;
-
-import static org.apache.hop.git.HopDiff.ADDED;
-import static org.apache.hop.git.HopDiff.ATTR_GIT_HOPS;
-import static org.apache.hop.git.HopDiff.CHANGED;
-import static org.apache.hop.git.HopDiff.REMOVED;
-import static org.apache.hop.git.HopDiff.getPipelineHopName;
 
 @ExtensionPoint(
     id = "DrawDiffOnPipelineHopExtensionPoint",

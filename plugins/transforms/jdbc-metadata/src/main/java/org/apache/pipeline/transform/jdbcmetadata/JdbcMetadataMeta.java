@@ -17,6 +17,12 @@
 
 package org.apache.pipeline.transform.jdbcmetadata;
 
+import java.lang.reflect.Method;
+import java.sql.DatabaseMetaData;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
@@ -31,13 +37,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.lang.reflect.Method;
-import java.sql.DatabaseMetaData;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "JdbcMetadata",
@@ -369,7 +368,6 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
    * Constructor should call super() to make sure the base class has a chance to initialize
    * properly.
    */
-  @SuppressWarnings("unchecked")
   public JdbcMetadataMeta() {
     super();
     if (JdbcMetadataMeta.databaseMetaDataClass == null) {
@@ -387,11 +385,10 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
     methodName = "getCatalogs";
     argumentSourceFields = false;
     outputFields = new ArrayList<>();
-    outputFields.add(new OutputField("TABLE_CAT","TABLE_CAT"));
+    outputFields.add(new OutputField("TABLE_CAT", "TABLE_CAT"));
   }
 
-  @HopMetadataProperty
-  private String connection;
+  @HopMetadataProperty private String connection;
 
   public String getConnection() {
     return connection;
@@ -402,8 +399,8 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   }
 
   /** Stores the whether the input row should be returned even if no metadata was found */
-  @HopMetadataProperty
-  private boolean alwaysPassInputRow;
+  @HopMetadataProperty private boolean alwaysPassInputRow;
+
   /**
    * @return whether fields are to be used as arguments
    */
@@ -419,8 +416,8 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   }
 
   /** Stores the name of the method used to get the metadata */
-  @HopMetadataProperty
-  private String methodName;
+  @HopMetadataProperty private String methodName;
+
   /**
    * Getter for the name method used to get metadata
    *
@@ -429,6 +426,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   public String getMethodName() {
     return methodName;
   }
+
   /**
    * Setter for the name of the method used to get metadata
    *
@@ -509,14 +507,15 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   }
 
   /** Stores the whether fields are to be used for method arguments */
-  @HopMetadataProperty
-  private boolean argumentSourceFields;
+  @HopMetadataProperty private boolean argumentSourceFields;
+
   /**
    * @return whether fields are to be used as arguments
    */
   public boolean isArgumentSourceFields() {
     return argumentSourceFields;
   }
+
   /**
    * @param argumentSourceFields whether fields should be used as arguments
    */
@@ -525,14 +524,15 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   }
 
   /** Stores the whether to remove the fields used as arguments from the output row */
-  @HopMetadataProperty
-  private boolean removeArgumentFields;
+  @HopMetadataProperty private boolean removeArgumentFields;
+
   /**
    * @return whether to remove the fields used as arguments from the output row
    */
   public boolean isRemoveArgumentFields() {
     return removeArgumentFields;
   }
+
   /**
    * @param removeArgumentFields whether fields used as arguments should be removed from the output
    *     row
@@ -544,6 +544,7 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   /** Stores method arguments */
   @HopMetadataProperty(groupKey = "arguments", key = "argument")
   private List<String> arguments;
+
   /**
    * @return get method arguments
    */
@@ -559,8 +560,9 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
   }
 
   /** Stores the selection of fields that are added to the stream */
-  @HopMetadataProperty(groupKey = "outputFields", key="outputField")
+  @HopMetadataProperty(groupKey = "outputFields", key = "outputField")
   private List<OutputField> outputFields;
+
   /**
    * @return the selection of fields added to the stream
    */
@@ -633,12 +635,13 @@ public class JdbcMetadataMeta extends BaseTransformMeta<JdbcMetadata, JdbcMetada
           continue;
         }
         field =
-            new ValueMetaBase(outputField.getRename() == null ? fieldName : outputField.getRename(), field.getType());
+            new ValueMetaBase(
+                outputField.getRename() == null ? fieldName : outputField.getRename(),
+                field.getType());
         field.setOrigin(origin);
         rowMeta.addValueMeta(field);
         break;
       }
     }
   }
-
 }

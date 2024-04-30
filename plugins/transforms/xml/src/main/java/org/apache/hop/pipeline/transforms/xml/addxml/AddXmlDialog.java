@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -57,13 +63,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class AddXmlDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AddXmlMeta.class; // For Translator
@@ -596,7 +595,6 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       field.setAttribute(BaseMessages.getString(PKG, "System.Combo.Yes").equals(item.getText(11)));
       field.setAttributeParentName(item.getText(12));
 
-      // CHECKSTYLE:Indentation:OFF
       tfoi.getOutputFields()[i] = field;
     }
   }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.debug.action;
 
+import java.awt.image.BufferedImage;
+import java.util.Map;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
@@ -27,9 +29,6 @@ import org.apache.hop.debug.util.BeePainter;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.workflow.WorkflowPainterExtension;
-
-import java.awt.image.BufferedImage;
-import java.util.Map;
 
 @ExtensionPoint(
     id = "DrawActionDebugLevelBeeExtensionPoint",

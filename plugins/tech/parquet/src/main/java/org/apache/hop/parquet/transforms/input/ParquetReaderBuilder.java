@@ -17,11 +17,10 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.util.Objects;
 import org.apache.parquet.hadoop.ParquetReader;
 import org.apache.parquet.hadoop.api.ReadSupport;
 import org.apache.parquet.io.InputFile;
-
-import java.util.Objects;
 
 public class ParquetReaderBuilder<T> extends ParquetReader.Builder<T> {
   private final ReadSupport<T> readSupport;

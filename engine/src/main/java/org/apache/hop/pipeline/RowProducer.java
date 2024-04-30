@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline;
 
+import java.util.concurrent.TimeUnit;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-
-import java.util.concurrent.TimeUnit;
 
 /** Allows you to "Inject" rows into a transform. */
 public class RowProducer {
@@ -62,7 +61,9 @@ public class RowProducer {
     return rowSet.putRow(rowMeta, row);
   }
 
-  /** @see IRowSet#putRowWait(IRowMeta, Object[], long, TimeUnit) */
+  /**
+   * @see IRowSet#putRowWait(IRowMeta, Object[], long, TimeUnit)
+   */
   public boolean putRowWait(IRowMeta rowMeta, Object[] rowData, long time, TimeUnit tu) {
     return rowSet.putRowWait(rowMeta, rowData, time, tu);
   }
@@ -75,22 +76,30 @@ public class RowProducer {
     rowSet.setDone();
   }
 
-  /** @return Returns the rowSet. */
+  /**
+   * @return Returns the rowSet.
+   */
   public IRowSet getRowSet() {
     return rowSet;
   }
 
-  /** @param rowSet The rowSet to set. */
+  /**
+   * @param rowSet The rowSet to set.
+   */
   public void setRowSet(IRowSet rowSet) {
     this.rowSet = rowSet;
   }
 
-  /** @return Returns the ITransform. */
+  /**
+   * @return Returns the ITransform.
+   */
   public ITransform getTransform() {
     return transform;
   }
 
-  /** @param transform The ITransform to set. */
+  /**
+   * @param transform The ITransform to set.
+   */
   public void setTransform(ITransform transform) {
     this.transform = transform;
   }

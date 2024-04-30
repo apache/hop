@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
-
 import java.io.PrintStream;
+import org.apache.hop.core.Const;
 
 public class LoggingPrintStream extends PrintStream {
 

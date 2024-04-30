@@ -1423,8 +1423,11 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
           mb.setMessage(
-                  BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.SOQL.NoRecords.DialogMessage"));
-          mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.SOQL.NoRecords.DialogTitle"));
+              BaseMessages.getString(
+                  PKG, "SalesforceInputDialog.GetFields.SOQL.NoRecords.DialogMessage"));
+          mb.setText(
+              BaseMessages.getString(
+                  PKG, "SalesforceInputDialog.GetFields.SOQL.NoRecords.DialogTitle"));
           mb.open();
         }
       } else {
@@ -1437,11 +1440,14 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
             fieldsName[i] = field.getName();
             addField(field);
           }
-        }  else {
+        } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_WARNING);
           mb.setMessage(
-                  BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.Condition.NoRecords.DialogMessage"));
-          mb.setText(BaseMessages.getString(PKG, "SalesforceInputDialog.GetFields.Condition.NoRecords.DialogTitle"));
+              BaseMessages.getString(
+                  PKG, "SalesforceInputDialog.GetFields.Condition.NoRecords.DialogMessage"));
+          mb.setText(
+              BaseMessages.getString(
+                  PKG, "SalesforceInputDialog.GetFields.Condition.NoRecords.DialogTitle"));
           mb.open();
         }
       }
@@ -1818,7 +1824,6 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(12)));
 
-      // CHECKSTYLE:Indentation:OFF
       meta.getInputFields()[i] = field;
     }
   }

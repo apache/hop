@@ -17,6 +17,12 @@
 
 package org.apache.hop.workflow;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
 import org.apache.hop.core.Const;
@@ -28,13 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 public class WorkflowExecutionConfiguration implements IExecutionConfiguration, IXml {
   public static final String XML_TAG = "workflow_execution_configuration";
@@ -90,25 +89,33 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     }
   }
 
-  /** @param parametersMap the parameters to set */
+  /**
+   * @param parametersMap the parameters to set
+   */
   @Override
   public void setParametersMap(Map<String, String> parametersMap) {
     this.parametersMap = parametersMap;
   }
 
-  /** @return the parameters. */
+  /**
+   * @return the parameters.
+   */
   @Override
   public Map<String, String> getParametersMap() {
     return parametersMap;
   }
 
-  /** @return the variables */
+  /**
+   * @return the variables
+   */
   @Override
   public Map<String, String> getVariablesMap() {
     return variablesMap;
   }
 
-  /** @param variablesMap the variables to set */
+  /**
+   * @param variablesMap the variables to set
+   */
   @Override
   public void setVariablesMap(Map<String, String> variablesMap) {
     this.variablesMap = variablesMap;
@@ -175,13 +182,17 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     this.runConfiguration = runConfiguration;
   }
 
-  /** @return the logLevel */
+  /**
+   * @return the logLevel
+   */
   @Override
   public LogLevel getLogLevel() {
     return logLevel;
   }
 
-  /** @param logLevel the logLevel to set */
+  /**
+   * @param logLevel the logLevel to set
+   */
   @Override
   public void setLogLevel(LogLevel logLevel) {
     this.logLevel = logLevel;
@@ -292,46 +303,62 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     }
   }
 
-  /** @return the previousResult */
+  /**
+   * @return the previousResult
+   */
   @Override
   public Result getPreviousResult() {
     return previousResult;
   }
 
-  /** @param previousResult the previousResult to set */
+  /**
+   * @param previousResult the previousResult to set
+   */
   @Override
   public void setPreviousResult(Result previousResult) {
     this.previousResult = previousResult;
   }
 
-  /** @return the clearingLog */
+  /**
+   * @return the clearingLog
+   */
   @Override
   public boolean isClearingLog() {
     return clearingLog;
   }
 
-  /** @param clearingLog the clearingLog to set */
+  /**
+   * @param clearingLog the clearingLog to set
+   */
   @Override
   public void setClearingLog(boolean clearingLog) {
     this.clearingLog = clearingLog;
   }
 
-  /** @return the start action name */
+  /**
+   * @return the start action name
+   */
   public String getStartActionName() {
     return startActionName;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setStartActionName(String name) {
     this.startActionName = name;
   }
 
-  /** @return the gatheringMetrics */
+  /**
+   * @return the gatheringMetrics
+   */
   public boolean isGatheringMetrics() {
     return gatheringMetrics;
   }
 
-  /** @param gatheringMetrics the gatheringMetrics to set */
+  /**
+   * @param gatheringMetrics the gatheringMetrics to set
+   */
   public void setGatheringMetrics(boolean gatheringMetrics) {
     this.gatheringMetrics = gatheringMetrics;
   }
@@ -353,7 +380,9 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration, 
     return expandingRemoteWorkflow;
   }
 
-  /** @param expandingRemoteWorkflow The expandingRemoteWorkflow to set */
+  /**
+   * @param expandingRemoteWorkflow The expandingRemoteWorkflow to set
+   */
   public void setExpandingRemoteWorkflow(boolean expandingRemoteWorkflow) {
     this.expandingRemoteWorkflow = expandingRemoteWorkflow;
   }

@@ -288,7 +288,8 @@ public class HopGuiFileDelegate {
         hopGui.fileDelegate.fileOpen(filename);
       }
     } catch (Exception e) {
-      new ErrorDialog(hopGui.getActiveShell(), "Error", "Error getting list of recently opened files", e);
+      new ErrorDialog(
+          hopGui.getActiveShell(), "Error", "Error getting list of recently opened files", e);
     }
   }
 

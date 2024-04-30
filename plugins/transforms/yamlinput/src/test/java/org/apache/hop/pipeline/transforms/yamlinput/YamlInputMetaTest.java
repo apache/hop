@@ -16,6 +16,12 @@
  */
 package org.apache.hop.pipeline.transforms.yamlinput;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -28,13 +34,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
   LoadSaveTester<YamlInputMeta> loadSaveTester;

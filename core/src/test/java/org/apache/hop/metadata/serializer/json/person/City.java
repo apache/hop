@@ -17,9 +17,8 @@
 
 package org.apache.hop.metadata.serializer.json.person;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class City {
 
@@ -60,7 +59,9 @@ public class City {
     return zipCode;
   }
 
-  /** @param zipCode The zipCode to set */
+  /**
+   * @param zipCode The zipCode to set
+   */
   public void setZipCode(String zipCode) {
     this.zipCode = zipCode;
   }
@@ -74,7 +75,9 @@ public class City {
     return cityName;
   }
 
-  /** @param cityName The cityName to set */
+  /**
+   * @param cityName The cityName to set
+   */
   public void setCityName(String cityName) {
     this.cityName = cityName;
   }

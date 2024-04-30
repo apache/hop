@@ -18,14 +18,15 @@ under the License.
 :page-pagination:
 :description: A Schema File Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout that can be reused around multiple pipelines by making the things easier by nit requiring the user to redefine if multiple times.
 
-= Schema Definition
+= Static Schema Definition
 
 == Description
 
 image:icons/folder.svg[]
 
-A Schema Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout, that can be reused in multiple pipelines. This simplify the development by making the things easier because it saves the user to redefine the same set of fields and its associated attributes multiple times in multiple pipelines.
+A Static Schema Definition describes a stream layout that can be applied to a selected set of input/output transforms. The Schema Definition is a way to define a recurrent stream layout, that can be reused in multiple pipelines.
 
+Being able to use the same schema definition in multiple pipelines simplifies development and reduces the risk of errors in manual field or layout specification.
 
 == Related Plugins
 

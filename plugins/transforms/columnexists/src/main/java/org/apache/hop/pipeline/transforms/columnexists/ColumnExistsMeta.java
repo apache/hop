@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.columnexists;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -32,8 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 @Transform(
     id = "ColumnExists",
@@ -90,52 +89,72 @@ public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExis
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the tablenamefield. */
+  /**
+   * @return Returns the tablenamefield.
+   */
   public String getTablenamefield() {
     return tablenamefield;
   }
 
-  /** @return Returns the tablename. */
+  /**
+   * @return Returns the tablename.
+   */
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName The tablename to set. */
+  /**
+   * @param tableName The tablename to set.
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }
 
-  /** @return Returns the schemaname. */
+  /**
+   * @return Returns the schemaname.
+   */
   public String getSchemaname() {
     return schemaname;
   }
 
-  /** @param schemaname The schemaname to set. */
+  /**
+   * @param schemaname The schemaname to set.
+   */
   public void setSchemaname(String schemaname) {
     this.schemaname = schemaname;
   }
 
-  /** @param tablenamefield The tablenamefield to set. */
+  /**
+   * @param tablenamefield The tablenamefield to set.
+   */
   public void setTablenamefield(String tablenamefield) {
     this.tablenamefield = tablenamefield;
   }
 
-  /** @return Returns the columnnamefield. */
+  /**
+   * @return Returns the columnnamefield.
+   */
   public String getColumnnamefield() {
     return columnnamefield;
   }
 
-  /** @param columnnamefield The columnnamefield to set. */
+  /**
+   * @param columnnamefield The columnnamefield to set.
+   */
   public void setColumnnamefield(String columnnamefield) {
     this.columnnamefield = columnnamefield;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getResultfieldname() {
     return resultfieldname;
   }
 
-  /** @param resultfieldname The resultfieldname to set. */
+  /**
+   * @param resultfieldname The resultfieldname to set.
+   */
   public void setResultfieldname(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
@@ -144,7 +163,9 @@ public class ColumnExistsMeta extends BaseTransformMeta<ColumnExists, ColumnExis
     return tablenameInfield;
   }
 
-  /** @param tablenameInfield the isTablenameInField to set */
+  /**
+   * @param tablenameInfield the isTablenameInField to set
+   */
   public void setTablenameInfield(boolean tablenameInfield) {
     this.tablenameInfield = tablenameInfield;
   }

@@ -19,6 +19,11 @@ package org.apache.hop.pipeline.transforms.mailinput;
 
 import jakarta.mail.Header;
 import jakarta.mail.Message;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.List;
 import org.apache.commons.collections4.iterators.ArrayIterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -33,12 +38,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.actions.getpop.MailConnection;
 import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
 
 /** Read data from POP3/IMAP server and input data to the next transforms. */
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
@@ -240,7 +239,6 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
     return r;
   }
 
-  @SuppressWarnings("unchecked")
   private boolean openNextFolder() {
     try {
       if (!meta.isDynamicFolder()) {

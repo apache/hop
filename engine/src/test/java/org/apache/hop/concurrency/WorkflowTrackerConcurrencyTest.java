@@ -17,6 +17,18 @@
 
 package org.apache.hop.concurrency;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.workflow.ActionResult;
@@ -26,19 +38,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * This test consists of two similar cases. There are three type of actors: getters, searchers and
@@ -60,7 +59,6 @@ public class WorkflowTrackerConcurrencyTest {
 
   private static final int jobsLimit = 20;
 
-  @SuppressWarnings("ConstantConditions")
   @BeforeClass
   public static void setUp() {
     // a guarding check for tests' parameters

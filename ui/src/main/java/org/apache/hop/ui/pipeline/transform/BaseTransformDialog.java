@@ -930,7 +930,7 @@ public class BaseTransformDialog extends Dialog {
 
     int choice = 0;
 
-    if ( !keys.isEmpty()) {
+    if (!keys.isEmpty()) {
       // Ask what we should do with the existing data in the transform.
       //
       DialogBoxWithButtons getFieldsChoiceDialog =

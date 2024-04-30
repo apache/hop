@@ -45,7 +45,8 @@ public class SasExplorerFileType extends BaseExplorerFileType<SasExplorerFileTyp
         ".sas7bdat",
         new String[] {"*.sas7bdat"},
         new String[] {"SAS 7 BDAT files"},
-        FileTypeCapabilities.getCapabilities(IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
+        FileTypeCapabilities.getCapabilities(
+            IHopFileType.CAPABILITY_CLOSE, IHopFileType.CAPABILITY_FILE_HISTORY));
   }
 
   @Override

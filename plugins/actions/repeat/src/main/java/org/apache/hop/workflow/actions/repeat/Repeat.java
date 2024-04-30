@@ -17,6 +17,13 @@
 
 package org.apache.hop.workflow.actions.repeat;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
@@ -47,14 +54,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Action(
     id = "Repeat",
@@ -173,8 +172,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     int repetitionNr = 0;
     while (repeat && !parentWorkflow.isStopped()) {
       repetitionNr++;
-      executionResult =
-          executePipelineOrWorkflow(realFilename, nr, executionResult, repetitionNr);
+      executionResult = executePipelineOrWorkflow(realFilename, nr, executionResult, repetitionNr);
       Result result = executionResult.result;
       if (!result.getResult() || result.getNrErrors() > 0 || result.isStopped()) {
         log.logError(
@@ -595,7 +593,8 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     }
 
     String proposedNewFilename =
-        ((IResourceExport) pipelineOrWorkflow).exportResources(variables, definitions, namingInterface, metadataProvider);
+        ((IResourceExport) pipelineOrWorkflow)
+            .exportResources(variables, definitions, namingInterface, metadataProvider);
     String newFilename =
         "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + proposedNewFilename;
     pipelineOrWorkflow.setFilename(newFilename);
@@ -666,7 +665,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -680,7 +681,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return parameters;
   }
 
-  /** @param parameters The parameters to set */
+  /**
+   * @param parameters The parameters to set
+   */
   public void setParameters(List<ParameterDetails> parameters) {
     this.parameters = parameters;
   }
@@ -694,7 +697,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return variableName;
   }
 
-  /** @param variableName The variableName to set */
+  /**
+   * @param variableName The variableName to set
+   */
   public void setVariableName(String variableName) {
     this.variableName = variableName;
   }
@@ -708,7 +713,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return variableValue;
   }
 
-  /** @param variableValue The variableValue to set */
+  /**
+   * @param variableValue The variableValue to set
+   */
   public void setVariableValue(String variableValue) {
     this.variableValue = variableValue;
   }
@@ -722,7 +729,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return delay;
   }
 
-  /** @param delay The delay to set */
+  /**
+   * @param delay The delay to set
+   */
   public void setDelay(String delay) {
     this.delay = delay;
   }
@@ -736,7 +745,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return keepingValues;
   }
 
-  /** @param keepingValues The keepingValues to set */
+  /**
+   * @param keepingValues The keepingValues to set
+   */
   public void setKeepingValues(boolean keepingValues) {
     this.keepingValues = keepingValues;
   }
@@ -750,7 +761,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileEnabled;
   }
 
-  /** @param logFileEnabled The logFileEnabled to set */
+  /**
+   * @param logFileEnabled The logFileEnabled to set
+   */
   public void setLogFileEnabled(boolean logFileEnabled) {
     this.logFileEnabled = logFileEnabled;
   }
@@ -764,7 +777,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileBase;
   }
 
-  /** @param logFileBase The logFileBase to set */
+  /**
+   * @param logFileBase The logFileBase to set
+   */
   public void setLogFileBase(String logFileBase) {
     this.logFileBase = logFileBase;
   }
@@ -778,7 +793,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileExtension;
   }
 
-  /** @param logFileExtension The logFileExtension to set */
+  /**
+   * @param logFileExtension The logFileExtension to set
+   */
   public void setLogFileExtension(String logFileExtension) {
     this.logFileExtension = logFileExtension;
   }
@@ -792,7 +809,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileAppended;
   }
 
-  /** @param logFileAppended The logFileAppended to set */
+  /**
+   * @param logFileAppended The logFileAppended to set
+   */
   public void setLogFileAppended(boolean logFileAppended) {
     this.logFileAppended = logFileAppended;
   }
@@ -806,7 +825,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileDateAdded;
   }
 
-  /** @param logFileDateAdded The logFileDateAdded to set */
+  /**
+   * @param logFileDateAdded The logFileDateAdded to set
+   */
   public void setLogFileDateAdded(boolean logFileDateAdded) {
     this.logFileDateAdded = logFileDateAdded;
   }
@@ -820,7 +841,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileTimeAdded;
   }
 
-  /** @param logFileTimeAdded The logFileTimeAdded to set */
+  /**
+   * @param logFileTimeAdded The logFileTimeAdded to set
+   */
   public void setLogFileTimeAdded(boolean logFileTimeAdded) {
     this.logFileTimeAdded = logFileTimeAdded;
   }
@@ -834,7 +857,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileRepetitionAdded;
   }
 
-  /** @param logFileRepetitionAdded The logFileRepetitionAdded to set */
+  /**
+   * @param logFileRepetitionAdded The logFileRepetitionAdded to set
+   */
   public void setLogFileRepetitionAdded(boolean logFileRepetitionAdded) {
     this.logFileRepetitionAdded = logFileRepetitionAdded;
   }
@@ -848,7 +873,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return logFileUpdateInterval;
   }
 
-  /** @param logFileUpdateInterval The logFileUpdateInterval to set */
+  /**
+   * @param logFileUpdateInterval The logFileUpdateInterval to set
+   */
   public void setLogFileUpdateInterval(String logFileUpdateInterval) {
     this.logFileUpdateInterval = logFileUpdateInterval;
   }
@@ -862,7 +889,9 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     return runConfigurationName;
   }
 
-  /** @param runConfigurationName The runConfigurationName to set */
+  /**
+   * @param runConfigurationName The runConfigurationName to set
+   */
   public void setRunConfigurationName(String runConfigurationName) {
     this.runConfigurationName = runConfigurationName;
   }

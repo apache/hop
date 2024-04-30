@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -32,9 +34,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Contains the meta-data for the Calculator transform: calculates predefined formula's */
 @Transform(
@@ -191,7 +190,9 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
     return functions;
   }
 
-  /** @param functions The calculations to set */
+  /**
+   * @param functions The calculations to set
+   */
   public void setFunctions(List<CalculatorMetaFunction> functions) {
     this.functions = functions;
   }
@@ -205,7 +206,9 @@ public class CalculatorMeta extends BaseTransformMeta<Calculator, CalculatorData
     return failIfNoFile;
   }
 
-  /** @param failIfNoFile The failIfNoFile to set */
+  /**
+   * @param failIfNoFile The failIfNoFile to set
+   */
   public void setFailIfNoFile(boolean failIfNoFile) {
     this.failIfNoFile = failIfNoFile;
   }

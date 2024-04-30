@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.context.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.DbCache;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -29,9 +31,6 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MetadataContextHandler implements IGuiContextHandler {
 
@@ -53,7 +52,8 @@ public class MetadataContextHandler implements IGuiContextHandler {
     this.metadataObjectClass = metadataObjectClass;
 
     metadataManager =
-        new MetadataManager<>(hopGui.getVariables(), metadataProvider, metadataObjectClass, hopGui.getShell());
+        new MetadataManager<>(
+            hopGui.getVariables(), metadataProvider, metadataObjectClass, hopGui.getShell());
     metadataManager.setClassLoader(metadataObjectClass.getClassLoader());
   }
 

@@ -338,7 +338,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     // Create Parent Folder
     Label wlCreateParentFolder = new Label(fileGroup, SWT.RIGHT);
     wlCreateParentFolder.setText(
-            BaseMessages.getString(PKG, "ExcelWriterDialog.CreateParentFolder.Label"));
+        BaseMessages.getString(PKG, "ExcelWriterDialog.CreateParentFolder.Label"));
     PropsUi.setLook(wlCreateParentFolder);
     FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment(0, 0);
@@ -347,7 +347,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(fileGroup, SWT.CHECK);
     wCreateParentFolder.setToolTipText(
-            BaseMessages.getString(PKG, "ExcelWriterDialog.CreateParentFolder.Tooltip"));
+        BaseMessages.getString(PKG, "ExcelWriterDialog.CreateParentFolder.Tooltip"));
     PropsUi.setLook(wCreateParentFolder);
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment(middle, 0);
@@ -355,17 +355,17 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdCreateParentFolder.right = new FormAttachment(100, 0);
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener(
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                input.setChanged();
-              }
-            });
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+          }
+        });
 
     // Do not open new File at Init
     Label wlDoNotOpenNewFileInit = new Label(fileGroup, SWT.RIGHT);
     wlDoNotOpenNewFileInit.setText(
-            BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Label"));
+        BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Label"));
     PropsUi.setLook(wlDoNotOpenNewFileInit);
     FormData fdlDoNotOpenNewFileInit = new FormData();
     fdlDoNotOpenNewFileInit.left = new FormAttachment(0, 0);
@@ -374,7 +374,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit = new Button(fileGroup, SWT.CHECK);
     wDoNotOpenNewFileInit.setToolTipText(
-            BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Tooltip"));
+        BaseMessages.getString(PKG, "ExcelWriterDialog.DoNotOpenNewFileInit.Tooltip"));
     PropsUi.setLook(wDoNotOpenNewFileInit);
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment(middle, 0);
@@ -1209,7 +1209,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     // / END OF CONTENT GROUP
 
-
     Group writeToExistingGroup = new Group(wContentComp, SWT.SHADOW_NONE);
     PropsUi.setLook(writeToExistingGroup);
     writeToExistingGroup.setText(
@@ -1337,13 +1336,13 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fieldLayout.marginHeight = 3;
 
     SelectionListener lsSelection =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                fillFieldsLayoutFromSchema();
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            fillFieldsLayoutFromSchema();
+            input.setChanged();
+          }
+        };
 
     Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wFieldsComp);
@@ -1351,7 +1350,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     Group fieldGroup = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(fieldGroup);
-    fieldGroup.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.ManualSchemaDefinition.Label"));
+    fieldGroup.setText(
+        BaseMessages.getString(PKG, "ExcelWriterDialog.ManualSchemaDefinition.Label"));
 
     FormLayout fieldGroupGroupLayout = new FormLayout();
     fieldGroupGroupLayout.marginWidth = 10;
@@ -1382,14 +1382,14 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     }
 
     wSchemaDefinition =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SchemaDefinition.class,
-                    wFieldsComp,
-                    SWT.NONE,
-                    BaseMessages.getString(PKG, "ExcelWriterDialog.SchemaDefinition.Label"),
-                    BaseMessages.getString(PKG, "ExcelWriterDialog.SchemaDefinition.Tooltip"));
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SchemaDefinition.class,
+            wFieldsComp,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ExcelWriterDialog.SchemaDefinition.Label"),
+            BaseMessages.getString(PKG, "ExcelWriterDialog.SchemaDefinition.Tooltip"));
 
     PropsUi.setLook(wSchemaDefinition);
     FormData fdSchemaDefinition = new FormData();
@@ -1641,7 +1641,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
       MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
       mb.setMessage(
-              BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Message", schemaName));
+          BaseMessages.getString(
+              PKG, "ExcelWriterDialog.Load.SchemaDefinition.Message", schemaName));
       mb.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
@@ -1649,7 +1650,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
         if (!Utils.isEmpty(schemaName)) {
           try {
             SchemaDefinition schemaDefinition =
-                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
             if (schemaDefinition != null) {
               IRowMeta r = schemaDefinition.getRowMeta();
               if (r != null) {
@@ -1978,8 +1979,6 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       field.setHyperlinkField(item.getText(8));
       field.setCommentField(item.getText(9));
       field.setCommentAuthorField(item.getText(10));
-
-      // CHECKSTYLE:Indentation:OFF
       tfoi.getOutputFields().add(field);
     }
   }

@@ -15,9 +15,17 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline.transforms.fileinput;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Vector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -85,18 +93,10 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-import java.util.Vector;
-
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated(since="2.0")
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
+@Deprecated(since = "2.0")
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
@@ -2443,14 +2443,13 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
 
-      // CHECKSTYLE:Indentation:OFF
       meta.getInputFields()[i] = field;
     }
 
     for (int i = 0; i < nrfilters; i++) {
       TableItem item = wFilter.getNonEmpty(i);
       TextFileFilter filter = new TextFileFilter();
-      // CHECKSTYLE:Indentation:OFF
+
       meta.getFilter()[i] = filter;
 
       filter.setFilterString(item.getText(1));

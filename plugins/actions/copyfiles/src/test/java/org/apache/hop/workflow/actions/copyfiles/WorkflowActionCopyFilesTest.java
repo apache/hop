@@ -16,21 +16,6 @@
  */
 package org.apache.hop.workflow.actions.copyfiles;
 
-import org.apache.hop.core.Result;
-import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.workflow.Workflow;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -42,6 +27,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import org.apache.hop.core.Result;
+import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.workflow.Workflow;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 public class WorkflowActionCopyFilesTest {
   private ActionCopyFiles entry;

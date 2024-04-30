@@ -17,6 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.terafast;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -35,17 +45,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData> {
 
@@ -200,7 +199,6 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @param row row entries
    * @throws HopException ...
    */
-  @SuppressWarnings("ArrayToString")
   public void writeToDataFile(IRowMeta iRowMeta, Object[] row) throws HopException {
     // Write the data to the output
     IValueMeta valueMeta = null;

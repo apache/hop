@@ -17,12 +17,11 @@
 
 package org.apache.hop.workflow;
 
+import java.util.List;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.workflow.action.ActionMeta;
-
-import java.util.List;
 
 public class WorkflowPainterExtension {
 

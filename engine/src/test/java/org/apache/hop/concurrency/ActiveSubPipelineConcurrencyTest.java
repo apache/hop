@@ -17,15 +17,14 @@
 
 package org.apache.hop.concurrency;
 
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
+import org.junit.Test;
 
 /**
  * In this test we add new elements to shared pipeline concurrently and get added elements from this

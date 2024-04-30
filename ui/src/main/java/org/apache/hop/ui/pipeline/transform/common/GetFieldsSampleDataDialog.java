@@ -40,14 +40,14 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
   private final boolean reloadAllFields;
 
   public GetFieldsSampleDataDialog(
-          final Shell parentShell,
-          final IGetFieldsCapableTransformDialog parentDialog,
-          final boolean reloadAllFields) {
+      final Shell parentShell,
+      final IGetFieldsCapableTransformDialog parentDialog,
+      final boolean reloadAllFields) {
     super(
-            parentShell,
-            SAMPLE_SIZE,
-            BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Title"),
-            BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Message"),
+        parentShell,
+        SAMPLE_SIZE,
+        BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Title"),
+        BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.Message"),
         BaseMessages.getString(PKG, "GetFieldsSampleSizeDialog.ShowSample.Message"),
         SHELL_WIDTH);
     this.parentDialog = parentDialog;

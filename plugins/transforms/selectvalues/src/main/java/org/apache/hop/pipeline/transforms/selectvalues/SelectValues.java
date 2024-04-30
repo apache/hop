@@ -18,6 +18,10 @@
 package org.apache.hop.pipeline.transforms.selectvalues;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopConversionException;
 import org.apache.hop.core.exception.HopException;
@@ -32,11 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /** Select, re-order, remove or change the meta-data of the fields in the inputstreams. */
 public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesData> {

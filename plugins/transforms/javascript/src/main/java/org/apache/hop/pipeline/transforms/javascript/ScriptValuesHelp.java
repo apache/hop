@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.javascript;
 
+import java.io.InputStream;
+import java.util.Hashtable;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
-import java.io.InputStream;
-import java.util.Hashtable;
 
 public class ScriptValuesHelp {
 

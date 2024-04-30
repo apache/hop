@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -25,10 +28,6 @@ import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class EmptyHopPerspective implements IHopPerspective {
 

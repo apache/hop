@@ -1,4 +1,3 @@
-
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -26,23 +25,23 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, RulesAccumulatorData> {
+public class RulesAccumulator extends BaseTransform<RulesAccumulatorMeta, RulesAccumulatorData> {
   private static final Class<?> PKG = Rules.class; // for i18n purposes
 
   public RulesAccumulator(
-          TransformMeta transformMeta,
-          RulesAccumulatorMeta meta,
-          RulesAccumulatorData data,
-          int copyNr,
-          PipelineMeta pipelineMeta,
-          Pipeline pipeline) {
+      TransformMeta transformMeta,
+      RulesAccumulatorMeta meta,
+      RulesAccumulatorData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
   public boolean init() {
 
-    if ( super.init() ) {
+    if (super.init()) {
       return true;
     }
     return false;
@@ -50,13 +49,12 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
 
   public boolean runtimeInit() throws HopTransformException {
     try {
-      data.setOutputRowMeta( getInputRowMeta().clone() );
-      meta.setKeepInputFields( false );
-      meta.getFields( data.getOutputRowMeta(), getTransformName(), null, null, this, null );
+      data.setOutputRowMeta(getInputRowMeta().clone());
+      meta.setKeepInputFields(false);
+      meta.getFields(data.getOutputRowMeta(), getTransformName(), null, null, this, null);
 
-      data.setRuleFilePath( meta.getRuleFile() );
-      data.setRuleString( meta.getRuleDefinition() );
-
+      data.setRuleFilePath(meta.getRuleFile());
+      data.setRuleString(meta.getRuleDefinition());
 
       try {
         data.initializeRules();
@@ -67,11 +65,11 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
         }
         throw new HopTransformException(BaseMessages.getString(PKG, "RulesData.Error.CompileDRL"));
       }
-      data.initializeInput( getInputRowMeta() );
+      data.initializeInput(getInputRowMeta());
 
       return true;
-    } catch ( Exception e ) {
-      throw new HopTransformException( e );
+    } catch (Exception e) {
+      throw new HopTransformException(e);
     }
   }
 
@@ -80,7 +78,7 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
     try {
       Object[] r = getRow(); // get row, set busy!
 
-      if ( r == null ) { // no more input to be expected...
+      if (r == null) { // no more input to be expected...
 
         data.execute();
 
@@ -88,12 +86,13 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
 
         String[] expectedResults = meta.getExpectedResultList();
 
-        for ( Rules.Row resultRow : data.getResultRows() ) {
+        for (Rules.Row resultRow : data.getResultRows()) {
           outputRow = new Object[expectedResults.length];
-          for ( String columnName : expectedResults ) {
-            outputRow[data.getOutputRowMeta().indexOfValue( columnName )] = resultRow.getColumn().get( columnName );
+          for (String columnName : expectedResults) {
+            outputRow[data.getOutputRowMeta().indexOfValue(columnName)] =
+                resultRow.getColumn().get(columnName);
           }
-          putRow( data.getOutputRowMeta(), outputRow );
+          putRow(data.getOutputRowMeta(), outputRow);
         }
 
         data.shutdown();
@@ -101,8 +100,8 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
         return false;
       }
 
-      if ( first ) {
-        if ( !runtimeInit() ) {
+      if (first) {
+        if (!runtimeInit()) {
           return false;
         }
 
@@ -110,11 +109,11 @@ public class RulesAccumulator  extends BaseTransform<RulesAccumulatorMeta, Rules
       }
 
       // Store the row for processing
-      data.loadRow( r );
+      data.loadRow(r);
 
       return true;
-    } catch ( Exception e ) {
-      throw new HopException( e );
+    } catch (Exception e) {
+      throw new HopException(e);
     }
   }
 }

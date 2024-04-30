@@ -37,7 +37,9 @@ public class ParameterDetails {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -51,7 +53,9 @@ public class ParameterDetails {
     return field;
   }
 
-  /** @param field The field to set */
+  /**
+   * @param field The field to set
+   */
   public void setField(String field) {
     this.field = field;
   }

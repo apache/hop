@@ -34,6 +34,8 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface GuiCallback {
 
-  /** @return The callback ID. This is defined by the calling entity */
+  /**
+   * @return The callback ID. This is defined by the calling entity
+   */
   String callbackId();
 }

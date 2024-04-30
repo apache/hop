@@ -16,6 +16,9 @@
  */
 package org.apache.hop.databases.h2;
 
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.SqlScriptStatement;
@@ -23,10 +26,6 @@ import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.List;
-
-import static org.junit.Assert.assertTrue;
 
 public class H2BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

@@ -17,6 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumReader;
@@ -38,12 +43,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.server.HttpUtil;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
 
 @ValueMetaPlugin(
     id = "20",

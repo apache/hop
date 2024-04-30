@@ -17,13 +17,12 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.util.List;
 import org.apache.commons.validator.GenericTypeValidator;
 import org.apache.commons.validator.GenericValidator;
 import org.apache.commons.validator.util.ValidatorUtils;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
-
-import java.util.List;
 
 public class LongValidator implements IActionValidator {
 

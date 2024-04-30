@@ -18,6 +18,8 @@
 
 package org.apache.hop.execution.sampler.plugins.random;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
@@ -27,19 +29,16 @@ import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerStoreBase;
 import org.apache.hop.execution.sampler.IExecutionDataSamplerStore;
 
-import java.util.List;
-import java.util.Map;
-
 /** A class meant to contain transform execution sampling data */
 public class RandomRowsExecutionDataSamplerStore
-        extends ExecutionDataSamplerStoreBase<RandomRowsExecutionDataSamplerStore>
-        implements IExecutionDataSamplerStore {
+    extends ExecutionDataSamplerStoreBase<RandomRowsExecutionDataSamplerStore>
+    implements IExecutionDataSamplerStore {
   public static final String EXECUTION_DATA_SAMPLE_RANDOM_OUTPUT = "RandomOutput";
 
   private RandomRowsExecutionDataSampler dataSampler;
 
   public RandomRowsExecutionDataSamplerStore(
-          RandomRowsExecutionDataSampler dataSampler,
+      RandomRowsExecutionDataSampler dataSampler,
       ExecutionDataSamplerMeta samplerMeta,
       IRowMeta rowMeta,
       List<Object[]> rows,
@@ -49,7 +48,7 @@ public class RandomRowsExecutionDataSamplerStore
   }
 
   public RandomRowsExecutionDataSamplerStore(
-          RandomRowsExecutionDataSampler dataSampler, ExecutionDataSamplerMeta samplerMeta) {
+      RandomRowsExecutionDataSampler dataSampler, ExecutionDataSamplerMeta samplerMeta) {
     this(dataSampler, samplerMeta, null, null, 0);
   }
 
@@ -67,29 +66,28 @@ public class RandomRowsExecutionDataSamplerStore
   @Override
   public Map<String, RowBuffer> getSamples() {
     return Map.of(
-            getKeyForStore(EXECUTION_DATA_SAMPLE_RANDOM_OUTPUT, samplerMeta),
-            new RowBuffer(rowMeta, rows));
+        getKeyForStore(EXECUTION_DATA_SAMPLE_RANDOM_OUTPUT, samplerMeta),
+        new RowBuffer(rowMeta, rows));
   }
 
   @Override
   public Map<String, ExecutionDataSetMeta> getSamplesMetadata() {
     String setKey = getKeyForStore(EXECUTION_DATA_SAMPLE_RANDOM_OUTPUT, samplerMeta);
     String description =
-            "Random rows of "
-                    + getSamplerMeta().getTransformName()
-                    + "."
-                    + getSamplerMeta().getCopyNr();
-    ExecutionDataSetMeta meta = new ExecutionDataSetMeta(
+        "Random rows of "
+            + getSamplerMeta().getTransformName()
+            + "."
+            + getSamplerMeta().getCopyNr();
+    ExecutionDataSetMeta meta =
+        new ExecutionDataSetMeta(
             setKey,
             samplerMeta.getLogChannelId(),
             samplerMeta.getTransformName(),
             samplerMeta.getCopyNr(),
-            description
-    );
+            description);
 
     return Map.of(setKey, meta);
   }
-
 
   /**
    * Gets dataSampler

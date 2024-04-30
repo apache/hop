@@ -198,7 +198,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
         new FocusListener() {
           @Override
           public void focusLost(FocusEvent e) {
-            //Ignore focusLost
+            // Ignore focusLost
           }
 
           @Override
@@ -395,7 +395,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     if (wConnection.getText() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
-              BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogMessage"));
+          BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogMessage"));
       mb.setText(BaseMessages.getString(PKG, "ExecSqlRowDialog.InvalidConnection.DialogTitle"));
       mb.open();
       return;

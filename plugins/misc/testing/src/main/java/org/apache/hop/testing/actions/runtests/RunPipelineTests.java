@@ -17,6 +17,9 @@
 
 package org.apache.hop.testing.actions.runtests;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
@@ -32,10 +35,6 @@ import org.apache.hop.testing.util.UnitTestUtil;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Action(
     id = "RunPipelineTests",
@@ -118,7 +117,8 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
             if (test == null) {
               this.logError("Unable to load unit test for '" + testName, e);
             } else {
-              this.logError("There was an exception executing pipeline unit test '" + test.getName(), e);
+              this.logError(
+                  "There was an exception executing pipeline unit test '" + test.getName(), e);
             }
             success.set(false);
           });
@@ -217,7 +217,9 @@ public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
     return testNames;
   }
 
-  /** @param testNames The testNames to set */
+  /**
+   * @param testNames The testNames to set
+   */
   public void setTestNames(List<String> testNames) {
     this.testNames = testNames;
   }

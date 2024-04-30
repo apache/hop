@@ -64,7 +64,9 @@ public class EngineMetric implements IEngineMetric {
     return code;
   }
 
-  /** @param code The code to set */
+  /**
+   * @param code The code to set
+   */
   public void setCode(String code) {
     this.code = code;
   }
@@ -79,7 +81,9 @@ public class EngineMetric implements IEngineMetric {
     return header;
   }
 
-  /** @param header The header to set */
+  /**
+   * @param header The header to set
+   */
   public void setHeader(String header) {
     this.header = header;
   }
@@ -94,7 +98,9 @@ public class EngineMetric implements IEngineMetric {
     return tooltip;
   }
 
-  /** @param tooltip The tooltip to set */
+  /**
+   * @param tooltip The tooltip to set
+   */
   public void setTooltip(String tooltip) {
     this.tooltip = tooltip;
   }
@@ -109,7 +115,9 @@ public class EngineMetric implements IEngineMetric {
     return displayPriority;
   }
 
-  /** @param displayPriority The displayPriority to set */
+  /**
+   * @param displayPriority The displayPriority to set
+   */
   public void setDisplayPriority(String displayPriority) {
     this.displayPriority = displayPriority;
   }
@@ -124,7 +132,9 @@ public class EngineMetric implements IEngineMetric {
     return numeric;
   }
 
-  /** @param numeric The numeric to set */
+  /**
+   * @param numeric The numeric to set
+   */
   public void setNumeric(boolean numeric) {
     this.numeric = numeric;
   }

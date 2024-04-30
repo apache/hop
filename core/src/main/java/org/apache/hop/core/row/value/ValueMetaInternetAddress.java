@@ -17,15 +17,6 @@
 
 package org.apache.hop.core.row.value;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.variables.IVariables;
-
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -35,6 +26,14 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Date;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 @ValueMetaPlugin(
     id = "10",
@@ -456,7 +455,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
       case TYPE_BIGNUMBER:
         return convertBigNumberToInternetAddress(meta2.getBigNumber(data2));
       case TYPE_INET:
-        return ((ValueMetaInternetAddress) meta2).getInternetAddress(data2);     
+        return ((ValueMetaInternetAddress) meta2).getInternetAddress(data2);
       default:
         throw new HopValueException(
             meta2.toStringMeta() + " : can't be converted to an Internet Address");

@@ -20,6 +20,9 @@ package org.apache.hop.pipeline.transforms.mongodbinput;
 import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -33,10 +36,6 @@ import org.apache.hop.mongo.wrapper.field.MongoArrayExpansion;
 import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class MongoDbInputData extends BaseTransformData implements ITransformData {
 

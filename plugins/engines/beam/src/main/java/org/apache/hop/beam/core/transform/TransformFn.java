@@ -19,6 +19,8 @@
 package org.apache.hop.beam.core.transform;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -61,9 +63,6 @@ import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
 import org.joda.time.Instant;
 import org.json.simple.parser.ParseException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class TransformFn extends TransformBaseFn {
 
@@ -434,7 +433,7 @@ public class TransformFn extends TransformBaseFn {
     // Change the row handler
     //
     for (TransformMetaDataCombi c : pipeline.getTransforms()) {
-      ((BaseTransform)c.transform).setRowHandler(new BeamRowHandler((BaseTransform) c.transform));
+      ((BaseTransform) c.transform).setRowHandler(new BeamRowHandler((BaseTransform) c.transform));
     }
 
     executor = new SingleThreadedPipelineExecutor(pipeline);
@@ -646,7 +645,10 @@ public class TransformFn extends TransformBaseFn {
       }
     } catch (Exception e) {
       LOG.error(
-          "Error sending row samples to execution info location for transform " + transformName+" (non-fatal)", e);
+          "Error sending row samples to execution info location for transform "
+              + transformName
+              + " (non-fatal)",
+          e);
     }
   }
 }

@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.fieldsplitter;
 
+import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -28,8 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import static org.apache.hop.pipeline.transforms.fieldsplitter.FieldSplitterMeta.FSField;
 
 /** Split a single String fields into multiple parts based on certain conditions. */
 public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitterData> {

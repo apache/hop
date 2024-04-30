@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.ui.core.gui;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -51,12 +55,6 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
 /*
  * colors etc. are allocated once and released once at the end of the program.
  *
@@ -81,13 +79,13 @@ public class GuiResource {
   private Color colorRed;
 
   private Color colorDarkRed;
-  
+
   private Color colorSuccessGreen;
 
   private Color colorBlueCustomGrid;
 
   private Color colorGreen;
-  
+
   private Color colorDarkGreen;
 
   private Color colorBlue;
@@ -386,9 +384,9 @@ public class GuiResource {
     colorTab = new Color(display, props.contrastColor(new RGB(128, 128, 128)));
     colorSuccessGreen = new Color(display, props.contrastColor(0, 139, 0));
     colorRed = new Color(display, props.contrastColor(255, 0, 0));
-    colorDarkRed = new Color(display, props.contrastColor(192, 57, 43));    
+    colorDarkRed = new Color(display, props.contrastColor(192, 57, 43));
     colorGreen = new Color(display, props.contrastColor(0, 255, 0));
-    colorDarkGreen = new Color(display, props.contrastColor(16, 172, 132));    
+    colorDarkGreen = new Color(display, props.contrastColor(16, 172, 132));
     colorBlue = new Color(display, props.contrastColor(0, 0, 255));
     colorYellow = new Color(display, props.contrastColor(255, 255, 0));
     colorMagenta = new Color(display, props.contrastColor(255, 0, 255));
@@ -1013,14 +1011,14 @@ public class GuiResource {
   public Color getColorGreen() {
     return colorGreen;
   }
-  
+
   /**
    * @return Returns the color dark green.
    */
   public Color getColorDarkGreen() {
     return colorDarkGreen;
   }
-  
+
   /**
    * @return Returns the colorLightGray.
    */
@@ -1070,14 +1068,14 @@ public class GuiResource {
   public Color getColorRed() {
     return colorRed;
   }
-  
+
   /**
-   *  @return Returns the color dark red.
+   * @return Returns the color dark red.
    */
   public Color getColorDarkRed() {
     return colorDarkRed;
   }
-  
+
   /**
    * @return Returns the colorBlueCustomGrid.
    */
@@ -1341,13 +1339,14 @@ public class GuiResource {
    * @return the imageVariable
    */
   public Image getImageVariable() {
-    return getZoomedImaged(imageVariable, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
+    return getZoomedImaged(
+        imageVariable, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
   }
 
   public Image getImageVariableMini() {
     return getZoomedImaged(imageVariable, display, 10, 10);
   }
-  
+
   public Image getImagePipeline() {
     return getZoomedImaged(
         imagePipeline, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE);
@@ -1356,6 +1355,7 @@ public class GuiResource {
   public Image getImagePlugin() {
     return imagePlugin;
   }
+
   public Image getImageUser() {
     return imageUser;
   }
@@ -2019,11 +2019,11 @@ public class GuiResource {
   public Image getImageOptions() {
     return imageOptions;
   }
-  
+
   public Image getImagePalette() {
     return imagePalette;
   }
-  
+
   public Image getImageAddAll() {
     return imageAddAll;
   }

@@ -18,6 +18,18 @@
 
 package org.apache.hop.databases.hive;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
@@ -38,19 +50,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class HiveValueMetaBaseTest {
   protected static final String TEST_NAME = "TEST_NAME";
@@ -86,7 +85,7 @@ public class HiveValueMetaBaseTest {
     databaseMeta.setIDatabase(dbMeta);
     valueMetaString.setPreparedStatementValue(databaseMeta, preparedStatementMock, 0, data);
   }
-  
+
   @Test
   public void testGetValueFromSqlTypeBinaryHive() throws Exception {
 
@@ -118,5 +117,4 @@ public class HiveValueMetaBaseTest {
     assertTrue(valueMeta.isBinary());
     assertEquals(-1, valueMeta.getLength());
   }
-
 }

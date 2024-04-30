@@ -18,7 +18,15 @@
 
 package org.apache.hop.execution;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.json.HopJson;
 import org.apache.hop.core.row.IRowMeta;
@@ -26,15 +34,6 @@ import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class ExecutionDataTest {
 
@@ -105,13 +104,9 @@ public class ExecutionDataTest {
             },
             new Object[] {6L, "Nulls", null, null, null, null, null});
 
-    ExecutionDataSetMeta setMeta = new ExecutionDataSetMeta(
-            "firstRows",
-            "12345-logchannel-id",
-            "transformName",
-            "0",
-            "First rows of transform"
-    );
+    ExecutionDataSetMeta setMeta =
+        new ExecutionDataSetMeta(
+            "firstRows", "12345-logchannel-id", "transformName", "0", "First rows of transform");
     ExecutionData data =
         ExecutionDataBuilder.of()
             .addDataSets(Map.of("firstRows", new RowBuffer(rowMeta, rows)))

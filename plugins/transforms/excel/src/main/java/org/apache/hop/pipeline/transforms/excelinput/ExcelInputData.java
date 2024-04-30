@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import java.util.Date;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.playlist.IFilePlayList;
@@ -31,8 +32,6 @@ import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-
-import java.util.Date;
 
 public class ExcelInputData extends BaseTransformData implements ITransformData {
   /** The previous row in case we want to repeat values... */

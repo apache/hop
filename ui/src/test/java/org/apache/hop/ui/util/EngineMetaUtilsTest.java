@@ -17,11 +17,11 @@
 
 package org.apache.hop.ui.util;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class EngineMetaUtilsTest {
 

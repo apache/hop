@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.filestoresult;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FilesToResultData extends BaseTransformData implements ITransformData {
   public List<ResultFile> filenames;

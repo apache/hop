@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.schemamapping;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.HashMap;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -29,8 +28,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashMap;
 
 /** Sample rows. Filter rows based on line number */
 public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappingData> {
@@ -74,7 +71,9 @@ public class SchemaMapping extends BaseTransform<SchemaMappingMeta, SchemaMappin
 
         IValueMeta sourceValueMeta =
             data.inputRowMeta.getValueMeta(data.inputRowMeta.indexOfValue(f.getFieldStream()));
-        IValueMeta targetValueMeta = data.outputRowMeta.getValueMeta(data.outputRowMeta.indexOfValue(f.getFieldSchemaDefinition()));
+        IValueMeta targetValueMeta =
+            data.outputRowMeta.getValueMeta(
+                data.outputRowMeta.indexOfValue(f.getFieldSchemaDefinition()));
         alterSourceMetadata(sourceValueMeta, targetValueMeta);
       }
     } // end if first

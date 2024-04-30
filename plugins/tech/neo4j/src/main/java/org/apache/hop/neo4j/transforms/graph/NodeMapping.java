@@ -17,9 +17,8 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class NodeMapping {
 
@@ -126,7 +125,9 @@ public class NodeMapping {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(NodeMappingType type) {
     this.type = type;
   }
@@ -140,7 +141,9 @@ public class NodeMapping {
     return targetNode;
   }
 
-  /** @param targetNode The targetNode to set */
+  /**
+   * @param targetNode The targetNode to set
+   */
   public void setTargetNode(String targetNode) {
     this.targetNode = targetNode;
   }
@@ -154,7 +157,9 @@ public class NodeMapping {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -168,7 +173,9 @@ public class NodeMapping {
     return fieldValue;
   }
 
-  /** @param fieldValue The fieldValue to set */
+  /**
+   * @param fieldValue The fieldValue to set
+   */
   public void setFieldValue(String fieldValue) {
     this.fieldValue = fieldValue;
   }
@@ -182,7 +189,9 @@ public class NodeMapping {
     return targetLabel;
   }
 
-  /** @param targetLabel The targetLabel to set */
+  /**
+   * @param targetLabel The targetLabel to set
+   */
   public void setTargetLabel(String targetLabel) {
     this.targetLabel = targetLabel;
   }

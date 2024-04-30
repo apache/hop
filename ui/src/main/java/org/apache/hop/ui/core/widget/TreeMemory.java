@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Hashtable;
+import java.util.Map;
 import org.apache.hop.ui.core.ConstUi;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.util.Hashtable;
-import java.util.Map;
 
 /**
  * This singleton class remembers whether or not a TreeItem is expanded. When the tree is refreshed,

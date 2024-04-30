@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.copyfiles;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -52,9 +54,6 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /** This dialog allows you to edit the Copy Files action settings. */
 public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog {

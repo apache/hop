@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.file.TextFileInputField;
 import org.apache.hop.core.row.IValueMeta;
 import org.junit.BeforeClass;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 public abstract class CsvInputUnitTestBase {
 

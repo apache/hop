@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -59,9 +61,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UpdateDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = UpdateMeta.class; // For Translator
@@ -704,7 +703,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     inf.getLookupField().getLookupKeys().clear();
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       UpdateKeyField keyItem =
@@ -714,7 +713,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     logDebug(BaseMessages.getString(PKG, "UpdateDialog.Log.FoundFields", nrFields + ""));
-    // CHECKSTYLE:Indentation:OFF
+
     inf.getLookupField().getUpdateFields().clear();
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);

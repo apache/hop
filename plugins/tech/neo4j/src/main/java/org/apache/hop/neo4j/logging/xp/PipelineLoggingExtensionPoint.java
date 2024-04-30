@@ -17,6 +17,12 @@
 
 package org.apache.hop.neo4j.logging.xp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -37,15 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformMetaDataCombi;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
-import org.neo4j.driver.Transaction;
 import org.neo4j.driver.TransactionWork;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @ExtensionPoint(
     id = "PipelineLoggingExtensionPoint",
@@ -227,7 +225,8 @@ public class PipelineLoggingExtensionPoint
 
     synchronized (session) {
       session.writeTransaction(
-              (TransactionWork<Void>) transaction -> {
+          (TransactionWork<Void>)
+              transaction -> {
                 try {
                   // Create a new node for each log channel and its owner.
                   // Start with the pipeline.
@@ -281,7 +280,8 @@ public class PipelineLoggingExtensionPoint
 
     synchronized (session) {
       session.writeTransaction(
-              (TransactionWork<Void>) transaction -> {
+          (TransactionWork<Void>)
+              transaction -> {
                 try {
 
                   // Create a new node for each log channel and it's owner
@@ -301,7 +301,8 @@ public class PipelineLoggingExtensionPoint
                   pipelinePars.put("type", EXECUTION_TYPE_PIPELINE);
                   pipelinePars.put("id", channel.getLogChannelId());
                   pipelinePars.put(
-                      "executionEnd", new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(endDate));
+                      "executionEnd",
+                      new SimpleDateFormat("yyyy/MM/dd'T'HH:mm:ss").format(endDate));
                   pipelinePars.put("durationMs", endDate.getTime() - startDate.getTime());
                   pipelinePars.put("errors", result.getNrErrors());
                   pipelinePars.put("linesInput", result.getNrLinesInput());
@@ -334,9 +335,12 @@ public class PipelineLoggingExtensionPoint
                   //
                   List<TransformMetaDataCombi> combis = ((Pipeline) pipeline).getTransforms();
                   for (TransformMetaDataCombi combi : combis) {
-                    String transformLogChannelId = combi.transform.getLogChannel().getLogChannelId();
+                    String transformLogChannelId =
+                        combi.transform.getLogChannel().getLogChannelId();
                     String transformLoggingText =
-                        HopLogStore.getAppender().getBuffer(transformLogChannelId, false).toString();
+                        HopLogStore.getAppender()
+                            .getBuffer(transformLogChannelId, false)
+                            .toString();
                     Map<String, Object> transformPars = new HashMap<>();
                     transformPars.put("pipelineName", pipelineMeta.getName());
                     transformPars.put("name", combi.transformName);
@@ -372,7 +376,8 @@ public class PipelineLoggingExtensionPoint
                     transaction.run(transformCypher, transformPars);
 
                     // Log graph usage as well
-                    // This Map is left by the Neo4j transform plugins : Neo4j Output and Neo4j Graph
+                    // This Map is left by the Neo4j transform plugins : Neo4j Output and Neo4j
+                    // Graph
                     // Output
                     //
                     Map<String, Map<String, Set<String>>> usageMap =

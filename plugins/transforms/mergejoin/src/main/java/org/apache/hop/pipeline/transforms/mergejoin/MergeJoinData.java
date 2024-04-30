@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
+import java.util.List;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.List;
 
 public class MergeJoinData extends BaseTransformData implements ITransformData {
   public Object[] one;

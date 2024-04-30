@@ -17,12 +17,6 @@
 
 package org.apache.hop.core.injection.bean;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionDeep;
-import org.apache.hop.core.injection.InjectionTypeConverter;
-import org.apache.hop.metadata.api.IStringObjectConverter;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
@@ -35,6 +29,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionDeep;
+import org.apache.hop.core.injection.InjectionTypeConverter;
+import org.apache.hop.metadata.api.IStringObjectConverter;
 
 /** Storage for one transform on the bean deep level. */
 public class BeanLevelInfo<Meta extends Object> {
@@ -46,23 +45,30 @@ public class BeanLevelInfo<Meta extends Object> {
 
   /** Parent transform or null for root. */
   public BeanLevelInfo parent;
+
   /** Class for transform from field or methods. */
   public Class<Meta> leafClass;
+
   /** Field of transform, or null if bean has getter/setter. */
   public Field field;
+
   /** Getter and setter. */
   public Method getter;
 
   public Method setter;
+
   /** Dimension of level. */
   public DIMENSION dim = DIMENSION.NONE;
+
   /** Values converter. */
   public InjectionTypeConverter converter;
+
   /** Convert Strings (XML, JSON, ...) to the target object */
   public IStringObjectConverter stringObjectConverter;
 
   /** False if source empty value shouldn't affect on target field. */
   public boolean convertEmpty;
+
   /** Name on the path : prefix + key usually. */
   public String nameKey;
 

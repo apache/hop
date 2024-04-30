@@ -17,11 +17,10 @@
 
 package org.apache.hop.core;
 
+import java.util.Date;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
-
-import java.util.Date;
 
 public interface IEngineMeta {
 
@@ -139,9 +138,13 @@ public interface IEngineMeta {
    */
   void setInternalHopVariables(IVariables variables);
 
-  /** @return true if the name is derived from the filename */
+  /**
+   * @return true if the name is derived from the filename
+   */
   boolean isNameSynchronizedWithFilename();
 
-  /** @param nameSynchronizedWithFilename Set to true if the name is derived from the filename */
+  /**
+   * @param nameSynchronizedWithFilename Set to true if the name is derived from the filename
+   */
   void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename);
 }

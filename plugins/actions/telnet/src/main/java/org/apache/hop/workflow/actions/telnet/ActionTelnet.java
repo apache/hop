@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.telnet;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -36,8 +37,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 
-import java.util.List;
-
 /** This defines a Telnet action. */
 @Action(
     id = "TELNET",
@@ -49,10 +48,13 @@ import java.util.List;
     documentationUrl = "/workflow/actions/telnet.html")
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionTelnet.class; // For Translator
+
   @HopMetadataProperty(key = "hostname")
   private String hostname;
+
   @HopMetadataProperty(key = "port")
   private String port;
+
   @HopMetadataProperty(key = "timeout")
   private String timeout;
 

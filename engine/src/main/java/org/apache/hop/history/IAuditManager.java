@@ -16,10 +16,9 @@
  */
 package org.apache.hop.history;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.exception.HopException;
 
 /** This interface describes all the things you can do with a history manager */
 public interface IAuditManager {

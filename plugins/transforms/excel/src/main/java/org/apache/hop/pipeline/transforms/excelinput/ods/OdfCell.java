@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.ods;
 
+import java.sql.Date;
+import java.util.TimeZone;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.Utils;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
-
-import java.sql.Date;
-import java.util.TimeZone;
 
 public class OdfCell implements IKCell {
 

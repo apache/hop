@@ -17,14 +17,14 @@
 
 package org.apache.hop.core.encryption;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Test cases for encryption, to make sure that encrypted password remain the same between versions.

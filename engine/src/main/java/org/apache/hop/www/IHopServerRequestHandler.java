@@ -24,7 +24,9 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 
-/** @see BaseHopServerPlugin */
+/**
+ * @see BaseHopServerPlugin
+ */
 public interface IHopServerRequestHandler {
   void handleRequest(IHopServerRequest request) throws IOException;
 

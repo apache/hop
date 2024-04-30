@@ -47,7 +47,9 @@ public class HopGuiPipelineGraphExtension {
     return pipelineGraph;
   }
 
-  /** @param pipelineGraph The pipelineGraph to set */
+  /**
+   * @param pipelineGraph The pipelineGraph to set
+   */
   public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
@@ -61,7 +63,9 @@ public class HopGuiPipelineGraphExtension {
     return event;
   }
 
-  /** @param event The event to set */
+  /**
+   * @param event The event to set
+   */
   public void setEvent(MouseEvent event) {
     this.event = event;
   }
@@ -75,7 +79,9 @@ public class HopGuiPipelineGraphExtension {
     return point;
   }
 
-  /** @param point The point to set */
+  /**
+   * @param point The point to set
+   */
   public void setPoint(Point point) {
     this.point = point;
   }
@@ -89,7 +95,9 @@ public class HopGuiPipelineGraphExtension {
     return preventingDefault;
   }
 
-  /** @param preventingDefault The preventDefault to set */
+  /**
+   * @param preventingDefault The preventDefault to set
+   */
   public void setPreventingDefault(boolean preventingDefault) {
     this.preventingDefault = preventingDefault;
   }
@@ -103,7 +111,9 @@ public class HopGuiPipelineGraphExtension {
     return areaOwner;
   }
 
-  /** @param areaOwner The areaOwner to set */
+  /**
+   * @param areaOwner The areaOwner to set
+   */
   public void setAreaOwner(AreaOwner areaOwner) {
     this.areaOwner = areaOwner;
   }

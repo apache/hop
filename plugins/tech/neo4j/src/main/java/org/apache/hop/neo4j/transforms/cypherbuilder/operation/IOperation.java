@@ -18,11 +18,10 @@
 
 package org.apache.hop.neo4j.transforms.cypherbuilder.operation;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataObject;
 import org.apache.hop.neo4j.transforms.cypherbuilder.Parameter;
-
-import java.util.List;
 
 @HopMetadataObject(objectFactory = OperationFactory.class, xmlKey = "operationType")
 public interface IOperation extends Cloneable {

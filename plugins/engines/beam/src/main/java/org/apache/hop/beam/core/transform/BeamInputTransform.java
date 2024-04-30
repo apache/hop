@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
+import javax.annotation.Nullable;
 import org.apache.beam.sdk.io.Compression;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.metrics.Counter;
@@ -30,9 +31,6 @@ import org.apache.hop.beam.core.HopRow;
 import org.apache.hop.beam.core.fn.StringToHopFn;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.annotation.Nullable;
-import java.util.List;
 
 public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> {
 
@@ -73,20 +71,17 @@ public class BeamInputTransform extends PTransform<PBegin, PCollection<HopRow>> 
       TextIO.Read ioRead =
           TextIO.read().from(inputLocation).withCompression(Compression.UNCOMPRESSED);
 
-      StringToHopFn stringToHopFn =
-          new StringToHopFn(
-              transformName, rowMetaJson, separator);
+      StringToHopFn stringToHopFn = new StringToHopFn(transformName, rowMetaJson, separator);
 
-      return
-          input
+      return input
 
-              // We read a bunch of Strings, one per line basically
-              //
-              .apply(transformName + " READ FILE", ioRead)
+          // We read a bunch of Strings, one per line basically
+          //
+          .apply(transformName + " READ FILE", ioRead)
 
-              // We need to transform these lines into Hop fields
-              //
-              .apply(transformName, ParDo.of(stringToHopFn));
+          // We need to transform these lines into Hop fields
+          //
+          .apply(transformName, ParDo.of(stringToHopFn));
     } catch (Exception e) {
       numErrors.inc();
       LOG.error("Error in beam input transform", e);

@@ -17,6 +17,11 @@
 
 package org.apache.hop.www;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
@@ -26,12 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.owasp.encoder.Encode;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 @HopServerServlet(id = "removeWorkflow", name = "Remove a workflow from the server")
 public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
@@ -113,7 +112,8 @@ public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServer
                 + BaseMessages.getString(PKG, "RemoveWorkflowServlet.WorkflowRemoved")
                 + "</TITLE>");
         out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
-        out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");        
+        out.println(
+            "<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
         out.println("</HEAD>");
         out.println("<BODY>");
         out.println(

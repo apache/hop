@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.filterrows;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -42,11 +46,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Transform(
     id = "FilterRows",
@@ -84,7 +83,6 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
     compare = new FRCompare();
   }
 
-  @SuppressWarnings("CopyConstructorMissesField")
   public FilterRowsMeta(FilterRowsMeta m) {
     this.compare = m.compare == null ? new FRCompare() : new FRCompare(m.compare);
     this.setTrueTransformName(m.getTrueTransformName());
@@ -180,13 +178,16 @@ public class FilterRowsMeta extends BaseTransformMeta<FilterRows, FilterRowsData
 
       List<String> orphanFields = getOrphanFields(getCondition(), prev);
       if (!orphanFields.isEmpty()) {
-        errorMessage = new StringBuilder(BaseMessages.getString(
-                PKG, "FilterRowsMeta.CheckResult.FieldsNotFoundFromPreviousTransform")
-                + Const.CR);
+        errorMessage =
+            new StringBuilder(
+                BaseMessages.getString(
+                        PKG, "FilterRowsMeta.CheckResult.FieldsNotFoundFromPreviousTransform")
+                    + Const.CR);
         for (String field : orphanFields) {
           errorMessage.append("\t\t").append(field).append(Const.CR);
         }
-        cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
+        cr =
+            new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage.toString(), transformMeta);
       } else {
         cr =
             new CheckResult(

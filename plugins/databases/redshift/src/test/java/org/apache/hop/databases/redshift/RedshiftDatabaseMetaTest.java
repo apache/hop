@@ -17,15 +17,14 @@
 
 package org.apache.hop.databases.redshift;
 
-import org.apache.hop.core.database.DatabaseMeta;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.util.Map;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+
+import java.util.Map;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.junit.Before;
+import org.junit.Test;
 
 /** Unit tests for RedshiftDatabaseMeta */
 public class RedshiftDatabaseMetaTest {

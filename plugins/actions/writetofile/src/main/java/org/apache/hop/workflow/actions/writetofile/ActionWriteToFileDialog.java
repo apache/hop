@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.actions.writetofile;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -47,9 +49,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 /** This dialog allows you to edit the Write to file action settings. */
 public class ActionWriteToFileDialog extends ActionDialog implements IActionDialog {

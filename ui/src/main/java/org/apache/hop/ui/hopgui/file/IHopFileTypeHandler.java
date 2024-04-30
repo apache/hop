@@ -17,11 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
-
-import java.util.Map;
 
 /** This describes the main file operations for a supported Hop file */
 public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
@@ -54,7 +53,9 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    */
   IHopFileType getFileType();
 
-  /** @return The filename of the hop file */
+  /**
+   * @return The filename of the hop file
+   */
   String getFilename();
 
   /**
@@ -157,13 +158,9 @@ public interface IHopFileTypeHandler extends IActionContextHandlersProvider {
    */
   IVariables getVariables();
 
-  /**
-   * Reload the file */
-  default public void reload(){
-  }
+  /** Reload the file */
+  public default void reload() {}
 
-  /**
-   * mark the file as deleted*/
-  default public void markDeleted(){
-  }
+  /** mark the file as deleted */
+  public default void markDeleted() {}
 }

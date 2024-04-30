@@ -16,14 +16,14 @@
  */
 package org.apache.hop.vfs.s3.vfs;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.hop.vfs.s3.s3.vfs.S3FileProvider;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
 
 /** Unit tests for S3FileProvider */
 public class S3FileProviderTest {

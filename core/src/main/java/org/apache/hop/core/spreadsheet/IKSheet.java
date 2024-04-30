@@ -31,10 +31,14 @@ public interface IKSheet {
    */
   IKCell[] getRow(int rownr);
 
-  /** @return The name of the cell */
+  /**
+   * @return The name of the cell
+   */
   String getName();
 
-  /** @return The number of rows in the sheet */
+  /**
+   * @return The number of rows in the sheet
+   */
   int getRows();
 
   /**

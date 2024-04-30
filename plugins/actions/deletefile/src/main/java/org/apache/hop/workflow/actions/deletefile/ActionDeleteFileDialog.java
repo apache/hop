@@ -177,8 +177,7 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
 
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, margin, null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     // Add listeners
     wCancel.addListener(SWT.Selection, e -> cancel());

@@ -39,7 +39,9 @@ public class SimpleVariableSpace implements Serializable {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(List<VariableValue> variables) {
     this.variables = variables;
   }

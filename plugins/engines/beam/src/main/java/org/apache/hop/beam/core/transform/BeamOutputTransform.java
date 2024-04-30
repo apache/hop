@@ -17,6 +17,7 @@
 
 package org.apache.hop.beam.core.transform;
 
+import java.io.File;
 import org.apache.beam.sdk.io.TextIO;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
@@ -32,9 +33,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.JsonRowMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.List;
 
 public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> {
 
@@ -94,11 +92,7 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
               transformName,
               ParDo.of(
                   new HopToStringFn(
-                      transformName,
-                      outputLocation,
-                      separator,
-                      enclosure,
-                      rowMetaJson)));
+                      transformName, outputLocation, separator, enclosure, rowMetaJson)));
 
       // We need to transform these lines into a file and then we're PDone
       //
@@ -145,7 +139,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return transformName;
   }
 
-  /** @param transformName The transformName to set */
+  /**
+   * @param transformName The transformName to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
@@ -159,7 +155,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return outputLocation;
   }
 
-  /** @param outputLocation The outputLocation to set */
+  /**
+   * @param outputLocation The outputLocation to set
+   */
   public void setOutputLocation(String outputLocation) {
     this.outputLocation = outputLocation;
   }
@@ -173,7 +171,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return filePrefix;
   }
 
-  /** @param filePrefix The filePrefix to set */
+  /**
+   * @param filePrefix The filePrefix to set
+   */
   public void setFilePrefix(String filePrefix) {
     this.filePrefix = filePrefix;
   }
@@ -187,7 +187,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return fileSuffix;
   }
 
-  /** @param fileSuffix The fileSuffix to set */
+  /**
+   * @param fileSuffix The fileSuffix to set
+   */
   public void setFileSuffix(String fileSuffix) {
     this.fileSuffix = fileSuffix;
   }
@@ -201,7 +203,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return separator;
   }
 
-  /** @param separator The separator to set */
+  /**
+   * @param separator The separator to set
+   */
   public void setSeparator(String separator) {
     this.separator = separator;
   }
@@ -215,7 +219,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return enclosure;
   }
 
-  /** @param enclosure The enclosure to set */
+  /**
+   * @param enclosure The enclosure to set
+   */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
@@ -229,7 +235,9 @@ public class BeamOutputTransform extends PTransform<PCollection<HopRow>, PDone> 
     return rowMetaJson;
   }
 
-  /** @param rowMetaJson The inputRowMetaJson to set */
+  /**
+   * @param rowMetaJson The inputRowMetaJson to set
+   */
   public void setRowMetaJson(String rowMetaJson) {
     this.rowMetaJson = rowMetaJson;
   }

@@ -17,15 +17,14 @@
 
 package org.apache.hop.core.vfs;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.exception.HopFileException;
-import org.junit.Test;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopFileException;
+import org.junit.Test;
 
 public class HopVfsTest {
 

@@ -22,6 +22,9 @@ import com.microsoft.azure.eventhubs.ConnectionStringBuilder;
 import com.microsoft.azure.eventhubs.EventData;
 import com.microsoft.azure.eventhubs.EventHubClient;
 import com.microsoft.azure.eventhubs.EventHubException;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.concurrent.Executors;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -29,10 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.concurrent.Executors;
 
 public class AzureWrite extends BaseTransform<AzureWriterMeta, AzureWriterData> {
 

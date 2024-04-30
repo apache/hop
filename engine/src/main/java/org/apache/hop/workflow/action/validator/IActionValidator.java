@@ -17,10 +17,9 @@
 
 package org.apache.hop.workflow.action.validator;
 
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.ICheckResultSource;
-
-import java.util.List;
 
 /**
  * The interface of a action validator.

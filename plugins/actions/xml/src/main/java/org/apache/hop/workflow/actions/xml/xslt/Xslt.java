@@ -17,6 +17,23 @@
 
 package org.apache.hop.workflow.actions.xml.xslt;
 
+import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+import javax.xml.transform.Source;
+import javax.xml.transform.Templates;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -42,24 +59,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
-
-import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
-import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /** This defines a 'xslt' job entry. */
 @Action(
@@ -633,37 +632,51 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     andValidator().validate(this, "outputFilename", remarks, putValidators(notBlankValidator()));
   }
 
-  /** @return Returns the OutputPropertyName. */
+  /**
+   * @return Returns the OutputPropertyName.
+   */
   public String[] getOutputPropertyName() {
     return outputPropertyName;
   }
 
-  /** @param argumentDirection The OutputPropertyName to set. */
+  /**
+   * @param argumentDirection The OutputPropertyName to set.
+   */
   public void setOutputPropertyName(String[] argumentDirection) {
     this.outputPropertyName = argumentDirection;
   }
 
-  /** @return Returns the OutputPropertyField. */
+  /**
+   * @return Returns the OutputPropertyField.
+   */
   public String[] getOutputPropertyValue() {
     return outputPropertyValue;
   }
 
-  /** @param argumentDirection The outputPropertyValue to set. */
+  /**
+   * @param argumentDirection The outputPropertyValue to set.
+   */
   public void setOutputPropertyValue(String[] argumentDirection) {
     this.outputPropertyValue = argumentDirection;
   }
 
-  /** @return Returns the parameterName. */
+  /**
+   * @return Returns the parameterName.
+   */
   public String[] getParameterName() {
     return parameterName;
   }
 
-  /** @param argumentDirection The parameterName to set. */
+  /**
+   * @param argumentDirection The parameterName to set.
+   */
   public void setParameterName(String[] argumentDirection) {
     this.parameterName = argumentDirection;
   }
 
-  /** @return Returns the parameterField. */
+  /**
+   * @return Returns the parameterField.
+   */
   public String[] getParameterField() {
     return parameterField;
   }

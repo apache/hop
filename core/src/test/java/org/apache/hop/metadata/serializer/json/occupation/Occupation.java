@@ -17,12 +17,11 @@
 
 package org.apache.hop.metadata.serializer.json.occupation;
 
+import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.Objects;
 
 @HopMetadata(name = "Occupation", key = "occupation")
 public class Occupation extends HopMetadataBase implements IHopMetadata {
@@ -67,7 +66,9 @@ public class Occupation extends HopMetadataBase implements IHopMetadata {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -81,7 +82,9 @@ public class Occupation extends HopMetadataBase implements IHopMetadata {
     return startYear;
   }
 
-  /** @param startYear The startYear to set */
+  /**
+   * @param startYear The startYear to set
+   */
   public void setStartYear(int startYear) {
     this.startYear = startYear;
   }

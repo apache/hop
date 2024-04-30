@@ -17,12 +17,11 @@
 
 package org.apache.hop.beam.metadata;
 
+import java.io.Serializable;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.io.Serializable;
 
 public class FieldDefinition implements Serializable {
 
@@ -70,7 +69,9 @@ public class FieldDefinition implements Serializable {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -84,7 +85,9 @@ public class FieldDefinition implements Serializable {
     return hopType;
   }
 
-  /** @param hopType The hopType to set */
+  /**
+   * @param hopType The hopType to set
+   */
   public void setHopType(String hopType) {
     this.hopType = hopType;
   }
@@ -98,7 +101,9 @@ public class FieldDefinition implements Serializable {
     return length;
   }
 
-  /** @param length The length to set */
+  /**
+   * @param length The length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }
@@ -112,7 +117,9 @@ public class FieldDefinition implements Serializable {
     return precision;
   }
 
-  /** @param precision The precision to set */
+  /**
+   * @param precision The precision to set
+   */
   public void setPrecision(int precision) {
     this.precision = precision;
   }
@@ -126,7 +133,9 @@ public class FieldDefinition implements Serializable {
     return formatMask;
   }
 
-  /** @param formatMask The formatMask to set */
+  /**
+   * @param formatMask The formatMask to set
+   */
   public void setFormatMask(String formatMask) {
     this.formatMask = formatMask;
   }

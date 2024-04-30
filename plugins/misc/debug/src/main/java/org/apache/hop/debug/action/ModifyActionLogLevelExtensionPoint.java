@@ -17,6 +17,9 @@
 
 package org.apache.hop.debug.action;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -36,10 +39,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 @ExtensionPoint(
     id = "ModifyActionLogLevelExtensionPoint",

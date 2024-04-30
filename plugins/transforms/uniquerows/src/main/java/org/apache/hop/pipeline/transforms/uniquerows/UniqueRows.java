@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.uniquerows;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 /** Removes the same consequetive rows from the input stream(s). */
 public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> {

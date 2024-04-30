@@ -16,9 +16,13 @@
  */
 package org.apache.hop.workflow.actions.getpop;
 
+import static org.mockito.Mockito.when;
+
 import jakarta.mail.Folder;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Store;
+import java.io.File;
+import java.io.IOException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -27,11 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-
-import java.io.File;
-import java.io.IOException;
-
-import static org.mockito.Mockito.when;
 
 public class MailConnectionTest {
 

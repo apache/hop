@@ -17,15 +17,6 @@
 
 package org.apache.hop.beam.pipeline.fatjar;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.plugins.JarCache;
-import org.apache.hop.core.variables.IVariables;
-import org.jboss.jandex.IndexWriter;
-import org.jboss.jandex.Indexer;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,6 +32,14 @@ import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.io.IOUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.plugins.JarCache;
+import org.apache.hop.core.variables.IVariables;
+import org.jboss.jandex.IndexWriter;
+import org.jboss.jandex.Indexer;
 
 public class FatJarBuilder {
 
@@ -274,7 +273,9 @@ public class FatJarBuilder {
     return targetJarFile;
   }
 
-  /** @param targetJarFile The targetJarFile to set */
+  /**
+   * @param targetJarFile The targetJarFile to set
+   */
   public void setTargetJarFile(String targetJarFile) {
     this.targetJarFile = targetJarFile;
   }
@@ -288,7 +289,9 @@ public class FatJarBuilder {
     return jarFiles;
   }
 
-  /** @param jarFiles The jarFiles to set */
+  /**
+   * @param jarFiles The jarFiles to set
+   */
   public void setJarFiles(List<String> jarFiles) {
     this.jarFiles = jarFiles;
   }
@@ -302,7 +305,9 @@ public class FatJarBuilder {
     return extraTransformPluginClasses;
   }
 
-  /** @param extraTransformPluginClasses The extraTransformPluginClasses to set */
+  /**
+   * @param extraTransformPluginClasses The extraTransformPluginClasses to set
+   */
   public void setExtraTransformPluginClasses(String extraTransformPluginClasses) {
     this.extraTransformPluginClasses = extraTransformPluginClasses;
   }
@@ -316,7 +321,9 @@ public class FatJarBuilder {
     return extraXpPluginClasses;
   }
 
-  /** @param extraXpPluginClasses The extraXpPluginClasses to set */
+  /**
+   * @param extraXpPluginClasses The extraXpPluginClasses to set
+   */
   public void setExtraXpPluginClasses(String extraXpPluginClasses) {
     this.extraXpPluginClasses = extraXpPluginClasses;
   }
@@ -330,7 +337,9 @@ public class FatJarBuilder {
     return fileContentMap;
   }
 
-  /** @param fileContentMap The fileContentMap to set */
+  /**
+   * @param fileContentMap The fileContentMap to set
+   */
   public void setFileContentMap(Map<String, String> fileContentMap) {
     this.fileContentMap = fileContentMap;
   }

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1142,8 +1141,10 @@ public class ProjectsGuiPlugin {
                   HopVfs.getFileObject(projectHome).getParent().getName().getURI();
               zipFile(
                   projectDirectory, projectDirectory.getName().getURI(), zos, projectHomeFolder);
-              zipString(variablesJson,"variables.json",zos, projectDirectory.getName().getBaseName());
-              zipString(metadataJson,"metadata.json",zos, projectDirectory.getName().getBaseName());
+              zipString(
+                  variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
+              zipString(
+                  metadataJson, "metadata.json", zos, projectDirectory.getName().getBaseName());
               zos.close();
               outputStream.close();
               monitor.done();
@@ -1223,7 +1224,7 @@ public class ProjectsGuiPlugin {
       return;
     }
     ByteArrayInputStream bais = new ByteArrayInputStream(stringToZip.getBytes());
-    zipOutputStream.putNextEntry(new ZipEntry(projectHomeParent + "/" +filename));
+    zipOutputStream.putNextEntry(new ZipEntry(projectHomeParent + "/" + filename));
     byte[] bytes = new byte[1024];
     int length;
     while ((length = bais.read(bytes)) >= 0) {

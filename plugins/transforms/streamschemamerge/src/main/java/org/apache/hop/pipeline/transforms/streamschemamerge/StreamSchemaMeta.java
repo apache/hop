@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -37,10 +40,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 @Transform(
     id = "StreamSchema",
@@ -307,7 +306,6 @@ public class StreamSchemaMeta extends BaseTransformMeta<StreamSchema, StreamSche
   public void resetTransformIoMeta() {
     // Do nothing, don't reset as there is no need to do this.
   }
-
 
   /** Has original function of resetTransformIoMeta, but we only want to call it when appropriate */
   /*

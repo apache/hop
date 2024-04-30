@@ -18,10 +18,9 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
+import java.util.Objects;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class Aggregation implements Cloneable {
 

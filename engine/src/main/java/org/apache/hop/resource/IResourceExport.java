@@ -17,11 +17,10 @@
 
 package org.apache.hop.resource;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-
-import java.util.Map;
 
 /** The classes implementing this interface allow their used resources to be exported. */
 public interface IResourceExport {

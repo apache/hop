@@ -17,6 +17,11 @@
 
 package org.apache.hop.workflow.action.loadsave;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
@@ -25,12 +30,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.ActionInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.workflow.action.IAction;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
 
@@ -41,7 +40,8 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-      ActionInitializer<T> actionInitializer) throws HopException {
+      ActionInitializer<T> actionInitializer)
+      throws HopException {
     super(
         clazz,
         attributes,
@@ -57,7 +57,8 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
     this(
         clazz,
         attributes,
@@ -72,14 +73,9 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
       Class<T> clazz,
       List<String> attributes,
       Map<String, String> getterMap,
-      Map<String, String> setterMap) throws HopException {
-    this(
-        clazz,
-        attributes,
-        getterMap,
-        setterMap,
-        new HashMap<>(),
-        new HashMap<>());
+      Map<String, String> setterMap)
+      throws HopException {
+    this(clazz, attributes, getterMap, setterMap, new HashMap<>(), new HashMap<>());
   }
 
   @Override
@@ -96,7 +92,6 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     testClone();
   }
 
-  @SuppressWarnings("deprecation")
   public void testXmlRoundTrip() throws HopException {
     T metaToSave = createMeta();
     if (initializer != null) {
@@ -115,7 +110,6 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }
 
-  @SuppressWarnings("deprecation")
   protected void testClone() {
     T metaToSave = createMeta();
     if (initializer != null) {
@@ -124,7 +118,6 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap =
         createValidatorMapAndInvokeSetters(attributes, metaToSave);
 
-    @SuppressWarnings("unchecked")
     T metaLoaded = (T) metaToSave.clone();
     validateLoadedMeta(attributes, validatorMap, metaToSave, metaLoaded);
   }

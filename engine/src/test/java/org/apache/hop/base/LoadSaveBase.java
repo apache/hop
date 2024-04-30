@@ -17,6 +17,17 @@
 
 package org.apache.hop.base;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -32,18 +43,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.DefaultFieldLoadSav
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidatorFactory;
 import org.apache.test.util.JavaBeanManipulator;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public abstract class LoadSaveBase<T> {
 
@@ -61,7 +60,8 @@ public abstract class LoadSaveBase<T> {
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap,
-      IInitializer<T> initializer) throws HopException {
+      IInitializer<T> initializer)
+      throws HopException {
     this.clazz = clazz;
     this.attributes = new ArrayList(attributes);
 
@@ -90,7 +90,8 @@ public abstract class LoadSaveBase<T> {
       Map<String, String> getterMap,
       Map<String, String> setterMap,
       Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap,
-      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap) throws HopException {
+      Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap)
+      throws HopException {
     this(
         clazz,
         attributes,
@@ -102,13 +103,7 @@ public abstract class LoadSaveBase<T> {
   }
 
   public LoadSaveBase(Class<T> clazz, List<String> attributes) throws HopException {
-    this(
-        clazz,
-        attributes,
-        new HashMap<>(),
-        new HashMap<>(),
-        new HashMap<>(),
-        new HashMap<>());
+    this(clazz, attributes, new HashMap<>(), new HashMap<>(), new HashMap<>(), new HashMap<>());
   }
 
   private void addHopMetadataPropertyCommonAttributes() throws HopException {
@@ -121,14 +116,14 @@ public abstract class LoadSaveBase<T> {
           continue;
         }
         HopMetadataProperty annotation = field.getAnnotation(HopMetadataProperty.class);
-        if (annotation!=null) {
+        if (annotation != null) {
           String attribute = field.getName();
           if (!attributes.contains(attribute)) {
             attributes.add(attribute);
           }
         }
       }
-    } catch(Exception e) {
+    } catch (Exception e) {
       throw new HopException("Error adding common attributes from Hop metadata properties", e);
     }
   }
@@ -148,14 +143,12 @@ public abstract class LoadSaveBase<T> {
     }
   }
 
-  @SuppressWarnings({"unchecked"})
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters(
       List<String> attributes, T metaToSave) {
     Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<>();
     metadataProvider = new MemoryMetadataProvider();
     for (String attribute : attributes) {
       IGetter<?> getter = manipulator.getGetter(attribute);
-      @SuppressWarnings("rawtypes")
       ISetter setter = manipulator.getSetter(attribute);
       IFieldLoadSaveValidator<?> validator = fieldLoadSaveValidatorFactory.createValidator(getter);
       try {

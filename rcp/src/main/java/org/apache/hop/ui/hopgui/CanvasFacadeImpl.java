@@ -17,16 +17,13 @@
 
 package org.apache.hop.ui.hopgui;
 
-import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.gui.DPoint;
-import org.apache.hop.core.variables.IVariables;
 import org.eclipse.swt.widgets.Canvas;
 
 public class CanvasFacadeImpl extends CanvasFacade {
 
   @Override
-  void setDataInternal(
-          Canvas canvas, float magnification, DPoint offset, Object meta) {
+  void setDataInternal(Canvas canvas, float magnification, DPoint offset, Object meta) {
     // do nothing
   }
 }

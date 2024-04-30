@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.RowMetaAndData;
@@ -29,8 +30,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're getting the number of

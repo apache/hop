@@ -27,12 +27,10 @@ public class EnumLoadSaveValidator<E extends Enum<E>> implements IFieldLoadSaveV
     this(defaultValue.getClass());
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   public EnumLoadSaveValidator(Class<? extends Enum> clazz) {
     this.values = clazz.getEnumConstants();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public E getTestObject() {
     return (E) values[new Random().nextInt(values.length)];

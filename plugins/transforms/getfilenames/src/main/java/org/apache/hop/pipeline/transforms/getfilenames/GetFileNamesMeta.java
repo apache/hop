@@ -74,8 +74,8 @@ public class GetFileNamesMeta extends BaseTransformMeta<GetFileNames, GetFileNam
   @HopMetadataProperty(
       key = "file",
       injectionKeyDescription = "GetFileNames.Injection.File.Label",
-          injectionGroupKey = "FILE",
-          injectionGroupDescription = "GetFileNames.Injection.Group.FileTab.Label",
+      injectionGroupKey = "FILE",
+      injectionGroupDescription = "GetFileNames.Injection.Group.FileTab.Label",
       inlineListTags = {
         "name",
         "filemask",

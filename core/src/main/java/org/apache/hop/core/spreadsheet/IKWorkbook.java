@@ -26,14 +26,18 @@ public interface IKWorkbook extends AutoCloseable {
    */
   IKSheet getSheet(String sheetName);
 
-  /** @return The array of sheet names in the workbook */
+  /**
+   * @return The array of sheet names in the workbook
+   */
   String[] getSheetNames();
 
   /** Close the workbook file */
   @Override
   void close();
 
-  /** @return The number of sheets in the workbook */
+  /**
+   * @return The number of sheets in the workbook
+   */
   int getNumberOfSheets();
 
   /**

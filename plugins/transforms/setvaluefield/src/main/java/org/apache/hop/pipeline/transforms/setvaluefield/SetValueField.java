@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.setvaluefield;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.List;
 
 /** Set value field with another value field. */
 public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFieldData> {

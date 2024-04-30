@@ -17,14 +17,13 @@
 
 package org.apache.hop.metadata.plugin;
 
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
-
-import java.util.Map;
 
 /** This class defines how Hop Metadata plugins are loaded */
 @PluginMainClassType(IHopMetadata.class)

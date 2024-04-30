@@ -17,9 +17,8 @@
 
 package org.apache.hop.testing;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DataSetField {
   @HopMetadataProperty(key = "field_name")
@@ -81,7 +80,9 @@ public class DataSetField {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set */
+  /**
+   * @param fieldName The fieldName to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
@@ -95,7 +96,9 @@ public class DataSetField {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(int type) {
     this.type = type;
   }
@@ -109,7 +112,9 @@ public class DataSetField {
     return length;
   }
 
-  /** @param length The length to set */
+  /**
+   * @param length The length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }
@@ -123,7 +128,9 @@ public class DataSetField {
     return precision;
   }
 
-  /** @param precision The precision to set */
+  /**
+   * @param precision The precision to set
+   */
   public void setPrecision(int precision) {
     this.precision = precision;
   }
@@ -137,7 +144,9 @@ public class DataSetField {
     return comment;
   }
 
-  /** @param comment The comment to set */
+  /**
+   * @param comment The comment to set
+   */
   public void setComment(String comment) {
     this.comment = comment;
   }
@@ -151,7 +160,9 @@ public class DataSetField {
     return format;
   }
 
-  /** @param format The format to set */
+  /**
+   * @param format The format to set
+   */
   public void setFormat(String format) {
     this.format = format;
   }

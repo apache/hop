@@ -17,6 +17,12 @@
 
 package org.apache.hop.utils;
 
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -25,19 +31,12 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
-
-import static org.junit.Assert.assertTrue;
-
 public class TestUtils {
 
   /**
    * Do not use this method because it does not delete the temp folder after java process tear down
    */
-  @Deprecated(since="2.0")
+  @Deprecated(since = "2.0")
   public static String createTempDir() {
     String ret = null;
     try {

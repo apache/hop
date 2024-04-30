@@ -26,10 +26,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
-/**
- * Contains Computer Associates Ingres specific information through static final members
- */
-@DatabaseMetaPlugin(type = "INGRES", typeDescription = "Ingres", documentationUrl = "/database/databases/ingres.html")
+/** Contains Computer Associates Ingres specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "INGRES",
+    typeDescription = "Ingres",
+    documentationUrl = "/database/databases/ingres.html")
 @GuiPlugin(id = "GUI-IngresDatabaseMeta")
 public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -59,13 +60,17 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;

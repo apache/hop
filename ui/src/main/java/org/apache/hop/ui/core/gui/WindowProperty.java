@@ -17,16 +17,15 @@
 
 package org.apache.hop.ui.core.gui;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 
 /** This class stores information about a screen, window, etc. */
 public class WindowProperty {
@@ -267,7 +266,9 @@ public class WindowProperty {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -281,7 +282,9 @@ public class WindowProperty {
     return maximized;
   }
 
-  /** @param maximized The maximized to set */
+  /**
+   * @param maximized The maximized to set
+   */
   public void setMaximized(boolean maximized) {
     this.maximized = maximized;
   }
@@ -295,7 +298,9 @@ public class WindowProperty {
     return x;
   }
 
-  /** @param x The x to set */
+  /**
+   * @param x The x to set
+   */
   public void setX(int x) {
     this.x = x;
   }
@@ -309,7 +314,9 @@ public class WindowProperty {
     return y;
   }
 
-  /** @param y The y to set */
+  /**
+   * @param y The y to set
+   */
   public void setY(int y) {
     this.y = y;
   }
@@ -323,7 +330,9 @@ public class WindowProperty {
     return width;
   }
 
-  /** @param width The width to set */
+  /**
+   * @param width The width to set
+   */
   public void setWidth(int width) {
     this.width = width;
   }
@@ -337,7 +346,9 @@ public class WindowProperty {
     return height;
   }
 
-  /** @param height The height to set */
+  /**
+   * @param height The height to set
+   */
   public void setHeight(int height) {
     this.height = height;
   }

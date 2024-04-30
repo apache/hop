@@ -17,25 +17,26 @@
 
 package org.apache.hop.core.variables;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 public class VariableRegistryTest {
 
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  
+
   @Test
   public void testInit() throws Exception {
 
     VariableRegistry.init();
-    
+
     VariableRegistry registry = VariableRegistry.getInstance();
-    DescribedVariable describedVariable =  registry.findDescribedVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
+    DescribedVariable describedVariable =
+        registry.findDescribedVariable(Const.HOP_PASSWORD_ENCODER_PLUGIN);
     assertNotNull(describedVariable);
 
     boolean actual = Boolean.valueOf(describedVariable.getValue());

@@ -273,8 +273,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
           new ColumnInfo(
               BaseMessages.getString(PKG, "System.Column.SetEmptyString"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-                  BaseMessages.getString(PKG, "System.Combo.Yes"),
-                  BaseMessages.getString(PKG, "System.Combo.No"))
+              BaseMessages.getString(PKG, "System.Combo.Yes"),
+              BaseMessages.getString(PKG, "System.Combo.No"))
         };
 
     wFields =
@@ -411,7 +411,6 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     meta.getFields().clear();
 
-    // CHECKSTYLE:Indentation:OFF
     for (TableItem item : wFields.getNonEmptyItems()) {
       GeneratorField field = new GeneratorField();
       field.setName(item.getText(1));

@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.action;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
@@ -34,9 +36,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.w3c.dom.Node;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This class describes the fact that a single Action can be used multiple times in the same
@@ -214,7 +213,9 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
     return action;
   }
 
-  /** @return action in IAction.typeCode[] for native workflows, action.getTypeCode() for plugins */
+  /**
+   * @return action in IAction.typeCode[] for native workflows, action.getTypeCode() for plugins
+   */
   public String getTypeDesc() {
     IPlugin plugin =
         PluginRegistry.getInstance().findPluginWithId(ActionPluginType.class, action.getPluginId());

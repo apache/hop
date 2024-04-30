@@ -1,4 +1,3 @@
-// CHECKSTYLE:FileLength:OFF
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -19,6 +18,10 @@
 package org.apache.hop.pipeline.transforms.fileinput;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -55,13 +58,10 @@ import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-/** @deprecated replaced by implementation in the ...transforms.fileinput.text package */
-@Deprecated(since="2.0")
+/**
+ * @deprecated replaced by implementation in the ...transforms.fileinput.text package
+ */
+@Deprecated(since = "2.0")
 @Transform(
     id = "TextFileInput",
     image = "textfileinput.svg",
@@ -71,7 +71,7 @@ import java.util.Map;
     keywords = "i18n::TextFileInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/textfileinput.html")
 public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFileInputData>
-implements IInputFileMeta {
+    implements IInputFileMeta {
 
   private static final Class<?> PKG = TextFileInputMeta.class; // For Translator
 
@@ -263,92 +263,128 @@ implements IInputFileMeta {
   private String fileErrorField;
   private String fileErrorMessageField;
 
-  /** @return Returns the shortFileFieldName. */
+  /**
+   * @return Returns the shortFileFieldName.
+   */
   public String getShortFileNameField() {
     return shortFileFieldName;
   }
 
-  /** @param field The shortFileFieldName to set. */
+  /**
+   * @param field The shortFileFieldName to set.
+   */
   public void setShortFileNameField(String field) {
     shortFileFieldName = field;
   }
 
-  /** @return Returns the pathFieldName. */
+  /**
+   * @return Returns the pathFieldName.
+   */
   public String getPathField() {
     return pathFieldName;
   }
 
-  /** @param field The pathFieldName to set. */
+  /**
+   * @param field The pathFieldName to set.
+   */
   public void setPathField(String field) {
     this.pathFieldName = field;
   }
 
-  /** @return Returns the hiddenFieldName. */
+  /**
+   * @return Returns the hiddenFieldName.
+   */
   public String isHiddenField() {
     return hiddenFieldName;
   }
 
-  /** @param field The hiddenFieldName to set. */
+  /**
+   * @param field The hiddenFieldName to set.
+   */
   public void setIsHiddenField(String field) {
     hiddenFieldName = field;
   }
 
-  /** @return Returns the lastModificationTimeFieldName. */
+  /**
+   * @return Returns the lastModificationTimeFieldName.
+   */
   public String getLastModificationDateField() {
     return lastModificationTimeFieldName;
   }
 
-  /** @param field The lastModificationTimeFieldName to set. */
+  /**
+   * @param field The lastModificationTimeFieldName to set.
+   */
   public void setLastModificationDateField(String field) {
     lastModificationTimeFieldName = field;
   }
 
-  /** @return Returns the uriNameFieldName. */
+  /**
+   * @return Returns the uriNameFieldName.
+   */
   public String getUriField() {
     return uriNameFieldName;
   }
 
-  /** @param field The uriNameFieldName to set. */
+  /**
+   * @param field The uriNameFieldName to set.
+   */
   public void setUriField(String field) {
     uriNameFieldName = field;
   }
 
-  /** @return Returns the uriNameFieldName. */
+  /**
+   * @return Returns the uriNameFieldName.
+   */
   public String getRootUriField() {
     return rootUriNameFieldName;
   }
 
-  /** @param field The rootUriNameFieldName to set. */
+  /**
+   * @param field The rootUriNameFieldName to set.
+   */
   public void setRootUriField(String field) {
     rootUriNameFieldName = field;
   }
 
-  /** @return Returns the extensionFieldName. */
+  /**
+   * @return Returns the extensionFieldName.
+   */
   public String getExtensionField() {
     return extensionFieldName;
   }
 
-  /** @param field The extensionFieldName to set. */
+  /**
+   * @param field The extensionFieldName to set.
+   */
   public void setExtensionField(String field) {
     extensionFieldName = field;
   }
 
-  /** @return Returns the sizeFieldName. */
+  /**
+   * @return Returns the sizeFieldName.
+   */
   public String getSizeField() {
     return sizeFieldName;
   }
 
-  /** @param field The sizeFieldName to set. */
+  /**
+   * @param field The sizeFieldName to set.
+   */
   public void setSizeField(String field) {
     sizeFieldName = field;
   }
 
-  /** @return If should continue processing after failing to open a file */
+  /**
+   * @return If should continue processing after failing to open a file
+   */
   public boolean isSkipBadFiles() {
     return skipBadFiles;
   }
 
-  /** @param value If should continue processing after failing to open a file */
+  /**
+   * @param value If should continue processing after failing to open a file
+   */
   public void setSkipBadFiles(boolean value) {
     skipBadFiles = value;
   }
@@ -369,12 +405,16 @@ implements IInputFileMeta {
     fileErrorMessageField = field;
   }
 
-  /** @return Returns the encoding. */
+  /**
+   * @return Returns the encoding.
+   */
   public String getEncoding() {
     return encoding;
   }
 
-  /** @param encoding The encoding to set. */
+  /**
+   * @param encoding The encoding to set.
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
@@ -383,74 +423,102 @@ implements IInputFileMeta {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the input fields. */
+  /**
+   * @return Returns the input fields.
+   */
   @Override
   public TextFileInputField[] getInputFields() {
     return inputFields;
   }
 
-  /** @param inputFields The input fields to set. */
+  /**
+   * @param inputFields The input fields to set.
+   */
   public void setInputFields(TextFileInputField[] inputFields) {
     this.inputFields = inputFields;
   }
 
-  /** @return Returns the enclosure. */
+  /**
+   * @return Returns the enclosure.
+   */
   @Override
   public String getEnclosure() {
     return enclosure;
   }
 
-  /** @param enclosure The enclosure to set. */
+  /**
+   * @param enclosure The enclosure to set.
+   */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
 
-  /** @return Returns the breakInEnclosureAllowed. */
+  /**
+   * @return Returns the breakInEnclosureAllowed.
+   */
   public boolean isBreakInEnclosureAllowed() {
     return breakInEnclosureAllowed;
   }
 
-  /** @param breakInEnclosureAllowed The breakInEnclosureAllowed to set. */
+  /**
+   * @param breakInEnclosureAllowed The breakInEnclosureAllowed to set.
+   */
   public void setBreakInEnclosureAllowed(boolean breakInEnclosureAllowed) {
     this.breakInEnclosureAllowed = breakInEnclosureAllowed;
   }
 
-  /** @return Returns the excludeFileMask. */
+  /**
+   * @return Returns the excludeFileMask.
+   */
   public String[] getExludeFileMask() {
     return excludeFileMask;
   }
 
-  /** @param excludeFileMask The excludeFileMask to set. */
+  /**
+   * @param excludeFileMask The excludeFileMask to set.
+   */
   public void setExcludeFileMask(String[] excludeFileMask) {
     this.excludeFileMask = excludeFileMask;
   }
 
-  /** @return Returns the fileFormat. */
+  /**
+   * @return Returns the fileFormat.
+   */
   public String getFileFormat() {
     return fileFormat;
   }
 
-  /** @param fileFormat The fileFormat to set. */
+  /**
+   * @param fileFormat The fileFormat to set.
+   */
   public void setFileFormat(String fileFormat) {
     this.fileFormat = fileFormat;
   }
 
-  /** @return Returns the fileMask. */
+  /**
+   * @return Returns the fileMask.
+   */
   public String[] getFileMask() {
     return fileMask;
   }
 
-  /** @return Returns the fileRequired. */
+  /**
+   * @return Returns the fileRequired.
+   */
   public String[] getFileRequired() {
     return fileRequired;
   }
 
-  /** @param fileMask The fileMask to set. */
+  /**
+   * @param fileMask The fileMask to set.
+   */
   public void setFileMask(String[] fileMask) {
     this.fileMask = fileMask;
   }
 
-  /** @param fileRequired The fileRequired to set. */
+  /**
+   * @param fileRequired The fileRequired to set.
+   */
   public void setFileRequired(String[] fileRequired) {
     for (int i = 0; i < fileRequired.length; i++) {
       this.fileRequired[i] = getRequiredFilesCode(fileRequired[i]);
@@ -478,86 +546,118 @@ implements IInputFileMeta {
     }
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String[] getFileName() {
     return fileName;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String[] fileName) {
     this.fileName = fileName;
   }
 
-  /** @return Returns the filenameField. */
+  /**
+   * @return Returns the filenameField.
+   */
   public String getFilenameField() {
     return filenameField;
   }
 
-  /** @param filenameField The filenameField to set. */
+  /**
+   * @param filenameField The filenameField to set.
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
 
-  /** @return Returns the fileType. */
+  /**
+   * @return Returns the fileType.
+   */
   @Override
   public String getFileType() {
     return fileType;
   }
 
-  /** @param fileType The fileType to set. */
+  /**
+   * @param fileType The fileType to set.
+   */
   public void setFileType(String fileType) {
     this.fileType = fileType;
   }
 
-  /** @return The array of filters for the metadata of this text file input transform. */
+  /**
+   * @return The array of filters for the metadata of this text file input transform.
+   */
   public TextFileFilter[] getFilter() {
     return filter;
   }
 
-  /** @param filter The array of filters to use */
+  /**
+   * @param filter The array of filters to use
+   */
   public void setFilter(TextFileFilter[] filter) {
     this.filter = filter;
   }
 
-  /** @return Returns the footer. */
+  /**
+   * @return Returns the footer.
+   */
   public boolean hasFooter() {
     return footer;
   }
 
-  /** @param footer The footer to set. */
+  /**
+   * @param footer The footer to set.
+   */
   public void setFooter(boolean footer) {
     this.footer = footer;
   }
 
-  /** @return Returns the header. */
+  /**
+   * @return Returns the header.
+   */
   @Override
   public boolean hasHeader() {
     return header;
   }
 
-  /** @param header The header to set. */
+  /**
+   * @param header The header to set.
+   */
   public void setHeader(boolean header) {
     this.header = header;
   }
 
-  /** @return Returns the includeFilename. */
+  /**
+   * @return Returns the includeFilename.
+   */
   @Override
   public boolean includeFilename() {
     return includeFilename;
   }
 
-  /** @param includeFilename The includeFilename to set. */
+  /**
+   * @param includeFilename The includeFilename to set.
+   */
   public void setIncludeFilename(boolean includeFilename) {
     this.includeFilename = includeFilename;
   }
 
-  /** @return Returns the includeRowNumber. */
+  /**
+   * @return Returns the includeRowNumber.
+   */
   @Override
   public boolean includeRowNumber() {
     return includeRowNumber;
   }
 
-  /** @param includeRowNumber The includeRowNumber to set. */
+  /**
+   * @param includeRowNumber The includeRowNumber to set.
+   */
   public void setIncludeRowNumber(boolean includeRowNumber) {
     this.includeRowNumber = includeRowNumber;
   }
@@ -571,58 +671,80 @@ implements IInputFileMeta {
     return rowNumberByFile;
   }
 
-  /** @param rowNumberByFile True if row number field is reset for each file */
+  /**
+   * @param rowNumberByFile True if row number field is reset for each file
+   */
   public void setRowNumberByFile(boolean rowNumberByFile) {
     this.rowNumberByFile = rowNumberByFile;
   }
 
-  /** @return Returns the noEmptyLines. */
+  /**
+   * @return Returns the noEmptyLines.
+   */
   public boolean noEmptyLines() {
     return noEmptyLines;
   }
 
-  /** @param noEmptyLines The noEmptyLines to set. */
+  /**
+   * @param noEmptyLines The noEmptyLines to set.
+   */
   public void setNoEmptyLines(boolean noEmptyLines) {
     this.noEmptyLines = noEmptyLines;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public long getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(long rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return Returns the rowNumberField. */
+  /**
+   * @return Returns the rowNumberField.
+   */
   public String getRowNumberField() {
     return rowNumberField;
   }
 
-  /** @param rowNumberField The rowNumberField to set. */
+  /**
+   * @param rowNumberField The rowNumberField to set.
+   */
   public void setRowNumberField(String rowNumberField) {
     this.rowNumberField = rowNumberField;
   }
 
-  /** @return Returns the separator. */
+  /**
+   * @return Returns the separator.
+   */
   @Override
   public String getSeparator() {
     return separator;
   }
 
-  /** @param separator The separator to set. */
+  /**
+   * @param separator The separator to set.
+   */
   public void setSeparator(String separator) {
     this.separator = separator;
   }
 
-  /** @return Returns the type of compression used */
+  /**
+   * @return Returns the type of compression used
+   */
   public String getFileCompression() {
     return fileCompression;
   }
 
-  /** @param fileCompression Sets the compression type */
+  /**
+   * @param fileCompression Sets the compression type
+   */
   public void setFileCompression(String fileCompression) {
     this.fileCompression = fileCompression;
   }
@@ -1243,7 +1365,9 @@ implements IInputFileMeta {
     return null;
   }
 
-  /** @param transforms optionally search the info transform in a list of transforms */
+  /**
+   * @param transforms optionally search the info transform in a list of transforms
+   */
   @Override
   public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
     acceptingTransform = TransformMeta.findTransform(transforms, acceptingTransformName);
@@ -1338,13 +1462,17 @@ implements IInputFileMeta {
     }
   }
 
-  /** @return Returns the escapeCharacter. */
+  /**
+   * @return Returns the escapeCharacter.
+   */
   @Override
   public String getEscapeCharacter() {
     return escapeCharacter;
   }
 
-  /** @param escapeCharacter The escapeCharacter to set. */
+  /**
+   * @param escapeCharacter The escapeCharacter to set.
+   */
   public void setEscapeCharacter(String escapeCharacter) {
     this.escapeCharacter = escapeCharacter;
   }
@@ -1385,22 +1513,30 @@ implements IInputFileMeta {
     this.errorTextField = errorTextField;
   }
 
-  /** @return Returns the lineWrapped. */
+  /**
+   * @return Returns the lineWrapped.
+   */
   public boolean isLineWrapped() {
     return lineWrapped;
   }
 
-  /** @param lineWrapped The lineWrapped to set. */
+  /**
+   * @param lineWrapped The lineWrapped to set.
+   */
   public void setLineWrapped(boolean lineWrapped) {
     this.lineWrapped = lineWrapped;
   }
 
-  /** @return Returns the nrFooterLines. */
+  /**
+   * @return Returns the nrFooterLines.
+   */
   public int getNrFooterLines() {
     return nrFooterLines;
   }
 
-  /** @param nrFooterLines The nrFooterLines to set. */
+  /**
+   * @param nrFooterLines The nrFooterLines to set.
+   */
   public void setNrFooterLines(int nrFooterLines) {
     this.nrFooterLines = nrFooterLines;
   }
@@ -1416,53 +1552,73 @@ implements IInputFileMeta {
     }
   }
 
-  /** @return Returns the nrHeaderLines. */
+  /**
+   * @return Returns the nrHeaderLines.
+   */
   @Override
   public int getNrHeaderLines() {
     return nrHeaderLines;
   }
 
-  /** @param nrHeaderLines The nrHeaderLines to set. */
+  /**
+   * @param nrHeaderLines The nrHeaderLines to set.
+   */
   public void setNrHeaderLines(int nrHeaderLines) {
     this.nrHeaderLines = nrHeaderLines;
   }
 
-  /** @return Returns the nrWraps. */
+  /**
+   * @return Returns the nrWraps.
+   */
   public int getNrWraps() {
     return nrWraps;
   }
 
-  /** @param nrWraps The nrWraps to set. */
+  /**
+   * @param nrWraps The nrWraps to set.
+   */
   public void setNrWraps(int nrWraps) {
     this.nrWraps = nrWraps;
   }
 
-  /** @return Returns the layoutPaged. */
+  /**
+   * @return Returns the layoutPaged.
+   */
   public boolean isLayoutPaged() {
     return layoutPaged;
   }
 
-  /** @param layoutPaged The layoutPaged to set. */
+  /**
+   * @param layoutPaged The layoutPaged to set.
+   */
   public void setLayoutPaged(boolean layoutPaged) {
     this.layoutPaged = layoutPaged;
   }
 
-  /** @return Returns the nrLinesPerPage. */
+  /**
+   * @return Returns the nrLinesPerPage.
+   */
   public int getNrLinesPerPage() {
     return nrLinesPerPage;
   }
 
-  /** @param nrLinesPerPage The nrLinesPerPage to set. */
+  /**
+   * @param nrLinesPerPage The nrLinesPerPage to set.
+   */
   public void setNrLinesPerPage(int nrLinesPerPage) {
     this.nrLinesPerPage = nrLinesPerPage;
   }
 
-  /** @return Returns the nrLinesDocHeader. */
+  /**
+   * @return Returns the nrLinesDocHeader.
+   */
   public int getNrLinesDocHeader() {
     return nrLinesDocHeader;
   }
 
-  /** @param nrLinesDocHeader The nrLinesDocHeader to set. */
+  /**
+   * @param nrLinesDocHeader The nrLinesDocHeader to set.
+   */
   public void setNrLinesDocHeader(int nrLinesDocHeader) {
     this.nrLinesDocHeader = nrLinesDocHeader;
   }
@@ -1523,12 +1679,16 @@ implements IInputFileMeta {
     this.dateFormatLenient = dateFormatLenient;
   }
 
-  /** @param isaddresult The isaddresult to set. */
+  /**
+   * @param isaddresult The isaddresult to set.
+   */
   public void setAddResultFile(boolean isaddresult) {
     this.isaddresult = isaddresult;
   }
 
-  /** @return Returns isaddresult. */
+  /**
+   * @return Returns isaddresult.
+   */
   public boolean isAddResultFile() {
     return isaddresult;
   }
@@ -1542,12 +1702,16 @@ implements IInputFileMeta {
     this.errorLineSkipped = errorLineSkipped;
   }
 
-  /** @return Returns the dateFormatLocale. */
+  /**
+   * @return Returns the dateFormatLocale.
+   */
   public Locale getDateFormatLocale() {
     return dateFormatLocale;
   }
 
-  /** @param dateFormatLocale The dateFormatLocale to set. */
+  /**
+   * @param dateFormatLocale The dateFormatLocale to set.
+   */
   public void setDateFormatLocale(Locale dateFormatLocale) {
     this.dateFormatLocale = dateFormatLocale;
   }
@@ -1568,32 +1732,44 @@ implements IInputFileMeta {
     this.passingThruFields = passingThruFields;
   }
 
-  /** @return Returns the fileNameField. */
+  /**
+   * @return Returns the fileNameField.
+   */
   public String getAcceptingField() {
     return acceptingField;
   }
 
-  /** @param fileNameField The fileNameField to set. */
+  /**
+   * @param fileNameField The fileNameField to set.
+   */
   public void setAcceptingField(String fileNameField) {
     this.acceptingField = fileNameField;
   }
 
-  /** @return Returns the acceptingTransform. */
+  /**
+   * @return Returns the acceptingTransform.
+   */
   public String getAcceptingTransformName() {
     return acceptingTransformName;
   }
 
-  /** @param acceptingTransform The acceptingTransform to set. */
+  /**
+   * @param acceptingTransform The acceptingTransform to set.
+   */
   public void setAcceptingTransformName(String acceptingTransform) {
     this.acceptingTransformName = acceptingTransform;
   }
 
-  /** @return Returns the acceptingTransform. */
+  /**
+   * @return Returns the acceptingTransform.
+   */
   public TransformMeta getAcceptingTransform() {
     return acceptingTransform;
   }
 
-  /** @param acceptingTransform The acceptingTransform to set. */
+  /**
+   * @param acceptingTransform The acceptingTransform to set.
+   */
   public void setAcceptingTransform(TransformMeta acceptingTransform) {
     this.acceptingTransform = acceptingTransform;
   }

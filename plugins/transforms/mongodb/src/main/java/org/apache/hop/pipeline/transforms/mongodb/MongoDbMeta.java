@@ -41,7 +41,9 @@ public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransfo
     return connectionName;
   }
 
-  /** @param connectionName The connectionName to set */
+  /**
+   * @param connectionName The connectionName to set
+   */
   public void setConnectionName(String connectionName) {
     this.connectionName = connectionName;
   }
@@ -55,7 +57,9 @@ public abstract class MongoDbMeta<Main extends ITransform, Data extends ITransfo
     return collection;
   }
 
-  /** @param collection The collection to set */
+  /**
+   * @param collection The collection to set
+   */
   public void setCollection(String collection) {
     this.collection = collection;
   }

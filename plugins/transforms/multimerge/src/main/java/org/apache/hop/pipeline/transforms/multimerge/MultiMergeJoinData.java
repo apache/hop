@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.multimerge;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.PriorityQueue;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.PriorityQueue;
 
 public class MultiMergeJoinData extends BaseTransformData implements ITransformData {
   public static class QueueEntry {

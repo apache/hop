@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import java.io.InputStream;
+import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.RowMetaAndData;
@@ -33,15 +41,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.eclipse.swt.widgets.Shell;
-
-import java.io.InputStream;
-import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes
@@ -140,7 +139,6 @@ public class XmlInputFieldsImportProgressDialog {
     return fields;
   }
 
-  @SuppressWarnings("unchecked")
   private RowMetaAndData[] doScan(IProgressMonitor monitor) throws Exception {
     monitor.beginTask(
         BaseMessages.getString(
@@ -241,7 +239,6 @@ public class XmlInputFieldsImportProgressDialog {
     return listFields;
   }
 
-  @SuppressWarnings("unchecked")
   private void setNodeField(Node node, IProgressMonitor monitor) {
     Element e = (Element) node;
     // get all attributes

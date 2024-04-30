@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeFilename;
-import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeMetadata;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeFilename;
+import org.apache.hop.core.gui.plugin.toolbar.EmptyTypeMetadata;
 
 /**
  * This annotation allows a method in a GuiPlugin to be identified as a contributor to the Hop UI
@@ -76,19 +75,29 @@ public @interface GuiWidgetElement {
    */
   String parentId() default "";
 
-  /** @return True if the text element you define is a password with an asterisk mask */
+  /**
+   * @return True if the text element you define is a password with an asterisk mask
+   */
   boolean password() default false;
 
-  /** @return true if the widget supports variables */
+  /**
+   * @return true if the widget supports variables
+   */
   boolean variables() default true;
 
-  /** @return The setter method of the property if it's non-standard */
+  /**
+   * @return The setter method of the property if it's non-standard
+   */
   String setterMethod() default "";
 
-  /** @return The getter method of the property if it's non-standard */
+  /**
+   * @return The getter method of the property if it's non-standard
+   */
   String getterMethod() default "";
 
-  /** @return The method which returns a String[] to populate a combo box widget GUI element */
+  /**
+   * @return The method which returns a String[] to populate a combo box widget GUI element
+   */
   String comboValuesMethod() default "";
 
   /**

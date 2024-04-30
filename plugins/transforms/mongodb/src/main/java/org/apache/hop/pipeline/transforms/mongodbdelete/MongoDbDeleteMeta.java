@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
+import java.util.List;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.pipeline.transforms.mongodb.MongoDbMeta;
-
-import java.util.List;
 
 /** Meta data class for MongoDbDelete transform. */
 @Transform(
@@ -69,8 +68,7 @@ public class MongoDbDeleteMeta extends MongoDbMeta<MongoDbDelete, MongoDbDeleteD
   private String collection;
 
   @Override
-  public void setDefault() {
-  }
+  public void setDefault() {}
 
   @Override
   public void setConnectionName(String connectionName) {

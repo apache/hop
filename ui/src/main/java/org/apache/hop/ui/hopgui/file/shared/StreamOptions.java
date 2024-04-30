@@ -17,10 +17,9 @@
 
 package org.apache.hop.ui.hopgui.file.shared;
 
+import java.util.List;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.List;
 
 public class StreamOptions {
   private List<IStream> options;
@@ -35,22 +34,30 @@ public class StreamOptions {
     this.location = location;
   }
 
-  /** @return the options */
+  /**
+   * @return the options
+   */
   public List<IStream> getOptions() {
     return options;
   }
 
-  /** @param options the options to set */
+  /**
+   * @param options the options to set
+   */
   public void setOptions(List<IStream> options) {
     this.options = options;
   }
 
-  /** @return the location */
+  /**
+   * @return the location
+   */
   public Point getLocation() {
     return location;
   }
 
-  /** @param location the location to set */
+  /**
+   * @param location the location to set
+   */
   public void setLocation(Point location) {
     this.location = location;
   }

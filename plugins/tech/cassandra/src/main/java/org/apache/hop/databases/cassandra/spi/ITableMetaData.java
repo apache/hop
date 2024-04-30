@@ -18,11 +18,10 @@
 package org.apache.hop.databases.cassandra.spi;
 
 import com.datastax.oss.driver.api.core.type.DataType;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.cassandra.util.Selector;
-
-import java.util.List;
 
 /** Interface to something that can fetch and represent meta data on a Cassandra table. */
 public interface ITableMetaData {

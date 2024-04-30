@@ -17,81 +17,94 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Field {
 
-    @HopMetadataProperty(key = "name", injectionKey = "FIELD_NAME", injectionKeyDescription = "IfNull.Injection.FIELD_NAME")
-    private String name;
+  @HopMetadataProperty(
+      key = "name",
+      injectionKey = "FIELD_NAME",
+      injectionKeyDescription = "IfNull.Injection.FIELD_NAME")
+  private String name;
 
-    @HopMetadataProperty(key = "value", injectionKey = "REPLACE_VALUE", injectionKeyDescription = "IfNull.Injection.REPLACE_VALUE")
-    private String value;
-    
-    @HopMetadataProperty(key = "mask", injectionKey = "REPLACE_MASK", injectionKeyDescription = "IfNull.Injection.REPLACE_MASK")
-    private String mask;
-        
-    @HopMetadataProperty(key = "set_empty_string", injectionKey = "SET_EMPTY_STRING", injectionKeyDescription = "IfNull.Injection.SET_EMPTY_STRING")
-    private boolean setEmptyString;
-    
-    public Field() {
-    }
+  @HopMetadataProperty(
+      key = "value",
+      injectionKey = "REPLACE_VALUE",
+      injectionKeyDescription = "IfNull.Injection.REPLACE_VALUE")
+  private String value;
 
-    public Field(Field field) {
-        this.name = field.name;
-        this.value = field.value;
-        this.mask = field.mask;
-        this.setEmptyString = field.setEmptyString;
-    }
+  @HopMetadataProperty(
+      key = "mask",
+      injectionKey = "REPLACE_MASK",
+      injectionKeyDescription = "IfNull.Injection.REPLACE_MASK")
+  private String mask;
 
-    public String getName() {
-      return name;
-    }
+  @HopMetadataProperty(
+      key = "set_empty_string",
+      injectionKey = "SET_EMPTY_STRING",
+      injectionKeyDescription = "IfNull.Injection.SET_EMPTY_STRING")
+  private boolean setEmptyString;
 
-    public void setName(String fieldName) {
-      this.name = fieldName;
-    }
+  public Field() {}
 
-    public String getValue() {
-      return value;
-    }
+  public Field(Field field) {
+    this.name = field.name;
+    this.value = field.value;
+    this.mask = field.mask;
+    this.setEmptyString = field.setEmptyString;
+  }
 
-    public void setValue(String replaceValue) {
-      this.value = replaceValue;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public String getMask() {
-      return mask;
-    }
+  public void setName(String fieldName) {
+    this.name = fieldName;
+  }
 
-    public void setMask(String replaceMask) {
-      this.mask = replaceMask;
-    }
+  public String getValue() {
+    return value;
+  }
 
-    public boolean isSetEmptyString() {
-      return setEmptyString;
-    }
+  public void setValue(String replaceValue) {
+    this.value = replaceValue;
+  }
 
-    public void setSetEmptyString(boolean setEmptyString) {
-      this.setEmptyString = setEmptyString;
-    }
+  public String getMask() {
+    return mask;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Field field = (Field) o;
-        return Objects.equals(name, field.name) && Objects.equals(value, field.value) && Objects.equals(mask, field.mask) && this.setEmptyString==field.setEmptyString;
-    }
+  public void setMask(String replaceMask) {
+    this.mask = replaceMask;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, value, mask, setEmptyString);
-    }
+  public boolean isSetEmptyString() {
+    return setEmptyString;
+  }
 
-    @Override
-    public Field clone() {
-        return new Field(this);
-    }
+  public void setSetEmptyString(boolean setEmptyString) {
+    this.setEmptyString = setEmptyString;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Field field = (Field) o;
+    return Objects.equals(name, field.name)
+        && Objects.equals(value, field.value)
+        && Objects.equals(mask, field.mask)
+        && this.setEmptyString == field.setEmptyString;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, value, mask, setEmptyString);
+  }
+
+  @Override
+  public Field clone() {
+    return new Field(this);
+  }
 }
-

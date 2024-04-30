@@ -17,13 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.sql;
 
+import java.util.List;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.List;
 
 public class ExecSqlData extends BaseTransformData implements ITransformData {
   public Database db;

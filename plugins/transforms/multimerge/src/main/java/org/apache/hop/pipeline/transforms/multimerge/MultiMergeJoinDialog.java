@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.multimerge;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -54,11 +57,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 
 public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
@@ -368,25 +366,28 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     fdbKeys.left = new FormAttachment(0, 0);
     fdbKeys.right = new FormAttachment(100, -margin);
     getKeyButton.setLayoutData(fdbKeys);
-    getKeyButton.addListener(SWT.Selection, e -> {
-            BaseTransformDialog.getFieldsFromPrevious(
-                prev, wKeys, 1, new int[] {1}, new int[] {}, -1, -1, null);
-    });
-    
-    Listener onOk = (e) ->  {
-      int nrKeys = wKeys.nrNonEmpty();
-      StringBuilder sb = new StringBuilder();
-      for (int i = 0; i < nrKeys; i++) {
-        TableItem item = wKeys.getNonEmpty(i);
-        sb.append(item.getText(1));
-        if (nrKeys > 1 && i != nrKeys - 1) {
-          sb.append(",");
-        }
-      }
-      keyValTextBox.setText(sb.toString());
-      subShell.close();
-    }; 
-    
+    getKeyButton.addListener(
+        SWT.Selection,
+        e -> {
+          BaseTransformDialog.getFieldsFromPrevious(
+              prev, wKeys, 1, new int[] {1}, new int[] {}, -1, -1, null);
+        });
+
+    Listener onOk =
+        (e) -> {
+          int nrKeys = wKeys.nrNonEmpty();
+          StringBuilder sb = new StringBuilder();
+          for (int i = 0; i < nrKeys; i++) {
+            TableItem item = wKeys.getNonEmpty(i);
+            sb.append(item.getText(1));
+            if (nrKeys > 1 && i != nrKeys - 1) {
+              sb.append(",");
+            }
+          }
+          keyValTextBox.setText(sb.toString());
+          subShell.close();
+        };
+
     // Some buttons
     Button okButton = new Button(subShell, SWT.PUSH);
     okButton.setText(BaseMessages.getString(PKG, "System.Button.OK"));
@@ -394,17 +395,17 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     Button cancelButton = new Button(subShell, SWT.PUSH);
     cancelButton.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     cancelButton.addListener(SWT.Selection, e -> subShell.close());
-       
+
     this.setButtonPositions(new Button[] {okButton, cancelButton}, margin, null);
-    
+
     for (int i = 0; i < keys.length; i++) {
       TableItem item = wKeys.table.getItem(i);
       if (keys[i] != null) {
         item.setText(1, keys[i]);
       }
-    }    
-    
-    BaseDialog.defaultShellHandling(subShell, x-> onOk.handleEvent(null), x -> {});
+    }
+
+    BaseDialog.defaultShellHandling(subShell, x -> onOk.handleEvent(null), x -> {});
   }
 
   protected void setComboBoxes() {

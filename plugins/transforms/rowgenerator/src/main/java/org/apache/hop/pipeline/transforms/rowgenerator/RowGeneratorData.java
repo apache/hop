@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+import java.util.Date;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.Date;
 
 public class RowGeneratorData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;

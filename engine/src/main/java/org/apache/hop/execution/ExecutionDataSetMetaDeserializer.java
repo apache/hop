@@ -23,17 +23,15 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.hop.core.json.HopJson;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.json.HopJson;
 
 public class ExecutionDataSetMetaDeserializer
     extends JsonDeserializer<Map<String, ExecutionDataSetMeta>> {
   @Override
-  @SuppressWarnings("unchecked")
   public Map<String, ExecutionDataSetMeta> deserialize(
       JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
     JsonDeserializer<Object> deserializer =

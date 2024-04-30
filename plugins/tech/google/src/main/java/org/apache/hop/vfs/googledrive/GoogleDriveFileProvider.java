@@ -17,6 +17,8 @@
 
 package org.apache.hop.vfs.googledrive;
 
+import java.util.Collection;
+import java.util.Set;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileSystem;
@@ -24,26 +26,23 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 
-import java.util.Collection;
-import java.util.Set;
-
 public class GoogleDriveFileProvider extends AbstractOriginatingFileProvider {
 
   public static final String SCHEME = "googledrive";
   public static final String DISPLAY_NAME = "Google Drive";
 
   protected static final Collection<Capability> capabilities =
-      Set.of(   Capability.CREATE,
-                Capability.DELETE,
-                Capability.RENAME,
-                Capability.GET_TYPE,
-                Capability.LIST_CHILDREN,
-                Capability.READ_CONTENT,
-                Capability.URI,
-                Capability.WRITE_CONTENT,
-                Capability.GET_LAST_MODIFIED,
-                Capability.RANDOM_ACCESS_READ
-              );
+      Set.of(
+          Capability.CREATE,
+          Capability.DELETE,
+          Capability.RENAME,
+          Capability.GET_TYPE,
+          Capability.LIST_CHILDREN,
+          Capability.READ_CONTENT,
+          Capability.URI,
+          Capability.WRITE_CONTENT,
+          Capability.GET_LAST_MODIFIED,
+          Capability.RANDOM_ACCESS_READ);
 
   @Override
   public FileSystem doCreateFileSystem(FileName fileName, FileSystemOptions fileSystemOptions)

@@ -17,12 +17,11 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.exception.HopEofException;
-import org.apache.hop.core.exception.HopFileException;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
+import org.apache.hop.core.exception.HopEofException;
+import org.apache.hop.core.exception.HopFileException;
 
 /**
  * This class represents a single entry in a database cache. A single entry in this case usually

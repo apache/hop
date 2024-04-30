@@ -70,50 +70,50 @@ public class GetPreviewTableProgressDialog {
   }
 
   public List<Object[]> open() {
-    if(!EnvironmentUtils.getInstance().isWeb()){
+    if (!EnvironmentUtils.getInstance().isWeb()) {
       IRunnableWithProgress op =
-              monitor -> {
-                db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
-                try {
-                  db.connect();
+          monitor -> {
+            db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
+            try {
+              db.connect();
 
-                  if (limit > 0) {
-                    db.setQueryLimit(limit);
-                  }
+              if (limit > 0) {
+                db.setQueryLimit(limit);
+              }
 
-                  rows = db.getFirstRows(tableName, limit, new ProgressMonitorAdapter(monitor));
-                  rowMeta = db.getReturnRowMeta();
-                } catch (HopException e) {
-                  throw new InvocationTargetException(
-                          e, "Couldn't find any rows because of an error :" + e.toString());
-                } finally {
-                  db.disconnect();
-                }
-              };
+              rows = db.getFirstRows(tableName, limit, new ProgressMonitorAdapter(monitor));
+              rowMeta = db.getReturnRowMeta();
+            } catch (HopException e) {
+              throw new InvocationTargetException(
+                  e, "Couldn't find any rows because of an error :" + e.toString());
+            } finally {
+              db.disconnect();
+            }
+          };
       try {
         final ProgressMonitorDialog pmd = new ProgressMonitorDialog(shell);
         // Run something in the background to cancel active database queries, forecably if needed!
         Runnable run =
-                () -> {
-                  IProgressMonitor monitor = pmd.getProgressMonitor();
-                  while (pmd.getShell() == null
-                          || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
-                    try {
-                      Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                      // Ignore
-                    }
-                  }
+            () -> {
+              IProgressMonitor monitor = pmd.getProgressMonitor();
+              while (pmd.getShell() == null
+                  || (!pmd.getShell().isDisposed() && !monitor.isCanceled())) {
+                try {
+                  Thread.sleep(100);
+                } catch (InterruptedException e) {
+                  // Ignore
+                }
+              }
 
-                  if (monitor.isCanceled()) { // Disconnect and see what happens!
+              if (monitor.isCanceled()) { // Disconnect and see what happens!
 
-                    try {
-                      db.cancelQuery();
-                    } catch (Exception e) {
-                      // Ignore
-                    }
-                  }
-                };
+                try {
+                  db.cancelQuery();
+                } catch (Exception e) {
+                  // Ignore
+                }
+              }
+            };
         // Start the cancel tracker in the background!
         new Thread(run).start();
 
@@ -122,8 +122,8 @@ public class GetPreviewTableProgressDialog {
         showErrorDialog(e);
         return null;
       }
-    }else{
-      try{
+    } else {
+      try {
         Cursor cursor = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
         shell.setCursor(cursor);
 
@@ -137,15 +137,13 @@ public class GetPreviewTableProgressDialog {
         rows = db.getFirstRows(tableName, limit, null);
         rowMeta = db.getReturnRowMeta();
 
-      }catch(HopDatabaseException e){
+      } catch (HopDatabaseException e) {
         showErrorDialog(e);
         return null;
-      }finally{
+      } finally {
         db.disconnect();
       }
-
     }
-
 
     return rows;
   }
@@ -163,9 +161,10 @@ public class GetPreviewTableProgressDialog {
         e);
   }
 
-  /** @return the rowMeta */
+  /**
+   * @return the rowMeta
+   */
   public IRowMeta getRowMeta() {
     return rowMeta;
   }
-
 }

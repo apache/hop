@@ -17,6 +17,8 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -24,9 +26,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.io.api.RecordMaterializer;
 import org.apache.parquet.schema.MessageType;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ParquetRecordMaterializer extends RecordMaterializer<RowMetaAndData> {
 

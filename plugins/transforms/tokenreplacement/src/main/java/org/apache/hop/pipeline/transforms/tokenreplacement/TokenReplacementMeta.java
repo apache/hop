@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.tokenreplacement;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -39,10 +42,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-
 @Transform(
     id = "TokenReplacementPlugin",
     image = "token.svg",
@@ -54,9 +53,9 @@ import java.util.List;
 @InjectionSupported(
     localizationPrefix = "TokenReplacement.Injection.",
     groups = {"OUTPUT_FIELDS"})
-public class TokenReplacementMeta extends BaseTransformMeta<TokenReplacement, TokenReplacementData> {
+public class TokenReplacementMeta
+    extends BaseTransformMeta<TokenReplacement, TokenReplacementData> {
   private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
-
 
   public static final String INPUT_TYPE = "input_type";
   public static final String INPUT_FIELD_NAME = "input_field_name";

@@ -21,6 +21,11 @@ import com.mongodb.DBObject;
 import com.mongodb.MongoException;
 import com.mongodb.MongoExecutionTimeoutException;
 import com.mongodb.WriteResult;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -32,12 +37,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Class providing an output transform for writing data to a MongoDB collection. Supports insert,
@@ -289,9 +288,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
               BaseMessages.getString(PKG, "MongoDbOutput.Messages.Message.Retry", writeRetryDelay));
           try {
             Thread.sleep(writeRetryDelay * 1000);
-            // CHECKSTYLE:OFF
+
           } catch (InterruptedException e) {
-            // CHECKSTYLE:ON
+
           }
         }
       }
@@ -394,9 +393,9 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
           }
           try {
             Thread.sleep(writeRetryDelay * 1000);
-            // CHECKSTYLE:OFF
+
           } catch (InterruptedException e) {
-            // CHECKSTYLE:ON
+
           }
         }
       }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.pipeline.dialog;
 
+import java.util.Arrays;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PartitionerPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -46,8 +47,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.Arrays;
 
 public class ModPartitionerDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = PipelineDialog.class; // For Translator

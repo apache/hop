@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.workflow.actions.missing;
 
+import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
@@ -39,8 +40,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.List;
 
 public class MissingActionDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = MissingActionDialog.class; // For Translator

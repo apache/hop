@@ -54,7 +54,9 @@ public class SvgFile {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -68,7 +70,9 @@ public class SvgFile {
     return classLoader;
   }
 
-  /** @param classLoader The classLoader to set */
+  /**
+   * @param classLoader The classLoader to set
+   */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }

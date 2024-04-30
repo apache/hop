@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.w3c.dom.Element;
-
-import javax.xml.namespace.QName;
 import java.util.Objects;
+import javax.xml.namespace.QName;
+import org.w3c.dom.Element;
 
 /** WSDL operation parameter abstraction. */
 public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.Serializable {

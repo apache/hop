@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class Point {
 
   public Point() {
-    this(0,0);
+    this(0, 0);
   }
 
   public Point(int x, int y) {
@@ -67,7 +66,7 @@ public class Point {
 
   @Override
   public String toString() {
-    return "Point("+x+","+y+")";
+    return "Point(" + x + "," + y + ")";
   }
 
   public DPoint toDouble() {

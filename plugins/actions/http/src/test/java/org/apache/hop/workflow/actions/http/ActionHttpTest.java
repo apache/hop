@@ -16,6 +16,8 @@
  */
 package org.apache.hop.workflow.actions.http;
 
+import static org.junit.Assert.assertTrue;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -26,8 +28,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
 
 public class ActionHttpTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

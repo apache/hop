@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.hopgui.dialog;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
@@ -29,9 +31,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.ProgressMonitorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.widgets.Shell;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 /** Takes care of displaying a dialog that will handle the wait while checking a pipeline... */
 public class CheckPipelineProgressDialog {

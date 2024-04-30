@@ -17,6 +17,8 @@
  */
 package org.apache.hop.pipeline.transforms.googlesheets;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -30,9 +32,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "GoogleSheetsInput",
@@ -48,19 +47,23 @@ public class GoogleSheetsInputMeta
     super();
     inputFields = new ArrayList<>();
   }
-  @HopMetadataProperty(key="jsonCrendentialPath", injectionGroupKey = "SHEET" ,isExcludedFromInjection = true)
+
+  @HopMetadataProperty(
+      key = "jsonCrendentialPath",
+      injectionGroupKey = "SHEET",
+      isExcludedFromInjection = true)
   private String oldJsonCredentialPath;
 
-  @HopMetadataProperty(key="jsonCredentialPath", injectionGroupKey = "SHEET")
+  @HopMetadataProperty(key = "jsonCredentialPath", injectionGroupKey = "SHEET")
   private String jsonCredentialPath;
 
-  @HopMetadataProperty(key="spreadsheetKey", injectionGroupKey = "SHEET")
+  @HopMetadataProperty(key = "spreadsheetKey", injectionGroupKey = "SHEET")
   private String spreadsheetKey;
 
-  @HopMetadataProperty(key="worksheetId", injectionGroupKey = "SHEET")
+  @HopMetadataProperty(key = "worksheetId", injectionGroupKey = "SHEET")
   private String worksheetId;
 
-  @HopMetadataProperty(key="sampleFields", injectionGroupKey = "INPUT_Fields")
+  @HopMetadataProperty(key = "sampleFields", injectionGroupKey = "INPUT_Fields")
   private Integer sampleFields;
 
   @HopMetadataProperty(key = "timeout", injectionGroupKey = "SHEET")
@@ -72,11 +75,7 @@ public class GoogleSheetsInputMeta
   @HopMetadataProperty(key = "appName", injectionGroupKey = "SHEET")
   private String appName;
 
-  @HopMetadataProperty(
-          groupKey = "fields",
-          key="field",
-          injectionGroupKey = "FIELDS"
-  )
+  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS")
   private List<GoogleSheetsInputField> inputFields;
 
   @Override
@@ -90,7 +89,7 @@ public class GoogleSheetsInputMeta
   }
 
   public String getJsonCredentialPath() {
-    if(getOldJsonCredentialPath() != null && this.jsonCredentialPath == null){
+    if (getOldJsonCredentialPath() != null && this.jsonCredentialPath == null) {
       this.jsonCredentialPath = getOldJsonCredentialPath();
       setOldJsonCredentialPath(null);
     }
@@ -104,7 +103,8 @@ public class GoogleSheetsInputMeta
   public List<GoogleSheetsInputField> getInputFields() {
     return inputFields;
   }
-  public void setInputFields(List<GoogleSheetsInputField> inputFields){
+
+  public void setInputFields(List<GoogleSheetsInputField> inputFields) {
     this.inputFields = inputFields;
   }
 
@@ -155,7 +155,6 @@ public class GoogleSheetsInputMeta
   public void setAppName(String appName) {
     this.appName = appName;
   }
-
 
   public String getOldJsonCredentialPath() {
     return oldJsonCredentialPath;
@@ -246,5 +245,4 @@ public class GoogleSheetsInputMeta
               transformMeta));
     }
   }
-
 }

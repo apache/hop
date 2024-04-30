@@ -66,14 +66,13 @@ public class FieldsChangeSequence
         data.previousValues = new Object[data.fieldnr];
         data.fieldnrsMeta = new IValueMeta[data.fieldnr];
         for (int i = 0; i < data.fieldnr; i++) {
-          data.fieldnrs[i] = data.previousMeta.indexOfValue(meta.getFields().get(i).getName());
+          String fieldName = meta.getFields().get(i).getName();
+          data.fieldnrs[i] = data.previousMeta.indexOfValue(fieldName);
           if (data.fieldnrs[i] < 0) {
             logError(
-                BaseMessages.getString(
-                    PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFields().get(i)));
+                BaseMessages.getString(PKG, "FieldsChangeSequence.Log.CanNotFindField", fieldName));
             throw new HopException(
-                BaseMessages.getString(
-                    PKG, "FieldsChangeSequence.Log.CanNotFindField", meta.getFields().get(i)));
+                BaseMessages.getString(PKG, "FieldsChangeSequence.Log.CanNotFindField", fieldName));
           }
           data.fieldnrsMeta[i] = data.previousMeta.getValueMeta(data.fieldnrs[i]);
         }

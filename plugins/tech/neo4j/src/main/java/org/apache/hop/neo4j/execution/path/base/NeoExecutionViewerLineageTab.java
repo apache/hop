@@ -18,6 +18,13 @@
 
 package org.apache.hop.neo4j.execution.path.base;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,14 +54,6 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @GuiPlugin
 public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
   private Tree wTree;
@@ -80,7 +79,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
     Button wGo = new Button(tabComposite, SWT.PUSH);
     wGo.setText(BaseMessages.getString("System.Button.Open"));
     PropsUi.setLook(wGo);
-    wGo.addListener(SWT.Selection, e->openItem(wTree));
+    wGo.addListener(SWT.Selection, e -> openItem(wTree));
     BaseTransformDialog.positionBottomButtons(
         tabComposite, new Button[] {wGo}, PropsUi.getMargin(), null);
 
@@ -92,7 +91,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
     fdTree.bottom = new FormAttachment(wGo, -PropsUi.getMargin());
     fdTree.right = new FormAttachment(100, 0);
     wTree.setLayoutData(fdTree);
-    wTree.addListener(SWT.DefaultSelection, e->openItem(wTree));
+    wTree.addListener(SWT.DefaultSelection, e -> openItem(wTree));
     wTree.setHeaderVisible(true);
     {
       TreeColumn column = new TreeColumn(wTree, SWT.LEFT);
@@ -201,7 +200,7 @@ public class NeoExecutionViewerLineageTab extends NeoExecutionViewerTabBase {
       treeItem.dispose();
     }
 
-    if (viewer.getExecution().getParentId()==null) {
+    if (viewer.getExecution().getParentId() == null) {
       // There is no lineage since this is the parent
       return Collections.emptyList();
     }

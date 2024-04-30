@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.propertyoutput;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Properties;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Output rows to Properties file and create a file. */
 public class PropertyOutputData extends BaseTransformData implements ITransformData {

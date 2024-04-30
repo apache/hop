@@ -17,6 +17,7 @@
 
 package org.apache.hop.debug.pipeline;
 
+import java.util.Date;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -26,8 +27,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-
-import java.util.Date;
 
 @ExtensionPoint(
     id = "LogPipelineExecutionTimeExtensionPoint",

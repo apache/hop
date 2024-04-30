@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.groupby;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -36,9 +38,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Transform(
     id = "GroupBy",
     image = "groupby.svg",
@@ -53,45 +52,69 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
   private static final Class<?> PKG = GroupByMeta.class; // For Translator
 
   /** All rows need to pass, adding an extra row at the end of each group/block. */
-  @HopMetadataProperty(key="all_rows", injectionKey = "PASS_ALL_ROWS", injectionKeyDescription = "GroupByMeta.Injection.PASS_ALL_ROWS")
+  @HopMetadataProperty(
+      key = "all_rows",
+      injectionKey = "PASS_ALL_ROWS",
+      injectionKeyDescription = "GroupByMeta.Injection.PASS_ALL_ROWS")
   private boolean passAllRows;
 
   /** Directory to store the temp files */
-  @HopMetadataProperty(injectionKey = "TEMP_DIRECTORY", injectionKeyDescription = "GroupByMeta.Injection.TEMP_DIRECTORY")
+  @HopMetadataProperty(
+      injectionKey = "TEMP_DIRECTORY",
+      injectionKeyDescription = "GroupByMeta.Injection.TEMP_DIRECTORY")
   private String directory;
 
   /** Temp files prefix... */
-  @HopMetadataProperty(injectionKey = "TEMP_FILE_PREFIX", injectionKeyDescription = "GroupByMeta.Injection.TEMP_FILE_PREFIX")
+  @HopMetadataProperty(
+      injectionKey = "TEMP_FILE_PREFIX",
+      injectionKeyDescription = "GroupByMeta.Injection.TEMP_FILE_PREFIX")
   private String prefix;
 
   /** Indicate that some rows don't need to be considered : TODO: make work in GUI & worker */
-  @HopMetadataProperty(key="ignore_aggregate")
+  @HopMetadataProperty(key = "ignore_aggregate")
   private boolean aggregateIgnored;
 
   /**
    * name of the boolean field that indicates we need to ignore the row : TODO: make work in GUI &
    * worker
    */
-  @HopMetadataProperty(key="field_ignore")
+  @HopMetadataProperty(key = "field_ignore")
   private String aggregateIgnoredField;
 
   /** Fields to group over */
-  @HopMetadataProperty(groupKey = "group", key = "field", injectionGroupKey = "GROUPS", injectionGroupDescription = "GroupByMeta.Injection.GROUPS")
+  @HopMetadataProperty(
+      groupKey = "group",
+      key = "field",
+      injectionGroupKey = "GROUPS",
+      injectionGroupDescription = "GroupByMeta.Injection.GROUPS")
   private List<GroupingField> groupingFields;
 
-  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "AGGREGATIONS", injectionGroupDescription = "GroupByMeta.Injection.AGGREGATIONS")
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "AGGREGATIONS",
+      injectionGroupDescription = "GroupByMeta.Injection.AGGREGATIONS")
   private List<Aggregation> aggregations;
 
   /** Add a linenr in the group, resetting to 0 in a new group. */
-  @HopMetadataProperty(key="add_linenr", injectionKey = "ADD_GROUP_LINENR", injectionKeyDescription = "GroupByMeta.Injection.ADD_GROUP_LINENR")
+  @HopMetadataProperty(
+      key = "add_linenr",
+      injectionKey = "ADD_GROUP_LINENR",
+      injectionKeyDescription = "GroupByMeta.Injection.ADD_GROUP_LINENR")
   private boolean addingLineNrInGroup;
 
   /** The fieldname that will contain the added integer field */
-  @HopMetadataProperty(key="linenr_fieldname", injectionKey = "ADD_GROUP_LINENR_FIELD", injectionKeyDescription = "GroupByMeta.Injection.ADD_GROUP_LINENR_FIELD")
+  @HopMetadataProperty(
+      key = "linenr_fieldname",
+      injectionKey = "ADD_GROUP_LINENR_FIELD",
+      injectionKeyDescription = "GroupByMeta.Injection.ADD_GROUP_LINENR_FIELD")
   private String lineNrInGroupField;
 
   /** Flag to indicate that we always give back one row. Defaults to true for existing pipelines. */
-  @HopMetadataProperty(key="give_back_row", injectionKey = "ALWAYS_GIVE_ROW", injectionKeyDescription = "GroupByMeta.Injection.ALWAYS_GIVE_ROW")
+  @HopMetadataProperty(
+      key = "give_back_row",
+      injectionKey = "ALWAYS_GIVE_ROW",
+      injectionKeyDescription = "GroupByMeta.Injection.ALWAYS_GIVE_ROW")
   private boolean alwaysGivingBackOneRow;
 
   public GroupByMeta() {
@@ -321,7 +344,6 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
     rowMeta.addRowMeta(fields);
   }
 
-
   @Override
   public void check(
       List<ICheckResult> remarks,
@@ -442,9 +464,9 @@ public class GroupByMeta extends BaseTransformMeta<GroupBy, GroupByData> {
   public void setAggregations(List<Aggregation> aggregations) {
     this.aggregations = aggregations;
   }
-  
+
   @Override
   public boolean supportsMultiCopyExecution() {
     return false;
-  }  
+  }
 }

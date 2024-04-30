@@ -18,11 +18,10 @@
 
 package org.apache.hop.execution;
 
-import org.apache.hop.core.logging.LogLevel;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.hop.core.logging.LogLevel;
 
 /**
  * This is all the static information we have about an execution. It contains no status information

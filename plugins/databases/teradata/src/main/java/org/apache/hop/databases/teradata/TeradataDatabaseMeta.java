@@ -17,6 +17,7 @@
 
 package org.apache.hop.databases.teradata;
 
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -27,12 +28,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
-import java.util.Map;
-
-/**
- * Contains NCR Teradata specific information through static final members
- */
-@DatabaseMetaPlugin(type = "TERADATA", typeDescription = "Teradata", documentationUrl = "/database/databases/teradata.html")
+/** Contains NCR Teradata specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "TERADATA",
+    typeDescription = "Teradata",
+    documentationUrl = "/database/databases/teradata.html")
 @GuiPlugin(id = "GUI-TeradataDatabaseMeta")
 public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -45,7 +45,9 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return true;
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -81,7 +83,9 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
@@ -246,7 +250,9 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return 1025;
   }
 
-  /** @return an array of reserved words for the database type... */
+  /**
+   * @return an array of reserved words for the database type...
+   */
   @Override
   public String[] getReservedWords() {
     return new String[] {

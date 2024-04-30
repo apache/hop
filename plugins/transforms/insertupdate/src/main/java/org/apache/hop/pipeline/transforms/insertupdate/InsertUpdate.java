@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -32,10 +35,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Performs a lookup in a database table. If the key doesn't exist it inserts values into the table,

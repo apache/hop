@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.auth.core.impl;
 
+import java.lang.reflect.Proxy;
 import org.apache.hop.core.auth.core.AuthenticationConsumerInvocationHandler;
 import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 import org.apache.hop.core.auth.core.IAuthenticationConsumerFactory;
 import org.apache.hop.core.auth.core.IAuthenticationPerformer;
 import org.apache.hop.core.auth.core.IAuthenticationProvider;
-
-import java.lang.reflect.Proxy;
 
 public class ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgType, ConsumedType>
     implements IAuthenticationPerformer<ReturnType, CreateArgType> {
@@ -40,7 +39,6 @@ public class ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgTyp
     this.authenticationConsumerFactory = authenticationConsumerFactory;
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public ReturnType perform(CreateArgType consumerCreateArg)
       throws AuthenticationConsumptionException {

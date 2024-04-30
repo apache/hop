@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -56,10 +59,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
@@ -413,7 +412,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
               colInfo.setComboValues(new String[] {});
             }
             if (!Utils.isEmpty(tableName)) {
-              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName,variables);
+              DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
                 Database database = new Database(loggingObject, variables, databaseMeta);
                 try {
@@ -461,7 +460,6 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "DeleteDialog.Log.FoundKeys", String.valueOf(nrkeys)));
     }
-    // CHECKSTYLE:Indentation:OFF
     List<DeleteKeyField> keyFields = inf.getLookup().getFields();
     keyFields.clear();
 
@@ -498,7 +496,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void getSchemaNames() {
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(),variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
       try {
@@ -544,7 +542,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     if (StringUtils.isEmpty(connectionName)) {
       return;
     }
-    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName,variables);
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
     if (databaseMeta != null) {
       logDebug(
           BaseMessages.getString(PKG, "DeleteDialog.Log.LookingAtConnection")

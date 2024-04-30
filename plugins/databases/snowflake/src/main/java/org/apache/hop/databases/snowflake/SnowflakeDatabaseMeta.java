@@ -18,6 +18,8 @@
 
 package org.apache.hop.databases.snowflake;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang.Validate;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
@@ -30,9 +32,6 @@ import org.apache.hop.core.gui.plugin.GuiWidgetElement;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Contains Snowflake specific information through static final members
@@ -326,13 +325,17 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return "&";
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "&";
   }
 
-  /** @return true if the database supports transactions. */
+  /**
+   * @return true if the database supports transactions.
+   */
   @Override
   public boolean isSupportsTransactions() {
     return false;
@@ -343,13 +346,17 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return false; // The 3.6.9 driver _does_ support conversion, but errors when value is null.
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports views */
+  /**
+   * @return true if the database supports views
+   */
   @Override
   public boolean isSupportsViews() {
     return true;

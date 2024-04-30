@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import java.io.ByteArrayInputStream;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import java.io.ByteArrayInputStream;
 
 public class IgnoreDtdEntityResolver implements EntityResolver {
 

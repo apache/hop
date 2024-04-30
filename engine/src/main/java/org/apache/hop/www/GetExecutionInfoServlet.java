@@ -90,7 +90,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
     //
     response.setContentType("application/json");
     response.setCharacterEncoding(Const.XML_ENCODING);
-    
+
     PrintWriter out = response.getWriter();
 
     // The type of information to request
@@ -100,7 +100,7 @@ public class GetExecutionInfoServlet extends BaseHttpServlet implements IHopServ
     // The name of the location is also in a parameter
     //
     String locationName = request.getParameter(PARAMETER_LOCATION);
-   
+
     try {
       // validate the parameters
       //

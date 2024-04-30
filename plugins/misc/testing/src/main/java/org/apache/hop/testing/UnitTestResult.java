@@ -17,15 +17,14 @@
 
 package org.apache.hop.testing;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UnitTestResult {
   private static final Class<?> PKG = UnitTestResult.class; // For Translator

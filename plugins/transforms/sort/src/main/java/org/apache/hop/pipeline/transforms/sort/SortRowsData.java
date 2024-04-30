@@ -17,17 +17,16 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 public class SortRowsData extends BaseTransformData implements ITransformData {
   public List<FileObject> files;
@@ -51,7 +50,7 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
   public int[] convertKeysToNative;
   public boolean convertAnyKeysToNative;
 
-    Comparator<RowTempFile> comparator;
+  Comparator<RowTempFile> comparator;
   Comparator<Object[]> rowComparator;
 
   public int freeCounter;

@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class UserDefinedJavaClassMetaTest {
 

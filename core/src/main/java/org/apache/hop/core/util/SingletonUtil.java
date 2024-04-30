@@ -16,13 +16,12 @@
  */
 package org.apache.hop.core.util;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-
-import java.lang.reflect.Method;
-import java.util.List;
 
 public class SingletonUtil {
   public static final List<String> getValuesList(

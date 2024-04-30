@@ -18,6 +18,7 @@
 
 package org.apache.hop.pipeline.transforms;
 
+import java.util.List;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.transforms.groupby.GroupByMeta;
 import org.apache.hop.pipeline.transforms.groupby.GroupingField;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.List;
 
 public class GroupByMetaTest {
 

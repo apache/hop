@@ -18,6 +18,15 @@
 package org.apache.hop.workflow.actions.ftp;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.vfs2.FileObject;
@@ -48,16 +57,6 @@ import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.apache.hop.workflow.actions.util.IFtpConnection;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines an FTP action. */
 @Action(
@@ -798,13 +797,17 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return retval;
   }
 
-  /** @return the activeConnection */
+  /**
+   * @return the activeConnection
+   */
   @Override
   public boolean isActiveConnection() {
     return activeConnection;
   }
 
-  /** @param activeConnection Sets the active connection to passive or not */
+  /**
+   * @param activeConnection Sets the active connection to passive or not
+   */
   public void setActiveConnection(boolean activeConnection) {
     this.activeConnection = activeConnection;
   }
@@ -866,7 +869,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return serverName;
   }
 
-  /** @param serverName The serverName to set */
+  /**
+   * @param serverName The serverName to set
+   */
   public void setServerName(String serverName) {
     this.serverName = serverName;
   }
@@ -881,7 +886,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return userName;
   }
 
-  /** @param userName The userName to set */
+  /**
+   * @param userName The userName to set
+   */
   public void setUserName(String userName) {
     this.userName = userName;
   }
@@ -896,7 +903,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return password;
   }
 
-  /** @param password The password to set */
+  /**
+   * @param password The password to set
+   */
   public void setPassword(String password) {
     this.password = password;
   }
@@ -910,7 +919,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return remoteDirectory;
   }
 
-  /** @param remoteDirectory The ftpDirectory to set */
+  /**
+   * @param remoteDirectory The ftpDirectory to set
+   */
   public void setRemoteDirectory(String remoteDirectory) {
     this.remoteDirectory = remoteDirectory;
   }
@@ -924,7 +935,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return targetDirectory;
   }
 
-  /** @param targetDirectory The targetDirectory to set */
+  /**
+   * @param targetDirectory The targetDirectory to set
+   */
   public void setTargetDirectory(String targetDirectory) {
     this.targetDirectory = targetDirectory;
   }
@@ -938,7 +951,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return wildcard;
   }
 
-  /** @param wildcard The wildcard to set */
+  /**
+   * @param wildcard The wildcard to set
+   */
   public void setWildcard(String wildcard) {
     this.wildcard = wildcard;
   }
@@ -953,7 +968,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return binaryMode;
   }
 
-  /** @param binaryMode The binaryMode to set */
+  /**
+   * @param binaryMode The binaryMode to set
+   */
   public void setBinaryMode(boolean binaryMode) {
     this.binaryMode = binaryMode;
   }
@@ -968,7 +985,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return timeout;
   }
 
-  /** @param timeout The timeout to set */
+  /**
+   * @param timeout The timeout to set
+   */
   public void setTimeout(int timeout) {
     this.timeout = timeout;
   }
@@ -982,7 +1001,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return remove;
   }
 
-  /** @param remove The remove to set */
+  /**
+   * @param remove The remove to set
+   */
   public void setRemove(boolean remove) {
     this.remove = remove;
   }
@@ -996,7 +1017,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return onlyGettingNewFiles;
   }
 
-  /** @param onlyGettingNewFiles The onlyGettingNewFiles to set */
+  /**
+   * @param onlyGettingNewFiles The onlyGettingNewFiles to set
+   */
   public void setOnlyGettingNewFiles(boolean onlyGettingNewFiles) {
     this.onlyGettingNewFiles = onlyGettingNewFiles;
   }
@@ -1011,7 +1034,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return controlEncoding;
   }
 
-  /** @param controlEncoding The controlEncoding to set */
+  /**
+   * @param controlEncoding The controlEncoding to set
+   */
   public void setControlEncoding(String controlEncoding) {
     this.controlEncoding = controlEncoding;
   }
@@ -1025,7 +1050,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return moveFiles;
   }
 
-  /** @param moveFiles The movefiles to set */
+  /**
+   * @param moveFiles The movefiles to set
+   */
   public void setMoveFiles(boolean moveFiles) {
     this.moveFiles = moveFiles;
   }
@@ -1039,7 +1066,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return moveToDirectory;
   }
 
-  /** @param moveToDirectory The movetodirectory to set */
+  /**
+   * @param moveToDirectory The movetodirectory to set
+   */
   public void setMoveToDirectory(String moveToDirectory) {
     this.moveToDirectory = moveToDirectory;
   }
@@ -1053,7 +1082,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return addDate;
   }
 
-  /** @param addDate The adddate to set */
+  /**
+   * @param addDate The adddate to set
+   */
   public void setAddDate(boolean addDate) {
     this.addDate = addDate;
   }
@@ -1067,7 +1098,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return addTime;
   }
 
-  /** @param addTime The addtime to set */
+  /**
+   * @param addTime The addtime to set
+   */
   public void setAddTime(boolean addTime) {
     this.addTime = addTime;
   }
@@ -1081,7 +1114,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return specifyFormat;
   }
 
-  /** @param specifyFormat The specifyFormat to set */
+  /**
+   * @param specifyFormat The specifyFormat to set
+   */
   public void setSpecifyFormat(boolean specifyFormat) {
     this.specifyFormat = specifyFormat;
   }
@@ -1095,7 +1130,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return dateTimeFormat;
   }
 
-  /** @param dateTimeFormat The dateTimeFormat to set */
+  /**
+   * @param dateTimeFormat The dateTimeFormat to set
+   */
   public void setDateTimeFormat(String dateTimeFormat) {
     this.dateTimeFormat = dateTimeFormat;
   }
@@ -1109,7 +1146,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return addDateBeforeExtension;
   }
 
-  /** @param addDateBeforeExtension The addDateBeforeExtension to set */
+  /**
+   * @param addDateBeforeExtension The addDateBeforeExtension to set
+   */
   public void setAddDateBeforeExtension(boolean addDateBeforeExtension) {
     this.addDateBeforeExtension = addDateBeforeExtension;
   }
@@ -1123,7 +1162,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return isAddResult;
   }
 
-  /** @param addResult The isaddresult to set */
+  /**
+   * @param addResult The isaddresult to set
+   */
   public void setAddResult(boolean addResult) {
     this.isAddResult = addResult;
   }
@@ -1137,7 +1178,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return createMoveFolder;
   }
 
-  /** @param createMoveFolder The createmovefolder to set */
+  /**
+   * @param createMoveFolder The createmovefolder to set
+   */
   public void setCreateMoveFolder(boolean createMoveFolder) {
     this.createMoveFolder = createMoveFolder;
   }
@@ -1152,7 +1195,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return serverPort;
   }
 
-  /** @param serverPort The port to set */
+  /**
+   * @param serverPort The port to set
+   */
   public void setServerPort(String serverPort) {
     this.serverPort = serverPort;
   }
@@ -1167,7 +1212,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return proxyHost;
   }
 
-  /** @param proxyHost The proxyHost to set */
+  /**
+   * @param proxyHost The proxyHost to set
+   */
   public void setProxyHost(String proxyHost) {
     this.proxyHost = proxyHost;
   }
@@ -1182,7 +1229,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return proxyPort;
   }
 
-  /** @param proxyPort The proxyPort to set */
+  /**
+   * @param proxyPort The proxyPort to set
+   */
   public void setProxyPort(String proxyPort) {
     this.proxyPort = proxyPort;
   }
@@ -1197,7 +1246,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return proxyUsername;
   }
 
-  /** @param proxyUsername The proxyUsername to set */
+  /**
+   * @param proxyUsername The proxyUsername to set
+   */
   public void setProxyUsername(String proxyUsername) {
     this.proxyUsername = proxyUsername;
   }
@@ -1212,7 +1263,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return proxyPassword;
   }
 
-  /** @param proxyPassword The proxyPassword to set */
+  /**
+   * @param proxyPassword The proxyPassword to set
+   */
   public void setProxyPassword(String proxyPassword) {
     this.proxyPassword = proxyPassword;
   }
@@ -1227,7 +1280,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return socksProxyHost;
   }
 
-  /** @param socksProxyHost The socksProxyHost to set */
+  /**
+   * @param socksProxyHost The socksProxyHost to set
+   */
   public void setSocksProxyHost(String socksProxyHost) {
     this.socksProxyHost = socksProxyHost;
   }
@@ -1242,7 +1297,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return socksProxyPort;
   }
 
-  /** @param socksProxyPort The socksProxyPort to set */
+  /**
+   * @param socksProxyPort The socksProxyPort to set
+   */
   public void setSocksProxyPort(String socksProxyPort) {
     this.socksProxyPort = socksProxyPort;
   }
@@ -1257,7 +1314,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return socksProxyUsername;
   }
 
-  /** @param socksProxyUsername The socksProxyUsername to set */
+  /**
+   * @param socksProxyUsername The socksProxyUsername to set
+   */
   public void setSocksProxyUsername(String socksProxyUsername) {
     this.socksProxyUsername = socksProxyUsername;
   }
@@ -1272,7 +1331,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return socksProxyPassword;
   }
 
-  /** @param socksProxyPassword The socksProxyPassword to set */
+  /**
+   * @param socksProxyPassword The socksProxyPassword to set
+   */
   public void setSocksProxyPassword(String socksProxyPassword) {
     this.socksProxyPassword = socksProxyPassword;
   }
@@ -1286,7 +1347,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return ifFileExistsSkip;
   }
 
-  /** @param ifFileExistsSkip The ifFileExistsSkip to set */
+  /**
+   * @param ifFileExistsSkip The ifFileExistsSkip to set
+   */
   public void setIfFileExistsSkip(int ifFileExistsSkip) {
     this.ifFileExistsSkip = ifFileExistsSkip;
   }
@@ -1300,7 +1363,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return ifFileExistsCreateUniq;
   }
 
-  /** @param ifFileExistsCreateUniq The ifFileExistsCreateUniq to set */
+  /**
+   * @param ifFileExistsCreateUniq The ifFileExistsCreateUniq to set
+   */
   public void setIfFileExistsCreateUniq(int ifFileExistsCreateUniq) {
     this.ifFileExistsCreateUniq = ifFileExistsCreateUniq;
   }
@@ -1314,7 +1379,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return ifFileExistsFail;
   }
 
-  /** @param ifFileExistsFail The ifFileExistsFail to set */
+  /**
+   * @param ifFileExistsFail The ifFileExistsFail to set
+   */
   public void setIfFileExistsFail(int ifFileExistsFail) {
     this.ifFileExistsFail = ifFileExistsFail;
   }
@@ -1328,7 +1395,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return ifFileExists;
   }
 
-  /** @param ifFileExists The ifFileExists to set */
+  /**
+   * @param ifFileExists The ifFileExists to set
+   */
   public void setIfFileExists(int ifFileExists) {
     this.ifFileExists = ifFileExists;
   }
@@ -1342,7 +1411,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return stringIfFileExists;
   }
 
-  /** @param stringIfFileExists The stringIfFileExists to set */
+  /**
+   * @param stringIfFileExists The stringIfFileExists to set
+   */
   public void setStringIfFileExists(String stringIfFileExists) {
     this.stringIfFileExists = stringIfFileExists;
   }
@@ -1356,7 +1427,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return nrLimit;
   }
 
-  /** @param nrLimit The nrLimit to set */
+  /**
+   * @param nrLimit The nrLimit to set
+   */
   public void setNrLimit(String nrLimit) {
     this.nrLimit = nrLimit;
   }
@@ -1370,7 +1443,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return successCondition;
   }
 
-  /** @param successCondition The successCondition to set */
+  /**
+   * @param successCondition The successCondition to set
+   */
   public void setSuccessCondition(String successCondition) {
     this.successCondition = successCondition;
   }
@@ -1384,7 +1459,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return nrErrors;
   }
 
-  /** @param nrErrors The nrErrors to set */
+  /**
+   * @param nrErrors The nrErrors to set
+   */
   public void setNrErrors(long nrErrors) {
     this.nrErrors = nrErrors;
   }
@@ -1398,7 +1475,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return nrFilesRetrieved;
   }
 
-  /** @param nrFilesRetrieved The nrFilesRetrieved to set */
+  /**
+   * @param nrFilesRetrieved The nrFilesRetrieved to set
+   */
   public void setNrFilesRetrieved(long nrFilesRetrieved) {
     this.nrFilesRetrieved = nrFilesRetrieved;
   }
@@ -1412,7 +1491,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return successConditionBroken;
   }
 
-  /** @param successConditionBroken The successConditionBroken to set */
+  /**
+   * @param successConditionBroken The successConditionBroken to set
+   */
   public void setSuccessConditionBroken(boolean successConditionBroken) {
     this.successConditionBroken = successConditionBroken;
   }
@@ -1426,7 +1507,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return limitFiles;
   }
 
-  /** @param limitFiles The limitFiles to set */
+  /**
+   * @param limitFiles The limitFiles to set
+   */
   public void setLimitFiles(int limitFiles) {
     this.limitFiles = limitFiles;
   }
@@ -1440,7 +1523,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
     return targetFilename;
   }
 
-  /** @param targetFilename The targetFilename to set */
+  /**
+   * @param targetFilename The targetFilename to set
+   */
   public void setTargetFilename(String targetFilename) {
     this.targetFilename = targetFilename;
   }

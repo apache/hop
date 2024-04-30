@@ -17,12 +17,11 @@
  */
 package org.apache.hop.databases.cassandra.spi;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.databases.cassandra.datastax.DriverConnection;
-
-import java.util.List;
-import java.util.Map;
 
 /** Interface to something that can represent a keyspace in Cassandra. */
 public interface Keyspace {

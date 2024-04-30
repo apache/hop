@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.testing;
 
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -46,9 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Collections;
-import java.util.List;
 
 public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   private static final Class<?> PKG = PipelineUnitTestEditor.class; // For Translator

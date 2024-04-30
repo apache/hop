@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import java.io.InputStream;
+import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.util.Utils;
@@ -30,13 +36,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.eclipse.swt.widgets.Shell;
-
-import java.io.InputStream;
-import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Takes care of displaying a dialog that will handle the wait while we're finding out loop nodes
@@ -129,7 +128,6 @@ public class LoopNodesImportProgressDialog {
     return xpaths;
   }
 
-  @SuppressWarnings("unchecked")
   private String[] doScan(IProgressMonitor monitor) throws Exception {
     monitor.beginTask(
         BaseMessages.getString(

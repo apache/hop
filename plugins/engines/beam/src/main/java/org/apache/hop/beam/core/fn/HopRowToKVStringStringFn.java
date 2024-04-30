@@ -29,8 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class HopRowToKVStringStringFn extends DoFn<HopRow, KV<String, String>> {
 
   private String rowMetaJson;
@@ -47,10 +45,7 @@ public class HopRowToKVStringStringFn extends DoFn<HopRow, KV<String, String>> {
   private transient Counter writtenCounter;
 
   public HopRowToKVStringStringFn(
-      String transformName,
-      int keyIndex,
-      int valueIndex,
-      String rowMetaJson) {
+      String transformName, int keyIndex, int valueIndex, String rowMetaJson) {
     this.transformName = transformName;
     this.keyIndex = keyIndex;
     this.valueIndex = valueIndex;

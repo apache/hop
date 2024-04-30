@@ -17,6 +17,23 @@
 
 package org.apache.hop.server;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -81,24 +98,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContexts;
 import org.w3c.dom.Node;
-
-import javax.net.ssl.SSLContext;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 @HopMetadata(
     key = "server",
@@ -516,7 +515,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service)
       throws Exception {
     String encoding = Const.XML_ENCODING;
-    return buildSendMethod(variables, content, encoding, service, "text/xml"); 
+    return buildSendMethod(variables, content, encoding, service, "text/xml");
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
@@ -544,7 +543,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   public String sendXml(IVariables variables, String xml, String service) throws Exception {
     String encoding = getXmlEncoding(xml);
     HttpPost method =
-        buildSendMethod(variables, xml.getBytes(encoding), encoding, service, "text/xml"); 
+        buildSendMethod(variables, xml.getBytes(encoding), encoding, service, "text/xml");
     try {
       return executeAuth(variables, method);
     } finally {
@@ -1351,4 +1350,3 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     this.propertiesMasterName = propertiesMasterName;
   }
 }
-

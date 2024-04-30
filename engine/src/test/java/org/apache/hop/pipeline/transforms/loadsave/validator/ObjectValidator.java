@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.loadsave.validator;
 
-import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
-import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
-import org.apache.test.util.JavaBeanManipulator;
-
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.pipeline.transforms.loadsave.getter.IGetter;
+import org.apache.hop.pipeline.transforms.loadsave.setter.ISetter;
+import org.apache.test.util.JavaBeanManipulator;
 
 public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
   private final IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory;
@@ -52,7 +51,6 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
     this(fieldLoadSaveValidatorFactory, clazz, fieldNames, new HashMap<>(), new HashMap<>());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public T getTestObject() {
     try {

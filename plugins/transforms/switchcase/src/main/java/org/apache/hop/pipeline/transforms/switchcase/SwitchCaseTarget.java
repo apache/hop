@@ -35,7 +35,8 @@ public class SwitchCaseTarget implements Cloneable {
   @HopMetadataProperty(
       key = "target_transform",
       injectionKey = "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME",
-      injectionKeyDescription = "SwitchCaseMeta.Injection.SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME")
+      injectionKeyDescription =
+          "SwitchCaseMeta.Injection.SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME")
   private String caseTargetTransformName;
 
   public SwitchCaseTarget() {}
@@ -59,7 +60,9 @@ public class SwitchCaseTarget implements Cloneable {
     return caseValue;
   }
 
-  /** @param caseValue The caseValue to set */
+  /**
+   * @param caseValue The caseValue to set
+   */
   public void setCaseValue(String caseValue) {
     this.caseValue = caseValue;
   }
@@ -73,7 +76,9 @@ public class SwitchCaseTarget implements Cloneable {
     return caseTargetTransformName;
   }
 
-  /** @param caseTargetTransformName The caseTargetTransformName to set */
+  /**
+   * @param caseTargetTransformName The caseTargetTransformName to set
+   */
   public void setCaseTargetTransformName(String caseTargetTransformName) {
     this.caseTargetTransformName = caseTargetTransformName;
   }

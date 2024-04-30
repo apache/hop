@@ -46,7 +46,9 @@ public class PipelineEngineCapabilities {
     return supportingPreview;
   }
 
-  /** @param supportingPreview The supportingPreview to set */
+  /**
+   * @param supportingPreview The supportingPreview to set
+   */
   public void setSupportingPreview(boolean supportingPreview) {
     this.supportingPreview = supportingPreview;
   }
@@ -60,7 +62,9 @@ public class PipelineEngineCapabilities {
     return supportingDebug;
   }
 
-  /** @param supportingDebug The supportingDebug to set */
+  /**
+   * @param supportingDebug The supportingDebug to set
+   */
   public void setSupportingDebug(boolean supportingDebug) {
     this.supportingDebug = supportingDebug;
   }
@@ -74,7 +78,9 @@ public class PipelineEngineCapabilities {
     return supportingSniffing;
   }
 
-  /** @param supportingSniffing The supportingSniffing to set */
+  /**
+   * @param supportingSniffing The supportingSniffing to set
+   */
   public void setSupportingSniffing(boolean supportingSniffing) {
     this.supportingSniffing = supportingSniffing;
   }
@@ -88,7 +94,9 @@ public class PipelineEngineCapabilities {
     return supportingPause;
   }
 
-  /** @param supportingPause The supportingPause to set */
+  /**
+   * @param supportingPause The supportingPause to set
+   */
   public void setSupportingPause(boolean supportingPause) {
     this.supportingPause = supportingPause;
   }

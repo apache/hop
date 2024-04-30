@@ -18,9 +18,8 @@
 
 package org.apache.hop.neo4j.transforms.gencsv;
 
-import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
-
 import java.util.Objects;
+import org.apache.hop.neo4j.core.data.GraphPropertyDataType;
 
 public class IdType {
 
@@ -60,7 +59,9 @@ public class IdType {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -74,7 +75,9 @@ public class IdType {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(GraphPropertyDataType type) {
     this.type = type;
   }

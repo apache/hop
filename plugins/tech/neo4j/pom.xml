@@ -43,7 +43,7 @@
     </licenses>
 
     <properties>
-        <neo4j.driver.version>4.4.12</neo4j.driver.version>
+        <neo4j.driver.version>4.4.15</neo4j.driver.version>
     </properties>
 
     <repositories>

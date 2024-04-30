@@ -16,6 +16,7 @@
  */
 package org.apache.hop.beam.metadata;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
@@ -34,8 +35,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 

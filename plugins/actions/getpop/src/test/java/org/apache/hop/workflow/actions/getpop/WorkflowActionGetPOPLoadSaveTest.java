@@ -17,16 +17,15 @@
 
 package org.apache.hop.workflow.actions.getpop;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class WorkflowActionGetPOPLoadSaveTest
     extends WorkflowActionLoadSaveTestSupport<ActionGetPOP> {
@@ -40,45 +39,45 @@ public class WorkflowActionGetPOPLoadSaveTest
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "serverName",
-            "userName",
-            "password",
-            "useSSL",
-            "port",
-            "outputDirectory",
-            "filenamePattern",
-            "retrievemails",
-            "firstMails",
-            "delete",
-            "saveMessage",
-            "saveAttachment",
-            "differentFolderForAttachment",
-            "protocol",
-            "attachmentFolder",
-            "attachmentWildcard",
-            "valueImapList",
-            "firstIMAPMails",
-            "IMAPFolder",
-            "senderSearchTerm",
-            "notTermSenderSearch",
-            "receipientSearch",
-            "notTermReceipientSearch",
-            "subjectSearch",
-            "notTermSubjectSearch",
-            "bodySearch",
-            "notTermBodySearch",
-            "conditionReceivedDate",
-            "notTermReceivedDateSearch",
-            "receivedDate1",
-            "receivedDate2",
-            "actiontype",
-            "moveToIMAPFolder",
-            "createMoveToFolder",
-            "createLocalFolder",
-            "afterGetIMAP",
-            "includeSubFolders",
-            "useProxy",
-            "proxyUsername");
+        "serverName",
+        "userName",
+        "password",
+        "useSSL",
+        "port",
+        "outputDirectory",
+        "filenamePattern",
+        "retrievemails",
+        "firstMails",
+        "delete",
+        "saveMessage",
+        "saveAttachment",
+        "differentFolderForAttachment",
+        "protocol",
+        "attachmentFolder",
+        "attachmentWildcard",
+        "valueImapList",
+        "firstIMAPMails",
+        "IMAPFolder",
+        "senderSearchTerm",
+        "notTermSenderSearch",
+        "receipientSearch",
+        "notTermReceipientSearch",
+        "subjectSearch",
+        "notTermSubjectSearch",
+        "bodySearch",
+        "notTermBodySearch",
+        "conditionReceivedDate",
+        "notTermReceivedDateSearch",
+        "receivedDate1",
+        "receivedDate2",
+        "actiontype",
+        "moveToIMAPFolder",
+        "createMoveToFolder",
+        "createLocalFolder",
+        "afterGetIMAP",
+        "includeSubFolders",
+        "useProxy",
+        "proxyUsername");
   }
 
   @Override

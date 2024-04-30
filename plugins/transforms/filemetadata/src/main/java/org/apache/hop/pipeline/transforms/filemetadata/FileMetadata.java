@@ -22,6 +22,14 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvValidationException;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -38,15 +46,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetector;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetectorBuilder;
 import org.apache.hop.pipeline.transforms.filemetadata.util.encoding.EncodingDetector;
-
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 
 public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataData> {
 
@@ -140,29 +139,30 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
   public String getOutputFileName(Object[] row) throws HopException {
     String filename = null;
     if (row == null) {
-        filename = variables.resolve(meta.getFileName());
-        if (filename == null) {
-          throw new HopFileException(
-                  BaseMessages.getString(PKG, "FileMetadata.Exception.FileNameNotSet"));
-        }
+      filename = variables.resolve(meta.getFileName());
+      if (filename == null) {
+        throw new HopFileException(
+            BaseMessages.getString(PKG, "FileMetadata.Exception.FileNameNotSet"));
+      }
     } else {
       int fileNameFieldIndex = getInputRowMeta().indexOfValue(meta.getFilenameField());
       if (fileNameFieldIndex < 0) {
         throw new HopTransformException(
-                BaseMessages.getString(
-                        PKG, "FileMetadata.Exception.FileNameFieldNotFound", meta.getFilenameField()));
+            BaseMessages.getString(
+                PKG, "FileMetadata.Exception.FileNameFieldNotFound", meta.getFilenameField()));
       }
       IValueMeta fileNameMeta = getInputRowMeta().getValueMeta(fileNameFieldIndex);
       filename = variables.resolve(fileNameMeta.getString(row[fileNameFieldIndex]));
 
       if (filename == null) {
         throw new HopFileException(
-                BaseMessages.getString(PKG, "FileMetadata.Exception.FileNameNotSet"));
+            BaseMessages.getString(PKG, "FileMetadata.Exception.FileNameNotSet"));
       }
     }
 
     return filename;
   }
+
   private void buildOutputRows() throws HopException {
 
     // which index does the next field go to
@@ -175,7 +175,8 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
             : RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
     // get the configuration from the dialog
-    String fileName = getOutputFileName((data.isReceivingInput && meta.isFilenameInField() ? r : null));
+    String fileName =
+        getOutputFileName((data.isReceivingInput && meta.isFilenameInField() ? r : null));
 
     // if the file does not exist, just send an empty row
     try {

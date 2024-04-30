@@ -17,10 +17,8 @@
 
 package org.apache.hop.concurrency;
 
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,9 +31,10 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.junit.Test;
 
 public class RowMetaConcurrencyTest {
 
@@ -107,7 +106,6 @@ public class RowMetaConcurrencyTest {
     ConcurrencyTestRunner.runAndCheckNoExceptionRaised(shufflers, searchers, condition);
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void addRemoveSearch() throws Exception {
     final int addersAmount = 5;

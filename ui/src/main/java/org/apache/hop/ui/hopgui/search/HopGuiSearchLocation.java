@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.hopgui.search;
 
+import java.util.Iterator;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
-
-import java.util.Iterator;
 
 public class HopGuiSearchLocation implements ISearchablesLocation {
   protected HopGui hopGui;

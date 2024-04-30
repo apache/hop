@@ -23,10 +23,14 @@ import org.apache.hop.core.svg.SvgFile;
 
 public interface IRowDistribution {
 
-  /** @return The row distribution code (plugin id) */
+  /**
+   * @return The row distribution code (plugin id)
+   */
   String getCode();
 
-  /** @return The row distribution description (plugin description) */
+  /**
+   * @return The row distribution description (plugin description)
+   */
   String getDescription();
 
   /**

@@ -23,13 +23,12 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 import com.mongodb.WriteResult;
-import org.apache.hop.mongo.MongoDbException;
-import org.apache.hop.mongo.wrapper.cursor.DefaultCursorWrapper;
-import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.hop.mongo.MongoDbException;
+import org.apache.hop.mongo.wrapper.cursor.DefaultCursorWrapper;
+import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
 
 public class DefaultMongoCollectionWrapper implements MongoCollectionWrapper {
   private final DBCollection collection;

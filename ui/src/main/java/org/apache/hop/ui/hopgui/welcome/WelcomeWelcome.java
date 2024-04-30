@@ -71,14 +71,14 @@ public class WelcomeWelcome {
   public static final String WEB_LINK_GITHUB_STAR = "https://github.com/apache/hop";
 
   @GuiWidgetElement(
-      id= "WelcomeWelcome.0900-github-star",
+      id = "WelcomeWelcome.0900-github-star",
       parentId = WELCOME_WELCOME_PARENT_ID,
       type = GuiElementType.LINK,
-      label = "If you like Apache Hop, please consider <a>"
+      label =
+          "If you like Apache Hop, please consider <a>"
               + WEB_NAME_GITHUB_STAR
-              + "</a> \u2B50 the project on github. \n"
-  )
-  public void githubStarLink(Event event){
+              + "</a> \u2B50 the project on github. \n")
+  public void githubStarLink(Event event) {
     handleWebLinkEvent(event, WEB_NAME_GITHUB_STAR, WEB_LINK_GITHUB_STAR);
   }
 

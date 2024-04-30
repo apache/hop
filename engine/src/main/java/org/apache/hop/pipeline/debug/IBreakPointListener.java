@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.debug;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.List;
+import org.apache.hop.core.row.IRowMeta;
 
 public interface IBreakPointListener {
   void breakPointHit(

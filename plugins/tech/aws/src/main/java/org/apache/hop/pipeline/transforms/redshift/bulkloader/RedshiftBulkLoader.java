@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -37,18 +45,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
-public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, RedshiftBulkLoaderData> {
+public class RedshiftBulkLoader
+    extends BaseTransform<RedshiftBulkLoaderMeta, RedshiftBulkLoaderData> {
   private static final Class<?> PKG =
       RedshiftBulkLoader.class; // for i18n purposes, needed by Translator2!!
 
@@ -71,7 +69,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         verifyDatabaseConnection();
         data.databaseMeta = this.getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
-        if(meta.isStreamToS3Csv()){
+        if (meta.isStreamToS3Csv()) {
           // get the file output stream to write to S3
           data.writer = HopVfs.getOutputStream(resolve(meta.getCopyFromFilename()), false);
         }
@@ -81,7 +79,9 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         getDbFields();
 
         if (log.isBasic()) {
-          logBasic(BaseMessages.getString(PKG, "RedshiftBulkLoader.Connection.Connected", data.db.getDatabaseMeta()));
+          logBasic(
+              BaseMessages.getString(
+                  PKG, "RedshiftBulkLoader.Connection.Connected", data.db.getDatabaseMeta()));
         }
         initBinaryDataFields();
 
@@ -107,7 +107,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         truncateTable();
       }
 
-      if(!first){
+      if (!first) {
         try {
           data.close();
           closeFile();
@@ -118,7 +118,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
           conn.commit();
           stmt.close();
           conn.close();
-        }catch(SQLException sqle){
+        } catch (SQLException sqle) {
           setErrors(1);
           stopAll();
           setOutputDone(); // signal end to receiver(s)
@@ -146,19 +146,18 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields(data.insertRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if(meta.isStreamToS3Csv()){
+      if (meta.isStreamToS3Csv()) {}
 
-      }
       // write all fields in the stream to Redshift
-      if (!meta.specifyFields()){
+      if (!meta.specifyFields()) {
 
         // Just take the whole input row
         data.insertRowMeta = getInputRowMeta().clone();
         data.selectedRowFieldIndices = new int[data.insertRowMeta.size()];
 
-        try{
+        try {
           getDbFields();
-        }catch(HopException e){
+        } catch (HopException e) {
           logError("Error getting database fields", e);
           setErrors(1);
           stopAll();
@@ -168,34 +167,31 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
         for (int i = 0; i < meta.getFields().size(); i++) {
           int streamFieldLocation =
-                  data.insertRowMeta.indexOfValue(
-                          meta.getFields().get(i).getStreamField());
+              data.insertRowMeta.indexOfValue(meta.getFields().get(i).getStreamField());
           if (streamFieldLocation < 0) {
             throw new HopTransformException(
-                    "Field ["
-                            + meta.getFields().get(i).getStreamField()
-                            + "] couldn't be found in the input stream!");
+                "Field ["
+                    + meta.getFields().get(i).getStreamField()
+                    + "] couldn't be found in the input stream!");
           }
 
           int dbFieldLocation = -1;
           for (int e = 0; e < data.dbFields.size(); e++) {
             String[] field = data.dbFields.get(e);
-            if (field[0].equalsIgnoreCase(
-                    meta.getFields().get(i).getDatabaseField())) {
+            if (field[0].equalsIgnoreCase(meta.getFields().get(i).getDatabaseField())) {
               dbFieldLocation = e;
               break;
             }
           }
           if (dbFieldLocation < 0) {
             throw new HopException(
-                    "Field ["
-                            + meta.getFields().get(i).getDatabaseField()
-                            + "] couldn't be found in the table!");
+                "Field ["
+                    + meta.getFields().get(i).getDatabaseField()
+                    + "] couldn't be found in the table!");
           }
 
           data.fieldnrs.put(
-                  meta.getFields().get(i).getDatabaseField().toUpperCase(),
-                  streamFieldLocation);
+              meta.getFields().get(i).getDatabaseField().toUpperCase(), streamFieldLocation);
         }
 
       } else {
@@ -206,7 +202,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
         // Cache the position of the selected fields in the row array
         data.selectedRowFieldIndices = new int[numberOfInsertFields];
-        for(int i=0; i < meta.getFields().size(); i++){
+        for (int i = 0; i < meta.getFields().size(); i++) {
           RedshiftBulkLoaderField vbf = meta.getFields().get(i);
           String inputFieldName = vbf.getStreamField();
           int inputFieldIdx = i;
@@ -231,12 +227,13 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
           IValueMeta insertValueMeta = inputValueMeta.clone();
           insertValueMeta.setName(insertFieldName);
           data.insertRowMeta.addValueMeta(insertValueMeta);
-          data.fieldnrs.put(meta.getFields().get(i).getDatabaseField().toUpperCase(), inputFieldIdx);
+          data.fieldnrs.put(
+              meta.getFields().get(i).getDatabaseField().toUpperCase(), inputFieldIdx);
         }
       }
     }
 
-    if(meta.isStreamToS3Csv()){
+    if (meta.isStreamToS3Csv()) {
       writeRowToFile(data.outputRowMeta, r);
       putRow(data.outputRowMeta, r);
     }
@@ -283,14 +280,14 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
             data.db.resolve(meta.getSchemaName()),
             data.db.resolve(meta.getTableName())));
 
-    if(meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")){
+    if (meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")) {
       sb.append(" (");
       List<RedshiftBulkLoaderField> fieldList = meta.getFields();
-      for(int i=0; i < fieldList.size(); i++){
+      for (int i = 0; i < fieldList.size(); i++) {
         RedshiftBulkLoaderField field = fieldList.get(i);
-        if( i > 0){
+        if (i > 0) {
           sb.append(", " + field.getDatabaseField());
-        }else{
+        } else {
           sb.append(field.getDatabaseField());
         }
       }
@@ -298,7 +295,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     }
 
     sb.append(" FROM '" + resolve(meta.getCopyFromFilename()) + "'");
-    if(meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")){
+    if (meta.isStreamToS3Csv() || meta.getLoadFromExistingFileFormat().equals("CSV")) {
       sb.append(" DELIMITER ',' ");
       sb.append(" CSV QUOTE AS '\"'");
       sb.append(" NULL '' ");
@@ -306,21 +303,27 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       sb.append("DATEFORMAT AS 'YYYY/MM/DD' ");
       sb.append("TIMEFORMAT AS 'YYYY/MM/DD HH:MI:SS'");
     }
-    if(meta.isUseAwsIamRole()){
+    if (meta.isUseAwsIamRole()) {
       sb.append(" iam_role '" + meta.getAwsIamRole() + "'");
-    }else if(meta.isUseCredentials()){
+    } else if (meta.isUseCredentials()) {
       String awsAccessKeyId = "";
       String awsSecretAccessKey = "";
-      if(meta.isUseSystemEnvVars()) {
+      if (meta.isUseSystemEnvVars()) {
         awsAccessKeyId = System.getenv("AWS_ACCESS_KEY_ID");
         awsSecretAccessKey = System.getenv("AWS_SECRET_ACCESS_KEY");
-      }else{
+      } else {
         awsAccessKeyId = resolve(meta.getAwsAccessKeyId());
         awsSecretAccessKey = resolve(meta.getAwsSecretAccessKey());
       }
-      sb.append(" CREDENTIALS 'aws_access_key_id=" + awsAccessKeyId + ";aws_secret_access_key=" + awsSecretAccessKey + "'");
+      sb.append(
+          " CREDENTIALS 'aws_access_key_id="
+              + awsAccessKeyId
+              + ";aws_secret_access_key="
+              + awsSecretAccessKey
+              + "'");
     }
-    if(!StringUtils.isEmpty(meta.getLoadFromExistingFileFormat()) && meta.getLoadFromExistingFileFormat().equals("Parquet")){
+    if (!StringUtils.isEmpty(meta.getLoadFromExistingFileFormat())
+        && meta.getLoadFromExistingFileFormat().equals("Parquet")) {
       sb.append(" FORMAT AS PARQUET;");
     }
 
@@ -360,15 +363,15 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
 
     if (!StringUtils.isEmpty(resolve(meta.getSchemaName()))) {
       rowMeta = data.db.getTableFields(meta.getSchemaName() + "." + meta.getTableName());
-    }else {
+    } else {
       rowMeta = data.db.getTableFields(meta.getTableName());
     }
     try {
-      if(rowMeta.size() == 0) {
+      if (rowMeta.size() == 0) {
         throw new HopException("No fields found in table");
       }
 
-      for(int i=0; i < rowMeta.size(); i++) {
+      for (int i = 0; i < rowMeta.size(); i++) {
         String field[] = new String[2];
         field[0] = rowMeta.getValueMeta(i).getName().toUpperCase();
         field[1] = rowMeta.getValueMeta(i).getTypeDesc().toUpperCase();
@@ -378,7 +381,6 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       throw new HopException("Error getting database fields", ex);
     }
   }
-
 
   protected void verifyDatabaseConnection() throws HopException {
     // Confirming Database Connection is defined.
@@ -401,13 +403,13 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       data.escapeCharacters = new byte[] {};
 
       data.binarySeparator =
-              resolve(RedshiftBulkLoaderMeta.CSV_DELIMITER).getBytes(StandardCharsets.UTF_8);
+          resolve(RedshiftBulkLoaderMeta.CSV_DELIMITER).getBytes(StandardCharsets.UTF_8);
       data.binaryEnclosure =
-              resolve(RedshiftBulkLoaderMeta.ENCLOSURE).getBytes(StandardCharsets.UTF_8);
+          resolve(RedshiftBulkLoaderMeta.ENCLOSURE).getBytes(StandardCharsets.UTF_8);
       data.binaryNewline =
-              RedshiftBulkLoaderMeta.CSV_RECORD_DELIMITER.getBytes(StandardCharsets.UTF_8);
+          RedshiftBulkLoaderMeta.CSV_RECORD_DELIMITER.getBytes(StandardCharsets.UTF_8);
       data.escapeCharacters =
-              RedshiftBulkLoaderMeta.CSV_ESCAPE_CHAR.getBytes(StandardCharsets.UTF_8);
+          RedshiftBulkLoaderMeta.CSV_ESCAPE_CHAR.getBytes(StandardCharsets.UTF_8);
 
       data.binaryNullValue = "".getBytes(StandardCharsets.UTF_8);
     } catch (Exception e) {
@@ -425,7 +427,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
   private void writeRowToFile(IRowMeta rowMeta, Object[] row) throws HopTransformException {
     try {
 
-      if(meta.isStreamToS3Csv() && !meta.isSpecifyFields()) {
+      if (meta.isStreamToS3Csv() && !meta.isSpecifyFields()) {
         /*
          * Write all values in stream to text file.
          */
@@ -446,8 +448,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
         /*
          * Only write the fields specified!
          */
-        for(int i=0; i < meta.getFields().size(); i++){
-          if(meta.getFields().get(i).getDatabaseField() != null){
+        for (int i = 0; i < meta.getFields().size(); i++) {
+          if (meta.getFields().get(i).getDatabaseField() != null) {
             if (i > 0 && data.binarySeparator.length > 0) {
               data.writer.write(data.binarySeparator);
             }
@@ -457,8 +459,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
             String[] rowFields = data.outputRowMeta.getFieldNames();
             String streamFieldType = "";
             int streamIndex = -1;
-            for(int j=0; j < rowFields.length ; j++){
-              if(streamFieldName.equals(rowFields[j])){
+            for (int j = 0; j < rowFields.length; j++) {
+              if (streamFieldName.equals(rowFields[j])) {
                 v = rowMeta.getValueMeta(j);
                 streamIndex = j;
               }
@@ -476,19 +478,19 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
             }
 
             Object valueData = null;
-            if(streamIndex >= 0){
-              if(needConversion){
+            if (streamIndex >= 0) {
+              if (needConversion) {
                 IValueMeta valueMeta = rowMeta.getValueMeta(streamIndex);
                 Object obj = row[streamIndex];
                 valueData = v.convertData(valueMeta, obj);
-              }else{
+              } else {
                 valueData = row[streamIndex];
               }
             } else if (meta.isErrorColumnMismatch()) {
               throw new HopException(
-                      "Error column mismatch: Database streamField "
-                              + meta.getFields().get(i).getStreamField()
-                              + " not found on stream.");
+                  "Error column mismatch: Database streamField "
+                      + meta.getFields().get(i).getStreamField()
+                      + " not found on stream.");
             }
             writeField(v, valueData, data.binaryNullValue);
           }
@@ -497,7 +499,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       } else {
         int jsonField = data.fieldnrs.get("json");
         data.writer.write(
-                data.insertRowMeta.getString(row, jsonField).getBytes(StandardCharsets.UTF_8));
+            data.insertRowMeta.getString(row, jsonField).getBytes(StandardCharsets.UTF_8));
         data.writer.write(data.binaryNewline);
       }
     } catch (Exception e) {
@@ -514,7 +516,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
    * @throws HopTransformException
    */
   private void writeField(IValueMeta v, Object valueData, byte[] nullString)
-          throws HopTransformException {
+      throws HopTransformException {
     try {
       byte[] str;
 
@@ -535,7 +537,7 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
           writeEnclosures = true;
 
           if (containsSeparatorOrEnclosure(
-                  str, data.binarySeparator, data.binaryEnclosure, data.escapeCharacters)) {
+              str, data.binarySeparator, data.binaryEnclosure, data.escapeCharacters)) {
             writeEnclosures = true;
           }
         }
@@ -582,9 +584,9 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
   private byte[] formatField(IValueMeta v, Object valueData) throws HopValueException {
     if (v.isString()) {
       if (v.isStorageBinaryString()
-              && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE
-              && v.getLength() < 0
-              && StringUtils.isEmpty(v.getStringEncoding())) {
+          && v.getTrimType() == IValueMeta.TRIM_TYPE_NONE
+          && v.getLength() < 0
+          && StringUtils.isEmpty(v.getStringEncoding())) {
         return (byte[]) valueData;
       } else {
         String svalue = (valueData instanceof String) ? (String) valueData : v.getString(valueData);
@@ -617,36 +619,11 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
       // we need to truncate
       String tmp = string.substring(0, length);
       return tmp.getBytes(StandardCharsets.UTF_8);
-
     } else {
+      // no need to truncate
       byte[] text;
       text = string.getBytes(StandardCharsets.UTF_8);
-
-      if (length > string.length()) {
-        // we need to pad this
-
-        int size = 0;
-        byte[] filler;
-        filler = " ".getBytes(StandardCharsets.UTF_8);
-        size = text.length + filler.length * (length - string.length());
-
-        byte[] bytes = new byte[size];
-        System.arraycopy(text, 0, bytes, 0, text.length);
-        if (filler.length == 1) {
-          java.util.Arrays.fill(bytes, text.length, size, filler[0]);
-        } else {
-          int currIndex = text.length;
-          for (int i = 0; i < (length - string.length()); i++) {
-            for (byte aFiller : filler) {
-              bytes[currIndex++] = aFiller;
-            }
-          }
-        }
-        return bytes;
-      } else {
-        // do not need to pad or truncate
-        return text;
-      }
+      return text;
     }
   }
 
@@ -660,9 +637,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
    * @param escape The escape character(s)
    * @return True if the string contains separators or enclosures
    */
-  @SuppressWarnings("Duplicates")
   private boolean containsSeparatorOrEnclosure(
-          byte[] source, byte[] separator, byte[] enclosure, byte[] escape) {
+      byte[] source, byte[] separator, byte[] enclosure, byte[] escape) {
     boolean result = false;
 
     boolean enclosureExists = enclosure != null && enclosure.length > 0;
@@ -771,9 +747,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
           try {
             data.workerThread.interrupt();
             data.workerThread.join();
-          } catch (InterruptedException e) { // Checkstyle:OFF:
+          } catch (InterruptedException e) {
           }
-          // Checkstyle:ONN:
         }
       }
     }
@@ -803,9 +778,8 @@ public class RedshiftBulkLoader extends BaseTransform<RedshiftBulkLoaderMeta, Re
     if (data.workerThread != null) {
       try {
         data.workerThread.join();
-      } catch (InterruptedException e) { // Checkstyle:OFF:
+      } catch (InterruptedException e) {
       }
-      // Checkstyle:ONN:
     }
 
     if (data.db != null) {

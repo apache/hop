@@ -17,8 +17,6 @@
 
 package org.apache.hop.metadata.util;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -28,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import org.apache.hop.core.exception.HopException;
 
 public class ReflectionUtil {
   /** myAttribute ==> setMyAttribute */
@@ -97,18 +96,20 @@ public class ReflectionUtil {
    * <p>This means that it's possible to inherit from other classes during serialization.
    *
    * @param clazz The class to investigate.
-   * @param sortFunction the function to extract the key to sort on.  If the function returns null the field is not included.
+   * @param sortFunction the function to extract the key to sort on. If the function returns null
+   *     the field is not included.
    * @param
    * @return A sorted list of fields.
    */
-  public static final List<Field> findAllFields(Class<?> clazz, Function<Field, String> sortFunction) {
+  public static final List<Field> findAllFields(
+      Class<?> clazz, Function<Field, String> sortFunction) {
     Set<Field> fieldsSet = new HashSet<>();
 
     // Find the fields from the root class
     //
     for (Field classField : clazz.getDeclaredFields()) {
       String keyField = sortFunction.apply(classField);
-      if (keyField!=null) {
+      if (keyField != null) {
         fieldsSet.add(classField);
       }
     }
@@ -118,7 +119,7 @@ public class ReflectionUtil {
     while (superClass != null) {
       for (Field superClassField : superClass.getDeclaredFields()) {
         String keyField = sortFunction.apply(superClassField);
-        if (keyField!=null) {
+        if (keyField != null) {
           fieldsSet.add(superClassField);
         }
       }

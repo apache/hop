@@ -17,14 +17,13 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.parquet.io.api.Converter;
 import org.apache.parquet.io.api.GroupConverter;
 import org.apache.parquet.schema.MessageType;
-
-import java.util.List;
 
 public class ParquetRowConverter extends GroupConverter {
 

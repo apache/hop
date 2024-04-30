@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
+import java.io.InputStream;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputField;
-
-import java.io.InputStream;
 
 public interface IJsonReader {
 

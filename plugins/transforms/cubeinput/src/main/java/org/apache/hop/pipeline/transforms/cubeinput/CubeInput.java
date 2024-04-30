@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.zip.GZIPInputStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopEofException;
@@ -29,11 +33,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.util.zip.GZIPInputStream;
 
 public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
 

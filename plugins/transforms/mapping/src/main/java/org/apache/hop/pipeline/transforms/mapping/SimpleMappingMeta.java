@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.mapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -41,9 +43,6 @@ import org.apache.hop.pipeline.transforms.input.MappingInputMeta;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Meta-data for the Mapping transform: contains name of the (sub-) pipeline to execute */
 @Transform(

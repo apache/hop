@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -66,9 +68,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
@@ -1245,7 +1244,6 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
     in.allocate(nrFields);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       in.getUpdateLookup()[i] = item.getText(1);

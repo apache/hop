@@ -88,13 +88,17 @@ public class CheckResult implements ICheckResult {
     return sb.toString();
   }
 
-  /** @return the errorCode */
+  /**
+   * @return the errorCode
+   */
   @Override
   public String getErrorCode() {
     return errorCode;
   }
 
-  /** @param errorCode the errorCode to set */
+  /**
+   * @param errorCode the errorCode to set
+   */
   @Override
   public void setErrorCode(String errorCode) {
     this.errorCode = errorCode;

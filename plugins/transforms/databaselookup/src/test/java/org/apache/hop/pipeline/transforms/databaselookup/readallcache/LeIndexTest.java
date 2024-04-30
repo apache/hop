@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup.readallcache;
 
-import org.apache.hop.core.row.IValueMeta;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import static org.junit.Assert.fail;
 
 import java.util.BitSet;
 import java.util.List;
-
-import static org.junit.Assert.fail;
+import org.apache.hop.core.row.IValueMeta;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 @RunWith(Parameterized.class)
 public class LeIndexTest extends IndexTestBase<GtIndex> {

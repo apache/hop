@@ -18,6 +18,8 @@
 
 package org.apache.hop.reflection.workflow.meta;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
@@ -48,9 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Editor that allows you to change Workflow Log metadata
@@ -292,21 +291,15 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wlSources.setLayoutData(fdlSources);
     lastControl = wlSources;
     ColumnInfo[] columns = {
-        new ColumnInfo(
-            BaseMessages.getString(PKG, "WorkflowLoggingEditor.SourcesTable.Column.Pipeline"),
-            ColumnInfo.COLUMN_TYPE_TEXT,
-            false,
-            false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "WorkflowLoggingEditor.SourcesTable.Column.Pipeline"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
     };
     wWorkflows =
         new TableView(
-            manager.getVariables(),
-            parent,
-            SWT.BORDER,
-            columns,
-            0,
-            e -> setChanged(),
-            props);
+            manager.getVariables(), parent, SWT.BORDER, columns, 0, e -> setChanged(), props);
     FormData fdSources = new FormData();
     fdSources.left = new FormAttachment(0, 0);
     fdSources.top = new FormAttachment(lastControl, margin);
@@ -441,7 +434,7 @@ public class WorkflowLogEditor extends MetadataEditor<WorkflowLog> {
     wInterval.setText(Const.NVL(wl.getIntervalInSeconds(), ""));
     wWorkflows.removeAll();
     List<String> workflowsToLog = wl.getWorkflowToLog();
-    for(String workflowToLog : workflowsToLog){
+    for (String workflowToLog : workflowsToLog) {
       TableItem item = new TableItem(wWorkflows.table, SWT.NONE);
       item.setText(1, Const.NVL(workflowToLog, ""));
     }

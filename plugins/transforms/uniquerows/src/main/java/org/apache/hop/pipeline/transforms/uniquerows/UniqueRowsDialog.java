@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.uniquerows;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.IntStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -48,10 +51,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
@@ -379,7 +378,6 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     input.setErrorDescription(wErrorDesc.getText());
     input.setCompareFields(fields);
 
-
     if ("Y".equalsIgnoreCase(props.getCustomParameter(STRING_SORT_WARNING_PARAMETER, "Y"))) {
       MessageDialogWithToggle md =
           new MessageDialogWithToggle(
@@ -400,13 +398,13 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     if (!wRejectDuplicateRow.getSelection()) {
       List<PipelineHopMeta> hops = this.pipelineMeta.getPipelineHops();
       IntStream.range(0, hops.size() - 1)
-              .filter(
-                      hopInd -> {
-                        PipelineHopMeta hop = hops.get(hopInd);
-                        return (hop.isErrorHop()
-                                && hop.getFromTransform().getName().equals(this.transformName));
-                      })
-              .forEach(hopInd -> this.pipelineMeta.removePipelineHop(hopInd));
+          .filter(
+              hopInd -> {
+                PipelineHopMeta hop = hops.get(hopInd);
+                return (hop.isErrorHop()
+                    && hop.getFromTransform().getName().equals(this.transformName));
+              })
+          .forEach(hopInd -> this.pipelineMeta.removePipelineHop(hopInd));
     }
 
     transformName = wTransformName.getText(); // return value

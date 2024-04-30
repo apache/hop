@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.normaliser;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.i18n.BaseMessages;
@@ -24,11 +28,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 /** Normalise de-normalised input data. */
 public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
@@ -72,7 +71,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
       data.type_occ = new ArrayList<>();
       data.maxlen = 0;
 
-      for (NormaliserField field : meta.getNormaliserFields()) {        
+      for (NormaliserField field : meta.getNormaliserFields()) {
         typeValue = field.getValue();
         if (!data.type_occ.contains(typeValue)) {
           data.type_occ.add(typeValue);
@@ -94,9 +93,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta, NormaliserData> {
         if (dataFieldNr < 0) {
           logError(
               BaseMessages.getString(
-                  PKG,
-                  "Normaliser.Log.CouldNotFindFieldInRow",
-                  field.getName()));
+                  PKG, "Normaliser.Log.CouldNotFindFieldInRow", field.getName()));
           setErrors(1);
           stopAll();
           return false;

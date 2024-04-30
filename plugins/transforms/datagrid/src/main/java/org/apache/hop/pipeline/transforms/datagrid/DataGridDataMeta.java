@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.datagrid;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.hop.core.Const;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DataGridDataMeta implements Cloneable {
 

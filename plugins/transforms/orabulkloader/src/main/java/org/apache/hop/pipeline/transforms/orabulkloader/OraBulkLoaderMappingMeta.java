@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.orabulkloader;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class OraBulkLoaderMappingMeta {
 
@@ -64,7 +63,9 @@ public class OraBulkLoaderMappingMeta {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     OraBulkLoaderMappingMeta that = (OraBulkLoaderMappingMeta) o;
-    return Objects.equals(fieldTable, that.fieldTable) && Objects.equals(fieldStream, that.fieldStream) && Objects.equals(dateMask, that.dateMask);
+    return Objects.equals(fieldTable, that.fieldTable)
+        && Objects.equals(fieldStream, that.fieldStream)
+        && Objects.equals(dateMask, that.dateMask);
   }
 
   public String getFieldTable() {

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.dialog;
 
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -37,8 +38,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.List;
 
 /** Displays an ArrayList of rows in a TableView and allows you to select one. */
 public class SelectRowDialog extends Dialog {

@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemManager;
 import org.apache.commons.vfs2.VFS;
@@ -38,15 +46,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
 import org.junit.Before;
 import org.junit.Ignore;
-
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /** Base class for all tests for BaseFileInput transforms. */
 @Ignore("No tests in abstract base class")
@@ -105,7 +104,6 @@ public abstract class BaseParsingTest<
 
   /** Process all rows. */
   protected void process() throws Exception {
-    // CHECKSTYLE IGNORE EmptyBlock FOR NEXT 3 LINES
     while (transform.processRow()) {
       // nothing here - just make sure the rows process
     }

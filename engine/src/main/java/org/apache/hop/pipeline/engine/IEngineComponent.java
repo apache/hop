@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.engine;
 
+import java.util.Date;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.pipeline.transform.IRowListener;
-
-import java.util.Date;
 
 /**
  * An identifiable component of an execution engine {@link IPipelineEngine} In a pipeline engine
@@ -29,10 +28,14 @@ import java.util.Date;
  */
 public interface IEngineComponent {
 
-  /** @return The component name */
+  /**
+   * @return The component name
+   */
   String getName();
 
-  /** @return The copy number (0 of higher for parallel runs) */
+  /**
+   * @return The copy number (0 of higher for parallel runs)
+   */
   int getCopyNr();
 
   LogLevel getLogLevel();
@@ -41,7 +44,9 @@ public interface IEngineComponent {
 
   ILogChannel getLogChannel();
 
-  /** @return The log channel ID or null if there is no separate log channel. */
+  /**
+   * @return The log channel ID or null if there is no separate log channel.
+   */
   String getLogChannelId();
 
   /**
@@ -51,19 +56,29 @@ public interface IEngineComponent {
    */
   String getLogText();
 
-  /** @return true if this component is running/active */
+  /**
+   * @return true if this component is running/active
+   */
   boolean isRunning();
 
-  /** @return true if the component is selected in the user interface */
+  /**
+   * @return true if the component is selected in the user interface
+   */
   boolean isSelected();
 
-  /** @return True if the component is stopped */
+  /**
+   * @return True if the component is stopped
+   */
   boolean isStopped();
 
-  /** @return True if the component is paused */
+  /**
+   * @return True if the component is paused
+   */
   boolean isPaused();
 
-  /** @return The number of errors in this component */
+  /**
+   * @return The number of errors in this component
+   */
   long getErrors();
 
   long getLinesRead();
@@ -110,7 +125,9 @@ public interface IEngineComponent {
    */
   Date getInitStartDate();
 
-  /** @param initStartDate The initStartDate to set */
+  /**
+   * @param initStartDate The initStartDate to set
+   */
   void setInitStartDate(Date initStartDate);
 
   /**
@@ -120,7 +137,9 @@ public interface IEngineComponent {
    */
   Date getExecutionStartDate();
 
-  /** @param executionStartDate The executionStartDate to set */
+  /**
+   * @param executionStartDate The executionStartDate to set
+   */
   void setExecutionStartDate(Date executionStartDate);
 
   /**
@@ -130,7 +149,9 @@ public interface IEngineComponent {
    */
   Date getFirstRowReadDate();
 
-  /** @param firstRowReadDate The firstRowReadDate to set */
+  /**
+   * @param firstRowReadDate The firstRowReadDate to set
+   */
   void setFirstRowReadDate(Date firstRowReadDate);
 
   /**
@@ -140,7 +161,9 @@ public interface IEngineComponent {
    */
   Date getLastRowWrittenDate();
 
-  /** @param lastRowWrittenDate The lastRowWrittenDate to set */
+  /**
+   * @param lastRowWrittenDate The lastRowWrittenDate to set
+   */
   void setLastRowWrittenDate(Date lastRowWrittenDate);
 
   /**
@@ -150,6 +173,8 @@ public interface IEngineComponent {
    */
   Date getExecutionEndDate();
 
-  /** @param executionEndDate The executionEndDate to set */
+  /**
+   * @param executionEndDate The executionEndDate to set
+   */
   void setExecutionEndDate(Date executionEndDate);
 }

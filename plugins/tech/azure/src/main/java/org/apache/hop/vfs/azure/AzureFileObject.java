@@ -289,11 +289,12 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
   }
 
-    private boolean pathsMatch(String path, String currentPath) {
-        return path.replace("/" + ((AzureFileSystem) getFileSystem()).getAccount(), "").equals(currentPath);
-    }
+  private boolean pathsMatch(String path, String currentPath) {
+    return path.replace("/" + ((AzureFileSystem) getFileSystem()).getAccount(), "")
+        .equals(currentPath);
+  }
 
-    @Override
+  @Override
   protected void doDetach() throws Exception {
     if (this.attached) {
       this.attached = false;
@@ -395,15 +396,14 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
     if (container != null && !containerPath.equals("")) {
       if (bAppend) throw new UnsupportedOperationException();
-      final CloudAppendBlob cab = container.getAppendBlobReference(removeLeadingSlash(containerPath));
+      final CloudAppendBlob cab =
+          container.getAppendBlobReference(removeLeadingSlash(containerPath));
 
       if (type == FileType.IMAGINARY) {
         type = FileType.FILE;
-        return new AppendBlobOutputStream(
-            cab, cab.openWriteNew());
+        return new AppendBlobOutputStream(cab, cab.openWriteNew());
       } else {
-        return new AppendBlobOutputStream(
-            cab, cab.openWriteExisting());
+        return new AppendBlobOutputStream(cab, cab.openWriteExisting());
       }
     } else {
       throw new UnsupportedOperationException();

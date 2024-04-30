@@ -17,6 +17,8 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -30,9 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Class providing an input transform for reading data from a table in Cassandra. Accesses the

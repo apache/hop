@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.search;
 
-import org.apache.hop.workflow.config.WorkflowRunConfiguration;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 
 @SearchableAnalyserPlugin(
     id = "WorkflowRunConfigurationSearchableAnalyser",

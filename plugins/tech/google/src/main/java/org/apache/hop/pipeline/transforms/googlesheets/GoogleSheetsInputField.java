@@ -18,18 +18,17 @@
 
 package org.apache.hop.pipeline.transforms.googlesheets;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 /** Describes a single field in a text file */
 public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*/ {
@@ -97,11 +96,9 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
         "#####.###############%",
       };
 
-  public GoogleSheetsInputField(){
+  public GoogleSheetsInputField() {}
 
-  }
-
-  public GoogleSheetsInputField(GoogleSheetsInputField field){
+  public GoogleSheetsInputField(GoogleSheetsInputField field) {
     this.name = field.getName();
     this.position = field.getPosition();
     this.length = field.getLength();
@@ -216,7 +213,7 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
     this.trimType = trimtype;
   }
 
-  public int getTrimType(){
+  public int getTrimType() {
     return trimType;
   }
 
@@ -279,8 +276,6 @@ public class GoogleSheetsInputField /*implements Cloneable, ITextFileInputField*
   public void setIfNullValue(String ifNullValue) {
     this.ifNullValue = ifNullValue;
   }
-
-
 
   @Override
   public String toString() {

@@ -17,7 +17,9 @@
 
 package org.apache.hop.core.listeners;
 
-/** @see IContentChangedListener */
+/**
+ * @see IContentChangedListener
+ */
 public class ContentChangedAdapter implements IContentChangedListener {
   @Override
   public void contentChanged(Object parentObject) {}

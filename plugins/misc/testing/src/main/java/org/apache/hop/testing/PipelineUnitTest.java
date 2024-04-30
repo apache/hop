@@ -17,6 +17,9 @@
 
 package org.apache.hop.testing;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
@@ -34,10 +37,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.testing.util.DataSetConst;
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /** This class describes a test-case where a pipeline output is verified against golden data. */
 @HopMetadata(
@@ -274,7 +273,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
@@ -288,7 +289,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return pipelineFilename;
   }
 
-  /** @param pipelineFilename The transFilename to set */
+  /**
+   * @param pipelineFilename The transFilename to set
+   */
   public void setPipelineFilename(String pipelineFilename) {
     this.pipelineFilename = pipelineFilename;
   }
@@ -302,7 +305,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return inputDataSets;
   }
 
-  /** @param inputDataSets The inputDataSets to set */
+  /**
+   * @param inputDataSets The inputDataSets to set
+   */
   public void setInputDataSets(List<PipelineUnitTestSetLocation> inputDataSets) {
     this.inputDataSets = inputDataSets;
   }
@@ -316,7 +321,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return goldenDataSets;
   }
 
-  /** @param goldenDataSets The goldenDataSets to set */
+  /**
+   * @param goldenDataSets The goldenDataSets to set
+   */
   public void setGoldenDataSets(List<PipelineUnitTestSetLocation> goldenDataSets) {
     this.goldenDataSets = goldenDataSets;
   }
@@ -330,7 +337,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return tweaks;
   }
 
-  /** @param tweaks The tweaks to set */
+  /**
+   * @param tweaks The tweaks to set
+   */
   public void setTweaks(List<PipelineUnitTestTweak> tweaks) {
     this.tweaks = tweaks;
   }
@@ -344,7 +353,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(TestType type) {
     this.type = type;
   }
@@ -358,7 +369,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -372,7 +385,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return basePath;
   }
 
-  /** @param basePath The basePath to set */
+  /**
+   * @param basePath The basePath to set
+   */
   public void setBasePath(String basePath) {
     this.basePath = basePath;
   }
@@ -386,7 +401,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return databaseReplacements;
   }
 
-  /** @param databaseReplacements The databaseReplacements to set */
+  /**
+   * @param databaseReplacements The databaseReplacements to set
+   */
   public void setDatabaseReplacements(
       List<PipelineUnitTestDatabaseReplacement> databaseReplacements) {
     this.databaseReplacements = databaseReplacements;
@@ -401,7 +418,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return variableValues;
   }
 
-  /** @param variableValues The variableValues to set */
+  /**
+   * @param variableValues The variableValues to set
+   */
   public void setVariableValues(List<VariableValue> variableValues) {
     this.variableValues = variableValues;
   }
@@ -415,7 +434,9 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     return autoOpening;
   }
 
-  /** @param autoOpening The autoOpening to set */
+  /**
+   * @param autoOpening The autoOpening to set
+   */
   public void setAutoOpening(boolean autoOpening) {
     this.autoOpening = autoOpening;
   }

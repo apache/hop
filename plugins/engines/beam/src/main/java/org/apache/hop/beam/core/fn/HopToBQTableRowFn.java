@@ -18,6 +18,8 @@
 package org.apache.hop.beam.core.fn;
 
 import com.google.api.services.bigquery.model.TableRow;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.SerializableFunction;
@@ -29,10 +31,6 @@ import org.apache.hop.core.row.JsonRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
 
 public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow> {
 
@@ -50,9 +48,7 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
   // Log and count parse errors.
   private static final Logger LOG = LoggerFactory.getLogger(HopToBQTableRowFn.class);
 
-  public HopToBQTableRowFn(
-      String counterName,
-      String rowMetaJson) {
+  public HopToBQTableRowFn(String counterName, String rowMetaJson) {
     this.counterName = counterName;
     this.rowMetaJson = rowMetaJson;
   }
@@ -103,7 +99,8 @@ public class HopToBQTableRowFn implements SerializableFunction<HopRow, TableRow>
             case IValueMeta.TYPE_TIMESTAMP:
               if (valueMeta.getNumber(valueData) != null) {
                 // we have a nanoseconds value and BigQuery expects microseconds, so divide by 1000
-                tableRow.put(valueMeta.getName(), Math.round(valueMeta.getNumber(valueData) / 1000));
+                tableRow.put(
+                    valueMeta.getName(), Math.round(valueMeta.getNumber(valueData) / 1000));
               } else {
                 tableRow.put(valueMeta.getName(), valueMeta.getNumber(valueData));
               }

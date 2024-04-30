@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
-import org.apache.hop.core.IRowSet;
-
 import java.util.ArrayList;
 import java.util.Set;
+import org.apache.hop.core.IRowSet;
 
 public class ContainsKeyToRowSetMap extends KeyToRowSetMap {
   protected ArrayList<String> list = new ArrayList<>();

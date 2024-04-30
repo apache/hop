@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.mongodbdelete;
 
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class MongoDbDeleteField implements Cloneable {
 

@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.exception;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** This Exception is throws when an error occurs loading plugins. */
 public class HopMissingPluginsException extends HopException {

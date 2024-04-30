@@ -17,6 +17,19 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.Attribute;
+import javax.xml.stream.events.EndElement;
+import javax.xml.stream.events.Namespace;
+import javax.xml.stream.events.XMLEvent;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -32,20 +45,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.Attribute;
-import javax.xml.stream.events.EndElement;
-import javax.xml.stream.events.Namespace;
-import javax.xml.stream.events.XMLEvent;
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 
 /** Use a StAX parser to read XML in a flexible and fast way. */
 // TODO black box testing
@@ -513,7 +512,6 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   }
 
   // Namespaces: put an extra row out for each namespace
-  @SuppressWarnings("unchecked")
   private Object[] parseNamespaces(Object[] outputRowData, XMLEvent e)
       throws HopValueException, HopTransformException {
     Iterator<Namespace> iter = e.asStartElement().getNamespaces();
@@ -547,7 +545,6 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   }
 
   // Attributes: put an extra row out for each attribute
-  @SuppressWarnings("unchecked")
   private Object[] parseAttributes(Object[] outputRowData, XMLEvent e)
       throws HopValueException, HopTransformException {
     Iterator<Attribute> iter = e.asStartElement().getAttributes();

@@ -40,7 +40,9 @@ public class PluginClassFile {
     return jarFile.toString();
   }
 
-  /** @return the jarFile */
+  /**
+   * @return the jarFile
+   */
   public URL getJarFile() {
     return jarFile;
   }

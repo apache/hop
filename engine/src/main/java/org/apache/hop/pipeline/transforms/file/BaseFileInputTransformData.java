@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /** Some base data for file-based input transforms. */
 public class BaseFileInputTransformData extends BaseTransformData {

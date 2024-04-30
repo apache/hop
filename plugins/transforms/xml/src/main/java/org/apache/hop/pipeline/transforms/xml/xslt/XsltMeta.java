@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
+import java.io.File;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -35,9 +37,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.util.List;
 
 @Transform(
     id = "XSLT",
@@ -87,47 +86,65 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the parameterName. */
+  /**
+   * @return Returns the parameterName.
+   */
   public String[] getParameterName() {
     return parameterName;
   }
 
-  /** @param argumentDirection The parameterName to set. */
+  /**
+   * @param argumentDirection The parameterName to set.
+   */
   public void setParameterName(String[] argumentDirection) {
     this.parameterName = argumentDirection;
   }
 
-  /** @return Returns the parameterField. */
+  /**
+   * @return Returns the parameterField.
+   */
   public String[] getParameterField() {
     return parameterField;
   }
 
-  /** @param argumentDirection The parameterField to set. */
+  /**
+   * @param argumentDirection The parameterField to set.
+   */
   public void setParameterField(String[] argumentDirection) {
     this.parameterField = argumentDirection;
   }
 
-  /** @return Returns the XSL filename. */
+  /**
+   * @return Returns the XSL filename.
+   */
   public String getXslFilename() {
     return xslFilename;
   }
 
-  /** @return Returns the OutputPropertyName. */
+  /**
+   * @return Returns the OutputPropertyName.
+   */
   public String[] getOutputPropertyName() {
     return outputPropertyName;
   }
 
-  /** @param argumentDirection The OutputPropertyName to set. */
+  /**
+   * @param argumentDirection The OutputPropertyName to set.
+   */
   public void setOutputPropertyName(String[] argumentDirection) {
     this.outputPropertyName = argumentDirection;
   }
 
-  /** @return Returns the OutputPropertyField. */
+  /**
+   * @return Returns the OutputPropertyField.
+   */
   public String[] getOutputPropertyValue() {
     return outputPropertyValue;
   }
 
-  /** @param argumentDirection The outputPropertyValue to set. */
+  /**
+   * @param argumentDirection The outputPropertyValue to set.
+   */
   public void setOutputPropertyValue(String[] argumentDirection) {
     this.outputPropertyValue = argumentDirection;
   }
@@ -140,7 +157,9 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     xslFactory = xslfactoryin;
   }
 
-  /** @return Returns the XSL factory type. */
+  /**
+   * @return Returns the XSL factory type.
+   */
   public String getXSLFactory() {
     return xslFactory;
   }
@@ -157,7 +176,9 @@ public class XsltMeta extends BaseTransformMeta<Xslt, XsltData> {
     return fieldName;
   }
 
-  /** @param xslFilename The Xsl filename to set. */
+  /**
+   * @param xslFilename The Xsl filename to set.
+   */
   public void setXslFilename(String xslFilename) {
     this.xslFilename = xslFilename;
   }

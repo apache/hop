@@ -17,6 +17,14 @@
 
 package org.apache.hop.ui.core.vfs;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOCase;
 import org.apache.commons.lang.StringUtils;
@@ -92,15 +100,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @GuiPlugin(description = "Allows you to browse to local or VFS locations")
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
@@ -264,7 +263,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   @Override
   public String open() {
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
+    shell =
+        new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL);
     PropsUi.setLook(shell);
     shell.setImage(GuiResource.getInstance().getImageHopUi());
     shell.addShellListener(
@@ -316,7 +316,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     // A toolbar above the browser, below the filename
     //
-    ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);    
+    ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
     PropsUi.setLook(navigateToolBar, PropsUi.WIDGET_STYLE_DEFAULT);
 
@@ -346,7 +346,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdSashForm.left = new FormAttachment(0, 0);
     fdSashForm.top = new FormAttachment(navigateComposite, PropsUi.getMargin());
     fdSashForm.right = new FormAttachment(100, 0);
-    fdSashForm.bottom = new FormAttachment(wOk, (int) (-PropsUi.getMargin() * props.getZoomFactor()));
+    fdSashForm.bottom =
+        new FormAttachment(wOk, (int) (-PropsUi.getMargin() * props.getZoomFactor()));
     sashForm.setLayoutData(fdSashForm);
 
     PropsUi.setLook(sashForm);
@@ -850,7 +851,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     navigateTo(fileName, true);
 
     // The next statement inverses ascending so we do it again
-    ascending=!ascending;
+    ascending = !ascending;
     browserColumnSelected(sortIndex);
   }
 
@@ -1385,7 +1386,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
       text.selectAll();
       text.setFocus();
-      PropsUi.setLook(text);      
+      PropsUi.setLook(text);
       wBrowserEditor.setEditor(text, item);
     }
   }

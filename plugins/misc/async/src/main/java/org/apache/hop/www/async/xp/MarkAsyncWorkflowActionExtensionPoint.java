@@ -17,6 +17,7 @@
 
 package org.apache.hop.www.async.xp;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -29,8 +30,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.async.AsyncWebService;
 import org.apache.hop.www.async.Defaults;
-
-import java.util.Map;
 
 @ExtensionPoint(
     id = "MarkAsyncWorkflowActionExtensionPoint",

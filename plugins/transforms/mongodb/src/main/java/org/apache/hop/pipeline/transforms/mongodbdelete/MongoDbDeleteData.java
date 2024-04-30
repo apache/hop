@@ -19,6 +19,9 @@ package org.apache.hop.pipeline.transforms.mongodbdelete;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -33,10 +36,6 @@ import org.apache.hop.mongo.wrapper.cursor.MongoCursorWrapper;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /** Data class for the MongoDbDelete step */
 public class MongoDbDeleteData extends BaseTransformData implements ITransformData {
 
@@ -46,6 +45,7 @@ public class MongoDbDeleteData extends BaseTransformData implements ITransformDa
   public MongoDbConnection connection;
   public MongoClientWrapper clientWrapper;
   public MongoCollectionWrapper collection;
+
   /** cursor for a standard query */
   public MongoCursorWrapper cursor;
 

@@ -17,6 +17,10 @@
 
 package org.apache.hop.core.fileinput;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileName;
@@ -27,11 +31,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.NameScope;
 import org.apache.commons.vfs2.operations.FileOperations;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Iterator;
-import java.util.List;
 
 public class NonAccessibleFileObject implements FileObject {
   private final String fullyQualifiedName;
@@ -89,8 +88,7 @@ public class NonAccessibleFileObject implements FileObject {
   }
 
   @Override
-  public void findFiles(FileSelector arg0, boolean arg1, @SuppressWarnings("rawtypes") List arg2)
-      throws FileSystemException {
+  public void findFiles(FileSelector arg0, boolean arg1, List arg2) throws FileSystemException {
     throw new NotImplementedException();
   }
 

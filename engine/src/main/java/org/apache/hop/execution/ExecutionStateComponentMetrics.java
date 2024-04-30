@@ -23,77 +23,78 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ExecutionStateComponentMetrics {
-    private String componentName;
-    private String componentCopy;
-    private Map<String, Long> metrics;
+  private String componentName;
+  private String componentCopy;
+  private Map<String, Long> metrics;
 
-    public ExecutionStateComponentMetrics() {
-        metrics = Collections.synchronizedMap(new HashMap<>());
-    }
+  public ExecutionStateComponentMetrics() {
+    metrics = Collections.synchronizedMap(new HashMap<>());
+  }
 
-    public ExecutionStateComponentMetrics(String componentName, String componentCopy) {
-        this();
-        this.componentName = componentName;
-        this.componentCopy = componentCopy;
-    }
+  public ExecutionStateComponentMetrics(String componentName, String componentCopy) {
+    this();
+    this.componentName = componentName;
+    this.componentCopy = componentCopy;
+  }
 
-    public ExecutionStateComponentMetrics(String componentName, String componentCopy, Map<String, Long> metrics) {
-        this.componentName = componentName;
-        this.componentCopy = componentCopy;
-        this.metrics = metrics;
-    }
+  public ExecutionStateComponentMetrics(
+      String componentName, String componentCopy, Map<String, Long> metrics) {
+    this.componentName = componentName;
+    this.componentCopy = componentCopy;
+    this.metrics = metrics;
+  }
 
-    /**
-     * Gets componentName
-     *
-     * @return value of componentName
-     */
-    public String getComponentName() {
-        return componentName;
-    }
+  /**
+   * Gets componentName
+   *
+   * @return value of componentName
+   */
+  public String getComponentName() {
+    return componentName;
+  }
 
-    /**
-     * Sets componentName
-     *
-     * @param componentName value of componentName
-     */
-    public void setComponentName(String componentName) {
-        this.componentName = componentName;
-    }
+  /**
+   * Sets componentName
+   *
+   * @param componentName value of componentName
+   */
+  public void setComponentName(String componentName) {
+    this.componentName = componentName;
+  }
 
-    /**
-     * Gets componentCopy
-     *
-     * @return value of componentCopy
-     */
-    public String getComponentCopy() {
-        return componentCopy;
-    }
+  /**
+   * Gets componentCopy
+   *
+   * @return value of componentCopy
+   */
+  public String getComponentCopy() {
+    return componentCopy;
+  }
 
-    /**
-     * Sets componentCopy
-     *
-     * @param componentCopy value of componentCopy
-     */
-    public void setComponentCopy(String componentCopy) {
-        this.componentCopy = componentCopy;
-    }
+  /**
+   * Sets componentCopy
+   *
+   * @param componentCopy value of componentCopy
+   */
+  public void setComponentCopy(String componentCopy) {
+    this.componentCopy = componentCopy;
+  }
 
-    /**
-     * Gets metrics
-     *
-     * @return value of metrics
-     */
-    public Map<String, Long> getMetrics() {
-        return metrics;
-    }
+  /**
+   * Gets metrics
+   *
+   * @return value of metrics
+   */
+  public Map<String, Long> getMetrics() {
+    return metrics;
+  }
 
-    /**
-     * Sets metrics
-     *
-     * @param metrics value of metrics
-     */
-    public void setMetrics(Map<String, Long> metrics) {
-        this.metrics = metrics;
-    }
+  /**
+   * Sets metrics
+   *
+   * @param metrics value of metrics
+   */
+  public void setMetrics(Map<String, Long> metrics) {
+    this.metrics = metrics;
+  }
 }

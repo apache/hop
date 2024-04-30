@@ -33,7 +33,9 @@ public class HopGuiPipelineUndoDelegate {
   private HopGuiPipelineGraph pipelineGraph;
   private HopGui hopGui;
 
-  /** @param hopGui */
+  /**
+   * @param hopGui
+   */
   public HopGuiPipelineUndoDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
@@ -334,7 +336,9 @@ public class HopGuiPipelineUndoDelegate {
     return pipelineGraph;
   }
 
-  /** @param pipelineGraph The pipelineGraph to set */
+  /**
+   * @param pipelineGraph The pipelineGraph to set
+   */
   public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
@@ -348,7 +352,9 @@ public class HopGuiPipelineUndoDelegate {
     return hopGui;
   }
 
-  /** @param hopGui The hopGui to set */
+  /**
+   * @param hopGui The hopGui to set
+   */
   public void setHopGui(HopGui hopGui) {
     this.hopGui = hopGui;
   }

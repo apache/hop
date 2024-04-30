@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.engines.local;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -28,9 +30,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @GuiPlugin(description = "Local pipeline run configuration widgets")
 public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
@@ -188,6 +187,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     }
     return list;
   }
+
   /**
    * Gets rowSetSize
    *

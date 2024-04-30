@@ -17,9 +17,9 @@
 
 package org.apache.test.util.impl;
 
-import org.apache.test.util.IObjectValidator;
-
 import static org.junit.Assert.assertEquals;
+
+import org.apache.test.util.IObjectValidator;
 
 public class DotEqualsValidator<T> implements IObjectValidator<T> {
 

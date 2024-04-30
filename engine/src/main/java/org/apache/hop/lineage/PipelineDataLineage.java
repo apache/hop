@@ -17,18 +17,17 @@
 
 package org.apache.hop.lineage;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class will help calculate and contain the data lineage for all values in the pipeline.<br>
@@ -59,12 +58,16 @@ public class PipelineDataLineage {
     this.pipelineMeta = pipelineMeta;
   }
 
-  /** @return the valueLineages */
+  /**
+   * @return the valueLineages
+   */
   public List<ValueLineage> getValueLineages() {
     return valueLineages;
   }
 
-  /** @param valueLineages the valueLineages to set */
+  /**
+   * @param valueLineages the valueLineages to set
+   */
   public void setValueLineages(List<ValueLineage> valueLineages) {
     this.valueLineages = valueLineages;
   }

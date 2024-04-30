@@ -17,12 +17,10 @@
 
 package org.apache.hop.core;
 
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.List;
 
 public interface IProvidesModelerMeta extends IProvidesDatabaseConnectionInformation {
   IRowMeta getRowMeta(IVariables variables, ITransformData transformData);

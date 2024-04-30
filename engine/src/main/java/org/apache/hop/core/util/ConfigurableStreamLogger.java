@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.util;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogLevel;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogLevel;
 
 /** Provides the ability to specify the desired logLevel on which the StreamLogger should write. */
 public class ConfigurableStreamLogger implements Runnable {

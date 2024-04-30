@@ -17,6 +17,18 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -125,19 +137,6 @@ import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
 
 @GuiPlugin(description = "The main hop graphical user interface")
 public class HopGui
@@ -295,9 +294,11 @@ public class HopGui
   }
 
   private void updateMetadataManagers() {
-    databaseMetaManager = new MetadataManager<>(variables, metadataProvider, DatabaseMeta.class, shell);
+    databaseMetaManager =
+        new MetadataManager<>(variables, metadataProvider, DatabaseMeta.class, shell);
     hopServerManager = new MetadataManager<>(variables, metadataProvider, HopServer.class, shell);
-    partitionManager = new MetadataManager<>(variables, metadataProvider, PartitionSchema.class, shell);
+    partitionManager =
+        new MetadataManager<>(variables, metadataProvider, PartitionSchema.class, shell);
   }
 
   private static final ISingletonProvider PROVIDER;
@@ -419,7 +420,8 @@ public class HopGui
           openingLastFiles = true;
 
           // We keep track of the fact that we might be re-opening files at this time.
-          // If we change the open files list while we're re-opening files things get chaotic and buggy.
+          // If we change the open files list while we're re-opening files things get chaotic and
+          // buggy.
           //
           reOpeningFiles = true;
 
@@ -599,11 +601,11 @@ public class HopGui
     // Bootstrap Hop
     //
     Display display = new Display();
-    
+
     // Initialize early for some tweaks (before shell creation)
     //
     PropsUi.getInstance();
-    
+
     return display;
   }
 
@@ -1369,7 +1371,7 @@ public class HopGui
 
   public Shell getActiveShell() {
     Shell active = display.getActiveShell();
-    if (active!=null) {
+    if (active != null) {
       return active;
     } else {
       return shell;

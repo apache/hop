@@ -77,12 +77,13 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
       data.inputFieldIndex = getInputRowMeta().indexOfValue(realInputField);
 
       if (data.inputFieldIndex < 0) {
-        throw new HopException(BaseMessages.getString(PKG, "Edi2Xml.Log.CouldNotFindInputField", realInputField));
+        throw new HopException(
+            BaseMessages.getString(PKG, "Edi2Xml.Log.CouldNotFindInputField", realInputField));
       }
       if (!data.inputRowMeta.getValueMeta(data.inputFieldIndex).isString()) {
-        throw new HopException(BaseMessages.getString(PKG, "Edi2Xml.Log.InputFieldIsNotAString", realInputField));
+        throw new HopException(
+            BaseMessages.getString(PKG, "Edi2Xml.Log.InputFieldIsNotAString", realInputField));
       }
-
 
       data.inputMeta = data.inputRowMeta.getValueMeta(data.inputFieldIndex);
 

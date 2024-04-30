@@ -18,11 +18,10 @@
 
 package org.apache.hop.neo4j.execution.path;
 
-import org.apache.hop.core.Const;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.Const;
 
 public class PathResult {
 
@@ -49,7 +48,9 @@ public class PathResult {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -63,7 +64,9 @@ public class PathResult {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -77,7 +80,9 @@ public class PathResult {
     return type;
   }
 
-  /** @param type The type to set */
+  /**
+   * @param type The type to set
+   */
   public void setType(String type) {
     this.type = type;
   }
@@ -91,11 +96,12 @@ public class PathResult {
     return registrationDate;
   }
 
-  /** @param registrationDate The registrationDate to set */
+  /**
+   * @param registrationDate The registrationDate to set
+   */
   public void setRegistrationDate(Date registrationDate) {
     this.registrationDate = registrationDate;
   }
-
 
   /**
    * Gets root
@@ -151,7 +157,9 @@ public class PathResult {
     return shortestPaths;
   }
 
-  /** @param shortestPaths The shortestPaths to set */
+  /**
+   * @param shortestPaths The shortestPaths to set
+   */
   public void setShortestPaths(List<List<PathResult>> shortestPaths) {
     this.shortestPaths = shortestPaths;
   }

@@ -17,59 +17,59 @@
 
 package org.apache.hop.pipeline.transforms.nullif;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class NullIfField implements Cloneable {
 
-    @HopMetadataProperty(injectionKey = "FIELDNAME", injectionKeyDescription = "NullIf.Injection.FIELDNAME")
-    private String name;
+  @HopMetadataProperty(
+      injectionKey = "FIELDNAME",
+      injectionKeyDescription = "NullIf.Injection.FIELDNAME")
+  private String name;
 
-    @HopMetadataProperty(injectionKey = "FIELDVALUE", injectionKeyDescription = "NullIf.Injection.FIELDVALUE")
-    private String value;
-    
-    public NullIfField() {
-    }
+  @HopMetadataProperty(
+      injectionKey = "FIELDVALUE",
+      injectionKeyDescription = "NullIf.Injection.FIELDVALUE")
+  private String value;
 
-    public NullIfField(String name, String value) {
-        this.name = name;
-        this.value = value;
-    }
-    
-    public String getName() {
-        return name;
-    }
+  public NullIfField() {}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public NullIfField(String name, String value) {
+    this.name = name;
+    this.value = value;
+  }
 
-    public String getValue() {
-      return value;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setValue(String value) {
-      this.value = value;
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        NullIfField field = (NullIfField) o;
-        return Objects.equals(name, field.name) && Objects.equals(value, field.value);
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, value);
-    }
+  public String getValue() {
+    return value;
+  }
 
-    @Override
-    public NullIfField clone() {
-        return new NullIfField(name, value);
-    }
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    NullIfField field = (NullIfField) o;
+    return Objects.equals(name, field.name) && Objects.equals(value, field.value);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(name, value);
+  }
+
+  @Override
+  public NullIfField clone() {
+    return new NullIfField(name, value);
+  }
 }

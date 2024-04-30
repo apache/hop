@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.salesforceinput;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.encryption.Encr;
@@ -41,18 +52,6 @@ import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformMeta;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class SalesforceInputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -121,7 +120,7 @@ public class SalesforceInputMetaTest {
     TransformLoadSaveTester<SalesforceInputMeta> transformLoadSaveTester =
         new TransformLoadSaveTester(
             SalesforceInputMeta.class,
-                attributes,
+            attributes,
             getterMap,
             setterMap,
             fieldLoadSaveValidators,

@@ -17,11 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
-import org.apache.hop.core.file.EncodingType;
-import org.junit.Test;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import org.apache.hop.core.file.EncodingType;
+import org.junit.Test;
 
 /** User: Dzmitry Stsiapanau Date: 3/11/14 Time: 11:44 AM */
 public class EncodingTypeTest {

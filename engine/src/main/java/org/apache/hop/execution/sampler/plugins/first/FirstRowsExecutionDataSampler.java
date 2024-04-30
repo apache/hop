@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution.sampler.plugins.first;
 
+import java.util.List;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.execution.sampler.ExecutionDataSamplerMeta;
@@ -26,15 +27,13 @@ import org.apache.hop.execution.sampler.IExecutionDataSampler;
 import org.apache.hop.execution.sampler.plugins.ExecutionDataSamplerBase;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
-import java.util.List;
-
 @GuiPlugin
 @ExecutionDataSamplerPlugin(
     id = "FirstRowsExecutionDataSampler",
     name = "First output rows",
     description = "Samples the first rows of a transform output")
 public class FirstRowsExecutionDataSampler
-  extends ExecutionDataSamplerBase<FirstRowsExecutionDataSamplerStore>
+    extends ExecutionDataSamplerBase<FirstRowsExecutionDataSamplerStore>
     implements IExecutionDataSampler<FirstRowsExecutionDataSamplerStore> {
   private static final Class<?> PKG = FirstRowsExecutionDataSampler.class; // For Translator
 
@@ -55,7 +54,8 @@ public class FirstRowsExecutionDataSampler
   }
 
   @Override
-  public FirstRowsExecutionDataSamplerStore createSamplerStore(ExecutionDataSamplerMeta samplerMeta) {
+  public FirstRowsExecutionDataSamplerStore createSamplerStore(
+      ExecutionDataSamplerMeta samplerMeta) {
     return new FirstRowsExecutionDataSamplerStore(this, samplerMeta);
   }
 

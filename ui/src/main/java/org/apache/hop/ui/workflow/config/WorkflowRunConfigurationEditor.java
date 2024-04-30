@@ -17,6 +17,11 @@
 
 package org.apache.hop.ui.workflow.config;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -47,12 +52,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(
     description = "This dialog allows you to configure the various workflow run configurations")
@@ -178,14 +177,13 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
     Label wlDefault = new Label(parent, SWT.RIGHT);
     PropsUi.setLook(wlDefault);
-    wlDefault.setText(
-            BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.Default"));
+    wlDefault.setText(BaseMessages.getString(PKG, "WorkflowRunConfigurationDialog.label.Default"));
     FormData fdlDefault = new FormData();
     fdlDefault.top = new FormAttachment(lastControl, margin);
     fdlDefault.left = new FormAttachment(0, 0); // First one in the left top corner
     fdlDefault.right = new FormAttachment(middle, -margin);
     wlDefault.setLayoutData(fdlDefault);
-    wDefault = new Button(parent, SWT.CHECK | SWT.LEFT );
+    wDefault = new Button(parent, SWT.CHECK | SWT.LEFT);
     PropsUi.setLook(wDefault);
     FormData fdDefault = new FormData();
     fdDefault.top = new FormAttachment(wlDefault, 0, SWT.CENTER);
@@ -197,16 +195,18 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     // Which location should the execution information go to?
     //
     wExecutionInfoLocation =
-            new MetaSelectionLine<>(
-                    manager.getVariables(),
-                    manager.getMetadataProvider(),
-                    ExecutionInfoLocation.class,
-                    parent,
-                    SWT.SINGLE | SWT.LEFT | SWT.BORDER,
-                    BaseMessages.getString(
-                            PKG, "WorkflowRunConfigurationDialog.label.ExecutionInfoLocation"),
-                    BaseMessages.getString(
-                            PKG, "WorkflowRunConfigurationDialog.toolTip.ExecutionInfoLocation"), false, true);
+        new MetaSelectionLine<>(
+            manager.getVariables(),
+            manager.getMetadataProvider(),
+            ExecutionInfoLocation.class,
+            parent,
+            SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+            BaseMessages.getString(
+                PKG, "WorkflowRunConfigurationDialog.label.ExecutionInfoLocation"),
+            BaseMessages.getString(
+                PKG, "WorkflowRunConfigurationDialog.toolTip.ExecutionInfoLocation"),
+            false,
+            true);
     FormData fdExecutionInfoLocation = new FormData();
     fdExecutionInfoLocation.top = new FormAttachment(lastControl, margin);
     fdExecutionInfoLocation.left = new FormAttachment(0, 0); // To the right of the label
@@ -344,10 +344,12 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     wDefault.setSelection(workingConfiguration.isDefaultSelection());
     try {
       wExecutionInfoLocation.fillItems();
-    } catch(Exception e) {
-      new ErrorDialog(getShell(), "Error", "Error getting the list of execution information locations", e);
+    } catch (Exception e) {
+      new ErrorDialog(
+          getShell(), "Error", "Error getting the list of execution information locations", e);
     }
-    wExecutionInfoLocation.setText(Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
+    wExecutionInfoLocation.setText(
+        Const.NVL(workingConfiguration.getExecutionInfoLocationName(), ""));
     if (workingConfiguration.getEngineRunConfiguration() != null) {
       wPluginType.setText(
           Const.NVL(workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), ""));

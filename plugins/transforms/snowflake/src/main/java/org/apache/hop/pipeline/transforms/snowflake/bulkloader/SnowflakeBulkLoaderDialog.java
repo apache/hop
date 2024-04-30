@@ -81,7 +81,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-@SuppressWarnings({"FieldCanBeLocal", "WeakerAccess", "unused"})
 public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG =
@@ -242,7 +241,6 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   /** List of ColumnInfo that should have the field names of the selected database table */
   private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  @SuppressWarnings("unused")
   public SnowflakeBulkLoaderDialog(
       Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
     super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
@@ -260,7 +258,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     display = parent.getDisplay();
 
     int margin = PropsUi.getMargin();
-    
+
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
     PropsUi.setLook(shell);
     setShellImage(shell, input);
@@ -488,7 +486,8 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
                   sql += " in " + variables.resolve(wSchema.getText());
                 }
 
-                try (ResultSet resultSet = db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
+                try (ResultSet resultSet =
+                    db.openQuery(sql, null, null, ResultSet.FETCH_FORWARD, false)) {
                   IRowMeta rowMeta = db.getReturnRowMeta();
                   Object[] row = db.getRow(resultSet);
                   int nameField = rowMeta.indexOfValue("NAME");
@@ -544,9 +543,11 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     fdWorkDirectory.top = new FormAttachment(wStageName, margin);
     fdWorkDirectory.right = new FormAttachment(wbWorkDirectory, -margin);
     wWorkDirectory.setLayoutData(fdWorkDirectory);
-    wbWorkDirectory.addListener(SWT.Selection, e-> {
-      BaseDialog.presentDirectoryDialog(shell, wWorkDirectory, variables);
-    });
+    wbWorkDirectory.addListener(
+        SWT.Selection,
+        e -> {
+          BaseDialog.presentDirectoryDialog(shell, wWorkDirectory, variables);
+        });
 
     // Whenever something changes, set the tooltip to the expanded version:
     wWorkDirectory.addModifyListener(
@@ -1097,7 +1098,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
     fdTabFolder.right = new FormAttachment(100, 0);
     fdTabFolder.bottom = new FormAttachment(wCancel, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
-    
+
     wbTable.addListener(SWT.Selection, e -> getTableName());
     wbSchema.addListener(SWT.Selection, e -> getSchemaNames());
 
@@ -1566,7 +1567,7 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
             if (!StringUtils.isEmpty(tableName)) {
               DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
               if (databaseMeta != null) {
-                try ( Database db = new Database(loggingObject, variables, databaseMeta)) {
+                try (Database db = new Database(loggingObject, variables, databaseMeta)) {
                   db.connect();
 
                   String schemaTable =

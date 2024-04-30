@@ -17,9 +17,8 @@
 
 package org.apache.hop.core.injection.metadata;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class PropBeanListChild {
 
@@ -60,7 +59,9 @@ public class PropBeanListChild {
     return f1;
   }
 
-  /** @param f1 The f1 to set */
+  /**
+   * @param f1 The f1 to set
+   */
   public void setF1(String f1) {
     this.f1 = f1;
   }
@@ -74,7 +75,9 @@ public class PropBeanListChild {
     return f2;
   }
 
-  /** @param f2 The f2 to set */
+  /**
+   * @param f2 The f2 to set
+   */
   public void setF2(String f2) {
     this.f2 = f2;
   }

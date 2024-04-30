@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class DeleteLookupField {
 
@@ -61,12 +60,16 @@ public class DeleteLookupField {
     this.tableName = tableName;
   }
 
-  /** @return Returns the tableName. */
+  /**
+   * @return Returns the tableName.
+   */
   public String getTableName() {
     return tableName;
   }
 
-  /** @param tableName The tableName to set. */
+  /**
+   * @param tableName The tableName to set.
+   */
   public void setTableName(String tableName) {
     this.tableName = tableName;
   }
@@ -88,7 +91,9 @@ public class DeleteLookupField {
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<DeleteKeyField> fields) {
     this.fields = fields;
   }

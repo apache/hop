@@ -17,10 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.cubeinput;
 
+import static org.apache.hop.core.util.Assert.assertNotNull;
+
 import org.apache.hop.pipeline.transform.TransformSerializationTestUtil;
 import org.junit.Test;
-
-import static org.apache.hop.core.util.Assert.assertNotNull;
 
 public class CubeInputMetaTest {
 

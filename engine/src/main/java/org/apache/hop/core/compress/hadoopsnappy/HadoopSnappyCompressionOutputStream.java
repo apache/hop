@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.compress.hadoopsnappy;
 
-import org.apache.hop.core.compress.CompressionOutputStream;
-import org.apache.hop.core.compress.ICompressionProvider;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import org.apache.hop.core.compress.CompressionOutputStream;
+import org.apache.hop.core.compress.ICompressionProvider;
 
 public class HadoopSnappyCompressionOutputStream extends CompressionOutputStream {
 

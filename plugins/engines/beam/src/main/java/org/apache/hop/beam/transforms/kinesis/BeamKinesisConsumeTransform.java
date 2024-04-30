@@ -40,8 +40,6 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<HopRow>> {
 
   // These non-transient privates get serialized to spread across nodes
@@ -237,9 +235,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     private transient Counter inputCounter;
     private transient Counter writtenCounter;
 
-    public KVStringStringToHopRowFn(
-        String transformName,
-        String rowMetaJson) {
+    public KVStringStringToHopRowFn(String transformName, String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
     }
@@ -297,9 +293,7 @@ public class BeamKinesisConsumeTransform extends PTransform<PBegin, PCollection<
     private transient Counter inputCounter;
     private transient Counter writtenCounter;
 
-    public KVStringGenericRecordToHopRowFn(
-        String transformName,
-        String rowMetaJson) {
+    public KVStringGenericRecordToHopRowFn(String transformName, String rowMetaJson) {
       this.transformName = transformName;
       this.rowMetaJson = rowMetaJson;
     }

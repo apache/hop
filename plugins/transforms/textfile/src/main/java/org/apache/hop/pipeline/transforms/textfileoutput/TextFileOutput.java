@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -40,14 +47,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /** Converts input rows to text and then writes this text to one or more files. */
 public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFileOutputData>
     extends BaseTransform<Meta, Data> {
@@ -56,7 +55,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
       TextFileOutputMeta.fileCompressionTypeCodes[TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE];
-  
+
   public TextFileOutput(
       TransformMeta transformMeta,
       Meta meta,
@@ -323,8 +322,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     }
     isWriteHeader &=
         writingToFileForFirstTime
-            && (!meta.isFileAppended()
-                || (!isFileExists(filename)) || isFileEmpty(filename));
+            && (!meta.isFileAppended() || (!isFileExists(filename)) || isFileEmpty(filename));
     return isWriteHeader;
   }
 
@@ -1045,8 +1043,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   @Override
-  public void startBundle() throws HopException {
-  }
+  public void startBundle() throws HopException {}
 
   @Override
   public void batchComplete() throws HopException {

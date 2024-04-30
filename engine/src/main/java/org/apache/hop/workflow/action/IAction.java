@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow.action;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.Result;
@@ -34,9 +36,6 @@ import org.apache.hop.resource.ResourceReference;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * IAction is the main Java interface that a plugin implements. The responsibilities of the

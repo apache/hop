@@ -15,7 +15,6 @@
 # specific language governing permissions and limitations
 # under the License.
 
-version: '2.4'
 services:
   integration_test_snmp:
     extends:
@@ -26,7 +25,6 @@ services:
         condition: service_healthy
     links:
       - snmp
-
   snmp:
     image: 'zabbix/zabbix-snmptraps:latest'
     ports:

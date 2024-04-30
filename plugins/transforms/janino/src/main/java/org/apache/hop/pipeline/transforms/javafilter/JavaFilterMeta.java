@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.javafilter;
 
+import java.util.List;
+import java.util.Objects;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -35,9 +37,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.util.List;
-import java.util.Objects;
 
 /** Contains the meta-data for the java filter transform: calculates conditions using Janino */
 @Transform(

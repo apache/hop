@@ -17,11 +17,10 @@
 
 package org.apache.hop.core.util;
 
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Simple utility for messages. Usage: <code>
@@ -70,12 +69,16 @@ public final class PluginMessages {
 
   private final String packageName;
 
-  /** @param packageName package name to set. */
+  /**
+   * @param packageName package name to set.
+   */
   private PluginMessages(final String packageName) {
     this.packageName = packageName;
   }
 
-  /** @return the packageName */
+  /**
+   * @return the packageName
+   */
   public String getPackageName() {
     return this.packageName;
   }

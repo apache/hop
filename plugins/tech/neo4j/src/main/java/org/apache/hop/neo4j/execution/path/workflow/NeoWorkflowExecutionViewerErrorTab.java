@@ -23,7 +23,6 @@ import org.apache.hop.core.gui.plugin.tab.GuiTab;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.NeoExecutionInfoLocation;
 import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerErrorTab;
-import org.apache.hop.neo4j.execution.path.base.NeoExecutionViewerLineageTab;
 import org.apache.hop.ui.hopgui.perspective.execution.WorkflowExecutionViewer;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
@@ -46,7 +45,7 @@ public class NeoWorkflowExecutionViewerErrorTab extends NeoExecutionViewerErrorT
       parentId = WorkflowExecutionViewer.WORKFLOW_EXECUTION_VIEWER_TABS,
       description = "Workflow to error path")
   public void addNeoExecutionPathTab(CTabFolder tabFolder) {
-   super.addNeoErrorPathTab(tabFolder);
+    super.addNeoErrorPathTab(tabFolder);
   }
 
   /**
@@ -61,6 +60,6 @@ public class NeoWorkflowExecutionViewerErrorTab extends NeoExecutionViewerErrorT
     if (!(executionInfoLocation.getExecutionInfoLocation() instanceof NeoExecutionInfoLocation)) {
       return false;
     }
-    return viewer.getExecutionState()!=null && viewer.getExecutionState().isFailed();
+    return viewer.getExecutionState() != null && viewer.getExecutionState().isFailed();
   }
 }

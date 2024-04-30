@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.valuemapper;
 
+import java.util.HashMap;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashMap;
 
 /** Convert Values in a certain fields to other values */
 public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData> {
@@ -87,8 +86,9 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
           if (data.emptyFieldValue == null) {
             data.emptyFieldValue = resolve(v.getTarget());
           } else {
-            throw new HopException(BaseMessages.getString(PKG,
-                "ValueMapper.RuntimeError.OnlyOneEmptyMappingAllowed.VALUEMAPPER0004"));
+            throw new HopException(
+                BaseMessages.getString(
+                    PKG, "ValueMapper.RuntimeError.OnlyOneEmptyMappingAllowed.VALUEMAPPER0004"));
           }
         }
       }
@@ -109,7 +109,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
 
     // Null/Empty mapping to value...
     //
-    if (data.emptyFieldValue!=null && (r[data.keynr] == null || Utils.isEmpty(source))) {
+    if (data.emptyFieldValue != null && (r[data.keynr] == null || Utils.isEmpty(source))) {
       target = data.emptyFieldValue; // that's all there is to it.
     } else {
       if (!Utils.isEmpty(source)) {

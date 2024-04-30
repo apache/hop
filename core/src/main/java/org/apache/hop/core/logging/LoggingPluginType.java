@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.logging;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.util.Utils;
-
-import java.util.Map;
 
 /** This class represents the logging plugin type. */
 @PluginMainClassType(ILoggingPlugin.class)

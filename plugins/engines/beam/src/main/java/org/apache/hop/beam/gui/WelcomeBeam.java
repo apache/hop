@@ -18,6 +18,7 @@
 
 package org.apache.hop.beam.gui;
 
+import java.lang.reflect.Method;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -39,8 +40,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-
-import java.lang.reflect.Method;
 
 @GuiPlugin
 public class WelcomeBeam {

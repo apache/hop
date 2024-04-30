@@ -137,7 +137,9 @@ public class DropboxConfigPlugin implements IConfigOptions, IGuiPluginCompositeW
     return accessToken;
   }
 
-  /** @param accessToken The access token to set */
+  /**
+   * @param accessToken The access token to set
+   */
   public void setAccessToken(String accessToken) {
     this.accessToken = accessToken;
   }

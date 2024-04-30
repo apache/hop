@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.mailinput;
 
 import jakarta.mail.Message;
 import jakarta.mail.search.SearchTerm;
-
 import java.util.Iterator;
 
 public class SearchEnabledFolderIterator implements Iterator<Message> {

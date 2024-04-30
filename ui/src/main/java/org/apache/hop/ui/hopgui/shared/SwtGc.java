@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.hopgui.shared;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.SwtUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
@@ -40,10 +43,6 @@ import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class SwtGc implements IGc {
 

@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
 
 public class CreditCardVerifier {
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator

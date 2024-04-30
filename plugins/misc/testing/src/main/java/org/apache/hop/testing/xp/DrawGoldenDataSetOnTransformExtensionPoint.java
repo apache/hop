@@ -17,12 +17,13 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
-import org.apache.hop.core.gui.DPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
@@ -36,9 +37,6 @@ import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.ConstUi;
-
-import java.util.List;
-import java.util.Map;
 
 @ExtensionPoint(
     id = "DrawGoldenDataSetOnTransformExtensionPoint",
@@ -142,7 +140,7 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
                     iconY + 5,
                     ConstUi.SMALL_ICON_SIZE,
                     ConstUi.SMALL_ICON_SIZE,
-                        ext.offset,
+                    ext.offset,
                     DataSetConst.AREA_DRAWN_GOLDEN_DATA_RESULT,
                     transformMeta.getName()));
           } catch (Exception e) {
@@ -153,4 +151,3 @@ public class DrawGoldenDataSetOnTransformExtensionPoint
     }
   }
 }
-

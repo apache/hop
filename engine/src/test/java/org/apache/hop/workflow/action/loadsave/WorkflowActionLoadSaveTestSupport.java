@@ -17,6 +17,10 @@
 
 package org.apache.hop.workflow.action.loadsave;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -24,11 +28,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
@@ -49,12 +48,7 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
     tester =
         new LoadSaveTester<>(
-            getActionClass(),
-            attributes,
-            getters,
-            setters,
-            attributeValidators,
-            typeValidators);
+            getActionClass(), attributes, getters, setters, attributeValidators, typeValidators);
   }
 
   @Test
@@ -84,7 +78,6 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
     return Collections.emptyMap();
   }
 
-  @SuppressWarnings("unchecked")
   protected static <T1, T2> Map<T1, T2> toMap(Object... pairs) {
     Map<T1, T2> result = new HashMap<>(pairs.length);
     for (int i = 0; i < pairs.length; i += 2) {

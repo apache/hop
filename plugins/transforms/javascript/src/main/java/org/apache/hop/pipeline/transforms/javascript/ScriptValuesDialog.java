@@ -15,9 +15,15 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline.transforms.javascript;
 
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Vector;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -96,14 +102,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.tools.ToolErrorReporter;
-
-import java.lang.reflect.Method;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Vector;
 
 public class ScriptValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
@@ -866,7 +864,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
     meta.setOptimizationLevel(wOptimizationLevel.getText());
     int nrFields = wFields.nrNonEmpty();
     meta.allocate(nrFields);
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       meta.getFieldname()[i] = item.getText(1);
@@ -964,7 +961,6 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
           genMeta = new RowGeneratorMeta();
           genMeta.setRowLimit("10");
 
-          // CHECKSTYLE:Indentation:OFF
           for (int i = 0; i < rowMeta.size(); i++) {
             IValueMeta valueMeta = rowMeta.getValueMeta(i);
             if (valueMeta.isStorageBinaryString()) {

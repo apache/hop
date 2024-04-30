@@ -17,11 +17,10 @@
  */
 package org.apache.hop.databases.cassandra.spi;
 
+import java.util.Map;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-
-import java.util.Map;
 
 /** Interface to something that can process rows (read and write) via CQL. */
 public interface CqlRowHandler {

@@ -18,11 +18,10 @@
 
 package org.apache.hop.metadata.serializer.xml;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.lang.reflect.Field;
 import java.util.function.Function;
+import org.apache.hop.core.Const;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class MetadataPropertyKeyFunction implements Function<Field, String> {
   @Override

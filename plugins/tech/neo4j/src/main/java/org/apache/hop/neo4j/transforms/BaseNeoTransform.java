@@ -18,14 +18,13 @@
 
 package org.apache.hop.neo4j.transforms;
 
+import java.util.HashMap;
 import org.apache.hop.neo4j.core.Neo4jDefaults;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.HashMap;
 
 public abstract class BaseNeoTransform<
         Meta extends ITransformMeta, Data extends BaseNeoTransformData>

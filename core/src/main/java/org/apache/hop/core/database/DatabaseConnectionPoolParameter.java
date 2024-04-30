@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.database;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DatabaseConnectionPoolParameter {
   private String parameter;
@@ -45,32 +44,44 @@ public class DatabaseConnectionPoolParameter {
     this.description = description;
   }
 
-  /** @return the defaultValue */
+  /**
+   * @return the defaultValue
+   */
   public String getDefaultValue() {
     return defaultValue;
   }
 
-  /** @param defaultValue the defaultValue to set */
+  /**
+   * @param defaultValue the defaultValue to set
+   */
   public void setDefaultValue(String defaultValue) {
     this.defaultValue = defaultValue;
   }
 
-  /** @return the description */
+  /**
+   * @return the description
+   */
   public String getDescription() {
     return description;
   }
 
-  /** @param description the description to set */
+  /**
+   * @param description the description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }
 
-  /** @return the parameter */
+  /**
+   * @return the parameter
+   */
   public String getParameter() {
     return parameter;
   }
 
-  /** @param parameter the parameter to set */
+  /**
+   * @param parameter the parameter to set
+   */
   public void setParameter(String parameter) {
     this.parameter = parameter;
   }

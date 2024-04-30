@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Locale;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -31,12 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
 
 /** Get information from the System or the supervising pipeline. */
 public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
@@ -690,7 +689,8 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
       //
       Execution execution = iLocation.findPreviousSuccessfulExecution(executionType, name);
       if (execution == null) {
-        // We can go back millions of years but that would probably confuse a lot of 3rd party systems.
+        // We can go back millions of years but that would probably confuse a lot of 3rd party
+        // systems.
         //
         return new GregorianCalendar(1900, Calendar.JANUARY, 1).getTime();
       } else {

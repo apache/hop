@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.util;
 
+import java.io.InputStream;
+import java.net.URL;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -39,9 +41,6 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-
-import java.io.InputStream;
-import java.net.URL;
 
 /**
  * Class for loading images from SVG, PNG, or other bitmap formats.

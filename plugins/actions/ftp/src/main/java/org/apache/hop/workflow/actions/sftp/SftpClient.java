@@ -29,6 +29,10 @@ import com.jcraft.jsch.ProxySOCKS5;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.FileUtil;
@@ -37,11 +41,6 @@ import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
 
 public class SftpClient {
 

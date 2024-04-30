@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.systemdata;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -30,14 +38,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /** User: Dzmitry Stsiapanau Date: 1/20/14 Time: 12:12 PM */
 public class SystemDataTest {
@@ -56,7 +56,6 @@ public class SystemDataTest {
       super(transformMeta, meta, data, copyNr, pipelineMeta, pipeline);
     }
 
-    @SuppressWarnings("unused")
     public void setRow(Object[] row) {
       this.row = row;
     }

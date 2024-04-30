@@ -671,7 +671,6 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     int nroutputprops = wOutputProperties.nrNonEmpty();
     action.allocate(nrparams, nroutputprops);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrparams; i++) {
       TableItem item = wFields.getNonEmpty(i);
       action.getParameterField()[i] = item.getText(1);

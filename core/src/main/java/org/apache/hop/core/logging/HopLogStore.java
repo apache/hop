@@ -17,15 +17,14 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.util.EnvUtil;
-
 import java.io.PrintStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.util.EnvUtil;
 
 public class HopLogStore {
 
@@ -217,7 +216,7 @@ public class HopLogStore {
     LoggingRegistry registry = LoggingRegistry.getInstance();
     MetricsRegistry metricsRegistry = MetricsRegistry.getInstance();
     List<String> ids = registry.getLogChannelChildren(parentLogChannelId);
-    if (ids==null) {
+    if (ids == null) {
       return;
     }
 

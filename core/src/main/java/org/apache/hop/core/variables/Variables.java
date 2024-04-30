@@ -17,6 +17,12 @@
 
 package org.apache.hop.core.variables;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopValueException;
@@ -24,13 +30,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /** This class is an implementation of IVariables */
 public class Variables implements IVariables {
@@ -188,7 +187,7 @@ public class Variables implements IVariables {
     if (initialized) {
       // variables are already initialized
       if (map != null) {
-        for (Map.Entry<String,String> entry : map.entrySet()) {          
+        for (Map.Entry<String, String> entry : map.entrySet()) {
           if (!Utils.isEmpty(entry.getKey())) {
             properties.put(entry.getKey(), Const.NVL(entry.getValue(), ""));
           }
@@ -199,7 +198,7 @@ public class Variables implements IVariables {
       // We have our own personal copy, so changes afterwards
       // to the input properties don't affect us.
       injection = new Hashtable<>();
-      for (Map.Entry<String,String> entry : map.entrySet()) { 
+      for (Map.Entry<String, String> entry : map.entrySet()) {
         if (!Utils.isEmpty(entry.getKey())) {
           injection.put(entry.getKey(), Const.NVL(entry.getValue(), ""));
         }

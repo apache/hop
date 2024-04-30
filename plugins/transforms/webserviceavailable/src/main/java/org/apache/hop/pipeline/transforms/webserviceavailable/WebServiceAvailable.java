@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.webserviceavailable;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.RowDataUtil;
@@ -26,10 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
 
 /** Check if a webservice is available * */
 public class WebServiceAvailable

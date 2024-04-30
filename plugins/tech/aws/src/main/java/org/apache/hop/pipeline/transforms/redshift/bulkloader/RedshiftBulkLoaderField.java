@@ -17,62 +17,56 @@
 
 package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.Objects;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class RedshiftBulkLoaderField {
 
-    public RedshiftBulkLoaderField(){
+  public RedshiftBulkLoaderField() {}
 
-    }
+  public RedshiftBulkLoaderField(String fieldDatabase, String fieldStream) {
+    this.databaseField = fieldDatabase;
+    this.streamField = fieldStream;
+  }
 
-    public RedshiftBulkLoaderField(String fieldDatabase, String fieldStream){
-        this.databaseField = fieldDatabase;
-        this.streamField = fieldStream;
-    }
-
-    @HopMetadataProperty(
+  @HopMetadataProperty(
       key = "stream_name",
       injectionKey = "STREAM_FIELDNAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDSTREAM"
-    )
-    private String streamField;
+      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDSTREAM")
+  private String streamField;
 
-    @HopMetadataProperty(
-            key = "column_name",
-            injectionKey = "DATABASE_FIELDNAME",
-            injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDDATABASE"
-    )
-    private String databaseField;
+  @HopMetadataProperty(
+      key = "column_name",
+      injectionKey = "DATABASE_FIELDNAME",
+      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDDATABASE")
+  private String databaseField;
 
-    public String getStreamField(){
-        return streamField;
-    }
+  public String getStreamField() {
+    return streamField;
+  }
 
-    public void setStreamField(String streamField){
-        this.streamField = streamField;
-    }
+  public void setStreamField(String streamField) {
+    this.streamField = streamField;
+  }
 
-    public String getDatabaseField(){
-        return databaseField;
-    }
+  public String getDatabaseField() {
+    return databaseField;
+  }
 
-    public void setDatabaseField(String databaseField){
-        this.databaseField = databaseField;
-    }
+  public void setDatabaseField(String databaseField) {
+    this.databaseField = databaseField;
+  }
 
-    @Override
-    public boolean equals(Object o){
-        if(this == o) return true;
-        if(o == null || getClass() != o.getClass()) return false;
-        RedshiftBulkLoaderField that = (RedshiftBulkLoaderField) o;
-        return streamField.equals(that.streamField) && databaseField.equals(that.databaseField);
-    }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    RedshiftBulkLoaderField that = (RedshiftBulkLoaderField) o;
+    return streamField.equals(that.streamField) && databaseField.equals(that.databaseField);
+  }
 
-    @Override
-    public int hashCode(){
-        return Objects.hash(streamField, databaseField);
-    }
-
+  @Override
+  public int hashCode() {
+    return Objects.hash(streamField, databaseField);
+  }
 }

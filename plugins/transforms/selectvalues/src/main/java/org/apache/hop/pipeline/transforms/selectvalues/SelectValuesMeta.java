@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -44,18 +48,11 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 @Transform(
     id = "SelectValues",
     image = "selectvalues.svg",
-    name =
-        "i18n:org.apache.hop.pipeline.transforms.selectvalues:SelectValues.Name",
-    description =
-        "i18n:org.apache.hop.pipeline.transforms.selectvalues:SelectValues.Description",
+    name = "i18n:org.apache.hop.pipeline.transforms.selectvalues:SelectValues.Name",
+    description = "i18n:org.apache.hop.pipeline.transforms.selectvalues:SelectValues.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::SelectValuesMeta.keyword",
     documentationUrl = "/pipeline/transforms/selectvalues.html")
@@ -89,17 +86,23 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the deleteName. */
+  /**
+   * @return Returns the deleteName.
+   */
   public String[] getDeleteName() {
     return deleteName;
   }
 
-  /** @param deleteName The deleteName to set. */
+  /**
+   * @param deleteName The deleteName to set.
+   */
   public void setDeleteName(String[] deleteName) {
     this.deleteName = deleteName == null ? new String[0] : deleteName;
   }
 
-  /** @param selectName The selectName to set. */
+  /**
+   * @param selectName The selectName to set.
+   */
   public void setSelectName(String[] selectName) {
     resizeSelectFields(selectName.length);
     for (int i = 0; i < selectFields.length; i++) {
@@ -115,7 +118,9 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     return selectName;
   }
 
-  /** @param selectRename The selectRename to set. */
+  /**
+   * @param selectRename The selectRename to set.
+   */
   public void setSelectRename(String[] selectRename) {
     if (selectRename.length > selectFields.length) {
       resizeSelectFields(selectRename.length);
@@ -137,7 +142,9 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     return selectRename;
   }
 
-  /** @param selectLength The selectLength to set. */
+  /**
+   * @param selectLength The selectLength to set.
+   */
   public void setSelectLength(int[] selectLength) {
     if (selectLength.length > selectFields.length) {
       resizeSelectFields(selectLength.length);
@@ -159,7 +166,9 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     return selectLength;
   }
 
-  /** @param selectPrecision The selectPrecision to set. */
+  /**
+   * @param selectPrecision The selectPrecision to set.
+   */
   public void setSelectPrecision(int[] selectPrecision) {
     if (selectPrecision.length > selectFields.length) {
       resizeSelectFields(selectPrecision.length);
@@ -237,7 +246,7 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     System.arraycopy(deleteName, 0, retval.deleteName, 0, nrremove);
 
     for (int i = 0; i < nrmeta; i++) {
-      // CHECKSTYLE:Indentation:OFF
+
       retval.getMeta()[i] = meta[i].clone();
     }
 
@@ -710,23 +719,31 @@ public class SelectValuesMeta extends BaseTransformMeta<SelectValues, SelectValu
     }
   }
 
-  /** @return the selectingAndSortingUnspecifiedFields */
+  /**
+   * @return the selectingAndSortingUnspecifiedFields
+   */
   public boolean isSelectingAndSortingUnspecifiedFields() {
     return selectingAndSortingUnspecifiedFields;
   }
 
-  /** @param selectingAndSortingUnspecifiedFields the selectingAndSortingUnspecifiedFields to set */
+  /**
+   * @param selectingAndSortingUnspecifiedFields the selectingAndSortingUnspecifiedFields to set
+   */
   public void setSelectingAndSortingUnspecifiedFields(
       boolean selectingAndSortingUnspecifiedFields) {
     this.selectingAndSortingUnspecifiedFields = selectingAndSortingUnspecifiedFields;
   }
 
-  /** @return the meta */
+  /**
+   * @return the meta
+   */
   public SelectMetadataChange[] getMeta() {
     return meta;
   }
 
-  /** @param meta the meta to set */
+  /**
+   * @param meta the meta to set
+   */
   public void setMeta(SelectMetadataChange[] meta) {
     this.meta = meta == null ? new SelectMetadataChange[0] : meta;
   }

@@ -17,6 +17,11 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
+import java.io.File;
+import java.net.URI;
+import java.security.Permission;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,23 +34,22 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer.AbstractSSTableWriter;
 import org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer.SSTableWriterBuilder;
 
-import java.io.File;
-import java.net.URI;
-import java.security.Permission;
-import java.util.HashMap;
-import java.util.Map;
-
 /** Output transform for writing Cassandra SSTables (sorted-string tables). */
 public class SSTableOutput extends BaseTransform<SSTableOutputMeta, SSTableOutputData> {
   private static final SecurityManager sm = System.getSecurityManager();
+
   /** The number of rows seen so far for this batch */
   protected int rowsSeen;
+
   /** Writes the SSTable output */
   protected AbstractSSTableWriter writer;
+
   /** Used to determine input fields */
   protected IRowMeta inputMetadata;
+
   /** List of field names (optimization) */
   private String[] fieldNames;
+
   /** List of field indices (optimization) */
   private int[] fieldValueIndices;
 

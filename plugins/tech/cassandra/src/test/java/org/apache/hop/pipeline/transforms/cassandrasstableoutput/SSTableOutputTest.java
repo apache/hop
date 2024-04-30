@@ -17,6 +17,9 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -25,9 +28,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 public class SSTableOutputTest {
   private static TransformMockHelper<SSTableOutputMeta, SSTableOutputData> helper;

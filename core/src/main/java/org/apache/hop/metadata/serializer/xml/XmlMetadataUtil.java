@@ -17,6 +17,12 @@
 
 package org.apache.hop.metadata.serializer.xml;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -34,13 +40,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IIntCodeConverter;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.w3c.dom.Node;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class XmlMetadataUtil {
   /**

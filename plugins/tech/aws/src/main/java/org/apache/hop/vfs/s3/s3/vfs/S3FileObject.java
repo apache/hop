@@ -17,6 +17,8 @@
 
 package org.apache.hop.vfs.s3.s3.vfs;
 
+import static java.util.AbstractMap.SimpleEntry;
+
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
@@ -25,18 +27,15 @@ import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.vfs.s3.s3common.S3CommonFileObject;
 import org.apache.hop.vfs.s3.s3common.S3CommonPipedOutputStream;
-
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-
-import static java.util.AbstractMap.SimpleEntry;
 
 public class S3FileObject extends S3CommonFileObject {
 

@@ -79,7 +79,9 @@ public class CsvFile {
     return outputStream;
   }
 
-  /** @param outputStream The outputStream to set */
+  /**
+   * @param outputStream The outputStream to set
+   */
   public void setOutputStream(FileOutputStream outputStream) {
     this.outputStream = outputStream;
   }
@@ -110,7 +112,9 @@ public class CsvFile {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -124,7 +128,9 @@ public class CsvFile {
     return fileType;
   }
 
-  /** @param fileType The fileType to set */
+  /**
+   * @param fileType The fileType to set
+   */
   public void setFileType(String fileType) {
     this.fileType = fileType;
   }
@@ -138,7 +144,9 @@ public class CsvFile {
     return shortFilename;
   }
 
-  /** @param shortFilename The shortFilename to set */
+  /**
+   * @param shortFilename The shortFilename to set
+   */
   public void setShortFilename(String shortFilename) {
     this.shortFilename = shortFilename;
   }
@@ -152,7 +160,9 @@ public class CsvFile {
     return propsList;
   }
 
-  /** @param propsList The propsList to set */
+  /**
+   * @param propsList The propsList to set
+   */
   public void setPropsList(List<IdType> propsList) {
     this.propsList = propsList;
   }
@@ -166,7 +176,9 @@ public class CsvFile {
     return propsIndexes;
   }
 
-  /** @param propsIndexes The propsIndexes to set */
+  /**
+   * @param propsIndexes The propsIndexes to set
+   */
   public void setPropsIndexes(Map<String, Integer> propsIndexes) {
     this.propsIndexes = propsIndexes;
   }
@@ -180,7 +192,9 @@ public class CsvFile {
     return idFieldName;
   }
 
-  /** @param idFieldName The idFieldName to set */
+  /**
+   * @param idFieldName The idFieldName to set
+   */
   public void setIdFieldName(String idFieldName) {
     this.idFieldName = idFieldName;
   }

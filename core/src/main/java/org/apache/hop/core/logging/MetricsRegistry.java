@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.metrics.IMetricsSnapshot;
-
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import org.apache.hop.core.metrics.IMetricsSnapshot;
 
 /**
  * This singleton will capture all the metrics coming from the various log channels based on the log

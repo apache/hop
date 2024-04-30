@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.pgpdecryptstream;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -36,8 +37,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "PGPDecryptStream",
     image = "pgpdecryptstream.svg",
@@ -47,7 +46,8 @@ import java.util.List;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
     keywords = "i18n::PGPDecryptStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/pgpdecryptstream.html")
-public class PGPDecryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PGPDecryptStreamData> {
+public class PGPDecryptStreamMeta
+    extends BaseTransformMeta<PGPDecryptStream, PGPDecryptStreamData> {
   private static final Class<?> PKG = PGPDecryptStreamMeta.class; // For Translator
 
   /** GPG location */
@@ -80,52 +80,72 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta<PGPDecryptStream, PG
     return gpgLocation;
   }
 
-  /** @return Returns the streamfield. */
+  /**
+   * @return Returns the streamfield.
+   */
   public String getStreamField() {
     return streamfield;
   }
 
-  /** @param streamfield The streamfield to set. */
+  /**
+   * @param streamfield The streamfield to set.
+   */
   public void setStreamField(String streamfield) {
     this.streamfield = streamfield;
   }
 
-  /** @return Returns the passphraseFieldName. */
+  /**
+   * @return Returns the passphraseFieldName.
+   */
   public String getPassphraseFieldName() {
     return passphraseFieldName;
   }
 
-  /** @param passphraseFieldName The passphraseFieldName to set. */
+  /**
+   * @param passphraseFieldName The passphraseFieldName to set.
+   */
   public void setPassphraseFieldName(String passphraseFieldName) {
     this.passphraseFieldName = passphraseFieldName;
   }
 
-  /** @return Returns the passphraseFromField. */
+  /**
+   * @return Returns the passphraseFromField.
+   */
   public boolean isPassphraseFromField() {
     return passphraseFromField;
   }
 
-  /** @param passphraseFromField The passphraseFromField to set. */
+  /**
+   * @param passphraseFromField The passphraseFromField to set.
+   */
   public void setPassphraseFromField(boolean passphraseFromField) {
     this.passphraseFromField = passphraseFromField;
   }
 
-  /** @return Returns the resultName. */
+  /**
+   * @return Returns the resultName.
+   */
   public String getResultFieldName() {
     return resultfieldname;
   }
 
-  /** @param resultfieldname The resultFieldName to set */
+  /**
+   * @param resultfieldname The resultFieldName to set
+   */
   public void setResultFieldName(String resultfieldname) {
     this.resultfieldname = resultfieldname;
   }
 
-  /** @return Returns the passhrase. */
+  /**
+   * @return Returns the passhrase.
+   */
   public String getPassphrase() {
     return passhrase;
   }
 
-  /** @param passhrase The passhrase to set. */
+  /**
+   * @param passhrase The passhrase to set.
+   */
   public void setPassphrase(String passhrase) {
     this.passhrase = passhrase;
   }

@@ -107,6 +107,8 @@ public interface ILoggingObject {
    */
   void setForcingSeparateLogging(boolean forcingSeparateLogging);
 
-  /** @return True if the logging is forcibly separated out from even identical objects. */
+  /**
+   * @return True if the logging is forcibly separated out from even identical objects.
+   */
   boolean isForcingSeparateLogging();
 }

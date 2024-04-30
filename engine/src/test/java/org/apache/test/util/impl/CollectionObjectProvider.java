@@ -17,9 +17,8 @@
 
 package org.apache.test.util.impl;
 
-import org.apache.test.util.IObjectProvider;
-
 import java.util.Collection;
+import org.apache.test.util.IObjectProvider;
 
 public class CollectionObjectProvider<T> implements IObjectProvider<T> {
   private final Collection<T> objects;

@@ -59,47 +59,65 @@ public class Counter {
     this.maximum = maximum;
   }
 
-  /** @return Returns the counter. */
+  /**
+   * @return Returns the counter.
+   */
   public long getCounter() {
     return counterValue;
   }
 
-  /** @return Returns the increment. */
+  /**
+   * @return Returns the increment.
+   */
   public long getIncrement() {
     return increment;
   }
 
-  /** @return Returns the maximum. */
+  /**
+   * @return Returns the maximum.
+   */
   public long getMaximum() {
     return maximum;
   }
 
-  /** @return Returns the start. */
+  /**
+   * @return Returns the start.
+   */
   public long getStart() {
     return start;
   }
 
-  /** @return Returns the loop. */
+  /**
+   * @return Returns the loop.
+   */
   public boolean isLoop() {
     return loop;
   }
 
-  /** @param counter The counter to set. */
+  /**
+   * @param counter The counter to set.
+   */
   public void setCounter(long counter) {
     this.counterValue = counter;
   }
 
-  /** @param increment The increment to set. */
+  /**
+   * @param increment The increment to set.
+   */
   public void setIncrement(long increment) {
     this.increment = increment;
   }
 
-  /** @param loop The loop to set. */
+  /**
+   * @param loop The loop to set.
+   */
   public void setLoop(boolean loop) {
     this.loop = loop;
   }
 
-  /** @param maximum The maximum to set. */
+  /**
+   * @param maximum The maximum to set.
+   */
   public void setMaximum(long maximum) {
     this.maximum = maximum;
   }

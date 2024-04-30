@@ -36,32 +36,44 @@ public class RowSetRow {
     this.rowData = rowData;
   }
 
-  /** @return the rowSet */
+  /**
+   * @return the rowSet
+   */
   public IRowSet getRowSet() {
     return rowSet;
   }
 
-  /** @param rowSet the rowSet to set */
+  /**
+   * @param rowSet the rowSet to set
+   */
   public void setRowSet(IRowSet rowSet) {
     this.rowSet = rowSet;
   }
 
-  /** @return the rowData */
+  /**
+   * @return the rowData
+   */
   public Object[] getRowData() {
     return rowData;
   }
 
-  /** @param rowData the rowData to set */
+  /**
+   * @param rowData the rowData to set
+   */
   public void setRowData(Object[] rowData) {
     this.rowData = rowData;
   }
 
-  /** @return the rowMeta */
+  /**
+   * @return the rowMeta
+   */
   public IRowMeta getRowMeta() {
     return rowMeta;
   }
 
-  /** @param rowMeta the rowMeta to set */
+  /**
+   * @param rowMeta the rowMeta to set
+   */
   public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }

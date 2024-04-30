@@ -18,8 +18,9 @@
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
 import com.ibm.wsdl.extensions.soap12.SOAP12BodyImpl;
-import org.apache.hop.core.exception.HopException;
-
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import javax.wsdl.Binding;
 import javax.wsdl.BindingInput;
 import javax.wsdl.BindingOperation;
@@ -36,9 +37,7 @@ import javax.wsdl.extensions.soap12.SOAP12Address;
 import javax.wsdl.extensions.soap12.SOAP12Binding;
 import javax.wsdl.extensions.soap12.SOAP12Header;
 import javax.wsdl.extensions.soap12.SOAP12Operation;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import org.apache.hop.core.exception.HopException;
 
 /** Utilities for getting extensibility elements. */
 final class WsdlUtils {
@@ -254,7 +253,6 @@ final class WsdlUtils {
    * @param elementType Name of the extensiblity element to find.
    * @return ExtensibilityElement The ExtensiblityElement, if not found return null.
    */
-  @SuppressWarnings("unchecked")
   protected static ExtensibilityElement findExtensibilityElement(
       ElementExtensible extensibleElement, String elementType) {
 
@@ -276,7 +274,6 @@ final class WsdlUtils {
    * @param elementType Name of the extensibility element to find.
    * @return List of ExtensibilityElements, may be empty.
    */
-  @SuppressWarnings("unchecked")
   protected static List<ExtensibilityElement> findExtensibilityElements(
       ElementExtensible extensibleElement, String elementType) {
 

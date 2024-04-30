@@ -17,6 +17,10 @@
 
 package org.apache.hop.workflow.actions.mysqlbulkfile;
 
+import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -43,11 +47,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.w3c.dom.Node;
-
-import java.io.File;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.List;
 
 /** This defines an MYSQL Bulk file action. */
 @Action(

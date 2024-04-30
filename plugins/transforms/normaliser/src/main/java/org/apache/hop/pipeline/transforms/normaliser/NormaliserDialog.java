@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.normaliser;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -43,9 +45,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class NormaliserDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = NormaliserMeta.class; // For Translator
@@ -236,7 +235,7 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
         item.setText(NAME_INDEX, field.getName());
       }
       if (field.getValue() != null) {
-        item.setText(VALUE_INDEX,field.getValue());
+        item.setText(VALUE_INDEX, field.getValue());
       }
       if (field.getNorm() != null) {
         item.setText(NORM_INDEX, field.getNorm());
@@ -267,10 +266,9 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
 
     int i;
 
-    int nrFields = wFields.nrNonEmpty();   
+    int nrFields = wFields.nrNonEmpty();
     input.getNormaliserFields().clear();
 
-    // CHECKSTYLE:Indentation:OFF
     for (i = 0; i < nrFields; i++) {
       TableItem item = wFields.getNonEmpty(i);
       NormaliserField field = new NormaliserField();

@@ -17,13 +17,12 @@
 
 package org.apache.hop.ui.hopgui.file;
 
+import java.util.Properties;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.util.Properties;
 
 public abstract class HopFileTypeBase implements IHopFileType {
 

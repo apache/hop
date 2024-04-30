@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.append;
 
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.row.IRowMeta;
@@ -26,8 +27,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.List;
 
 /** Read all rows from a hop until the end, and then read the rows from another hop. */
 public class Append extends BaseTransform<AppendMeta, AppendData> {

@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.gui.WorkflowTracker;
@@ -36,11 +40,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @GuiPlugin(description = "Workflow Graph Grid Delegate")
 public class HopGuiWorkflowGridDelegate {

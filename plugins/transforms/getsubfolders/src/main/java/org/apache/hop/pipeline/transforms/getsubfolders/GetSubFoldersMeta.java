@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.getsubfolders;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -40,10 +43,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "GetSubFolders",

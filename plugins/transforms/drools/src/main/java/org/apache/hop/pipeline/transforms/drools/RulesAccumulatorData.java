@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.drools;
 
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -29,13 +35,6 @@ import org.kie.api.runtime.KieSession;
 import org.kie.api.runtime.ObjectFilter;
 import org.kie.internal.io.ResourceFactory;
 import org.kie.internal.utils.KieHelper;
-
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 
 public class RulesAccumulatorData extends BaseTransformData implements ITransformData {
   private static Class<?> PKG = RulesAccumulator.class; // for i18n purposes
@@ -101,7 +100,7 @@ public class RulesAccumulatorData extends BaseTransformData implements ITransfor
       throw new RuleValidationException(results1.getMessages());
     }
 
-   // reset classloader back to original
+    // reset classloader back to original
     Thread.currentThread().setContextClassLoader(orig);
   }
 

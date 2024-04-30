@@ -32,8 +32,10 @@ public class RecordBuffer {
   private ByteBuffer currentWriteBuffer;
   private ByteBuffer currentReadBuffer;
   private final int bufferSize; // A buffer's capacity, in bytes.
+
   /** BufferSize * BufferCount is the max capacity to buffer data before doing real stream load */
   private final int bufferCount;
+
   /** write length in bytes to recordBuffer */
   private long writeLength = 0;
 

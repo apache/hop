@@ -17,6 +17,11 @@
 
 package org.apache.hop.neo4j.logging.xp;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -37,12 +42,6 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.neo4j.driver.Driver;
 import org.neo4j.driver.Session;
 import org.neo4j.driver.TransactionWork;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ExtensionPoint(
     id = "WorkflowLoggingExtensionPoint",

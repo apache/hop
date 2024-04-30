@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -29,8 +31,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "IfNull",
@@ -44,28 +44,49 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
 
   private static final Class<?> PKG = IfNullMeta.class; // For Translator
 
-  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS",
+  @HopMetadataProperty(
+      groupKey = "fields",
+      key = "field",
+      injectionGroupKey = "FIELDS",
       injectionGroupDescription = "IfNull.Injection.FIELDS")
   private List<Field> fields;
 
-  @HopMetadataProperty(groupKey = "valuetypes", key = "valuetype", injectionGroupKey = "VALUE_TYPES",
+  @HopMetadataProperty(
+      groupKey = "valuetypes",
+      key = "valuetype",
+      injectionGroupKey = "VALUE_TYPES",
       injectionGroupDescription = "IfNull.Injection.VALUE_TYPES")
   private List<ValueType> valueTypes;
 
-  @HopMetadataProperty(key = "selectFields", injectionKey = "SELECT_FIELDS", injectionKeyDescription = "IfNull.Injection.SELECT_FIELDS")
+  @HopMetadataProperty(
+      key = "selectFields",
+      injectionKey = "SELECT_FIELDS",
+      injectionKeyDescription = "IfNull.Injection.SELECT_FIELDS")
   private boolean selectFields;
 
-  @HopMetadataProperty(key = "selectValuesType", injectionKey = "SELECT_VALUES_TYPE", injectionKeyDescription = "IfNull.Injection.SELECT_VALUES_TYPE")
+  @HopMetadataProperty(
+      key = "selectValuesType",
+      injectionKey = "SELECT_VALUES_TYPE",
+      injectionKeyDescription = "IfNull.Injection.SELECT_VALUES_TYPE")
   private boolean selectValuesType;
-  
-  @HopMetadataProperty(key = "replaceAllByValue", injectionKey = "REPLACE_ALL_BY_VALUE", injectionKeyDescription = "IfNull.Injection.REPLACE_ALL_BY_VALUE")
+
+  @HopMetadataProperty(
+      key = "replaceAllByValue",
+      injectionKey = "REPLACE_ALL_BY_VALUE",
+      injectionKeyDescription = "IfNull.Injection.REPLACE_ALL_BY_VALUE")
   private String replaceAllByValue;
 
-  @HopMetadataProperty(key = "replaceAllMask", injectionKey = "REPLACE_ALL_MASK", injectionKeyDescription = "IfNull.Injection.REPLACE_ALL_MASK")
+  @HopMetadataProperty(
+      key = "replaceAllMask",
+      injectionKey = "REPLACE_ALL_MASK",
+      injectionKeyDescription = "IfNull.Injection.REPLACE_ALL_MASK")
   private String replaceAllMask;
 
   /** The flag to set auto commit on or off on the connection */
-  @HopMetadataProperty(key = "setEmptyStringAll", injectionKey = "SET_EMPTY_STRING_ALL", injectionKeyDescription = "IfNull.Injection.SET_EMPTY_STRING_ALL")
+  @HopMetadataProperty(
+      key = "setEmptyStringAll",
+      injectionKey = "SET_EMPTY_STRING_ALL",
+      injectionKeyDescription = "IfNull.Injection.SET_EMPTY_STRING_ALL")
   private boolean setEmptyStringAll;
 
   public IfNullMeta() {
@@ -73,29 +94,33 @@ public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
     this.valueTypes = new ArrayList<>();
     this.fields = new ArrayList<>();
   }
-  
+
   public IfNullMeta(final IfNullMeta meta) {
-    this(); 
+    this();
     this.selectFields = meta.selectFields;
     this.selectValuesType = meta.selectValuesType;
     this.replaceAllByValue = meta.replaceAllByValue;
     this.replaceAllMask = meta.replaceAllMask;
     this.setEmptyStringAll = meta.setEmptyStringAll;
-    
-    for (Field field:meta.fields) {
+
+    for (Field field : meta.fields) {
       this.fields.add(new Field(field));
     }
-    for (ValueType vt:meta.valueTypes) {
+    for (ValueType vt : meta.valueTypes) {
       this.valueTypes.add(new ValueType(vt));
-    } 
+    }
   }
 
-  /** @return Returns the setEmptyStringAll. */
+  /**
+   * @return Returns the setEmptyStringAll.
+   */
   public boolean isSetEmptyStringAll() {
     return setEmptyStringAll;
   }
 
-  /** @param setEmptyStringAll The setEmptyStringAll to set. */
+  /**
+   * @param setEmptyStringAll The setEmptyStringAll to set.
+   */
   public void setSetEmptyStringAll(boolean setEmptyStringAll) {
     this.setEmptyStringAll = setEmptyStringAll;
   }

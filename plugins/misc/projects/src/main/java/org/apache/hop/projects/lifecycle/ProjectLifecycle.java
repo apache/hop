@@ -67,7 +67,9 @@ public class ProjectLifecycle {
     return name;
   }
 
-  /** @param name The name to set */
+  /**
+   * @param name The name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
@@ -81,7 +83,9 @@ public class ProjectLifecycle {
     return lifecycleEnvironments;
   }
 
-  /** @param lifecycleEnvironments The lifecycleEnvironments to set */
+  /**
+   * @param lifecycleEnvironments The lifecycleEnvironments to set
+   */
   public void setLifecycleEnvironments(List<String> lifecycleEnvironments) {
     this.lifecycleEnvironments = lifecycleEnvironments;
   }
@@ -95,7 +99,9 @@ public class ProjectLifecycle {
     return configurationFiles;
   }
 
-  /** @param configurationFiles The configurationFiles to set */
+  /**
+   * @param configurationFiles The configurationFiles to set
+   */
   public void setConfigurationFiles(List<String> configurationFiles) {
     this.configurationFiles = configurationFiles;
   }

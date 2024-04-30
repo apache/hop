@@ -18,6 +18,16 @@
 package org.apache.hop.pipeline.engines.remote;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -81,17 +91,6 @@ import org.apache.hop.www.SniffTransformServlet;
 import org.apache.hop.www.StartExecutionPipelineServlet;
 import org.apache.hop.www.WebResult;
 import org.w3c.dom.Node;
-
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @PipelineEnginePlugin(
     id = "Remote",
@@ -306,7 +305,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     hopServer.getLogChannel().setLogLevel(executionConfiguration.getLogLevel());
 
     try {
-      if (executionConfiguration.isPassingExport()) {
+      if (remotePipelineRunConfiguration.isExportingResources()) {
 
         // First export the workflow...
         //

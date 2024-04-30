@@ -17,13 +17,12 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.vfs.HopVfs;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.HopVfs;
 
 /**
  * This class takes care of polling the central log store for new log messages belonging to a
@@ -161,42 +160,58 @@ public class LogChannelFileWriter {
     return exception;
   }
 
-  /** @return the logChannelId */
+  /**
+   * @return the logChannelId
+   */
   public String getLogChannelId() {
     return logChannelId;
   }
 
-  /** @param logChannelId the logChannelId to set */
+  /**
+   * @param logChannelId the logChannelId to set
+   */
   public void setLogChannelId(String logChannelId) {
     this.logChannelId = logChannelId;
   }
 
-  /** @return the logFile */
+  /**
+   * @return the logFile
+   */
   public FileObject getLogFile() {
     return logFile;
   }
 
-  /** @param logFile the logFile to set */
+  /**
+   * @param logFile the logFile to set
+   */
   public void setLogFile(FileObject logFile) {
     this.logFile = logFile;
   }
 
-  /** @return the appending */
+  /**
+   * @return the appending
+   */
   public boolean isAppending() {
     return appending;
   }
 
-  /** @param appending the appending to set */
+  /**
+   * @param appending the appending to set
+   */
   public void setAppending(boolean appending) {
     this.appending = appending;
   }
 
-  /** @return the pollingInterval */
+  /**
+   * @return the pollingInterval
+   */
   public int getPollingInterval() {
     return pollingInterval;
   }
 
-  /** @param pollingInterval the pollingInterval to set */
+  /**
+   * @param pollingInterval the pollingInterval to set
+   */
   public void setPollingInterval(int pollingInterval) {
     this.pollingInterval = pollingInterval;
   }

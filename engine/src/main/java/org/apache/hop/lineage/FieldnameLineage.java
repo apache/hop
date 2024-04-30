@@ -39,22 +39,30 @@ public class FieldnameLineage {
     this.outputFieldname = outputFieldname;
   }
 
-  /** @return the input Field name */
+  /**
+   * @return the input Field name
+   */
   public String getInputFieldname() {
     return inputFieldname;
   }
 
-  /** @param inputFieldname the input Field name to set */
+  /**
+   * @param inputFieldname the input Field name to set
+   */
   public void setInputFieldname(String inputFieldname) {
     this.inputFieldname = inputFieldname;
   }
 
-  /** @return the output Field name */
+  /**
+   * @return the output Field name
+   */
   public String getOutputFieldname() {
     return outputFieldname;
   }
 
-  /** @param outputFieldname the output Field name to set */
+  /**
+   * @param outputFieldname the output Field name to set
+   */
   public void setOutputFieldname(String outputFieldname) {
     this.outputFieldname = outputFieldname;
   }

@@ -19,6 +19,7 @@
 package org.apache.hop.vfs.dropbox;
 
 import com.dropbox.core.v2.DbxClientV2;
+import java.util.Collection;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
@@ -26,8 +27,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileSystem;
-
-import java.util.Collection;
 
 public class DropboxFileSystem extends AbstractFileSystem {
 

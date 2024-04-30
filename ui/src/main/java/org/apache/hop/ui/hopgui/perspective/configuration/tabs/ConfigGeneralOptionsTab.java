@@ -410,7 +410,8 @@ public class ConfigGeneralOptionsTab {
     //
     Label wlDrawBorderAroundCanvasNames = new Label(wGeneralComp, SWT.RIGHT);
     wlDrawBorderAroundCanvasNames.setText(
-            BaseMessages.getString(PKG, "EnterOptionsDialog.DrawBorderAroundCanvasNamesOnCanvas.Label"));
+        BaseMessages.getString(
+            PKG, "EnterOptionsDialog.DrawBorderAroundCanvasNamesOnCanvas.Label"));
     PropsUi.setLook(wlDrawBorderAroundCanvasNames);
     FormData fdlDrawBorderAroundCanvasNames = new FormData();
     fdlDrawBorderAroundCanvasNames.left = new FormAttachment(0, 0);
@@ -422,7 +423,8 @@ public class ConfigGeneralOptionsTab {
     wbDrawBorderAroundCanvasNames.setSelection(props.useDoubleClick());
     FormData fdbDrawBorderAroundCanvasNames = new FormData();
     fdbDrawBorderAroundCanvasNames.left = new FormAttachment(middle, 0);
-    fdbDrawBorderAroundCanvasNames.top = new FormAttachment(wlDrawBorderAroundCanvasNames, 0, SWT.CENTER);
+    fdbDrawBorderAroundCanvasNames.top =
+        new FormAttachment(wlDrawBorderAroundCanvasNames, 0, SWT.CENTER);
     fdbDrawBorderAroundCanvasNames.right = new FormAttachment(100, 0);
     wbDrawBorderAroundCanvasNames.setLayoutData(fdbDrawBorderAroundCanvasNames);
     wbDrawBorderAroundCanvasNames.addListener(SWT.Selection, this::saveValues);

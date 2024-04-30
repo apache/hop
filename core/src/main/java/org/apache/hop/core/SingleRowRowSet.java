@@ -17,9 +17,8 @@
 
 package org.apache.hop.core;
 
-import org.apache.hop.core.row.IRowMeta;
-
 import java.util.concurrent.TimeUnit;
+import org.apache.hop.core.row.IRowMeta;
 
 /**
  * A simplified rowset for transforms that always only need to only have a single row on input...

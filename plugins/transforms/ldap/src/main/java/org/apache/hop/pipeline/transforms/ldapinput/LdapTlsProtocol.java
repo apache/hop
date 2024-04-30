@@ -16,17 +16,16 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import javax.naming.NamingException;
+import javax.naming.ldap.StartTlsRequest;
+import javax.naming.ldap.StartTlsResponse;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.truststore.CustomSocketFactory;
 import org.apache.hop.core.variables.IVariables;
-
-import javax.naming.NamingException;
-import javax.naming.ldap.StartTlsRequest;
-import javax.naming.ldap.StartTlsResponse;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
 
 public class LdapTlsProtocol extends LdapSslProtocol {
   private StartTlsResponse startTlsResponse;

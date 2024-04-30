@@ -69,7 +69,9 @@ public class KeyField {
     return streamField1;
   }
 
-  /** @param streamField1 The streamField1 to set */
+  /**
+   * @param streamField1 The streamField1 to set
+   */
   public void setStreamField1(String streamField1) {
     this.streamField1 = streamField1;
   }
@@ -83,7 +85,9 @@ public class KeyField {
     return streamField2;
   }
 
-  /** @param streamField2 The streamField2 to set */
+  /**
+   * @param streamField2 The streamField2 to set
+   */
   public void setStreamField2(String streamField2) {
     this.streamField2 = streamField2;
   }
@@ -97,7 +101,9 @@ public class KeyField {
     return condition;
   }
 
-  /** @param condition The condition to set */
+  /**
+   * @param condition The condition to set
+   */
   public void setCondition(String condition) {
     this.condition = condition;
   }
@@ -111,7 +117,9 @@ public class KeyField {
     return tableField;
   }
 
-  /** @param tableField The tableField to set */
+  /**
+   * @param tableField The tableField to set
+   */
   public void setTableField(String tableField) {
     this.tableField = tableField;
   }

@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.createfolder;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
@@ -34,8 +35,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-
-import java.util.List;
 
 /**
  * This defines a 'create folder' action. Its main use would be to create empty folder that can be

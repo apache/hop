@@ -25,21 +25,26 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Netezza specific information through static final members
- */
-@DatabaseMetaPlugin(type = "NETEZZA", typeDescription = "Netezza", documentationUrl = "/database/databases/netezza.html")
+/** Contains Netezza specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "NETEZZA",
+    typeDescription = "Netezza",
+    documentationUrl = "/database/databases/netezza.html")
 @GuiPlugin(id = "GUI-NetezzaDatabaseMeta")
 public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   public static final int MAX_CHAR_LEN = 32767;
 
-  /** @return The extra option separator in database URL for this platform */
+  /**
+   * @return The extra option separator in database URL for this platform
+   */
   @Override
   public String getExtraOptionSeparator() {
     return "&";
   }
 
-  /** @return This indicator separates the normal URL from the options */
+  /**
+   * @return This indicator separates the normal URL from the options
+   */
   @Override
   public String getExtraOptionIndicator() {
     return "?";
@@ -78,13 +83,17 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;
@@ -95,7 +104,9 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if auto incremment is supported */
+  /**
+   * @return true if auto incremment is supported
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return false;

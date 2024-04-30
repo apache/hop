@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.writetolog;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -32,9 +34,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Transform(
     id = "WriteToLog",
@@ -128,12 +127,16 @@ public class WriteToLogMeta extends BaseTransformMeta<WriteToLog, WriteToLogData
     fieldName = new String[nrFields];
   }
 
-  /** @return Returns the fieldName. */
+  /**
+   * @return Returns the fieldName.
+   */
   public String[] getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName The fieldName to set. */
+  /**
+   * @param fieldName The fieldName to set.
+   */
   public void setFieldName(String[] fieldName) {
     this.fieldName = fieldName;
   }

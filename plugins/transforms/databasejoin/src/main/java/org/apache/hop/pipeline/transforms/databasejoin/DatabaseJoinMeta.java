@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.databasejoin;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -41,9 +43,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Transform(
     id = "DBJoin",
     image = "dbjoin.svg",
@@ -60,6 +59,15 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
       key = "connection",
       injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection")
   private String connection;
+
+  @HopMetadataProperty(key = "cache", injectionKeyDescription = "DatabaseJoinMeta.Injection.Cache")
+  private boolean cached;
+
+  /** Limit the cache size to this! */
+  @HopMetadataProperty(
+      key = "cache_size",
+      injectionKeyDescription = "DatabaseJoinMeta.Injection.CacheSize")
+  private int cacheSize;
 
   /** SQL Statement */
   @HopMetadataProperty(key = "sql", injectionKeyDescription = "DatabaseJoinMeta.Injection.SQL")
@@ -109,6 +117,8 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     for (ParameterField field : clone.parameters) {
       parameters.add(new ParameterField(field));
     }
+    this.cached = clone.cached;
+    this.cacheSize = clone.cacheSize;
   }
 
   public String getConnection() {
@@ -119,42 +129,90 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
     this.connection = connection;
   }
 
-  /** @return Returns the outerJoin. */
+  /**
+   * Gets cached
+   *
+   * @return value of cached
+   */
+  public boolean isCached() {
+    return cached;
+  }
+
+  /**
+   * @param cached The cached to set
+   */
+  public void setCached(boolean cached) {
+    this.cached = cached;
+  }
+
+  /**
+   * Gets cacheSize
+   *
+   * @return value of cacheSize
+   */
+  public int getCacheSize() {
+    return cacheSize;
+  }
+
+  /**
+   * @param cacheSize The cacheSize to set
+   */
+  public void setCacheSize(int cacheSize) {
+    this.cacheSize = cacheSize;
+  }
+
+  /**
+   * @return Returns the outerJoin.
+   */
   public boolean isOuterJoin() {
     return outerJoin;
   }
 
-  /** @param outerJoin The outerJoin to set. */
+  /**
+   * @param outerJoin The outerJoin to set.
+   */
   public void setOuterJoin(boolean outerJoin) {
     this.outerJoin = outerJoin;
   }
 
-  /** @return Returns the replacevars. */
+  /**
+   * @return Returns the replacevars.
+   */
   public boolean isReplaceVariables() {
     return replaceVariables;
   }
 
-  /** @param enabled The replacevars to set. */
+  /**
+   * @param enabled The replacevars to set.
+   */
   public void setReplaceVariables(boolean enabled) {
     this.replaceVariables = enabled;
   }
 
-  /** @return Returns the rowLimit. */
+  /**
+   * @return Returns the rowLimit.
+   */
   public int getRowLimit() {
     return rowLimit;
   }
 
-  /** @param rowLimit The rowLimit to set. */
+  /**
+   * @param rowLimit The rowLimit to set.
+   */
   public void setRowLimit(int rowLimit) {
     this.rowLimit = rowLimit;
   }
 
-  /** @return Returns the sql. */
+  /**
+   * @return Returns the sql.
+   */
   public String getSql() {
     return sql;
   }
 
-  /** @param sql The sql to set. */
+  /**
+   * @param sql The sql to set.
+   */
   public void setSql(String sql) {
     this.sql = sql;
   }

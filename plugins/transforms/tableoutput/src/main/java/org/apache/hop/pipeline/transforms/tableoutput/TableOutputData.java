@@ -17,12 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.tableoutput;
 
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-
 import java.sql.PreparedStatement;
 import java.sql.Savepoint;
 import java.text.SimpleDateFormat;
@@ -31,6 +25,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Storage class for table output transform. */
 public class TableOutputData extends BaseTransformData implements ITransformData {

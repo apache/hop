@@ -21,7 +21,6 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
-
 import java.util.List;
 
 /** User: Dzmitry Stsiapanau Date: 04/06/2016 Time: 12:37 */

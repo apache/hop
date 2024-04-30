@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.salesforceupdate;
 import com.google.common.annotations.VisibleForTesting;
 import com.sforce.soap.partner.sobject.SObject;
 import com.sforce.ws.bind.XmlObject;
+import java.util.ArrayList;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IValueMeta;
@@ -31,8 +32,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransform;
 import org.apache.hop.pipeline.transforms.salesforceutils.SalesforceUtils;
-
-import java.util.ArrayList;
 
 /**
  * Read data from Salesforce module, convert them to rows and writes these to one or more output

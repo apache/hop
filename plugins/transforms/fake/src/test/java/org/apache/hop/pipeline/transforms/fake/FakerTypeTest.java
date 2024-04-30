@@ -16,7 +16,7 @@
  */
 
 package org.apache.hop.pipeline.transforms.fake;
- 
+
 import com.github.javafaker.Faker;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class FakerTypeTest {
   @Test
   public void testFakerTypeMethodMapping() throws Exception {
     Faker faker = new Faker();
-    for(FakerType type : FakerType.values() ) {
+    for (FakerType type : FakerType.values()) {
       try {
         faker.getClass().getMethod(type.getFakerMethod());
       } catch (NoSuchMethodException | SecurityException e) {

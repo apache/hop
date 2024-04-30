@@ -17,11 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata.util.encoding;
 
-import org.mozilla.universalchardet.UniversalDetector;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
+import org.mozilla.universalchardet.UniversalDetector;
 
 public class EncodingDetector {
 

@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.NoneDatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -24,12 +30,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doCallRealMethod;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 
 public class SynchronizeAfterMergeTest {
 

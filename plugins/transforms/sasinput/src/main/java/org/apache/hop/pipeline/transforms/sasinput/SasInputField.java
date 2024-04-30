@@ -109,92 +109,128 @@ public class SasInputField implements Cloneable {
     trimType = ValueMetaString.getTrimTypeByCode(XmlHandler.getTagValue(node, "trim_type"));
   }
 
-  /** @return the name */
+  /**
+   * @return the name
+   */
   public String getName() {
     return name;
   }
 
-  /** @param name the name to set */
+  /**
+   * @param name the name to set
+   */
   public void setName(String name) {
     this.name = name;
   }
 
-  /** @return the rename */
+  /**
+   * @return the rename
+   */
   public String getRename() {
     return rename;
   }
 
-  /** @param rename the rename to set */
+  /**
+   * @param rename the rename to set
+   */
   public void setRename(String rename) {
     this.rename = rename;
   }
 
-  /** @return the type */
+  /**
+   * @return the type
+   */
   public int getType() {
     return type;
   }
 
-  /** @param type the type to set */
+  /**
+   * @param type the type to set
+   */
   public void setType(int type) {
     this.type = type;
   }
 
-  /** @return the conversionMask */
+  /**
+   * @return the conversionMask
+   */
   public String getConversionMask() {
     return conversionMask;
   }
 
-  /** @param conversionMask the conversionMask to set */
+  /**
+   * @param conversionMask the conversionMask to set
+   */
   public void setConversionMask(String conversionMask) {
     this.conversionMask = conversionMask;
   }
 
-  /** @return the decimalSymbol */
+  /**
+   * @return the decimalSymbol
+   */
   public String getDecimalSymbol() {
     return decimalSymbol;
   }
 
-  /** @param decimalSymbol the decimalSymbol to set */
+  /**
+   * @param decimalSymbol the decimalSymbol to set
+   */
   public void setDecimalSymbol(String decimalSymbol) {
     this.decimalSymbol = decimalSymbol;
   }
 
-  /** @return the groupingSymbol */
+  /**
+   * @return the groupingSymbol
+   */
   public String getGroupingSymbol() {
     return groupingSymbol;
   }
 
-  /** @param groupingSymbol the groupingSymbol to set */
+  /**
+   * @param groupingSymbol the groupingSymbol to set
+   */
   public void setGroupingSymbol(String groupingSymbol) {
     this.groupingSymbol = groupingSymbol;
   }
 
-  /** @return the trimType */
+  /**
+   * @return the trimType
+   */
   public int getTrimType() {
     return trimType;
   }
 
-  /** @param trimType the trimType to set */
+  /**
+   * @param trimType the trimType to set
+   */
   public void setTrimType(int trimType) {
     this.trimType = trimType;
   }
 
-  /** @return the precision */
+  /**
+   * @return the precision
+   */
   public int getPrecision() {
     return precision;
   }
 
-  /** @param precision the precision to set */
+  /**
+   * @param precision the precision to set
+   */
   public void setPrecision(int precision) {
     this.precision = precision;
   }
 
-  /** @return the length */
+  /**
+   * @return the length
+   */
   public int getLength() {
     return length;
   }
 
-  /** @param length the length to set */
+  /**
+   * @param length the length to set
+   */
   public void setLength(int length) {
     this.length = length;
   }

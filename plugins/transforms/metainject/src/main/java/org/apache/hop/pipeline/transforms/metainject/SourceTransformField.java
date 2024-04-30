@@ -53,22 +53,30 @@ public class SourceTransformField {
     return Objects.hash(transformName, field);
   }
 
-  /** @return the transform name */
+  /**
+   * @return the transform name
+   */
   public String getTransformName() {
     return transformName;
   }
 
-  /** @param transformName the transform name to set */
+  /**
+   * @param transformName the transform name to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
 
-  /** @return the field */
+  /**
+   * @return the field
+   */
   public String getField() {
     return field;
   }
 
-  /** @param field the field to set */
+  /**
+   * @param field the field to set
+   */
   public void setField(String field) {
     this.field = field;
   }

@@ -17,6 +17,12 @@
 
 package org.apache.hop.www;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.HopServerServlet;
@@ -25,13 +31,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.multi.MultiMetadataProvider;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 
 @HopServerServlet(id = "registerExecInfo", name = "Register execution information")
 public class DeleteExecutionInfoServlet extends BaseHttpServlet implements IHopServerPlugin {

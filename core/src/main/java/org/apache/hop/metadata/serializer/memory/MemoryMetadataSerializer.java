@@ -17,16 +17,15 @@
 
 package org.apache.hop.metadata.serializer.memory;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMetadataSerializer<T> {
 
@@ -125,7 +124,9 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     return metadataProvider;
   }
 
-  /** @param metadataProvider The metadataProvider to set */
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
   public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
     this.metadataProvider = metadataProvider;
   }
@@ -140,7 +141,9 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     return managedClass;
   }
 
-  /** @param managedClass The managedClass to set */
+  /**
+   * @param managedClass The managedClass to set
+   */
   public void setManagedClass(Class<T> managedClass) {
     this.managedClass = managedClass;
   }
@@ -154,7 +157,9 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     return objectMap;
   }
 
-  /** @param objectMap The objectMap to set */
+  /**
+   * @param objectMap The objectMap to set
+   */
   public void setObjectMap(Map<String, T> objectMap) {
     this.objectMap = objectMap;
   }
@@ -178,7 +183,9 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

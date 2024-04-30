@@ -17,12 +17,11 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionFtp> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -35,38 +34,38 @@ public class WorkflowActionFtpLoadSaveTest extends WorkflowActionLoadSaveTestSup
   @Override
   protected List<String> listAttributes() {
     return Arrays.asList(
-            "serverPort",
-            "serverName",
-            "userName",
-            "password",
-            "remoteDirectory",
-            "targetDirectory",
-            "wildcard",
-            "binaryMode",
-            "timeout",
-            "remove",
-            "onlyGettingNewFiles",
-            "activeConnection",
-            "controlEncoding",
-            "moveFiles",
-            "moveToDirectory",
-            "addDate",
-            "addTime",
-            "specifyFormat",
-            "dateTimeFormat",
-            "addDateBeforeExtension",
-            "addResult",
-            "createMoveFolder",
-            "proxyHost",
-            "proxyPort",
-            "proxyUsername",
-            "proxyPassword",
-            "socksProxyHost",
-            "socksProxyPort",
-            "socksProxyUsername",
-            "socksProxyPassword",
-            "stringIfFileExists",
-            "nrLimit",
-            "successCondition");
+        "serverPort",
+        "serverName",
+        "userName",
+        "password",
+        "remoteDirectory",
+        "targetDirectory",
+        "wildcard",
+        "binaryMode",
+        "timeout",
+        "remove",
+        "onlyGettingNewFiles",
+        "activeConnection",
+        "controlEncoding",
+        "moveFiles",
+        "moveToDirectory",
+        "addDate",
+        "addTime",
+        "specifyFormat",
+        "dateTimeFormat",
+        "addDateBeforeExtension",
+        "addResult",
+        "createMoveFolder",
+        "proxyHost",
+        "proxyPort",
+        "proxyUsername",
+        "proxyPassword",
+        "socksProxyHost",
+        "socksProxyPort",
+        "socksProxyUsername",
+        "socksProxyPassword",
+        "stringIfFileExists",
+        "nrLimit",
+        "successCondition");
   }
 }

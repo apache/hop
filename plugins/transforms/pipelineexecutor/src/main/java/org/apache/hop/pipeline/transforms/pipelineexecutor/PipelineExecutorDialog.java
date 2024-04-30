@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.pipelineexecutor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -72,10 +75,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class PipelineExecutorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = PipelineExecutorDialog.class; // For Translator
@@ -862,7 +861,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     PropsUi.setLook(wGroupTime);
     FormData fdGroupTime = new FormData();
     fdGroupTime.right = new FormAttachment(100);
-    fdGroupTime.top = new FormAttachment(wlGroupTime,  0, SWT.CENTER);
+    fdGroupTime.top = new FormAttachment(wlGroupTime, 0, SWT.CENTER);
     fdGroupTime.left = new FormAttachment(wlGroupTime, margin);
     wGroupTime.setLayoutData(fdGroupTime);
 
@@ -1333,7 +1332,6 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     pipelineExecutorMeta.setOutputRowsLength(new int[nrFields]);
     pipelineExecutorMeta.setOutputRowsPrecision(new int[nrFields]);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wOutputFields.getNonEmpty(i);
       pipelineExecutorMeta.getOutputRowsField()[i] = item.getText(1);

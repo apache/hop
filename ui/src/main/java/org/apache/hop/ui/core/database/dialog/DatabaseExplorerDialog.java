@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.core.database.dialog;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -67,10 +69,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This dialog represents an explorer type of interface on a given database connection. It shows the
@@ -783,16 +781,16 @@ public class DatabaseExplorerDialog extends Dialog {
 
   public void showTable(String tableName) {
     String sql = dbMeta.getSqlQueryFields(tableName);
-//    GetQueryFieldsProgressDialog pd =
-//        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
-//    IRowMeta result = pd.open();
+    //    GetQueryFieldsProgressDialog pd =
+    //        new GetQueryFieldsProgressDialog(shell, variables, dbMeta, sql);
+    //    IRowMeta result = pd.open();
     IRowMeta result = null;
     Database db = new Database(HopGui.getInstance().getLoggingObject(), variables, dbMeta);
     try {
-       db.connect();
+      db.connect();
       result = db.getQueryFields(sql, false);
-    } catch (Exception e) {}
-    finally {
+    } catch (Exception e) {
+    } finally {
       db.disconnect();
     }
     if (result != null) {
@@ -803,7 +801,8 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void showCount(String tableName) {
-    String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
+    String realTableName =
+        (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
     GetTableSizeProgressDialog pd =
         new GetTableSizeProgressDialog(shell, variables, dbMeta, realTableName);
     Long size = pd.open();
@@ -822,7 +821,8 @@ public class DatabaseExplorerDialog extends Dialog {
     try {
       db.connect();
       IRowMeta r = db.getTableFields(tableName);
-      String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
+      String realTableName =
+          (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
 
       String sql = db.getCreateTableStatement(realTableName, r, null, false, null, true);
       SqlEditor se = new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, sql);
@@ -845,7 +845,8 @@ public class DatabaseExplorerDialog extends Dialog {
       try {
         database.connect();
 
-        String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
+        String realTableName =
+            (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
         IRowMeta rowMeta = database.getTableFields(realTableName);
 
         // Now select the other connection...
@@ -896,9 +897,11 @@ public class DatabaseExplorerDialog extends Dialog {
   }
 
   public void getSql(String tableName) {
-    String realTableName = (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
+    String realTableName =
+        (tableName.contains(".") ? tableName.substring(tableName.indexOf(".") + 1) : tableName);
     SqlEditor sqlEditor =
-        new SqlEditor(shell, SWT.NONE, variables, dbMeta, dbcache, "SELECT * FROM " + realTableName);
+        new SqlEditor(
+            shell, SWT.NONE, variables, dbMeta, dbcache, "SELECT * FROM " + realTableName);
     sqlEditor.open();
   }
 

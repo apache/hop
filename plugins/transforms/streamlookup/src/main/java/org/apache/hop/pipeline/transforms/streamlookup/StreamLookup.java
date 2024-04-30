@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.streamlookup;
 
+import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.Collections;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
@@ -34,10 +37,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.math.BigDecimal;
-import java.text.DateFormat;
-import java.util.Collections;
 
 /**
  * Looks up information by first reading data into a hash table (in memory)
@@ -63,7 +62,7 @@ public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupDa
 
     for (int i = 0; i < meta.getValue().length; i++) {
       if (meta.getValueDefaultType()[i] < 0) {
-        // CHECKSTYLE:Indentation:OFF
+
         meta.getValueDefaultType()[i] = IValueMeta.TYPE_STRING;
       }
       data.nullIf[i] = null;

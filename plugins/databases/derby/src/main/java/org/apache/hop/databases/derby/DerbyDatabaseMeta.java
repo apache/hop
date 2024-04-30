@@ -26,10 +26,11 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 
-/**
- * Contains Apache Derby Database Connection information through static final members
- */
-@DatabaseMetaPlugin(type = "DERBY", typeDescription = "Apache Derby", documentationUrl = "/database/databases/derby.html")
+/** Contains Apache Derby Database Connection information through static final members */
+@DatabaseMetaPlugin(
+    type = "DERBY",
+    typeDescription = "Apache Derby",
+    documentationUrl = "/database/databases/derby.html")
 @GuiPlugin(id = "GUI-DerbyDatabaseMeta")
 public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -37,7 +38,9 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -79,7 +82,9 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return true;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;

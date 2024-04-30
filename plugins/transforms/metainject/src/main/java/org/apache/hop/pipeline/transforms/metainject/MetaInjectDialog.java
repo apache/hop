@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -85,15 +93,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 public class MetaInjectDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
@@ -614,8 +613,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wInjectComp.setLayout(fileLayout);
 
     // Add a search bar at the top...
-    ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);    
-    PropsUi.setLook(treeTb, PropsUi.WIDGET_STYLE_DEFAULT);    
+    ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
+    PropsUi.setLook(treeTb, PropsUi.WIDGET_STYLE_DEFAULT);
     ToolItem wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
     wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL | SWT.ICON_SEARCH | SWT.ICON_CANCEL);
     wSearchText.setData(BaseDialog.NO_DEFAULT_HANDLER, true);
@@ -669,7 +668,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdTree.bottom = new FormAttachment(100, 0);
     wTree.setLayoutData(fdTree);
     PropsUi.setLook(wTree);
-    
+
     ColumnInfo[] colinf =
         new ColumnInfo[] {
           new ColumnInfo(

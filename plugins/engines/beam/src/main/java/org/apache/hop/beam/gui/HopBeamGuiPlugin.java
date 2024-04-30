@@ -17,6 +17,14 @@
 
 package org.apache.hop.beam.gui;
 
+import java.io.File;
+import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import org.apache.beam.runners.dataflow.DataflowPipelineJob;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -45,15 +53,6 @@ import org.apache.hop.ui.hopgui.perspective.execution.IExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
-
-import java.io.File;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @GuiPlugin
 public class HopBeamGuiPlugin {

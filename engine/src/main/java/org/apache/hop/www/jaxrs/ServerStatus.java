@@ -17,16 +17,15 @@
 
 package org.apache.hop.www.jaxrs;
 
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.management.RuntimeMXBean;
+import java.lang.management.ThreadMXBean;
+import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
-
-import javax.xml.bind.annotation.XmlRootElement;
-import java.lang.management.OperatingSystemMXBean;
-import java.lang.management.RuntimeMXBean;
-import java.lang.management.ThreadMXBean;
 
 @XmlRootElement
 public class ServerStatus {
@@ -115,62 +114,86 @@ public class ServerStatus {
     osArchitecture = XmlHandler.getTagValue(statusNode, "os_arch");
   }
 
-  /** @return the statusDescription */
+  /**
+   * @return the statusDescription
+   */
   public String getStatusDescription() {
     return statusDescription;
   }
 
-  /** @param statusDescription the statusDescription to set */
+  /**
+   * @param statusDescription the statusDescription to set
+   */
   public void setStatusDescription(String statusDescription) {
     this.statusDescription = statusDescription;
   }
 
-  /** @return the errorDescription */
+  /**
+   * @return the errorDescription
+   */
   public String getErrorDescription() {
     return errorDescription;
   }
 
-  /** @param errorDescription the errorDescription to set */
+  /**
+   * @param errorDescription the errorDescription to set
+   */
   public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
   }
 
-  /** @return the memoryFree */
+  /**
+   * @return the memoryFree
+   */
   public double getMemoryFree() {
     return memoryFree;
   }
 
-  /** @param memoryFree the memoryFree to set */
+  /**
+   * @param memoryFree the memoryFree to set
+   */
   public void setMemoryFree(long memoryFree) {
     this.memoryFree = memoryFree;
   }
 
-  /** @return the memoryTotal */
+  /**
+   * @return the memoryTotal
+   */
   public double getMemoryTotal() {
     return memoryTotal;
   }
 
-  /** @param memoryTotal the memoryTotal to set */
+  /**
+   * @param memoryTotal the memoryTotal to set
+   */
   public void setMemoryTotal(long memoryTotal) {
     this.memoryTotal = memoryTotal;
   }
 
-  /** @return the cpuCores */
+  /**
+   * @return the cpuCores
+   */
   public int getCpuCores() {
     return cpuCores;
   }
 
-  /** @param cpuCores the cpuCores to set */
+  /**
+   * @param cpuCores the cpuCores to set
+   */
   public void setCpuCores(int cpuCores) {
     this.cpuCores = cpuCores;
   }
 
-  /** @return the cpuProcessTime */
+  /**
+   * @return the cpuProcessTime
+   */
   public long getCpuProcessTime() {
     return cpuProcessTime;
   }
 
-  /** @param cpuProcessTime the cpuProcessTime to set */
+  /**
+   * @param cpuProcessTime the cpuProcessTime to set
+   */
   public void setCpuProcessTime(long cpuProcessTime) {
     this.cpuProcessTime = cpuProcessTime;
   }

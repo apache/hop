@@ -17,8 +17,18 @@
 
 package org.apache.hop.workflow.actions.http;
 
+import static org.junit.Assert.assertTrue;
+
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpServer;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
@@ -32,17 +42,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static org.junit.Assert.assertTrue;
 
 public class ActionHttp_PDI208_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

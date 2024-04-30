@@ -17,15 +17,15 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class SynchronizeAfterMergeMetaInjectionTest
     extends BaseMetadataInjectionTest<SynchronizeAfterMergeMeta> {

@@ -26,4 +26,5 @@ under the License.
             <property name="severity" value="error" />
         </module>
     </module>
+    <module name="OrderedProperties"/>
 </module>

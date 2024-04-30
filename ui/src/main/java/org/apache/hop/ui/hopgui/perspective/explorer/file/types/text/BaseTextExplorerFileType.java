@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.hopgui.perspective.explorer.file.types.text;
 
+import java.util.Properties;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -25,8 +26,6 @@ import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerFile;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.IExplorerFileType;
 import org.apache.hop.ui.hopgui.perspective.explorer.file.types.base.BaseExplorerFileType;
-
-import java.util.Properties;
 
 public abstract class BaseTextExplorerFileType<T extends BaseTextExplorerFileTypeHandler>
     extends BaseExplorerFileType<T> implements IExplorerFileType<T> {

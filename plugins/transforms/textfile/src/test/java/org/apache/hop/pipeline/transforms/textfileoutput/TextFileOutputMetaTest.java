@@ -17,6 +17,14 @@
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -29,15 +37,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 public class TextFileOutputMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -181,7 +180,8 @@ public class TextFileOutputMetaTest {
     meta.setSplitEveryRows("${splitVar}");
     IVariables varSpace = new Variables();
     assertEquals(0, meta.getSplitEvery(varSpace));
-    String fileName = meta.buildFilename("foo", "txt2", varSpace, 0, null, 3, false, null, 0, false, meta);
+    String fileName =
+        meta.buildFilename("foo", "txt2", varSpace, 0, null, 3, false, null, 0, false, meta);
     assertEquals("foo.txt2", fileName);
     varSpace.setVariable("splitVar", "2");
     assertEquals(2, meta.getSplitEvery(varSpace));

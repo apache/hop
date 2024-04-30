@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.snowflake;
 
+import java.sql.ResultSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -56,9 +57,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import java.sql.ResultSet;
-
-@SuppressWarnings("FieldCanBeLocal")
 public class WarehouseManagerDialog extends ActionDialog implements IActionDialog {
 
   private static final Class<?> PKG =
@@ -564,7 +562,6 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
            *
            * @param focusEvent The event
            */
-          @SuppressWarnings("Duplicates")
           @Override
           public void focusGained(FocusEvent focusEvent) {
             getResourceMonitors();
@@ -920,7 +917,6 @@ public class WarehouseManagerDialog extends ActionDialog implements IActionDialo
            *
            * @param focusEvent The event
            */
-          @SuppressWarnings("Duplicates")
           @Override
           public void focusGained(FocusEvent focusEvent) {
             getResourceMonitors();

@@ -17,6 +17,8 @@
 
 package org.apache.hop.workflow;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -29,9 +31,6 @@ import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPlugin;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @SearchableAnalyserPlugin(id = "WorkflowMetaSearchAnalyser", name = "Search in workflow metadata")
 public class WorkflowMetaSearchAnalyser extends BaseSearchableAnalyser<WorkflowMeta>

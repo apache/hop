@@ -17,18 +17,17 @@
 
 package org.apache.hop.mongo;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import java.security.PrivilegedAction;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
+import org.hamcrest.CoreMatchers;
+import org.junit.Test;
 
 public class AuthContextTest {
 

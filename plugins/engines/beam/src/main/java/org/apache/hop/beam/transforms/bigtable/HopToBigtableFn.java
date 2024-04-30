@@ -19,6 +19,12 @@ package org.apache.hop.beam.transforms.bigtable;
 
 import com.google.bigtable.v2.Mutation;
 import com.google.protobuf.ByteString;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.beam.sdk.metrics.Counter;
 import org.apache.beam.sdk.metrics.Metrics;
 import org.apache.beam.sdk.transforms.DoFn;
@@ -34,13 +40,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutation>>> {
 
@@ -60,11 +59,7 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
   // Log and count parse errors.
   private static final Logger LOG = LoggerFactory.getLogger(HopToBigtableFn.class);
 
-  public HopToBigtableFn(
-      int keyIndex,
-      String columnsJson,
-      String counterName,
-      String rowMetaJson) {
+  public HopToBigtableFn(int keyIndex, String columnsJson, String counterName, String rowMetaJson) {
     this.keyIndex = keyIndex;
     this.columnsJson = columnsJson;
     this.counterName = counterName;
@@ -127,7 +122,7 @@ public class HopToBigtableFn extends DoFn<HopRow, KV<ByteString, Iterable<Mutati
               Mutation.SetCell.newBuilder()
                   .setFamilyName(column.getFamily())
                   .setColumnQualifier(toByteString(column.getName()))
-                  .setTimestampMicros(System.currentTimeMillis()*1000)
+                  .setTimestampMicros(System.currentTimeMillis() * 1000)
                   .setValue(toByteString(valueMeta, valueData))
                   .build();
           Mutation mutation = Mutation.newBuilder().setSetCell(setCell).build();

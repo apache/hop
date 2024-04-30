@@ -17,6 +17,15 @@
 
 package org.apache.hop.databases.oracle;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+
+import java.sql.ResultSet;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -45,16 +54,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
-
-import java.sql.ResultSet;
-
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 
 public class OracleDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -370,7 +369,8 @@ public class OracleDatabaseMetaTest {
             "",
             false));
 
-    String expectedProcSql = "SELECT OWNER||'.'||OBJECT_NAME||NVL2(PROCEDURE_NAME,'.'||PROCEDURE_NAME,NULL) FROM ALL_PROCEDURES ORDER BY 1";
+    String expectedProcSql =
+        "SELECT OWNER||'.'||OBJECT_NAME||NVL2(PROCEDURE_NAME,'.'||PROCEDURE_NAME,NULL) FROM ALL_PROCEDURES ORDER BY 1";
 
     assertEquals(expectedProcSql, nativeMeta.getSqlListOfProcedures());
 

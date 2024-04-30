@@ -17,27 +17,23 @@
 
 package org.apache.hop.pipeline.transforms.creditcardvalidator;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
     id = "CreditCardValidator",
@@ -47,24 +43,25 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::CreditCardValidatorMeta.keyword",
     documentationUrl = "/pipeline/transforms/creditcardvalidator.html")
-public class CreditCardValidatorMeta extends BaseTransformMeta<CreditCardValidator, CreditCardValidatorData> {
+public class CreditCardValidatorMeta
+    extends BaseTransformMeta<CreditCardValidator, CreditCardValidatorData> {
   private static final Class<?> PKG = CreditCardValidatorMeta.class; // For Translator
 
   /** dynamic field */
-  @HopMetadataProperty(key="fieldname")
+  @HopMetadataProperty(key = "fieldname")
   private String fieldName;
 
-  @HopMetadataProperty(key="cardtype")
+  @HopMetadataProperty(key = "cardtype")
   private String cardType;
 
-  @HopMetadataProperty(key="notvalidmsg")
+  @HopMetadataProperty(key = "notvalidmsg")
   private String notValidMessage;
 
   /** function result: new value name */
-  @HopMetadataProperty(key="resultfieldname")
+  @HopMetadataProperty(key = "resultfieldname")
   private String resultFieldName;
 
-  @HopMetadataProperty(key="onlydigits")
+  @HopMetadataProperty(key = "onlydigits")
   private boolean onlyDigits;
 
   public CreditCardValidatorMeta() {

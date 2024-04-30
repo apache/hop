@@ -17,13 +17,12 @@
 
 package org.apache.hop.ui.core.widget.svg;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.ui.hopgui.ISingletonProvider;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 
 public class SvgLabelListenerImpl extends ClientListener implements ISingletonProvider {
 
@@ -41,7 +40,8 @@ public class SvgLabelListenerImpl extends ClientListener implements ISingletonPr
     try {
       canvasScript =
           IOUtils.toString(
-              SvgLabelListenerImpl.class.getResourceAsStream("svg-label.js"), StandardCharsets.UTF_8);
+              SvgLabelListenerImpl.class.getResourceAsStream("svg-label.js"),
+              StandardCharsets.UTF_8);
     } catch (IOException e1) {
       e1.printStackTrace();
     }

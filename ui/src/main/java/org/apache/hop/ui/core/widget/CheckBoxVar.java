@@ -89,12 +89,16 @@ public class CheckBoxVar extends Composite {
     wText.setLayoutData(fdText);
   }
 
-  /** @return the text in the Text widget */
+  /**
+   * @return the text in the Text widget
+   */
   public String getText() {
     return wBox.getText();
   }
 
-  /** @param text the text in the Text widget to set. */
+  /**
+   * @param text the text in the Text widget to set.
+   */
   public void setText(String text) {
     wBox.setText(text);
   }

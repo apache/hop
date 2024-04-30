@@ -39,6 +39,17 @@ import com.sforce.ws.ConnectionException;
 import com.sforce.ws.ConnectorConfig;
 import com.sforce.ws.bind.XmlObject;
 import com.sforce.ws.wsdl.Constants;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import javax.xml.namespace.QName;
+import javax.xml.soap.SOAPException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -50,24 +61,11 @@ import org.apache.hop.i18n.BaseMessages;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import javax.xml.namespace.QName;
-import javax.xml.soap.SOAPException;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
 public class SalesforceConnection {
   private static final FieldType ID_FIELD_TYPE = FieldType.id;
   private static final FieldType REFERENCE_FIELD_TYPE = FieldType.reference;
 
-  private static final
-  Class<?> PKG = SalesforceConnection.class; // For Translator
+  private static final Class<?> PKG = SalesforceConnection.class; // For Translator
 
   private String url;
   private String username;
@@ -652,7 +650,6 @@ public class SalesforceConnection {
     return null;
   }
 
-  @SuppressWarnings("unchecked")
   private String buildJsonQueryResult(QueryResult queryResult) throws HopException {
     JSONArray list = new JSONArray();
     for (SObject sobject : queryResult.getRecords()) {
@@ -667,7 +664,6 @@ public class SalesforceConnection {
     return sw.toString();
   }
 
-  @SuppressWarnings("unchecked")
   private JSONObject buildJSONSObject(SObject sobject) {
     JSONObject jsonObject = new JSONObject();
     for (XmlObject element : getChildren(sobject)) {

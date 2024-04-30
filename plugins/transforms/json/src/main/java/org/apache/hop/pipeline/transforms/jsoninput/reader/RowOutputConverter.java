@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput.reader;
 
+import java.util.Map;
 import net.minidev.json.JSONObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -24,8 +25,6 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputData;
-
-import java.util.Map;
 
 /** Converts raw reader to output row values */
 public class RowOutputConverter {
@@ -58,7 +57,6 @@ public class RowOutputConverter {
     String nodevalue = null;
     if (jo != null) {
       if (jo instanceof Map) {
-        @SuppressWarnings("unchecked")
         Map<String, ?> asStrMap = (Map<String, ?>) jo;
         nodevalue = JSONObject.toJSONString(asStrMap);
       } else {

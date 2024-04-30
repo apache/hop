@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -25,13 +31,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 
@@ -100,18 +99,11 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
 
     LoadSaveTester tester =
         new LoadSaveTester(
-            JsonInputMeta.class,
-            attributes,
-            getterMap,
-            setterMap,
-            attributesMap,
-            typeMap,
-            this);
+            JsonInputMeta.class, attributes, getterMap, setterMap, attributesMap, typeMap, this);
 
     tester.testSerialization();
   }
 
-  @SuppressWarnings("deprecation")
   @Override
   public void modify(ITransformMeta arg0) {
     if (arg0 instanceof JsonInputMeta) {

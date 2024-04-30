@@ -38,7 +38,9 @@ public class FileDetails {
     return path;
   }
 
-  /** @param path The path to set */
+  /**
+   * @param path The path to set
+   */
   public void setPath(String path) {
     this.path = path;
   }
@@ -52,7 +54,9 @@ public class FileDetails {
     return hopFileType;
   }
 
-  /** @param hopFileType The hopFileType to set */
+  /**
+   * @param hopFileType The hopFileType to set
+   */
   public void setHopFileType(IHopFileType hopFileType) {
     this.hopFileType = hopFileType;
   }

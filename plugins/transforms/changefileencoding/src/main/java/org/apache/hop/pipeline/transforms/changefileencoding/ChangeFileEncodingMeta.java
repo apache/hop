@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.changefileencoding;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -30,8 +31,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-import java.util.List;
-
 @Transform(
     id = "ChangeFileEncoding",
     image = "changefileencoding.svg",
@@ -40,7 +39,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
     keywords = "i18n::ChangeFileEncodingMeta.keyword",
     documentationUrl = "/pipeline/transforms/changefileencoding.html")
-public class ChangeFileEncodingMeta extends BaseTransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
+public class ChangeFileEncodingMeta
+    extends BaseTransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 
   private static final Class<?> PKG = ChangeFileEncoding.class; // For Translator
 
@@ -84,42 +84,58 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta<ChangeFileEncoding
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the filenamefield. */
+  /**
+   * @return Returns the filenamefield.
+   */
   public String getFilenameField() {
     return filenameField;
   }
 
-  /** @param filenamefield The filenamefield to set. */
+  /**
+   * @param filenamefield The filenamefield to set.
+   */
   public void setFilenameField(String filenamefield) {
     this.filenameField = filenamefield;
   }
 
-  /** @return Returns the targetfilenamefield. */
+  /**
+   * @return Returns the targetfilenamefield.
+   */
   public String getTargetFilenameField() {
     return targetFilenameField;
   }
 
-  /** @param targetfilenamefield The targetfilenamefield to set. */
+  /**
+   * @param targetfilenamefield The targetfilenamefield to set.
+   */
   public void setTargetFilenameField(String targetfilenamefield) {
     this.targetFilenameField = targetfilenamefield;
   }
 
-  /** @return Returns the sourceencoding. */
+  /**
+   * @return Returns the sourceencoding.
+   */
   public String getSourceEncoding() {
     return sourceEncoding;
   }
 
-  /** @param encoding The sourceencoding to set. */
+  /**
+   * @param encoding The sourceencoding to set.
+   */
   public void setSourceEncoding(String encoding) {
     this.sourceEncoding = encoding;
   }
 
-  /** @return Returns the targetencoding. */
+  /**
+   * @return Returns the targetencoding.
+   */
   public String getTargetEncoding() {
     return targetEncoding;
   }
 
-  /** @param encoding The targetencoding to set. */
+  /**
+   * @param encoding The targetencoding to set.
+   */
   public void setTargetEncoding(String encoding) {
     this.targetEncoding = encoding;
   }

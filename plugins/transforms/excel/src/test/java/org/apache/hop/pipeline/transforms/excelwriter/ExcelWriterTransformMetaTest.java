@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.excelwriter;
 
+import java.util.Random;
+import java.util.UUID;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -27,9 +29,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidat
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-
-import java.util.Random;
-import java.util.UUID;
 
 public class ExcelWriterTransformMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -47,14 +46,12 @@ public class ExcelWriterTransformMetaTest {
 
     IFieldLoadSaveValidatorFactory validatorFactory = tester.getFieldLoadSaveValidatorFactory();
     validatorFactory.registerValidator(
-        ExcelWriterFileField.class.getName(),
-        new ExcelWriterFileFieldValidator());
+        ExcelWriterFileField.class.getName(), new ExcelWriterFileFieldValidator());
     validatorFactory.registerValidator(
-            ExcelWriterTemplateField.class.getName(),
-            new ExcelWriterTemplateFieldValidator());
+        ExcelWriterTemplateField.class.getName(), new ExcelWriterTemplateFieldValidator());
     validatorFactory.registerValidator(
-            ExcelWriterTransformMeta.class.getDeclaredField("outputFields").getGenericType().toString(),
-            new ListLoadSaveValidator<>(new ExcelWriterOutputFieldValidator()));
+        ExcelWriterTransformMeta.class.getDeclaredField("outputFields").getGenericType().toString(),
+        new ListLoadSaveValidator<>(new ExcelWriterOutputFieldValidator()));
 
     tester.testSerialization();
   }
@@ -104,17 +101,17 @@ public class ExcelWriterTransformMetaTest {
     }
   }
 
-  public static final class ExcelWriterTemplateFieldValidator implements IFieldLoadSaveValidator<ExcelWriterTemplateField> {
+  public static final class ExcelWriterTemplateFieldValidator
+      implements IFieldLoadSaveValidator<ExcelWriterTemplateField> {
 
     @Override
     public ExcelWriterTemplateField getTestObject() {
       return new ExcelWriterTemplateField(
-              new Random().nextBoolean(),
-              new Random().nextBoolean(),
-              new Random().nextBoolean(),
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString()
-      );
+          new Random().nextBoolean(),
+          new Random().nextBoolean(),
+          new Random().nextBoolean(),
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString());
     }
 
     @Override

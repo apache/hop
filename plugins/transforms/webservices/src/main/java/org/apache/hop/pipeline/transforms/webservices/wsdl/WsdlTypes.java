@@ -17,22 +17,21 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.i18n.BaseMessages;
-import org.w3c.dom.Element;
-
-import javax.wsdl.Definition;
-import javax.wsdl.Types;
-import javax.wsdl.extensions.ElementExtensible;
-import javax.wsdl.extensions.ExtensibilityElement;
-import javax.wsdl.extensions.schema.Schema;
-import javax.xml.namespace.QName;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import javax.wsdl.Definition;
+import javax.wsdl.Types;
+import javax.wsdl.extensions.ElementExtensible;
+import javax.wsdl.extensions.ExtensibilityElement;
+import javax.wsdl.extensions.schema.Schema;
+import javax.xml.namespace.QName;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.i18n.BaseMessages;
+import org.w3c.dom.Element;
 
 /**
  * WsdlTypes provides utilities for getting information about the &lt;types&gt; section of the WSDL.
@@ -53,7 +52,6 @@ public final class WsdlTypes implements Serializable {
    *
    * @param wsdlDefinition The WSDL definition.
    */
-  @SuppressWarnings("unchecked")
   protected WsdlTypes(Definition wsdlDefinition) {
 
     Types = wsdlDefinition.getTypes();

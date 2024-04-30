@@ -17,6 +17,10 @@
 
 package org.apache.hop.avro.transforms.avrooutput;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -34,11 +38,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Transform(
     id = "AvroOutput",
@@ -117,7 +116,6 @@ public class AvroOutputMeta extends BaseTransformMeta<AvroOutput, AvroOutputData
       key = "haspartno",
       injectionKeyDescription = "AvroOutput.Injection.INCLUDE_PART_NR")
   private boolean partNrInFilename;
-
 
   /** Flag: add the date in the filename */
   @HopMetadataProperty(

@@ -18,6 +18,8 @@ package org.apache.hop.pipeline.transforms.accessoutput;
 
 import com.healthmarketscience.jackcess.Database;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
+import java.io.File;
+import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -43,9 +45,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.File;
-import java.util.Set;
 
 public class AccessOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =

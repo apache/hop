@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.detectemptystream;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -31,8 +32,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
     id = "DetectEmptyStream",
     image = "detectemptystream.svg",
@@ -41,7 +40,8 @@ import java.util.List;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
     keywords = "i18n::DetectEmptyStreamMeta.keyword",
     documentationUrl = "/pipeline/transforms/detectemptystream.html")
-public class DetectEmptyStreamMeta extends BaseTransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
+public class DetectEmptyStreamMeta
+    extends BaseTransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static final Class<?> PKG = DetectEmptyStreamMeta.class; // For Translator
 
   public DetectEmptyStreamMeta() {

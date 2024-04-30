@@ -51,10 +51,7 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
   public HopKeyValueFn() {}
 
   public HopKeyValueFn(
-      String inputRowMetaJson,
-      String[] keyFields,
-      String[] valueFields,
-      String counterName) {
+      String inputRowMetaJson, String[] keyFields, String[] valueFields, String counterName) {
     this.inputRowMetaJson = inputRowMetaJson;
     this.keyFields = keyFields;
     this.valueFields = valueFields;
@@ -158,7 +155,9 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     return inputRowMetaJson;
   }
 
-  /** @param inputRowMetaJson The inputRowMetaJson to set */
+  /**
+   * @param inputRowMetaJson The inputRowMetaJson to set
+   */
   public void setInputRowMetaJson(String inputRowMetaJson) {
     this.inputRowMetaJson = inputRowMetaJson;
   }
@@ -172,7 +171,9 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     return keyFields;
   }
 
-  /** @param keyFields The keyFields to set */
+  /**
+   * @param keyFields The keyFields to set
+   */
   public void setKeyFields(String[] keyFields) {
     this.keyFields = keyFields;
   }
@@ -186,7 +187,9 @@ public class HopKeyValueFn extends DoFn<HopRow, KV<HopRow, HopRow>> {
     return valueFields;
   }
 
-  /** @param valueFields The valueFields to set */
+  /**
+   * @param valueFields The valueFields to set
+   */
   public void setValueFields(String[] valueFields) {
     this.valueFields = valueFields;
   }

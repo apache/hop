@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.variables;
 
+import java.util.Map;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
-
-import java.util.Map;
 
 /** Interface to implement variable sensitive objects. */
 public interface IVariables {

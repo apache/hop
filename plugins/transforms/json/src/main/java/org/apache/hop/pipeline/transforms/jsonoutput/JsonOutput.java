@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.jsonoutput;
 
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.Objects;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
@@ -33,11 +37,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
-import java.io.BufferedOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.Objects;
 
 /** Converts input rows to one or more Xml files. */
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
@@ -66,7 +65,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     public void execute(Object[] row) throws HopException;
   }
 
-  @SuppressWarnings("unchecked")
   private class CompatibilityMode implements CompatibilityFactory {
     @Override
     public void execute(Object[] row) throws HopException {
@@ -118,7 +116,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private class FixedMode implements CompatibilityFactory {
     @Override
     public void execute(Object[] row) throws HopException {
@@ -224,7 +221,6 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private void outputRow(Object[] rowData) throws HopTransformException {
     // We can now output an object
     data.jg = new JSONObject();

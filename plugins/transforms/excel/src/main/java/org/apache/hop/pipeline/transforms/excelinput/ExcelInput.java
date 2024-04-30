@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -44,11 +48,6 @@ import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerContentLi
 import org.apache.hop.pipeline.transform.errorhandling.FileErrorHandlerMissingFiles;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 import org.apache.poi.openxml4j.util.ZipSecureFile;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
 
 /** This class reads data from one or more Microsoft Excel files. */
 public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
@@ -375,7 +374,6 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
                   v.getTypeDesc()));
         }
         break;
-
 
       default:
         throw new HopException(

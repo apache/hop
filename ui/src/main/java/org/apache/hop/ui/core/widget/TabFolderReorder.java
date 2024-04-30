@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.nio.charset.Charset;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.EnvironmentUtils;
 import org.eclipse.swt.custom.CTabFolder;
@@ -38,8 +39,6 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-
-import java.nio.charset.Charset;
 
 public class TabFolderReorder {
   private CTabItem dragItem;

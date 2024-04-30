@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.csvinput;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -54,10 +57,6 @@ import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 @InjectionSupported(
     localizationPrefix = "CsvInputMeta.Injection.",
     groups = {"INPUT_FIELDS"})
@@ -69,9 +68,8 @@ import java.util.Map;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     keywords = "i18n::CsvInputMeta.keyword",
     documentationUrl = "/pipeline/transforms/csvinput.html")
-public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> implements
-        IInputFileMeta,
-        ICsvInputAwareMeta {
+public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
+    implements IInputFileMeta, ICsvInputAwareMeta {
 
   private static final Class<?> PKG = CsvInput.class; // For Translator
 
@@ -385,33 +383,45 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     }
   }
 
-  /** @return the delimiter */
+  /**
+   * @return the delimiter
+   */
   @Override
   public String getDelimiter() {
     return delimiter;
   }
 
-  /** @param delimiter the delimiter to set */
+  /**
+   * @param delimiter the delimiter to set
+   */
   public void setDelimiter(String delimiter) {
     this.delimiter = delimiter;
   }
 
-  /** @return the filename */
+  /**
+   * @return the filename
+   */
   public String getFilename() {
     return filename;
   }
 
-  /** @param filename the filename to set */
+  /**
+   * @param filename the filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
 
-  /** @return the bufferSize */
+  /**
+   * @return the bufferSize
+   */
   public String getBufferSize() {
     return bufferSize;
   }
 
-  /** @param bufferSize the bufferSize to set */
+  /**
+   * @param bufferSize the bufferSize to set
+   */
   public void setBufferSize(String bufferSize) {
     this.bufferSize = bufferSize;
   }
@@ -432,23 +442,31 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     this.lazyConversionActive = lazyConversionActive;
   }
 
-  /** @return the headerPresent */
+  /**
+   * @return the headerPresent
+   */
   public boolean isHeaderPresent() {
     return headerPresent;
   }
 
-  /** @param headerPresent the headerPresent to set */
+  /**
+   * @param headerPresent the headerPresent to set
+   */
   public void setHeaderPresent(boolean headerPresent) {
     this.headerPresent = headerPresent;
   }
 
-  /** @return the enclosure */
+  /**
+   * @return the enclosure
+   */
   @Override
   public String getEnclosure() {
     return enclosure;
   }
 
-  /** @param enclosure the enclosure to set */
+  /**
+   * @param enclosure the enclosure to set
+   */
   public void setEnclosure(String enclosure) {
     this.enclosure = enclosure;
   }
@@ -470,13 +488,17 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     return references;
   }
 
-  /** @return the inputFields */
+  /**
+   * @return the inputFields
+   */
   @Override
   public TextFileInputField[] getInputFields() {
     return inputFields;
   }
 
-  /** @param inputFields the inputFields to set */
+  /**
+   * @param inputFields the inputFields to set
+   */
   public void setInputFields(TextFileInputField[] inputFields) {
     this.inputFields = inputFields;
   }
@@ -553,63 +575,87 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     return false;
   }
 
-  /** @return the filenameField */
+  /**
+   * @return the filenameField
+   */
   public String getFilenameField() {
     return filenameField;
   }
 
-  /** @param filenameField the filenameField to set */
+  /**
+   * @param filenameField the filenameField to set
+   */
   public void setFilenameField(String filenameField) {
     this.filenameField = filenameField;
   }
 
-  /** @return the includingFilename */
+  /**
+   * @return the includingFilename
+   */
   public boolean isIncludingFilename() {
     return includingFilename;
   }
 
-  /** @param includingFilename the includingFilename to set */
+  /**
+   * @param includingFilename the includingFilename to set
+   */
   public void setIncludingFilename(boolean includingFilename) {
     this.includingFilename = includingFilename;
   }
 
-  /** @return the rowNumField */
+  /**
+   * @return the rowNumField
+   */
   public String getRowNumField() {
     return rowNumField;
   }
 
-  /** @param rowNumField the rowNumField to set */
+  /**
+   * @param rowNumField the rowNumField to set
+   */
   public void setRowNumField(String rowNumField) {
     this.rowNumField = rowNumField;
   }
 
-  /** @param isaddresult The isaddresult to set. */
+  /**
+   * @param isaddresult The isaddresult to set.
+   */
   public void setAddResultFile(boolean isaddresult) {
     this.isaddresult = isaddresult;
   }
 
-  /** @return Returns isaddresult. */
+  /**
+   * @return Returns isaddresult.
+   */
   public boolean isAddResultFile() {
     return isaddresult;
   }
 
-  /** @return the runningInParallel */
+  /**
+   * @return the runningInParallel
+   */
   public boolean isRunningInParallel() {
     return runningInParallel;
   }
 
-  /** @param runningInParallel the runningInParallel to set */
+  /**
+   * @param runningInParallel the runningInParallel to set
+   */
   public void setRunningInParallel(boolean runningInParallel) {
     this.runningInParallel = runningInParallel;
   }
 
-  /** @return the encoding */
+  /**
+   * @return the encoding
+   */
   @Override
   public String getEncoding() {
     return encoding;
   }
 
-  /** @param encoding the encoding to set */
+  /**
+   * @param encoding the encoding to set
+   */
   public void setEncoding(String encoding) {
     this.encoding = encoding;
   }
@@ -660,12 +706,16 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData> impl
     return true;
   }
 
-  /** @return the newlinePossibleInFields */
+  /**
+   * @return the newlinePossibleInFields
+   */
   public boolean isNewlinePossibleInFields() {
     return newlinePossibleInFields;
   }
 
-  /** @param newlinePossibleInFields the newlinePossibleInFields to set */
+  /**
+   * @param newlinePossibleInFields the newlinePossibleInFields to set
+   */
   public void setNewlinePossibleInFields(boolean newlinePossibleInFields) {
     this.newlinePossibleInFields = newlinePossibleInFields;
   }

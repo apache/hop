@@ -17,17 +17,10 @@
 
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.database.map.DatabaseConnectionMap;
-import org.apache.hop.core.exception.HopDatabaseException;
-import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -41,11 +34,17 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.database.map.DatabaseConnectionMap;
+import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.After;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class DatabaseConnectingTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

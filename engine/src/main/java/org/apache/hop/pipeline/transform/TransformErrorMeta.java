@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transform;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.changed.ChangedFlag;
 import org.apache.hop.core.row.IRowMeta;
@@ -28,8 +29,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /** This class contains the metadata to handle proper error handling on a transform level. */
 public class TransformErrorMeta extends ChangedFlag implements Cloneable {
@@ -188,72 +187,100 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
     minPercentRows = XmlHandler.getTagValue(node, "min_pct_rows");
   }
 
-  /** @return the error codes valuename */
+  /**
+   * @return the error codes valuename
+   */
   public String getErrorCodesValuename() {
     return errorCodesValuename;
   }
 
-  /** @param errorCodesValuename the error codes valuename to set */
+  /**
+   * @param errorCodesValuename the error codes valuename to set
+   */
   public void setErrorCodesValuename(String errorCodesValuename) {
     this.errorCodesValuename = errorCodesValuename;
   }
 
-  /** @return the error descriptions valuename */
+  /**
+   * @return the error descriptions valuename
+   */
   public String getErrorDescriptionsValuename() {
     return errorDescriptionsValuename;
   }
 
-  /** @param errorDescriptionsValuename the error descriptions valuename to set */
+  /**
+   * @param errorDescriptionsValuename the error descriptions valuename to set
+   */
   public void setErrorDescriptionsValuename(String errorDescriptionsValuename) {
     this.errorDescriptionsValuename = errorDescriptionsValuename;
   }
 
-  /** @return the error fields valuename */
+  /**
+   * @return the error fields valuename
+   */
   public String getErrorFieldsValuename() {
     return errorFieldsValuename;
   }
 
-  /** @param errorFieldsValuename the error fields valuename to set */
+  /**
+   * @param errorFieldsValuename the error fields valuename to set
+   */
   public void setErrorFieldsValuename(String errorFieldsValuename) {
     this.errorFieldsValuename = errorFieldsValuename;
   }
 
-  /** @return the nr errors valuename */
+  /**
+   * @return the nr errors valuename
+   */
   public String getNrErrorsValuename() {
     return nrErrorsValuename;
   }
 
-  /** @param nrErrorsValuename the nr errors valuename to set */
+  /**
+   * @param nrErrorsValuename the nr errors valuename to set
+   */
   public void setNrErrorsValuename(String nrErrorsValuename) {
     this.nrErrorsValuename = nrErrorsValuename;
   }
 
-  /** @return the target transform */
+  /**
+   * @return the target transform
+   */
   public TransformMeta getTargetTransform() {
     return targetTransform;
   }
 
-  /** @param targetTransform the target transform to set */
+  /**
+   * @param targetTransform the target transform to set
+   */
   public void setTargetTransform(TransformMeta targetTransform) {
     this.targetTransform = targetTransform;
   }
 
-  /** @return The source transform can send the error rows */
+  /**
+   * @return The source transform can send the error rows
+   */
   public TransformMeta getSourceTransform() {
     return sourceTransform;
   }
 
-  /** @param sourceTransform The source transform can send the error rows */
+  /**
+   * @param sourceTransform The source transform can send the error rows
+   */
   public void setSourceTransform(TransformMeta sourceTransform) {
     this.sourceTransform = sourceTransform;
   }
 
-  /** @return the enabled flag: Is the error handling enabled? */
+  /**
+   * @return the enabled flag: Is the error handling enabled?
+   */
   public boolean isEnabled() {
     return enabled;
   }
 
-  /** @param enabled the enabled flag to set: Is the error handling enabled? */
+  /**
+   * @param enabled the enabled flag to set: Is the error handling enabled?
+   */
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
   }
@@ -317,32 +344,44 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
     }
   }
 
-  /** @return the maxErrors */
+  /**
+   * @return the maxErrors
+   */
   public String getMaxErrors() {
     return maxErrors;
   }
 
-  /** @param maxErrors the maxErrors to set */
+  /**
+   * @param maxErrors the maxErrors to set
+   */
   public void setMaxErrors(String maxErrors) {
     this.maxErrors = maxErrors;
   }
 
-  /** @return the maxPercentErrors */
+  /**
+   * @return the maxPercentErrors
+   */
   public String getMaxPercentErrors() {
     return maxPercentErrors;
   }
 
-  /** @param maxPercentErrors the maxPercentErrors to set */
+  /**
+   * @param maxPercentErrors the maxPercentErrors to set
+   */
   public void setMaxPercentErrors(String maxPercentErrors) {
     this.maxPercentErrors = maxPercentErrors;
   }
 
-  /** @return the minRowsForPercent */
+  /**
+   * @return the minRowsForPercent
+   */
   public String getMinPercentRows() {
     return minPercentRows;
   }
 
-  /** @param minRowsForPercent the minRowsForPercent to set */
+  /**
+   * @param minRowsForPercent the minRowsForPercent to set
+   */
   public void setMinPercentRows(String minRowsForPercent) {
     this.minPercentRows = minRowsForPercent;
   }

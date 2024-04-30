@@ -18,6 +18,13 @@
 package org.apache.hop.beam.core.transform;
 
 import io.confluent.kafka.serializers.KafkaAvroSerializer;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.beam.sdk.coders.AtomicCoder;
@@ -44,14 +51,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PDone> {
 
@@ -161,51 +160,45 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       // Write to Kafka topic with <String, String> or <String, Object>
       //
       IValueMeta messageValueMeta = rowMeta.getValueMeta(messageIndex);
-      if (messageValueMeta.getType()==IValueMeta.TYPE_STRING) {
+      if (messageValueMeta.getType() == IValueMeta.TYPE_STRING) {
         // Convert the input stream of HopRows to KV<String,String> for the keys and messages
         //
         HopRowToKVStringStringFn hopRowToKVStringStringFn =
-                new HopRowToKVStringStringFn(
-                        transformName,
-                        keyIndex,
-                        messageIndex,
-                        rowMetaJson);
+            new HopRowToKVStringStringFn(transformName, keyIndex, messageIndex, rowMetaJson);
 
         // Then write to Kafka topic
         //
         KafkaIO.Write<String, String> stringsToKafka =
-                KafkaIO.<String, String>write()
-                        .withBootstrapServers(bootstrapServers)
-                        .withTopic(topic)
-                        .withKeySerializer(StringSerializer.class)
-                        .withValueSerializer(StringSerializer.class)
-                        .withProducerConfigUpdates(producerConfigUpdates);
+            KafkaIO.<String, String>write()
+                .withBootstrapServers(bootstrapServers)
+                .withTopic(topic)
+                .withKeySerializer(StringSerializer.class)
+                .withValueSerializer(StringSerializer.class)
+                .withProducerConfigUpdates(producerConfigUpdates);
 
         PCollection<KV<String, String>> kvpCollection =
-                input.apply(ParDo.of(hopRowToKVStringStringFn));
+            input.apply(ParDo.of(hopRowToKVStringStringFn));
         return kvpCollection.apply(stringsToKafka);
-      } else if (messageValueMeta.getType()==IValueMeta.TYPE_AVRO) {
-        // Convert the input stream of HopRows to KV<String,GenericRecord> for the keys and messages.
+      } else if (messageValueMeta.getType() == IValueMeta.TYPE_AVRO) {
+        // Convert the input stream of HopRows to KV<String,GenericRecord> for the keys and
+        // messages.
         //
         HopRowToKVStringGenericRecordFn hopRowToKVStringGenericRecordFn =
-                new HopRowToKVStringGenericRecordFn(
-                        transformName,
-                        keyIndex,
-                        messageIndex,
-                        rowMetaJson);
+            new HopRowToKVStringGenericRecordFn(transformName, keyIndex, messageIndex, rowMetaJson);
 
         KafkaIO.Write<String, GenericRecord> stringsToKafka =
-                KafkaIO.<String, GenericRecord>write()
-                        .withBootstrapServers(bootstrapServers)
-                        .withTopic(topic)
-                        .withKeySerializer(StringSerializer.class)
-                        .withValueSerializer((Class)KafkaAvroSerializer.class)
-                        .withProducerConfigUpdates(producerConfigUpdates);
+            KafkaIO.<String, GenericRecord>write()
+                .withBootstrapServers(bootstrapServers)
+                .withTopic(topic)
+                .withKeySerializer(StringSerializer.class)
+                .withValueSerializer((Class) KafkaAvroSerializer.class)
+                .withProducerConfigUpdates(producerConfigUpdates);
         PCollection<KV<String, GenericRecord>> kvpCollection =
-                input.apply(ParDo.of(hopRowToKVStringGenericRecordFn));
+            input.apply(ParDo.of(hopRowToKVStringGenericRecordFn));
         return kvpCollection.apply(stringsToKafka);
       } else {
-        throw new HopException("Hop only supports sending String or Avro Record values as Kafka messages");
+        throw new HopException(
+            "Hop only supports sending String or Avro Record values as Kafka messages");
       }
     } catch (Exception e) {
       numErrors.inc();
@@ -213,7 +206,6 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       throw new RuntimeException("Error in Beam Kafka output transform", e);
     }
   }
-
 
   private static final class GenericRecordCoder extends AtomicCoder<GenericRecord> {
     public static GenericRecordCoder of() {
@@ -236,14 +228,16 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     }
   }
 
-    private static final class HopRowToKVStringGenericRecordFn extends DoFn<HopRow, KV<String, GenericRecord>> {
+  private static final class HopRowToKVStringGenericRecordFn
+      extends DoFn<HopRow, KV<String, GenericRecord>> {
 
     private String rowMetaJson;
     private String transformName;
     private int keyIndex;
     private int valueIndex;
 
-    private static final Logger LOG = LoggerFactory.getLogger(HopRowToKVStringGenericRecordFn.class);
+    private static final Logger LOG =
+        LoggerFactory.getLogger(HopRowToKVStringGenericRecordFn.class);
     private final Counter numErrors = Metrics.counter("main", "BeamKafkaProducerTransformErrors");
 
     private IRowMeta rowMeta;
@@ -251,10 +245,7 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
     private transient Counter writtenCounter;
 
     public HopRowToKVStringGenericRecordFn(
-            String transformName,
-            int keyIndex,
-            int valueIndex,
-            String rowMetaJson) {
+        String transformName, int keyIndex, int valueIndex, String rowMetaJson) {
       this.transformName = transformName;
       this.keyIndex = keyIndex;
       this.valueIndex = valueIndex;
@@ -276,7 +267,8 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       } catch (Exception e) {
         numErrors.inc();
         LOG.error("Error in setup of HopRow to KV<String,GenericRecord> function", e);
-        throw new RuntimeException("Error in setup of HopRow to KV<String,GenericRecord> function", e);
+        throw new RuntimeException(
+            "Error in setup of HopRow to KV<String,GenericRecord> function", e);
       }
     }
 

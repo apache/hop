@@ -17,10 +17,9 @@
 
 package org.apache.hop.workflow.engines.empty;
 
+import java.util.Objects;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
-
-import java.util.Objects;
 
 public class EmptyWorkflowRunConfiguration extends Variables
     implements IWorkflowEngineRunConfiguration, Cloneable {
@@ -72,7 +71,9 @@ public class EmptyWorkflowRunConfiguration extends Variables
     return pluginId;
   }
 
-  /** @param pluginId The pluginId to set */
+  /**
+   * @param pluginId The pluginId to set
+   */
   @Override
   public void setEnginePluginId(String pluginId) {
     this.pluginId = pluginId;
@@ -88,7 +89,9 @@ public class EmptyWorkflowRunConfiguration extends Variables
     return pluginName;
   }
 
-  /** @param pluginName The pluginName to set */
+  /**
+   * @param pluginName The pluginName to set
+   */
   @Override
   public void setEnginePluginName(String pluginName) {
     this.pluginName = pluginName;

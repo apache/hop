@@ -18,10 +18,9 @@
 
 package org.apache.hop.avro.transforms.avroencode;
 
+import java.util.Objects;
 import org.apache.hop.core.Const;
 import org.apache.hop.metadata.api.HopMetadataProperty;
-
-import java.util.Objects;
 
 public class SourceField {
   @HopMetadataProperty(key = "source_field")
@@ -32,9 +31,7 @@ public class SourceField {
 
   public SourceField() {}
 
-  public SourceField(
-      String sourceFieldName,
-      String targetFieldName) {
+  public SourceField(String sourceFieldName, String targetFieldName) {
     this.sourceFieldName = sourceFieldName;
     this.targetFieldName = targetFieldName;
   }
@@ -84,7 +81,9 @@ public class SourceField {
     return sourceFieldName;
   }
 
-  /** @param sourceFieldName The sourcePath to set */
+  /**
+   * @param sourceFieldName The sourcePath to set
+   */
   public void setSourceFieldName(String sourceFieldName) {
     this.sourceFieldName = sourceFieldName;
   }
@@ -98,9 +97,10 @@ public class SourceField {
     return targetFieldName;
   }
 
-  /** @param targetFieldName The targetFieldName to set */
+  /**
+   * @param targetFieldName The targetFieldName to set
+   */
   public void setTargetFieldName(String targetFieldName) {
     this.targetFieldName = targetFieldName;
   }
-
 }

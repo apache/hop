@@ -23,6 +23,10 @@ import com.healthmarketscience.jackcess.DataType;
 import com.healthmarketscience.jackcess.Database.FileFormat;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.TableBuilder;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
@@ -37,11 +41,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputData> {
   private static final Class<?> PKG =
@@ -323,10 +322,10 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
           column.setLength(DataType.SHORT_DATE_TIME.getFixedSize());
           break;
         case IValueMeta.TYPE_STRING:
-          if (length < DataType.TEXT.getMaxSize()/DataType.TEXT.getUnitSize() ) {
+          if (length < DataType.TEXT.getMaxSize() / DataType.TEXT.getUnitSize()) {
             column.setType(DataType.TEXT);
           } else {
-            column.setType(DataType.MEMO);            
+            column.setType(DataType.MEMO);
           }
           column.setLength(length);
           break;

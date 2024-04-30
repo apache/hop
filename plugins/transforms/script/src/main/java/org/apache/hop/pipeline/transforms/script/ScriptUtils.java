@@ -32,21 +32,22 @@ public class ScriptUtils {
   private static ScriptEngineManager scriptEngineManager;
 
   private static ScriptUtils instance;
-  private static final Map<String, List<ScriptEngineFactory>> languageFactoryMap = new ConcurrentSkipListMap<>();
+  private static final Map<String, List<ScriptEngineFactory>> languageFactoryMap =
+      new ConcurrentSkipListMap<>();
   private static List<ScriptEngineFactory> engineFactories = null;
 
-  private ScriptUtils(){
+  private ScriptUtils() {
     scriptEngineManager = getScriptEngineManager();
     List<String> scriptLanguageNames = getScriptLanguageNames();
-    for(String scriptLanguageName : scriptLanguageNames){
+    for (String scriptLanguageName : scriptLanguageNames) {
       createNewScriptEngine(scriptLanguageName);
     }
 
     populateEngineFactoryMap();
   }
 
-  public static ScriptUtils getInstance(){
-    if(instance == null){
+  public static ScriptUtils getInstance() {
+    if (instance == null) {
       instance = new ScriptUtils();
     }
     return instance;
@@ -134,7 +135,7 @@ public class ScriptUtils {
     }
   }
 
-  public ScriptEngine getScriptEngineByName(String scriptLanguegeName){
+  public ScriptEngine getScriptEngineByName(String scriptLanguegeName) {
     return scriptEngineManager.getEngineByName(scriptLanguegeName);
   }
 }

@@ -17,10 +17,9 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-import org.eclipse.swt.custom.CTabItem;
-
 import java.util.Objects;
 import java.util.UUID;
+import org.eclipse.swt.custom.CTabItem;
 
 public class TabFileItem {
   private String uuid;
@@ -63,7 +62,9 @@ public class TabFileItem {
     return uuid;
   }
 
-  /** @param uuid The uuid to set */
+  /**
+   * @param uuid The uuid to set
+   */
   public void setUuid(String uuid) {
     this.uuid = uuid;
   }
@@ -77,7 +78,9 @@ public class TabFileItem {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -91,7 +94,9 @@ public class TabFileItem {
     return tabItem;
   }
 
-  /** @param tabItem The tabItem to set */
+  /**
+   * @param tabItem The tabItem to set
+   */
   public void setTabItem(CTabItem tabItem) {
     this.tabItem = tabItem;
   }

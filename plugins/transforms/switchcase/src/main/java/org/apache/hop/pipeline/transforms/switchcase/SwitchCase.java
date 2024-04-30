@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
+import java.util.Arrays;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
@@ -28,9 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.Arrays;
-import java.util.Set;
 
 /** Filters input rows base on conditions. */
 public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> {

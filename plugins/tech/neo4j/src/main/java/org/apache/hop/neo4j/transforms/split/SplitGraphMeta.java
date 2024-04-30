@@ -113,7 +113,9 @@ public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData
     return graphField;
   }
 
-  /** @param graphField The graphField to set */
+  /**
+   * @param graphField The graphField to set
+   */
   public void setGraphField(String graphField) {
     this.graphField = graphField;
   }
@@ -127,7 +129,9 @@ public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData
     return typeField;
   }
 
-  /** @param typeField The typeField to set */
+  /**
+   * @param typeField The typeField to set
+   */
   public void setTypeField(String typeField) {
     this.typeField = typeField;
   }
@@ -141,7 +145,9 @@ public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData
     return idField;
   }
 
-  /** @param idField The idField to set */
+  /**
+   * @param idField The idField to set
+   */
   public void setIdField(String idField) {
     this.idField = idField;
   }
@@ -155,7 +161,9 @@ public class SplitGraphMeta extends BaseTransformMeta<SplitGraph, SplitGraphData
     return propertySetField;
   }
 
-  /** @param propertySetField The propertySetField to set */
+  /**
+   * @param propertySetField The propertySetField to set
+   */
   public void setPropertySetField(String propertySetField) {
     this.propertySetField = propertySetField;
   }

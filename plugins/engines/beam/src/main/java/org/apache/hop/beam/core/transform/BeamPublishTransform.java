@@ -36,8 +36,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone> {
 
   // These non-transient privates get serialized to spread across nodes
@@ -107,9 +105,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       //
       if (BeamDefaults.PUBSUB_MESSAGE_TYPE_STRING.equalsIgnoreCase(messageType)) {
 
-        PublishStringsFn stringsFn =
-            new PublishStringsFn(
-                transformName, fieldIndex, rowMetaJson);
+        PublishStringsFn stringsFn = new PublishStringsFn(transformName, fieldIndex, rowMetaJson);
         PCollection<String> stringPCollection = input.apply(transformName, ParDo.of(stringsFn));
         PDone done = PubsubIO.writeStrings().to(topic).expand(stringPCollection);
         return done;
@@ -119,8 +115,7 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
       //
       if (BeamDefaults.PUBSUB_MESSAGE_TYPE_MESSAGE.equalsIgnoreCase(messageType)) {
         PublishMessagesFn messagesFn =
-            new PublishMessagesFn(
-                transformName, fieldIndex, rowMetaJson);
+            new PublishMessagesFn(transformName, fieldIndex, rowMetaJson);
         PCollection<PubsubMessage> messagesPCollection = input.apply(ParDo.of(messagesFn));
         PDone done = PubsubIO.writeMessages().to(topic).expand(messagesPCollection);
         return done;
@@ -144,7 +139,9 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
     return transformName;
   }
 
-  /** @param transformName The transformName to set */
+  /**
+   * @param transformName The transformName to set
+   */
   public void setTransformName(String transformName) {
     this.transformName = transformName;
   }
@@ -158,7 +155,9 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
     return topic;
   }
 
-  /** @param topic The topic to set */
+  /**
+   * @param topic The topic to set
+   */
   public void setTopic(String topic) {
     this.topic = topic;
   }
@@ -172,7 +171,9 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
     return messageType;
   }
 
-  /** @param messageType The messageType to set */
+  /**
+   * @param messageType The messageType to set
+   */
   public void setMessageType(String messageType) {
     this.messageType = messageType;
   }
@@ -186,7 +187,9 @@ public class BeamPublishTransform extends PTransform<PCollection<HopRow>, PDone>
     return messageField;
   }
 
-  /** @param messageField The messageField to set */
+  /**
+   * @param messageField The messageField to set
+   */
   public void setMessageField(String messageField) {
     this.messageField = messageField;
   }

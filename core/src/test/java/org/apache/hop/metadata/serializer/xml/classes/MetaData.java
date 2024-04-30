@@ -17,10 +17,9 @@
 
 package org.apache.hop.metadata.serializer.xml.classes;
 
-import org.apache.hop.metadata.api.HopMetadataProperty;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class MetaData {
 
@@ -41,7 +40,10 @@ public class MetaData {
   @HopMetadataProperty(key = "test_enum")
   private TestEnum testEnum;
 
-  /** The "inline" annotation property puts the metadata not in a separate element in the metadata (XML) */
+  /**
+   * The "inline" annotation property puts the metadata not in a separate element in the metadata
+   * (XML)
+   */
   @HopMetadataProperty(inline = true)
   private Info info;
 
@@ -59,7 +61,9 @@ public class MetaData {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }
@@ -73,7 +77,9 @@ public class MetaData {
     return separator;
   }
 
-  /** @param separator The separator to set */
+  /**
+   * @param separator The separator to set
+   */
   public void setSeparator(String separator) {
     this.separator = separator;
   }
@@ -87,7 +93,9 @@ public class MetaData {
     return group;
   }
 
-  /** @param group The group to set */
+  /**
+   * @param group The group to set
+   */
   public void setGroup(String group) {
     this.group = group;
   }
@@ -101,7 +109,9 @@ public class MetaData {
     return fields;
   }
 
-  /** @param fields The fields to set */
+  /**
+   * @param fields The fields to set
+   */
   public void setFields(List<Field> fields) {
     this.fields = fields;
   }
@@ -115,7 +125,9 @@ public class MetaData {
     return values;
   }
 
-  /** @param values The values to set */
+  /**
+   * @param values The values to set
+   */
   public void setValues(List<String> values) {
     this.values = values;
   }
@@ -129,7 +141,9 @@ public class MetaData {
     return testEnum;
   }
 
-  /** @param testEnum The testEnum to set */
+  /**
+   * @param testEnum The testEnum to set
+   */
   public void setTestEnum(TestEnum testEnum) {
     this.testEnum = testEnum;
   }

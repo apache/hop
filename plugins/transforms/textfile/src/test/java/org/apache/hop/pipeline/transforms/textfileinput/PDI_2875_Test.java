@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.textfileinput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -28,9 +31,6 @@ import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /***
  *

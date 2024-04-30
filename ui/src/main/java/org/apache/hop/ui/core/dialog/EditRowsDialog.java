@@ -18,6 +18,8 @@
 package org.apache.hop.ui.core.dialog;
 
 import com.google.common.annotations.VisibleForTesting;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -45,9 +47,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /** Allows the user to edit a list of rows in a TableView. */
 public class EditRowsDialog {

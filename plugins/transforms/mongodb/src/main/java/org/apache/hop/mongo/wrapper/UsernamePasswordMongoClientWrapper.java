@@ -18,13 +18,12 @@ package org.apache.hop.mongo.wrapper;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.mongo.MongoDbException;
 import org.apache.hop.mongo.MongoProp;
 import org.apache.hop.mongo.MongoProperties;
 import org.apache.hop.mongo.MongoUtilLogger;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Implementation of MongoClientWrapper which uses no credentials. Should only be instantiated by

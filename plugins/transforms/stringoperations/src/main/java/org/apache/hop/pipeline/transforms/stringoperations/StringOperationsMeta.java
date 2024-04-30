@@ -48,7 +48,8 @@ import org.w3c.dom.Node;
     keywords = "i18n::StringOperationsMeta.keyword",
     documentationUrl = "/pipeline/transforms/stringoperations.html")
 @InjectionSupported(localizationPrefix = "StringOperationsDialog.Injection.")
-public class StringOperationsMeta extends BaseTransformMeta<StringOperations, StringOperationsData> {
+public class StringOperationsMeta
+    extends BaseTransformMeta<StringOperations, StringOperationsData> {
 
   private static final Class<?> PKG = StringOperationsMeta.class; // For Translator
 
@@ -226,22 +227,30 @@ public class StringOperationsMeta extends BaseTransformMeta<StringOperations, St
     super(); // allocate BaseTransformMeta
   }
 
-  /** @return Returns the fieldInStream. */
+  /**
+   * @return Returns the fieldInStream.
+   */
   public String[] getFieldInStream() {
     return fieldInStream;
   }
 
-  /** @param keyStream The fieldInStream to set. */
+  /**
+   * @param keyStream The fieldInStream to set.
+   */
   public void setFieldInStream(String[] keyStream) {
     this.fieldInStream = keyStream;
   }
 
-  /** @return Returns the fieldOutStream. */
+  /**
+   * @return Returns the fieldOutStream.
+   */
   public String[] getFieldOutStream() {
     return fieldOutStream;
   }
 
-  /** @param keyStream The fieldOutStream to set. */
+  /**
+   * @param keyStream The fieldOutStream to set.
+   */
   public void setFieldOutStream(String[] keyStream) {
     this.fieldOutStream = keyStream;
   }
@@ -418,32 +427,87 @@ public class StringOperationsMeta extends BaseTransformMeta<StringOperations, St
       retval.append("        ").append(XmlHandler.addTagValue("in_stream_name", fieldInStream[i]));
 
       retval
-            .append("        ")
-            .append(XmlHandler.addTagValue("out_stream_name", (fieldOutStream == null || fieldOutStream.length == 0 || fieldOutStream.length <= i) ? "" : !Utils.isEmpty(fieldOutStream[i]) ? fieldOutStream[i] : ""));
+          .append("        ")
+          .append(
+              XmlHandler.addTagValue(
+                  "out_stream_name",
+                  (fieldOutStream == null
+                          || fieldOutStream.length == 0
+                          || fieldOutStream.length <= i)
+                      ? ""
+                      : !Utils.isEmpty(fieldOutStream[i]) ? fieldOutStream[i] : ""));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("trim_type", (trimType == null || trimType.length == 0 || trimType.length <= i) ? "" : getTrimTypeCode(trimType[i])));
+          .append(
+              XmlHandler.addTagValue(
+                  "trim_type",
+                  (trimType == null || trimType.length == 0 || trimType.length <= i)
+                      ? ""
+                      : getTrimTypeCode(trimType[i])));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("lower_upper", (lowerUpper == null || lowerUpper.length == 0 || lowerUpper.length <= i) ? "" : getLowerUpperCode(lowerUpper[i])));
+          .append(
+              XmlHandler.addTagValue(
+                  "lower_upper",
+                  (lowerUpper == null || lowerUpper.length == 0 || lowerUpper.length <= i)
+                      ? ""
+                      : getLowerUpperCode(lowerUpper[i])));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("padding_type", (paddingType == null || paddingType.length == 0 || paddingType.length <= i) ? "" : getPaddingCode(paddingType[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("pad_char", (padChar == null || padChar.length == 0 || padChar.length <= i) ? "" : padChar[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("pad_len", (padLen == null || padLen.length == 0 || padLen.length <= i) ? "" : padLen[i]));
+          .append(
+              XmlHandler.addTagValue(
+                  "padding_type",
+                  (paddingType == null || paddingType.length == 0 || paddingType.length <= i)
+                      ? ""
+                      : getPaddingCode(paddingType[i])));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("init_cap", (initCap == null || initCap.length == 0 || initCap.length <= i) ? "" : getInitCapCode(initCap[i])));
+          .append(
+              XmlHandler.addTagValue(
+                  "pad_char",
+                  (padChar == null || padChar.length == 0 || padChar.length <= i)
+                      ? ""
+                      : padChar[i]));
       retval
           .append("        ")
-          .append(XmlHandler.addTagValue("mask_xml", (maskXML == null || maskXML.length == 0 || maskXML.length <= i) ? "" : getMaskXMLCode(maskXML[i])));
-      retval.append("        ").append(XmlHandler.addTagValue("digits", (digits == null || digits.length == 0 || digits.length <= i) ? "" : getDigitsCode(digits[i])));
+          .append(
+              XmlHandler.addTagValue(
+                  "pad_len",
+                  (padLen == null || padLen.length == 0 || padLen.length <= i) ? "" : padLen[i]));
+      retval
+          .append("        ")
+          .append(
+              XmlHandler.addTagValue(
+                  "init_cap",
+                  (initCap == null || initCap.length == 0 || initCap.length <= i)
+                      ? ""
+                      : getInitCapCode(initCap[i])));
+      retval
+          .append("        ")
+          .append(
+              XmlHandler.addTagValue(
+                  "mask_xml",
+                  (maskXML == null || maskXML.length == 0 || maskXML.length <= i)
+                      ? ""
+                      : getMaskXMLCode(maskXML[i])));
+      retval
+          .append("        ")
+          .append(
+              XmlHandler.addTagValue(
+                  "digits",
+                  (digits == null || digits.length == 0 || digits.length <= i)
+                      ? ""
+                      : getDigitsCode(digits[i])));
       retval
           .append("        ")
           .append(
               XmlHandler.addTagValue(
                   "remove_special_characters",
-                      (remove_special_characters == null || remove_special_characters.length == 0 || remove_special_characters.length <= i) ? "" : getRemoveSpecialCharactersCode(remove_special_characters[i])));
+                  (remove_special_characters == null
+                          || remove_special_characters.length == 0
+                          || remove_special_characters.length <= i)
+                      ? ""
+                      : getRemoveSpecialCharactersCode(remove_special_characters[i])));
 
       retval.append("      </field>").append(Const.CR);
     }

@@ -161,9 +161,9 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
     if (viewDrag && lastClick != null) {
       dragView(viewDragStart, new Point(event.x, event.y));
     }
-    
+
     Point real = screen2real(event.x, event.y);
-    
+
     // Moved over an area?
     //
     AreaOwner areaOwner = getVisibleAreaOwner(real.x, real.y);
@@ -174,18 +174,20 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       cursor = getDisplay().getSystemCursor(SWT.CURSOR_SIZEALL);
     }
     // Change cursor when hover an action or transform icon
-    else if (areaOwner != null && areaOwner.getAreaType() != null && areaOwner.getAreaType().isSupportHover()) {     
-      switch(areaOwner.getAreaType()) {
+    else if (areaOwner != null
+        && areaOwner.getAreaType() != null
+        && areaOwner.getAreaType().isSupportHover()) {
+      switch (areaOwner.getAreaType()) {
         case ACTION_ICON:
         case ACTION_NAME:
         case TRANSFORM_ICON:
         case TRANSFORM_NAME:
           cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
-          break;  
+          break;
         default:
       }
-    }         
-    setCursor(cursor);  
+    }
+    setCursor(cursor);
   }
 
   @Override
@@ -195,9 +197,9 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
       viewPortNavigation = false;
       viewPortStart = null;
     }
-    
+
     // Default cursor
-    setCursor(null);  
+    setCursor(null);
   }
 
   public void mouseHover(MouseEvent event) {
@@ -275,7 +277,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
   protected void refreshLoggingText() {
     // If this gets called too early, bail out.
     //
-    if (execution==null || props==null) {
+    if (execution == null || props == null) {
       return;
     }
     Cursor busyCursor = new Cursor(getShell().getDisplay(), SWT.CURSOR_WAIT);

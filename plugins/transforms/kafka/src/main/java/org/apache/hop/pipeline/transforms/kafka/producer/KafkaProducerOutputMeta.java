@@ -18,6 +18,12 @@
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
 import com.google.common.base.Preconditions;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.injection.Injection;
@@ -30,13 +36,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
 @Transform(
     id = "KafkaProducerOutput",
     image = "KafkaProducerOutput.svg",
@@ -48,7 +47,8 @@ import java.util.stream.IntStream;
 @InjectionSupported(
     localizationPrefix = "KafkaProducerOutputMeta.Injection.",
     groups = {"CONFIGURATION_PROPERTIES"})
-public class KafkaProducerOutputMeta extends BaseTransformMeta<KafkaProducerOutput, KafkaProducerOutputData> {
+public class KafkaProducerOutputMeta
+    extends BaseTransformMeta<KafkaProducerOutput, KafkaProducerOutputData> {
 
   public static final String DIRECT_BOOTSTRAP_SERVERS = "directBootstrapServers";
   public static final String CLIENT_ID = "clientId";

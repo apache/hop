@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.uniquerows;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -31,9 +33,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /*
  * Unique rows
@@ -96,52 +95,72 @@ public class UniqueRowsMeta extends BaseTransformMeta<UniqueRows, UniqueRowsData
     }
   }
 
-  /** @return Returns the countRows. */
+  /**
+   * @return Returns the countRows.
+   */
   public boolean isCountRows() {
     return countRows;
   }
 
-  /** @param countRows The countRows to set. */
+  /**
+   * @param countRows The countRows to set.
+   */
   public void setCountRows(boolean countRows) {
     this.countRows = countRows;
   }
 
-  /** @return Returns the countField. */
+  /**
+   * @return Returns the countField.
+   */
   public String getCountField() {
     return countField;
   }
 
-  /** @param countField The countField to set. */
+  /**
+   * @param countField The countField to set.
+   */
   public void setCountField(String countField) {
     this.countField = countField;
   }
 
-  /** @param compareField The compareField to set. */
+  /**
+   * @param compareField The compareField to set.
+   */
   public void setCompareFields(List<UniqueField> compareField) {
     this.compareFields = compareField;
   }
 
-  /** @return Returns the compareField. */
+  /**
+   * @return Returns the compareField.
+   */
   public List<UniqueField> getCompareFields() {
     return compareFields;
   }
 
-  /** @param rejectDuplicateRow The rejectDuplicateRow to set. */
+  /**
+   * @param rejectDuplicateRow The rejectDuplicateRow to set.
+   */
   public void setRejectDuplicateRow(boolean rejectDuplicateRow) {
     this.rejectDuplicateRow = rejectDuplicateRow;
   }
 
-  /** @return Returns the rejectDuplicateRow. */
+  /**
+   * @return Returns the rejectDuplicateRow.
+   */
   public boolean isRejectDuplicateRow() {
     return rejectDuplicateRow;
   }
 
-  /** @return Returns the errorDescription. */
+  /**
+   * @return Returns the errorDescription.
+   */
   public String getErrorDescription() {
     return errorDescription;
   }
 
-  /** @param errorDescription The errorDescription to set. */
+  /**
+   * @param errorDescription The errorDescription to set.
+   */
   public void setErrorDescription(String errorDescription) {
     this.errorDescription = errorDescription;
   }

@@ -17,6 +17,10 @@
 
 package org.apache.hop.workflow.actions.simpleeval;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
@@ -31,10 +35,6 @@ import org.apache.hop.metadata.api.IEnumHasCode;
 import org.apache.hop.metadata.api.IEnumHasCodeAndDescription;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /** This defines a 'simple evaluation' action. */
 @Action(
@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
     documentationUrl = "/workflow/actions/simpleeval.html")
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
-  
+
   public enum ValueType implements IEnumHasCodeAndDescription {
     FIELD("field", BaseMessages.getString(PKG, "ActionSimpleEval.EvalPreviousField.Label")),
     VARIABLE("variable", BaseMessages.getString(PKG, "ActionSimpleEval.EvalVariable.Label"));
@@ -85,16 +85,24 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public enum SuccessStringCondition implements IEnumHasCodeAndDescription {
     EQUAL("equal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label")),
-    DIFFERENT("different",BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label")),
+    DIFFERENT(
+        "different", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label")),
     CONTAINS("contains", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenContains.Label")),
-    NOT_CONTAINS("notcontains", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotContains.Label")),
-    START_WITH("startswith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenStartWith.Label")),
-    NOT_START_WITH("notstatwith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotStartWith.Label")),
+    NOT_CONTAINS(
+        "notcontains",
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotContains.Label")),
+    START_WITH(
+        "startswith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenStartWith.Label")),
+    NOT_START_WITH(
+        "notstatwith",
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotStartWith.Label")),
     END_WITH("endswith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEndWith.Label")),
-    NOT_END_WITH("notendwith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotEndWith.Label")),
+    NOT_END_WITH(
+        "notendwith", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotEndWith.Label")),
     REGEX("regexp", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenRegExp.Label")),
     IN_LIST("inlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label")),
-    NOT_IN_LIST("notinlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"));
+    NOT_IN_LIST(
+        "notinlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"));
 
     private final String code;
     private final String description;
@@ -109,7 +117,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     public static SuccessStringCondition lookupDescription(String description) {
-      return IEnumHasCodeAndDescription.lookupDescription(SuccessStringCondition.class, description, EQUAL);
+      return IEnumHasCodeAndDescription.lookupDescription(
+          SuccessStringCondition.class, description, EQUAL);
     }
 
     public static SuccessStringCondition lookupCode(String code) {
@@ -176,14 +185,21 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   public enum SuccessNumberCondition implements IEnumHasCodeAndDescription {
     EQUAL("equal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenEqual.Label")),
-    DIFFERENT("different", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label")),
+    DIFFERENT(
+        "different", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenDifferent.Label")),
     SMALLER("smaller", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallThan.Label")),
-    SMALLER_EQUAL("smallequal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallOrEqualThan.Label")),
-    GREATER("greater", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterThan.Label")),
-    GREATER_EQUAL("greaterequal", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterOrEqualThan.Label")),
+    SMALLER_EQUAL(
+        "smallequal",
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenSmallOrEqualThan.Label")),
+    GREATER(
+        "greater", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterThan.Label")),
+    GREATER_EQUAL(
+        "greaterequal",
+        BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenGreaterOrEqualThan.Label")),
     BETWEEN("between", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessBetween.Label")),
     IN_LIST("inlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenInList.Label")),
-    NOT_IN_LIST("notinlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"));
+    NOT_IN_LIST(
+        "notinlist", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenNotInList.Label"));
 
     private final String code;
     private final String description;
@@ -198,7 +214,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     public static SuccessNumberCondition lookupDescription(String description) {
-      return IEnumHasCodeAndDescription.lookupDescription(SuccessNumberCondition.class, description, EQUAL);
+      return IEnumHasCodeAndDescription.lookupDescription(
+          SuccessNumberCondition.class, description, EQUAL);
     }
 
     public static SuccessNumberCondition lookupCode(String code) {
@@ -215,7 +232,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
       return description;
     }
   }
-  
+
   public enum SuccessBooleanCondition implements IEnumHasCodeAndDescription {
     TRUE("true", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenTrue.Label")),
     FALSE("false", BaseMessages.getString(PKG, "ActionSimpleEval.SuccessWhenFalse.Label"));
@@ -233,7 +250,8 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     public static SuccessBooleanCondition lookupDescription(String description) {
-      return IEnumHasCodeAndDescription.lookupDescription(SuccessBooleanCondition.class, description, TRUE);
+      return IEnumHasCodeAndDescription.lookupDescription(
+          SuccessBooleanCondition.class, description, TRUE);
     }
 
     public static SuccessBooleanCondition lookupCode(String code) {
@@ -250,32 +268,43 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
       return description;
     }
   }
-  
+
   @HopMetadataProperty(key = "valuetype", storeWithCode = true)
   private ValueType valueType;
+
   @HopMetadataProperty(key = "fieldtype", storeWithCode = true)
   private FieldType fieldType;
+
   @HopMetadataProperty(key = "fieldname")
   private String fieldName;
+
   @HopMetadataProperty(key = "variablename")
   private String variableName;
+
   @HopMetadataProperty(key = "mask")
   private String mask;
+
   @HopMetadataProperty(key = "comparevalue")
   private String compareValue;
+
   @HopMetadataProperty(key = "minvalue")
   private String minValue;
+
   @HopMetadataProperty(key = "maxvalue")
   private String maxValue;
+
   @HopMetadataProperty(key = "successcondition", storeWithCode = true)
   private SuccessStringCondition successStringCondition;
-  @HopMetadataProperty(key = "successwhenvarset")  
-  private boolean successWhenVarSet;  
+
+  @HopMetadataProperty(key = "successwhenvarset")
+  private boolean successWhenVarSet;
+
   @HopMetadataProperty(key = "successbooleancondition", storeWithCode = true)
   private SuccessBooleanCondition successBooleanCondition;
+
   @HopMetadataProperty(key = "successnumbercondition", storeWithCode = true)
   private SuccessNumberCondition successNumberCondition;
- 
+
   public ActionSimpleEval(String n) {
     super(n, "");
     valueType = ValueType.FIELD;

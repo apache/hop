@@ -17,6 +17,7 @@
 
 package org.apache.hop.workflow.actions.checkdbconnection;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
@@ -47,8 +48,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 /** This dialog allows you to edit the check database connection action settings. */
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {

@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.testing;
 
+import java.util.List;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -49,8 +50,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class DataSetEditor extends MetadataEditor<DataSet> {
   private static final Class<?> PKG = DataSetEditor.class; // For Translator

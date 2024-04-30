@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.input;
 
+import static org.junit.Assert.assertEquals;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.xml.XmlHandler;
@@ -30,8 +32,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-
-import static org.junit.Assert.assertEquals;
 
 public class MappingInputMetaTest {
   @Before

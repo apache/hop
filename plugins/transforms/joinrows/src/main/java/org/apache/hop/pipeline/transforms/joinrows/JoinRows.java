@@ -17,17 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.joinrows;
 
-import org.apache.hop.core.IRowSet;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -38,6 +27,16 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 /** Performs a cartesian product between 2 or more input streams. */
 public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
@@ -56,7 +55,6 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> {
   /*
    * Allocate input streams and create the temporary files...
    */
-  @SuppressWarnings("unchecked")
   public void initialize() throws HopException {
     // Since we haven't called getRow() yet we need to wait until we have all input row sets
     // available to us.

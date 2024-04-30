@@ -41,10 +41,14 @@ public @interface ValueMetaPlugin {
 
   String description() default "";
 
-  /** @return The image resource path */
+  /**
+   * @return The image resource path
+   */
   String image() default "";
 
-  /** @return True if a separate class loader is needed every time this class is instantiated */
+  /**
+   * @return True if a separate class loader is needed every time this class is instantiated
+   */
   boolean isSeparateClassLoaderNeeded() default false;
 
   String documentationUrl() default "";

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,10 +53,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class IfNullDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = IfNullMeta.class; // For Translator
@@ -514,11 +513,11 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     wSelectValuesType.setSelection(input.isSelectValuesType());
 
     Table table = wValueTypes.table;
-    if ( !input.getValueTypes().isEmpty() ) {
+    if (!input.getValueTypes().isEmpty()) {
       table.removeAll();
     }
     for (int i = 0; i < input.getValueTypes().size(); i++) {
-      ValueType valueType = input.getValueTypes().get(i);      
+      ValueType valueType = input.getValueTypes().get(i);
       TableItem ti = new TableItem(table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
       if (valueType.getName() != null) {
@@ -605,7 +604,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
 
     int nrtypes = wValueTypes.nrNonEmpty();
     int nrFields = wFields.nrNonEmpty();
-    
+
     input.getValueTypes().clear();
     for (int i = 0; i < nrtypes; i++) {
       TableItem ti = wValueTypes.getNonEmpty(i);

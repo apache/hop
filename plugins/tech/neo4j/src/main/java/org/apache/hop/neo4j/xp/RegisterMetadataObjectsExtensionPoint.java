@@ -18,6 +18,8 @@
 
 package org.apache.hop.neo4j.xp;
 
+import java.net.URL;
+import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.ExtensionPointPluginType;
@@ -30,9 +32,6 @@ import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.neo4j.model.GraphModel;
 import org.apache.hop.neo4j.shared.NeoConnection;
-
-import java.net.URL;
-import java.util.List;
 
 @ExtensionPoint(
     id = "RegisterMetadataObjectsExtensionPoint",

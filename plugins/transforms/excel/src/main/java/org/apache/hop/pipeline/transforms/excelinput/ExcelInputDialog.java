@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-// CHECKSTYLE:FileLength:OFF
 package org.apache.hop.pipeline.transforms.excelinput;
+
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
+import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.RequiredFilesCode;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -46,9 +49,6 @@ import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EIFile;
-import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.EISheet;
-import static org.apache.hop.pipeline.transforms.excelinput.ExcelInputMeta.RequiredFilesCode;
 import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonListenerFactory;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
@@ -848,13 +848,13 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFieldsTab.setText(BaseMessages.getString(PKG, "ExcelInputDialog.FieldsTab.TabTitle"));
 
     SelectionListener lsSelection =
-            new SelectionAdapter() {
-              @Override
-              public void widgetSelected(SelectionEvent e) {
-                fillFieldsLayoutFromSchema();
-                input.setChanged();
-              }
-            };
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            fillFieldsLayoutFromSchema();
+            input.setChanged();
+          }
+        };
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = PropsUi.getFormMargin();
@@ -864,14 +864,14 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFieldsComp.setLayout(fieldsLayout);
 
     wSchemaDefinition =
-            new MetaSelectionLine<>(
-                    variables,
-                    metadataProvider,
-                    SchemaDefinition.class,
-                    wFieldsComp,
-                    SWT.NONE,
-                    BaseMessages.getString(PKG, "ExcelInputDialog.SchemaDefinition.Label"),
-                    BaseMessages.getString(PKG, "ExcelInputDialog.SchemaDefinition.Tooltip"));
+        new MetaSelectionLine<>(
+            variables,
+            metadataProvider,
+            SchemaDefinition.class,
+            wFieldsComp,
+            SWT.NONE,
+            BaseMessages.getString(PKG, "ExcelInputDialog.SchemaDefinition.Label"),
+            BaseMessages.getString(PKG, "ExcelInputDialog.SchemaDefinition.Tooltip"));
 
     PropsUi.setLook(wSchemaDefinition);
     FormData fdSchemaDefinition = new FormData();
@@ -890,7 +890,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     Group wManualSchemaDefinition = new Group(wFieldsComp, SWT.SHADOW_NONE);
     PropsUi.setLook(wManualSchemaDefinition);
-    wManualSchemaDefinition.setText(BaseMessages.getString(PKG, "ExcelInputDialog.ManualSchemaDefinition.Label"));
+    wManualSchemaDefinition.setText(
+        BaseMessages.getString(PKG, "ExcelInputDialog.ManualSchemaDefinition.Label"));
 
     FormLayout manualSchemaDefinitionLayout = new FormLayout();
     manualSchemaDefinitionLayout.marginWidth = 10;
@@ -954,7 +955,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFields =
         new TableView(
             variables,
-                wManualSchemaDefinition,
+            wManualSchemaDefinition,
             SWT.FULL_SELECTION | SWT.MULTI,
             colinf,
             FieldsRows,
@@ -1117,7 +1118,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
       MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES);
       mb.setMessage(
-              BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Message", schemaName));
+          BaseMessages.getString(
+              PKG, "ExcelInputDialog.Load.SchemaDefinition.Message", schemaName));
       mb.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
@@ -1125,7 +1127,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         if (!Utils.isEmpty(schemaName)) {
           try {
             SchemaDefinition schemaDefinition =
-                    (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
             if (schemaDefinition != null) {
               IRowMeta r = schemaDefinition.getRowMeta();
               if (r != null) {
@@ -1139,14 +1141,15 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
                     item.setText(1, valueMeta.getName());
                     item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
                     item.setText(
-                            3,
-                            valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                        3,
+                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
                     item.setText(
-                            4,
-                            valueMeta.getPrecision() >= 0
-                                    ? Integer.toString(valueMeta.getPrecision())
-                                    : "");
-                    item.setText(5, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+                        4,
+                        valueMeta.getPrecision() >= 0
+                            ? Integer.toString(valueMeta.getPrecision())
+                            : "");
+                    item.setText(
+                        5, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
                     item.setText(7, Const.NVL(valueMeta.getConversionMask(), ""));
                     item.setText(8, Const.NVL(valueMeta.getCurrencySymbol(), ""));
                     item.setText(9, Const.NVL(valueMeta.getDecimalSymbol(), ""));
@@ -1167,7 +1170,6 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       }
     }
   }
-
 
   public void setFlags() {
     wbGetFields.setEnabled(wHeader.getSelection());

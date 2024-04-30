@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.tablecompare;
 
+import java.sql.ResultSet;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -31,8 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import java.sql.ResultSet;
 
 public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // For Translator
@@ -231,7 +230,6 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
 
     Object[] result = new Object[6];
 
-
     if (Utils.isEmpty(referenceTable)) {
       Object[] errorRowData = constructErrorRow(rowMeta, r, null, null, null);
       putError(
@@ -256,12 +254,16 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
       nrErrors++;
     }
 
-    DatabaseMeta refConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
+    DatabaseMeta refConnectionDatabaseMeta =
+        getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
     String refSchemaTable =
-            refConnectionDatabaseMeta.getQuotedSchemaTableCombination(this, referenceSchema, referenceTable);
-    DatabaseMeta compConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
+        refConnectionDatabaseMeta.getQuotedSchemaTableCombination(
+            this, referenceSchema, referenceTable);
+    DatabaseMeta compConnectionDatabaseMeta =
+        getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
     String cmpSchemaTable =
-            compConnectionDatabaseMeta.getQuotedSchemaTableCombination(this, compareSchema, compareTable);
+        compConnectionDatabaseMeta.getQuotedSchemaTableCombination(
+            this, compareSchema, compareTable);
 
     if (Utils.isEmpty(keyFields)) {
       Object[] errorRowData = constructErrorRow(rowMeta, r, null, null, null);
@@ -686,14 +688,14 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     if (super.init()) {
 
       try {
-        DatabaseMeta refConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
+        DatabaseMeta refConnectionDatabaseMeta =
+            getPipelineMeta().findDatabase(meta.getReferenceConnection(), variables);
         if (refConnectionDatabaseMeta == null) {
           logError(
-                  BaseMessages.getString(
-                          PKG, "TableCompare.RefConnection.ConnectionMissing", getTransformName()));
+              BaseMessages.getString(
+                  PKG, "TableCompare.RefConnection.ConnectionMissing", getTransformName()));
           return false;
         }
-
 
         data.referenceDb = new Database(this, this, refConnectionDatabaseMeta);
         data.referenceDb.connect();
@@ -703,20 +705,20 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
             BaseMessages.getString(
                 PKG,
                 "TableCompare.Exception.UnexpectedErrorConnectingToReferenceDatabase",
-                    meta.getReferenceConnection()),
+                meta.getReferenceConnection()),
             e);
         return false;
       }
 
       try {
-        DatabaseMeta compConnectionDatabaseMeta = getPipelineMeta().findDatabase(meta.getCompareConnection(), variables);
+        DatabaseMeta compConnectionDatabaseMeta =
+            getPipelineMeta().findDatabase(meta.getCompareConnection(), variables);
         if (compConnectionDatabaseMeta == null) {
           logError(
-                  BaseMessages.getString(
-                          PKG, "TableCompare.CompConnection.ConnectionMissing", getTransformName()));
+              BaseMessages.getString(
+                  PKG, "TableCompare.CompConnection.ConnectionMissing", getTransformName()));
           return false;
         }
-
 
         data.compareDb = new Database(this, this, compConnectionDatabaseMeta);
         data.compareDb.connect();
@@ -726,7 +728,7 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
             BaseMessages.getString(
                 PKG,
                 "TableCompare.Exception.UnexpectedErrorConnectingToCompareDatabase",
-                    meta.getCompareConnection()),
+                meta.getCompareConnection()),
             e);
         return false;
       }

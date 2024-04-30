@@ -16,6 +16,9 @@
  */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.HashSet;
+import javax.naming.NamingEnumeration;
+import javax.naming.directory.Attribute;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
@@ -29,10 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-
-import javax.naming.NamingEnumeration;
-import javax.naming.directory.Attribute;
-import java.util.HashSet;
 
 /** Read LDAP Host, convert them to rows and writes these to one or more output streams. */
 public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> {

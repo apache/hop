@@ -17,6 +17,9 @@
 
 package org.apache.hop.ui.pipeline.transform.common;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import org.apache.commons.io.input.BOMInputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
@@ -28,10 +31,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.DecimalFormat;
 
 /**
  * A common interface for all transform dialogs aware of the csv input format, such as CSV Input and
@@ -99,7 +98,7 @@ public interface ICsvInputAwareTransformDialog {
           && fieldNames[i].endsWith(meta.getEnclosure())
           && fieldNames[i].length() > 1) {
         fieldNames[i] = fieldNames[i].substring(1, fieldNames[i].length() - 1);
-      } else if (meta.hasHeader() && fieldNames[i].length()==0) {
+      } else if (meta.hasHeader() && fieldNames[i].length() == 0) {
         final DecimalFormat df = new DecimalFormat("000");
         fieldNames[i] = "EmptyField_" + df.format(i);
       }

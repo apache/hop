@@ -17,12 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.closure;
 
+import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import java.util.Map;
 
 public class ClosureGeneratorData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;

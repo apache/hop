@@ -61,7 +61,9 @@ public enum RelationshipMappingType implements IEnumHasCode {
     return code;
   }
 
-  /** @param code The code to set */
+  /**
+   * @param code The code to set
+   */
   public void setCode(String code) {
     this.code = code;
   }
@@ -75,7 +77,9 @@ public enum RelationshipMappingType implements IEnumHasCode {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

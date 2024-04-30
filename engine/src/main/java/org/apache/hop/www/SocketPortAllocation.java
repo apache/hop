@@ -58,12 +58,16 @@ public class SocketPortAllocation {
     this.allocated = true;
   }
 
-  /** @return the port */
+  /**
+   * @return the port
+   */
   public int getPort() {
     return port;
   }
 
-  /** @param port the port to set */
+  /**
+   * @param port the port to set
+   */
   public void setPort(int port) {
     this.port = port;
   }
@@ -85,102 +89,142 @@ public class SocketPortAllocation {
     return Integer.valueOf(port).hashCode();
   }
 
-  /** @return the lastRequested */
+  /**
+   * @return the lastRequested
+   */
   public Date getLastRequested() {
     return lastRequested;
   }
 
-  /** @param lastRequested the lastRequested to set */
+  /**
+   * @param lastRequested the lastRequested to set
+   */
   public void setLastRequested(Date lastRequested) {
     this.lastRequested = lastRequested;
   }
 
-  /** @return the pipelineName */
+  /**
+   * @return the pipelineName
+   */
   public String getPipelineName() {
     return pipelineName;
   }
 
-  /** @param pipelineName the pipelineName to set */
+  /**
+   * @param pipelineName the pipelineName to set
+   */
   public void setPipelineName(String pipelineName) {
     this.pipelineName = pipelineName;
   }
 
-  /** @return the allocated */
+  /**
+   * @return the allocated
+   */
   public boolean isAllocated() {
     return allocated;
   }
 
-  /** @param allocated the allocated to set */
+  /**
+   * @param allocated the allocated to set
+   */
   public void setAllocated(boolean allocated) {
     this.allocated = allocated;
   }
 
-  /** @return the sourceTransformName */
+  /**
+   * @return the sourceTransformName
+   */
   public String getSourceTransformName() {
     return sourceTransformName;
   }
 
-  /** @param sourceTransformName the sourceTransformName to set */
+  /**
+   * @param sourceTransformName the sourceTransformName to set
+   */
   public void setSourceTransformName(String sourceTransformName) {
     this.sourceTransformName = sourceTransformName;
   }
 
-  /** @return the sourceTransformCopy */
+  /**
+   * @return the sourceTransformCopy
+   */
   public String getSourceTransformCopy() {
     return sourceTransformCopy;
   }
 
-  /** @param sourceTransformCopy the sourceTransformCopy to set */
+  /**
+   * @param sourceTransformCopy the sourceTransformCopy to set
+   */
   public void setSourceTransformCopy(String sourceTransformCopy) {
     this.sourceTransformCopy = sourceTransformCopy;
   }
 
-  /** @return the targetTransformName */
+  /**
+   * @return the targetTransformName
+   */
   public String getTargetTransformName() {
     return targetTransformName;
   }
 
-  /** @param targetTransformName the targetTransformName to set */
+  /**
+   * @param targetTransformName the targetTransformName to set
+   */
   public void setTargetTransformName(String targetTransformName) {
     this.targetTransformName = targetTransformName;
   }
 
-  /** @return the targetTransformCopy */
+  /**
+   * @return the targetTransformCopy
+   */
   public String getTargetTransformCopy() {
     return targetTransformCopy;
   }
 
-  /** @param targetTransformCopy the targetTransformCopy to set */
+  /**
+   * @param targetTransformCopy the targetTransformCopy to set
+   */
   public void setTargetTransformCopy(String targetTransformCopy) {
     this.targetTransformCopy = targetTransformCopy;
   }
 
-  /** @return the sourceServerName */
+  /**
+   * @return the sourceServerName
+   */
   public String getSourceServerName() {
     return sourceServerName;
   }
 
-  /** @param sourceServerName the sourceServerName to set */
+  /**
+   * @param sourceServerName the sourceServerName to set
+   */
   public void setSourceServerName(String sourceServerName) {
     this.sourceServerName = sourceServerName;
   }
 
-  /** @return the targetServerName */
+  /**
+   * @return the targetServerName
+   */
   public String getTargetServerName() {
     return targetServerName;
   }
 
-  /** @param targetServerName the targetServerName to set */
+  /**
+   * @param targetServerName the targetServerName to set
+   */
   public void setTargetServerName(String targetServerName) {
     this.targetServerName = targetServerName;
   }
 
-  /** @return the serverObjectId */
+  /**
+   * @return the serverObjectId
+   */
   public String getClusterRunId() {
     return clusterRunId;
   }
 
-  /** @param clusterRunId the serverObjectId to set */
+  /**
+   * @param clusterRunId the serverObjectId to set
+   */
   public void setClusterRunId(String clusterRunId) {
     this.clusterRunId = clusterRunId;
   }

@@ -40,7 +40,9 @@ public class HopGuiFileOpenedExtension {
     return fileDialog;
   }
 
-  /** @param fileDialog The fileDialog to set */
+  /**
+   * @param fileDialog The fileDialog to set
+   */
   public void setFileDialog(IFileDialog fileDialog) {
     this.fileDialog = fileDialog;
   }
@@ -54,7 +56,9 @@ public class HopGuiFileOpenedExtension {
     return variables;
   }
 
-  /** @param variables The variables to set */
+  /**
+   * @param variables The variables to set
+   */
   public void setVariables(IVariables variables) {
     this.variables = variables;
   }
@@ -68,7 +72,9 @@ public class HopGuiFileOpenedExtension {
     return filename;
   }
 
-  /** @param filename The filename to set */
+  /**
+   * @param filename The filename to set
+   */
   public void setFilename(String filename) {
     this.filename = filename;
   }

@@ -17,14 +17,6 @@
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
-import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.fileinput.FileInputList;
-import org.apache.hop.core.playlist.IFilePlayList;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
-
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.text.DateFormatSymbols;
@@ -35,6 +27,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.fileinput.FileInputList;
+import org.apache.hop.core.playlist.IFilePlayList;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
 public class GetFileNamesData extends BaseTransformData implements ITransformData {
   public List<String> lineBuffer;

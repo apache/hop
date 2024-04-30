@@ -16,6 +16,10 @@
  */
 package org.apache.hop.www;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
@@ -24,10 +28,6 @@ import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.json.simple.parser.ParseException;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @HopServerServlet(id = "registerPipeline", name = "Add a pipeline to the server")
 public class RegisterPipelineServlet extends BaseWorkflowServlet {

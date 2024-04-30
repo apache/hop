@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.apache.commons.lang.ClassUtils;
-import org.apache.hop.core.logging.ILogChannel;
-import org.eclipse.swt.widgets.Display;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import org.apache.commons.lang.ClassUtils;
+import org.apache.hop.core.logging.ILogChannel;
+import org.eclipse.swt.widgets.Display;
 
 public class DisplayInvocationHandler<T> implements InvocationHandler {
   private final Display display;
@@ -37,7 +36,6 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
     private volatile Object result = null;
   }
 
-  @SuppressWarnings("unchecked")
   public static <T> T forObject(
       Class<T> iface, T delegate, Display display, ILogChannel log, boolean asyncForVoid) {
     return (T)

@@ -17,12 +17,11 @@
 
 package org.apache.hop.core.row.value;
 
+import java.util.Map;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginMainClassType;
 import org.apache.hop.core.row.IValueMeta;
-
-import java.util.Map;
 
 /** This class represents the value meta plugin type. */
 @PluginMainClassType(IValueMeta.class)

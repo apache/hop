@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.vertica.bulkloader;
 
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.util.List;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -24,10 +27,6 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary.ColumnSpec;
 import org.apache.hop.pipeline.transforms.vertica.bulkloader.nativebinary.StreamEncoder;
-
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.util.List;
 
 public class VerticaBulkLoaderData extends BaseTransformData implements ITransformData {
   protected Database db;

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.multimerge;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.PriorityQueue;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -32,10 +35,6 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
 
 /**
  * Merge rows from 2 sorted streams and output joined rows with matched key fields. Use this instead
@@ -287,10 +286,10 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta, MultiMerge
         data.queue.clear();
         for (int i = 0; i < streamSize; i++) {
           while (data.rows[i] != null && !isStopped()) {
-            try{
+            try {
               data.rows[i] = getRowFrom(data.rowSets[i]);
-            }catch (Exception e){
-              //break loop
+            } catch (Exception e) {
+              // break loop
               break;
             }
           }

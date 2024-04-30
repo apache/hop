@@ -17,21 +17,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.exception.HopPluginClassMapException;
-import org.apache.hop.core.exception.HopPluginException;
-import org.apache.hop.core.extension.IPluginMock;
-import org.apache.hop.core.logging.LoggingPluginType;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowBuffer;
-import org.apache.hop.core.row.value.ValueMetaPlugin;
-import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.ClassRule;
-import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.UUID;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -45,6 +30,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.util.HashMap;
+import java.util.UUID;
+import org.apache.hop.core.exception.HopPluginClassMapException;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.extension.IPluginMock;
+import org.apache.hop.core.logging.LoggingPluginType;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.row.value.ValueMetaPlugin;
+import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.junit.rules.RestoreHopEnvironment;
+import org.junit.ClassRule;
+import org.junit.Test;
 
 public class PluginRegistryUnitTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();

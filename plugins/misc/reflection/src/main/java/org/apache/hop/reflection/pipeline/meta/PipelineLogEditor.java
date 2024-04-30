@@ -18,6 +18,8 @@
 
 package org.apache.hop.reflection.pipeline.meta;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
@@ -49,9 +51,6 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Editor that allows you to change Pipeline Log metadata
  *
@@ -70,7 +69,6 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
   private Label wlInterval;
   private TextVar wInterval;
   private TableView wPipelines;
-
 
   public PipelineLogEditor(
       HopGui hopGui, MetadataManager<PipelineLog> manager, PipelineLog metadata) {
@@ -291,21 +289,15 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wlSources.setLayoutData(fdlSources);
     lastControl = wlSources;
     ColumnInfo[] columns = {
-            new ColumnInfo(
-                    BaseMessages.getString(PKG, "PipelineLoggingEditor.SourcesTable.Column.Pipeline"),
-                    ColumnInfo.COLUMN_TYPE_TEXT,
-                    false,
-                    false),
+      new ColumnInfo(
+          BaseMessages.getString(PKG, "PipelineLoggingEditor.SourcesTable.Column.Pipeline"),
+          ColumnInfo.COLUMN_TYPE_TEXT,
+          false,
+          false),
     };
     wPipelines =
-            new TableView(
-                    manager.getVariables(),
-                    parent,
-                    SWT.BORDER,
-                    columns,
-                    0,
-                    e -> setChanged(),
-                    props);
+        new TableView(
+            manager.getVariables(), parent, SWT.BORDER, columns, 0, e -> setChanged(), props);
     FormData fdSources = new FormData();
     fdSources.left = new FormAttachment(0, 0);
     fdSources.top = new FormAttachment(lastControl, margin);
@@ -440,7 +432,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     wInterval.setText(Const.NVL(pl.getIntervalInSeconds(), ""));
     wPipelines.removeAll();
     List<PipelineToLogLocation> pipelinesToLog = pl.getPipelinesToLog();
-    for(PipelineToLogLocation pipelineToLog : pipelinesToLog){
+    for (PipelineToLogLocation pipelineToLog : pipelinesToLog) {
       TableItem item = new TableItem(wPipelines.table, SWT.NONE);
       item.setText(1, Const.NVL(pipelineToLog.getPipelineToLogFilename(), ""));
     }

@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains Interbase specific information through static final members
- */
-@DatabaseMetaPlugin(type = "INTERBASE", typeDescription = "Borland Interbase", documentationUrl = "/database/databases/interbase.html")
+/** Contains Interbase specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "INTERBASE",
+    typeDescription = "Borland Interbase",
+    documentationUrl = "/database/databases/interbase.html")
 @GuiPlugin(id = "GUI-InterbaseDatabaseMeta")
 public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
@@ -44,7 +45,9 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return -1;
   }
 
-  /** @return Whether or not the database can use auto increment type of fields (pk) */
+  /**
+   * @return Whether or not the database can use auto increment type of fields (pk)
+   */
   @Override
   public boolean isSupportsAutoInc() {
     return false;
@@ -60,13 +63,17 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
     return "jdbc:interbase://" + hostname + ":" + port + "/" + databaseName;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
   }
 
-  /** @return true if the database supports synonyms */
+  /**
+   * @return true if the database supports synonyms
+   */
   @Override
   public boolean isSupportsSynonyms() {
     return false;

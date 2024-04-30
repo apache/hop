@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -67,10 +70,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class WorkflowExecutorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
@@ -1205,7 +1204,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     workflowExecutorMeta.setResultRowsLength(new int[nrFields]);
     workflowExecutorMeta.setResultRowsPrecision(new int[nrFields]);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < nrFields; i++) {
       TableItem item = wResultRowsFields.getNonEmpty(i);
       workflowExecutorMeta.getResultRowsField()[i] = item.getText(1);

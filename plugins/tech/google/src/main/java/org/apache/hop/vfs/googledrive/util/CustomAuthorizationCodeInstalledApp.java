@@ -21,11 +21,10 @@ import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
+import java.io.IOException;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.vfs.googledrive.ui.GoogleAuthorizationDialog;
 import org.eclipse.swt.widgets.Shell;
-
-import java.io.IOException;
 
 public class CustomAuthorizationCodeInstalledApp extends AuthorizationCodeInstalledApp {
 
@@ -40,7 +39,8 @@ public class CustomAuthorizationCodeInstalledApp extends AuthorizationCodeInstal
     HopGui hopGui = HopGui.getInstance();
     if (hopGui != null) {
 
-      HopGui.getInstance().getDisplay()
+      HopGui.getInstance()
+          .getDisplay()
           .syncExec(
               () -> {
                 Shell shell = hopGui.getShell();

@@ -16,6 +16,8 @@
  */
 package org.apache.hop.pipeline.transforms.monetdbbulkloader;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.DbCache;
@@ -72,9 +74,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG =
@@ -763,8 +762,11 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
         };
     new Thread(runnable).start();
 
-    wbLogFile.addListener(SWT.Selection, e->BaseDialog.presentFileDialog(shell,
-            wLogFile, variables,new String[] {"*"}, ALL_FILETYPES, true ));
+    wbLogFile.addListener(
+        SWT.Selection,
+        e ->
+            BaseDialog.presentFileDialog(
+                shell, wLogFile, variables, new String[] {"*"}, ALL_FILETYPES, true));
 
     // Add listeners
     wOk.addListener(SWT.Selection, e -> ok());
@@ -811,12 +813,13 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
             }
             if (!Utils.isEmpty(tableName)) {
               DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connectionName, variables);
-              if (databaseMeta != null) {                
+              if (databaseMeta != null) {
                 try (Database db = new Database(loggingObject, variables, databaseMeta)) {
                   db.connect();
 
                   String schemaTable =
-                      databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
+                      databaseMeta.getQuotedSchemaTableCombination(
+                          variables, schemaName, tableName);
                   IRowMeta r = db.getTableFields(schemaTable);
                   if (null != r) {
                     String[] fieldNames = r.getFieldNames();
@@ -831,7 +834,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
                     colInfo.setComboValues(new String[] {});
                   }
                   // ignore any errors here. drop downs will not be
-                  // filled, but no problem for the user               
+                  // filled, but no problem for the user
                 }
               }
             }
@@ -930,7 +933,7 @@ public class MonetDbBulkLoaderDialog extends BaseTransformDialog implements ITra
       logDebug(
           BaseMessages.getString(PKG, "MonetDBBulkLoaderDialog.Log.FoundFields", "" + nrfields));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrfields; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       inf.getFieldTable()[i] = item.getText(1);

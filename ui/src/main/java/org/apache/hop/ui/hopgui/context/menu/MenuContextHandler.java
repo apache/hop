@@ -17,6 +17,10 @@
 
 package org.apache.hop.ui.hopgui.context.menu;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
@@ -26,11 +30,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 public class MenuContextHandler implements IGuiContextHandler {
 
@@ -67,7 +66,7 @@ public class MenuContextHandler implements IGuiContextHandler {
       // See if this item is enabled
       Boolean enabled = widgets.getMenuEnabledMap().get(item.getId());
       // Enabled by default
-      if (enabled!=null && !enabled) {
+      if (enabled != null && !enabled) {
         continue;
       }
 

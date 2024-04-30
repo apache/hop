@@ -17,14 +17,13 @@
 
 package org.apache.hop.ui.hopgui.context.metadata;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MetadataContext implements IActionContextHandlersProvider {
 

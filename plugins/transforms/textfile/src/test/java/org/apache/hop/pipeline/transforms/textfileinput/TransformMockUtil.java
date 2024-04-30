@@ -17,6 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.textfileinput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -29,12 +34,6 @@ import org.apache.hop.pipeline.transforms.fileinput.TextFileInputData;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.mockito.Mockito;
-
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * Util class to handle TransformMock creation in generic way.
@@ -65,8 +64,12 @@ public class TransformMockUtil {
           Main extends BaseTransform, Meta extends ITransformMeta, Data extends ITransformData>
       Main getTransform(
           Class<Main> mainClass, Class<Data> dataClass, TransformMockHelper<Meta, Data> mock)
-          throws NoSuchMethodException, SecurityException, InstantiationException,
-              IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+          throws NoSuchMethodException,
+              SecurityException,
+              InstantiationException,
+              IllegalAccessException,
+              IllegalArgumentException,
+              InvocationTargetException {
     Constructor<Main> kons =
         mainClass.getConstructor(
             TransformMeta.class, dataClass, int.class, PipelineMeta.class, Pipeline.class);
@@ -80,8 +83,12 @@ public class TransformMockUtil {
           Main extends BaseTransform, Meta extends ITransformMeta, Data extends ITransformData>
       Main getTransform(
           Class<Main> mainClass, Class<Meta> metaClass, Class<Data> dataClass, String transformName)
-          throws NoSuchMethodException, SecurityException, InstantiationException,
-              IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+          throws NoSuchMethodException,
+              SecurityException,
+              InstantiationException,
+              IllegalAccessException,
+              IllegalArgumentException,
+              InvocationTargetException {
     return TransformMockUtil.getTransform(
         mainClass,
         dataClass,
@@ -108,8 +115,12 @@ public class TransformMockUtil {
           Class<Meta> metaClass,
           Class<Data> dataClass,
           String transformName)
-          throws NoSuchMethodException, SecurityException, InstantiationException,
-              IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+          throws NoSuchMethodException,
+              SecurityException,
+              InstantiationException,
+              IllegalAccessException,
+              IllegalArgumentException,
+              InvocationTargetException {
 
     TransformMockHelper<Meta, Data> mockHelper =
         org.apache.hop.pipeline.transforms.fileinput.text.TransformMockUtil.getTransformMockHelper(

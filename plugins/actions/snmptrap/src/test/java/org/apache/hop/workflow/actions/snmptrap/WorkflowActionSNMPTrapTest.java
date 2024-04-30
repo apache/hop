@@ -16,6 +16,9 @@
  */
 package org.apache.hop.workflow.actions.snmptrap;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
@@ -26,10 +29,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 public class WorkflowActionSNMPTrapTest extends WorkflowActionLoadSaveTestSupport<ActionSNMPTrap> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

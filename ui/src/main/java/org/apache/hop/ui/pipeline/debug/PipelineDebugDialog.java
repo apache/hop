@@ -17,6 +17,8 @@
 
 package org.apache.hop.ui.pipeline.debug;
 
+import java.util.Hashtable;
+import java.util.Map;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
@@ -55,9 +57,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.Hashtable;
-import java.util.Map;
 
 /** Allows you to edit/enter the pipeline debugging information */
 public class PipelineDebugDialog extends Dialog {

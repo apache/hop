@@ -17,14 +17,13 @@
 
 package org.apache.hop.core.util;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.xml.XmlHandler;
 import org.mozilla.javascript.Context;
-
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * This class contains common code from {@linkplain

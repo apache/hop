@@ -16,12 +16,11 @@
  */
 package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
+import java.security.MessageDigest;
+import java.util.Objects;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.Injection;
-
-import java.security.MessageDigest;
-import java.util.Objects;
 
 public class UserDefinedJavaClassDef implements Cloneable {
   public enum ClassType {

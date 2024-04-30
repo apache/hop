@@ -17,6 +17,17 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.StringReader;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.UUID;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -33,18 +44,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
-
-import static org.junit.Assert.assertEquals;
 
 /** User: Dzmitry Stsiapanau Date: 12/17/13 Time: 3:11 PM */
 public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {

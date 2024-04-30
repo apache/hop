@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -63,9 +65,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.nio.charset.Charset;
-import java.util.ArrayList;
 
 public class LoadFileInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
@@ -1397,7 +1396,6 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
       field.setRepeated(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(11)));
 
-      // CHECKSTYLE:Indentation:OFF
       in.getInputFields()[i] = field;
     }
     in.setShortFileNameField(wShortFileFieldName.getText());

@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.streamlookup;
 
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -40,8 +41,6 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -51,8 +50,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.List;
 
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = StreamLookupMeta.class; // For Translator
@@ -158,10 +155,12 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     }
 
     wTransform.addModifyListener(lsMod);
-    wTransform.addListener(SWT.Selection, e -> {
-        input.setChanged();
-        updateComboFields();    
-    });
+    wTransform.addListener(
+        SWT.Selection,
+        e -> {
+          input.setChanged();
+          updateComboFields();
+        });
 
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment(middle, 0);
@@ -264,7 +263,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     fdPreserveMemory.right = new FormAttachment(100, 0);
     wPreserveMemory.setLayoutData(fdPreserveMemory);
     wPreserveMemory.addListener(SWT.Selection, e -> input.setChanged());
-    
+
     // preserve memory should be enabled to have this options on.
     wPreserveMemory.addListener(
         SWT.Selection,
@@ -328,7 +327,6 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
     getData();
 
-    
     updateComboFields();
     input.setChanged(changed);
 
@@ -337,29 +335,28 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     return transformName;
   }
 
-  /**
-  /* Search the input and lookup fields in the background
-   **/
+  /** /* Search the input and lookup fields in the background */
   protected void updateComboFields() {
 
     final Runnable runnable =
         () -> {
-          
           String lookupTransformName = wTransform.getText();
-          
+
           // Input fields
           //
           TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
           if (transformMeta != null) {
             try {
-              IRowMeta rowMeta = new RowMeta();              
-              for (String prevTransformName: pipelineMeta.getPrevTransformNames(transformName)) {
-                  if ( !prevTransformName.equalsIgnoreCase(lookupTransformName) ) {                  
-                  IRowMeta row = pipelineMeta.getPrevTransformFields(variables, transformMeta, prevTransformName, null);
+              IRowMeta rowMeta = new RowMeta();
+              for (String prevTransformName : pipelineMeta.getPrevTransformNames(transformName)) {
+                if (!prevTransformName.equalsIgnoreCase(lookupTransformName)) {
+                  IRowMeta row =
+                      pipelineMeta.getPrevTransformFields(
+                          variables, transformMeta, prevTransformName, null);
 
                   // See if the add fields are not already in the row
                   for (int i = 0; i < row.size(); i++) {
-                    IValueMeta valueMeta = row.getValueMeta(i);                  
+                    IValueMeta valueMeta = row.getValueMeta(i);
                     if (rowMeta.searchValueMeta(valueMeta.getName()) == null) {
                       rowMeta.addValueMeta(valueMeta);
                     }
@@ -375,7 +372,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
               logError(BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"));
             }
           }
-          
+
           // Lookup fields
           //
           TransformMeta lookupTransformMeta = pipelineMeta.findTransform(lookupTransformName);
@@ -395,9 +392,8 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
                       + "]!");
             }
           }
-          
         };
-        shell.getDisplay().asyncExec(runnable);
+    shell.getDisplay().asyncExec(runnable);
   }
 
   /** Copy information from the meta-data input to the dialog fields. */
@@ -480,7 +476,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.FoundKeys", nrkeys + ""));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrkeys; i++) {
       TableItem item = wKey.getNonEmpty(i);
       input.getKeystream()[i] = item.getText(1);
@@ -490,7 +486,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     if (log.isDebug()) {
       logDebug(BaseMessages.getString(PKG, "StreamLookupDialog.Log.FoundFields", nrvalues + ""));
     }
-    // CHECKSTYLE:Indentation:OFF
+
     for (int i = 0; i < nrvalues; i++) {
       TableItem item = wReturn.getNonEmpty(i);
       input.getValue()[i] = item.getText(1);

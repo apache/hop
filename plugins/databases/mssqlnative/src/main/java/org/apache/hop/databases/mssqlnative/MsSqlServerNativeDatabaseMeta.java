@@ -17,6 +17,8 @@
 
 package org.apache.hop.databases.mssqlnative;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.BaseDatabaseMeta;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -32,10 +34,10 @@ import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@DatabaseMetaPlugin(type = "MSSQLNATIVE", typeDescription = "MS SQL Server (Native)", documentationUrl = "/database/databases/mssqlnative.html")
+@DatabaseMetaPlugin(
+    type = "MSSQLNATIVE",
+    typeDescription = "MS SQL Server (Native)",
+    documentationUrl = "/database/databases/mssqlnative.html")
 @GuiPlugin(id = "GUI-MSSQLServerNativeDatabaseMeta")
 public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     implements IGuiPluginCompositeWidgetsListener {
@@ -69,7 +71,7 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
 
   @Override
   public void persistContents(GuiCompositeWidgets compositeWidgets) {
-    //not needed
+    // not needed
   }
 
   private void enableField(GuiCompositeWidgets compositeWidgets) {
@@ -105,7 +107,9 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     return this.usingIntegratedSecurity;
   }
 
-  /** @param usingIntegratedSecurity The usingIntegratedSecurity to set */
+  /**
+   * @param usingIntegratedSecurity The usingIntegratedSecurity to set
+   */
   public void setUsingIntegratedSecurity(boolean usingIntegratedSecurity) {
     this.usingIntegratedSecurity = usingIntegratedSecurity;
   }
@@ -174,13 +178,13 @@ public class MsSqlServerNativeDatabaseMeta extends MsSqlServerDatabaseMeta
     if (isUsingDoubleDecimalAsSchemaTableSeparator()) {
       return schemaName + ".." + tablePart;
     } else {
-      if(!schemaName.startsWith("[") && !schemaName.endsWith("]")){
+      if (!schemaName.startsWith("[") && !schemaName.endsWith("]")) {
         return '[' + schemaName + ']' + "." + tablePart;
       }
-      return  schemaName + "." + tablePart;
+      return schemaName + "." + tablePart;
     }
   }
-  
+
   @Override
   public boolean isSupportsTimestampDataType() {
     return true;

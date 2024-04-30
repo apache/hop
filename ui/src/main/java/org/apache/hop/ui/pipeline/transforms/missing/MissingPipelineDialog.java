@@ -16,6 +16,7 @@
  */
 package org.apache.hop.ui.pipeline.transforms.missing;
 
+import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -38,8 +39,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.List;
 
 public class MissingPipelineDialog extends BaseTransformDialog implements ITransformDialog {
 

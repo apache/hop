@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
+import static org.apache.hop.pipeline.transforms.filemetadata.FileMetadataMeta.FMCandidate;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import static org.apache.hop.pipeline.transforms.filemetadata.FileMetadataMeta.FMCandidate;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -261,19 +262,19 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdFilenameField.right = new FormAttachment(100, -margin);
     wFilenameField.setLayoutData(fdFilenameField);
     wFilenameField.addFocusListener(
-            new FocusListener() {
-              @Override
-              public void focusLost(FocusEvent e) {}
+        new FocusListener() {
+          @Override
+          public void focusLost(FocusEvent e) {}
 
-              @Override
-              public void focusGained(FocusEvent e) {
-                Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
-                shell.setCursor(busy);
-                getFields();
-                shell.setCursor(null);
-                busy.dispose();
-              }
-            });
+          @Override
+          public void focusGained(FocusEvent e) {
+            Cursor busy = new Cursor(shell.getDisplay(), SWT.CURSOR_WAIT);
+            shell.setCursor(busy);
+            getFields();
+            shell.setCursor(null);
+            busy.dispose();
+          }
+        });
 
     // options panel for DELIMITED_LAYOUT
     Group gDelimitedLayout = new Group(shell, SWT.SHADOW_ETCHED_IN);

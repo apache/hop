@@ -18,6 +18,7 @@
 
 package org.apache.hop.reflection.probe.xp;
 
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -43,8 +44,6 @@ import org.apache.hop.reflection.pipeline.xp.PipelineStartLoggingXp;
 import org.apache.hop.reflection.probe.meta.DataProbeLocation;
 import org.apache.hop.reflection.probe.meta.PipelineProbe;
 import org.apache.hop.reflection.probe.transform.PipelineDataProbe;
-
-import java.util.List;
 
 @ExtensionPoint(
     id = "PipelineDataProbeXp",

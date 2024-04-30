@@ -22,10 +22,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 
-/**
- * Contains PostgreSQL specific information through static final members
- */
-@DatabaseMetaPlugin(type = "GREENPLUM", typeDescription = "Greenplum", documentationUrl = "/database/databases/greenplum.html")
+/** Contains PostgreSQL specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "GREENPLUM",
+    typeDescription = "Greenplum",
+    documentationUrl = "/database/databases/greenplum.html")
 @GuiPlugin(id = "GUI-GreenplumDatabaseMeta")
 public class GreenplumDatabaseMeta extends PostgreSqlDatabaseMeta implements IDatabase {
   @Override

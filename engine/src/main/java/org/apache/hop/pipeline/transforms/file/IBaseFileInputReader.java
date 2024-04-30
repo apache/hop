@@ -17,9 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
-import org.apache.hop.core.exception.HopException;
-
 import java.io.Closeable;
+import org.apache.hop.core.exception.HopException;
 
 /** Content-based reader for file. */
 public interface IBaseFileInputReader extends Closeable {

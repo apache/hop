@@ -42,7 +42,9 @@ public class GuiToolbarItemFilter {
     return id;
   }
 
-  /** @param id The id to set */
+  /**
+   * @param id The id to set
+   */
   public void setId(String id) {
     this.id = id;
   }
@@ -56,7 +58,9 @@ public class GuiToolbarItemFilter {
     return guiPluginClassName;
   }
 
-  /** @param guiPluginClassName The guiPluginClassName to set */
+  /**
+   * @param guiPluginClassName The guiPluginClassName to set
+   */
   public void setGuiPluginClassName(String guiPluginClassName) {
     this.guiPluginClassName = guiPluginClassName;
   }
@@ -70,7 +74,9 @@ public class GuiToolbarItemFilter {
     return guiPluginMethodName;
   }
 
-  /** @param guiPluginMethodName The guiPluginMethodName to set */
+  /**
+   * @param guiPluginMethodName The guiPluginMethodName to set
+   */
   public void setGuiPluginMethodName(String guiPluginMethodName) {
     this.guiPluginMethodName = guiPluginMethodName;
   }
@@ -84,7 +90,9 @@ public class GuiToolbarItemFilter {
     return classLoader;
   }
 
-  /** @param classLoader The classLoader to set */
+  /**
+   * @param classLoader The classLoader to set
+   */
   public void setClassLoader(ClassLoader classLoader) {
     this.classLoader = classLoader;
   }

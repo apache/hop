@@ -24,6 +24,12 @@ import com.dropbox.core.v2.files.FileMetadata;
 import com.dropbox.core.v2.files.ListFolderResult;
 import com.dropbox.core.v2.files.Metadata;
 import com.dropbox.core.v2.files.UploadUploader;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.vfs2.FileNotFoundException;
 import org.apache.commons.vfs2.FileObject;
@@ -31,13 +37,6 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /** An dropbox file object. */
 public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
@@ -96,8 +95,7 @@ public class DropboxFileObject extends AbstractFileObject<DropboxFileSystem> {
       String path = this.getName().getPath();
 
       // Root path should be empty
-      if ("/".equals(path))
-        path = "";
+      if ("/".equals(path)) path = "";
 
       ListFolderResult result = client.files().listFolder(path);
       while (true) {

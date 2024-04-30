@@ -17,6 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.propertyoutput;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -38,11 +42,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "PropertyOutput",
@@ -106,72 +105,100 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     return retval;
   }
 
-  /** @return Returns the extension. */
+  /**
+   * @return Returns the extension.
+   */
   public String getExtension() {
     return extension;
   }
 
-  /** @param extension The extension to set. */
+  /**
+   * @param extension The extension to set.
+   */
   public void setExtension(String extension) {
     this.extension = extension;
   }
 
-  /** @return Returns the fileName. */
+  /**
+   * @return Returns the fileName.
+   */
   public String getFileName() {
     return fileName;
   }
 
-  /** @return Is the file name coded in a field? */
+  /**
+   * @return Is the file name coded in a field?
+   */
   public boolean isFileNameInField() {
     return fileNameInField;
   }
 
-  /** @param fileNameInField Is the file name coded in a field? */
+  /**
+   * @param fileNameInField Is the file name coded in a field?
+   */
   public void setFileNameInField(boolean fileNameInField) {
     this.fileNameInField = fileNameInField;
   }
 
-  /** @return The field name that contains the output file name. */
+  /**
+   * @return The field name that contains the output file name.
+   */
   public String getFileNameField() {
     return fileNameField;
   }
 
-  /** @param fileNameField Name of the field that contains the file name */
+  /**
+   * @param fileNameField Name of the field that contains the file name
+   */
   public void setFileNameField(String fileNameField) {
     this.fileNameField = fileNameField;
   }
 
-  /** @return Returns the transformNrInFilename. */
+  /**
+   * @return Returns the transformNrInFilename.
+   */
   public boolean isTransformNrInFilename() {
     return transformNrInFilename;
   }
 
-  /** @param transformNrInFilename The transformNrInFilename to set. */
+  /**
+   * @param transformNrInFilename The transformNrInFilename to set.
+   */
   public void setTransformNrInFilename(boolean transformNrInFilename) {
     this.transformNrInFilename = transformNrInFilename;
   }
 
-  /** @return Returns the timeInFilename. */
+  /**
+   * @return Returns the timeInFilename.
+   */
   public boolean isTimeInFilename() {
     return timeInFilename;
   }
 
-  /** @return Returns the dateInFilename. */
+  /**
+   * @return Returns the dateInFilename.
+   */
   public boolean isDateInFilename() {
     return dateInFilename;
   }
 
-  /** @param dateInFilename The dateInFilename to set. */
+  /**
+   * @param dateInFilename The dateInFilename to set.
+   */
   public void setDateInFilename(boolean dateInFilename) {
     this.dateInFilename = dateInFilename;
   }
 
-  /** @param timeInFilename The timeInFilename to set. */
+  /**
+   * @param timeInFilename The timeInFilename to set.
+   */
   public void setTimeInFilename(boolean timeInFilename) {
     this.timeInFilename = timeInFilename;
   }
 
-  /** @param fileName The fileName to set. */
+  /**
+   * @param fileName The fileName to set.
+   */
   public void setFileName(String fileName) {
     this.fileName = fileName;
   }
@@ -180,27 +207,37 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     return addToResult;
   }
 
-  /** @param addToResult The Add file to result to set. */
+  /**
+   * @param addToResult The Add file to result to set.
+   */
   public void setAddToResult(boolean addToResult) {
     this.addToResult = addToResult;
   }
 
-  /** @return Returns the create parent folder flag. */
+  /**
+   * @return Returns the create parent folder flag.
+   */
   public boolean isCreateParentFolder() {
     return createparentfolder;
   }
 
-  /** @param createparentfolder The create parent folder flag to set. */
+  /**
+   * @param createparentfolder The create parent folder flag to set.
+   */
   public void setCreateParentFolder(boolean createparentfolder) {
     this.createparentfolder = createparentfolder;
   }
 
-  /** @return Returns the append flag. */
+  /**
+   * @return Returns the append flag.
+   */
   public boolean isAppend() {
     return append;
   }
 
-  /** @param append The append to set. */
+  /**
+   * @param append The append to set.
+   */
   public void setAppend(boolean append) {
     this.append = append;
   }
@@ -455,22 +492,30 @@ public class PropertyOutputMeta extends BaseTransformMeta<PropertyOutput, Proper
     }
   }
 
-  /** @return the keyfield */
+  /**
+   * @return the keyfield
+   */
   public String getKeyField() {
     return keyfield;
   }
 
-  /** @return the valuefield */
+  /**
+   * @return the valuefield
+   */
   public String getValueField() {
     return valuefield;
   }
 
-  /** @param keyField the keyfield to set */
+  /**
+   * @param keyField the keyfield to set
+   */
   public void setKeyField(String keyField) {
     this.keyfield = keyField;
   }
 
-  /** @param valuefield the valuefield to set */
+  /**
+   * @param valuefield the valuefield to set
+   */
   public void setValueField(String valuefield) {
     this.valuefield = valuefield;
   }

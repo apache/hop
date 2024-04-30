@@ -17,6 +17,9 @@
 
 package org.apache.hop.core.util;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
@@ -26,10 +29,6 @@ import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.vfs.HopVfs;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 
 /**
  * Class for loading images from SVG, PNG, or other bitmap formats.

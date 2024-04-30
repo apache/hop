@@ -17,15 +17,15 @@
 
 package org.apache.hop.core.metadata;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.server.HopServer;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class SerializableMetadataProviderTest {
 
@@ -40,11 +40,29 @@ public class SerializableMetadataProviderTest {
     IHopMetadataSerializer<HopServer> sourceSerializer = source.getSerializer(HopServer.class);
     HopServer sourceServer1 =
         new HopServer(
-            "server1", "hostname1", "8181", "8182", "username1", "password1", null, null, null, false);
+            "server1",
+            "hostname1",
+            "8181",
+            "8182",
+            "username1",
+            "password1",
+            null,
+            null,
+            null,
+            false);
     sourceSerializer.save(sourceServer1);
     HopServer sourceServer2 =
         new HopServer(
-            "server2", "hostname2", "8282", "8283", "username2", "password2", null, null, null, true);
+            "server2",
+            "hostname2",
+            "8282",
+            "8283",
+            "username2",
+            "password2",
+            null,
+            null,
+            null,
+            true);
     sourceSerializer.save(sourceServer2);
 
     SerializableMetadataProvider serializableMetadataProvider =

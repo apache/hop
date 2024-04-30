@@ -22,10 +22,9 @@ import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.util.JSON;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import org.apache.hop.i18n.BaseMessages;
 
 class MongoPropToOption {
   private static final Class<?> PKG = MongoPropToOption.class; // For Translator

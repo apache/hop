@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.switchcase;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -38,9 +40,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Transform(
     id = "SwitchCase",
@@ -205,62 +204,86 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
     }
   }
 
-  /** @return the fieldname */
+  /**
+   * @return the fieldname
+   */
   public String getFieldName() {
     return fieldName;
   }
 
-  /** @param fieldName the fieldname to set */
+  /**
+   * @param fieldName the fieldname to set
+   */
   public void setFieldName(String fieldName) {
     this.fieldName = fieldName;
   }
 
-  /** @return the caseValueFormat */
+  /**
+   * @return the caseValueFormat
+   */
   public String getCaseValueFormat() {
     return caseValueFormat;
   }
 
-  /** @param caseValueFormat the caseValueFormat to set */
+  /**
+   * @param caseValueFormat the caseValueFormat to set
+   */
   public void setCaseValueFormat(String caseValueFormat) {
     this.caseValueFormat = caseValueFormat;
   }
 
-  /** @return the caseValueDecimal */
+  /**
+   * @return the caseValueDecimal
+   */
   public String getCaseValueDecimal() {
     return caseValueDecimal;
   }
 
-  /** @param caseValueDecimal the caseValueDecimal to set */
+  /**
+   * @param caseValueDecimal the caseValueDecimal to set
+   */
   public void setCaseValueDecimal(String caseValueDecimal) {
     this.caseValueDecimal = caseValueDecimal;
   }
 
-  /** @return the caseValueGroup */
+  /**
+   * @return the caseValueGroup
+   */
   public String getCaseValueGroup() {
     return caseValueGroup;
   }
 
-  /** @param caseValueGroup the caseValueGroup to set */
+  /**
+   * @param caseValueGroup the caseValueGroup to set
+   */
   public void setCaseValueGroup(String caseValueGroup) {
     this.caseValueGroup = caseValueGroup;
   }
 
-  /** @return the caseValueType */
+  /**
+   * @return the caseValueType
+   */
   public String getCaseValueType() {
     return caseValueType;
   }
 
-  /** @param caseValueType the caseValueType to set */
+  /**
+   * @param caseValueType the caseValueType to set
+   */
   public void setCaseValueType(String caseValueType) {
     this.caseValueType = caseValueType;
   }
 
-  /** @return the defaultTargetTransformName */
+  /**
+   * @return the defaultTargetTransformName
+   */
   public String getDefaultTargetTransformName() {
     return defaultTargetTransformName;
   }
 
-  /** @param defaultTargetTransformName the defaultTargetTransformName to set */
+  /**
+   * @param defaultTargetTransformName the defaultTargetTransformName to set
+   */
   public void setDefaultTargetTransformName(String defaultTargetTransformName) {
     this.defaultTargetTransformName = defaultTargetTransformName;
   }
@@ -414,12 +437,16 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
     }
   }
 
-  /** @return the caseTargets */
+  /**
+   * @return the caseTargets
+   */
   public List<SwitchCaseTarget> getCaseTargets() {
     return caseTargets;
   }
 
-  /** @param caseTargets the caseTargets to set */
+  /**
+   * @param caseTargets the caseTargets to set
+   */
   public void setCaseTargets(List<SwitchCaseTarget> caseTargets) {
     this.caseTargets = caseTargets;
   }

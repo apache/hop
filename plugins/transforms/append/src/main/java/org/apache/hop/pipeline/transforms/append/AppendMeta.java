@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.append;
 
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
@@ -36,8 +37,6 @@ import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.IStream.StreamType;
 import org.apache.hop.pipeline.transform.stream.Stream;
 import org.apache.hop.pipeline.transform.stream.StreamIcon;
-
-import java.util.List;
 
 @Transform(
     id = "Append",
@@ -192,7 +191,9 @@ public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
     return headTransformName;
   }
 
-  /** @param headTransformName The headTransformName to set */
+  /**
+   * @param headTransformName The headTransformName to set
+   */
   public void setHeadTransformName(String headTransformName) {
     this.headTransformName = headTransformName;
   }
@@ -206,7 +207,9 @@ public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
     return tailTransformName;
   }
 
-  /** @param tailTransformName The tailTransformName to set */
+  /**
+   * @param tailTransformName The tailTransformName to set
+   */
   public void setTailTransformName(String tailTransformName) {
     this.tailTransformName = tailTransformName;
   }

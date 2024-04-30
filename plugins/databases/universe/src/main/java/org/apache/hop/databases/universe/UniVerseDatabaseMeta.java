@@ -25,10 +25,11 @@ import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.row.IValueMeta;
 
-/**
- * Contains IBM UniVerse database specific information through static final members
- */
-@DatabaseMetaPlugin(type = "UNIVERSE", typeDescription = "IBM UniVerse database", documentationUrl = "/database/databases/universe.html")
+/** Contains IBM UniVerse database specific information through static final members */
+@DatabaseMetaPlugin(
+    type = "UNIVERSE",
+    typeDescription = "IBM UniVerse database",
+    documentationUrl = "/database/databases/universe.html")
 @GuiPlugin(id = "GUI-UniVerseDatabaseMeta")
 public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   private static final int MAX_VARCHAR_LENGTH = 65535;
@@ -38,7 +39,9 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return new int[] {DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
-  /** @see IDatabase#getNotFoundTK(boolean) */
+  /**
+   * @see IDatabase#getNotFoundTK(boolean)
+   */
   @Override
   public int getNotFoundTK(boolean useAutoinc) {
     if (isSupportsAutoInc() && useAutoinc) {
@@ -67,7 +70,9 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     return false;
   }
 
-  /** @return true if the database supports bitmap indexes */
+  /**
+   * @return true if the database supports bitmap indexes
+   */
   @Override
   public boolean isSupportsBitmapIndex() {
     return false;
@@ -410,7 +415,9 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
     };
   }
 
-  /** @return true if the database supports newlines in a SQL statements. */
+  /**
+   * @return true if the database supports newlines in a SQL statements.
+   */
   @Override
   public boolean isSupportsNewLinesInSql() {
     return true;

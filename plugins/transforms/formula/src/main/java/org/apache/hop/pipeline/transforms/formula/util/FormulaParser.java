@@ -17,6 +17,12 @@
 
 package org.apache.hop.pipeline.transforms.formula.util;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -27,13 +33,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FormulaParser {
 
@@ -48,7 +47,12 @@ public class FormulaParser {
   private HashMap<String, String> replaceMap;
 
   public FormulaParser(
-      FormulaMetaFunction formulaMetaFunction, IRowMeta rowMeta, Object[] dataRow, Row sheetRow, IVariables variables, HashMap<String, String> replaceMap) {
+      FormulaMetaFunction formulaMetaFunction,
+      IRowMeta rowMeta,
+      Object[] dataRow,
+      Row sheetRow,
+      IVariables variables,
+      HashMap<String, String> replaceMap) {
     this.formulaMetaFunction = formulaMetaFunction;
     this.rowMeta = rowMeta;
     this.dataRow = dataRow;
@@ -61,22 +65,22 @@ public class FormulaParser {
     formulaFieldList = getFormulaFieldList(formula);
 
     boolean getNewList = false;
-    for(String formulaField : formulaFieldList){
+    for (String formulaField : formulaFieldList) {
       // check if we are working with a field that was replaced earlier.
       Set<String> replaceKeys = replaceMap.keySet();
-      if(replaceKeys.contains(formulaField)){
+      if (replaceKeys.contains(formulaField)) {
         String realFieldName = replaceMap.get(formulaField);
         formula = formula.replaceAll("\\[" + formulaField + "\\]", "\\[" + realFieldName + "\\]");
         getNewList = true;
       }
     }
 
-    if(getNewList){
+    if (getNewList) {
       formulaFieldList = getFormulaFieldList(formula);
     }
   }
 
-  private List<String> getFormulaFieldList(String formula){
+  private List<String> getFormulaFieldList(String formula) {
     List<String> theFields = new ArrayList<>();
     Pattern regex = Pattern.compile("\\[(.*?)\\]");
     Matcher regexMatcher = regex.matcher(formula);
@@ -116,7 +120,7 @@ public class FormulaParser {
         } else {
           cell.setCellValue(rowMeta.getString(dataRow, fieldPosition));
         }
-      }else{
+      } else {
         cell.setBlank();
       }
 

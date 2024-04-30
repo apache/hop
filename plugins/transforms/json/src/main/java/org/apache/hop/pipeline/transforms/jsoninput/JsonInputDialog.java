@@ -21,6 +21,15 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.MappingJsonFactory;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -69,16 +78,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 
 public class JsonInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = JsonInputMeta.class; // For Translator
@@ -1482,11 +1481,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
           String name = path.substring(dotIndex + 1);
           TableItem item = new TableItem(wFields.table, SWT.NONE);
           // Remove bracket syntax in case attribute name contains spaces
-          item.setText(
-              1,
-              name.contains(" ")
-                  ? name.replace("['", "").replace("']", "")
-                  : name);
+          item.setText(1, name.contains(" ") ? name.replace("['", "").replace("']", "") : name);
           item.setText(2, path);
           item.setText(3, "String");
         }

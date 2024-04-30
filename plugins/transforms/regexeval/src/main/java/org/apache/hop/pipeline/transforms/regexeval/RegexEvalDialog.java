@@ -447,8 +447,10 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(100, 0);
     wFields.setLayoutData(fdFields);
-    wFields.getTable().addListener(SWT.Resize, new ColumnsResizer(2, 20, 10, 5, 5, 10, 8, 8, 8, 8, 8, 8));
-    
+    wFields
+        .getTable()
+        .addListener(SWT.Resize, new ColumnsResizer(2, 20, 10, 5, 5, 10, 8, 8, 8, 8, 8, 8));
+
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment(0, 0);
     fdGeneralComp.top = new FormAttachment(0, 0);
@@ -794,7 +796,6 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     input.allocate(nrFields);
 
-    // CHECKSTYLE:Indentation:OFF
     for (int i = 0; i < input.getFieldName().length; i++) {
       TableItem ti = wFields.getNonEmpty(i);
       input.getFieldName()[i] = ti.getText(1);

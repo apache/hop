@@ -162,7 +162,9 @@ public enum FakerType {
     return fakerClass;
   }
 
-  /** @param fakerClass The fakerClass to set */
+  /**
+   * @param fakerClass The fakerClass to set
+   */
   public void setFakerClass(Class<?> fakerClass) {
     this.fakerClass = fakerClass;
   }
@@ -176,7 +178,9 @@ public enum FakerType {
     return fakerMethod;
   }
 
-  /** @param fakerMethod The fakerMethod to set */
+  /**
+   * @param fakerMethod The fakerMethod to set
+   */
   public void setFakerMethod(String fakerMethod) {
     this.fakerMethod = fakerMethod;
   }
@@ -190,7 +194,9 @@ public enum FakerType {
     return description;
   }
 
-  /** @param description The description to set */
+  /**
+   * @param description The description to set
+   */
   public void setDescription(String description) {
     this.description = description;
   }

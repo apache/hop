@@ -17,14 +17,21 @@
 
 package org.apache.hop.parquet.transforms.input;
 
+import java.io.InputStream;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.parquet.hadoop.ParquetReader;
 
-public class ParquetInputData extends BaseTransformData implements ITransformData {  
+public class ParquetInputData extends BaseTransformData implements ITransformData {
+
   public IRowMeta outputRowMeta;
   public int filenameFieldIndex;
-  
+  public ParquetReader<RowMetaAndData> reader;
+  public InputStream inputStream;
+  public boolean readerClosed = false;
+
   public ParquetInputData() {
     super();
   }

@@ -17,6 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.transforms.PTransform;
 import org.apache.beam.sdk.values.PCollection;
@@ -45,10 +48,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.memgroupby.beam.GroupByTransform;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
     id = "MemoryGroupBy",
@@ -162,7 +161,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
               valueType = IValueMeta.TYPE_NUMBER;
             }
             mask = subj.getConversionMask();
-            break;            
+            break;
           case Median:
           case Percentile:
           case StandardDeviation:
@@ -479,5 +478,5 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
   @Override
   public boolean supportsMultiCopyExecution() {
     return false;
-  }  
+  }
 }

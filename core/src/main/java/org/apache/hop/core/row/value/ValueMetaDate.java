@@ -17,10 +17,9 @@
 
 package org.apache.hop.core.row.value;
 
+import java.util.Date;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
-
-import java.util.Date;
 
 @ValueMetaPlugin(id = "3", name = "Date", description = "Date", image = "images/date.svg")
 public class ValueMetaDate extends ValueMetaBase implements IValueMeta {

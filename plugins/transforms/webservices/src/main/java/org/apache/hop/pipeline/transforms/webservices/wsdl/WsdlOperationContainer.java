@@ -17,10 +17,9 @@
 
 package org.apache.hop.pipeline.transforms.webservices.wsdl;
 
-import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter.ParameterMode;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter.ParameterMode;
 
 public class WsdlOperationContainer implements WsdlParamContainer {
 

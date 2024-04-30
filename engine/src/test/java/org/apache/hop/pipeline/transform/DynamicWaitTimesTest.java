@@ -17,15 +17,14 @@
 
 package org.apache.hop.pipeline.transform;
 
-import junit.framework.TestCase;
-import org.apache.hop.core.BlockingRowSet;
-import org.apache.hop.core.IRowSet;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import junit.framework.TestCase;
+import org.apache.hop.core.BlockingRowSet;
+import org.apache.hop.core.IRowSet;
 
 public class DynamicWaitTimesTest extends TestCase {
 
@@ -48,7 +47,7 @@ public class DynamicWaitTimesTest extends TestCase {
     List<IRowSet> rowSetList =
         new ArrayList<>(
             Arrays.asList(new BlockingRowSet(1), new BlockingRowSet(2), new BlockingRowSet(7)));
-    status = DynamicWaitTimes.build(rowSetList, () -> activeStreamIndex.get(),20);
+    status = DynamicWaitTimes.build(rowSetList, () -> activeStreamIndex.get(), 20);
     for (IRowSet iRowSet : rowSetList) {
       status.adjust(false, iRowSet);
       assertEquals(1, status.get());

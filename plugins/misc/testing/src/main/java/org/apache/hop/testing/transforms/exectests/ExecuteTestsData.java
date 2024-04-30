@@ -17,13 +17,12 @@
 
 package org.apache.hop.testing.transforms.exectests;
 
+import java.util.Iterator;
+import java.util.List;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.testing.PipelineUnitTest;
-
-import java.util.Iterator;
-import java.util.List;
 
 public class ExecuteTestsData extends BaseTransformData implements ITransformData {
 

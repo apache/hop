@@ -84,11 +84,12 @@ public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialog
       filterPath = projectConfig.getProjectHome();
     }
 
-    //maybe we should clean this up and in the audit split folder and filename
-    //check if path ends with slash else remove filename
+    // maybe we should clean this up and in the audit split folder and filename
+    // check if path ends with slash else remove filename
     int dotFound = filterPath.lastIndexOf(".");
     int slashFound = filterPath.lastIndexOf("/");
-    filterPath = dotFound > slashFound && slashFound > 0 ? filterPath.substring(0,slashFound) : filterPath;
+    filterPath =
+        dotFound > slashFound && slashFound > 0 ? filterPath.substring(0, slashFound) : filterPath;
 
     IFileDialog dialog = ext.getFileDialog();
     dialog.setFilterPath(filterPath);

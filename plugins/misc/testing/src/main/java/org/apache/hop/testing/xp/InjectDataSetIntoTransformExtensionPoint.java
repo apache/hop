@@ -17,6 +17,10 @@
 
 package org.apache.hop.testing.xp;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -44,11 +48,6 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestFieldMapping;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.util.DataSetConst;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @ExtensionPoint(
     extensionPointId = "PipelineStartThreads",
@@ -140,7 +139,6 @@ public class InjectDataSetIntoTransformExtensionPoint
 
             // Create a row collection map if it's missing...
             //
-            @SuppressWarnings("unchecked")
             Map<String, RowCollection> collectionMap =
                 (Map<String, RowCollection>)
                     pipeline.getExtensionDataMap().get(DataSetConst.ROW_COLLECTION_MAP);

@@ -17,6 +17,9 @@
 
 package org.apache.hop.neo4j.actions.check;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
@@ -44,10 +47,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class CheckConnectionsDialog extends ActionDialog implements IActionDialog {
 

@@ -17,6 +17,7 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.util.List;
 import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
@@ -24,8 +25,6 @@ import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.hadoop.api.WriteSupport;
 import org.apache.parquet.io.OutputFile;
 import org.apache.parquet.schema.MessageType;
-
-import java.util.List;
 
 public class ParquetWriterBuilder
     extends ParquetWriter.Builder<RowMetaAndData, ParquetWriterBuilder> {

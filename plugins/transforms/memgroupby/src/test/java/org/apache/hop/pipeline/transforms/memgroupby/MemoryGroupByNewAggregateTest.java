@@ -17,6 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import junit.framework.Assert;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
@@ -31,14 +38,6 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 public class MemoryGroupByNewAggregateTest {
 
@@ -83,10 +82,10 @@ public class MemoryGroupByNewAggregateTest {
 
     data.subjectnrs = new int[types.length];
 
-    int i=0;
+    int i = 0;
     for (GroupType type : types) {
       data.subjectnrs[i] = i++;
-      new GAggregate("x"+1, "x", type, null);
+      new GAggregate("x" + 1, "x", type, null);
     }
 
     MemoryGroupByMeta meta = new MemoryGroupByMeta();

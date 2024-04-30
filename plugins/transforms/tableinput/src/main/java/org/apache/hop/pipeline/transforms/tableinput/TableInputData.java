@@ -17,14 +17,13 @@
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
+import java.sql.ResultSet;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.stream.IStream;
-
-import java.sql.ResultSet;
 
 public class TableInputData extends BaseTransformData implements ITransformData {
   public Object[] nextrow;

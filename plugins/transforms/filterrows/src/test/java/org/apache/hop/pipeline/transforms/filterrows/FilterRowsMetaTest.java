@@ -16,7 +16,14 @@
  */
 package org.apache.hop.pipeline.transforms.filterrows;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -29,14 +36,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class FilterRowsMetaTest {
 
@@ -65,7 +64,9 @@ public class FilterRowsMetaTest {
   @Test
   public void testSerialization() throws Exception {
 
-    FilterRowsMeta meta = TransformSerializationTestUtil.testSerialization("/filter-rows-transform-basic.xml", FilterRowsMeta.class);
+    FilterRowsMeta meta =
+        TransformSerializationTestUtil.testSerialization(
+            "/filter-rows-transform-basic.xml", FilterRowsMeta.class);
     Assert.assertEquals("True", meta.getTransformIOMeta().getTargetStreams().get(0).getSubject());
     Assert.assertEquals("False", meta.getTransformIOMeta().getTargetStreams().get(1).getSubject());
 

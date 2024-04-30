@@ -17,10 +17,9 @@
 
 package org.apache.hop.ui.core.widget.text;
 
-import org.eclipse.swt.custom.StyleRange;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.swt.custom.StyleRange;
 
 public class Format {
   private String text;

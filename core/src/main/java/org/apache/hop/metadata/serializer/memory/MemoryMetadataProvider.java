@@ -17,6 +17,8 @@
 
 package org.apache.hop.metadata.serializer.memory;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.encryption.HopTwoWayPasswordEncoder;
 import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
@@ -28,9 +30,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.BaseMetadataProvider;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class MemoryMetadataProvider extends BaseMetadataProvider implements IHopMetadataProvider {
 
@@ -88,12 +87,16 @@ public class MemoryMetadataProvider extends BaseMetadataProvider implements IHop
     return serializerMap;
   }
 
-  /** @param serializerMap The serializerMap to set */
+  /**
+   * @param serializerMap The serializerMap to set
+   */
   public void setSerializerMap(Map<String, IHopMetadataSerializer<IHopMetadata>> serializerMap) {
     this.serializerMap = serializerMap;
   }
 
-  /** @param twoWayPasswordEncoder The twoWayPasswordEncoder to set */
+  /**
+   * @param twoWayPasswordEncoder The twoWayPasswordEncoder to set
+   */
   public void setTwoWayPasswordEncoder(ITwoWayPasswordEncoder twoWayPasswordEncoder) {
     this.twoWayPasswordEncoder = twoWayPasswordEncoder;
   }

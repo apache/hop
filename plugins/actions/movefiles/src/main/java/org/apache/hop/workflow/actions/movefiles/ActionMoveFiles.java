@@ -17,6 +17,12 @@
 
 package org.apache.hop.workflow.actions.movefiles;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -44,13 +50,6 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
-
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /** This defines a 'move files' action. */
 @Action(
@@ -758,8 +757,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     return entrystatus;
   }
 
-  private boolean moveFile
-          (
+  private boolean moveFile(
       String shortfilename,
       FileObject sourcefilename,
       FileObject destinationfilename,
@@ -774,9 +772,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
         if (includeSubfolders) {
           // Check if
-          FileObject destinationFilePath = HopVfs.getFileObject(destinationfilename.getName().getParent().toString());
-          if (!destinationFilePath.exists())
-            destinationFilePath.createFolder();
+          FileObject destinationFilePath =
+              HopVfs.getFileObject(destinationfilename.getName().getParent().toString());
+          if (!destinationFilePath.exists()) destinationFilePath.createFolder();
         }
 
         if (!simulate) {
