@@ -17,8 +17,8 @@
 
 package org.apache.hop.parquet.transforms.output;
 
-import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import org.apache.avro.Schema;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hop.core.RowMetaAndData;
@@ -27,10 +27,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetWriter;
 
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class ParquetOutputData extends BaseTransformData implements ITransformData {
   public ArrayList<Integer> sourceFieldIndexes;
 
@@ -38,9 +34,9 @@ public class ParquetOutputData extends BaseTransformData implements ITransformDa
 
   public Configuration conf;
   public ParquetProperties props;
-//  public String filename;
-//  public OutputStream outputStream;
-//  public ParquetOutputFile outputFile;
+  //  public String filename;
+  //  public OutputStream outputStream;
+  //  public ParquetOutputFile outputFile;
   public HashMap<String, ParquetWriter<RowMetaAndData>> writers = new HashMap<>();
   public boolean filesClosed = false;
   public String currentFilename;

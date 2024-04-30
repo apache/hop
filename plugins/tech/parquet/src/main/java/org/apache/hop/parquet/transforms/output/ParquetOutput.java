@@ -17,10 +17,12 @@
 
 package org.apache.hop.parquet.transforms.output;
 
+import java.io.OutputStream;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 import org.apache.avro.LogicalTypes;
 import org.apache.avro.Schema;
 import org.apache.avro.SchemaBuilder;
@@ -41,13 +43,6 @@ import org.apache.parquet.column.ParquetProperties;
 import org.apache.parquet.hadoop.ParquetFileWriter;
 import org.apache.parquet.hadoop.ParquetWriter;
 import org.apache.parquet.schema.MessageType;
-
-import java.io.OutputStream;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Set;
 
 public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutputData> {
 
@@ -335,14 +330,14 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
   private void closeFile(String filename) throws HopException {
 
-      try {
-        // Close connections of any managed
-        data.writers.get(filename).close();
-        logDebug("Closed file: " + filename);
-      } catch (Exception e) {
-        throw new HopException("Error closing file " + filename, e);
-      }
+    try {
+      // Close connections of any managed
+      data.writers.get(filename).close();
+      logDebug("Closed file: " + filename);
+    } catch (Exception e) {
+      throw new HopException("Error closing file " + filename, e);
     }
+  }
 
   private void closeFiles() throws HopException {
 
