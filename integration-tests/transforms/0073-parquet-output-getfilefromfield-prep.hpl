@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0072-parquet-output-getfilefromfield-prep</name>
+    <name>0073-parquet-output-getfilefromfield-prep</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -250,7 +250,7 @@ limitations under the License.
     <filename_ext>parquet</filename_ext>
     <filename_field>complete_filename</filename_field>
     <filename_in_field>Y</filename_in_field>
-    <filename_include_copy>Y</filename_include_copy>
+    <filename_include_copy>N</filename_include_copy>
     <filename_include_date>N</filename_include_date>
     <filename_include_datetime>N</filename_include_datetime>
     <filename_include_split>N</filename_include_split>
