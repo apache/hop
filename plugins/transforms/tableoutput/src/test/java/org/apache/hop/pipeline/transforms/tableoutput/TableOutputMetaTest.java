@@ -34,7 +34,6 @@ import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -74,33 +73,6 @@ public class TableOutputMetaTest {
 
     tableOutputMetaSpy.setReturningGeneratedKeys(false);
     assertFalse(tableOutputMetaSpy.isReturningGeneratedKeys());
-  }
-
-  @Test
-  public void testProvidesModeler() throws Exception {
-    TableOutputMeta tableOutputMeta = new TableOutputMeta();
-    tableOutputMeta.getFields().add(new TableOutputField("f1", "s4"));
-    tableOutputMeta.getFields().add(new TableOutputField("f2", "s5"));
-    tableOutputMeta.getFields().add(new TableOutputField("f3", "s6"));
-
-    TableOutputData tableOutputData = new TableOutputData();
-    tableOutputData.insertRowMeta = mock(RowMeta.class);
-    assertEquals(
-        tableOutputData.insertRowMeta, tableOutputMeta.getRowMeta(variables, tableOutputData));
-
-    tableOutputMeta.setSpecifyFields(false);
-    assertEquals(0, tableOutputMeta.getDatabaseFields().size());
-    assertEquals(0, tableOutputMeta.getStreamFields().size());
-
-    tableOutputMeta.setSpecifyFields(true);
-    assertEquals(3, tableOutputMeta.getDatabaseFields().size());
-    assertEquals("f1", tableOutputMeta.getDatabaseFields().get(0));
-    assertEquals("f2", tableOutputMeta.getDatabaseFields().get(1));
-    assertEquals("f3", tableOutputMeta.getDatabaseFields().get(2));
-    assertEquals(3, tableOutputMeta.getStreamFields().size());
-    assertEquals("s4", tableOutputMeta.getStreamFields().get(0));
-    assertEquals("s5", tableOutputMeta.getStreamFields().get(1));
-    assertEquals("s6", tableOutputMeta.getStreamFields().get(2));
   }
 
   @Test

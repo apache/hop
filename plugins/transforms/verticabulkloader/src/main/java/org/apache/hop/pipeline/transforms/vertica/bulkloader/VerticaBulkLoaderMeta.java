@@ -18,12 +18,10 @@
 package org.apache.hop.pipeline.transforms.vertica.bulkloader;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -33,7 +31,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -42,7 +39,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
@@ -55,8 +51,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     isIncludeJdbcDrivers = true,
     classLoaderGroup = "vertica5")
 public class VerticaBulkLoaderMeta
-    extends BaseTransformMeta<VerticaBulkLoader, VerticaBulkLoaderData>
-    implements IProvidesModelerMeta {
+    extends BaseTransformMeta<VerticaBulkLoader, VerticaBulkLoaderData> {
   private static final Class<?> PKG = VerticaBulkLoaderMeta.class;
 
   @HopMetadataProperty(
@@ -194,17 +189,26 @@ public class VerticaBulkLoaderMeta
   }
 
   /**
-   * @return Returns the tablename.
+   * Returns the table name.
+   *
+   * @return
    */
   public String getTableName() {
     return tablename;
   }
 
   /**
+   * @deprecated use {@link #setTableName()}
+   */
+  public void setTablename(String name) {
+    setTableName(name);
+  }
+
+  /**
    * @param tablename The tablename to set.
    */
-  public void setTablename(String tablename) {
-    this.tablename = tablename;
+  public void setTableName(String name) {
+    this.tablename = name;
   }
 
   /**
@@ -731,7 +735,9 @@ public class VerticaBulkLoaderMeta
   }
 
   /**
-   * @return the schemaName
+   * Returns the schema name.
+   *
+   * @return
    */
   public String getSchemaName() {
     return schemaName;
@@ -746,40 +752,5 @@ public class VerticaBulkLoaderMeta
 
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    // use default message
-    return null;
-  }
-
-  @Override
-  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
-    return (RowMeta) ((VerticaBulkLoaderData) transformData).getInsertRowMeta();
-  }
-
-  @Override
-  public List<String> getDatabaseFields() {
-    List<String> items = Collections.emptyList();
-    if (specifyFields()) {
-      items = new ArrayList<>();
-      for (VerticaBulkLoaderField vbf : fields) {
-        items.add(vbf.getFieldDatabase());
-      }
-    }
-    return items;
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-    List<String> items = Collections.emptyList();
-    if (specifyFields()) {
-      items = new ArrayList<>();
-      for (VerticaBulkLoaderField vbf : fields) {
-        items.add(vbf.getFieldStream());
-      }
-    }
-    return items;
   }
 }

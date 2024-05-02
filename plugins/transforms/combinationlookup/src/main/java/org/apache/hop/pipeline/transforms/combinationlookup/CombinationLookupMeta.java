@@ -17,12 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -43,7 +41,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
@@ -56,8 +53,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::CombinationLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/combinationlookup.html")
 public class CombinationLookupMeta
-    extends BaseTransformMeta<CombinationLookup, CombinationLookupData>
-    implements IProvidesModelerMeta {
+    extends BaseTransformMeta<CombinationLookup, CombinationLookupData> {
 
   private static final Class<?> PKG = CombinationLookupMeta.class; // For Translator
 
@@ -691,11 +687,6 @@ public class CombinationLookupMeta
   }
 
   @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    return null;
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
   }
@@ -716,43 +707,17 @@ public class CombinationLookupMeta
     return new Database(loggingObject, variables, databaseMeta);
   }
 
-  @Override
-  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
-    try {
-      return (RowMeta)
-          getDatabaseTableFields(createDatabaseObject(variables), schemaName, getTableName());
-    } catch (HopDatabaseException e) {
-      log.logError("", e);
-      return new RowMeta();
-    }
-  }
-
-  @Override
-  public List<String> getDatabaseFields() {
-    List<String> databaseFields = new ArrayList<>();
-    fields.getKeyFields().forEach(field -> databaseFields.add(field.name));
-    return databaseFields;
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-    List<String> streamFields = new ArrayList<>();
-    fields.getKeyFields().forEach(field -> streamFields.add(field.lookup));
-    return streamFields;
-  }
-
   /**
    * Gets schemaName
    *
    * @return value of schemaName
    */
-  @Override
   public String getSchemaName() {
     return schemaName;
   }
 
   /**
-   * Sets schemaName
+   * Sets schema name
    *
    * @param schemaName value of schemaName
    */
@@ -761,11 +726,10 @@ public class CombinationLookupMeta
   }
 
   /**
-   * Gets tableName
+   * Returns the table name
    *
-   * @return value of tableName
+   * @return value of table name
    */
-  @Override
   public String getTableName() {
     return tableName;
   }
@@ -784,7 +748,6 @@ public class CombinationLookupMeta
    *
    * @return value of databaseMeta
    */
-  @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }

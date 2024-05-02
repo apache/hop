@@ -18,12 +18,10 @@
 package org.apache.hop.pipeline.transforms.tableoutput;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -33,7 +31,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -43,7 +40,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
@@ -54,8 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TableOutputMeta.keyword",
     documentationUrl = "/pipeline/transforms/tableoutput.html")
-public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData>
-    implements IProvidesModelerMeta {
+public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
   private static final String PARTION_PER_DAY = "DAY";
@@ -372,9 +367,10 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   }
 
   /**
-   * @return the table name
+   * Returns the table name.
+   *
+   * @return
    */
-  @Override
   public String getTableName() {
     return tableName;
   }
@@ -844,8 +840,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     if (databaseMeta != null) {
       if (prev != null && prev.size() > 0) {
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta);
-          try {
+          try (Database db = new Database(loggingObject, variables, databaseMeta)) {
             db.connect();
 
             String schemaTable =
@@ -862,8 +857,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
             retval.setError(
                 BaseMessages.getString(
                     PKG, "TableOutputMeta.Error.ErrorConnecting", dbe.getMessage()));
-          } finally {
-            db.disconnect();
           }
         } else {
           retval.setError(BaseMessages.getString(PKG, "TableOutputMeta.Error.NoTable"));
@@ -894,8 +887,7 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       throws HopException {
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         if (!Utils.isEmpty(tableName)) {
@@ -913,8 +905,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       } catch (Exception e) {
         throw new HopException(
             BaseMessages.getString(PKG, "TableOutputMeta.Exception.ErrorGettingFields"), e);
-      } finally {
-        db.disconnect();
       }
     } else {
       throw new HopException(
@@ -922,41 +912,11 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
     }
   }
 
-  @Override
-  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
-    return (RowMeta) ((TableOutputData) transformData).insertRowMeta;
-  }
-
-  @Override
-  public List<String> getDatabaseFields() {
-
-    List<String> items = Collections.emptyList();
-    if (isSpecifyFields()) {
-      items = new ArrayList<>();
-      for (TableOutputField tf : fields) {
-        items.add(tf.getFieldDatabase());
-      }
-    }
-    return items;
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-
-    List<String> items = Collections.emptyList();
-    if (isSpecifyFields()) {
-      items = new ArrayList<>();
-      for (TableOutputField tf : fields) {
-        items.add(tf.getFieldStream());
-      }
-    }
-    return items;
-  }
-
   /**
-   * @return the schemaName
+   * Returns the schema name.
+   *
+   * @return
    */
-  @Override
   public String getSchemaName() {
     return schemaName;
   }
@@ -974,11 +934,6 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   }
 
   public DatabaseMeta getDatabaseMeta() {
-    return null;
-  }
-
-  @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
     return null;
   }
 }

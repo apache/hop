@@ -17,15 +17,10 @@
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,7 +29,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -44,7 +38,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
@@ -55,8 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DatabaseLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/databaselookup.html")
-public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData>
-    implements IProvidesModelerMeta {
+public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData> {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
 
@@ -431,74 +423,27 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
     }
   }
 
-  @Override
+  /**
+   * Returns the table name.
+   *
+   * @return
+   */
   public String getTableName() {
     return lookup.getTableName();
   }
 
-  @Override
+  /**
+   * Returns the schema name.
+   *
+   * @return
+   */
   public String getSchemaName() {
     return lookup.getSchemaName();
   }
 
   @Override
-  public List<String> getDatabaseFields() {
-    Set<String> fields = new LinkedHashSet<>();
-    for (KeyField keyField : lookup.getKeyFields()) {
-      if (StringUtils.isNotEmpty(keyField.getTableField())) {
-        fields.add(keyField.getTableField());
-      }
-    }
-    for (ReturnValue returnValue : lookup.getReturnValues()) {
-      if (StringUtils.isNotEmpty(returnValue.getTableField())) {
-        fields.add(returnValue.getTableField());
-      }
-    }
-    return new ArrayList<>(fields);
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-    Set<String> fields = new LinkedHashSet<>();
-    for (KeyField keyField : lookup.getKeyFields()) {
-      if (StringUtils.isNotEmpty(keyField.getStreamField1())) {
-        fields.add(keyField.getStreamField1());
-      }
-      if (StringUtils.isNotEmpty(keyField.getStreamField2())) {
-        fields.add(keyField.getStreamField2());
-      }
-    }
-    for (ReturnValue returnValue : lookup.getReturnValues()) {
-      if (StringUtils.isNotEmpty(returnValue.getNewName())) {
-        fields.add(returnValue.getNewName());
-      }
-    }
-    return new ArrayList<>(fields);
-  }
-
-  @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    return null;
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
-    return (RowMeta) ((DatabaseLookupData) transformData).returnMeta;
-  }
-
-  /**
-   * Gets databaseMeta
-   *
-   * @return value of databaseMeta
-   */
-  @Override
-  public DatabaseMeta getDatabaseMeta() {
-    return null;
   }
 
   public String getConnection() {

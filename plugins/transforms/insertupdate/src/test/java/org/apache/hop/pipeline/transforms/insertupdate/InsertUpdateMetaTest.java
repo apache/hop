@@ -33,7 +33,6 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -116,37 +115,6 @@ public class InsertUpdateMetaTest {
   public void testCommitCountVar() {
     umi.setCommitSize("${max.sz}");
     Assert.assertTrue(umi.getCommitSizeVar(upd) == 10);
-  }
-
-  @Test
-  public void testProvidesModeler() throws Exception {
-    InsertUpdateMeta insertUpdateMeta = new InsertUpdateMeta();
-
-    insertUpdateMeta
-        .getInsertUpdateLookupField()
-        .getValueFields()
-        .add(new InsertUpdateValue("f1", "s4"));
-    insertUpdateMeta
-        .getInsertUpdateLookupField()
-        .getValueFields()
-        .add(new InsertUpdateValue("f2", "s5"));
-    insertUpdateMeta
-        .getInsertUpdateLookupField()
-        .getValueFields()
-        .add(new InsertUpdateValue("f3", "s6"));
-
-    InsertUpdateData tableOutputData = new InsertUpdateData();
-    tableOutputData.insertRowMeta = Mockito.mock(RowMeta.class);
-    Assert.assertEquals(
-        tableOutputData.insertRowMeta, insertUpdateMeta.getRowMeta(variables, tableOutputData));
-    Assert.assertEquals(3, insertUpdateMeta.getDatabaseFields().size());
-    Assert.assertEquals("f1", insertUpdateMeta.getDatabaseFields().get(0));
-    Assert.assertEquals("f2", insertUpdateMeta.getDatabaseFields().get(1));
-    Assert.assertEquals("f3", insertUpdateMeta.getDatabaseFields().get(2));
-    Assert.assertEquals(3, insertUpdateMeta.getStreamFields().size());
-    Assert.assertEquals("s4", insertUpdateMeta.getStreamFields().get(0));
-    Assert.assertEquals("s5", insertUpdateMeta.getStreamFields().get(1));
-    Assert.assertEquals("s6", insertUpdateMeta.getStreamFields().get(2));
   }
 
   @Test

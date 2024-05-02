@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -35,7 +34,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -50,7 +48,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 @Transform(
@@ -62,8 +59,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
         "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
     keywords = "i18n::DimensionLookupMeta.keyword",
     documentationUrl = "/pipeline/transforms/dimensionlookup.html")
-public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData>
-    implements IProvidesModelerMeta {
+public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, DimensionLookupData> {
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   /** The lookup schema name */
@@ -1105,39 +1101,8 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
   }
 
-  @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    return null;
-  }
-
   Database createDatabaseObject(IVariables variables) {
     return new Database(loggingObject, variables, databaseMeta);
-  }
-
-  @Override
-  public IRowMeta getRowMeta(IVariables variables, final ITransformData transformData) {
-    try (Database database = new Database(loggingObject, variables, databaseMeta)) {
-      return database.getTableFieldsMeta(schemaName, tableName);
-    } catch (HopDatabaseException e) {
-      log.logError("", e);
-      return new RowMeta();
-    }
-  }
-
-  @Override
-  public List<String> getDatabaseFields() {
-    List<String> dbFields = new ArrayList<>();
-    fields.keys.forEach(key -> dbFields.add(key.getLookup()));
-    fields.fields.forEach(field -> dbFields.add(field.getLookup()));
-    return dbFields;
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-    ArrayList<String> streamFields = new ArrayList<>();
-    fields.fields.forEach(field -> streamFields.add(field.getName()));
-    fields.keys.forEach(key -> streamFields.add(key.getName()));
-    return streamFields;
   }
 
   public enum TechnicalKeyCreationMethod implements IEnumHasCode {
@@ -1775,11 +1740,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   /**
-   * Gets schemaName
+   * Gets schema name
    *
    * @return value of schemaName
    */
-  @Override
   public String getSchemaName() {
     return schemaName;
   }
@@ -1794,17 +1758,16 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   /**
-   * Gets tableName
+   * Gets table name
    *
    * @return value of tableName
    */
-  @Override
   public String getTableName() {
     return tableName;
   }
 
   /**
-   * Sets tableName
+   * Sets table name
    *
    * @param tableName value of tableName
    */
@@ -1817,7 +1780,6 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
    *
    * @return value of databaseMeta
    */
-  @Override
   public DatabaseMeta getDatabaseMeta() {
     return databaseMeta;
   }
