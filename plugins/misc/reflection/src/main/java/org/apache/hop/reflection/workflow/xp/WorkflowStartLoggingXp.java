@@ -133,7 +133,7 @@ public class WorkflowStartLoggingXp implements IExtensionPoint<IWorkflowEngine<W
       }
 
       if (workflowLog.isExecutingAtEnd()) {
-        workflow.addWorkflowFinishedListener(
+        workflow.addExecutionFinishedListener(
             engine -> {
               executeLoggingPipeline(
                   workflowLog, "end", loggingPipelineFilename, workflow, variables);

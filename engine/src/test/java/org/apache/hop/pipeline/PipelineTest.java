@@ -26,7 +26,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -82,8 +81,8 @@ public class PipelineTest {
     pipelineWithNoTransforms.startThreads();
 
     // check pipeline lifecycle is not corrupted
-    verify(pipelineWithNoTransforms).firePipelineExecutionStartedListeners();
-    verify(pipelineWithNoTransforms).firePipelineExecutionFinishedListeners();
+    verify(pipelineWithNoTransforms).fireExecutionStartedListeners();
+    verify(pipelineWithNoTransforms).fireExecutionFinishedListeners();
   }
 
   /**
@@ -144,21 +143,21 @@ public class PipelineTest {
   public void testFirePipelineFinishedListeners() throws Exception {
     Pipeline pipeline = new LocalPipelineEngine();
     IExecutionFinishedListener mockListener = mock(IExecutionFinishedListener.class);
-    pipeline.setExecutionFinishedListeners(Collections.singletonList(mockListener));
+    pipeline.addExecutionFinishedListener(mockListener);
 
-    pipeline.firePipelineExecutionFinishedListeners();
+    pipeline.fireExecutionFinishedListeners();
 
     verify(mockListener).finished(pipeline);
   }
 
   @Test(expected = HopException.class)
-  public void testFirePipelineFinishedListenersExceptionOnPipelineFinished() throws Exception {
+  public void testFireExecutionFinishedListenersExceptionOnPipelineFinished() throws Exception {
     Pipeline pipeline = new LocalPipelineEngine();
     IExecutionFinishedListener mockListener = mock(IExecutionFinishedListener.class);
     doThrow(HopException.class).when(mockListener).finished(pipeline);
-    pipeline.setExecutionFinishedListeners(Collections.singletonList(mockListener));
+    pipeline.addExecutionFinishedListener(mockListener);
 
-    pipeline.firePipelineExecutionFinishedListeners();
+    pipeline.fireExecutionFinishedListeners();
   }
 
   @Test
@@ -244,11 +243,7 @@ public class PipelineTest {
         throw new RuntimeException();
       }
       while (!isStopped()) {
-        try {
-          pipeline.addExecutionStoppedListener(pipelineStoppedListener);
-        } catch (HopException e) {
-          throw new RuntimeException(e);
-        }
+        pipeline.addExecutionStoppedListener(pipelineStoppedListener);
       }
     }
   }
@@ -267,11 +262,7 @@ public class PipelineTest {
       }
       // run
       while (!isStopped()) {
-        try {
-          pipeline.addExecutionFinishedListener(listener);
-        } catch (HopException e) {
-          throw new RuntimeException(e);
-        }
+        pipeline.addExecutionFinishedListener(listener);
       }
     }
   }
@@ -291,7 +282,7 @@ public class PipelineTest {
       // run
       while (!isStopped()) {
         try {
-          pipeline.firePipelineExecutionFinishedListeners();
+          pipeline.fireExecutionFinishedListeners();
           // clean array blocking queue
           pipeline.waitUntilFinished();
         } catch (HopException e) {
@@ -316,7 +307,7 @@ public class PipelineTest {
       // run
       while (!isStopped()) {
         try {
-          pipeline.firePipelineExecutionStartedListeners();
+          pipeline.fireExecutionStartedListeners();
         } catch (HopException e) {
           throw new RuntimeException();
         }

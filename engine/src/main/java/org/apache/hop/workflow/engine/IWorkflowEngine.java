@@ -34,6 +34,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.IExecutionStartedListener;
+import org.apache.hop.pipeline.IExecutionStoppedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.ActionResult;
@@ -74,13 +75,61 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
 
   Date getExecutionEndDate();
 
-  void addWorkflowStartedListener(IExecutionStartedListener<IWorkflowEngine<T>> finishedListener);
+  /** Use the {@link #addExecutionStartedListener} method. */
+  @Deprecated(since = "2.9", forRemoval = true)
+  void addWorkflowStartedListener(IExecutionStartedListener<IWorkflowEngine<T>> listener);
 
+  @Deprecated(since = "2.9", forRemoval = true)
   List<IExecutionFinishedListener<IWorkflowEngine<T>>> getWorkflowFinishedListeners();
 
-  void addWorkflowFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> finishedListener);
+  /** Use the {@link #addExecutionFinishedListener} method. */
+  @Deprecated(since = "2.9", forRemoval = true)
+  void addWorkflowFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> listener);
 
+  @Deprecated(since = "2.9", forRemoval = true)
   List<IExecutionStartedListener<IWorkflowEngine<T>>> getWorkflowStartedListeners();
+
+  /**
+   * Attach a listener to notify when the workflow has started execution.
+   *
+   * @param listener the workflow started listener
+   */
+  void addExecutionStartedListener(IExecutionStartedListener<IWorkflowEngine<T>> listener);
+
+  /**
+   * Detach a listener to notify when the workflow has started execution.
+   *
+   * @param listener the workflow started listener
+   */
+  void removeExecutionStartedListener(IExecutionStartedListener<IWorkflowEngine<T>> listener);
+
+  /**
+   * Attach a listener to notify when the workflow has stopped execution.
+   *
+   * @param listener the workflow stopped listener
+   */
+  void addExecutionStoppedListener(IExecutionStoppedListener<IWorkflowEngine<T>> listener);
+
+  /**
+   * Detach a listener to notify when the workflow has stopped execution.
+   *
+   * @param listener the workflow stopped listener
+   */
+  void removeExecutionStoppedListener(IExecutionStoppedListener<IWorkflowEngine<T>> listener);
+
+  /**
+   * Attach a listener to notify when the workflow has completed execution.
+   *
+   * @param listener the workflow finished listener
+   */
+  void addExecutionFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> listener);
+
+  /**
+   * Detach a listener to notify when the workflow has completed execution.
+   *
+   * @param listener the workflow finished listener
+   */
+  void removeExecutionFinishedListener(IExecutionFinishedListener<IWorkflowEngine<T>> listener);
 
   boolean isInteractive();
 
@@ -125,9 +174,42 @@ public interface IWorkflowEngine<T extends WorkflowMeta>
 
   void setSourceRows(List<RowMetaAndData> sourceRows);
 
+  /**
+   * Use the {@link #fireExecutionFinishedListeners} method.
+   *
+   * @throws HopException
+   */
+  @Deprecated(since = "2.9", forRemoval = true)
   void fireWorkflowFinishListeners() throws HopException;
 
+  /**
+   * Use the {@link #fireExecutionStartedListeners} method.
+   *
+   * @throws HopException
+   */
+  @Deprecated(since = "2.9", forRemoval = true)
   void fireWorkflowStartedListeners() throws HopException;
+
+  /**
+   * Make attempt to fire all registered started execution listeners if possible.
+   *
+   * @throws HopException if any errors occur during notification
+   */
+  void fireExecutionStartedListeners() throws HopException;
+
+  /**
+   * Make attempt to fire all registered stopped execution listeners if possible.
+   *
+   * @throws HopException if any errors occur during notification
+   */
+  void fireExecutionStoppedListeners() throws HopException;
+
+  /**
+   * Make attempt to fire all registered finished execution listeners if possible.
+   *
+   * @throws HopException if any errors occur during notification
+   */
+  void fireExecutionFinishedListeners() throws HopException;
 
   void setContainerId(String toString);
 

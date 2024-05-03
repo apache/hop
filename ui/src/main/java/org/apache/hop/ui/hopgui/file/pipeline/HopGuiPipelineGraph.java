@@ -4651,7 +4651,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       startRedrawTimer();
 
       updateGui();
-    } catch (HopException e) {
+    } catch (Exception e) {
       log.logError("Error starting transform threads", e);
       checkErrorVisuals();
       stopRedrawTimer();

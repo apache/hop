@@ -157,7 +157,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
       // We only do this when we created a new group.  Never in a child
       //
       addExecutionFinishedListener(
-          (IExecutionFinishedListener<IPipelineEngine>)
+          (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>)
               pipeline -> {
                 String group = (String) pipeline.getExtensionDataMap().get(Const.CONNECTION_GROUP);
                 List<Database> databases = DatabaseConnectionMap.getInstance().getDatabases(group);

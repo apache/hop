@@ -129,7 +129,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   protected HopServer hopServer;
 
   protected ILoggingObject parent;
-  protected IPipelineEngine parentPipeline;
+  protected IPipelineEngine<PipelineMeta> parentPipeline;
   protected IWorkflowEngine<WorkflowMeta> parentWorkflow;
   protected LogLevel logLevel;
   protected boolean feedbackShown; // TODO factor out
@@ -676,9 +676,18 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    * @param executionStartedListener the pipeline started listener
    */
   @Override
-  public void addExecutionStartedListener(IExecutionStartedListener executionStartedListener) {
-    synchronized (executionStartedListener) {
-      executionStartedListeners.add(executionStartedListener);
+  public void addExecutionStartedListener(
+      IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.add(listener);
+    }
+  }
+
+  @Override
+  public void removeExecutionStartedListener(
+      IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStartedListeners) {
+      executionStartedListeners.remove(listener);
     }
   }
 
@@ -688,9 +697,18 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    * @param executionFinishedListener the pipeline finished listener
    */
   @Override
-  public void addExecutionFinishedListener(IExecutionFinishedListener executionFinishedListener) {
-    synchronized (executionFinishedListener) {
-      executionFinishedListeners.add(executionFinishedListener);
+  public void addExecutionFinishedListener(
+      IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.add(listener);
+    }
+  }
+
+  @Override
+  public void removeExecutionFinishedListener(
+      IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionFinishedListeners) {
+      executionFinishedListeners.remove(listener);
     }
   }
 
@@ -959,6 +977,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of executionStartedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionStartedListeners() {
     return executionStartedListeners;
@@ -967,12 +986,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * @param executionStartedListeners The executionStartedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStartedListeners(
-      List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> executionStartedListeners) {
-    this.executionStartedListeners = executionStartedListeners;
+      List<IExecutionStartedListener<IPipelineEngine<PipelineMeta>>> listener) {
+    this.executionStartedListeners = listener;
   }
 
-  private void fireExecutionStartedListeners() throws HopException {
+  @Override
+  public void fireExecutionStartedListeners() throws HopException {
     synchronized (executionStartedListeners) {
       for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
           executionStartedListeners) {
@@ -986,6 +1007,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of executionFinishedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionFinishedListeners() {
     return executionFinishedListeners;
@@ -994,20 +1016,30 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionFinishedListeners(
-      List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> executionFinishedListeners) {
-    this.executionFinishedListeners = executionFinishedListeners;
+      List<IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>> listener) {
+    this.executionFinishedListeners = listener;
   }
 
   @Override
   public void addExecutionStoppedListener(
-      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) throws HopException {
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) {
     synchronized (executionStoppedListeners) {
       executionStoppedListeners.add(listener);
     }
   }
 
   @Override
+  public void removeExecutionStoppedListener(
+      IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener) {
+    synchronized (executionStoppedListeners) {
+      executionStoppedListeners.remove(listener);
+    }
+  }
+
+  @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStartedListeners() throws HopException {
     synchronized (executionStartedListeners) {
       for (IExecutionStartedListener<IPipelineEngine<PipelineMeta>> listener :
@@ -1018,7 +1050,13 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionFinishedListeners() throws HopException {
+    fireExecutionFinishedListeners();
+  }
+
+  @Override
+  public void fireExecutionFinishedListeners() throws HopException {
     synchronized (executionFinishedListeners) {
       for (IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> listener :
           executionFinishedListeners) {
@@ -1037,7 +1075,13 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override
+  @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() throws HopException {
+    fireExecutionStoppedListeners();
+  }
+
+  @Override
+  public void fireExecutionStoppedListeners() throws HopException {
     synchronized (executionStoppedListeners) {
       for (IExecutionStoppedListener<IPipelineEngine<PipelineMeta>> listener :
           executionStoppedListeners) {
@@ -1051,6 +1095,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of executionStoppedListeners
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>>
       getExecutionStoppedListeners() {
     return executionStoppedListeners;
@@ -1059,6 +1104,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * @param executionStoppedListeners The executionStoppedListeners to set
    */
+  @Deprecated(since = "2.9", forRemoval = true)
   public void setExecutionStoppedListeners(
       List<IExecutionStoppedListener<IPipelineEngine<PipelineMeta>>> executionStoppedListeners) {
     this.executionStoppedListeners = executionStoppedListeners;

@@ -126,7 +126,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
       // We also need to commit/rollback at the end of this workflow...
       //
-      addWorkflowFinishedListener(
+      addExecutionFinishedListener(
           workflow -> {
             String group = (String) workflow.getExtensionDataMap().get(Const.CONNECTION_GROUP);
             List<Database> databases = DatabaseConnectionMap.getInstance().getDatabases(group);
@@ -234,7 +234,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
     // Do the lookup of the execution information only once
     lookupExecutionInformationLocation();
 
-    addWorkflowStartedListener(
+    addExecutionStartedListener(
         l -> {
           // Register the pipeline after start
           //
@@ -351,7 +351,7 @@ public class LocalWorkflowEngine extends Workflow implements IWorkflowEngine<Wor
 
     // When the workflow is done, register one more time and stop the timer
     //
-    addWorkflowFinishedListener(
+    addExecutionFinishedListener(
         listener -> {
           stopExecutionInfoTimer();
         });

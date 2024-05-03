@@ -195,37 +195,91 @@ public interface IPipelineEngine<T extends PipelineMeta>
   boolean isPaused();
 
   /**
-   * Call the given listener lambda when this pipeline engine has started execution.
+   * Attach a listener to notify when the pipeline has started execution.
    *
-   * @param listener
+   * @param listener the pipeline started listener
+   */
+  void addExecutionStartedListener(IExecutionStartedListener<IPipelineEngine<T>> listener);
+
+  /**
+   * Detach a listener to notify when the pipeline has started execution.
+   *
+   * @param listener the pipeline started listener
+   */
+  void removeExecutionStartedListener(IExecutionStartedListener<IPipelineEngine<T>> listener);
+
+  /**
+   * Use the {@link #fireExecutionStartedListeners} method.
+   *
    * @throws HopException
    */
-  void addExecutionStartedListener(IExecutionStartedListener<IPipelineEngine<T>> listener)
-      throws HopException;
-
+  @Deprecated(since = "2.9", forRemoval = true)
   void firePipelineExecutionStartedListeners() throws HopException;
 
   /**
-   * Call the given listener lambda when this pipeline engine has completed execution.
+   * Make attempt to fire all registered started execution listeners if possible.
    *
-   * @param listener
+   * @throws HopException if any errors occur during notification
+   */
+  void fireExecutionStartedListeners() throws HopException;
+
+  /**
+   * Attach a listener to notify when the pipeline has completed execution.
+   *
+   * @param listener the pipeline finished listener
+   */
+  void addExecutionFinishedListener(IExecutionFinishedListener<IPipelineEngine<T>> listener);
+
+  /**
+   * Detach a listener to notify when the pipeline has completed execution.
+   *
+   * @param listener the pipeline finished listener
+   */
+  void removeExecutionFinishedListener(IExecutionFinishedListener<IPipelineEngine<T>> listener);
+
+  /**
+   * Use the {@link #fireExecutionFinishedListeners} method.
+   *
    * @throws HopException
    */
-  void addExecutionFinishedListener(IExecutionFinishedListener<IPipelineEngine<T>> listener)
-      throws HopException;
-
+  @Deprecated(since = "2.9", forRemoval = true)
   void firePipelineExecutionFinishedListeners() throws HopException;
 
   /**
-   * Call the given listener lambda when this pipeline engine has stopped execution.
+   * Make attempt to fire all registered finished execution listeners if possible.
    *
-   * @param listener
+   * @throws HopException if any errors occur during notification
+   */
+  void fireExecutionFinishedListeners() throws HopException;
+
+  /**
+   * Attach a listener to notify when the pipeline has stopped execution.
+   *
+   * @param listener the pipeline stopped listener
+   */
+  void addExecutionStoppedListener(IExecutionStoppedListener<IPipelineEngine<T>> listener);
+
+  /**
+   * Detach a listener to notify when the pipeline has stopped execution.
+   *
+   * @param listener the pipeline stopped listener
+   */
+  void removeExecutionStoppedListener(IExecutionStoppedListener<IPipelineEngine<T>> listener);
+
+  /**
+   * Use the {@link #fireExecutionStoppedListeners} method.
+   *
    * @throws HopException
    */
-  void addExecutionStoppedListener(IExecutionStoppedListener<IPipelineEngine<T>> listener)
-      throws HopException;
-
+  @Deprecated(since = "2.9", forRemoval = true)
   void firePipelineExecutionStoppedListeners() throws HopException;
+
+  /**
+   * Make attempt to fire all registered stopped execution listeners if possible.
+   *
+   * @throws HopException if any errors occur during notification
+   */
+  void fireExecutionStoppedListeners() throws HopException;
 
   /**
    * Retrieve the logging text of a particular component in the engine
@@ -301,7 +355,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @param parentPipeline
    */
-  void setParentPipeline(IPipelineEngine parentPipeline);
+  void setParentPipeline(IPipelineEngine<PipelineMeta> parentPipeline);
 
   /**
    * Inform the pipeline about a previous execution result in a workflow or pipeline
