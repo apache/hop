@@ -40,7 +40,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.RowMetaBuilder;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
@@ -48,7 +47,6 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 public class DatabaseLookupMetaTest {
 
@@ -120,54 +118,6 @@ public class DatabaseLookupMetaTest {
     for (int i = 0; i < 3; i++) {
       assertEquals(expectedRow.get(i).getName(), row.getValueMetaList().get(i).getName());
     }
-  }
-
-  @Test
-  public void testProvidesModelerMeta() throws Exception {
-
-    DatabaseLookupMeta meta = new DatabaseLookupMeta();
-    Lookup lookup = meta.getLookup();
-    lookup
-        .getReturnValues()
-        .add(
-            new ReturnValue(
-                "f1",
-                "s4",
-                "",
-                "String",
-                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
-    lookup
-        .getReturnValues()
-        .add(
-            new ReturnValue(
-                "f2",
-                "s5",
-                "",
-                "String",
-                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
-    lookup
-        .getReturnValues()
-        .add(
-            new ReturnValue(
-                "f3",
-                "s6",
-                "",
-                "String",
-                ValueMetaString.getTrimTypeCode(IValueMeta.TRIM_TYPE_NONE)));
-
-    DatabaseLookupData databaseLookupData = new DatabaseLookupData();
-
-    databaseLookupData.returnMeta = Mockito.mock(RowMeta.class);
-    assertEquals(
-        databaseLookupData.returnMeta, meta.getRowMeta(new Variables(), databaseLookupData));
-    assertEquals(3, meta.getDatabaseFields().size());
-    assertEquals("f1", meta.getDatabaseFields().get(0));
-    assertEquals("f2", meta.getDatabaseFields().get(1));
-    assertEquals("f3", meta.getDatabaseFields().get(2));
-    assertEquals(3, meta.getStreamFields().size());
-    assertEquals("s4", meta.getStreamFields().get(0));
-    assertEquals("s5", meta.getStreamFields().get(1));
-    assertEquals("s6", meta.getStreamFields().get(2));
   }
 
   @Test

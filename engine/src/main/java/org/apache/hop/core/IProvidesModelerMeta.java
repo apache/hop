@@ -22,6 +22,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@Deprecated(since = "2.9", forRemoval = true)
 public interface IProvidesModelerMeta extends IProvidesDatabaseConnectionInformation {
   IRowMeta getRowMeta(IVariables variables, ITransformData transformData);
 

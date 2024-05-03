@@ -17,13 +17,11 @@
 
 package org.apache.hop.pipeline.transforms.insertupdate;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -32,7 +30,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -41,7 +38,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 
@@ -53,11 +49,8 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::InsertUpdateMeta.keyword",
     documentationUrl = "/pipeline/transforms/insertupdate.html")
-public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData>
-    implements IProvidesModelerMeta {
+public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData> {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
-
-  private IHopMetadataProvider metadataProvider;
 
   /** Lookup key fields * */
   @HopMetadataProperty(key = "lookup")
@@ -133,38 +126,20 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
     return retval;
   }
 
-  @Override
-  public List<String> getDatabaseFields() {
-
-    List<String> updateLookupFields = new ArrayList<>();
-    for (InsertUpdateValue item : insertUpdateLookupField.getValueFields()) {
-      updateLookupFields.add(item.getUpdateLookup());
-    }
-    return updateLookupFields;
-  }
-
-  @Override
-  public List<String> getStreamFields() {
-
-    List<String> updateStreamFields = new ArrayList<>();
-    for (InsertUpdateValue item : insertUpdateLookupField.getValueFields()) {
-      updateStreamFields.add(item.getUpdateStream());
-    }
-    return updateStreamFields;
-  }
-
   /**
-   * @return Returns the tableName.
+   * Returns the table name.
+   *
+   * @return
    */
-  @Override
   public String getTableName() {
     return insertUpdateLookupField.getTableName();
   }
 
   /**
-   * @return Returns the tableName.
+   * Returns the schema name.
+   *
+   * @return
    */
-  @Override
   public String getSchemaName() {
     return insertUpdateLookupField.getSchemaName();
   }
@@ -682,18 +657,8 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
   }
 
   @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    return null;
-  }
-
-  @Override
   public boolean supportsErrorHandling() {
     return true;
-  }
-
-  @Override
-  public RowMeta getRowMeta(IVariables variables, ITransformData transformData) {
-    return (RowMeta) ((InsertUpdateData) transformData).insertRowMeta;
   }
 
   public InsertUpdateLookupField getInsertUpdateLookupField() {
