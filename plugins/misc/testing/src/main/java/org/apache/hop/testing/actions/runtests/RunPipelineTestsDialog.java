@@ -204,8 +204,9 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
             new EnterSelectionDialog(
                 shell,
                 sortedTestNames,
-                BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests"),
+                BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests.Title"),
                 BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests.Message"));
+
         String d = dialog.open();
         if (d != null) {
           wTestNames.removeEmptyRows();
