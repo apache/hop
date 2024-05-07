@@ -108,7 +108,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
       // Let's output the remaining unsafe data
       outputRow(prevRow);
       // only attempt writing to file when the first row is not empty
-      if (data.isWriteToFile && !first) {
+      if (data.isWriteToFile && !first && meta.getSplitOutputAfter() == 0) {
         writeJsonFile();
       }
       setOutputDone();
@@ -262,6 +262,9 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
 
           break;
       }
+    }
+    if (meta.getSplitOutputAfter() > 0) {
+      data.jsonItems.add(itemNode);
     }
 
     /*
@@ -453,6 +456,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> {
                         : jsonItemsList)));
       }
     } catch (IOException e) {
+      logError("Error while serializing JSON", e);
       // TBD Exception must be properly managed
       e.printStackTrace();
     }

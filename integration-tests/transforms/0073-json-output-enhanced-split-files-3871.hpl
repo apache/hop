@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>0073-json-output-enhanced-split-files-3871</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <parameters>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2024/05/03 16:31:48.009</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2024/05/03 16:31:48.009</modified_date>
+  </info>
+  <notepads>
+  </notepads>
+  <order>
+    <hop>
+      <from>fake books</from>
+      <to>Enhanced JSON Output</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>generate 100k rows</from>
+      <to>fake books</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Enhanced JSON Output</name>
+    <type>EnhancedJsonOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <outputValue>outputValue</outputValue>
+    <jsonBloc>result</jsonBloc>
+    <operation_type>writetofile</operation_type>
+    <use_arrays_with_single_instance>N</use_arrays_with_single_instance>
+    <use_single_item_per_group>N</use_single_item_per_group>
+    <json_prittified>N</json_prittified>
+    <encoding>UTF-8</encoding>
+    <addtoresult>N</addtoresult>
+    <file>
+      <name>${java.io.tmpdir}/fake-books</name>
+      <split_output_after>10000</split_output_after>
+      <extention>json</extention>
+      <append>N</append>
+      <split>N</split>
+      <haspartno>N</haspartno>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <create_parent_folder>N</create_parent_folder>
+      <doNotOpenNewFileInit>N</doNotOpenNewFileInit>
+    </file>
+    <additional_fields>
+      <json_size_field/>
+    </additional_fields>
+    <key_fields>
+    </key_fields>
+    <fields>
+      <field>
+        <name>author</name>
+        <element>author</element>
+        <json_fragment>N</json_fragment>
+        <is_without_enclosing>N</is_without_enclosing>
+        <remove_if_blank>N</remove_if_blank>
+      </field>
+      <field>
+        <name>genre</name>
+        <element>genre</element>
+        <json_fragment>N</json_fragment>
+        <is_without_enclosing>N</is_without_enclosing>
+        <remove_if_blank>N</remove_if_blank>
+      </field>
+      <field>
+        <name>publisher</name>
+        <element>publisher</element>
+        <json_fragment>N</json_fragment>
+        <is_without_enclosing>N</is_without_enclosing>
+        <remove_if_blank>N</remove_if_blank>
+      </field>
+      <field>
+        <name>title</name>
+        <element>title</element>
+        <json_fragment>N</json_fragment>
+        <is_without_enclosing>N</is_without_enclosing>
+        <remove_if_blank>N</remove_if_blank>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>fake books</name>
+    <type>Fake</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>author</name>
+        <topic>author</topic>
+        <type>Book</type>
+      </field>
+      <field>
+        <name>genre</name>
+        <topic>genre</topic>
+        <type>Book</type>
+      </field>
+      <field>
+        <name>publisher</name>
+        <topic>publisher</topic>
+        <type>Book</type>
+      </field>
+      <field>
+        <name>title</name>
+        <topic>title</topic>
+        <type>Book</type>
+      </field>
+    </fields>
+    <locale>en</locale>
+    <attributes/>
+    <GUI>
+      <xloc>368</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>generate 100k rows</name>
+    <type>RowGenerator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+</fields>
+    <interval_in_ms>5000</interval_in_ms>
+    <last_time_field>FiveSecondsAgo</last_time_field>
+    <limit>100000</limit>
+    <never_ending>N</never_ending>
+    <row_time_field>now</row_time_field>
+    <attributes/>
+    <GUI>
+      <xloc>208</xloc>
+      <yloc>192</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
