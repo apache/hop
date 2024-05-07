@@ -113,7 +113,7 @@ limitations under the License.
     <length>Characters</length>
     <add_to_result_filenames>Y</add_to_result_filenames>
     <file>
-      <name>${PROJECT_HOME}/files/snmptraps.log</name>
+      <name>/tmp/snmptraps/snmptraps.log</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>Y</file_required>
@@ -149,6 +149,7 @@ limitations under the License.
     <error_count_field/>
     <error_fields_field/>
     <error_text_field/>
+    <schema_definition/>
     <bad_line_files_destination_directory/>
     <bad_line_files_extension>warning</bad_line_files_extension>
     <error_line_files_destination_directory/>
@@ -193,7 +194,6 @@ limitations under the License.
         <value>
           <isnull>N</isnull>
           <length>-1</length>
-          <mask/>
           <name>constant</name>
           <precision>-1</precision>
           <text>SNMPv2-TM::snmpUDPDomain.0 = "Trap received"</text>
