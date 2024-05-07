@@ -106,7 +106,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
     wGet = new Button(shell, SWT.PUSH);
-    wGet.setText(BaseMessages.getString(PKG, "StreamLookupDialog.GetFields.Button"));
+    wGet.setText(BaseMessages.getString(PKG, "StreamLookupDialog.GetKeyFields.Button"));
     wGet.addListener(SWT.Selection, e -> get());
     Button wGetLU = new Button(shell, SWT.PUSH);
     wGetLU.setText(BaseMessages.getString(PKG, "StreamLookupDialog.GetLookupFields.Button"));
