@@ -25,17 +25,20 @@ services:
         condition: service_healthy
     links:
       - snmp
+    volumes:
+      - content:/tmp/snmptraps
   snmp:
     image: 'zabbix/zabbix-snmptraps:latest'
     ports:
       - "1162/udp"
     volumes:
-      - type: bind
-        source: ./../../integration-tests/snmp/files
-        target: /var/lib/zabbix/snmptraps
+      - content:/var/lib/zabbix/snmptraps
     healthcheck:
       test: [ "CMD-SHELL", "true" ]
       start_period: 2s
       retries: 5
       interval: 3s
       timeout: 15s
+
+volumes:
+  content:
