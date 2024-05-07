@@ -295,6 +295,10 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.config.connectorProvider(new ApacheConnectorProvider());
       data.config.property(
           ClientProperties.REQUEST_ENTITY_PROCESSING, RequestEntityProcessing.BUFFERED);
+
+      data.config.property(ClientProperties.READ_TIMEOUT, data.realReadTimeout);
+      data.config.property(ClientProperties.CONNECT_TIMEOUT, data.realConnectionTimeout);
+
       if (!Utils.isEmpty(data.realProxyHost)) {
         // PROXY CONFIGURATION
         data.config.property(
@@ -525,6 +529,9 @@ public class Rest extends BaseTransform<RestMeta, RestData> {
       data.resultCodeFieldName = resolve(meta.getResultCodeFieldName());
       data.resultResponseFieldName = resolve(meta.getResponseTimeFieldName());
       data.resultHeaderFieldName = resolve(meta.getResponseHeaderFieldName());
+
+      data.realConnectionTimeout = Const.toInt(resolve(meta.getConnectionTimeout()), -1);
+      data.realReadTimeout = Const.toInt(resolve(meta.getReadTimeout()), -1);
 
       // get authentication settings once
       data.realProxyHost = resolve(meta.getProxyHost());

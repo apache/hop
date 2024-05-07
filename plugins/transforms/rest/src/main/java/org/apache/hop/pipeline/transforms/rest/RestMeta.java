@@ -85,6 +85,12 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   public static final String HTTP_METHOD_OPTIONS = "OPTIONS";
   public static final String HTTP_METHOD_PATCH = "PATCH";
 
+  /** The default timeout until a connection is established (milliseconds) */
+  public static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
+
+  /** The default timeout for waiting for reading data (milliseconds) */
+  public static final int DEFAULT_READ_TIMEOUT = 10000;
+
   /** URL / service to be called */
   private String url;
 
@@ -134,6 +140,10 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
   private String trustStoreFile;
 
   private String trustStorePassword;
+
+  private String connectionTimeout;
+
+  private String readTimeout;
 
   private boolean ignoreSsl;
 
@@ -408,6 +418,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     this.trustStoreFile = null;
     this.trustStorePassword = null;
     this.applicationType = APPLICATION_TYPE_TEXT_PLAIN;
+    this.readTimeout = String.valueOf(DEFAULT_READ_TIMEOUT);
+    this.connectionTimeout = String.valueOf(DEFAULT_CONNECTION_TIMEOUT);
   }
 
   @Override
@@ -456,6 +468,10 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
     retval.append("    ").append(XmlHandler.addTagValue("urlField", urlField));
     retval.append("    ").append(XmlHandler.addTagValue("bodyField", bodyField));
     retval.append("    ").append(XmlHandler.addTagValue("httpLogin", httpLogin));
+
+    retval.append("    ").append(XmlHandler.addTagValue("readTimeout", readTimeout));
+    retval.append("    ").append(XmlHandler.addTagValue("connectionTimeout", connectionTimeout));
+
     retval
         .append("    ")
         .append(
@@ -527,6 +543,8 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
       dynamicMethod = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "dynamicMethod"));
       urlField = XmlHandler.getTagValue(transformNode, "urlField");
       bodyField = XmlHandler.getTagValue(transformNode, "bodyField");
+      readTimeout = XmlHandler.getTagValue(transformNode, "readTimeout");
+      connectionTimeout = XmlHandler.getTagValue(transformNode, "connectionTimeout");
       httpLogin = XmlHandler.getTagValue(transformNode, "httpLogin");
       httpPassword =
           Encr.decryptPasswordOptionallyEncrypted(
@@ -849,5 +867,41 @@ public class RestMeta extends BaseTransformMeta<Rest, RestData> {
         || method.equals(HTTP_METHOD_PUT)
         || method.equals(HTTP_METHOD_PATCH)
         || method.equals(HTTP_METHOD_DELETE));
+  }
+
+  /**
+   * Returns the connection timeout until a connection is established (milliseconds).
+   *
+   * @return
+   */
+  public String getConnectionTimeout() {
+    return connectionTimeout;
+  }
+
+  /**
+   * Define the connection timeout until a connection is established (milliseconds).
+   *
+   * @param timeout The connection timeout to set.
+   */
+  public void setConnectionTimeout(String timeout) {
+    this.connectionTimeout = timeout;
+  }
+
+  /**
+   * Returns the timeout for waiting for reading data (milliseconds).
+   *
+   * @return
+   */
+  public String getReadTimeout() {
+    return readTimeout;
+  }
+
+  /**
+   * Define the timeout for waiting for reading data (milliseconds).
+   *
+   * @param timeout The read timeout to set.
+   */
+  public void setReadTimeout(String timeout) {
+    this.readTimeout = timeout;
   }
 }
