@@ -17,6 +17,7 @@
 
 package org.apache.hop.testing.actions.runtests;
 
+import java.util.Collections;
 import java.util.List;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -26,6 +27,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -37,6 +39,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -58,6 +61,8 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
   private Text wName;
 
   private TableView wTestNames;
+
+  private ColumnInfo[] columnInfos;
 
   public RunPipelineTestsDialog(
       Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
@@ -81,6 +86,8 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
+
+    ModifyListener lsMod = e -> action.setChanged();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "RunPipelineTests.Name"));
@@ -139,18 +146,22 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
         margin,
         null);
 
-    ColumnInfo[] columnInfos =
-        new ColumnInfo[] {
-          new ColumnInfo(
-              BaseMessages.getString(PKG, "RunTestsDialog.TestsTable.Name.Column"),
-              ColumnInfo.COLUMN_TYPE_TEXT,
-              false,
-              false),
-        };
+    int tableCols = 1;
+    int upInsRows =
+        (action.getTestNames() != null && !action.getTestNames().equals(Collections.emptyList())
+            ? action.getTestNames().size()
+            : 1);
+    columnInfos = new ColumnInfo[tableCols];
 
-    wTestNames =
-        new TableView(
-            variables, shell, SWT.BORDER, columnInfos, action.getTestNames().size(), null, props);
+    columnInfos[0] =
+        new ColumnInfo(
+            BaseMessages.getString(PKG, "RunTestsDialog.TestsTable.Name.Column"),
+            ColumnInfo.COLUMN_TYPE_CCOMBO,
+            new String[] {""},
+            false);
+
+    wTestNames = new TableView(variables, shell, SWT.BORDER, columnInfos, upInsRows, lsMod, props);
+
     PropsUi.setLook(wTestNames);
     FormData fdTestNames = new FormData();
     fdTestNames.left = new FormAttachment(0, 0);
@@ -159,11 +170,25 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     fdTestNames.bottom = new FormAttachment(wOk, -margin * 2);
     wTestNames.setLayoutData(fdTestNames);
 
+    setTableCombo();
     getData();
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
 
     return action;
+  }
+
+  private void setTableCombo() {
+    try {
+      IHopMetadataSerializer<PipelineUnitTest> testSerializer =
+          metadataProvider.getSerializer(PipelineUnitTest.class);
+      List<String> testNames = testSerializer.listObjectNames();
+      columnInfos[0].setComboValues(
+          Const.sortStrings(testNames.toArray(new String[testNames.size()])));
+
+    } catch (Exception e) {
+      new ErrorDialog(shell, "Error", "Error getting list of pipeline unit test names", e);
+    }
   }
 
   private void getTestNames() {
@@ -172,13 +197,22 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
           metadataProvider.getSerializer(PipelineUnitTest.class);
       List<String> testNames = testSerializer.listObjectNames();
 
-      // Simply add them all to the list...
-      //
-      for (String testName : testNames) {
-        wTestNames.add(testName);
-      }
-      wTestNames.optimizeTableView();
+      if (testNames != null && testNames.size() > 0) {
+        String[] sortedTestNames =
+            Const.sortStrings(testNames.toArray(new String[testNames.size()]));
+        EnterSelectionDialog dialog =
+            new EnterSelectionDialog(
+                shell,
+                sortedTestNames,
+                BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests.Title"),
+                BaseMessages.getString(PKG, "RunTestsDialog.AvailableTests.Message"));
 
+        String d = dialog.open();
+        if (d != null) {
+          wTestNames.removeEmptyRows();
+          wTestNames.add(d);
+        }
+      }
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error getting list of pipeline unit test names", e);
     }
@@ -199,9 +233,6 @@ public class RunPipelineTestsDialog extends ActionDialog implements IActionDialo
     }
     wTestNames.setRowNums();
     wTestNames.optWidth(true);
-
-    wName.selectAll();
-    wName.setFocus();
   }
 
   private void ok() {

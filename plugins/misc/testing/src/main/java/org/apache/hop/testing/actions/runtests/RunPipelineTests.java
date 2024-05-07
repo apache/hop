@@ -41,7 +41,7 @@ import org.w3c.dom.Node;
     name = "i18n::RunPipelineTests.Name",
     description = "i18n::RunPipelineTests.Description",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-    keywords = "i18n::RunPipelineTests.keyword",
+    keywords = "i18n::RunPipelineTests.Keywords",
     image = "Test_tube_icon.svg",
     documentationUrl = "/workflow/actions/runpipelinetests.html")
 public class RunPipelineTests extends ActionBase implements IAction, Cloneable {
