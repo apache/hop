@@ -25,8 +25,6 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
@@ -220,9 +218,6 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     // keep track for drill down in HopGui...
     //
     getPipeline().addActiveSubWorkflow(getTransformName(), data.executorWorkflow);
-
-    ExtensionPointHandler.callExtensionPoint(
-        log, this, HopExtensionPoint.WorkflowStart.id, data.executorWorkflow);
 
     Result result = data.executorWorkflow.startExecution();
 
