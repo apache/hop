@@ -541,7 +541,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-vendor-guava-26_0-jre</artifactId>
+            <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>
