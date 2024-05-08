@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
@@ -116,7 +117,12 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
           Object[] newRow = RowDataUtil.resizeArray(rowData, data.outputRowMeta.size());
           int newIndex = rowMeta.size();
           for (int i = 0; i < addMeta.size(); i++) {
-            newRow[newIndex++] = add[i];
+            // Convert Long to double when required. This solves the issue mentioned in the comments of #2312
+            Object value = add[i];
+            if (value instanceof Long && data.outputRowMeta.getValueMeta(newIndex).getType() == IValueMeta.TYPE_NUMBER) {
+              value = (Double) ((Long) value).doubleValue();
+            }
+            newRow[newIndex++] = value;
           }
           // we have to clone, otherwise we only get the last new value
           putRow(data.outputRowMeta, data.outputRowMeta.cloneRow(newRow));
