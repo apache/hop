@@ -97,6 +97,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
   private ColumnInfo[] colinf;
   private ColumnInfo[] colinfoparams;
 
+  private TextVar wConnectionTimeout;
+
+  private TextVar wReadTimeout;
+
   private TextVar wHttpLogin;
 
   private TextVar wHttpPassword;
@@ -186,6 +190,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     setupMethodNameLine(lsMod, middle, margin, gSettings);
     setupBodyLine(lsMod, middle, margin, gSettings);
     setupAppTypeLine(lsMod, middle, margin, gSettings);
+    setupConnectionTimeoutLine(lsMod, gSettings);
+    setupReadTimeoutLine(lsMod, gSettings);
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment(0, 0);
@@ -707,6 +713,51 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     gSSLTrustStore.setLayout(sslTrustStoreLayout);
     PropsUi.setLook(gSSLTrustStore);
     return gSSLTrustStore;
+  }
+
+  private void setupConnectionTimeoutLine(ModifyListener lsMod, Group gSettings) {
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlConnectionTimeout = new Label(gSettings, SWT.RIGHT);
+    wlConnectionTimeout.setText(BaseMessages.getString(PKG, "RestDialog.ConnectionTimeout.Label"));
+    PropsUi.setLook(wlConnectionTimeout);
+    FormData fdlConnectionTimeout = new FormData();
+    fdlConnectionTimeout.top = new FormAttachment(wApplicationType, margin);
+    fdlConnectionTimeout.left = new FormAttachment(0, 0);
+    fdlConnectionTimeout.right = new FormAttachment(middle, -margin);
+    wlConnectionTimeout.setLayoutData(fdlConnectionTimeout);
+    wConnectionTimeout = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wConnectionTimeout.addModifyListener(lsMod);
+    wConnectionTimeout.setToolTipText(
+        BaseMessages.getString(PKG, "RestDialog.ConnectionTimeout.Tooltip"));
+    PropsUi.setLook(wConnectionTimeout);
+    FormData fdConnectionTimeOut = new FormData();
+    fdConnectionTimeOut.top = new FormAttachment(wApplicationType, margin);
+    fdConnectionTimeOut.left = new FormAttachment(middle, 0);
+    fdConnectionTimeOut.right = new FormAttachment(100, 0);
+    wConnectionTimeout.setLayoutData(fdConnectionTimeOut);
+  }
+
+  private void setupReadTimeoutLine(ModifyListener lsMod, Group gSettings) {
+    int margin = PropsUi.getMargin();
+    int middle = props.getMiddlePct();
+    Label wlReadTimeout = new Label(gSettings, SWT.RIGHT);
+    wlReadTimeout.setText(BaseMessages.getString(PKG, "RestDialog.ReadTimeout.Label"));
+    PropsUi.setLook(wlReadTimeout);
+    FormData fdlReadTimeout = new FormData();
+    fdlReadTimeout.top = new FormAttachment(wConnectionTimeout, margin);
+    fdlReadTimeout.left = new FormAttachment(0, 0);
+    fdlReadTimeout.right = new FormAttachment(middle, -margin);
+    wlReadTimeout.setLayoutData(fdlReadTimeout);
+    wReadTimeout = new TextVar(variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wReadTimeout.addModifyListener(lsMod);
+    wReadTimeout.setToolTipText(BaseMessages.getString(PKG, "RestDialog.ReadTimeout.Tooltip"));
+    PropsUi.setLook(wReadTimeout);
+    FormData fdReadTimeout = new FormData();
+    fdReadTimeout.top = new FormAttachment(wConnectionTimeout, margin);
+    fdReadTimeout.left = new FormAttachment(middle, 0);
+    fdReadTimeout.right = new FormAttachment(100, 0);
+    wReadTimeout.setLayoutData(fdReadTimeout);
   }
 
   private void setupProxyPortLine(ModifyListener lsMod, int middle, int margin, Group gProxy) {
@@ -1313,7 +1364,12 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     if (input.getResponseTimeFieldName() != null) {
       wResponseTime.setText(input.getResponseTimeFieldName());
     }
-
+    if (input.getConnectionTimeout() != null) {
+      wConnectionTimeout.setText(input.getConnectionTimeout());
+    }
+    if (input.getReadTimeout() != null) {
+      wReadTimeout.setText(input.getReadTimeout());
+    }
     if (input.getHttpLogin() != null) {
       wHttpLogin.setText(input.getHttpLogin());
     }
@@ -1396,7 +1452,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     input.setResultCodeFieldName(wResultCode.getText());
     input.setResponseTimeFieldName(wResponseTime.getText());
     input.setResponseHeaderFieldName(wResponseHeader.getText());
-
+    input.setConnectionTimeout(wConnectionTimeout.getText());
+    input.setReadTimeout(wReadTimeout.getText());
     input.setHttpLogin(wHttpLogin.getText());
     input.setHttpPassword(wHttpPassword.getText());
     input.setProxyHost(wProxyHost.getText());

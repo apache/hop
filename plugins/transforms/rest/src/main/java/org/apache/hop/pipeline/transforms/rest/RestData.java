@@ -37,6 +37,9 @@ public class RestData extends BaseTransformData implements ITransformData {
   /** Method */
   public String method;
 
+  public int realConnectionTimeout;
+  public int realReadTimeout;
+
   /** Index of method */
   public int indexOfMethod;
 

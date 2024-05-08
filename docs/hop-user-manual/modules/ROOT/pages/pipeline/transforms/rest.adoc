@@ -60,6 +60,8 @@ The General tab is where you enter basic connection information for accessing a 
 |Method fieldname|Indicates the field from which the GET method is defined
 |Body field|Contains the request body for POST, PUT, and DELETE methods. Body field only accepts a previous field, not a hard coded value.
 |Application type|Designates what type of application a resource is---options are either TEXT PLAIN, XML, JSON, OCTET STREAM, XHTML, FORM URLENCODED, ATOM XML, SVG XML, or TEXT XML
+|Connection timeout|Indicates the timeout until a connection is established (milliseconds)
+|Read timeout|Indicates the timeout for waiting for reading data (milliseconds)
 |Result fieldname|Designates the name of the result output field
 |HTTP status code fieldname|Designates the name of the HTTP status code field
 |Response time (milliseconds) fieldname|Designates the name of the response time field

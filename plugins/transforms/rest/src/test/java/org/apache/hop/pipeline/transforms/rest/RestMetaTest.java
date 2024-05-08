@@ -74,6 +74,8 @@ public class RestMetaTest {
             "methodFieldName",
             "urlField",
             "bodyField",
+            "connectionTimeout",
+            "readTimeout",
             "httpLogin",
             "httpPassword",
             "proxyHost",

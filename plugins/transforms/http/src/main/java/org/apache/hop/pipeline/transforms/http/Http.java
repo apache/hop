@@ -403,7 +403,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
       data.realHttpPassword = Utils.resolvePassword(variables, meta.getHttpPassword());
 
       data.realSocketTimeout = Const.toInt(resolve(meta.getSocketTimeout()), -1);
-      data.realConnectionTimeout = Const.toInt(resolve(meta.getSocketTimeout()), -1);
+      data.realConnectionTimeout = Const.toInt(resolve(meta.getConnectionTimeout()), -1);
 
       data.withoutPreviousTransforms =
           getPipelineMeta().getPrevTransforms(getTransformMeta()).length == 0;
