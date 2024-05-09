@@ -31,7 +31,7 @@
     </parent>
 
     <properties>
-        <clickhouse.jdbc.version>0.5.0</clickhouse.jdbc.version>
+        <clickhouse.jdbc.version>0.6.0-patch4</clickhouse.jdbc.version>
         <cratedb-jdbc.version>2.7.0</cratedb-jdbc.version>
         <derby.version>10.16.1.1</derby.version>
         <duckdb.version>0.10.0</duckdb.version>

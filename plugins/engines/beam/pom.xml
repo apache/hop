@@ -53,7 +53,6 @@
         <bigtable-hbase-beam.version>2.11.0</bigtable-hbase-beam.version>
 <!--        https://github.com/apache/hive/blob/df0a1429d4a67bc180cf1e15ff10432f6723bb1c/pom.xml-->
         <libfb303.version>0.9.3</libfb303.version>
-        <libthrift.version>0.9.3</libthrift.version>
         <hive-storage.version>2.7.0</hive-storage.version>
     </properties>
 
