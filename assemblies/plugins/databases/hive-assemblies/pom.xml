@@ -36,7 +36,6 @@
 
     <properties>
         <!--    Version information : https://github.com/apache/hive/blob/master/pom.xml-->
-        <libthrift.version>0.9.3</libthrift.version>
     </properties>
 
     <dependencies>
