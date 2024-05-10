@@ -117,33 +117,21 @@ limitations under the License.
       <field>
         <source_field>id</source_field>
         <target_field>id</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>Integer</target_type>
       </field>
       <field>
         <source_field>name</source_field>
         <target_field>name</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_field>company</source_field>
         <target_field>company</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_field>industry</source_field>
         <target_field>industry</target_field>
-        <target_format/>
-        <target_length/>
-        <target_precision/>
         <target_type>String</target_type>
       </field>
     </fields>

@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0001-read-write-parquet-azfs-scheme</name>
+  <name>main-0001-write-and-read-parquet-azfs-scheme</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -44,7 +44,7 @@ limitations under the License.
       <schedulerType>0</schedulerType>
       <weekDay>1</weekDay>
       <parallel>N</parallel>
-      <xloc>112</xloc>
+      <xloc>48</xloc>
       <yloc>112</yloc>
       <attributes_hac/>
     </action>
@@ -96,6 +96,8 @@ limitations under the License.
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
       <filename>${PROJECT_HOME}/0001-read_parquet_from_azure_azfs_scheme.hpl</filename>
+      <logext/>
+      <logfile/>
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -129,24 +131,6 @@ limitations under the License.
       <parallel>N</parallel>
       <xloc>496</xloc>
       <yloc>416</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Delete folders</name>
-      <description/>
-      <type>DELETE_FOLDERS</type>
-      <attributes/>
-      <arg_from_previous>N</arg_from_previous>
-      <success_condition>success_if_no_errors</success_condition>
-      <limit_folders>10</limit_folders>
-      <fields>
-        <field>
-          <name>azure://mycontainer</name>
-        </field>
-      </fields>
-      <parallel>N</parallel>
-      <xloc>192</xloc>
-      <yloc>112</yloc>
       <attributes_hac/>
     </action>
   </actions>
@@ -188,13 +172,6 @@ limitations under the License.
     </hop>
     <hop>
       <from>Start</from>
-      <to>Delete folders</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>Delete folders</from>
       <to>Write parquet file with azfs:// scheme</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>

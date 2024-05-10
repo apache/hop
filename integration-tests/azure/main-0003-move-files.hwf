@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0003-move-files</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2024/05/10 11:20:28.354</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2024/05/10 11:20:28.354</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>48</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Move files</name>
+      <description/>
+      <type>MOVE_FILES</type>
+      <attributes/>
+      <move_empty_folders>N</move_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>Y</destination_is_a_file>
+      <create_destination_folder>N</create_destination_folder>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <SpecifyFormat>N</SpecifyFormat>
+      <date_time_format/>
+      <nr_errors_less_than>10</nr_errors_less_than>
+      <success_condition>success_if_no_errors</success_condition>
+      <AddDateBeforeExtension>N</AddDateBeforeExtension>
+      <DoNotKeepFolderStructure>N</DoNotKeepFolderStructure>
+      <iffileexists>do_nothing</iffileexists>
+      <destinationFolder/>
+      <ifmovedfileexists>do_nothing</ifmovedfileexists>
+      <moved_date_time_format/>
+      <create_move_to_folder>N</create_move_to_folder>
+      <add_moved_date>N</add_moved_date>
+      <add_moved_time>N</add_moved_time>
+      <SpecifyMoveFormat>N</SpecifyMoveFormat>
+      <AddMovedDateBeforeExtension>N</AddMovedDateBeforeExtension>
+      <simulate>N</simulate>
+      <fields>
+        <field>
+          <source_filefolder>azure:///mycontainer/azure-scheme.parquet</source_filefolder>
+          <destination_filefolder>azure:///mycontainer/azure-scheme-mod.parquet</destination_filefolder>
+          <wildcard/>
+        </field>
+        <field>
+          <source_filefolder>azfs:///devstoreaccount1/mycontainer/azfs-scheme.parquet</source_filefolder>
+          <destination_filefolder>azfs:///devstoreaccount1/mycontainer/azfs-scheme-mod.parquet</destination_filefolder>
+          <wildcard/>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>320</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>1296</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Checks if new file exist</name>
+      <description/>
+      <type>FILES_EXIST</type>
+      <attributes/>
+      <filename/>
+      <fields>
+        <field>
+          <name>azure:///mycontainer/azure-scheme-mod.parquet</name>
+        </field>
+        <field>
+          <name>azfs:///devstoreaccount1/mycontainer/azfs-scheme-mod.parquet</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>496</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Checks if old file does not exist</name>
+      <description/>
+      <type>FILES_EXIST</type>
+      <attributes/>
+      <filename/>
+      <fields>
+        <field>
+          <name>azure:///mycontainer/azure-scheme.parquet</name>
+        </field>
+        <field>
+          <name>azfs:///devstoreaccount1/mycontainer/azfs-scheme.parquet</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>768</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete files</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>azure://mycontainer/azure-scheme-mod.parquet</name>
+          <filemask/>
+        </field>
+        <field>
+          <name>azfs:///devstoreaccount1/mycontainer/azfs-scheme-mod.parquet</name>
+          <filemask/>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>1072</xloc>
+      <yloc>112</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Error if files already exist</name>
+      <description/>
+      <type>ABORT</type>
+      <attributes/>
+      <always_log_rows>Y</always_log_rows>
+      <parallel>N</parallel>
+      <xloc>976</xloc>
+      <yloc>256</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Move files</from>
+      <to>Checks if new file exist</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Checks if new file exist</from>
+      <to>Checks if old file does not exist</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Start</from>
+      <to>Move files</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Checks if old file does not exist</from>
+      <to>Delete files</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete files</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Checks if old file does not exist</from>
+      <to>Error if files already exist</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>

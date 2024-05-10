@@ -324,7 +324,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       throw new UnsupportedOperationException();
     } else {
       FileObject parent = getParent();
-      boolean lastFile = parent.getChildren().length == 1;
+      boolean lastFile = ((AzureFileObject) parent).doListChildren().length == 1;
       try {
         if (containerPath.equals("")) {
           container.delete();
@@ -358,8 +358,27 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
+  protected boolean doIsSameFile(FileObject destFile) throws FileSystemException {
+    return true;
+  }
+
+  @Override
   protected void doRename(FileObject newfile) throws Exception {
-    throw new UnsupportedOperationException();
+    if (cloudBlob != null) {
+      // Get the new blob reference
+      CloudBlobContainer newContainer =
+          service.getContainerReference(((AzureFileName) newfile.getName()).getContainer());
+      CloudBlob newBlob =
+          newContainer.getBlobReferenceFromServer(
+              ((AzureFileName) newfile.getName()).getPathAfterContainer().substring(1));
+
+      // Start the copy operation
+      newBlob.startCopy(cloudBlob.getUri());
+      // Delete the original blob
+      doDelete();
+    } else {
+      throw new FileSystemException("Renaming of directories not supported on this file.");
+    }
   }
 
   @Override

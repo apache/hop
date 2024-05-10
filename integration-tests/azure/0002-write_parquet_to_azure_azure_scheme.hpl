@@ -41,7 +41,7 @@ limitations under the License.
   <order>
     <hop>
       <from>Read employees data from dataset</from>
-      <to>Write to Azurite a Parquet file (azure://)</to>
+      <to>Write to Azurite a Parquet file (azure)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -60,7 +60,7 @@ limitations under the License.
     <passing_through_fields>N</passing_through_fields>
     <accept_field/>
     <accept_transform_name/>
-    <separator>;</separator>
+    <separator>,</separator>
     <enclosure>"</enclosure>
     <enclosure_breaks>N</enclosure_breaks>
     <escapechar/>
@@ -84,7 +84,7 @@ limitations under the License.
     <length>Characters</length>
     <add_to_result_filenames>Y</add_to_result_filenames>
     <file>
-      <name>${PROJECT_HOME}/datasets/golden-parquet.csv</name>
+      <name>${PROJECT_HOME}/datasets/golden-dataset-employees.csv</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -120,13 +120,13 @@ limitations under the License.
         <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>23</length>
+        <length>22</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
-        <name>companyName</name>
+        <name>company</name>
         <type>String</type>
         <format/>
         <currency>$</currency>
@@ -135,7 +135,7 @@ limitations under the License.
         <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>33</length>
+        <length>32</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
         <repeat>N</repeat>
@@ -150,7 +150,7 @@ limitations under the License.
         <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>37</length>
+        <length>36</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
         <repeat>N</repeat>
@@ -184,12 +184,12 @@ limitations under the License.
     <sizeFieldName/>
     <attributes/>
     <GUI>
-      <xloc>448</xloc>
-      <yloc>160</yloc>
+      <xloc>240</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Write to Azurite a Parquet file (azure://)</name>
+    <name>Write to Azurite a Parquet file (azure)</name>
     <type>ParquetFileOutput</type>
     <description/>
     <distribute>Y</distribute>
@@ -204,20 +204,20 @@ limitations under the License.
     <dictionary_page_size>1048576</dictionary_page_size>
     <fields>
       <field>
-        <source_field>Name</source_field>
-        <target_field>Name</target_field>
+        <source_field>id</source_field>
+        <target_field>id</target_field>
       </field>
       <field>
-        <source_field>CompanyName</source_field>
-        <target_field>CompanyName</target_field>
+        <source_field>name</source_field>
+        <target_field>name</target_field>
       </field>
       <field>
-        <source_field>Industry</source_field>
-        <target_field>Industry</target_field>
+        <source_field>company</source_field>
+        <target_field>company</target_field>
       </field>
       <field>
-        <source_field>Id</source_field>
-        <target_field>Id</target_field>
+        <source_field>industry</source_field>
+        <target_field>industry</target_field>
       </field>
     </fields>
     <filename_base>azure://mycontainer/azure-scheme</filename_base>
@@ -234,8 +234,8 @@ limitations under the License.
     <version>2.0</version>
     <attributes/>
     <GUI>
-      <xloc>736</xloc>
-      <yloc>160</yloc>
+      <xloc>528</xloc>
+      <yloc>144</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
