@@ -709,7 +709,7 @@ This product bundles drools-templates 7.74.1.Final, which is available under a
 This product bundles dropbox-core-sdk 5.0.0, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
-This product bundles duckdb_jdbc 0.9.2, which is available under a
+This product bundles duckdb_jdbc 0.10.2, which is available under a
 "The MIT" license. For details, see licenses/LICENSE-MIT.
 
 This product bundles ecj 4.6.1, which is available under a
