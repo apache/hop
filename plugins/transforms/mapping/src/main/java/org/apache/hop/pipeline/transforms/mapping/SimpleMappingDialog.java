@@ -364,7 +364,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     // boolean containsVar = Pattern.matches("^[/\\w]*(\\$\\{\\w+})[/.\\w]*",
     // mappingMeta.getFilename());
     Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
-    Matcher m = p.matcher(mappingMeta.getFilename());
+    Matcher m = p.matcher(Const.NVL(mappingMeta.getFilename(), ""));
 
     if (!m.lookingAt()) {
       try {
