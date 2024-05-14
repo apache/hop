@@ -96,27 +96,25 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
       }
     } catch (Exception e) {
       throw new HopException("Error read file " + filename, e);
+    } finally {
+      closeFile();
     }
 
     return true;
   }
 
   public void closeFile() {
-    if (!data.readerClosed) {
-      try {
-        data.reader.close();
-        data.inputStream.close();
-      } catch (IOException e) {
-        logError("Unable to properly close parquet reader!");
-      }
-      data.readerClosed = true;
+    try {
+      data.reader.close();
+      data.inputStream.close();
+    } catch (IOException e) {
+      logError("Unable to properly close parquet reader!");
     }
   }
 
   @Override
   public void dispose() {
     super.dispose();
-
     closeFile();
   }
 }

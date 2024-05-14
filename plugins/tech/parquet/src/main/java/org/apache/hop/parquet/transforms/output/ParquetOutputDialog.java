@@ -519,6 +519,18 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     wFilenameIncludeTime.setEnabled(!wFilenameInField.getSelection());
     wlFilenameIncludeDate.setEnabled(!wFilenameInField.getSelection());
     wFilenameIncludeDate.setEnabled(!wFilenameInField.getSelection());
+    wlFilenameIncludeSplitNr.setEnabled(!wFilenameInField.getSelection());
+    wFilenameIncludeSplitNr.setEnabled(!wFilenameInField.getSelection());
+    wlFilenameSplitSize.setEnabled(!wFilenameInField.getSelection());
+    wFilenameSplitSize.setEnabled(!wFilenameInField.getSelection());
+    wFilenameIncludeCopyNr.setEnabled(!wFilenameInField.getSelection());
+    wlFilenameIncludeCopyNr.setEnabled(!wFilenameInField.getSelection());
+
+    if (wFilenameInField.getSelection()) {
+      wFilenameSplitSize.setText("");
+      wFilenameIncludeSplitNr.setSelection(false);
+      wFilenameIncludeCopyNr.setSelection(false);
+    }
   }
 
   private void addOptionsTab(CTabFolder wTabFolder, int middle, int margin) {
@@ -810,7 +822,7 @@ public class ParquetOutputDialog extends BaseTransformDialog implements ITransfo
     for (TableItem item : wFields.getNonEmptyItems()) {
       input.getFields().add(new ParquetField(item.getText(1), item.getText(2)));
     }
-    input.setChanged();
+
     dispose();
   }
 

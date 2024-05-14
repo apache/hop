@@ -218,7 +218,7 @@ limitations under the License.
 </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <limit>10</limit>
+    <limit>100</limit>
     <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
@@ -238,6 +238,7 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <add_to_result_filenames>N</add_to_result_filenames>
     <compression_codec>UNCOMPRESSED</compression_codec>
     <data_page_size>8192</data_page_size>
     <dictionary_page_size>1048576</dictionary_page_size>
@@ -263,12 +264,14 @@ limitations under the License.
     <filename_create_parent_folders>Y</filename_create_parent_folders>
     <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
     <filename_ext>parquet</filename_ext>
+    <filename_field/>
+    <filename_in_field>N</filename_in_field>
     <filename_include_copy>Y</filename_include_copy>
     <filename_include_date>N</filename_include_date>
     <filename_include_datetime>N</filename_include_datetime>
     <filename_include_split>Y</filename_include_split>
     <filename_include_time>N</filename_include_time>
-    <filename_split_size>100</filename_split_size>
+    <filename_split_size>10</filename_split_size>
     <row_group_size>268435456</row_group_size>
     <version>2.0</version>
     <attributes/>

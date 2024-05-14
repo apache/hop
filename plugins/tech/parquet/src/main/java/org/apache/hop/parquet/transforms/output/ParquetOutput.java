@@ -116,7 +116,8 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
 
     // See if we don't need to create a new file split into parts...
     //
-    if (meta.isFilenameIncludingSplitNr()
+    if (!meta.isFilenameInField()
+        && meta.isFilenameIncludingSplitNr()
         && data.maxSplitSizeRows > 0
         && data.splitRowCount >= data.maxSplitSizeRows) {
       // Close file and start a new one...
@@ -320,10 +321,16 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
       filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
       filename += meta.getCompressionCodec().getExtension();
     } else {
-      filename =
-          (String) row[data.filenameFieldIndex]
-              + "."
-              + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
+      filename = (String) row[data.filenameFieldIndex];
+      if (meta.isFilenameIncludingCopyNr()) {
+        filename += "-" + new DecimalFormat("00").format(getCopyNr());
+      }
+      if (meta.isFilenameIncludingSplitNr()) {
+        filename += "-" + new DecimalFormat("0000").format(data.split);
+      }
+
+      filename += "." + Const.NVL(resolve(meta.getFilenameExtension()), "parquet");
+      filename += meta.getCompressionCodec().getExtension();
     }
     return filename;
   }

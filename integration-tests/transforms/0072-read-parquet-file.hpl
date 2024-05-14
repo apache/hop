@@ -44,11 +44,6 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Generate rows</from>
-      <to>PROJECT_HOME</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>PROJECT_HOME</from>
       <to>Calculator</to>
       <enabled>Y</enabled>
@@ -58,7 +53,42 @@ limitations under the License.
       <to>Parquet File Input</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>Generate rows</from>
+      <to>Add sequence</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Add sequence</from>
+      <to>PROJECT_HOME</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
+  <transform>
+    <name>Add sequence</name>
+    <type>Sequence</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>h2</connection>
+    <increment_by>1</increment_by>
+    <max_value>999999999</max_value>
+    <seqname>SEQ_</seqname>
+    <start_at>0</start_at>
+    <use_counter>Y</use_counter>
+    <use_database>N</use_database>
+    <valuename>seq</valuename>
+    <attributes/>
+    <GUI>
+      <xloc>384</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>Calculator</name>
     <type>Calculator</type>
@@ -80,11 +110,40 @@ limitations under the License.
       <value_type>String</value_type>
     </calculation>
     <calculation>
+      <calc_type>CONSTANT</calc_type>
+      <field_a>.parquet</field_a>
+      <field_name>ext</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+    </calculation>
+    <calculation>
+      <calc_type>COPY_FIELD</calc_type>
+      <conversion_mask>-0000</conversion_mask>
+      <field_a>seq</field_a>
+      <field_name>seq_str</field_name>
+      <remove>N</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
       <calc_type>ADD3</calc_type>
       <field_a>prj_home</field_a>
       <field_b>sep</field_b>
       <field_c>file</field_c>
-      <field_name>filename</field_name>
+      <field_name>filename_1</field_name>
+      <remove>Y</remove>
+      <value_length>-1</value_length>
+      <value_precision>-1</value_precision>
+      <value_type>String</value_type>
+    </calculation>
+    <calculation>
+      <calc_type>ADD3</calc_type>
+      <field_a>filename_1</field_a>
+      <field_b>seq_str</field_b>
+      <field_c>ext</field_c>
+      <field_name>filename_2</field_name>
       <remove>N</remove>
       <value_length>-1</value_length>
       <value_precision>-1</value_precision>
@@ -127,13 +186,9 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
         <length>-1</length>
         <name>file</name>
-        <nullif>files/parquet-test-00-0001.parquet</nullif>
+        <nullif>files/parquet-test-00</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
@@ -141,12 +196,12 @@ limitations under the License.
     </fields>
     <interval_in_ms>5000</interval_in_ms>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <limit>1</limit>
+    <limit>10</limit>
     <never_ending>N</never_ending>
     <row_time_field>now</row_time_field>
     <attributes/>
     <GUI>
-      <xloc>416</xloc>
+      <xloc>272</xloc>
       <yloc>224</yloc>
     </GUI>
   </transform>
@@ -173,7 +228,7 @@ limitations under the License.
     </fields>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
+      <xloc>528</xloc>
       <yloc>224</yloc>
     </GUI>
   </transform>
@@ -192,20 +247,29 @@ limitations under the License.
       <field>
         <source_field>Name</source_field>
         <target_field>Name</target_field>
+        <target_format/>
+        <target_length/>
+        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_field>CompanyName</source_field>
         <target_field>CompanyName</target_field>
+        <target_format/>
+        <target_length/>
+        <target_precision/>
         <target_type>String</target_type>
       </field>
       <field>
         <source_field>Industry</source_field>
         <target_field>Industry</target_field>
+        <target_format/>
+        <target_length/>
+        <target_precision/>
         <target_type>String</target_type>
       </field>
     </fields>
-    <filename_field>filename</filename_field>
+    <filename_field>filename_2</filename_field>
     <attributes/>
     <GUI>
       <xloc>832</xloc>

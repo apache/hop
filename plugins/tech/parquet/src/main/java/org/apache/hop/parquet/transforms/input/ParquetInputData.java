@@ -30,7 +30,6 @@ public class ParquetInputData extends BaseTransformData implements ITransformDat
   public int filenameFieldIndex;
   public ParquetReader<RowMetaAndData> reader;
   public InputStream inputStream;
-  public boolean readerClosed = false;
 
   public ParquetInputData() {
     super();

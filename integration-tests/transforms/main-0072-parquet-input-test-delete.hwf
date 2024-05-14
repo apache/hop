@@ -101,14 +101,20 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Delete file</name>
+      <name>Delete files</name>
       <description/>
-      <type>DELETE_FILE</type>
+      <type>DELETE_FILES</type>
       <attributes/>
-      <fail_if_file_not_exists>N</fail_if_file_not_exists>
-      <filename>${PROJECT_HOME}/files/parquet-test-00-0001.parquet</filename>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>N</include_subfolders>
+      <fields>
+        <field>
+          <name>${PROJECT_HOME}/files</name>
+          <filemask>.*.parquet</filemask>
+        </field>
+      </fields>
       <parallel>N</parallel>
-      <xloc>864</xloc>
+      <xloc>816</xloc>
       <yloc>192</yloc>
       <attributes_hac/>
     </action>
@@ -130,10 +136,10 @@ limitations under the License.
     </hop>
     <hop>
       <from>0072-read-parquet-file.hpl</from>
-      <to>Delete file</to>
+      <to>Delete files</to>
       <enabled>Y</enabled>
-      <evaluation>N</evaluation>
-      <unconditional>Y</unconditional>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
