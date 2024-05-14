@@ -134,3 +134,7 @@ The default is SNAPPY for Apache Snappy compression.
 You can use the "Get Fields" button to populate the dialog.
 
 |===
+
+== Notes
+[options="header"]
+Currently, if the _Accept from field from file_ flag is checked the _Include transform copy number_ and _Split into parts and include number_ flags are temporarily left disabled. This functionality will be implemented soon.
