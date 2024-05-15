@@ -125,7 +125,7 @@ public class SynchronizeAfterMergeMetaInjectionTest
         new IBooleanGetter() {
           @Override
           public boolean get() {
-            return meta.istablenameInField();
+            return meta.isTableNameInField();
           }
         });
     check(
@@ -133,7 +133,7 @@ public class SynchronizeAfterMergeMetaInjectionTest
         new IStringGetter() {
           @Override
           public String get() {
-            return meta.gettablenameField();
+            return meta.getTableNameField();
           }
         });
     check(

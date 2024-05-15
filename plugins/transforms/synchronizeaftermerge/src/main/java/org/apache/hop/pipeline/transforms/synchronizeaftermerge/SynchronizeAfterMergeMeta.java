@@ -68,11 +68,6 @@ public class SynchronizeAfterMergeMeta
   @Injection(name = "TABLE_NAME")
   private String tableName;
 
-  private IHopMetadataProvider metadataProvider;
-
-  /** database connection */
-  private DatabaseMeta databaseMeta;
-
   /** which field in input stream to compare with? */
   @Injection(name = "STREAM_FIELD1", group = "KEYS_TO_LOOKUP")
   private String[] keyStream;
@@ -129,17 +124,19 @@ public class SynchronizeAfterMergeMeta
   @Injection(name = "ORDER_DELETE")
   private String orderDelete;
 
+  @Injection(name = "CONNECTION_NAME")
+  private String connection;
+
   public SynchronizeAfterMergeMeta() {
     super(); // allocate BaseTransformMeta
   }
 
-  @Injection(name = "CONNECTION_NAME")
-  public void setConnection(String connectionName) {
-    try {
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, connectionName);
-    } catch (HopXmlException e) {
-      throw new RuntimeException("Error load connection '" + connectionName + "'", e);
-    }
+  public String getConnection() {
+    return connection;
+  }
+
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**
@@ -170,15 +167,15 @@ public class SynchronizeAfterMergeMeta
     return performLookup;
   }
 
-  public boolean istablenameInField() {
+  public boolean isTableNameInField() {
     return tablenameInField;
   }
 
-  public void settablenameInField(boolean tablenamefield) {
+  public void setTableNameInField(boolean tablenamefield) {
     this.tablenameInField = tablenamefield;
   }
 
-  public String gettablenameField() {
+  public String getTableNameField() {
     return tablenameField;
   }
 
@@ -214,7 +211,7 @@ public class SynchronizeAfterMergeMeta
     this.operationOrderField = operationOrderField;
   }
 
-  public void settablenameField(String tablenamefield) {
+  public void setTableNameField(String tablenamefield) {
     this.tablenameField = tablenamefield;
   }
 
@@ -237,20 +234,6 @@ public class SynchronizeAfterMergeMeta
    */
   public void setCommitSize(String commitSize) {
     this.commitSize = commitSize;
-  }
-
-  /**
-   * @return Returns the database.
-   */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
-  }
-
-  /**
-   * @param database The database to set.
-   */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
   }
 
   /**
@@ -409,13 +392,10 @@ public class SynchronizeAfterMergeMeta
 
   private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
       throws HopXmlException {
-    this.metadataProvider = metadataProvider;
     try {
       int nrkeys;
       int nrvalues;
-      this.databases = databases;
-      String con = XmlHandler.getTagValue(transformNode, "connection");
-      databaseMeta = DatabaseMeta.loadDatabase(metadataProvider, con);
+      connection = XmlHandler.getTagValue(transformNode, "connection");
       commitSize = XmlHandler.getTagValue(transformNode, "commit");
       schemaName = XmlHandler.getTagValue(transformNode, "lookup", "schema");
       tableName = XmlHandler.getTagValue(transformNode, "lookup", "table");
@@ -483,7 +463,7 @@ public class SynchronizeAfterMergeMeta
     tablenameField = null;
     keyStream = null;
     updateLookup = null;
-    databaseMeta = null;
+    connection = null;
     commitSize = "100";
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.DefaultTableName");
@@ -519,11 +499,7 @@ public class SynchronizeAfterMergeMeta
     normalizeAllocationFields();
     StringBuilder retval = new StringBuilder(200);
 
-    retval
-        .append("    ")
-        .append(
-            XmlHandler.addTagValue(
-                "connection", databaseMeta == null ? "" : databaseMeta.getName()));
+    retval.append("    ").append(XmlHandler.addTagValue("connection", connection));
     retval.append("    ").append(XmlHandler.addTagValue("commit", commitSize));
 
     retval.append("    ").append(XmlHandler.addTagValue("tablename_in_field", tablenameInField));
@@ -578,9 +554,9 @@ public class SynchronizeAfterMergeMeta
     CheckResult cr;
     String errorMessage = "";
 
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         if (!Utils.isEmpty(tableName)) {
@@ -859,8 +835,6 @@ public class SynchronizeAfterMergeMeta
                 + e.getMessage();
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
-      } finally {
-        db.disconnect();
       }
     } else {
       errorMessage =
@@ -897,10 +871,14 @@ public class SynchronizeAfterMergeMeta
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
     if (databaseMeta != null) {
+
       if (prev != null && prev.size() > 0) {
         // Copy the row
         IRowMeta tableFields = new RowMeta();
@@ -937,8 +915,8 @@ public class SynchronizeAfterMergeMeta
         }
 
         if (!Utils.isEmpty(tableName)) {
-          Database db = new Database(loggingObject, variables, databaseMeta);
-          try {
+
+          try (Database db = new Database(loggingObject, variables, databaseMeta)) {
             db.connect();
 
             String schemaTable =
@@ -1010,7 +988,9 @@ public class SynchronizeAfterMergeMeta
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (prev != null) {
+
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(connection, variables);
+    if (databaseMeta != null && prev != null) {
       // Lookup: we do a lookup on the natural keys
       for (int i = 0; i < keyLookup.length; i++) {
         IValueMeta v = prev.searchValueMeta(keyStream[i]);
@@ -1055,10 +1035,10 @@ public class SynchronizeAfterMergeMeta
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
-
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         if (!Utils.isEmpty(realTableName)) {
@@ -1077,8 +1057,6 @@ public class SynchronizeAfterMergeMeta
         throw new HopException(
             BaseMessages.getString(PKG, "SynchronizeAfterMergeMeta.Exception.ErrorGettingFields"),
             e);
-      } finally {
-        db.disconnect();
       }
     } else {
       throw new HopException(
