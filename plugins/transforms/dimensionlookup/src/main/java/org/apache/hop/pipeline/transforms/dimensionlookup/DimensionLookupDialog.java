@@ -242,7 +242,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         SWT.Modify,
         e -> {
           // We have new content: change ci connection:
-          databaseMeta = wConnection.loadSelectedElement();
+          databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+          ;
           setFlags();
         });
 
@@ -1157,7 +1158,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wUpIns.optimizeTableView();
     wKey.optimizeTableView();
 
-    databaseMeta = wConnection.loadSelectedElement();
+    databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    ;
 
     // The alternative start date...
     //
@@ -1281,7 +1283,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   }
 
   private void getTableName() {
-    final DatabaseMeta dbMeta = wConnection.loadSelectedElement();
+    final DatabaseMeta dbMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    ;
     if (dbMeta == null) {
       return;
     }
@@ -1356,7 +1359,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         () -> {
           final String tableName = variables.resolve(wTable.getText());
           final String schemaName = variables.resolve(wSchema.getText());
-          final DatabaseMeta dbMeta = wConnection.loadSelectedElement();
+          final DatabaseMeta dbMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+          ;
 
           // Without a database or a table name we can't do very much
           //
@@ -1409,7 +1413,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private void getLookup() {
     final String tableName = variables.resolve(wTable.getText());
     final String schemaName = variables.resolve(wSchema.getText());
-    DatabaseMeta dbMeta = wConnection.loadSelectedElement();
+    DatabaseMeta dbMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (dbMeta != null && StringUtils.isNotEmpty(tableName)) {
       try (Database db = new Database(loggingObject, variables, dbMeta)) {
         db.connect();
@@ -1474,7 +1478,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     }
     final String schemaName = variables.resolve(wSchema.getText());
     final String tableName = variables.resolve(wTable.getText());
-    final DatabaseMeta dbMeta = wConnection.loadSelectedElement();
+    final DatabaseMeta dbMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
 
     // Without a database or a table name we can't do very much
     if (dbMeta == null || StringUtils.isEmpty(tableName)) {
@@ -1638,9 +1642,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   }
 
   private void getSchemaNames() {
-    DatabaseMeta dbMeta = wConnection.loadSelectedElement();
-    if (dbMeta != null) {
-      try (Database database = new Database(loggingObject, variables, dbMeta)) {
+    DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+    if (databaseMeta != null) {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = Const.sortStrings(database.getSchemas());
 
