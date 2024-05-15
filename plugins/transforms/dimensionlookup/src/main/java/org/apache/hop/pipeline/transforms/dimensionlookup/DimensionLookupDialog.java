@@ -64,6 +64,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -171,7 +172,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     PropsUi.setLook(shell);
     setShellImage(shell, input);
 
-    databaseMeta = input.getDatabaseMeta();
+    ModifyListener lsMod = e -> input.setChanged();
+    ModifyListener lsTableMod =
+        arg0 -> {
+          input.setChanged();
+          setTableFieldCombo();
+        };
 
     shell.setLayout(props.createFormLayout());
     shell.setText(BaseMessages.getString(PKG, "DimensionLookupDialog.Shell.Title"));
@@ -229,7 +235,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         });
 
     // Connection line
-    wConnection = addConnectionLine(mainComposite, wUpdate, input.getDatabaseMeta(), null);
+
+    wConnection = addConnectionLine(mainComposite, wUpdate, input.getConnection(), lsMod);
     wConnection.addListener(SWT.FocusOut, e -> setTableFieldCombo());
     wConnection.addListener(
         SWT.Modify,
@@ -265,7 +272,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdSchema.top = new FormAttachment(wConnection, margin);
     fdSchema.right = new FormAttachment(wbSchema, -margin);
     wSchema.setLayoutData(fdSchema);
-    wSchema.addListener(SWT.Modify, e -> setTableFieldCombo());
+    wSchema.addModifyListener(lsTableMod);
 
     // Table line...
     Label wlTable = new Label(mainComposite, SWT.RIGHT);
@@ -293,7 +300,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdTable.top = new FormAttachment(wbSchema, margin);
     fdTable.right = new FormAttachment(wbTable, -margin);
     wTable.setLayoutData(fdTable);
-    wTable.addListener(SWT.Modify, e -> setTableFieldCombo());
+    wTable.addModifyListener(lsTableMod);
 
     // Commit size ...
     wlCommit = new Label(mainComposite, SWT.RIGHT);
@@ -1114,8 +1121,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wVersion.setText(Const.NVL(f.getReturns().getVersionField(), ""));
 
     wSeq.setText(Const.NVL(input.getSequenceName(), ""));
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     wDateField.setText(Const.NVL(f.getDate().getName(), ""));
     wFromDate.setText(Const.NVL(f.getDate().getFrom(), ""));
@@ -1182,7 +1189,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     transformName = wTransformName.getText(); // return value
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "DimensionLookupDialog.InvalidConnection.DialogMessage"));
@@ -1248,7 +1255,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     }
 
     f.getReturns().setVersionField(wVersion.getText());
-    in.setDatabaseMeta(wConnection.loadSelectedElement());
+    in.setConnection(wConnection.getText());
     f.getDate().setName(wDateField.getText());
     f.getDate().setFrom(wFromDate.getText());
     f.getDate().setTo(wToDate.getText());
@@ -1597,14 +1604,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             info.getSqlStatements(variables, pipelineMeta, transforminfo, prev, metadataProvider);
         if (!sql.hasError()) {
           if (sql.hasSql()) {
+            DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
             SqlEditor sqledit =
                 new SqlEditor(
-                    shell,
-                    SWT.NONE,
-                    variables,
-                    info.getDatabaseMeta(),
-                    DbCache.getInstance(),
-                    sql.getSql());
+                    shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
             sqledit.open();
           } else {
             MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
