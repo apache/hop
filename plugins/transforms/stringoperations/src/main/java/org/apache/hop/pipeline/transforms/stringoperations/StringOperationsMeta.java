@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
     image = "stringoperations.svg",
     name = "i18n::StringOperations.Name",
     description = "i18n::StringOperations.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::StringOperationsMeta.keyword",
     documentationUrl = "/pipeline/transforms/stringoperations.html")
 @InjectionSupported(localizationPrefix = "StringOperationsDialog.Injection.")

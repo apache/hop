@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "ifnull.svg",
     name = "i18n::IfNull.Name",
     description = "i18n::IfNull.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::IfNullMeta.keyword",
     documentationUrl = "/pipeline/transforms/ifnull.html")
 public class IfNullMeta extends BaseTransformMeta<IfNull, IfNullData> {
