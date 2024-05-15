@@ -24,6 +24,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.util.Utils;
@@ -276,18 +277,19 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
 
     if (super.init()) {
       try {
-        if (meta.getDatabaseMeta() == null) {
+        DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+        if (databaseMeta == null) {
           throw new HopTransformException("The connection is not defined (empty)");
         }
-        if (meta.getDatabaseMeta() == null) {
+        if (databaseMeta == null) {
           logError(
               BaseMessages.getString(
                   PKG, "SQLFileOutput.Init.ConnectionMissing", getTransformName()));
           return false;
         }
-        data.db = new Database(this, this, meta.getDatabaseMeta());
+        data.db = new Database(this, this, databaseMeta);
 
-        logBasic("Connected to database [" + meta.getDatabaseMeta() + "]");
+        logBasic("Connected to database [" + meta.getConnection() + "]");
 
         if (meta.isCreateParentFolder()) {
           // Check for parent folder

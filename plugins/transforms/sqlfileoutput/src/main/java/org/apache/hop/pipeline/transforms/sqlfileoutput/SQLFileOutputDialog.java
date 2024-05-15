@@ -126,7 +126,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     backupChanged = input.hasChanged();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
@@ -201,7 +201,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     wGConnection.setLayout(groupLayout);
 
     // Connection line
-    wConnection = addConnectionLine(wGConnection, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(wGConnection, wTransformName, input.getConnection(), lsMod);
 
     // Schema line...
     Label wlSchema = new Label(wGConnection, SWT.RIGHT);
@@ -822,8 +822,8 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     if (input.getTablename() != null) {
       wTable.setText(input.getTablename());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
 
     if (input.getFileName() != null) {
@@ -869,7 +869,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
   private void getInfo(SQLFileOutputMeta info) {
     info.setSchemaName(wSchema.getText());
     info.setTablename(wTable.getText());
-    info.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    info.setConnection(wConnection.getText());
     info.setTruncateTable(wTruncate.getSelection());
     info.setCreateParentFolder(wCreateParentFolder.getSelection());
 
@@ -895,7 +895,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "SQLFileOutputDialog.ConnectionError.DialogMessage"));
@@ -946,6 +946,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
 
       TransformMeta transformMeta = pipelineMeta.findTransform(transformName);
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(transformMeta.getName(), variables);
 
       SqlStatement sql =
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
@@ -953,12 +954,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  info.getDatabaseMeta(),
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
