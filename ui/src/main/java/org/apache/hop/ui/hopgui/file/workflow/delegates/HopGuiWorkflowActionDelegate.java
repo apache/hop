@@ -153,17 +153,17 @@ public class HopGuiWorkflowActionDelegate {
     }
   }
 
-  public ActionMeta insetAction(
+  public ActionMeta insertAction(
       WorkflowMeta workflowMeta,
       WorkflowHopMeta hop,
       String pluginId,
       String pluginName,
       Point location) {
     ActionMeta actionMeta = this.newAction(workflowMeta, pluginId, pluginName, false, location);
-    return insetAction(workflowMeta, hop, actionMeta);
+    return insertAction(workflowMeta, hop, actionMeta);
   }
 
-  public ActionMeta insetAction(
+  public ActionMeta insertAction(
       WorkflowMeta workflowMeta, WorkflowHopMeta hop, ActionMeta actionMeta) {
 
     hopGui.undoDelegate.addUndoDelete(
