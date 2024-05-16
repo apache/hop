@@ -47,7 +47,7 @@ public class DimensionLookupMetaTest {
         TransformSerializationTestUtil.testSerialization(
             "/dimension-update-transform.xml", DimensionLookupMeta.class, metadataProvider);
 
-    assertNotNull(meta.getDatabaseMeta());
+    assertNotNull(meta.getConnection());
     assertNotNull(meta.getTableName());
     assertNotNull(meta.getSchemaName());
     assertTrue(meta.isUpdate());

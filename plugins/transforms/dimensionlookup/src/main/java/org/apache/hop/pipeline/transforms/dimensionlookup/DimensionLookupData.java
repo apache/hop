@@ -21,6 +21,7 @@ import java.sql.PreparedStatement;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.database.Database;
+import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.hash.ByteArrayHashMap;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -54,7 +55,7 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
   public PreparedStatement prepStatementUpdate;
   public PreparedStatement prepStatementDimensionUpdate;
   public PreparedStatement prepStatementPunchThrough;
-
+  public DatabaseMeta databaseMeta;
   public IRowMeta insertRowMeta;
   public IRowMeta updateRowMeta;
   public IRowMeta dimensionUpdateRowMeta;

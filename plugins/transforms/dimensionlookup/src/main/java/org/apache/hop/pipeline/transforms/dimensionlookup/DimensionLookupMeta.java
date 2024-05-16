@@ -79,10 +79,9 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   /** The database connection */
   @HopMetadataProperty(
       key = "connection",
-      storeWithName = true,
       injectionKey = "CONNECTION_NAME",
       injectionKeyDescription = "DimensionLookup.Injection.CONNECTION_NAME")
-  private DatabaseMeta databaseMeta;
+  private String connection;
 
   /** Update the dimension or just lookup? */
   @HopMetadataProperty(
@@ -180,7 +179,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     this();
     this.schemaName = m.schemaName;
     this.tableName = m.tableName;
-    this.databaseMeta = databaseMeta == null ? null : new DatabaseMeta(m.databaseMeta);
+    this.connection = m.connection;
     this.update = m.update;
     this.fields = new DLFields(m.fields);
     this.sequenceName = m.sequenceName;
@@ -199,7 +198,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   public void setDefault() {
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "DimensionLookupMeta.DefaultTableName");
-    databaseMeta = null;
+    connection = "";
     commitSize = 100;
     update = true;
 
@@ -232,7 +231,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
     // We need a database connection
     //
-    if (databaseMeta == null) {
+    if (connection == null) {
       String message =
           BaseMessages.getString(
               PKG, "DimensionLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField");
@@ -278,33 +277,45 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       return;
     }
 
-    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
-      // Get the rows from the table...
-      IRowMeta extraFields = db.getTableFieldsMeta(schemaName, tableName);
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
 
-      for (DLField field : fields.fields) {
-        v = extraFields.searchValueMeta(field.getLookup());
-        if (v == null) {
-          String message =
-              BaseMessages.getString(
-                  PKG, "DimensionLookupMeta.Exception.UnableToFindReturnField", field.getLookup());
-          logError(message);
-          throw new HopTransformException(message);
-        }
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+        // Get the rows from the table...
+        IRowMeta extraFields = db.getTableFieldsMeta(schemaName, tableName);
 
-        // If the field needs to be renamed, rename
-        if (StringUtils.isNotEmpty(field.getName())) {
-          v.setName(field.getName());
+        for (DLField field : fields.fields) {
+          v = extraFields.searchValueMeta(field.getLookup());
+          if (v == null) {
+            String message =
+                BaseMessages.getString(
+                    PKG,
+                    "DimensionLookupMeta.Exception.UnableToFindReturnField",
+                    field.getLookup());
+            logError(message);
+            throw new HopTransformException(message);
+          }
+
+          // If the field needs to be renamed, rename
+          if (StringUtils.isNotEmpty(field.getName())) {
+            v.setName(field.getName());
+          }
+          v.setOrigin(name);
+          row.addValueMeta(v);
         }
-        v.setOrigin(name);
-        row.addValueMeta(v);
+      } catch (Exception e) {
+        String message =
+            BaseMessages.getString(
+                PKG, "DimensionLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField2");
+        logError(message);
+        throw new HopTransformException(message, e);
       }
-    } catch (Exception e) {
+    } catch (HopException e) {
       String message =
-          BaseMessages.getString(
-              PKG, "DimensionLookupMeta.Exception.UnableToRetrieveDataTypeOfReturnField2");
+          BaseMessages.getString(PKG, "DimensionLookupMeta.Exception.DatabaseErrorOccurred")
+              + e.getMessage();
       logError(message);
-      throw new HopTransformException(message, e);
     }
   }
 
@@ -348,7 +359,7 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     // Check the absolute basics first.
     //
     List<ICheckResult> newRemarks = new ArrayList<>();
-    checkDatabase(transformMeta, newRemarks);
+    checkDatabase(transformMeta, newRemarks, variables);
     checkTable(transformMeta, variables, newRemarks);
     if (!newRemarks.isEmpty()) {
       // No point in going on if we don't have the minimum set of information points.
@@ -362,33 +373,43 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
     // Validate settings against the database.
     //
-    try (Database db = new Database(loggingObject, variables, databaseMeta)) {
-      db.connect();
+    try {
+      DatabaseMeta databaseMeta =
+          metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(connection));
 
-      IRowMeta tableRowMeta = checkTableFields(transformMeta, db, realSchema, realTable, remarks);
-      if (tableRowMeta != null) {
-        checkKeys(
-            transformMeta,
-            variables,
-            realSchema,
-            realTable,
-            tableRowMeta,
-            previousRowMeta,
-            remarks);
-        checkReturns(transformMeta, tableRowMeta, remarks);
-        checkDateFields(transformMeta, tableRowMeta, remarks);
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
+        db.connect();
+
+        IRowMeta tableRowMeta = checkTableFields(transformMeta, db, realSchema, realTable, remarks);
+        if (tableRowMeta != null) {
+          checkKeys(
+              transformMeta,
+              variables,
+              realSchema,
+              realTable,
+              tableRowMeta,
+              previousRowMeta,
+              remarks);
+          checkReturns(transformMeta, tableRowMeta, remarks);
+          checkDateFields(transformMeta, tableRowMeta, remarks);
+        }
+        checkPreviousFields(transformMeta, previousRowMeta, remarks);
+        checkSequence(transformMeta, db, variables, remarks);
+      } catch (HopException e) {
+        remarks.add(
+            new CheckResult(
+                ICheckResult.TYPE_RESULT_ERROR,
+                BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.CouldNotConectToDB")
+                    + e.getMessage(),
+                transformMeta));
       }
-      checkPreviousFields(transformMeta, previousRowMeta, remarks);
-      checkSequence(transformMeta, db, variables, remarks);
     } catch (HopException e) {
-      remarks.add(
-          new CheckResult(
-              ICheckResult.TYPE_RESULT_ERROR,
-              BaseMessages.getString(PKG, "DimensionLookupMeta.CheckResult.CouldNotConectToDB")
-                  + e.getMessage(),
-              transformMeta));
+      String errorMessage =
+          BaseMessages.getString(PKG, "DimensionLookupMeta.Exception.DatabaseErrorOccurred")
+              + e.getMessage();
+      CheckResult cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
+      remarks.add(cr);
     }
-
     // See if we have input streams leading to this transform!
     if (input.length > 0) {
       remarks.add(
@@ -410,6 +431,9 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       TransformMeta transformMeta, Database db, IVariables variables, List<ICheckResult> remarks)
       throws HopDatabaseException {
     String sequence = variables.resolve(sequenceName);
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     // Check sequence
     if (databaseMeta.supportsSequences()
@@ -691,7 +715,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
   }
 
-  private void checkDatabase(TransformMeta transformMeta, List<ICheckResult> remarks) {
+  private void checkDatabase(
+      TransformMeta transformMeta, List<ICheckResult> remarks, IVariables variables) {
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     if (databaseMeta == null) {
       remarks.add(
           new CheckResult(
@@ -710,6 +737,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       IRowMeta previousRowMeta,
       List<ICheckResult> remarks) {
     boolean allOk = true;
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     for (DLKey key : fields.keys) {
       IValueMeta prevValueMeta = previousRowMeta.searchValueMeta(key.getName());
       if (prevValueMeta == null) {
@@ -776,7 +807,11 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
   @Override
   public IRowMeta getTableFields(IVariables variables) {
+
     IRowMeta tableRowMeta = null;
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     if (databaseMeta != null) {
       try (Database db = createDatabaseObject(variables)) {
         db.connect();
@@ -798,6 +833,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       IRowMeta previousRowMeta,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     SqlStatement statement =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -888,6 +927,10 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
 
   private void validateBasicSettings(IVariables variables, IRowMeta previousRowMeta)
       throws HopTransformException {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     if (databaseMeta == null) {
       throw new HopTransformException(
           BaseMessages.getString(
@@ -1006,9 +1049,9 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
     }
 
     if (update) {
-      analyzeImpactUpdate(impact, pipelineMeta, transformMeta, prev);
+      analyzeImpactUpdate(impact, pipelineMeta, transformMeta, prev, variables);
     } else {
-      analyzeImpactLookup(impact, pipelineMeta, transformMeta, prev);
+      analyzeImpactLookup(impact, pipelineMeta, transformMeta, prev, variables);
     }
   }
 
@@ -1016,7 +1059,12 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       List<DatabaseImpact> impact,
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
-      IRowMeta prev) {
+      IRowMeta prev,
+      IVariables variables) {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     // Update: insert/update on all specified fields...
     // Lookup: we do a lookup on the natural keys + the return fields!
     for (DLKey key : fields.keys) {
@@ -1061,7 +1109,12 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
       List<DatabaseImpact> impact,
       PipelineMeta pipelineMeta,
       TransformMeta transformMeta,
-      IRowMeta prev) {
+      IRowMeta prev,
+      IVariables variables) {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     // Lookup: we do a lookup on the natural keys + the return fields!
     for (DLKey key : fields.keys) {
       IValueMeta v = prev.searchValueMeta(key.getName());
@@ -1102,6 +1155,9 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   Database createDatabaseObject(IVariables variables) {
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     return new Database(loggingObject, variables, databaseMeta);
   }
 
@@ -1776,21 +1832,21 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
   }
 
   /**
-   * Gets databaseMeta
+   * Get connection name
    *
-   * @return value of databaseMeta
+   * @return
    */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  public String getConnection() {
+    return connection;
   }
 
   /**
-   * Sets databaseMeta
+   * Set connection name
    *
-   * @param databaseMeta value of databaseMeta
+   * @param connection
    */
-  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
-    this.databaseMeta = databaseMeta;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**
