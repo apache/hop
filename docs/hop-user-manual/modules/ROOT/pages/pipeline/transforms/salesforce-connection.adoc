@@ -27,7 +27,9 @@ Enter the connection information in the following transform options:
 |Option|Description
 |Salesforce Webservice URL a| Specify the URL to the Salesforce Webservice. +
 
-Default: https://login.salesforce.com/services/Soap/u/50.0
+Default: https://login.salesforce.com/services/Soap/u/50.0 
+
+You may need to update this if your company uses "My Domain" on salesforce.  If so, check with your Salesforce Administrator for the URL.  Generally of the format https://NAME.my.salesforce.com/services/Soap/u/50.0.  You can access a sandbox by using its URL here as well.  It is strongly recommended to utilize xref:pipeline/transforms/setvariable.adoc[variables] to populate these values.
 
 |Username|Specify the username for authenticating to Salesforce
 |Password|Specify the password for authenticating to Salesforce.
