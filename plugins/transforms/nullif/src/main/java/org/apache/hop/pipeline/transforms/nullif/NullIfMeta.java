@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     image = "nullif.svg",
     name = "i18n::NullIf.Name",
     description = "i18n::NullIf.Description",
-    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
     keywords = "i18n::NullIfMeta.keyword",
     documentationUrl = "/pipeline/transforms/nullif.html")
 public class NullIfMeta extends BaseTransformMeta<NullIf, NullIfData> {
