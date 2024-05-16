@@ -49,7 +49,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Copy files</name>
+      <name>Copy files from Local FS to Azure container</name>
       <description/>
       <type>COPY_FILES</type>
       <attributes/>
@@ -60,56 +60,200 @@ limitations under the License.
       <remove_source_files>N</remove_source_files>
       <add_result_filesname>N</add_result_filesname>
       <destination_is_a_file>N</destination_is_a_file>
-      <create_destination_folder>N</create_destination_folder>
+      <create_destination_folder>Y</create_destination_folder>
       <fields>
         <field>
           <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}/datasets/</source_filefolder>
           <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
           <destination_filefolder>EMPTY_DEST_URL-0-azure://mycontainer/</destination_filefolder>
           <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>
-          <wildcard>${PROJECT_HOME}/datasets/*\.csv</wildcard>
+          <wildcard>ingest-.*.csv</wildcard>
         </field>
       </fields>
       <parallel>N</parallel>
-      <xloc>432</xloc>
-      <yloc>112</yloc>
+      <xloc>336</xloc>
+      <yloc>160</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Process result filenames</name>
+      <name>Check files existing in the Azure container</name>
       <description/>
-      <type>COPY_MOVE_RESULT_FILENAMES</type>
+      <type>FILES_EXIST</type>
       <attributes/>
-      <foldername/>
-      <specify_wildcard>N</specify_wildcard>
-      <wildcard/>
-      <wildcardexclude/>
-      <destination_folder/>
-      <nr_errors_less_than>10</nr_errors_less_than>
-      <success_condition>success_if_no_errors</success_condition>
+      <filename/>
+      <fields>
+        <field>
+          <name>azure://mycontainer/ingest-3.csv</name>
+        </field>
+        <field>
+          <name>azure://mycontainer/ingest-300.csv</name>
+        </field>
+        <field>
+          <name>azure://mycontainer/ingest-30k.csv</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>656</xloc>
+      <yloc>160</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Copy files from Local FS to Azure container subfolder</name>
+      <description/>
+      <type>COPY_FILES</type>
+      <attributes/>
+      <copy_empty_folders>N</copy_empty_folders>
+      <arg_from_previous>N</arg_from_previous>
+      <overwrite_files>Y</overwrite_files>
+      <include_subfolders>N</include_subfolders>
+      <remove_source_files>N</remove_source_files>
+      <add_result_filesname>N</add_result_filesname>
+      <destination_is_a_file>N</destination_is_a_file>
+      <create_destination_folder>Y</create_destination_folder>
+      <fields>
+        <field>
+          <source_filefolder>EMPTY_SOURCE_URL-0-${PROJECT_HOME}/datasets/</source_filefolder>
+          <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
+          <destination_filefolder>EMPTY_DEST_URL-0-azure://mycontainer/subfolder</destination_filefolder>
+          <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>
+          <wildcard>ingest-.*.csv</wildcard>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>1040</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Check files existing in the Azure container subfolder</name>
+      <description/>
+      <type>FILES_EXIST</type>
+      <attributes/>
+      <filename/>
+      <fields>
+        <field>
+          <name>azure://mycontainer/subfolder/ingest-3.csv</name>
+        </field>
+        <field>
+          <name>azure://mycontainer/subfolder/ingest-30k.csv</name>
+        </field>
+        <field>
+          <name>azure://mycontainer/subfolder/ingest-300.csv</name>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>1456</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Delete files</name>
+      <description/>
+      <type>DELETE_FILES</type>
+      <attributes/>
+      <arg_from_previous>N</arg_from_previous>
+      <include_subfolders>Y</include_subfolders>
+      <fields>
+        <field>
+          <name>azure://mycontainer</name>
+          <filemask>.*.csv</filemask>
+        </field>
+        <field>
+          <name>azure://mycontainer2</name>
+          <filemask>.*.csv</filemask>
+        </field>
+      </fields>
+      <parallel>N</parallel>
+      <xloc>2576</xloc>
+      <yloc>208</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>2784</xloc>
+      <yloc>240</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0004-read-from-azure.hpl</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
       <add_date>N</add_date>
       <add_time>N</add_time>
-      <SpecifyFormat>N</SpecifyFormat>
-      <date_time_format/>
-      <action>copy</action>
-      <AddDateBeforeExtension>N</AddDateBeforeExtension>
-      <OverwriteFile>N</OverwriteFile>
-      <CreateDestinationFolder>N</CreateDestinationFolder>
-      <RemovedSourceFilename>Y</RemovedSourceFilename>
-      <AddDestinationFilename>Y</AddDestinationFilename>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0004-read-from-azure.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
       <parallel>N</parallel>
-      <xloc>272</xloc>
-      <yloc>32</yloc>
+      <xloc>2304</xloc>
+      <yloc>192</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
+      <from>Copy files from Local FS to Azure container</from>
+      <to>Check files existing in the Azure container</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check files existing in the Azure container</from>
+      <to>Copy files from Local FS to Azure container subfolder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Copy files from Local FS to Azure container subfolder</from>
+      <to>Check files existing in the Azure container subfolder</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
       <from>Start</from>
-      <to>Copy files</to>
+      <to>Copy files from Local FS to Azure container</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>0004-read-from-azure.hpl</from>
+      <to>Delete files</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Delete files</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Check files existing in the Azure container subfolder</from>
+      <to>0004-read-from-azure.hpl</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
     </hop>
   </hops>
   <notepads>
