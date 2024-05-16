@@ -32,7 +32,7 @@
     <name>Hop Plugins Transforms Redshift Bulk Loader</name>
 
     <properties>
-        <redshift.jdbc.version>2.1.0.19</redshift.jdbc.version>
+        <redshift.jdbc.version>2.1.0.28</redshift.jdbc.version>
     </properties>
 
     <dependencies>
