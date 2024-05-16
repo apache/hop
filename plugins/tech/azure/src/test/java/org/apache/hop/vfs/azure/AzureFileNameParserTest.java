@@ -19,15 +19,21 @@ package org.apache.hop.vfs.azure;
 
 import static org.junit.Assert.assertEquals;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.VfsComponentContext;
+import org.apache.hop.vfs.azure.config.AzureConfig;
+import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 @RunWith(Parameterized.class)
@@ -41,6 +47,16 @@ public class AzureFileNameParserTest {
   private final String expectedPathAfterContainer;
 
   private final FileType expectedType;
+
+  @BeforeClass
+  public static void init() {
+    AzureConfig azureConfig = new AzureConfig();
+    azureConfig.setAccount("hopsa");
+    azureConfig.setKey("aGVsbG93b3JsZA==");
+    MockedStatic<AzureConfigSingleton> azureConfigSingleton =
+        Mockito.mockStatic(AzureConfigSingleton.class);
+    azureConfigSingleton.when(AzureConfigSingleton::getConfig).thenReturn(azureConfig);
+  }
 
   @Before
   public void setup() {
@@ -81,10 +97,21 @@ public class AzureFileNameParserTest {
             FileType.FILE
           },
           {
-            "azfs://devstoreaccount1/delo/delo3-azfs-00-0001.parquet",
+            "azfs://hopsa/delo/delo3-azfs-00-0001.parquet",
             "azfs",
             "delo",
             "/delo3-azfs-00-0001.parquet",
+            FileType.FILE
+          },
+          {"azfs://hopsa/container/folder1/", "azfs", "container", "/folder1", FileType.FOLDER},
+          {"azfs://container/", "azfs", "container", "", FileType.FOLDER},
+          {"azfs://container/myfile.txt", "azfs", "container", "/myfile.txt", FileType.FILE},
+          {"azfs:///container/myfile.txt", "azfs", "container", "/myfile.txt", FileType.FILE},
+          {
+            "azfs:///container/path/to/resource/myfile.txt",
+            "azfs",
+            "container",
+            "/path/to/resource/myfile.txt",
             FileType.FILE
           }
         });
@@ -96,9 +123,28 @@ public class AzureFileNameParserTest {
 
     AzureFileName actual = (AzureFileName) parser.parseUri(context, null, inputUri);
 
+    System.out.println(inputUri);
+    System.out.println("Scheme: " + actual.getScheme());
+    System.out.println("Container: " + actual.getContainer());
+    System.out.println("Path: " + actual.getPath());
+    System.out.println("--------------------------");
+
     assertEquals(expectedScheme, actual.getScheme());
     assertEquals(expectedContainer, actual.getContainer());
     assertEquals(expectedPathAfterContainer, actual.getPathAfterContainer());
     assertEquals(expectedType, actual.getType());
+  }
+
+  // @Test
+  public void print() throws URISyntaxException {
+    System.out.println("--------------------------");
+    URI uri = new URI(inputUri);
+    System.out.println(inputUri);
+    System.out.println("Scheme: " + uri.getScheme());
+    System.out.println("Host: " + uri.getHost());
+    System.out.println("Authority: " + uri.getAuthority());
+    System.out.println("Path: " + uri.getPath());
+    System.out.println("RawSchemeSpecificPart: " + uri.getRawSchemeSpecificPart());
+    System.out.println("--------------------------");
   }
 }

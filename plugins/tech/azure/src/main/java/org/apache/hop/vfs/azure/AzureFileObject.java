@@ -449,6 +449,11 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
+  public FileObject[] getChildren() throws FileSystemException {
+    return super.getChildren();
+  }
+
+  @Override
   protected long doGetContentSize() throws Exception {
     return size;
   }
