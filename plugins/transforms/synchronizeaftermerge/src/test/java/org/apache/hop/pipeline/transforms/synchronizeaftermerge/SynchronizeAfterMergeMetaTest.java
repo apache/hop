@@ -48,10 +48,10 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
         Arrays.asList(
             "schemaName",
             "tableName",
-            "databaseMeta",
+            "connection",
             "commitSize",
             "tableNameInField",
-            "tablenameField",
+            "tableNameField",
             "operationOrderField",
             "useBatchUpdate",
             "performLookup",
@@ -69,16 +69,16 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
     Map<String, String> getterMap =
         new HashMap<String, String>() {
           {
-            put("tableNameInField", "istablenameInField");
-            put("tablenameField", "gettablenameField");
+            put("tableNameInField", "isTableNameInField");
+            put("tableNameField", "getTableNameField");
             put("useBatchUpdate", "useBatchUpdate");
           }
         };
     Map<String, String> setterMap =
         new HashMap<String, String>() {
           {
-            put("tableNameInField", "settablenameInField");
-            put("tablenameField", "settablenameField");
+            put("tableNameInField", "setTableNameInField");
+            put("tableNameField", "setTableNameField");
           }
         };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =

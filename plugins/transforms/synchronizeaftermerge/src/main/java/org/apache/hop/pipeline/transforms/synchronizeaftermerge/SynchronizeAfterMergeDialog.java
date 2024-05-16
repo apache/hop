@@ -17,6 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
+import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
@@ -168,7 +169,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     shell.setText(BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS go at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -223,7 +224,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     wGeneralComp.setLayout(generalLayout);
 
     // Connection line
-    wConnection = addConnectionLine(wGeneralComp, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(wGeneralComp, wTransformName, input.getConnection(), lsMod);
     wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
@@ -788,7 +789,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     }
 
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    input.setConnection(wConnection.getText());
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -1011,9 +1012,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     }
 
     wCommit.setText(input.getCommitSize());
-    wTablenameInField.setSelection(input.istablenameInField());
-    if (input.gettablenameField() != null) {
-      wTableField.setText(input.gettablenameField());
+    wTablenameInField.setSelection(input.isTableNameInField());
+    if (input.getTableNameField() != null) {
+      wTableField.setText(input.getTableNameField());
     }
     wBatch.setSelection(input.useBatchUpdate());
     if (input.getOperationOrderField() != null) {
@@ -1071,8 +1072,8 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     if (input.getTableName() != null) {
       wTable.setText(input.getTableName());
     }
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
 
     wKey.setRowNums();
@@ -1097,8 +1098,8 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     inf.allocate(nrkeys, nrFields);
 
     inf.setCommitSize(wCommit.getText());
-    inf.settablenameInField(wTablenameInField.getSelection());
-    inf.settablenameField(wTableField.getText());
+    inf.setTableNameInField(wTablenameInField.getSelection());
+    inf.setTableNameField(wTableField.getText());
     inf.setUseBatchUpdate(wBatch.getSelection());
     inf.setPerformLookup(wPerformLookup.getSelection());
 
@@ -1132,9 +1133,9 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       inf.getUpdate()[i] = "Y".equals(item.getText(3));
     }
 
+    inf.setConnection(wConnection.getText());
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
 
     transformName = wTransformName.getText(); // return value
   }
@@ -1147,7 +1148,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (Strings.isNullOrEmpty(input.getConnection())) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(
@@ -1253,18 +1254,15 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
               info);
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
 
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
+
       SqlStatement sql =
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
       if (!sql.hasError()) {
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  info.getDatabaseMeta(),
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
@@ -1292,8 +1290,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
   private void getSchemaNames() {
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase(wConnection.getText(), variables);
     if (databaseMeta != null) {
-      Database database = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database database = new Database(loggingObject, variables, databaseMeta)) {
         database.connect();
         String[] schemas = database.getSchemas();
 
@@ -1329,8 +1326,6 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
             BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
             BaseMessages.getString(PKG, "SynchronizeAfterMergeDialog.ErrorGettingSchemas"),
             e);
-      } finally {
-        database.disconnect();
       }
     }
   }

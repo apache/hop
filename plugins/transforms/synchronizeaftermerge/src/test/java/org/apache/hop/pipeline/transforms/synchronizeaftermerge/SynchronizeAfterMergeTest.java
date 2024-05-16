@@ -48,7 +48,7 @@ public class SynchronizeAfterMergeTest {
     DatabaseMeta dbMeta = mock(DatabaseMeta.class);
     doReturn(mock(NoneDatabaseMeta.class)).when(dbMeta).getIDatabase();
 
-    doReturn(dbMeta).when(smi).getDatabaseMeta();
+    // doReturn(dbMeta).when(smi).getDatabaseMeta();
     doReturn("${commit.size}").when(smi).getCommitSize();
 
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);

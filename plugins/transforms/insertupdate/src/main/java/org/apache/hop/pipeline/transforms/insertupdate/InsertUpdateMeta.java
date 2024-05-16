@@ -628,8 +628,7 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
         getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     if (databaseMeta != null) {
-      Database db = new Database(loggingObject, variables, databaseMeta);
-      try {
+      try (Database db = new Database(loggingObject, variables, databaseMeta)) {
         db.connect();
 
         if (!Utils.isEmpty(realTableName)) {
@@ -647,8 +646,6 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
       } catch (Exception e) {
         throw new HopException(
             BaseMessages.getString(PKG, "InsertUpdateMeta.Exception.ErrorGettingFields"), e);
-      } finally {
-        db.disconnect();
       }
     } else {
       throw new HopException(

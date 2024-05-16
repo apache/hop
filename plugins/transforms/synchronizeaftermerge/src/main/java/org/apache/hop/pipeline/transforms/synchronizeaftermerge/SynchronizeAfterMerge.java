@@ -81,7 +81,7 @@ public class SynchronizeAfterMerge
                 meta.getOperationOrderField()));
       }
 
-      if (meta.istablenameInField()) {
+      if (meta.isTableNameInField()) {
         // get dynamic table name
         data.realTableName = data.inputRowMeta.getString(row, data.indexOfTableNameField);
         if (Utils.isEmpty(data.realTableName)) {
@@ -112,7 +112,7 @@ public class SynchronizeAfterMerge
           insertRowData[i] = row[data.valuenrs[i]];
         }
 
-        if (meta.istablenameInField()) {
+        if (meta.isTableNameInField()) {
           data.insertStatement = data.preparedStatements.get(data.realSchemaTable + "insert");
           if (data.insertStatement == null) {
             String sql =
@@ -165,7 +165,7 @@ public class SynchronizeAfterMerge
 
           // LOOKUP
 
-          if (meta.istablenameInField()) {
+          if (meta.isTableNameInField()) {
             // Prepare Lookup statement
             data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + "lookup");
             if (data.lookupStatement == null) {
@@ -241,7 +241,7 @@ public class SynchronizeAfterMerge
           if (!meta.isPerformLookup() || updateorDelete) {
             // UPDATE :
 
-            if (meta.istablenameInField()) {
+            if (meta.isTableNameInField()) {
               data.updateStatement = data.preparedStatements.get(data.realSchemaTable + "update");
               if (data.updateStatement == null) {
                 String sql = getUpdateStatement(data.inputRowMeta);
@@ -297,7 +297,7 @@ public class SynchronizeAfterMerge
         } else if (operation.equals(data.deleteValue)) {
           // DELETE
 
-          if (meta.istablenameInField()) {
+          if (meta.isTableNameInField()) {
             data.deleteStatement = data.preparedStatements.get(data.realSchemaTable + "delete");
 
             if (data.deleteStatement == null) {
@@ -574,15 +574,13 @@ public class SynchronizeAfterMerge
     data.lookupParameterRowMeta = new RowMeta();
     data.lookupReturnRowMeta = new RowMeta();
 
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
-
     String sql = "SELECT ";
 
     for (int i = 0; i < meta.getUpdateLookup().length; i++) {
       if (i != 0) {
         sql += ", ";
       }
-      sql += databaseMeta.quoteField(meta.getUpdateLookup()[i]);
+      sql += data.databaseMeta.quoteField(meta.getUpdateLookup()[i]);
       data.lookupReturnRowMeta.addValueMeta(
           rowMeta.searchValueMeta(meta.getUpdateStream()[i]).clone());
     }
@@ -593,7 +591,7 @@ public class SynchronizeAfterMerge
       if (i != 0) {
         sql += " AND ";
       }
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
       if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
         sql += " BETWEEN ? AND ? ";
         data.lookupParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
@@ -613,7 +611,6 @@ public class SynchronizeAfterMerge
 
   // Lookup certain fields in a table
   public String getUpdateStatement(IRowMeta rowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.updateParameterRowMeta = new RowMeta();
 
     String sql = "UPDATE " + data.realSchemaTable + Const.CR;
@@ -629,7 +626,7 @@ public class SynchronizeAfterMerge
           comma = true;
         }
 
-        sql += databaseMeta.quoteField(meta.getUpdateLookup()[i]);
+        sql += data.databaseMeta.quoteField(meta.getUpdateLookup()[i]);
         sql += " = ?" + Const.CR;
         data.updateParameterRowMeta.addValueMeta(
             rowMeta.searchValueMeta(meta.getUpdateStream()[i]).clone());
@@ -642,7 +639,7 @@ public class SynchronizeAfterMerge
       if (i != 0) {
         sql += "AND   ";
       }
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
       if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
         sql += " BETWEEN ? AND ? ";
         data.updateParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
@@ -660,7 +657,6 @@ public class SynchronizeAfterMerge
   }
 
   public String getDeleteStatement(IRowMeta rowMeta) throws HopDatabaseException {
-    DatabaseMeta databaseMeta = meta.getDatabaseMeta();
     data.deleteParameterRowMeta = new RowMeta();
 
     String sql = "DELETE FROM " + data.realSchemaTable + Const.CR;
@@ -671,7 +667,7 @@ public class SynchronizeAfterMerge
       if (i != 0) {
         sql += "AND   ";
       }
-      sql += databaseMeta.quoteField(meta.getKeyLookup()[i]);
+      sql += data.databaseMeta.quoteField(meta.getKeyLookup()[i]);
       if ("BETWEEN".equalsIgnoreCase(meta.getKeyCondition()[i])) {
         sql += " BETWEEN ? AND ? ";
         data.deleteParameterRowMeta.addValueMeta(rowMeta.searchValueMeta(meta.getKeyStream()[i]));
@@ -702,14 +698,14 @@ public class SynchronizeAfterMerge
       data.inputRowMeta = data.outputRowMeta;
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
-      if (meta.istablenameInField()) {
+      if (meta.isTableNameInField()) {
         // ICache the position of the table name field
         if (data.indexOfTableNameField < 0) {
-          data.indexOfTableNameField = data.inputRowMeta.indexOfValue(meta.gettablenameField());
+          data.indexOfTableNameField = data.inputRowMeta.indexOfValue(meta.getTableNameField());
           if (data.indexOfTableNameField < 0) {
             String message =
                 "It was not possible to find table ["
-                    + meta.gettablenameField()
+                    + meta.getTableNameField()
                     + "] in the input fields.";
             logError(message);
             throw new HopTransformException(message);
@@ -823,7 +819,7 @@ public class SynchronizeAfterMerge
         }
       }
 
-      if (!meta.istablenameInField()) {
+      if (!meta.isTableNameInField()) {
         // Prepare Lookup statement
         if (meta.isPerformLookup()) {
           data.lookupStatement = data.preparedStatements.get(data.realSchemaTable + "lookup");
@@ -906,21 +902,28 @@ public class SynchronizeAfterMerge
   public boolean init() {
     if (super.init()) {
       try {
+
+        DatabaseMeta databaseMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+        if (databaseMeta == null) {
+          logError(
+              BaseMessages.getString(
+                  PKG, "SynchronizeAfterMerge.Init.ConnectionMissing", getTransformName()));
+          return false;
+        }
+
         meta.normalizeAllocationFields();
         data.realSchemaName = resolve(meta.getSchemaName());
-        if (meta.istablenameInField()) {
-          if (Utils.isEmpty(meta.gettablenameField())) {
+        if (meta.isTableNameInField()) {
+          if (Utils.isEmpty(meta.getTableNameField())) {
             logError(
                 BaseMessages.getString(PKG, "SynchronizeAfterMerge.Log.Error.TableFieldnameEmpty"));
             return false;
           }
         }
 
-        data.databaseMeta = meta.getDatabaseMeta();
-
         // if we are using Oracle then set releaseSavepoint to false
         // TODO: change when we remove those variants of IDatabase
-        if (data.databaseMeta.getIDatabase().isOracleVariant()) {
+        if (databaseMeta.getIDatabase().isOracleVariant()) {
           data.releaseSavepoint = false;
         }
 
@@ -932,9 +935,9 @@ public class SynchronizeAfterMerge
         //
         data.specialErrorHandling =
             getTransformMeta().isDoingErrorHandling()
-                && meta.getDatabaseMeta().supportsErrorHandlingOnBatchUpdates();
+                && databaseMeta.supportsErrorHandlingOnBatchUpdates();
 
-        data.supportsSavepoints = meta.getDatabaseMeta().getIDatabase().isUseSafePoints();
+        data.supportsSavepoints = databaseMeta.getIDatabase().isUseSafePoints();
 
         if (data.batchMode && data.specialErrorHandling) {
           data.batchMode = false;
@@ -943,13 +946,8 @@ public class SynchronizeAfterMerge
           }
         }
 
-        if (meta.getDatabaseMeta() == null) {
-          logError(
-              BaseMessages.getString(
-                  PKG, "SynchronizeAfterMerge.Init.ConnectionMissing", getTransformName()));
-          return false;
-        }
-        data.db = new Database(this, this, meta.getDatabaseMeta());
+        data.databaseMeta = databaseMeta;
+        data.db = new Database(this, this, databaseMeta);
         data.db.connect();
         data.db.setCommit(data.commitSize);
 
