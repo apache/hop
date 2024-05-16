@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<pipeline>
+  <info>
+    <name>process-files-with-mdi</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description/>
+    <extended_description/>
+    <pipeline_version/>
+    <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
+    <parameters>
+      <parameter>
+        <name>PRM_TYPE</name>
+        <default_value>1</default_value>
+        <description/>
+      </parameter>
+    </parameters>
+    <capture_transform_performance>N</capture_transform_performance>
+    <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
+    <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
+    <created_user>-</created_user>
+    <created_date>2024/05/07 09:56:06.810</created_date>
+    <modified_user>-</modified_user>
+    <modified_date>2024/05/07 09:56:06.810</modified_date>
+  </info>
+  <notepads>
+    <notepad>
+      <backgroundcolorblue>210</backgroundcolorblue>
+      <backgroundcolorgreen>136</backgroundcolorgreen>
+      <backgroundcolorred>15</backgroundcolorred>
+      <bordercolorblue>250</bordercolorblue>
+      <bordercolorgreen>231</bordercolorgreen>
+      <bordercolorred>200</bordercolorred>
+      <fontbold>N</fontbold>
+      <fontcolorblue>250</fontcolorblue>
+      <fontcolorgreen>231</fontcolorgreen>
+      <fontcolorred>200</fontcolorred>
+      <fontitalic>N</fontitalic>
+      <fontname>.AppleSystemUIFont</fontname>
+      <fontsize>13</fontsize>
+      <height>170</height>
+      <xloc>118</xloc>
+      <yloc>52</yloc>
+      <note>This sample pipelines reads person information from 2 files with different layouts.
+The data is written to a unified file format through metadata injection. 
+
+To run this sample, run this pipeline with the default PRM_TYPE value of 1, then run it again with 2 as the parameter value. 
+This will read ${PROJECT_HOME}/files/person-info-1.csv and ${PROJECT_HOME}/files/person-info-2.csv respectively. 
+
+The unified output file is written to ${PROJECT_HOME}/output/unified-person-data.csv.
+
+To learn more about metadata injection: https://hop.apache.org//manual/latest/pipeline/metadata-injection.html
+</note>
+      <width>749</width>
+    </notepad>
+  </notepads>
+  <order>
+    <hop>
+      <from>Get file names</from>
+      <to>File Metadata</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>File Metadata</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>File Metadata</from>
+      <to>keep filename</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep filename</from>
+      <to>sort unique filename</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>sort unique filename</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>File Metadata</from>
+      <to>rename fields</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>rename fields</from>
+      <to>keep fields</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>keep fields</from>
+      <to>field position</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>field position</from>
+      <to>sort fields</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>sort fields</from>
+      <to>ETL metadata injection</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>ETL metadata injection</name>
+    <type>MetaInject</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <filename>${PROJECT_HOME}/metadata-injection/process-files-with-mdi-template.hpl</filename>
+    <run_configuration>local</run_configuration>
+    <source_transform/>
+    <source_output_fields>    </source_output_fields>
+    <target_file/>
+    <create_parent_folder>Y</create_parent_folder>
+    <no_execution>N</no_execution>
+    <stream_source_transform/>
+    <stream_target_transform/>
+    <mappings>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_PRECISION</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>precision</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>SEPARATOR</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>,</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_FORMAT</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>mask</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_GROUP</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>grouping_symbol</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_TRIM</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform/>
+        <source_field>both</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_DECIMAL</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>decimal_symbol</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_LENGTH</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>length</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>ENCLOSURE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>"</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>FILENAME</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>${PROJECT_HOME}/output/unified-person-data</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Select values</target_transform_name>
+        <target_attribute_key>FIELD_NAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>sort fields</source_transform>
+        <source_field>name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>ENCODING</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>UTF-8</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Select values</target_transform_name>
+        <target_attribute_key>FIELD_RENAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>sort fields</source_transform>
+        <source_field>name_new</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_TYPE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>type_1</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_FIELDNAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>sort fields</source_transform>
+        <source_field>name_new</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>EXTENSION</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>csv</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FILE_TYPE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>CSV</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>OUTPUT_TYPE</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>sort fields</source_transform>
+        <source_field>type_1</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FILE_FORMAT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>mixed</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>HEADER_PRESENT</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>Y</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>SEPARATOR</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>,</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FILENAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>sort unique filename</source_transform>
+        <source_field>filename</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>ENCLOSURE</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>"</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file output</target_transform_name>
+        <target_attribute_key>APPEND</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>Y</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>FIELD_NAME</target_attribute_key>
+        <target_detail>Y</target_detail>
+        <source_transform>File Metadata</source_transform>
+        <source_field>name</source_field>
+      </mapping>
+      <mapping>
+        <target_transform_name>Text file input</target_transform_name>
+        <target_attribute_key>NR_HEADER_LINES</target_attribute_key>
+        <target_detail>N</target_detail>
+        <source_transform/>
+        <source_field>1</source_field>
+      </mapping>
+    </mappings>
+    <attributes/>
+    <GUI>
+      <xloc>928</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>File Metadata</name>
+    <type>FileMetadataPlugin</type>
+    <description/>
+    <distribute>N</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <defaultCharset>ISO-8859-1</defaultCharset>
+    <delimiterCandidate>
+      <candidate>	</candidate>
+    </delimiterCandidate>
+    <delimiterCandidate>
+      <candidate>;</candidate>
+    </delimiterCandidate>
+    <delimiterCandidate>
+      <candidate>,</candidate>
+    </delimiterCandidate>
+    <enclosureCandidate>
+      <candidate>"</candidate>
+    </enclosureCandidate>
+    <enclosureCandidate>
+      <candidate>'</candidate>
+    </enclosureCandidate>
+    <fileNameField>filename</fileNameField>
+    <filenameInField>Y</filenameInField>
+    <limitRows>10000</limitRows>
+    <attributes/>
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Get file names</name>
+    <type>GetFileNames</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <doNotFailIfNoFile>N</doNotFailIfNoFile>
+    <dynamic_include_subfolders>N</dynamic_include_subfolders>
+    <file>
+      <file_required>N</file_required>
+      <filemask>person-info-${PRM_TYPE}.csv</filemask>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files</name>
+    </file>
+    <filefield>N</filefield>
+    <filter>
+      <filterfiletype>all_files</filterfiletype>
+    </filter>
+    <isaddresult>Y</isaddresult>
+    <limit>0</limit>
+    <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
+    <rownum>N</rownum>
+    <attributes/>
+    <GUI>
+      <xloc>128</xloc>
+      <yloc>352</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>field position</name>
+    <type>ValueMapper</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <field_to_use>name_new</field_to_use>
+    <fields>
+      <field>
+        <source_value>first_name</source_value>
+        <target_value>1</target_value>
+      </field>
+      <field>
+        <source_value>last_name</source_value>
+        <target_value>2</target_value>
+      </field>
+      <field>
+        <source_value>primary_email</source_value>
+        <target_value>3</target_value>
+      </field>
+      <field>
+        <source_value>address_street</source_value>
+        <target_value>4</target_value>
+      </field>
+      <field>
+        <source_value>address_zip</source_value>
+        <target_value>5</target_value>
+      </field>
+      <field>
+        <source_value>address_country</source_value>
+        <target_value>6</target_value>
+      </field>
+    </fields>
+    <target_field>field_position</target_field>
+    <attributes/>
+    <GUI>
+      <xloc>720</xloc>
+      <yloc>464</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep fields</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IN LIST</function>
+        <leftvalue>name_new</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+        <value>
+          <isnull>N</isnull>
+          <length>-1</length>
+          <name>constant</name>
+          <precision>-1</precision>
+          <text>first_name;last_name;address_stress;address_zip;address_country;primary_email</text>
+          <type>String</type>
+        </value>
+      </condition>
+    </compare>
+    <attributes/>
+    <GUI>
+      <xloc>560</xloc>
+      <yloc>464</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>keep filename</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <name>filename</name>
+      </field>
+      <select_unspecified>N</select_unspecified>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>rename fields</name>
+    <type>ValueMapper</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <field_to_use>name</field_to_use>
+    <fields>
+      <field>
+        <source_value>First name</source_value>
+        <target_value>first_name</target_value>
+      </field>
+      <field>
+        <source_value>Last name</source_value>
+        <target_value>last_name</target_value>
+      </field>
+      <field>
+        <source_value>Name First</source_value>
+        <target_value>first_name</target_value>
+      </field>
+      <field>
+        <source_value>Name Last</source_value>
+        <target_value>last_name</target_value>
+      </field>
+      <field>
+        <source_value>Address</source_value>
+        <target_value>address_street</target_value>
+      </field>
+      <field>
+        <source_value>Street Address 1</source_value>
+        <target_value>address_street</target_value>
+      </field>
+      <field>
+        <source_value>Country</source_value>
+        <target_value>address_country</target_value>
+      </field>
+      <field>
+        <source_value>Country Name</source_value>
+        <target_value>address_country</target_value>
+      </field>
+      <field>
+        <source_value>Zip</source_value>
+        <target_value>address_zip</target_value>
+      </field>
+      <field>
+        <source_value>Postal/Zip</source_value>
+        <target_value>address_zip</target_value>
+      </field>
+      <field>
+        <source_value>Email</source_value>
+        <target_value>primary_email</target_value>
+      </field>
+      <field>
+        <source_value>Email Address</source_value>
+        <target_value>primary_email</target_value>
+      </field>
+      <field>
+        <source_value>Day Of Birth</source_value>
+        <target_value>dob</target_value>
+      </field>
+    </fields>
+    <target_field>name_new</target_field>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>464</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sort fields</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
+        <name>field_position</name>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>848</xloc>
+      <yloc>464</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>sort unique filename</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory/>
+    <compress>N</compress>
+    <compress_variable/>
+    <unique_rows>Y</unique_rows>
+    <fields>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>848</xloc>
+      <yloc>256</yloc>
+    </GUI>
+  </transform>
+  <transform_error_handling>
+  </transform_error_handling>
+  <attributes/>
+</pipeline>
