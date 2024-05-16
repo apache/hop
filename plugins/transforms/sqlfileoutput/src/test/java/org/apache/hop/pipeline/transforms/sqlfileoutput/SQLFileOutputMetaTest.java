@@ -41,7 +41,7 @@ public class SQLFileOutputMetaTest {
     PluginRegistry.init();
     List<String> attributes =
         Arrays.asList(
-            "databaseMeta",
+            "connection",
             "schemaName",
             "tablename",
             "truncateTable",
