@@ -365,7 +365,6 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <exclude_wildcard_Field/>
     <file>
       <exclude_filemask>.*child.*</exclude_filemask>
       <file_required>N</file_required>
@@ -374,7 +373,6 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <name>${user.dir}/config/projects/samples/</name>
     </file>
     <filefield>N</filefield>
-    <filename_Field/>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
@@ -382,8 +380,6 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
     <limit>0</limit>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
     <rownum>N</rownum>
-    <rownum_field/>
-    <wildcard_Field/>
     <attributes/>
     <GUI>
       <xloc>160</xloc>
@@ -545,23 +541,15 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>sample_name</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
         <precision>-1</precision>
-        <currency/>
         <set_empty_string>N</set_empty_string>
         <name>reason</name>
-        <format/>
-        <group/>
-        <decimal/>
         <type>String</type>
       </field>
     </fields>
@@ -647,6 +635,10 @@ var hop_run_cmd = './hop-run.sh -j samples -r ' + run_config + ' -f ' + filename
       <line>
         <item>csvinput-huge-file.hpl</item>
         <item>executed by workflows/write-read-huge-file.hwf</item>
+      </line>
+      <line>
+        <item>process-files-with-mdi-template.hpl</item>
+        <item>executed by process-files-with-mdi.hpl</item>
       </line>
     </data>
     <fields>
