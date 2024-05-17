@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,28 +15,28 @@
  * limitations under the License.
  */
 
-package org.apache.hop.databases.cratedb;
+package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 
-import static org.junit.Assert.assertTrue;
+public class HttpImportMetrics {
+  private int rows;
+  private int bytes;
+  private int duration;
 
-import org.apache.hop.core.database.IDatabase;
-import org.junit.Test;
+  public HttpImportMetrics(int rows, int bytes, int duration) {
+    this.rows = rows;
+    this.bytes = bytes;
+    this.duration = duration;
+  }
 
-public class ReleaseSavePointTest {
+  public int getRows() {
+    return rows;
+  }
 
-  IDatabase[] support =
-      new IDatabase[] {
-        new CrateDBDatabaseMeta(),
-      };
+  public int getBytes() {
+    return bytes;
+  }
 
-  @Test
-  public void testReleaseSavePointBooleans() {
-    try {
-      for (IDatabase db : support) {
-        assertTrue(db.isReleaseSavepoint());
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  public int getDuration() {
+    return duration;
   }
 }

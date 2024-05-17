@@ -6,7 +6,7 @@
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,28 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.hop.databases.cratedb;
+package org.apache.hop.pipeline.transforms.cratedbbulkloader.http.exceptions;
 
-import static org.junit.Assert.assertTrue;
+public class CrateDBHopException extends Exception {
+  public CrateDBHopException(int statusCode, String body) {}
 
-import org.apache.hop.core.database.IDatabase;
-import org.junit.Test;
-
-public class ReleaseSavePointTest {
-
-  IDatabase[] support =
-      new IDatabase[] {
-        new CrateDBDatabaseMeta(),
-      };
-
-  @Test
-  public void testReleaseSavePointBooleans() {
-    try {
-      for (IDatabase db : support) {
-        assertTrue(db.isReleaseSavepoint());
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+  public CrateDBHopException(String message, int statusCode, String body) {
+    super(String.format("%s: %d %s", message, statusCode, body));
   }
 }

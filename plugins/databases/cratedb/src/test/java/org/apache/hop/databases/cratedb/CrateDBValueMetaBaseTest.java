@@ -125,7 +125,7 @@ public class CrateDBValueMetaBaseTest {
   @Test
   public void test_PDI_17126_Postgres() throws Exception {
     String data = StringUtils.repeat("*", 10);
-    initValueMeta(new CrateDbDatabaseMeta(), 20, data);
+    initValueMeta(new CrateDBDatabaseMeta(), 20, data);
 
     verify(preparedStatementMock, times(1)).setString(0, data);
   }
@@ -137,7 +137,7 @@ public class CrateDBValueMetaBaseTest {
   @Test
   public void test_Pdi_17126_postgres_DataLongerThanMetaLength() throws Exception {
     String data = StringUtils.repeat("*", 20);
-    initValueMeta(new CrateDbDatabaseMeta(), 10, data);
+    initValueMeta(new CrateDBDatabaseMeta(), 10, data);
 
     verify(preparedStatementMock, times(1)).setString(0, data);
   }
@@ -151,7 +151,7 @@ public class CrateDBValueMetaBaseTest {
     List<HopLoggingEvent> events = listener.getEvents();
     assertEquals(0, events.size());
 
-    databaseMetaSpy.setIDatabase(new CrateDbDatabaseMeta());
+    databaseMetaSpy.setIDatabase(new CrateDBDatabaseMeta());
     doReturn(1024).when(databaseMetaSpy).getMaxTextFieldLength();
     doReturn(false).when(databaseMetaSpy).supportsSetCharacterStream();
 
@@ -184,7 +184,7 @@ public class CrateDBValueMetaBaseTest {
     doReturn(0).when(resultSet).getInt("COLUMN_SIZE");
     doReturn(mock(Object.class)).when(resultSet).getObject("DECIMAL_DIGITS");
     doReturn(0).when(resultSet).getInt("DECIMAL_DIGITS");
-    doReturn(mock(CrateDbDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    doReturn(mock(CrateDBDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertFalse(valueMeta.isBigNumber()); // TODO: VALIDATE!
     assertEquals(0, valueMeta.getPrecision()); // TODO: VALIDATE!
@@ -194,7 +194,7 @@ public class CrateDBValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBinaryToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(CrateDbDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    doReturn(mock(CrateDBDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }
@@ -202,7 +202,7 @@ public class CrateDBValueMetaBaseTest {
   @Test
   public void testMetdataPreviewSqlBlobToHopBinary() throws SQLException, HopDatabaseException {
     doReturn(Types.BLOB).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(CrateDbDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    doReturn(mock(CrateDBDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
     assertTrue(valueMeta.isBinary());
@@ -212,7 +212,7 @@ public class CrateDBValueMetaBaseTest {
   public void testMetdataPreviewSqlVarBinaryToHopBinary()
       throws SQLException, HopDatabaseException {
     doReturn(Types.VARBINARY).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(CrateDbDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    doReturn(mock(CrateDBDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }
@@ -221,7 +221,7 @@ public class CrateDBValueMetaBaseTest {
   public void testMetdataPreviewSqlLongVarBinaryToHopBinary()
       throws SQLException, HopDatabaseException {
     doReturn(Types.LONGVARBINARY).when(resultSet).getInt("DATA_TYPE");
-    doReturn(mock(CrateDbDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    doReturn(mock(CrateDBDatabaseMeta.class)).when(dbMeta).getIDatabase();
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
     assertTrue(valueMeta.isBinary());
   }

@@ -35,13 +35,13 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class CrateDBDatabaseMetaTest {
-  CrateDbDatabaseMeta nativeMeta;
+  CrateDBDatabaseMeta nativeMeta;
 
   private static final String SEQUENCES_NOT_SUPPORTED = "CrateDB doesn't support sequences";
 
   @Before
   public void setupBefore() {
-    nativeMeta = new CrateDbDatabaseMeta();
+    nativeMeta = new CrateDBDatabaseMeta();
     nativeMeta.setAccessType(DatabaseMeta.TYPE_ACCESS_NATIVE);
   }
 

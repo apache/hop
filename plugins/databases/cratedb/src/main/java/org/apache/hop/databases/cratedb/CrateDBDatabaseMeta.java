@@ -25,9 +25,10 @@ import org.apache.hop.databases.postgresql.PostgreSqlDatabaseMeta;
 @DatabaseMetaPlugin(
     type = "CRATEDB",
     typeDescription = "CrateDB",
-    documentationUrl = "/database/databases/cratedb.html")
+    documentationUrl = "/database/databases/cratedb.html",
+    classLoaderGroup = "crate-db")
 @GuiPlugin(id = "GUI-CrateDBDatabaseMeta")
-public class CrateDbDatabaseMeta extends PostgreSqlDatabaseMeta {
+public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
 
   private static final String SEQUENCES_NOT_SUPPORTED = "CrateDB does not support sequences";
 

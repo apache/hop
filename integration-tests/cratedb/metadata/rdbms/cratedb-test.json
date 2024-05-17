@@ -1,0 +1,26 @@
+{
+  "rdbms": {
+    "CRATEDB": {
+      "databaseName": "test",
+      "pluginId": "CRATEDB",
+      "accessType": 0,
+      "hostname": "cratedb",
+      "password": "Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde",
+      "pluginName": "CrateDB",
+      "port": "5432",
+      "attributes": {
+        "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
+        "QUOTE_ALL_FIELDS": "N",
+        "SUPPORTS_BOOLEAN_DATA_TYPE": "Y",
+        "FORCE_IDENTIFIERS_TO_LOWERCASE": "N",
+        "PRESERVE_RESERVED_WORD_CASE": "Y",
+        "SQL_CONNECT": "",
+        "FORCE_IDENTIFIERS_TO_UPPERCASE": "N",
+        "PREFERRED_SCHEMA_NAME": ""
+      },
+      "manualUrl": "",
+      "username": "crate"
+    }
+  },
+  "name": "cratedb-test"
+}
