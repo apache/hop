@@ -617,11 +617,19 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
                 return entrystatus;
               }
 
-              String destinationfilenamefull =
-                  HopVfs.getFilename(destinationfile.getParent())
-                      + Const.FILE_SEPARATOR
-                      + shortfilename;
-              destinationfile = HopVfs.getFileObject(destinationfilenamefull);
+              if (destinationfile.getName().getURI().startsWith("azfs")) {
+                destinationfile = HopVfs.getFileObject(destinationfilefoldername);
+              } else if (destinationfile.getName().getURI().startsWith("azure")) {
+                String destinationfilenamefull =
+                    HopVfs.getFilename(destinationfile.getParent())
+                        + Const.FILE_SEPARATOR
+                        + shortfilename;
+                destinationfile = HopVfs.getFileObject(destinationfilenamefull);
+              } else {
+                throw new HopException(
+                    "Could not extract the file name from the URI: "
+                        + destinationfile.getName().getURI());
+              }
 
               entrystatus =
                   moveFile(
@@ -778,6 +786,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         }
 
         if (!simulate) {
+          destinationfilename.createFile();
           sourcefilename.moveTo(destinationfilename);
         }
 
@@ -991,7 +1000,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
               "ActionMoveFiles.Error.Exception.MoveProcessError",
               sourcefilename.toString(),
               destinationfilename.toString(),
-              e.getMessage()));
+              e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()));
       updateErrors();
     } finally {
       if (destinationfile != null) {

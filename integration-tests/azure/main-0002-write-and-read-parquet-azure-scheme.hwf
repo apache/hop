@@ -18,7 +18,7 @@ limitations under the License.
 
 -->
 <workflow>
-  <name>main-0002-read-write-parquet-azure-scheme</name>
+  <name>main-0002-write-and-read-parquet-azure-scheme</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
   <description/>
   <extended_description/>
@@ -85,7 +85,7 @@ limitations under the License.
       <attributes_hac/>
     </action>
     <action>
-      <name>Read parquet from Azure with azure scheme.hpl</name>
+      <name>Read parquet from Azure with azure scheme</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
@@ -137,13 +137,13 @@ limitations under the License.
   <hops>
     <hop>
       <from>Write parquet file with azure:// scheme</from>
-      <to>Read parquet from Azure with azure scheme.hpl</to>
+      <to>Read parquet from Azure with azure scheme</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Read parquet from Azure with azure scheme.hpl</from>
+      <from>Read parquet from Azure with azure scheme</from>
       <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -157,7 +157,7 @@ limitations under the License.
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Read parquet from Azure with azure scheme.hpl</from>
+      <from>Read parquet from Azure with azure scheme</from>
       <to>Dummy</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>

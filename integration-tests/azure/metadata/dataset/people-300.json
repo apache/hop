@@ -1,0 +1,48 @@
+{
+  "base_filename": "ingest-300.csv",
+  "name": "people-300",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_name": "id",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "name",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 3,
+      "field_precision": -1,
+      "field_name": "birthday",
+      "field_format": "yyyy/MM/dd HH:mm:ss.SSS"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "quote",
+      "field_format": ""
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_name": "instrument",
+      "field_format": ""
+    }
+  ],
+  "folder_name": "${PROJECT_HOME}/datasets"
+}

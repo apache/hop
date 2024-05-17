@@ -19,7 +19,7 @@ limitations under the License.
 -->
 <pipeline>
   <info>
-    <name>0002-write_parquet_to_azure_azure_scheme</name>
+    <name>0004-read-from-azure</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description/>
     <extended_description/>
@@ -32,21 +32,38 @@ limitations under the License.
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <created_user>-</created_user>
-    <created_date>2024/02/28 17:00:11.950</created_date>
+    <created_date>2024/05/16 17:50:22.607</created_date>
     <modified_user>-</modified_user>
-    <modified_date>2024/02/28 17:00:11.950</modified_date>
+    <modified_date>2024/05/16 17:50:22.607</modified_date>
   </info>
   <notepads>
   </notepads>
   <order>
     <hop>
-      <from>Read employees data from dataset</from>
-      <to>Write to Azurite a Parquet file (azure)</to>
+      <from>Text file input</from>
+      <to>Dummy (do nothing)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>Read employees data from dataset</name>
+    <name>Dummy (do nothing)</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>880</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Text file input</name>
     <type>TextFileInput2</type>
     <description/>
     <distribute>Y</distribute>
@@ -79,12 +96,12 @@ limitations under the License.
     <rownum>N</rownum>
     <rownumByFile>N</rownumByFile>
     <rownum_field/>
-    <format>Unix</format>
+    <format>mixed</format>
     <encoding/>
     <length>Characters</length>
     <add_to_result_filenames>Y</add_to_result_filenames>
     <file>
-      <name>${PROJECT_HOME}/datasets/golden-dataset-employees.csv</name>
+      <name>azure://mycontainer/subfolder/ingest-300.csv</name>
       <filemask/>
       <exclude_filemask/>
       <file_required>N</file_required>
@@ -97,8 +114,8 @@ limitations under the License.
     <fields>
       <field>
         <name>id</name>
-        <type>Integer</type>
-        <format>#</format>
+        <type>String</type>
+        <format/>
         <currency>$</currency>
         <decimal>.</decimal>
         <group>,</group>
@@ -120,13 +137,13 @@ limitations under the License.
         <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>22</length>
+        <length>255</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
-        <name>company</name>
+        <name>birthday</name>
         <type>String</type>
         <format/>
         <currency>$</currency>
@@ -135,13 +152,13 @@ limitations under the License.
         <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>32</length>
+        <length>-1</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
         <repeat>N</repeat>
       </field>
       <field>
-        <name>industry</name>
+        <name>quote</name>
         <type>String</type>
         <format/>
         <currency>$</currency>
@@ -150,7 +167,22 @@ limitations under the License.
         <nullif>-</nullif>
         <ifnull/>
         <position>-1</position>
-        <length>36</length>
+        <length>255</length>
+        <precision>-1</precision>
+        <trim_type>none</trim_type>
+        <repeat>N</repeat>
+      </field>
+      <field>
+        <name>instrument</name>
+        <type>String</type>
+        <format/>
+        <currency>$</currency>
+        <decimal>.</decimal>
+        <group>,</group>
+        <nullif>-</nullif>
+        <ifnull/>
+        <position>-1</position>
+        <length>255</length>
         <precision>-1</precision>
         <trim_type>none</trim_type>
         <repeat>N</repeat>
@@ -184,58 +216,8 @@ limitations under the License.
     <sizeFieldName/>
     <attributes/>
     <GUI>
-      <xloc>240</xloc>
-      <yloc>144</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Write to Azurite a Parquet file (azure)</name>
-    <type>ParquetFileOutput</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compression_codec>UNCOMPRESSED</compression_codec>
-    <data_page_size>8192</data_page_size>
-    <dictionary_page_size>1048576</dictionary_page_size>
-    <fields>
-      <field>
-        <source_field>id</source_field>
-        <target_field>id</target_field>
-      </field>
-      <field>
-        <source_field>name</source_field>
-        <target_field>name</target_field>
-      </field>
-      <field>
-        <source_field>company</source_field>
-        <target_field>company</target_field>
-      </field>
-      <field>
-        <source_field>industry</source_field>
-        <target_field>industry</target_field>
-      </field>
-    </fields>
-    <filename_base>azure://mycontainer/azure-scheme</filename_base>
-    <filename_create_parent_folders>Y</filename_create_parent_folders>
-    <filename_datetime_format>yyyyMMdd-HHmmss</filename_datetime_format>
-    <filename_ext>parquet</filename_ext>
-    <filename_include_copy>N</filename_include_copy>
-    <filename_include_date>N</filename_include_date>
-    <filename_include_datetime>N</filename_include_datetime>
-    <filename_include_split>N</filename_include_split>
-    <filename_include_time>N</filename_include_time>
-    <filename_split_size>1000</filename_split_size>
-    <row_group_size>268435456</row_group_size>
-    <version>2.0</version>
-    <attributes/>
-    <GUI>
-      <xloc>528</xloc>
-      <yloc>144</yloc>
+      <xloc>672</xloc>
+      <yloc>512</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
