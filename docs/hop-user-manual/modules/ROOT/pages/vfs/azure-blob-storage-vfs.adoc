@@ -21,6 +21,9 @@ under the License.
 
 = Azure Storage
 
+TIP: We only support hierarchical namespaces, make sure the storage container is configured as such.
+
+
 == Scheme
 
 The scheme you can use to access your files in Azure Blob Storage is
