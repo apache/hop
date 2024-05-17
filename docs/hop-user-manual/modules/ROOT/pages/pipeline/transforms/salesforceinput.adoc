@@ -51,6 +51,8 @@ Enter the following information in the transform name field:
 * Transform name: Specifies the unique name of the Salesforce Input transform on the canvas.
 You can customize the name or leave it as the default.
 
+NOTE: If your organization has enabled My Domain, you may see 'Restricted Domain' in your Salesforce login history when attempting to use the default URL, as described https://help.salesforce.com/s/articleView?id=000387792&type=1[here]. See below for options.
+
 == Options
 
 include::salesforce-connection.adoc[]
