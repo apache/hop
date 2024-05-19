@@ -29,11 +29,11 @@ In the next paragraphs, we’ll take a closer look at what makes Hop unique, and
 Metadata is the single most important concept in Apache Hop. Metadata is what drives everything: from workflows and pipelines over connections to a large variety of platforms to run configurations, every item you work with in Hop is defined as metadata.
 
 
-Hops metadata driven approach is taken to the next level with metadata injection (MDI). Metadata injection pipelines use a template pipeline and inject the necessary metadata in runtime. This significantly reduces the amount of repetitive manual development, resulting in smaller and more manageable pipeline code.
+Hop's metadata-driven approach is taken to the next level with metadata injection (MDI). Metadata injection pipelines use a template pipeline and inject the necessary metadata in runtime. This significantly reduces the amount of repetitive manual development, resulting in smaller and more manageable pipeline code.
 
 == Visual Code Editor
 
-Hop GUI is a full-blown visual IDE that is available on the desktop (Windows, Mac OS and Linux) and in your browser (Hop Web). With Hop Gui, data developers can visually design, run and debug workflows and pipelines. This visual way of working give developers the power to be more productive than they could ever be with “real” hand-crafted code.
+Hop GUI is a full-blown visual IDE that is available on the desktop (Windows, Mac OS and Linux) and in your browser (Hop Web). With Hop GUI, data developers can visually design, run and debug workflows and pipelines. This visual way of working gives developers the power to be more productive than they could ever be with “real” hand-crafted code.
 
 Not only are Hop workflows and pipelines easy to create with the visual editor, maintaining visual code is a lot easier as well. Identifying and fixing a problem in a well-defined visual layout is a lot easier than it would be if you had to scroll through lines and lines of source code.
 
@@ -51,13 +51,13 @@ Hop supports its own native runtime engine that can be used both locally and on 
 
 == Unit and Integration Testing
 
-Through proper logging and monitoring, you’ll know if your Hop workflows and errors run without any errors. However, that doesn’t tell you anything about whether your data has been processed correctly. Hop’s unit testing offers data developers a way to validate the data processing against a golden data set, so you’ll not only know your workflows and pipelines run without any errors, but also that the data was processed as expected. Regression tests guarantee that a bug that was once fixed remains fixed. A library of integration tests that are run periodically allow Hop projects to continuously guarantee your workflows and pipelines process your data exactly the way they were designed to.
+Through proper logging and monitoring, you’ll know if your Hop workflows and transformations run without any errors. However, that doesn’t tell you anything about whether your data has been processed correctly. Hop’s unit testing offers data developers a way to validate the data processing against a golden data set, so you’ll not only know your workflows and pipelines run without any errors, but also that the data was processed as expected. Regression tests guarantee that a bug that was once fixed remains fixed. A library of integration tests that are run periodically allow Hop projects to continuously guarantee your workflows and pipelines process your data exactly the way they were designed to.
 
 == Projects and environments
 
 All major data endeavours cover more than a single topic. Typical data teams cover multiple topics and run those in a number of environments. Hop projects and environments allow data teams to organize their work in separate Hop projects, typically with different environment configurations per project.
 
-Hop projects and environments, both in separate version control repositories, allow your projects to be taken over development, through testing into production while keeping complete control and overview.
+Hop projects and environments, both in separate version control repositories, allow your projects to be taken over development, through testing, into production while keeping complete control and overview.
 
 == Life Cycle Management
 
