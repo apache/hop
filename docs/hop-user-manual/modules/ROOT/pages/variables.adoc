@@ -161,11 +161,13 @@ All system properties are variables that are available in all of your currently 
 
 System properties get set in the Java Virtual Machine that runs your Apache Hop instance. This means that you should limit yourself to only those variables which are really system specific.
 
-You can define new system properties in the Hop GUI using the system properties editor (using the menu bar or the Hop icon menu):
+You can add your own system variables to the ones that come with Apache Hop by default in the `System Variables` tab in the configuration perspective.
 
-image::system-properties-menu.png[The system properties menu in Hop GUI, width="65%"]
+image::variables/system-variables.png[The system variables tab in Hop GUI, width="65%"]
 
 These variables will be written to the `hop-config.json` file in your hop installation's `config` folder or in your `{openvar}HOP_CONFIG_FOLDER{closevar}` location.
+
+CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
 [source,json]
 {
@@ -174,7 +176,6 @@ These variables will be written to the `hop-config.json` file in your hop instal
   }
 }
 
-CAUTION: even though you _can_ manually change the `hop-config.json` or any of the other configuration files, you'll rarely, if ever, need to. Only change `hop-config.json` manually if you know what you're doing.
 
 You can also use the hop-config command line tool to define system properties:
 
