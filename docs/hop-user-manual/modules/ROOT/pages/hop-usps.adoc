@@ -51,7 +51,7 @@ Hop supports its own native runtime engine that can be used both locally and on 
 
 == Unit and Integration Testing
 
-Through proper logging and monitoring, you’ll know if your Hop workflows and transformations run without any errors. However, that doesn’t tell you anything about whether your data has been processed correctly. Hop’s unit testing offers data developers a way to validate the data processing against a golden data set, so you’ll not only know your workflows and pipelines run without any errors, but also that the data was processed as expected. Regression tests guarantee that a bug that was once fixed remains fixed. A library of integration tests that are run periodically allow Hop projects to continuously guarantee your workflows and pipelines process your data exactly the way they were designed to.
+Through proper logging and monitoring, you’ll know if your Hop workflows and pipelines run without any errors. However, that doesn’t tell you anything about whether your data has been processed correctly. Hop’s unit testing offers data developers a way to validate the data processing against a golden data set, so you’ll not only know your workflows and pipelines run without any errors, but also that the data was processed as expected. Regression tests guarantee that a bug that was once fixed remains fixed. A library of integration tests that are run periodically allow Hop projects to continuously guarantee your workflows and pipelines process your data exactly the way they were designed to.
 
 == Projects and environments
 
