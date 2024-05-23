@@ -16,7 +16,7 @@
  */
 package org.apache.hop.workflow.actions.shell;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 

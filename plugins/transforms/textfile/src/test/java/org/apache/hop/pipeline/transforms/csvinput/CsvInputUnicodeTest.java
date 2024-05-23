@@ -31,7 +31,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 /**
@@ -82,7 +82,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
             CsvInputMeta.class, CsvInputData.class, "CsvInputUnicodeTest");
     Mockito.when(
             transformMockHelper.logChannelFactory.create(
-                Matchers.any(), Matchers.any(ILoggingObject.class)))
+                ArgumentMatchers.any(), ArgumentMatchers.any(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
     Mockito.when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }

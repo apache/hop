@@ -31,22 +31,4 @@
 
     <name>Hop Plugins Databases Generic</name>
 
-    <properties>
-        <powermock.version>2.0.9</powermock.version>
-    </properties>
-
-    <dependencies>
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
 </project>

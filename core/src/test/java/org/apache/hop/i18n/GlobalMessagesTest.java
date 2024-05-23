@@ -23,10 +23,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
 public class GlobalMessagesTest {
   /*
    * Reading properties file without native2ascii. (use UTF8 characters) #620

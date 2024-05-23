@@ -188,10 +188,8 @@
         <byte-buddy.version>1.12.19</byte-buddy.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
         <junit.version>4.13.1</junit.version>
-        <mockito-core.version>3.12.4</mockito-core.version>
+        <mockito-core.version>5.12.0</mockito-core.version>
         <objenesis.version>3.2</objenesis.version>
-        <powermock-module-junit4.version>2.0.9</powermock-module-junit4.version>
-        <powermock-api-mockito.version>2.0.9</powermock-api-mockito.version>
 
         <!-- Copy from master POM (NEEDS CLEANUP) -->
         <!-- VERSIONS -->
@@ -399,18 +397,6 @@
                         <artifactId>*</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock-module-junit4.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.powermock</groupId>
-                <artifactId>powermock-api-mockito2</artifactId>
-                <version>${powermock-api-mockito.version}</version>
-                <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
@@ -735,7 +721,7 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <argLine>@{argLine} --illegal-access=permit -Dfile.encoding=${project.build.sourceEncoding}
+                            <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
                                 ${maven-surefire-plugin.argLine}
                             </argLine> <!-- this is set by jacoco's prepare-agent execution -->
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>

@@ -22,10 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
 public class LoggingRegistryTest {
   public static final String LOG_CHANEL_ID_PARENT = "parent-chanel-id";
   public static final String LOG_CHANEL_ID_CHILD = "child-chanel-id";

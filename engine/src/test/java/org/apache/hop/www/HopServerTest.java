@@ -16,12 +16,12 @@
  */
 package org.apache.hop.www;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -30,17 +30,26 @@ import javax.ws.rs.core.MediaType;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Client.class)
 public class HopServerTest {
+  private MockedStatic<Client> mockedClient;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+
+  @Before
+  public void setUpStaticMocks() {
+    mockedClient = mockStatic(Client.class);
+  }
+
+  @After
+  public void tearDownStaticMocks() {
+    mockedClient.closeOnDemand();
+  }
 
   @Ignore
   @Test
@@ -55,8 +64,6 @@ public class HopServerTest {
     doCallRealMethod().when(client).register(any(HttpAuthenticationFeature.class));
     doReturn(target).when(client).target("http://localhost:8080/hop/status/?xml=Y");
     doReturn(stop).when(client).target("http://localhost:8080/hop/stopHopServer");
-
-    mockStatic(Client.class);
     when(ClientBuilder.newClient(any(ClientConfig.class))).thenReturn(client);
 
     HopServer.callStopHopServerRestService(

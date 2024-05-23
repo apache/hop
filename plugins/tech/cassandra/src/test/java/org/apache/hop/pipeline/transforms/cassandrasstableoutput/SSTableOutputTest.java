@@ -17,7 +17,7 @@
  */
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.HopEnvironment;

@@ -25,33 +25,40 @@ import static org.mockito.ArgumentMatchers.nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.w3c.dom.Node;
 
-@PrepareForTest(AttributesUtil.class)
-@RunWith(PowerMockRunner.class)
 public class AttributesUtilTest {
+
+  private static MockedStatic<AttributesUtil> mockedAttributesUtil;
 
   private static final String CUSTOM_TAG = "customTag";
   private static final String A_KEY = "aKEY";
   private static final String A_VALUE = "aVALUE";
   private static final String A_GROUP = "attributesGroup";
 
-  @Before
-  public void setUp() {
-    PowerMockito.mockStatic(AttributesUtil.class);
+  @BeforeClass
+  public static void setUpStaticMocks() {
+    mockedAttributesUtil = Mockito.mockStatic(AttributesUtil.class);
+  }
+
+  @AfterClass
+  public static void tearDownStaticMocks() {
+    mockedAttributesUtil.close();
   }
 
   @Test
   public void testGetAttributesXml_DefaultTag() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class))).thenCallRealMethod();
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class), anyString()))
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(any(Map.class)))
+        .thenCallRealMethod();
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(any(Map.class), anyString()))
         .thenCallRealMethod();
 
     Map<String, String> attributesGroup = new HashMap<>();
@@ -74,14 +81,14 @@ public class AttributesUtilTest {
     assertTrue(attributesXml.contains(A_VALUE));
 
     // Verify that getAttributesXml was invoked once (and with the right parameters)
-    PowerMockito.verifyStatic(AttributesUtil.class);
     AttributesUtil.getAttributesXml(attributesMap, AttributesUtil.XML_TAG);
   }
 
   @Test
   public void testGetAttributesXml_CustomTag() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class), anyString()))
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(any(Map.class), anyString()))
         .thenCallRealMethod();
 
     Map<String, String> attributesGroup = new HashMap<>();
@@ -107,8 +114,11 @@ public class AttributesUtilTest {
   @Test
   public void testGetAttributesXml_DefaultTag_NullParameter() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(nullable(Map.class))).thenCallRealMethod();
-    PowerMockito.when(AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(nullable(Map.class)))
+        .thenCallRealMethod();
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
         .thenCallRealMethod();
 
     String attributesXml = AttributesUtil.getAttributesXml(null);
@@ -122,7 +132,8 @@ public class AttributesUtilTest {
   @Test
   public void testGetAttributesXml_CustomTag_NullParameter() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(nullable(Map.class), nullable(String.class)))
         .thenCallRealMethod();
 
     String attributesXml = AttributesUtil.getAttributesXml(null, CUSTOM_TAG);
@@ -136,8 +147,11 @@ public class AttributesUtilTest {
   @Test
   public void testGetAttributesXml_DefaultTag_EmptyMap() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class))).thenCallRealMethod();
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class), anyString()))
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(any(Map.class)))
+        .thenCallRealMethod();
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(any(Map.class), anyString()))
         .thenCallRealMethod();
 
     Map<String, Map<String, String>> attributesMap = new HashMap<>();
@@ -153,7 +167,8 @@ public class AttributesUtilTest {
   @Test
   public void testGetAttributesXml_CustomTag_EmptyMap() {
 
-    PowerMockito.when(AttributesUtil.getAttributesXml(any(Map.class), anyString()))
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.getAttributesXml(any(Map.class), anyString()))
         .thenCallRealMethod();
 
     Map<String, Map<String, String>> attributesMap = new HashMap<>();
@@ -169,7 +184,9 @@ public class AttributesUtilTest {
   @Test
   public void testLoadAttributes_NullParameter() {
 
-    PowerMockito.when(AttributesUtil.loadAttributes(any(Node.class))).thenCallRealMethod();
+    mockedAttributesUtil
+        .when(() -> AttributesUtil.loadAttributes(any(Node.class)))
+        .thenCallRealMethod();
 
     Map<String, Map<String, String>> attributesMap = AttributesUtil.loadAttributes(null);
 

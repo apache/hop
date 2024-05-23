@@ -66,13 +66,6 @@
                 <scope>test</scope>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-databases-postgresql</artifactId>
-                <type>test-jar</type>
-                <scope>test</scope>
-                <version>${project.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 

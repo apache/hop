@@ -34,7 +34,6 @@
         <commons-codec.version>1.15</commons-codec.version>
         <encoder.version>1.2</encoder.version>
         <dependency.com.tinkerpop.blueprints.version>2.6.0</dependency.com.tinkerpop.blueprints.version>
-        <dependency.org.powermock.version>2.0.9</dependency.org.powermock.version>
         <json-path.version>2.9.0</json-path.version>
         <jsch.version>0.1.54</jsch.version>
     </properties>
@@ -73,18 +72,6 @@
 
         <!-- test dependencies -->
         <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock-module-junit4.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito2</artifactId>
-            <version>${powermock-api-mockito.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
@@ -106,12 +93,6 @@
             <groupId>com.tinkerpop.blueprints</groupId>
             <artifactId>blueprints-core</artifactId>
             <version>${dependency.com.tinkerpop.blueprints.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-core</artifactId>
-            <version>${dependency.org.powermock.version}</version>
             <scope>test</scope>
         </dependency>
 

@@ -124,12 +124,6 @@
         </dependency>
 
         <!-- Google Analytics dependencies -->
-
-        <dependency>
-            <groupId>com.google.analytics</groupId>
-            <artifactId>google-analytics-data</artifactId>
-            <version>0.28.0</version>
-        </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client</artifactId>

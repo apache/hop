@@ -25,11 +25,10 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import java.util.List;
 import org.apache.hop.core.exception.HopPluginException;
@@ -42,15 +41,17 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockedStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ValueMetaFactory.class})
 public class MemoryGroupByMetaGetFieldsTest {
+
+  private static MockedStatic<ValueMetaFactory> mockedValueMetaFactory;
 
   private MemoryGroupByMeta memoryGroupByMeta;
   private IRowMeta rowMeta;
@@ -60,29 +61,55 @@ public class MemoryGroupByMetaGetFieldsTest {
   private IVariables mockSpace;
   private IHopMetadataProvider mockIHopMetadataProvider;
 
+  @BeforeClass
+  public static void setUpBeforeClass() throws HopPluginException {
+    mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
+  }
+
+  @AfterClass
+  public static void tearDownAfterClass() throws HopPluginException {
+    mockedValueMetaFactory.close();
+  }
+
   @Before
   public void setup() throws HopPluginException {
     mockSpace = mock(IVariables.class);
+
     doReturn("N").when(mockSpace).getVariable(any(), anyString());
 
     rowMeta = spy(new RowMeta());
     memoryGroupByMeta = spy(new MemoryGroupByMeta());
-
-    mockStatic(ValueMetaFactory.class);
-    when(ValueMetaFactory.createValueMeta(anyInt())).thenCallRealMethod();
-    when(ValueMetaFactory.createValueMeta(anyString(), anyInt())).thenCallRealMethod();
-    when(ValueMetaFactory.createValueMeta("maxDate", 3, -1, -1))
+    mockedValueMetaFactory
+        .when(() -> ValueMetaFactory.createValueMeta(anyInt()))
+        .thenCallRealMethod();
+    mockedValueMetaFactory
+        .when(() -> ValueMetaFactory.createValueMeta(anyString(), anyInt()))
+        .thenCallRealMethod();
+    mockedValueMetaFactory
+        .when(() -> ValueMetaFactory.createValueMeta("maxDate", 3, -1, -1))
         .thenReturn(new ValueMetaDate("maxDate"));
-    when(ValueMetaFactory.createValueMeta("minDate", 3, -1, -1))
+    mockedValueMetaFactory
+        .when(() -> ValueMetaFactory.createValueMeta("minDate", 3, -1, -1))
         .thenReturn(new ValueMetaDate("minDate"));
-    when(ValueMetaFactory.createValueMeta("countDate", 5, -1, -1))
+    mockedValueMetaFactory
+        .when(() -> ValueMetaFactory.createValueMeta("countDate", 5, -1, -1))
         .thenReturn(new ValueMetaInteger("countDate"));
-    when(ValueMetaFactory.getValueMetaName(3)).thenReturn("Date");
-    when(ValueMetaFactory.getValueMetaName(5)).thenReturn("Integer");
+    mockedValueMetaFactory.when(() -> ValueMetaFactory.getValueMetaName(3)).thenReturn("Date");
+    mockedValueMetaFactory.when(() -> ValueMetaFactory.getValueMetaName(5)).thenReturn("Integer");
   }
 
   @After
   public void cleanup() {}
+
+  @BeforeEach
+  void setUpStaticMocks() {
+    mockedValueMetaFactory = mockStatic(ValueMetaFactory.class);
+  }
+
+  @AfterEach
+  void tearDownStaticMocks() {
+    mockedValueMetaFactory.closeOnDemand();
+  }
 
   @Test
   public void getFieldsWithSubject_WithFormat() {

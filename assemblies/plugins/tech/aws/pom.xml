@@ -39,10 +39,6 @@
         <aws-java-sdk-sns.version>1.12.651</aws-java-sdk-sns.version>
         <aws-java-sdk-sqs.version>1.12.651</aws-java-sdk-sqs.version>
         <redshift.jdbc.version>2.1.0.28</redshift.jdbc.version>
-
-        <!-- Test dependencies -->
-        <mockito.version>1.10.19</mockito.version>
-        <powermock.version>2.0.9</powermock.version>
     </properties>
 
 

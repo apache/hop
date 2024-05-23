@@ -28,9 +28,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.AdditionalAnswers;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LdapConnectionTest {
@@ -55,7 +55,8 @@ public class LdapConnectionTest {
     meta.setHost("localhost");
     meta.setPort("1389");
 
-    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(ArgumentMatchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
     try {
@@ -73,7 +74,8 @@ public class LdapConnectionTest {
     meta.setHost("localhost");
     meta.setPort("1389");
 
-    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(ArgumentMatchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     expectedEx.expect(HopException.class);
     expectedEx.expectMessage("Invalid Credentials");
@@ -95,7 +97,8 @@ public class LdapConnectionTest {
     meta.setUseCertificate(true);
     meta.setTrustAllCertificates(true);
 
-    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(ArgumentMatchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
     try {
@@ -119,7 +122,8 @@ public class LdapConnectionTest {
     meta.setUseCertificate(true);
     meta.setTrustAllCertificates(false);
 
-    when(variables.resolve(Matchers.<String>any())).thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.resolve(ArgumentMatchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
     try {
