@@ -141,7 +141,7 @@ public class WorkflowDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowProperties.ShellText"));
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
@@ -183,8 +183,7 @@ public class WorkflowDialog extends Dialog {
     fdTabFolder.bottom = new FormAttachment(wOk, -2 * margin);
     wTabFolder.setLayoutData(fdTabFolder);
 
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     wTabFolder.setSelection(0);
     getData();
@@ -213,7 +212,7 @@ public class WorkflowDialog extends Dialog {
 
   private void addWorkflowTab() {
     // ////////////////////////
-    // START OF JOB TAB///
+    // START OF WORKFLOW TAB///
     // /
     CTabItem wWorkflowTab = new CTabItem(wTabFolder, SWT.NONE);
     wWorkflowTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -223,8 +222,8 @@ public class WorkflowDialog extends Dialog {
     PropsUi.setLook(wWorkflowComp);
 
     FormLayout workflowLayout = new FormLayout();
-    workflowLayout.marginWidth = props.getMargin();
-    workflowLayout.marginHeight = props.getMargin();
+    workflowLayout.marginWidth = PropsUi.getMargin();
+    workflowLayout.marginHeight = PropsUi.getMargin();
     wWorkflowComp.setLayout(workflowLayout);
 
     // Workflow name:
@@ -267,7 +266,7 @@ public class WorkflowDialog extends Dialog {
     wNameFilenameSync.addListener(SWT.Selection, this::updateNameFilenameSync);
     lastControl = wNameFilenameSync;
 
-    // JobFilename:
+    // Workflow Filename:
     Label wlFilename = new Label(wWorkflowComp, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, "WorkflowDialog.Filename.Label"));
     PropsUi.setLook(wlFilename);
@@ -305,8 +304,7 @@ public class WorkflowDialog extends Dialog {
     fdDescription.right = new FormAttachment(100, 0);
     wDescription.setLayoutData(fdDescription);
 
-    // Pipeline Extended description
-    // Extended description
+    // Workflow Extended description
     Label wlExtendedDescription = new Label(wWorkflowComp, SWT.RIGHT);
     wlExtendedDescription.setText(
         BaseMessages.getString(PKG, "WorkflowDialog.Extendeddescription.Label"));
@@ -328,14 +326,13 @@ public class WorkflowDialog extends Dialog {
     fdExtendedDescription.bottom = new FormAttachment(50, -margin);
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
-    // Pipeline Status
     // Workflow Status
     Label wlWorkflowStatus = new Label(wWorkflowComp, SWT.RIGHT);
     wlWorkflowStatus.setText(BaseMessages.getString(PKG, "WorkflowDialog.WorkflowStatus.Label"));
     PropsUi.setLook(wlWorkflowStatus);
     FormData fdlWorkflowStatus = new FormData();
     fdlWorkflowStatus.left = new FormAttachment(0, 0);
-    fdlWorkflowStatus.right = new FormAttachment(middle, 0);
+    fdlWorkflowStatus.right = new FormAttachment(middle, -margin);
     fdlWorkflowStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     wlWorkflowStatus.setLayoutData(fdlWorkflowStatus);
     wWorkflowStatus = new Combo(wWorkflowComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -456,7 +453,7 @@ public class WorkflowDialog extends Dialog {
     wWorkflowTab.setControl(wWorkflowComp);
 
     // ///////////////////////////////////////////////////////////
-    // / END OF JOB TAB
+    // / END OF WORKFLOW TAB
     // ///////////////////////////////////////////////////////////
   }
 
@@ -482,8 +479,8 @@ public class WorkflowDialog extends Dialog {
     wParamTab.setText(BaseMessages.getString(PKG, "WorkflowDialog.ParamTab.Label"));
 
     FormLayout paramLayout = new FormLayout();
-    paramLayout.marginWidth = props.getMargin();
-    paramLayout.marginHeight = props.getMargin();
+    paramLayout.marginWidth = PropsUi.getMargin();
+    paramLayout.marginHeight = PropsUi.getMargin();
 
     Composite wParamComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wParamComp);
