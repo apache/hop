@@ -790,7 +790,7 @@
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <version>0.13</version>
+                <version>0.16.1</version>
                 <configuration>
                     <excludeSubProjects>false</excludeSubProjects>
                     <consoleOutput>true</consoleOutput>
