@@ -161,7 +161,7 @@ public class PipelineDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "PipelineDialog.Shell.Title"));
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     // THE BUTTONS
     Button wOk = new Button(shell, SWT.PUSH);
@@ -171,8 +171,7 @@ public class PipelineDialog extends Dialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
-    BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+    BaseTransformDialog.positionBottomButtons(shell, new Button[] {wOk, wCancel}, margin, null);
 
     wTabFolder = new CTabFolder(shell, SWT.BORDER);
     PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
@@ -347,13 +346,12 @@ public class PipelineDialog extends Dialog {
     wExtendedDescription.setLayoutData(fdExtendedDescription);
 
     // Pipeline Status
-    // Pipeline Status
     Label wlPipelineStatus = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineStatus.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineStatus.Label"));
     PropsUi.setLook(wlPipelineStatus);
     FormData fdlPipelineStatus = new FormData();
     fdlPipelineStatus.left = new FormAttachment(0, 0);
-    fdlPipelineStatus.right = new FormAttachment(middle, 0);
+    fdlPipelineStatus.right = new FormAttachment(middle, -margin);
     fdlPipelineStatus.top = new FormAttachment(wExtendedDescription, margin * 2);
     wlPipelineStatus.setLayoutData(fdlPipelineStatus);
     wPipelineStatus = new Combo(wPipelineComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER);
@@ -371,7 +369,7 @@ public class PipelineDialog extends Dialog {
     fdPipelineStatus.right = new FormAttachment(100, 0);
     wPipelineStatus.setLayoutData(fdPipelineStatus);
 
-    // Pipeline PipelineVersion:
+    // Pipeline Version:
     Label wlPipelineVersion = new Label(wPipelineComp, SWT.RIGHT);
     wlPipelineVersion.setText(BaseMessages.getString(PKG, "PipelineDialog.PipelineVersion.Label"));
     PropsUi.setLook(wlPipelineVersion);
@@ -502,8 +500,8 @@ public class PipelineDialog extends Dialog {
     wParamTab.setText(BaseMessages.getString(PKG, "PipelineDialog.ParamTab.Label"));
 
     FormLayout paramLayout = new FormLayout();
-    paramLayout.marginWidth = props.getMargin();
-    paramLayout.marginHeight = props.getMargin();
+    paramLayout.marginWidth = PropsUi.getMargin();
+    paramLayout.marginHeight = PropsUi.getMargin();
 
     Composite wParamComp = new Composite(wTabFolder, SWT.NONE);
     PropsUi.setLook(wParamComp);
