@@ -43,13 +43,10 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({MetaInject.class})
 public class MetaInjectTest {
 
   private static final String INJECTOR_TRANSFORM_NAME = "TEST_TRANSFORM_FOR_INJECTION";
@@ -90,14 +87,14 @@ public class MetaInjectTest {
 
   @Before
   public void before() throws Exception {
-    pipelineMeta = PowerMockito.spy(new PipelineMeta());
+    pipelineMeta = Mockito.spy(new PipelineMeta());
     meta = new MetaInjectMeta();
     data = new MetaInjectData();
     data.pipelineMeta = pipelineMeta;
     metaInject =
         TransformMockUtil.getTransform(
             MetaInject.class, MetaInjectMeta.class, MetaInjectData.class, "MetaInjectTest");
-    metaInject = PowerMockito.spy(metaInject);
+    metaInject = Mockito.spy(metaInject);
     metaInject.init();
     metadataProvider = mock(IHopMetadataProvider.class);
     metaInject.setMetadataProvider(metadataProvider);
@@ -107,7 +104,7 @@ public class MetaInjectTest {
     TransformMeta transformMeta = mock(TransformMeta.class);
     pipeline = new LocalPipelineEngine();
     pipeline.setLogChannel(LogChannel.GENERAL);
-    pipeline = PowerMockito.spy(pipeline);
+    pipeline = Mockito.spy(pipeline);
     doReturn(pipeline).when(metaInject).getPipeline();
     doReturn(INJECTOR_TRANSFORM_NAME).when(transformMeta).getName();
     doReturn(Collections.singletonList(transformMeta))
@@ -117,6 +114,12 @@ public class MetaInjectTest {
     doReturn(iTransformMeta).when(transformMeta).getTransform();
     doReturn(internalPipelineMeta).when(metaInject).loadPipelineMeta();
   }
+
+  @BeforeEach
+  void setUpStaticMocks() {}
+
+  @AfterEach
+  void tearDownStaticMocks() {}
 
   @Test
   public void getUnavailableSourceTransforms() {

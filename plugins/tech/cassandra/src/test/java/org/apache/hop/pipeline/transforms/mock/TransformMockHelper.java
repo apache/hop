@@ -17,9 +17,8 @@
  */
 package org.apache.hop.pipeline.transforms.mock;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -138,6 +137,6 @@ public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITran
                   return false;
                 })
         .when(log)
-        .println((ILogMessage) anyObject(), (LogLevel) anyObject());
+        .println((ILogMessage) any(), (LogLevel) any());
   }
 }

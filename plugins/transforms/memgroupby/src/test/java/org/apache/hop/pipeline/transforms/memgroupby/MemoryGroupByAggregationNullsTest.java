@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
@@ -28,7 +28,6 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByData.HashEntry;
@@ -40,13 +39,10 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ValueMetaFactory.class})
 public class MemoryGroupByAggregationNullsTest {
 
   static TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData> mockHelper;
@@ -107,6 +103,12 @@ public class MemoryGroupByAggregationNullsTest {
   HashEntry getHashEntry() {
     return data.getHashEntry(new Object[data.groupMeta.size()]);
   }
+
+  @BeforeEach
+  void setUpStaticMocks() {}
+
+  @AfterEach
+  void tearDownStaticMocks() {}
 
   /**
    * "Group by" transform - Minimum aggregation doesn't work

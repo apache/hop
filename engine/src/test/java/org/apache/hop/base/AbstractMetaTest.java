@@ -21,8 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -119,14 +118,14 @@ public class AbstractMetaTest {
     meta.addContentChangedListener(listener);
     assertFalse(meta.getContentChangedListeners().isEmpty());
     meta.fireContentChangedListeners();
-    verify(listener, times(1)).contentChanged(anyObject());
-    verify(listener, never()).contentSafe(anyObject());
+    verify(listener, times(1)).contentChanged(any());
+    verify(listener, never()).contentSafe(any());
     meta.fireContentChangedListeners(true);
-    verify(listener, times(2)).contentChanged(anyObject());
-    verify(listener, never()).contentSafe(anyObject());
+    verify(listener, times(2)).contentChanged(any());
+    verify(listener, never()).contentSafe(any());
     meta.fireContentChangedListeners(false);
-    verify(listener, times(2)).contentChanged(anyObject());
-    verify(listener, times(1)).contentSafe(anyObject());
+    verify(listener, times(2)).contentChanged(any());
+    verify(listener, times(1)).contentSafe(any());
     meta.removeContentChangedListener(listener);
     assertTrue(meta.getContentChangedListeners().isEmpty());
   }
@@ -278,7 +277,7 @@ public class AbstractMetaTest {
     verify(observer, never()).update(meta, event);
     meta.setChanged(true);
     meta.notifyObservers(event);
-    verify(observer, times(1)).update(any(IChanged.class), anyObject());
+    verify(observer, times(1)).update(any(IChanged.class), any());
   }
 
   @Test

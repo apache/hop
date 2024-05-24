@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.HopEnvironment;

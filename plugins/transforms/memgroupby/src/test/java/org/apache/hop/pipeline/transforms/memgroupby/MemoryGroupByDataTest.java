@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.memgroupby;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MemoryGroupByDataTest {
@@ -44,7 +44,7 @@ public class MemoryGroupByDataTest {
     data.groupMeta = groupMeta;
     when(groupMeta.size()).thenReturn(1);
     when(groupMeta.getValueMeta(anyInt())).thenReturn(valueMeta);
-    when(valueMeta.convertToNormalStorageType(anyObject()))
+    when(valueMeta.convertToNormalStorageType(any()))
         .then(
             invocation -> {
               Object argument = invocation.getArguments()[0];

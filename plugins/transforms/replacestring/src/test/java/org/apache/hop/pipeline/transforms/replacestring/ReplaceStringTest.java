@@ -18,9 +18,8 @@
 package org.apache.hop.pipeline.transforms.replacestring;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,7 +73,7 @@ public class ReplaceStringTest {
         .thenReturn(transformMockHelper.iLogChannel);
     verify(transformMockHelper.iLogChannel, never()).logError(anyString());
     verify(transformMockHelper.iLogChannel, never()).logError(anyString(), any(Object[].class));
-    verify(transformMockHelper.iLogChannel, never()).logError(anyString(), (Throwable) anyObject());
+    verify(transformMockHelper.iLogChannel, never()).logError(anyString(), (Throwable) any());
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
   }
 

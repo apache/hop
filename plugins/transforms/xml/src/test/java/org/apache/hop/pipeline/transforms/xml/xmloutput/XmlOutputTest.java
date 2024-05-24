@@ -17,7 +17,7 @@
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transforms.xml.xmloutput.XmlField.ContentType;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 
 public class XmlOutputTest {
 
@@ -69,7 +69,8 @@ public class XmlOutputTest {
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
     TransformMeta mockMeta = mock(TransformMeta.class);
-    when(transformMockHelper.pipelineMeta.findTransform(Matchers.anyString())).thenReturn(mockMeta);
+    when(transformMockHelper.pipelineMeta.findTransform(ArgumentMatchers.anyString()))
+        .thenReturn(mockMeta);
     when(pipeline.getLogLevel()).thenReturn(LogLevel.DEBUG);
 
     // Create and set Meta with some realistic data

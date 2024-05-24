@@ -26,15 +26,24 @@ import java.io.IOException;
 import org.eclipse.swt.SWT;
 import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SWT.class)
 public class EnvironmentUtilsTest {
+
+  private MockedStatic<SWT> mockedSWT;
+
+  @BeforeEach
+  void setUpStaticMocks() {
+    mockedSWT = Mockito.mockStatic(SWT.class);
+  }
+
+  @AfterEach
+  void tearDownStaticMocks() {
+    mockedSWT.closeOnDemand();
+  }
 
   @Test
   public void isUnSupportedBrowserEnvironmentTest() {
@@ -84,9 +93,7 @@ public class EnvironmentUtilsTest {
   public void isWeb() {
     // This should be true as long as the test runs on SWT.
     assertFalse(EnvironmentUtils.getInstance().isWeb());
-
-    PowerMockito.mockStatic(SWT.class);
-    when(SWT.getPlatform()).thenReturn("rap");
+    mockedSWT.when(SWT::getPlatform).thenReturn("rap");
     assertTrue(EnvironmentUtils.getInstance().isWeb());
   }
 

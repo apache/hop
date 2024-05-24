@@ -132,6 +132,6 @@ public class WorkflowActionUnZipTest extends WorkflowActionLoadSaveTestSupport<A
     jobEntryUnZip.afterunzip = 2;
     unzipPostprocessingMethod.invoke(
         jobEntryUnZip, sourceFileObject, Mockito.mock(FileObject.class), "");
-    Mockito.verify(sourceFileObject, Mockito.times(1)).moveTo(Mockito.anyObject());
+    Mockito.verify(sourceFileObject, Mockito.times(1)).moveTo(Mockito.any());
   }
 }

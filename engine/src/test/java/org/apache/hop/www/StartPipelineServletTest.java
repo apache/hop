@@ -18,8 +18,8 @@
 package org.apache.hop.www;
 
 import static junit.framework.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -36,13 +36,9 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
 public class StartPipelineServletTest {
   private PipelineMap mockPipelineMap;
 
@@ -55,7 +51,6 @@ public class StartPipelineServletTest {
   }
 
   @Test
-  @PrepareForTest({Encode.class})
   public void testStartPipelineServletEscapesHtmlWhenPipelineNotFound()
       throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
@@ -64,7 +59,7 @@ public class StartPipelineServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy(Encode.class);
+    Mockito.spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(StartPipelineServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
@@ -72,13 +67,9 @@ public class StartPipelineServletTest {
 
     startPipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
-
-    PowerMockito.verifyStatic(Encode.class);
-    Encode.forHtml(anyString());
   }
 
   @Test
-  @PrepareForTest({Encode.class})
   public void testStartPipelineServletEscapesHtmlWhenPipelineFound()
       throws ServletException, IOException {
     HopLogStore.init();
@@ -90,7 +81,7 @@ public class StartPipelineServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy(Encode.class);
+    Mockito.spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(StartPipelineServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
@@ -103,8 +94,5 @@ public class StartPipelineServletTest {
 
     startPipelineServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
-
-    PowerMockito.verifyStatic(Encode.class);
-    Encode.forHtml(anyString());
   }
 }

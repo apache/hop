@@ -20,7 +20,7 @@ package org.apache.hop.core.logging;
 import static org.apache.hop.core.logging.LogLevel.BASIC;
 import static org.apache.hop.core.logging.LogLevel.ERROR;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.function.Function;
@@ -28,7 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -68,8 +68,8 @@ public class Slf4jLoggingEventListenerTest {
     when(message.getLevel()).thenReturn(ERROR);
     listener.eventAdded(logEvent);
     verify(diLogger).error(messageSub + " " + msgText);
-    verifyZeroInteractions(pipelineLogger);
-    verifyZeroInteractions(jobLogger);
+    verifyNoInteractions(pipelineLogger);
+    verifyNoInteractions(jobLogger);
   }
 
   @Test
@@ -84,8 +84,8 @@ public class Slf4jLoggingEventListenerTest {
     when(message.getLevel()).thenReturn(LogLevel.ERROR);
     listener.eventAdded(logEvent);
     verify(pipelineLogger).error("[filename]  " + msgText);
-    verifyZeroInteractions(diLogger);
-    verifyZeroInteractions(jobLogger);
+    verifyNoInteractions(diLogger);
+    verifyNoInteractions(jobLogger);
   }
 
   @Test
@@ -101,7 +101,7 @@ public class Slf4jLoggingEventListenerTest {
     when(message.getLevel()).thenReturn(LogLevel.ERROR);
     listener.eventAdded(logEvent);
     verify(jobLogger).error("[filename]  " + msgText);
-    verifyZeroInteractions(diLogger);
-    verifyZeroInteractions(pipelineLogger);
+    verifyNoInteractions(diLogger);
+    verifyNoInteractions(pipelineLogger);
   }
 }

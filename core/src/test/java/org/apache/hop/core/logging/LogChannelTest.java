@@ -17,32 +17,30 @@
 
 package org.apache.hop.core.logging;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.when;
+import static org.mockito.Mockito.when;
 
 import org.apache.hop.core.util.Utils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({
-  DefaultLogLevel.class,
-  LoggingRegistry.class,
-  LogLevel.class,
-  HopLogStore.class,
-  Utils.class
-})
 public class LogChannelTest {
+
+  private MockedStatic<Utils> mockedUtils;
+
+  private MockedStatic<HopLogStore> mockedHopLogStore;
+
+  private MockedStatic<LoggingRegistry> mockedLoggingRegistry;
+
+  private MockedStatic<DefaultLogLevel> mockedDefaultLogLevel;
 
   private LogChannel logChannel;
   private String logChannelSubject = "pdi";
@@ -54,12 +52,8 @@ public class LogChannelTest {
 
   @Before
   public void setUp() throws Exception {
-    LogLevel logLevelStatic = PowerMockito.mock(LogLevel.class);
-    Whitebox.setInternalState(logLevelStatic, "name", "Basic");
-    Whitebox.setInternalState(logLevelStatic, "ordinal", 3);
-
-    PowerMockito.mockStatic(DefaultLogLevel.class);
-    when(DefaultLogLevel.getLogLevel()).thenReturn(LogLevel.BASIC);
+    LogLevel logLevelStatic = Mockito.mock(LogLevel.class);
+    mockedDefaultLogLevel.when(DefaultLogLevel::getLogLevel).thenReturn(LogLevel.BASIC);
 
     logChFileWriterBuffer = mock(LogChannelFileWriterBuffer.class);
 
@@ -67,13 +61,9 @@ public class LogChannelTest {
     Mockito.when(regInstance.registerLoggingSource(logChannelSubject)).thenReturn(channelId);
     Mockito.when(regInstance.getLogChannelFileWriterBuffer(channelId))
         .thenReturn(logChFileWriterBuffer);
+    mockedLoggingRegistry.when(LoggingRegistry::getInstance).thenReturn(regInstance);
 
-    PowerMockito.mockStatic(LoggingRegistry.class);
-    when(LoggingRegistry.getInstance()).thenReturn(regInstance);
-
-    logLevel = PowerMockito.mock(LogLevel.class);
-    Whitebox.setInternalState(logLevel, "name", "Basic");
-    Whitebox.setInternalState(logLevel, "ordinal", 3);
+    logLevel = Mockito.mock(LogLevel.class);
 
     logMsgInterface = mock(ILogMessage.class);
     Mockito.when(logMsgInterface.getLevel()).thenReturn(logLevel);
@@ -81,13 +71,28 @@ public class LogChannelTest {
     logChannel = new LogChannel(logChannelSubject);
   }
 
+  @BeforeEach
+  void setUpStaticMocks() {
+    mockedUtils = Mockito.mockStatic(Utils.class);
+    mockedHopLogStore = Mockito.mockStatic(HopLogStore.class);
+    mockedLoggingRegistry = Mockito.mockStatic(LoggingRegistry.class);
+    mockedDefaultLogLevel = Mockito.mockStatic(DefaultLogLevel.class);
+  }
+
+  @AfterEach
+  void tearDownStaticMocks() {
+    mockedDefaultLogLevel.closeOnDemand();
+    mockedLoggingRegistry.closeOnDemand();
+    mockedHopLogStore.closeOnDemand();
+    mockedUtils.closeOnDemand();
+  }
+
   @Test
   public void testPrintlnWithNullLogChannelFileWriterBuffer() {
     when(logLevel.isVisible(any(LogLevel.class))).thenReturn(true);
 
     LoggingBuffer loggingBuffer = mock(LoggingBuffer.class);
-    PowerMockito.mockStatic(HopLogStore.class);
-    when(HopLogStore.getAppender()).thenReturn(loggingBuffer);
+    mockedHopLogStore.when(HopLogStore::getAppender).thenReturn(loggingBuffer);
 
     logChannel.println(logMsgInterface, LogLevel.BASIC);
     verify(logChFileWriterBuffer, times(1)).addEvent(any(HopLoggingEvent.class));
@@ -103,17 +108,13 @@ public class LogChannelTest {
 
   @Test
   public void testPrintMessageFiltered() {
-    LogLevel logLevelFil = PowerMockito.mock(LogLevel.class);
-    Whitebox.setInternalState(logLevelFil, "name", "Error");
-    Whitebox.setInternalState(logLevelFil, "ordinal", 1);
+    LogLevel logLevelFil = Mockito.mock(LogLevel.class);
     when(logLevelFil.isError()).thenReturn(false);
 
     ILogMessage logMsgInterfaceFil = mock(ILogMessage.class);
     Mockito.when(logMsgInterfaceFil.getLevel()).thenReturn(logLevelFil);
     Mockito.when(logMsgInterfaceFil.toString()).thenReturn("a");
-
-    PowerMockito.mockStatic(Utils.class);
-    when(Utils.isEmpty(anyString())).thenReturn(false);
+    mockedUtils.when(() -> Utils.isEmpty(anyString())).thenReturn(false);
 
     when(logLevelFil.isVisible(any(LogLevel.class))).thenReturn(true);
     logChannel.setFilter("b");
