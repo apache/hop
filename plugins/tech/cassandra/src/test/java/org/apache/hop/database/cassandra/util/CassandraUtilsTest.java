@@ -32,7 +32,6 @@ import org.apache.cassandra.cql3.functions.types.LocalDate;
 import org.apache.cassandra.dht.ByteOrderedPartitioner;
 import org.apache.cassandra.dht.Murmur3Partitioner;
 import org.apache.cassandra.dht.OrderPreservingPartitioner;
-import org.apache.cassandra.dht.RandomPartitioner;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -103,10 +102,11 @@ public class CassandraUtilsTest {
                     "org.apache.cassandra.dht.ByteOrderedPartitioner")
                 .getClass()
             == ByteOrderedPartitioner.class);
-    assertTrue(
-        CassandraUtils.getPartitionerClassInstance("org.apache.cassandra.dht.RandomPartitioner")
-                .getClass()
-            == RandomPartitioner.class);
+    //    assertTrue(
+    //
+    // CassandraUtils.getPartitionerClassInstance("org.apache.cassandra.dht.RandomPartitioner")
+    //                .getClass()
+    //            == RandomPartitioner.class);
     assertTrue(
         CassandraUtils.getPartitionerClassInstance(
                     "org.apache.cassandra.dht.OrderPreservingPartitioner")

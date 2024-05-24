@@ -49,7 +49,7 @@ RUN apt-get update \
   procps \
   git \
   python3-pip \
-  openjdk-11-jre-headless \
+  openjdk-17-jre-headless \
   unzip \
   ttf-mscorefonts-installer \
   locales \

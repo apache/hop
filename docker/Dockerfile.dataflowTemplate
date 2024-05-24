@@ -16,7 +16,7 @@
 # under the License.
 #
 
-FROM gcr.io/dataflow-templates-base/java11-template-launcher-base
+FROM gcr.io/dataflow-templates-base/java17-template-launcher-base
 
   ARG WORKDIR=/dataflow/template
   RUN mkdir -p ${WORKDIR}
