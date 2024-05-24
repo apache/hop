@@ -40,15 +40,10 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-@RunWith(PowerMockRunner.class)
 public class ValueMetaAndDataTest {
 
   private PluginRegistry pluginRegistry;
@@ -122,9 +117,7 @@ public class ValueMetaAndDataTest {
   }
 
   @Test
-  @PrepareForTest({EnvUtil.class})
   public void testLoadXml() throws HopValueException, HopPluginException, ParseException {
-    PowerMockito.mockStatic(EnvUtil.class);
     Mockito.when(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_DATE_FORMAT))
         .thenReturn("yyyy-MM-dd HH:mm:ss.SSS");
     ValueMetaAndData valueMetaAndData =

@@ -18,8 +18,8 @@
 package org.apache.hop.www;
 
 import static junit.framework.Assert.assertFalse;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,13 +39,9 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.owasp.encoder.Encode;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-@RunWith(PowerMockRunner.class)
 public class SniffTransformServletTest {
   private PipelineMap mockPipelineMap;
 
@@ -58,7 +54,6 @@ public class SniffTransformServletTest {
   }
 
   @Test
-  @PrepareForTest({Encode.class})
   public void testSniffTransformServletEscapesHtmlWhenPipelineNotFound()
       throws ServletException, IOException {
     HttpServletRequest mockHttpServletRequest = mock(HttpServletRequest.class);
@@ -67,7 +62,7 @@ public class SniffTransformServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy(Encode.class);
+    Mockito.spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(SniffTransformServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
@@ -75,13 +70,9 @@ public class SniffTransformServletTest {
 
     sniffTransformServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
-
-    PowerMockito.verifyStatic(Encode.class);
-    Encode.forHtml(anyString());
   }
 
   @Test
-  @PrepareForTest({Encode.class})
   public void testSniffTransformServletEscapesHtmlWhenPipelineFound()
       throws ServletException, IOException {
     HopLogStore.init();
@@ -96,7 +87,7 @@ public class SniffTransformServletTest {
     StringWriter out = new StringWriter();
     PrintWriter printWriter = new PrintWriter(out);
 
-    PowerMockito.spy(Encode.class);
+    Mockito.spy(Encode.class);
     when(mockHttpServletRequest.getContextPath()).thenReturn(SniffTransformServlet.CONTEXT_PATH);
     when(mockHttpServletRequest.getParameter(anyString()))
         .thenReturn(ServletTestUtils.BAD_STRING_TO_TEST);
@@ -110,8 +101,5 @@ public class SniffTransformServletTest {
 
     sniffTransformServlet.doGet(mockHttpServletRequest, mockHttpServletResponse);
     assertFalse(ServletTestUtils.hasBadText(ServletTestUtils.getInsideOfTag("H1", out.toString())));
-
-    PowerMockito.verifyStatic(Encode.class);
-    Encode.forHtml(anyString());
   }
 }

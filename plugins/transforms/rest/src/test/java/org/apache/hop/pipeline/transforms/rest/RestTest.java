@@ -23,12 +23,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.nullable;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
-import static org.powermock.reflect.Whitebox.setInternalState;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Invocation;
@@ -44,14 +43,24 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.glassfish.jersey.client.ClientResponse;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Answers;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Client.class)
 public class RestTest {
+
+  private MockedStatic<Client> mockedClient;
+
+  @BeforeEach
+  void setUpStaticMocks() {
+    mockedClient = mockStatic(Client.class);
+  }
+
+  @AfterEach
+  void tearDownStaticMocks() {
+    mockedClient.closeOnDemand();
+  }
 
   @Test
   public void testCreateMultivalueMap() {
@@ -92,8 +101,6 @@ public class RestTest {
     Client client = mock(Client.class);
     doReturn(resource).when(client).target(nullable(String.class));
 
-    mockStatic(Client.class);
-
     RestMeta meta = mock(RestMeta.class);
     doReturn(false).when(meta).isDetailed();
     doReturn(false).when(meta).isUrlInField();
@@ -112,9 +119,6 @@ public class RestTest {
     Rest rest = mock(Rest.class, Answers.RETURNS_DEFAULTS);
     doCallRealMethod().when(rest).callRest(any());
     doCallRealMethod().when(rest).searchForHeaders(any());
-
-    setInternalState(rest, "meta", meta);
-    setInternalState(rest, "data", data);
 
     Object[] output = rest.callRest(new Object[] {0});
 

@@ -32,8 +32,7 @@
 
     <properties>
         <!-- Test dependencies -->
-        <mockito.version>1.10.19</mockito.version>
-        <powermock.version>2.0.9</powermock.version>
+        <mockito.version>5.12.0</mockito.version>
         <aws-java-sdk-s3.version>1.12.651</aws-java-sdk-s3.version>
         <aws-java-sdk-core.version>1.12.651</aws-java-sdk-core.version>
         <aws-java-sdk-sns.version>1.12.651</aws-java-sdk-sns.version>
@@ -143,12 +142,6 @@
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
             <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-reflect</artifactId>
-            <version>${powermock.version}</version>
             <scope>test</scope>
         </dependency>
 

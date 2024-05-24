@@ -21,10 +21,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -199,7 +198,7 @@ public class ExcelWriterTransformTest {
     IValueMeta vmi = mock(ValueMetaInteger.class);
     when(vmi.getType()).thenReturn(IValueMeta.TYPE_INTEGER);
     when(vmi.getName()).thenReturn("name");
-    when(vmi.getNumber(anyObject())).thenReturn(12.0);
+    when(vmi.getNumber(any())).thenReturn(12.0);
 
     when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
     when(metaMock.getFile().isStreamingData()).thenReturn(false);
@@ -243,7 +242,7 @@ public class ExcelWriterTransformTest {
     IValueMeta vmi = mock(ValueMetaInteger.class);
     when(vmi.getType()).thenReturn(IValueMeta.TYPE_INTEGER);
     when(vmi.getName()).thenReturn("name");
-    when(vmi.getNumber(anyObject())).thenReturn(12.0);
+    when(vmi.getNumber(any())).thenReturn(12.0);
 
     when(metaMock.getTemplate().isTemplateEnabled()).thenReturn(true);
     when(metaMock.getFile().isStreamingData()).thenReturn(true);
@@ -275,7 +274,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_BIGNUMBER).when(vmi).getType();
     doReturn("value_bigNumber").when(vmi).getName();
-    doReturn(Double.MAX_VALUE).when(vmi).getNumber(anyObject());
+    doReturn(Double.MAX_VALUE).when(vmi).getNumber(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -287,7 +286,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_BINARY).when(vmi).getType();
     doReturn("value_binary").when(vmi).getName();
-    doReturn("a1b2c3d4e5f6g7h8i9j0").when(vmi).getString(anyObject());
+    doReturn("a1b2c3d4e5f6g7h8i9j0").when(vmi).getString(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -299,7 +298,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_BOOLEAN).when(vmi).getType();
     doReturn("value_bool").when(vmi).getName();
-    doReturn(Boolean.FALSE).when(vmi).getBoolean(anyObject());
+    doReturn(Boolean.FALSE).when(vmi).getBoolean(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -311,7 +310,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_DATE).when(vmi).getType();
     doReturn("value_date").when(vmi).getName();
-    doReturn(new Date()).when(vmi).getDate(anyObject());
+    doReturn(new Date()).when(vmi).getDate(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -323,7 +322,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INTEGER).when(vmi).getType();
     doReturn("value_integer").when(vmi).getName();
-    doReturn(Double.MAX_VALUE).when(vmi).getNumber(anyObject());
+    doReturn(Double.MAX_VALUE).when(vmi).getNumber(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -335,7 +334,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_INET).when(vmi).getType();
     doReturn("value_internetAddress").when(vmi).getName();
-    doReturn("127.0.0.1").when(vmi).getString(anyObject());
+    doReturn("127.0.0.1").when(vmi).getString(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -347,7 +346,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_NUMBER).when(vmi).getType();
     doReturn("value_number").when(vmi).getName();
-    doReturn(Double.MIN_VALUE).when(vmi).getNumber(anyObject());
+    doReturn(Double.MIN_VALUE).when(vmi).getNumber(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }
@@ -359,7 +358,7 @@ public class ExcelWriterTransformTest {
     Object vObj = new Object();
     doReturn(IValueMeta.TYPE_STRING).when(vmi).getType();
     doReturn("value_string").when(vmi).getName();
-    doReturn("a_string").when(vmi).getString(anyObject());
+    doReturn("a_string").when(vmi).getString(any());
 
     testBaseXlsx(vmi, vObj, false, false);
   }

@@ -30,14 +30,11 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import junit.framework.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 /**
  * Note, this test must be run on separate JAVA instance, to be sure LoggingRegistry was not already
  * initialized when using differed initialization or do initialize immediate in static way.
  */
-@RunWith(PowerMockRunner.class)
 public class LoggingRegistrySingltonTest {
 
   /**

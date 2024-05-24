@@ -626,7 +626,7 @@ public class TextFileOutputTest {
     IRowMeta inputRowMeta = Mockito.mock(IRowMeta.class);
 
     IValueMeta iValueMeta = Mockito.mock(IValueMeta.class);
-    Mockito.when(iValueMeta.getString(Mockito.anyObject()))
+    Mockito.when(iValueMeta.getString(Mockito.any()))
         .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
     Mockito.when(inputRowMeta.getValueMeta(Mockito.anyInt())).thenReturn(iValueMeta);
     Mockito.when(inputRowMeta.clone()).thenReturn(inputRowMeta);
@@ -706,7 +706,7 @@ public class TextFileOutputTest {
     IRowMeta inputRowMeta = Mockito.mock(IRowMeta.class);
 
     IValueMeta iValueMeta = Mockito.mock(IValueMeta.class);
-    Mockito.when(iValueMeta.getString(Mockito.anyObject()))
+    Mockito.when(iValueMeta.getString(Mockito.any()))
         .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
     Mockito.when(inputRowMeta.getValueMeta(Mockito.anyInt())).thenReturn(iValueMeta);
     Mockito.when(inputRowMeta.clone()).thenReturn(inputRowMeta);
