@@ -43,8 +43,8 @@
     </licenses>
 
     <properties>
-        <cassandra-all.version>4.1.2</cassandra-all.version>
-        <cassandra-java-driver.version>4.16.0</cassandra-java-driver.version>
+        <cassandra-all.version>4.1.5</cassandra-all.version>
+        <cassandra-java-driver.version>4.17.0</cassandra-java-driver.version>
     </properties>
 
     <dependencies>

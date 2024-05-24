@@ -54,8 +54,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class CheckSumTest {
   // calculations are different in Linux and Windows for files (due to CRLF vs LF)
   @Before

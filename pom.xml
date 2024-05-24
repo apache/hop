@@ -100,7 +100,26 @@
     <properties>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
-        <maven-surefire-plugin.argLine>-Duser.timezone=UTC -Dfile.encoding=UTF-8 -Duser.language=en -Duser.country=US --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
+        <maven-surefire-plugin.argLine>
+            -Duser.timezone=UTC
+            -Dfile.encoding=UTF-8
+            -Duser.language=en -Duser.country=US
+            --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
+            --add-opens java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+            --add-opens java.base/java.lang.reflect=ALL-UNNAMED
+            --add-opens java.base/java.io=ALL-UNNAMED
+            --add-opens java.base/java.net=ALL-UNNAMED
+            --add-opens java.base/java.nio=ALL-UNNAMED
+            --add-opens java.base/java.util=ALL-UNNAMED
+            --add-opens java.base/java.util.concurrent=ALL-UNNAMED
+            --add-opens java.base/java.util.concurrent.atomic=ALL-UNNAMED
+            --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+            --add-opens java.base/sun.nio.cs=ALL-UNNAMED
+            --add-opens java.base/sun.security.action=ALL-UNNAMED
+            --add-opens java.base/sun.util.calendar=ALL-UNNAMED
+            --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED
+            --add-exports java.base/sun.nio.ch=ALL-UNNAMED
         </maven-surefire-plugin.argLine>
 
         <!-- License Configuration -->
@@ -222,8 +241,8 @@
         <spring-security.version>4.1.5.RELEASE</spring-security.version>
 
         <!-- jdk version -->
-        <source.jdk.version>11</source.jdk.version>
-        <target.jdk.version>11</target.jdk.version>
+        <source.jdk.version>17</source.jdk.version>
+        <target.jdk.version>17</target.jdk.version>
         <maven.compiler.source>${source.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
 
@@ -259,7 +278,6 @@
         </maven-surefire-plugin.reuseForks> <!-- default setting is reuseForks = true -->
         <maven-surefire-plugin.forkCount>1</maven-surefire-plugin.forkCount> <!-- default setting is forkCount = 1 -->
         <maven-surefire-plugin.testFailureIgnore>false</maven-surefire-plugin.testFailureIgnore>
-        <maven-surefire-plugin.argLine />
         <maven-failsafe-plugin.reuseForks>true
         </maven-failsafe-plugin.reuseForks> <!-- default setting is reuseForks = true -->
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount> <!-- default setting is forkCount = 1 -->
@@ -772,7 +790,7 @@
             <plugin>
                 <groupId>org.apache.rat</groupId>
                 <artifactId>apache-rat-plugin</artifactId>
-                <version>0.13</version>
+                <version>0.16.1</version>
                 <configuration>
                     <excludeSubProjects>false</excludeSubProjects>
                     <consoleOutput>true</consoleOutput>

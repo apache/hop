@@ -51,14 +51,14 @@ the [Hop website](https://hop.apache.org) for more information on how to contrib
 
 Required:
 
-- [OpenJDK](https://openjdk.java.net/) Java 11 compiler. Make sure to update your JDK to the latest possible patch
+- [OpenJDK](https://openjdk.java.net/) Java 17 compiler. Make sure to update your JDK to the latest possible patch
   version.
 
 Recommended:
 
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
 
-Verify Maven Java version: (should be Java 11 to compile properly without skipping tests)
+Verify Maven Java version: (should be Java 17 to compile properly without skipping tests)
 
     mvn -version
 
@@ -84,11 +84,11 @@ You can download a source release [here](https://downloads.apache.org/hop/)
 
 Required:
 
-- [OpenJDK](https://openjdk.java.net/) Java 11 compiler or higher. Make sure to get the latest updates to support recent
+- [OpenJDK](https://openjdk.java.net/) Java 17 compiler or higher. Make sure to get the latest updates to support recent
   features like dark mode on the various platforms.
 - [Maven](http://maven.apache.org/) 3.6.3 or higher
 
-Verify Maven Java version: (should be Java 11 to compile properly without skipping tests)
+Verify Maven Java version: (should be Java 17 to compile properly without skipping tests)
 
     mvn -version
 

@@ -51,6 +51,7 @@ image:beam/synthetic-data-to-kinesis.svg[Sending test data to a Kinesis stream, 
 In the Flink deployment file below we'll do the following things different from a standard setup:
 
 - Run with Java 11 since we're using Apache Hop >= 2.0.0
+- Run with Java 17 since we're using Apache Hop >= 2.10.0
 - Create an ephemeral volume called `hop-resources` which is mounted by all images in folder `/hop`
 - Before any Flink container starts we run an initContainer to copy our Hop files (fat jar, pipeline, metadata) to the `hop-resources` volume.  Container https://hub.docker.com/r/agiledigital/s3-artifact-fetcher[agiledigital/s3-artifact-fetcher] is used to synchronize an S3 folder with our ephemeral volume shared by the nodes/containers.
 - We specify the Hop main Beam class and pass in the pipeline and metadata JSON filenames (now found locally on the container) along with the name of the Flink Hop pipeline run configuration as arguments.
