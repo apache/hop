@@ -39,3 +39,13 @@ The Set Variables action sets variables at various scopes.
 |Variable substitution|Whether or not to substitute variables. Leave unchecked only if you actually want to set a literal value like "${MyVariable}" in the Value column.
 |Variables|A list of variables to set to a certain value at a certain scope.
 |===
+
+== Working with Properties Files
+
+Properties files are simple text files used to store key-value pairs. They are commonly used to manage configuration settings and variables outside of the codebase. In Apache Hop, a properties file can be used to set multiple variables at once in a workflow.
+
+A properties file is a text file with the `.properties` extension. Each line in the file represents a key-value pair. The key and value can be separated by an equals sign (`=`), a colon (`:`), or whitespace characters.
+
+== Variable substitution
+
+The "Variable substitution" option allows you to dynamically create and set variables based on existing variable values. When enabled, any variable references in the variable name or value fields will be resolved before the variables are set. This enables the creation of new variables whose names and values depend on other variable contents, providing a flexible and dynamic approach to variable management within workflows. The syntax `${MyVariable}` is used to retrieve variable values.
