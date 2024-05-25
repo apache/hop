@@ -22,4 +22,4 @@ Hop GUI is the visual integrated development environment (IDE) for Apache Hop.
 
 == Usage
 
-Hop GUI doesn't take any parameters or arguments. To start, just run `hop-gui.bat` on Window or `hop-run.sh` on Linux and Mac OS.
+Hop GUI doesn't take any parameters or arguments. To start, just run `hop-gui.bat` on Window or `hop-gui.sh` on Linux and Mac OS.
