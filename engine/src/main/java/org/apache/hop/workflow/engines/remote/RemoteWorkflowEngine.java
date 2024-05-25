@@ -237,6 +237,12 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       if (StringUtils.isEmpty(remoteRunConfigurationName)) {
         throw new HopException("No run configuration was specified to the remote workflow with");
       }
+      if (workflowRunConfiguration.getName().equals(remoteRunConfigurationName)) {
+        throw new HopException(
+            "The remote workflow run configuration refers to itself '"
+                + remoteRunConfigurationName
+                + "'");
+      }
       if (metadataProvider == null) {
         throw new HopException(
             "The remote workflow engine didn't receive a metadata to load hop server '"

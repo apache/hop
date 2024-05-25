@@ -212,6 +212,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
       if (StringUtils.isEmpty(remoteRunConfigurationName)) {
         throw new HopException("No run configuration was specified to the remote pipeline with");
       }
+      if (pipelineRunConfiguration.getName().equals(remoteRunConfigurationName)) {
+        throw new HopException(
+            "The remote pipeline run configuration refers to itself '"
+                + remoteRunConfigurationName
+                + "'");
+      }
       if (metadataProvider == null) {
         throw new HopException(
             "The remote pipeline engine didn't receive a metadata to load hop server '"
