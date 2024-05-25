@@ -98,10 +98,12 @@ public class HopGuiKeyHandler extends KeyAdapter {
       }
     }
     // If this is attached to a perspective, and it's not active, bail out.
+    // Except if it's shortcut to activate perspective
     if (parentObject instanceof IHopPerspective) {
       IHopPerspective perspective = (IHopPerspective) parentObject;
       try {
-        if (!perspective.isActive()) {
+        // TODO: It's not the best way to check with the method name, but it works for now.
+        if (!perspective.isActive() && !shortcut.getParentMethodName().equals("activate")) {
           return false;
         }
       } catch (Exception ex) {
