@@ -39,7 +39,7 @@ The goal of this page is to get a basic Airflow setup running to demonstrate how
 
 To keep things simple, we'll use Docker Compose to get Apache Airflow up and running in a matter of minutes. Even though https://docs.docker.com/compose/[Docker Compose^] has been said to be on the verge of extinction for quite a while now, it still is a quick and convenient way to experiment with data platforms that would otherwise be time-consuming and difficult to set up.
 
-Apache Airflow provides a https://airflow.apache.org/docs/apache-airflow/2.6.0/docker-compose.yaml[docker-compose.yaml^] file. Our goal is to run Apache Hop workflows and pipelines in Apache Airflow, so we're not interested in the Airflow sample DAGs that come with this docker-compose file.
+Apache Airflow provides a https://airflow.apache.org/docs/apache-airflow/2.9.1/docker-compose.yaml[docker-compose.yaml^] file. Our goal is to run Apache Hop workflows and pipelines in Apache Airflow, so we're not interested in the Airflow sample DAGs that come with this docker-compose file.
 
 Change the **AIRFLOW\__CORE__LOAD_EXAMPLES** variable to "false" in the default file, and add an additional line **/var/run/docker.sock:/var/run/docker.sock** in the volumes section.
 All of this has already been done if you use the https://github.com/apache/hop/tree/master/docs/hop-user-manual/modules/ROOT/assets/files/how-to-guides/apache-airflow/docker-compose.yaml[the file] in our github repository.
@@ -55,19 +55,19 @@ The various Apache Airflow need a couple of moments to start. Once you see a cou
 
 [source, bash]
 ----
-apache-airflow-airflow-triggerer-1  | [2023-05-07 07:50:08 +0000] [24] [INFO] Booting worker with pid: 24
-apache-airflow-airflow-triggerer-1  | [2023-05-07 07:50:08 +0000] [25] [INFO] Booting worker with pid: 25
+apache-airflow-airflow-triggerer-1  | [2024-05-07 07:50:08 +0000] [24] [INFO] Booting worker with pid: 24
+apache-airflow-airflow-triggerer-1  | [2024-05-07 07:50:08 +0000] [25] [INFO] Booting worker with pid: 25
 apache-airflow-airflow-scheduler-1  |   ____________       _____________
 apache-airflow-airflow-scheduler-1  |  ____    |__( )_________  __/__  /________      __
 apache-airflow-airflow-scheduler-1  | ____  /| |_  /__  ___/_  /_ __  /_  __ \_ | /| / /
 apache-airflow-airflow-scheduler-1  | ___  ___ |  / _  /   _  __/ _  / / /_/ /_ |/ |/ /
 apache-airflow-airflow-scheduler-1  |  _/_/  |_/_/  /_/    /_/    /_/  \____/____/|__/
-apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.601+0000] {executor_loader.py:114} INFO - Loaded executor: CeleryExecutor
-apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.652+0000] {scheduler_job_runner.py:823} INFO - Starting the scheduler
-apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.653+0000] {scheduler_job_runner.py:830} INFO - Processing each file at most -1 times
-apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.657+0000] {manager.py:165} INFO - Launched DagFileProcessorManager with pid: 34
-apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.658+0000] {scheduler_job_runner.py:1576} INFO - Resetting orphaned tasks for active dag runs
-apache-airflow-airflow-scheduler-1  | [2023-05-07T07:50:08.660+0000] {settings.py:60} INFO - Configured default timezone Timezone('UTC')
+apache-airflow-airflow-scheduler-1  | [2024-05-07T07:50:08.601+0000] {executor_loader.py:114} INFO - Loaded executor: CeleryExecutor
+apache-airflow-airflow-scheduler-1  | [2024-05-07T07:50:08.652+0000] {scheduler_job_runner.py:823} INFO - Starting the scheduler
+apache-airflow-airflow-scheduler-1  | [2024-05-07T07:50:08.653+0000] {scheduler_job_runner.py:830} INFO - Processing each file at most -1 times
+apache-airflow-airflow-scheduler-1  | [2024-05-07T07:50:08.657+0000] {manager.py:165} INFO - Launched DagFileProcessorManager with pid: 34
+apache-airflow-airflow-scheduler-1  | [2024-05-07T07:50:08.658+0000] {scheduler_job_runner.py:1576} INFO - Resetting orphaned tasks for active dag runs
+apache-airflow-airflow-scheduler-1  | [2024-05-07T07:50:08.660+0000] {settings.py:60} INFO - Configured default timezone Timezone('UTC')
 ----
 
 Go to http://localhost:8080/home in your browser and log on with username "airflow" and password "airflow".
@@ -171,7 +171,7 @@ with DAG('sample-pipeline', default_args=default_args, schedule_interval=None, c
     end_dag = DummyOperator(
         task_id='end_dag'
         )
-        hop = DockerOperator(
+    hop = DockerOperator(
         task_id='sample-pipeline',
         # use the Apache Hop Docker image. Add your tags here in the default apache/hop: syntax
         image='apache/hop',
@@ -201,9 +201,11 @@ All it takes to deploy your dag is to put it in Airflow's dags folder. Our docke
 
 Save the DAG we just created in your dags folder as apache-hop-dag-simple.py. After a short wait, your DAG will show up in the list of dags.
 
-If there are any syntax errors in your DAG, Airflow will let you know. Expand the error dialog for more details about the error.
-
+If there are any syntax errors in your DAG, Airflow will let you know. Expand the error dialog for more details about the error, as shown in the image below. Don't worry, you shouldn't have any errors with the DAG we just created. 
+ 
 image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-error.png[Apache Airflow - DAG error, width="45%"]
+
+If your DAG is deployed correctly (it should), you'll see it show up in the list of available DAGs. 
 
 image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-available.png[Apache Airflow - DAG available, width="75%"]
 
@@ -221,12 +223,12 @@ image:how-to-guides/run-hop-in-apache-airflow/apache-airflow-dag-logs.png[Apache
 
 [source, bash]
 ----
-2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - Ouput.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
-[2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - null-if-basic - Pipeline duration : 0.45 seconds [  0.450 ]
-[2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - HopRun exit.
-[2023-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - null-if-basic - Execution finished on a local pipeline engine with run configuration 'local'
-[2023-05-07, 13:54:40 UTC] {taskinstance.py:1373} INFO - Marking task as SUCCESS. dag_id=sample-pipeline, task_id=sample-pipeline, execution_date=20230507T135409, start_date=20230507T135411, end_date=20230507T135440
-[2023-05-07, 13:54:40 UTC] {local_task_job_runner.py:232} INFO - Task exited with return code 0
+2024-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - Ouput.0 - Finished processing (I=0, O=0, R=5, W=5, U=0, E=0)
+[2024-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - null-if-basic - Pipeline duration : 0.45 seconds [  0.450 ]
+[2024-05-07, 13:54:39 UTC] {docker.py:391} INFO - HopRun exit.
+[2024-05-07, 13:54:39 UTC] {docker.py:391} INFO - 2023/05/07 13:54:39 - null-if-basic - Execution finished on a local pipeline engine with run configuration 'local'
+[2024-05-07, 13:54:40 UTC] {taskinstance.py:1373} INFO - Marking task as SUCCESS. dag_id=sample-pipeline, task_id=sample-pipeline, execution_date=20230507T135409, start_date=20230507T135411, end_date=20230507T135440
+[2024-05-07, 13:54:40 UTC] {local_task_job_runner.py:232} INFO - Task exited with return code 0
 ----
 
 When you return to the Airflow home screen, your DAG will now show green circles for successful runs.
@@ -310,17 +312,17 @@ Your DAG logs will now show the environment variable and the parameter we used i
 
 [source, bash]
 ----
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - pipeline-with-parameter - Pipeline has allocated 5 threads and 4 rowsets.
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - generate 1 row.0 - Starting to run...
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - generate 1 row.0 - Finished processing (I=0, O=0, R=0, W=1, U=0, E=0)
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${PRM_EXAMPLE}.0 - field [example] has value [EXAMPLE VALUE]
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${PRM_EXAMPLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write parameter to log.0 -
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${ENV_VARIABLE}.0 - field [env_variable] has value [variable value]
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write env_variable to log.0 -
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write parameter to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${ENV_VARIABLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
-[2023-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write env_variable to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - pipeline-with-parameter - Pipeline has allocated 5 threads and 4 rowsets.
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - generate 1 row.0 - Starting to run...
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - generate 1 row.0 - Finished processing (I=0, O=0, R=0, W=1, U=0, E=0)
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${PRM_EXAMPLE}.0 - field [example] has value [EXAMPLE VALUE]
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${PRM_EXAMPLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write parameter to log.0 -
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${ENV_VARIABLE}.0 - field [env_variable] has value [variable value]
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write env_variable to log.0 -
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write parameter to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - get ${ENV_VARIABLE}.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
+[2024-05-08, 08:21:34 UTC] {docker.py:391} INFO - 2023/05/08 08:21:34 - write env_variable to log.0 - Finished processing (I=0, O=0, R=1, W=1, U=0, E=0)
 ----
 
 == Scheduling a DAG in Apache Airflow
