@@ -1340,7 +1340,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  private void splitHop(PipelineHopMeta hi) {
+  private void splitHop(PipelineHopMeta hop) {
     int id = 0;
     if (!hopGui.getProps().getAutoSplit()) {
       MessageDialogWithToggle md =
@@ -1349,7 +1349,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Title"),
               BaseMessages.getString(PKG, "PipelineGraph.Dialog.SplitHop.Message")
                   + Const.CR
-                  + hi.toString(),
+                  + hop.toString(),
               SWT.ICON_QUESTION,
               new String[] {
                 BaseMessages.getString(PKG, "System.Button.Yes"),
@@ -1362,24 +1362,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
 
     if ((id & 0xFF) == 0) { // Means: "Yes" button clicked!
-
-      // Only split A-->--B by putting C in between IF...
-      // C-->--A or B-->--C don't exists...
-      // A ==> hi.getFromTransform()
-      // B ==> hi.getToTransform()
-      // C ==> selectedTransform
-      //
-      boolean caExists =
-          pipelineMeta.findPipelineHop(selectedTransform, hi.getFromTransform()) != null;
-      boolean bcExists =
-          pipelineMeta.findPipelineHop(hi.getToTransform(), selectedTransform) != null;
-      if (!caExists && !bcExists) {
-        pipelineTransformDelegate.insertTransform(pipelineMeta, hi, currentTransform);
-        redraw();
-      }
-
-      // else: Silently discard this hop-split attempt.
+      pipelineTransformDelegate.insertTransform(pipelineMeta, hop, currentTransform);
+      redraw();
     }
+    // Discard this hop-split attempt.
+    splitHop = false;
   }
 
   @Override
@@ -1502,9 +1489,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           findPipelineHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedTransform);
       if (hi != null) {
         // OK, we want to split the hop in 2
+
+        // Check if we can split A-->--B and insert the selected transform C if
+        // C-->--A or C-->--B or A-->--C or B-->--C don't exists...
         //
-        if (!hi.getFromTransform().equals(selectedTransform)
-            && !hi.getToTransform().equals(selectedTransform)) {
+        if (pipelineMeta.findPipelineHop(selectedTransform, hi.getFromTransform()) == null
+            && pipelineMeta.findPipelineHop(selectedTransform, hi.getToTransform()) == null
+            && pipelineMeta.findPipelineHop(hi.getToTransform(), selectedTransform) == null
+            && pipelineMeta.findPipelineHop(hi.getFromTransform(), selectedTransform) == null) {
           splitHop = true;
           lastHopSplit = hi;
           hi.split = true;

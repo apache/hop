@@ -837,11 +837,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         }
       }
 
-      // OK, we moved the transform, did we move it across a hop?
+      // OK, we moved the action, did we move it across a hop?
       // If so, ask to split the hop!
       if (splitHop) {
-        WorkflowHopMeta hi = findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
-        if (hi != null) {
+        WorkflowHopMeta hop = findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
+        if (hop != null) {
           int id = 0;
           if (!hopGui.getProps().getAutoSplit()) {
             MessageDialogWithToggle md =
@@ -850,7 +850,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                     BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Title"),
                     BaseMessages.getString(PKG, "HopGuiWorkflowGraph.Dialog.SplitHop.Message")
                         + Const.CR
-                        + hi.toString(),
+                        + hop.toString(),
                     SWT.ICON_QUESTION,
                     new String[] {
                       BaseMessages.getString(PKG, "System.Button.Yes"),
@@ -863,23 +863,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             hopGui.getProps().setAutoSplit(md.getToggleState());
           }
 
-          if ((id & 0xFF) == 0) {
-            // Means: "Yes" button clicked!
-
-            // Only split A-->--B by putting C in between IF...
-            // C-->--A or B-->--C don't exists...
-            // A ==> hi.getFromAction()
-            // B ==> hi.getToAction()
-            // C ==> selectedTransform
-            //
-            if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
-                && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null) {
-
-              workflowActionDelegate.insetAction(workflowMeta, hi, selectedAction);
-            }
-            // else: Silently discard this hop-split attempt.
+          if ((id & 0xFF) == 0) { // Means: "Yes" button clicked!
+            workflowActionDelegate.insertAction(workflowMeta, hop, selectedAction);
           }
         }
+        // Discard this hop-split attempt.
         splitHop = false;
       }
 
@@ -1190,9 +1178,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       WorkflowHopMeta hi = findHop(icon.x + iconSize / 2, icon.y + iconSize / 2, selectedAction);
       if (hi != null) {
         // OK, we want to split the hop in 2
+
+        // Check if we can split A-->--B and insert the selected transform C if
+        // C-->--A or C-->--B or A-->--C or B-->--C don't exists...
         //
-        if (!hi.getFromAction().equals(selectedAction)
-            && !hi.getToAction().equals(selectedAction)) {
+        if (workflowMeta.findWorkflowHop(selectedAction, hi.getFromAction()) == null
+            && workflowMeta.findWorkflowHop(selectedAction, hi.getToAction()) == null
+            && workflowMeta.findWorkflowHop(hi.getToAction(), selectedAction) == null
+            && workflowMeta.findWorkflowHop(hi.getFromAction(), selectedAction) == null) {
           splitHop = true;
           lastHopSplit = hi;
           hi.split = true;
@@ -2455,7 +2448,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               plugin.getDescription(),
               plugin.getImageFile(),
               (shiftClicked, controlClicked, t) ->
-                  workflowActionDelegate.insetAction(
+                  workflowActionDelegate.insertAction(
                       workflowMeta,
                       context.getHopMeta(),
                       plugin.getIds()[0],
