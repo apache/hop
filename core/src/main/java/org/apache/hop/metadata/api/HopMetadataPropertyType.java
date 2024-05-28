@@ -1,0 +1,29 @@
+package org.apache.hop.metadata.api;
+
+/** A HopMetadataPropertyType provides information about the purpose of a HopMetadataProperty. */
+public enum HopMetadataPropertyType {
+  NONE,
+  FILE_PATH,
+  FILE_NAME,
+  FILE_WILDCARD,
+  FILE_ENCODING,
+  FILE_FIELD,
+  FILE_SEPARATOR,
+  FILE_ENCLOSURE,
+  FILE_EXTENSION,
+  RDBMS_CONNECTION,
+  RDBMS_SCHEMA,
+  RDBMS_TABLE,
+  RDBMS_COLUMN,
+  RDBMS_SQL,
+  RDBMS_TRUNCATE,
+  RDBMS_SQL_SELECT,
+  RDBMS_SQL_INSERT,
+  RDBMS_SQL_UPDATE,
+  RDBMS_SQL_DELETE,
+  RDBMS_SQL_BULK,
+  GRAPH_CONNECTION,
+  GRAPH_QUERY,
+  GRAPH_NODE,
+  GRAPH_RELATIONSHIP
+}

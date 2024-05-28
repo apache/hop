@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,6 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -49,7 +51,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::TableOutput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::TableOutputMeta.keyword",
-    documentationUrl = "/pipeline/transforms/tableoutput.html")
+    documentationUrl = "/pipeline/transforms/tableoutput.html",
+    actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputData> {
   private static final Class<?> PKG = TableOutputMeta.class; // For Translator
 
@@ -58,19 +61,22 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
 
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "TableOutputMeta.Injection.Connection")
+      injectionKeyDescription = "TableOutputMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
       key = "schema",
       injectionKey = "TARGET_SCHEMA",
-      injectionKeyDescription = "TableOutputMeta.Injection.SchemaName.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.SchemaName.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TARGET_TABLE",
-      injectionKeyDescription = "TableOutputMeta.Injection.TableName.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.TableName.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   @HopMetadataProperty(
@@ -82,7 +88,8 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
   @HopMetadataProperty(
       key = "truncate",
       injectionKey = "TRUNCATE_TABLE",
-      injectionKeyDescription = "TableOutputMeta.Injection.TruncateTable.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.TruncateTable.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private boolean truncateTable;
 
   @HopMetadataProperty(

@@ -144,4 +144,11 @@ public @interface HopMetadataProperty {
    */
   Class<? extends IStringObjectConverter> injectionStringObjectConverter() default
       IStringObjectConverter.None.class;
+
+  /**
+   * A HopMetadataPropertyType provides information about the purpose of a HopMetadataProperty.
+   *
+   * @return the type of metadata this property represents.
+   */
+  HopMetadataPropertyType hopMetadataPropertyType() default HopMetadataPropertyType.NONE;
 }
