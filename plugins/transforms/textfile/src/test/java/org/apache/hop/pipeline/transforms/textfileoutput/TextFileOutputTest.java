@@ -24,12 +24,10 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.IRowSet;
@@ -53,7 +51,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.apache.hop.utils.TestUtils;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -79,12 +76,6 @@ public class TextFileOutputTest {
   public static void setUpBeforeClass() throws Exception {
     PluginRegistry.addPluginType(CompressionPluginType.getInstance());
     PluginRegistry.init();
-  }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {
-    FileUtils.deleteQuietly(
-        Paths.get(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION).toFile());
   }
 
   public class TextFileOutputTestHandler
@@ -592,6 +583,7 @@ public class TextFileOutputTest {
    */
   @Test
   public void testProcessRule_2() throws Exception {
+    String filename = createTemplateFile().toString();
 
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
     TextFileField[] textFileFields = {tfFieldMock};
@@ -604,8 +596,7 @@ public class TextFileOutputTest {
         .thenCallRealMethod();
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
-    Mockito.when(transformMockHelper.iTransformMeta.getFileName())
-        .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileName()).thenReturn(filename);
     Mockito.when(transformMockHelper.iTransformMeta.isFileAppended()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isHeaderEnabled()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
@@ -626,28 +617,21 @@ public class TextFileOutputTest {
     IRowMeta inputRowMeta = Mockito.mock(IRowMeta.class);
 
     IValueMeta iValueMeta = Mockito.mock(IValueMeta.class);
-    Mockito.when(iValueMeta.getString(Mockito.any()))
-        .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.when(iValueMeta.getString(Mockito.any())).thenReturn(filename);
     Mockito.when(inputRowMeta.getValueMeta(Mockito.anyInt())).thenReturn(iValueMeta);
     Mockito.when(inputRowMeta.clone()).thenReturn(inputRowMeta);
 
     textFileOutput.setInputRowMeta(inputRowMeta);
 
     TextFileOutput textFileOutputSpy = Mockito.spy(textFileOutput);
-    Mockito.doCallRealMethod()
-        .when(textFileOutputSpy)
-        .initFileStreamWriter(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.doCallRealMethod().when(textFileOutputSpy).initFileStreamWriter(filename);
     Mockito.doNothing().when(textFileOutputSpy).writeRow(inputRowMeta, rowData);
-    Mockito.doReturn(false)
-        .when(textFileOutputSpy)
-        .isFileExists(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
-    Mockito.doReturn(true)
-        .when(textFileOutputSpy)
-        .isWriteHeader(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.doReturn(false).when(textFileOutputSpy).isFileExists(filename);
+    Mockito.doReturn(true).when(textFileOutputSpy).isWriteHeader(filename);
     textFileOutputSpy.init();
     Mockito.when(
             transformMockHelper.iTransformMeta.buildFilename(
-                TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION,
+                filename,
                 null,
                 textFileOutputSpy,
                 0,
@@ -658,7 +642,7 @@ public class TextFileOutputTest {
                 0,
                 true,
                 transformMockHelper.iTransformMeta))
-        .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+        .thenReturn(filename);
 
     textFileOutputSpy.processRow();
     Mockito.verify(textFileOutputSpy, Mockito.times(1)).writeHeader();
@@ -673,6 +657,8 @@ public class TextFileOutputTest {
   @Test
   public void testProcessRule_2FileNameInField() throws Exception {
 
+    String filename = createTemplateFile().toString();
+
     TextFileField tfFieldMock = Mockito.mock(TextFileField.class);
     TextFileField[] textFileFields = {tfFieldMock};
 
@@ -684,8 +670,7 @@ public class TextFileOutputTest {
         .thenCallRealMethod();
 
     Mockito.when(transformMockHelper.iTransformMeta.getEndedLine()).thenReturn(EMPTY_STRING);
-    Mockito.when(transformMockHelper.iTransformMeta.getFileName())
-        .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.when(transformMockHelper.iTransformMeta.getFileName()).thenReturn(filename);
     Mockito.when(transformMockHelper.iTransformMeta.isFileAppended()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.isHeaderEnabled()).thenReturn(true);
     Mockito.when(transformMockHelper.iTransformMeta.getOutputFields()).thenReturn(textFileFields);
@@ -706,28 +691,21 @@ public class TextFileOutputTest {
     IRowMeta inputRowMeta = Mockito.mock(IRowMeta.class);
 
     IValueMeta iValueMeta = Mockito.mock(IValueMeta.class);
-    Mockito.when(iValueMeta.getString(Mockito.any()))
-        .thenReturn(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.when(iValueMeta.getString(Mockito.any())).thenReturn(filename);
     Mockito.when(inputRowMeta.getValueMeta(Mockito.anyInt())).thenReturn(iValueMeta);
     Mockito.when(inputRowMeta.clone()).thenReturn(inputRowMeta);
 
     textFileOutput.setInputRowMeta(inputRowMeta);
 
     TextFileOutput textFileOutputSpy = Mockito.spy(textFileOutput);
-    Mockito.doCallRealMethod()
-        .when(textFileOutputSpy)
-        .initFileStreamWriter(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
-    Mockito.doReturn(false)
-        .when(textFileOutputSpy)
-        .isFileExists(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
-    Mockito.doReturn(true)
-        .when(textFileOutputSpy)
-        .isWriteHeader(TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION);
+    Mockito.doCallRealMethod().when(textFileOutputSpy).initFileStreamWriter(filename);
+    Mockito.doReturn(false).when(textFileOutputSpy).isFileExists(filename);
+    Mockito.doReturn(true).when(textFileOutputSpy).isWriteHeader(filename);
     Mockito.doNothing().when(textFileOutputSpy).writeRow(inputRowMeta, rowData);
     textFileOutputSpy.init();
     Mockito.when(
             transformMockHelper.iTransformMeta.buildFilename(
-                TEXT_FILE_OUTPUT_PREFIX + TEXT_FILE_OUTPUT_EXTENSION,
+                filename,
                 null,
                 textFileOutputSpy,
                 0,
