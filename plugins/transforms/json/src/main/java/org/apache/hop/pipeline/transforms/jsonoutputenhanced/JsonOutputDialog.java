@@ -726,7 +726,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wlSplitOutputAfter.setLayoutData(fdlSplitOutputAfter);
     wSplitOutputAfter = new TextVar(variables, wFilenameGroup, SWT.BORDER | SWT.READ_ONLY);
     wSplitOutputAfter.setEditable(true);
-    wSplitOutputAfter.setToolTipText("JsonOutputDialog.splitOutputAfter.Tooltip");
+    wSplitOutputAfter.setToolTipText(
+        BaseMessages.getString(PKG, "JsonOutputDialog.splitOutputAfter.Tooltip"));
     PropsUi.setLook(wSplitOutputAfter);
     FormData fdSplitOutputAfter = new FormData();
     fdSplitOutputAfter.left = new FormAttachment(middle, 0);
