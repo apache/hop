@@ -31,8 +31,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -63,7 +61,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class AvroOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class AvroOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       AvroOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -118,11 +116,11 @@ public class AvroOutputDialog extends BaseTransformDialog implements ITransformD
   public AvroOutputDialog(
       Shell parent,
       IVariables variables,
-      Object baseTransformMeta,
+      AvroOutputMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
-    input = (AvroOutputMeta) baseTransformMeta;
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   public String open() {

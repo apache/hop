@@ -30,7 +30,6 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -58,7 +57,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class ValidatorDialog extends BaseTransformDialog implements ITransformDialog {
+public class ValidatorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ValidatorMeta.class; // For Translator
   private final ValidatorMeta input;
   private List wValidationsList;
@@ -117,9 +116,13 @@ public class ValidatorDialog extends BaseTransformDialog implements ITransformDi
   private TextVar wConcatSeparator;
 
   public ValidatorDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (ValidatorMeta) in, tr, sname);
-    input = (ValidatorMeta) in;
+      Shell parent,
+      IVariables variables,
+      ValidatorMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
 
     // Just to make sure everything is nicely in sync...
     //

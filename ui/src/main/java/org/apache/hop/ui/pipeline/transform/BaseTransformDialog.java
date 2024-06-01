@@ -40,6 +40,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -78,7 +79,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This class provides functionality common to Transform Dialogs. */
-public class BaseTransformDialog extends Dialog {
+public abstract class BaseTransformDialog extends Dialog implements ITransformDialog {
   private static final Class<?> PKG = ITransform.class; // For Translator
 
   /** The logging object interface for this dialog. */

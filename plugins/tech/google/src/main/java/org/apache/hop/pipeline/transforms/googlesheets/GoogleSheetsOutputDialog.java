@@ -37,8 +37,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -56,7 +54,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class GoogleSheetsOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = GoogleSheetsOutputMeta.class; // for Translator
 
@@ -74,9 +72,13 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog implements ITr
   private TextVar wAppName;
 
   public GoogleSheetsOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String name) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, name);
-    this.meta = (GoogleSheetsOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      GoogleSheetsOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    this.meta = transformMeta;
   }
 
   private static HttpRequestInitializer setHttpTimeout(

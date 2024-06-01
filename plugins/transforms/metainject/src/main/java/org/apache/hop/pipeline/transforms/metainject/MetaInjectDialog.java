@@ -43,8 +43,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -94,7 +92,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 
-public class MetaInjectDialog extends BaseTransformDialog implements ITransformDialog {
+public class MetaInjectDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MetaInjectMeta.class; // For Translator
 
   public static final String CONST_VALUE = "<const>";
@@ -152,9 +150,13 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   private String filterString = null;
 
   public MetaInjectDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    metaInjectMeta = (MetaInjectMeta) in;
+      Shell parent,
+      IVariables variables,
+      MetaInjectMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    metaInjectMeta = transformMeta;
     transModified = false;
 
     targetSourceMapping = new HashMap<>();

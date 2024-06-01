@@ -29,7 +29,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
@@ -45,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Folders compare action settings. */
-public class ActionFoldersCompareDialog extends ActionDialog implements IActionDialog {
+public class ActionFoldersCompareDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -75,9 +74,9 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
   private Button wCompareFileSize;
 
   public ActionFoldersCompareDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionFoldersCompare action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionFoldersCompare) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionFoldersCompare.Name.Default"));
     }
@@ -85,9 +84,8 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

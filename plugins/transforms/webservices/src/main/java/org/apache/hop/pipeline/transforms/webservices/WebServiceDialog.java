@@ -38,8 +38,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.ComplexType;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
@@ -78,7 +76,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
+public class WebServiceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class; // For Translator
 
   private WebServiceMeta meta;
@@ -774,9 +772,13 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   }
 
   public WebServiceDialog(
-      Shell aShell, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(aShell, variables, (ITransformMeta) in, pipelineMeta, sname);
-    meta = (WebServiceMeta) in;
+      Shell aShell,
+      IVariables variables,
+      WebServiceMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(aShell, variables, transformMeta, pipelineMeta, name);
+    meta = transformMeta;
   }
 
   @Override

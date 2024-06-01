@@ -36,7 +36,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -54,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the FTP Put action settings */
-public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
+public class ActionFtpPutDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
 
   private Text wName;
@@ -112,9 +111,9 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private String pwdFolder = null;
 
   public ActionFtpPutDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionFtpPut action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionFtpPut) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionFtpPut.Name.Default"));
     }
@@ -122,9 +121,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

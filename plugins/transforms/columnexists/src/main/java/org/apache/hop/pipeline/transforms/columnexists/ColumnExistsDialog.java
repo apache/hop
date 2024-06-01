@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -54,7 +52,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class ColumnExistsDialog extends BaseTransformDialog implements ITransformDialog {
+public class ColumnExistsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ColumnExistsDialog.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -76,9 +74,13 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
   private final ColumnExistsMeta input;
 
   public ColumnExistsDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (ColumnExistsMeta) in;
+      Shell parent,
+      IVariables variables,
+      ColumnExistsMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

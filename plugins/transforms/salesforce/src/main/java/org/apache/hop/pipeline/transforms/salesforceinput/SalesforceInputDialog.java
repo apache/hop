@@ -163,9 +163,13 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
   private ColumnInfo[] columns;
 
   public SalesforceInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, in, pipelineMeta, sname);
-    input = (SalesforceInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      SalesforceInputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

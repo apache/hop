@@ -42,8 +42,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
@@ -66,7 +64,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class AvroDecodeDialog extends BaseTransformDialog implements ITransformDialog {
+public class AvroDecodeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroDecodeMeta.class; // For Translator
 
   private AvroDecodeMeta input;
@@ -78,12 +76,12 @@ public class AvroDecodeDialog extends BaseTransformDialog implements ITransformD
   public AvroDecodeDialog(
       Shell parent,
       IVariables variables,
-      Object baseTransformMeta,
+      AvroDecodeMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
 
-    input = (AvroDecodeMeta) baseTransformMeta;
+    input = transformMeta;
   }
 
   @Override

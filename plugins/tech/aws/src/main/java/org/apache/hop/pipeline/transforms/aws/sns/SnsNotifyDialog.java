@@ -31,8 +31,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -64,7 +62,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SnsNotifyDialog extends BaseTransformDialog implements ITransformDialog {
+public class SnsNotifyDialog extends BaseTransformDialog {
 
   /**
    * The PKG member is used when looking up internationalized strings. The properties file with
@@ -117,11 +115,11 @@ public class SnsNotifyDialog extends BaseTransformDialog implements ITransformDi
   public SnsNotifyDialog(
       Shell parent,
       IVariables variables,
-      Object in,
+      SnsNotifyMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, transformName);
-    meta = (SnsNotifyMeta) in;
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    meta = transformMeta;
   }
 
   /**

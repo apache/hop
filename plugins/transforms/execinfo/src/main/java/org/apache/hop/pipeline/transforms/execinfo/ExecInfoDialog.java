@@ -24,8 +24,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.LabelComboVar;
@@ -42,7 +40,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class ExecInfoDialog extends BaseTransformDialog implements ITransformDialog {
+public class ExecInfoDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecInfoMeta.class; // For Translator
 
   private MetaSelectionLine<ExecutionInfoLocation> wLocation;
@@ -60,11 +58,11 @@ public class ExecInfoDialog extends BaseTransformDialog implements ITransformDia
   public ExecInfoDialog(
       Shell parent,
       IVariables variables,
-      Object input,
+      ExecInfoMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta<?, ?>) input, pipelineMeta, transformName);
-    this.input = (ExecInfoMeta) input;
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    this.input = transformMeta;
   }
 
   @Override

@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.formula.editor.FormulaEditor;
 import org.apache.hop.ui.core.ConstUi;
@@ -53,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class FormulaDialog extends BaseTransformDialog implements ITransformDialog {
+public class FormulaDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FormulaDialog.class; // For Translator
 
   private TableView wFields;
@@ -67,12 +65,16 @@ public class FormulaDialog extends BaseTransformDialog implements ITransformDial
   private String[] fieldNames;
 
   public FormulaDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+      Shell parent,
+      IVariables variables,
+      FormulaMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
 
     // The order here is important... currentMeta is looked at for changes
-    currentMeta = (FormulaMeta) baseTransformMeta;
-    originalMeta = (FormulaMeta) currentMeta.clone();
+    currentMeta = transformMeta;
+    originalMeta = (FormulaMeta) transformMeta.clone();
   }
 
   @Override

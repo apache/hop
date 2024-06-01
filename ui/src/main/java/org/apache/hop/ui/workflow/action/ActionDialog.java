@@ -30,6 +30,7 @@ import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -49,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
  * <p>method on the dialog. SWT is the native windowing environment of HopGui, and it is typically
  * the framework used for implementing action dialogs.
  */
-public abstract class ActionDialog extends Dialog {
+public abstract class ActionDialog extends Dialog implements IActionDialog {
   private static final Class<?> PKG = ITransform.class; // For Translator
 
   /** The loggingObject for the dialog */
@@ -81,7 +82,6 @@ public abstract class ActionDialog extends Dialog {
     super(parent, SWT.NONE);
     this.props = PropsUi.getInstance();
     this.variables = variables;
-
     this.workflowMeta = workflowMeta;
   }
 

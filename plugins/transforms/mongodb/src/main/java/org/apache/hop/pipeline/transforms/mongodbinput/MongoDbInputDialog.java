@@ -37,8 +37,6 @@ import org.apache.hop.mongo.wrapper.field.MongodbInputDiscoverFieldsImpl;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -70,7 +68,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class MongoDbInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class MongoDbInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MongoDbInputMeta.class; // For i18n - Translator
 
   private MetaSelectionLine<MongoDbConnection> wConnection;
@@ -91,9 +89,13 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   private final MongoDbInputMeta input;
 
   public MongoDbInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (MongoDbInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      MongoDbInputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

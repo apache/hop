@@ -29,8 +29,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocol;
@@ -69,7 +67,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class LdapOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = LdapOutputMeta.class; // For Translator
 
   private Button wUsingAuthentication;
@@ -147,9 +145,13 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
 
   public LdapOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (LdapOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      LdapOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

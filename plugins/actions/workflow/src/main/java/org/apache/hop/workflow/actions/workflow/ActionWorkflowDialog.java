@@ -42,7 +42,6 @@ import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow.Parameter;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow.ParameterDefinition;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -56,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 /** This dialog allows you to edit the workflow action (ActionWorkflow) */
-public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
+public class ActionWorkflowDialog extends ActionBaseDialog {
   private static final Class<?> PKG = ActionWorkflow.class; // For Translator
 
   private ActionWorkflow action;
@@ -70,9 +69,9 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       };
 
   public ActionWorkflowDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionWorkflow action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, action, workflowMeta, variables);
-    this.action = (ActionWorkflow) action;
+    this.action = action;
   }
 
   @Override

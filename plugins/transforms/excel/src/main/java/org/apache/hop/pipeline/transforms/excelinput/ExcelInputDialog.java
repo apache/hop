@@ -46,8 +46,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.fileinput.text.DirectoryDialogButtonListenerFactory;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
@@ -90,7 +88,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class ExcelInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class ExcelInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExcelInputMeta.class; // For Translator
 
   /** Marker put on tab to indicate attention required */
@@ -215,10 +213,13 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Text wSizeFieldName;
 
   public ExcelInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(
-        parent, variables, (BaseTransformMeta<ExcelInput, ExcelInputData>) in, pipelineMeta, sname);
-    input = (ExcelInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      ExcelInputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

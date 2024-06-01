@@ -35,7 +35,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -56,7 +55,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 /** This dialog allows you to edit the Copy Files action settings. */
-public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog {
+public class ActionCopyFilesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCopyFiles.class; // For Translator
 
   protected static final String[] FILETYPES =
@@ -87,9 +86,9 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   private ToolItem deleteToolItem; // Delete
 
   public ActionCopyFilesDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionCopyFiles action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionCopyFiles) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionCopyFiles.Name.Default"));
@@ -97,9 +96,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   }
 
   protected void initUi() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

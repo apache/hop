@@ -25,8 +25,6 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.PropsUi;
@@ -44,7 +42,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class ExecuteTestsDialog extends BaseTransformDialog implements ITransformDialog {
+public class ExecuteTestsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecuteTestsDialog.class; // For Translator
 
   private ExecuteTestsMeta input;
@@ -63,12 +61,12 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
   public ExecuteTestsDialog(
       Shell parent,
       IVariables variables,
-      Object basePipelineMeta,
+      ExecuteTestsMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) basePipelineMeta, pipelineMeta, transformName);
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
 
-    input = (ExecuteTestsMeta) basePipelineMeta;
+    input = transformMeta;
   }
 
   @Override

@@ -25,8 +25,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -46,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class NormaliserDialog extends BaseTransformDialog implements ITransformDialog {
+public class NormaliserDialog extends BaseTransformDialog {
   private static final Class<?> PKG = NormaliserMeta.class; // For Translator
 
   private static final int NAME_INDEX = 1;
@@ -66,9 +64,13 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
   private final List<String> inputFields = new ArrayList<>();
 
   public NormaliserDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (NormaliserMeta) in;
+      Shell parent,
+      IVariables variables,
+      NormaliserMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

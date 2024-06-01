@@ -36,8 +36,6 @@ import org.apache.hop.neo4j.transforms.output.Neo4JOutputDialog;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -79,7 +77,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Type;
 import org.neo4j.driver.util.Pair;
 
-public class CypherDialog extends BaseTransformDialog implements ITransformDialog {
+public class CypherDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       CypherMeta.class; // for i18n purposes, needed by Translator2!!
@@ -116,11 +114,11 @@ public class CypherDialog extends BaseTransformDialog implements ITransformDialo
   public CypherDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
+      CypherMeta inputMetadata,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
-    input = (CypherMeta) inputMetadata;
+    super(parent, variables, inputMetadata, pipelineMeta, transformName);
+    input = inputMetadata;
 
     metadataProvider = HopGui.getInstance().getMetadataProvider();
   }

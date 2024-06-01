@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -62,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class TokenReplacementDialog extends BaseTransformDialog implements ITransformDialog {
+public class TokenReplacementDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TokenReplacementMeta.class; // For Translator
 
   private Group gInputText;
@@ -157,9 +155,13 @@ public class TokenReplacementDialog extends BaseTransformDialog implements ITran
   private boolean gotEncodings = false;
 
   public TokenReplacementDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (TokenReplacementMeta) in;
+      Shell parent,
+      IVariables variables,
+      TokenReplacementMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

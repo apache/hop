@@ -27,7 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -49,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** Search and replace in string. */
-public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {
+public class ReplaceStringDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ReplaceStringMeta.class; // For Translator
 
   private TableView wFields;
@@ -61,9 +60,13 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
   private ColumnInfo[] ciKey;
 
   public ReplaceStringDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (ReplaceStringMeta) in, tr, sname);
-    input = (ReplaceStringMeta) in;
+      Shell parent,
+      IVariables variables,
+      ReplaceStringMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

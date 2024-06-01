@@ -21,8 +21,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -37,7 +35,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class CubeOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class CubeOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CubeOutputMeta.class; // For Translator
 
   private TextVar wFilename;
@@ -48,15 +46,13 @@ public class CubeOutputDialog extends BaseTransformDialog implements ITransformD
   private final CubeOutputMeta input;
 
   public CubeOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (CubeOutputMeta) in;
-    this.pipelineMeta = pipelineMeta;
-    if (sname != null) {
-      transformName = sname;
-    } else {
-      transformName = BaseMessages.getString(PKG, "CubeOutputDialog.DefaultTransformName");
-    }
+      Shell parent,
+      IVariables variables,
+      CubeOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

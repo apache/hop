@@ -21,8 +21,6 @@ import java.util.List;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.pipeline.transform.stream.Stream;
@@ -44,7 +42,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class StreamSchemaDialog extends BaseTransformDialog implements ITransformDialog {
+public class StreamSchemaDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = StreamSchemaMeta.class; // For Translator
 
@@ -61,11 +59,11 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
   public StreamSchemaDialog(
       Shell parent,
       IVariables variables,
-      Object in,
+      StreamSchemaMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, transformName);
-    meta = (StreamSchemaMeta) in;
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    meta = transformMeta;
   }
 
   /**

@@ -31,8 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -62,7 +60,7 @@ import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
+public class DataGridDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DataGridMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
@@ -78,9 +76,13 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
   private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   public DataGridDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (DataGridMeta) in;
+      Shell parent,
+      IVariables variables,
+      DataGridMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String sname) {
+    super(parent, variables, transformMeta, pipelineMeta, sname);
+    input = transformMeta;
 
     dataGridMeta = input.clone();
   }

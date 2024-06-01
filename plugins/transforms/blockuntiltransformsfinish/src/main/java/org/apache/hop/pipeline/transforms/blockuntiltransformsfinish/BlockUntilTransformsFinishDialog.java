@@ -24,8 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -43,8 +41,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class BlockUntilTransformsFinishDialog extends BaseTransformDialog
-    implements ITransformDialog {
+public class BlockUntilTransformsFinishDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // For Translator
 
   private String[] previousTransforms;
@@ -53,9 +50,13 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog
   private TableView wFields;
 
   public BlockUntilTransformsFinishDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (BlockUntilTransformsFinishMeta) in;
+      Shell parent,
+      IVariables variables,
+      BlockUntilTransformsFinishMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

@@ -25,8 +25,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.ConstUi;
@@ -49,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
+public class MergeJoinDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MergeJoinMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeJoinSortWarning";
@@ -67,9 +65,13 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
   private final MergeJoinMeta input;
 
   public MergeJoinDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (MergeJoinMeta) in;
+      Shell parent,
+      IVariables variables,
+      MergeJoinMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

@@ -197,9 +197,8 @@ public class HopGuiWorkflowActionDelegate {
   }
 
   public IActionDialog getActionDialog(IAction action, WorkflowMeta workflowMeta) {
-    Class<?>[] paramClasses =
-        new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class, IVariables.class};
-    Object[] paramArgs =
+
+    Object[] arguments =
         new Object[] {hopGui.getShell(), action, workflowMeta, workflowGraph.getVariables()};
 
     if (MissingAction.ID.equals(action.getPluginId())) {
@@ -235,7 +234,7 @@ public class HopGuiWorkflowActionDelegate {
         //
         ClassLoader pluginClassLoader = registry.getClassLoader(plugin);
         String alternateName = dialogClassName.replaceFirst("\\.hop\\.", ".hop.ui.");
-        Class clazz = pluginClassLoader.loadClass(alternateName);
+        Class<?> clazz = pluginClassLoader.loadClass(alternateName);
         dialogClassName = clazz.getName();
       } catch (Exception e) {
         // do nothing and return the optimistic plugin classname
@@ -244,12 +243,28 @@ public class HopGuiWorkflowActionDelegate {
 
     try {
       Class<IActionDialog> dialogClass = registry.getClass(plugin, dialogClassName);
-      Constructor<IActionDialog> dialogConstructor = dialogClass.getConstructor(paramClasses);
-      IActionDialog entryDialogInterface = dialogConstructor.newInstance(paramArgs);
-      entryDialogInterface.setMetadataProvider(hopGui.getMetadataProvider());
-      return entryDialogInterface;
+      Constructor<IActionDialog> dialogConstructor =
+          dialogClass.getConstructor(
+              new Class<?>[] {
+                Shell.class, action.getClass(), WorkflowMeta.class, IVariables.class
+              });
+      IActionDialog actionDialog = dialogConstructor.newInstance(arguments);
+      actionDialog.setMetadataProvider(hopGui.getMetadataProvider());
+      return actionDialog;
     } catch (Throwable t) {
-      t.printStackTrace();
+      // do nothing and try an other alternative
+    }
+
+    try {
+      // TODO: To remove in future version, try old parameters version (before 2.10)
+      Class<IActionDialog> dialogClass = registry.getClass(plugin, dialogClassName);
+      Constructor<IActionDialog> dialogConstructor =
+          dialogClass.getConstructor(
+              new Class<?>[] {Shell.class, IAction.class, WorkflowMeta.class, IVariables.class});
+      IActionDialog actionDialog = dialogConstructor.newInstance(arguments);
+      actionDialog.setMetadataProvider(hopGui.getMetadataProvider());
+      return actionDialog;
+    } catch (Throwable t) {
       String errorTitle =
           BaseMessages.getString(PKG, "HopGui.Dialog.ErrorCreatingWorkflowDialog.Title");
       String errorMsg =
@@ -257,8 +272,9 @@ public class HopGuiWorkflowActionDelegate {
               PKG, "HopGui.Dialog.ErrorCreatingActionDialog.Message", dialogClassName);
       hopGui.getLog().logError(errorMsg);
       new ErrorDialog(hopGui.getActiveShell(), errorTitle, errorMsg, t);
-      return null;
     }
+
+    return null;
   }
 
   public void editAction(WorkflowMeta workflowMeta, ActionMeta action) {

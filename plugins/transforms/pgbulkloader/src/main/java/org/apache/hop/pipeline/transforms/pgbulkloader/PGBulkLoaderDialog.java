@@ -33,8 +33,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -68,7 +66,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
+public class PGBulkLoaderDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -105,9 +103,13 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   private static final String DATETIMEMASK_LABEL = "PGBulkLoaderDialog.DateTimeMask.Label";
 
   public PGBulkLoaderDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (PGBulkLoaderMeta) in;
+      Shell parent,
+      IVariables variables,
+      PGBulkLoaderMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

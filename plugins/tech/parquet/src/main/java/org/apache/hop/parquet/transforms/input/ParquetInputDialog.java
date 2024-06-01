@@ -34,8 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -58,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class ParquetInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class ParquetInputDialog extends BaseTransformDialog {
 
   public static final Class<?> PKG = ParquetInputMeta.class;
 
@@ -72,11 +70,11 @@ public class ParquetInputDialog extends BaseTransformDialog implements ITransfor
   public ParquetInputDialog(
       Shell parent,
       IVariables variables,
-      Object in,
+      ParquetInputMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, transformName);
-    input = (ParquetInputMeta) in;
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

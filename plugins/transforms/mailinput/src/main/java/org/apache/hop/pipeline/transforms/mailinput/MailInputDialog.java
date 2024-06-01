@@ -32,8 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -78,7 +76,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class MailInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class MailInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
 
   private final MailInputMeta input;
@@ -177,9 +175,13 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
   private Button wIgnoreFieldErrors;
 
   public MailInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (MailInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      MailInputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

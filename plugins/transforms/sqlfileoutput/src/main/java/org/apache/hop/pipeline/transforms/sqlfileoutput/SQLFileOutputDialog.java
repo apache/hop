@@ -31,8 +31,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
@@ -64,7 +62,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class SQLFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class SQLFileOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -109,9 +107,13 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
   private final SQLFileOutputMeta input;
 
   public SQLFileOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (SQLFileOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      SQLFileOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

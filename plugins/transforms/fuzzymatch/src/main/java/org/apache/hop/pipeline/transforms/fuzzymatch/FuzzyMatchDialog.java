@@ -40,7 +40,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.ConstUi;
@@ -69,7 +68,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformDialog {
+public class FuzzyMatchDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FuzzyMatchMeta.class; // For Translator
 
   private CCombo wTransform;
@@ -111,9 +110,13 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
   private boolean gotLookupFields = false;
 
   public FuzzyMatchDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (FuzzyMatchMeta) in, pipelineMeta, sname);
-    input = (FuzzyMatchMeta) in;
+      Shell parent,
+      IVariables variables,
+      FuzzyMatchMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

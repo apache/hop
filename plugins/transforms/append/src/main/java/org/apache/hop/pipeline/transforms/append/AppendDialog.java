@@ -22,8 +22,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -39,7 +37,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog for the append transform. */
-public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
+public class AppendDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AppendDialog.class; // For Translator
 
   private CCombo wHeadHop;
@@ -49,9 +47,13 @@ public class AppendDialog extends BaseTransformDialog implements ITransformDialo
   private final AppendMeta input;
 
   public AppendDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (AppendMeta) in;
+      Shell parent,
+      IVariables variables,
+      AppendMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

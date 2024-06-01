@@ -40,8 +40,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -77,7 +75,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
+public class VerticaBulkLoaderDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       VerticaBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
@@ -121,9 +119,13 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog implements ITra
 
   /** Constructor. */
   public VerticaBulkLoaderDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (VerticaBulkLoaderMeta) in;
+      Shell parent,
+      IVariables variables,
+      VerticaBulkLoaderMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
     inputFields = new HashMap<>();
   }
 

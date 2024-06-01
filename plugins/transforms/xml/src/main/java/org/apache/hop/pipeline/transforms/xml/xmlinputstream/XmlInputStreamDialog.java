@@ -28,8 +28,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -53,7 +51,7 @@ import org.eclipse.swt.widgets.Text;
 
 // TODO correct sizing of window
 
-public class XmlInputStreamDialog extends BaseTransformDialog implements ITransformDialog {
+public class XmlInputStreamDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XmlInputStreamMeta.class; // For Translator
 
   private TextVar wFilename;
@@ -124,9 +122,13 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
   private boolean isReceivingInput;
 
   public XmlInputStreamDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    inputMeta = (XmlInputStreamMeta) in;
+      Shell parent,
+      IVariables variables,
+      XmlInputStreamMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    inputMeta = transformMeta;
   }
 
   @Override

@@ -38,8 +38,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
@@ -103,7 +101,7 @@ import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.ast.ScriptNode;
 import org.mozilla.javascript.tools.ToolErrorReporter;
 
-public class ScriptValuesDialog extends BaseTransformDialog implements ITransformDialog {
+public class ScriptValuesDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ScriptValuesMeta.class; // For Translator
 
   private static final String[] YES_NO_COMBO =
@@ -170,10 +168,14 @@ public class ScriptValuesDialog extends BaseTransformDialog implements ITransfor
   private RowGeneratorMeta genMeta;
 
   public ScriptValuesDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+      Shell parent,
+      IVariables variables,
+      ScriptValuesMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
 
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (ScriptValuesMeta) in;
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
     genMeta = null;
     try {
       imageActiveScript = guiresource.getImage("ui/images/script-active.svg");

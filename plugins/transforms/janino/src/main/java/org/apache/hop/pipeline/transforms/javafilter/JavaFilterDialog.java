@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -47,7 +45,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class JavaFilterDialog extends BaseTransformDialog implements ITransformDialog {
+public class JavaFilterDialog extends BaseTransformDialog {
   private static final Class<?> PKG = JavaFilterMeta.class; // For Translator
 
   private Text wTransformName;
@@ -61,11 +59,15 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
   private ColumnInfo[] colinf;
 
   public JavaFilterDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+      Shell parent,
+      IVariables variables,
+      JavaFilterMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
 
     // The order here is important... currentMeta is looked at for changes
-    input = (JavaFilterMeta) in;
+    input = transformMeta;
   }
 
   @Override

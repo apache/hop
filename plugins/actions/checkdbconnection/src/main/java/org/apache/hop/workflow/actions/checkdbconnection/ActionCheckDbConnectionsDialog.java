@@ -35,7 +35,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -50,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the check database connection action settings. */
-public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
+public class ActionCheckDbConnectionsDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // For Translator
 
   private Text wName;
@@ -62,9 +61,12 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
   private TableView wFields;
 
   public ActionCheckDbConnectionsDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent,
+      ActionCheckDbConnections action,
+      WorkflowMeta workflowMeta,
+      IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionCheckDbConnections) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionCheckDbConnections.Name.Default"));
     }
@@ -72,9 +74,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

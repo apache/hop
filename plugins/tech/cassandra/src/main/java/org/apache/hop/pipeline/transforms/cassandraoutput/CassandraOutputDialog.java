@@ -32,8 +32,6 @@ import org.apache.hop.databases.cassandra.spi.Keyspace;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -58,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the CassandraOutput transform. */
-public class CassandraOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class CassandraOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = CassandraOutputMeta.class;
 
@@ -96,11 +94,15 @@ public class CassandraOutputDialog extends BaseTransformDialog implements ITrans
   private TextVar wTtlValue;
 
   public CassandraOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String name) {
+      Shell parent,
+      IVariables variables,
+      CassandraOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
 
-    super(parent, variables, (BaseTransformMeta) in, tr, name);
+    super(parent, variables, transformMeta, pipelineMeta, name);
 
-    input = (CassandraOutputMeta) in;
+    input = transformMeta;
   }
 
   @Override

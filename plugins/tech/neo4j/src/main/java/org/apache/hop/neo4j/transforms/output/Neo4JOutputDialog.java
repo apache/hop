@@ -31,8 +31,6 @@ import org.apache.hop.neo4j.core.Neo4jUtil;
 import org.apache.hop.neo4j.model.GraphPropertyType;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -61,7 +59,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class Neo4JOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class Neo4JOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       Neo4JOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -92,9 +90,13 @@ public class Neo4JOutputDialog extends BaseTransformDialog implements ITransform
   private Button wReadOnlyToNode;
 
   public Neo4JOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (Neo4JOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      Neo4JOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

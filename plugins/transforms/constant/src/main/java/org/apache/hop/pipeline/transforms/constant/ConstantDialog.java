@@ -25,8 +25,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -44,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
+public class ConstantDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ConstantMeta.class; // For Translator
 
   private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
@@ -54,9 +52,13 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
   private final ConstantMeta input;
 
   public ConstantDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (ConstantMeta) in;
+      Shell parent,
+      IVariables variables,
+      ConstantMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

@@ -31,7 +31,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyEvent;
@@ -50,7 +49,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete Folders action settings. */
-public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
+public class ActionDeleteFoldersDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
 
   private Text wName;
@@ -78,9 +77,9 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
   private TextVar wLimitFolders;
 
   public ActionDeleteFoldersDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionDeleteFolders action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionDeleteFolders) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionDeleteFolders.Name.Default"));

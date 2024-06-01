@@ -29,8 +29,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -46,7 +44,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class AccessOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class AccessOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       AccessOutputDialog.class; // for i18n purposes, needed by Translator2!!
 
@@ -63,9 +61,13 @@ public class AccessOutputDialog extends BaseTransformDialog implements ITransfor
   private Button wWaitFirstRowToCreateFile;
 
   public AccessOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (AccessOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      AccessOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   public String open() {

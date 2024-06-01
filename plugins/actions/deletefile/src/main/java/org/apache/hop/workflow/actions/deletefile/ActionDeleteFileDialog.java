@@ -29,7 +29,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -43,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete File action settings. */
-public class ActionDeleteFileDialog extends ActionDialog implements IActionDialog {
+public class ActionDeleteFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDeleteFile.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -60,9 +59,9 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
   private boolean changed;
 
   public ActionDeleteFileDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionDeleteFile action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionDeleteFile) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionDeleteFile.Name.Default"));
@@ -71,9 +70,8 @@ public class ActionDeleteFileDialog extends ActionDialog implements IActionDialo
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     shell.setMinimumSize(400, 180);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);

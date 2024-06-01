@@ -37,7 +37,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.apache.hop.workflow.actions.util.FtpClientUtil;
 import org.eclipse.swt.SWT;
@@ -58,7 +57,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
 /** This dialog allows you to edit the FTP Delete action settings. */
-public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
+public class ActionFtpDeleteDialog extends ActionDialog {
   private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
 
   private LabelText wName;
@@ -134,9 +133,9 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       };
 
   public ActionFtpDeleteDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionFtpDelete action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionFtpDelete) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionFtpDelete.Name.Default"));
     }
@@ -144,9 +143,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

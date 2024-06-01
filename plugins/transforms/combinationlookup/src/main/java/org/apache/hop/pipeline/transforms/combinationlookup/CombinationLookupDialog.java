@@ -31,8 +31,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -66,7 +64,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
+public class CombinationLookupDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CombinationLookupDialog.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -116,9 +114,13 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public CombinationLookupDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (CombinationLookupMeta) in;
+      Shell parent,
+      IVariables variables,
+      CombinationLookupMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String transformName) {
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
   }
 
   @Override

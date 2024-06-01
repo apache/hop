@@ -29,8 +29,6 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.script.ScriptMeta.SScript;
 import org.apache.hop.pipeline.transforms.script.ScriptMeta.ScriptType;
@@ -82,7 +80,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-public class ScriptDialog extends BaseTransformDialog implements ITransformDialog {
+public class ScriptDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ScriptDialog.class; // for Translator
 
   private static final String[] YES_NO_COMBO =
@@ -139,9 +137,13 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
   private IRowMeta rowPrevStepFields;
 
   public ScriptDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (ScriptMeta) in;
+      Shell parent,
+      IVariables variables,
+      ScriptMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
 
     try {
       imageArrowGreen =

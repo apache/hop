@@ -34,8 +34,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
@@ -77,7 +75,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class TextFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class TextFileOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TextFileOutputMeta.class; // For Translator
 
   private Label wlFilename;
@@ -169,9 +167,13 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
   private boolean gotPreviousFields = false;
 
   public TextFileOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (TextFileOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      TextFileOutputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

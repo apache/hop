@@ -27,7 +27,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.getvariable.GetVariableMeta.FieldDefinition;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -48,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class GetVariableDialog extends BaseTransformDialog implements ITransformDialog {
+public class GetVariableDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetVariableMeta.class; // For Translator
 
   private TableView wFields;
@@ -56,9 +55,13 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
   private final GetVariableMeta input;
 
   public GetVariableDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (GetVariableMeta) in, pipelineMeta, sname);
-    input = (GetVariableMeta) in;
+      Shell parent,
+      IVariables variables,
+      GetVariableMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

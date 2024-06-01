@@ -31,7 +31,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -49,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete Files action settings. */
-public class ActionDeleteFilesDialog extends ActionDialog implements IActionDialog {
+public class ActionDeleteFilesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDeleteFiles.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -81,9 +80,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
   private Button wbaFilename; // Add or change
 
   public ActionDeleteFilesDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionDeleteFiles action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionDeleteFiles) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionDeleteFiles.Name.Default"));

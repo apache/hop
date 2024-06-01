@@ -28,8 +28,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
 import org.apache.hop.ui.core.PropsUi;
@@ -48,7 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
+public class FilterRowsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FilterRowsMeta.class; // For Translator
 
   private CCombo wTrueTo;
@@ -63,9 +61,13 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
   private Condition backupCondition;
 
   public FilterRowsDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta<FilterRows, FilterRowsData>) in, tr, sname);
-    input = (FilterRowsMeta) in;
+      Shell parent,
+      IVariables variables,
+      FilterRowsMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
     condition = new Condition(input.getCondition());
   }
 

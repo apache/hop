@@ -31,8 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.database.dialog.DatabaseExplorerDialog;
@@ -65,7 +63,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class TableInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class TableInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
@@ -86,9 +84,13 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   private Label wlPosition;
 
   public TableInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (TableInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      TableInputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

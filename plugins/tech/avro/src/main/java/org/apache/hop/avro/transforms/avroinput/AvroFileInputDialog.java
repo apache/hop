@@ -23,8 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -41,7 +39,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class AvroFileInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class AvroFileInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroFileInputMeta.class; // For Translator
 
   private AvroFileInputMeta input;
@@ -53,12 +51,12 @@ public class AvroFileInputDialog extends BaseTransformDialog implements ITransfo
   public AvroFileInputDialog(
       Shell parent,
       IVariables variables,
-      Object baseTransformMeta,
+      AvroFileInputMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
 
-    input = (AvroFileInputMeta) baseTransformMeta;
+    input = transformMeta;
   }
 
   @Override

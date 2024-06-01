@@ -26,8 +26,6 @@ import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -49,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class MetadataInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class MetadataInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MetadataInputMeta.class; // For Translator
 
   private Text wTransformName;
@@ -66,9 +64,13 @@ public class MetadataInputDialog extends BaseTransformDialog implements ITransfo
   private final MetadataInputMeta input;
 
   public MetadataInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (MetadataInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      MetadataInputMeta transformMeta,
+      PipelineMeta pipelineMeta,
+      String name) {
+    super(parent, variables, transformMeta, pipelineMeta, name);
+    input = transformMeta;
   }
 
   @Override

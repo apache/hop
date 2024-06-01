@@ -27,7 +27,6 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.missing.MissingAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -41,7 +40,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-public class MissingActionDialog extends ActionDialog implements IActionDialog {
+public class MissingActionDialog extends ActionDialog {
   private static final Class<?> PKG = MissingActionDialog.class; // For Translator
 
   private List<MissingAction> missingActions;
@@ -94,8 +93,6 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
 
   @Override
   public IAction open() {
-
-    PropsUi props = PropsUi.getInstance();
 
     Shell parent = this.getParent();
     Display display = parent.getDisplay();

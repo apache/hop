@@ -44,8 +44,6 @@ import org.apache.hop.neo4j.transforms.cypherbuilder.operation.ReturnOperation;
 import org.apache.hop.neo4j.transforms.cypherbuilder.operation.SetOperation;
 import org.apache.hop.neo4j.transforms.output.Neo4JOutputDialog;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -82,7 +80,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-public class CypherBuilderDialog extends BaseTransformDialog implements ITransformDialog {
+public class CypherBuilderDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       CypherBuilderMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -121,11 +119,11 @@ public class CypherBuilderDialog extends BaseTransformDialog implements ITransfo
   public CypherBuilderDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
+      CypherBuilderMeta transformMeta,
       PipelineMeta pipelineMeta,
       String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
-    input = (CypherBuilderMeta) inputMetadata;
+    super(parent, variables, transformMeta, pipelineMeta, transformName);
+    input = transformMeta;
 
     this.copy = input.clone();
   }
