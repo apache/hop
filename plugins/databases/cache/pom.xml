@@ -29,5 +29,5 @@
 
     <packaging>jar</packaging>
 
-    <name>Hop Plugins Databases InterSystem Cache</name>
+    <name>Hop Plugins Databases InterSystems Cache</name>
 </project>
