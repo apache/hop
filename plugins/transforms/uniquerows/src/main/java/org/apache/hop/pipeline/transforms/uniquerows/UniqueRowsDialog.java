@@ -74,12 +74,8 @@ public class UniqueRowsDialog extends BaseTransformDialog {
   private TextVar wErrorDesc;
 
   public UniqueRowsDialog(
-      Shell parent,
-      IVariables variables,
-      UniqueRowsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, UniqueRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

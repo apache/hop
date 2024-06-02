@@ -75,12 +75,8 @@ public class SortRowsDialog extends BaseTransformDialog {
   private ColumnInfo[] colinf;
 
   public SortRowsDialog(
-      Shell parent,
-      IVariables variables,
-      SortRowsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, SortRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

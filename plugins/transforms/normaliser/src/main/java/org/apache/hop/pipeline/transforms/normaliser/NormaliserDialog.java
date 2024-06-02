@@ -64,12 +64,8 @@ public class NormaliserDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   public NormaliserDialog(
-      Shell parent,
-      IVariables variables,
-      NormaliserMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, NormaliserMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

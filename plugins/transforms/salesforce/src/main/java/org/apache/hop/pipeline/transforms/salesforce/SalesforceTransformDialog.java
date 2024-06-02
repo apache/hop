@@ -41,9 +41,8 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       SalesforceTransformMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     META_CLASS = transformMeta.getClass();
   }
 

@@ -77,12 +77,8 @@ public class XmlJoinDialog extends BaseTransformDialog {
   private boolean gotEncodings = false;
 
   public XmlJoinDialog(
-      Shell parent,
-      IVariables variables,
-      XmlJoinMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, XmlJoinMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

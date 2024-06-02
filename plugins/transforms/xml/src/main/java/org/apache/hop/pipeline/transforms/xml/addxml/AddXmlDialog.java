@@ -86,12 +86,8 @@ public class AddXmlDialog extends BaseTransformDialog {
   private final Map<String, Integer> inputFields;
 
   public AddXmlDialog(
-      Shell parent,
-      IVariables variables,
-      AddXmlMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AddXmlMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     inputFields = new HashMap<>();
   }

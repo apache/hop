@@ -58,12 +58,8 @@ public class NullIfDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   public NullIfDialog(
-      Shell parent,
-      IVariables variables,
-      NullIfMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, NullIfMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -137,12 +137,8 @@ public class ScriptDialog extends BaseTransformDialog {
   private IRowMeta rowPrevStepFields;
 
   public ScriptDialog(
-      Shell parent,
-      IVariables variables,
-      ScriptMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, ScriptMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
 
     try {

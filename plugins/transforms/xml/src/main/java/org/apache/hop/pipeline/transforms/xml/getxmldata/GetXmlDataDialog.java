@@ -180,12 +180,8 @@ public class GetXmlDataDialog extends BaseTransformDialog {
   private PdOption readSnippetPdOption;
 
   public GetXmlDataDialog(
-      Shell parent,
-      IVariables variables,
-      GetXmlDataMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, GetXmlDataMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -124,12 +124,8 @@ public class YamlInputDialog extends BaseTransformDialog {
   String precNodeName = null;
 
   public YamlInputDialog(
-      Shell parent,
-      IVariables variables,
-      YamlInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, YamlInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

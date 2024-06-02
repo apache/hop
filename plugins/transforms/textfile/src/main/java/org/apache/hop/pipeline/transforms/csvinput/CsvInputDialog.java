@@ -127,12 +127,8 @@ public class CsvInputDialog extends BaseTransformDialog
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
 
   public CsvInputDialog(
-      Shell parent,
-      IVariables variables,
-      CsvInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, CsvInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     inputMeta = transformMeta;
   }
 

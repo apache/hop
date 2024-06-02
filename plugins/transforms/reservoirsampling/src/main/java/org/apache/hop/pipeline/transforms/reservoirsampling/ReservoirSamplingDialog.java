@@ -54,10 +54,9 @@ public class ReservoirSamplingDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       ReservoirSamplingMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, transformMeta, pipelineMeta, name);
+    super(parent, variables, transformMeta, pipelineMeta);
 
     // The order here is important...
     // currentMeta is looked at for changes

@@ -85,12 +85,8 @@ public class IfNullDialog extends BaseTransformDialog {
   private Button wSetEmptyStringAll;
 
   public IfNullDialog(
-      Shell parent,
-      IVariables variables,
-      IfNullMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, IfNullMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

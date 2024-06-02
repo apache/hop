@@ -114,12 +114,8 @@ public class AvroOutputDialog extends BaseTransformDialog {
   private String[] avroFieldNames = null;
 
   public AvroOutputDialog(
-      Shell parent,
-      IVariables variables,
-      AvroOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AvroOutputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

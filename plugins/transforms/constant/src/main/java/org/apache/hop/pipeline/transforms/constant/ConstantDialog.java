@@ -52,12 +52,8 @@ public class ConstantDialog extends BaseTransformDialog {
   private final ConstantMeta input;
 
   public ConstantDialog(
-      Shell parent,
-      IVariables variables,
-      ConstantMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, ConstantMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

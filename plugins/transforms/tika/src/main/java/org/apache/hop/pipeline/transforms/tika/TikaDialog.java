@@ -120,9 +120,8 @@ public class TikaDialog extends BaseTransformDialog {
       final Shell parent,
       IVariables variables,
       final TikaMeta transformMeta,
-      final PipelineMeta pipelineMeta,
-      final String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      final PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -71,9 +71,8 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       UniqueRowsByHashSetMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

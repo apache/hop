@@ -73,9 +73,8 @@ public class RulesExecutorDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       RulesExecutorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

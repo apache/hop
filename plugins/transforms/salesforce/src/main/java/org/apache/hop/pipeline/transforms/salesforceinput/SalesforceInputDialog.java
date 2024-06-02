@@ -166,9 +166,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       Shell parent,
       IVariables variables,
       SalesforceInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

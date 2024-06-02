@@ -213,12 +213,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
   private Text wSizeFieldName;
 
   public ExcelInputDialog(
-      Shell parent,
-      IVariables variables,
-      ExcelInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, ExcelInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

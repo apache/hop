@@ -135,9 +135,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       WorkflowExecutorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     workflowExecutorMeta = transformMeta;
     jobModified = false;
   }

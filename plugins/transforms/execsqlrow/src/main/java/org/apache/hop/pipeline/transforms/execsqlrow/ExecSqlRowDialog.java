@@ -74,12 +74,8 @@ public class ExecSqlRowDialog extends BaseTransformDialog {
   private Button wSendOneStatement;
 
   public ExecSqlRowDialog(
-      Shell parent,
-      IVariables variables,
-      ExecSqlRowMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, ExecSqlRowMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

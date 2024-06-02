@@ -84,9 +84,8 @@ public class ConcatFieldsDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       ConcatFieldsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String sname) {
-    super(parent, variables, transformMeta, pipelineMeta, sname);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -64,12 +64,8 @@ public class JoinRowsDialog extends BaseTransformDialog {
   private Condition backupCondition;
 
   public JoinRowsDialog(
-      Shell parent,
-      IVariables variables,
-      JoinRowsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, JoinRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     condition = input.getCondition();
   }

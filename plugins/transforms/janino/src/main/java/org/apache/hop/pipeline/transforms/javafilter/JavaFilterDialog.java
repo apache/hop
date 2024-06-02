@@ -59,12 +59,8 @@ public class JavaFilterDialog extends BaseTransformDialog {
   private ColumnInfo[] colinf;
 
   public JavaFilterDialog(
-      Shell parent,
-      IVariables variables,
-      JavaFilterMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, JavaFilterMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     // The order here is important... currentMeta is looked at for changes
     input = transformMeta;

@@ -72,12 +72,8 @@ public class ZipFileDialog extends BaseTransformDialog {
   private boolean gotPreviousFields = false;
 
   public ZipFileDialog(
-      Shell parent,
-      IVariables variables,
-      ZipFileMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, ZipFileMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

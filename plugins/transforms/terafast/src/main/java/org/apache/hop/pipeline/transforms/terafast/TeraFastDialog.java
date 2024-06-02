@@ -126,9 +126,8 @@ public class TeraFastDialog extends BaseTransformDialog {
       final Shell parent,
       IVariables variables,
       final TeraFastMeta transformMeta,
-      final PipelineMeta pipelineMeta,
-      final String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      final PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.meta = transformMeta;
   }
 

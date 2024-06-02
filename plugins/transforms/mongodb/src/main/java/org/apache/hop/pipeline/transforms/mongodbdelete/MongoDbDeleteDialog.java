@@ -94,10 +94,9 @@ public class MongoDbDeleteDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       MongoDbDeleteMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, transformMeta, pipelineMeta, name);
+    super(parent, variables, transformMeta, pipelineMeta);
     currentMeta = transformMeta;
     originalMeta = (MongoDbDeleteMeta) currentMeta.clone();
   }

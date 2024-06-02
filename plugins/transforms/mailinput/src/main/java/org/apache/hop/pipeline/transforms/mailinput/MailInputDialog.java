@@ -175,12 +175,8 @@ public class MailInputDialog extends BaseTransformDialog {
   private Button wIgnoreFieldErrors;
 
   public MailInputDialog(
-      Shell parent,
-      IVariables variables,
-      MailInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, MailInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

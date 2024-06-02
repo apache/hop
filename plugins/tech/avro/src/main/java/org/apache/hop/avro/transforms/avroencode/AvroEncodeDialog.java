@@ -54,12 +54,8 @@ public class AvroEncodeDialog extends BaseTransformDialog {
   private TableView wFields;
 
   public AvroEncodeDialog(
-      Shell parent,
-      IVariables variables,
-      AvroEncodeMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AvroEncodeMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     input = transformMeta;
   }

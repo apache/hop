@@ -44,12 +44,8 @@ public class SampleRowsDialog extends BaseTransformDialog {
   private SampleRowsMeta input;
 
   public SampleRowsDialog(
-      Shell parent,
-      IVariables variables,
-      SampleRowsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String sname) {
-    super(parent, variables, transformMeta, pipelineMeta, sname);
+      Shell parent, IVariables variables, SampleRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

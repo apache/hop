@@ -91,9 +91,8 @@ public class DatabaseJoinDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       DatabaseJoinMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

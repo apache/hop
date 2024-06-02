@@ -62,10 +62,8 @@ public class ExecuteTestsDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       ExecuteTestsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
-
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

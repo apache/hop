@@ -126,12 +126,8 @@ public class RestDialog extends BaseTransformDialog {
   private Button wMatrixGet;
 
   public RestDialog(
-      Shell parent,
-      IVariables variables,
-      RestMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, RestMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

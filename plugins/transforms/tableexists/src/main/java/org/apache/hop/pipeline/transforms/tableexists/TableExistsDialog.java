@@ -67,9 +67,8 @@ public class TableExistsDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       TableExistsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

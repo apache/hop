@@ -121,9 +121,8 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       GoogleAnalyticsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     setInput(transformMeta);
   }
 

@@ -92,9 +92,8 @@ public class MongoDbInputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       MongoDbInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

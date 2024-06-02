@@ -47,12 +47,8 @@ public class CubeInputDialog extends BaseTransformDialog {
   private final CubeInputMeta input;
 
   public CubeInputDialog(
-      Shell parent,
-      IVariables variables,
-      CubeInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, CubeInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

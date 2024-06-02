@@ -173,22 +173,20 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
    * @param parent the parent shell
    * @param baseTransformMeta the associated base transform metadata
    * @param pipelineMeta the associated pipeline metadata
-   * @param transformName the transform name
    */
   public BaseTransformDialog(
       Shell parent,
       IVariables variables,
-      BaseTransformMeta<?, ?> baseTransformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
+      ITransformMeta baseTransformMeta,
+      PipelineMeta pipelineMeta) {
     super(parent, SWT.NONE);
 
     this.log = new LogChannel(baseTransformMeta);
     this.variables = variables;
     this.pipelineMeta = pipelineMeta;
-    this.transformName = transformName;
-    this.transformMeta = pipelineMeta.findTransform(transformName);
     this.baseTransformMeta = (ITransformMeta) baseTransformMeta;
+    this.transformName = baseTransformMeta.getParentTransformMeta().getName();
+    this.transformMeta = pipelineMeta.findTransform(transformName);
     this.backupChanged = baseTransformMeta.hasChanged();
     this.props = PropsUi.getInstance();
     this.metadataProvider = HopGui.getInstance().getMetadataProvider();

@@ -47,9 +47,8 @@ public class WorkflowLoggingDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       WorkflowLoggingMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.input = transformMeta;
   }
 

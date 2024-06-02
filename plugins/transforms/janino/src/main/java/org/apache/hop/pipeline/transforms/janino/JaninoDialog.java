@@ -59,12 +59,8 @@ public class JaninoDialog extends BaseTransformDialog {
   private ColumnInfo[] colinf;
 
   public JaninoDialog(
-      Shell parent,
-      IVariables variables,
-      JaninoMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, JaninoMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     // The order here is important... currentMeta is looked at for changes
     currentMeta = transformMeta;

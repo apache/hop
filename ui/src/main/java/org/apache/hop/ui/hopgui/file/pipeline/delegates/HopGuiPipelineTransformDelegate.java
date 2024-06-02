@@ -82,15 +82,6 @@ public class HopGuiPipelineTransformDelegate {
       ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName)
       throws HopException {
 
-    Object[] arguments =
-        new Object[] {
-          hopGui.getShell(),
-          pipelineGraph.getVariables(),
-          transformMeta,
-          pipelineMeta,
-          transformName
-        };
-
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin(TransformPluginType.class, transformMeta);
     if (plugin == null) {
@@ -117,16 +108,27 @@ public class HopGuiPipelineTransformDelegate {
       Constructor<ITransformDialog> dialogConstructor =
           dialogClass.getConstructor(
               new Class<?>[] {
-                Shell.class,
-                IVariables.class,
-                transformMeta.getClass(),
-                PipelineMeta.class,
-                String.class
+                Shell.class, IVariables.class, transformMeta.getClass(), PipelineMeta.class
               });
+
+      Object[] arguments =
+          new Object[] {
+            hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta
+          };
+
       return dialogConstructor.newInstance(arguments);
     } catch (Exception e) {
       // do nothing and try an other alternative
     }
+
+    Object[] arguments =
+        new Object[] {
+          hopGui.getShell(),
+          pipelineGraph.getVariables(),
+          transformMeta,
+          pipelineMeta,
+          transformName
+        };
 
     // TODO: To remove in future version, try old parameters version (before 2.10)
     try {
@@ -136,6 +138,7 @@ public class HopGuiPipelineTransformDelegate {
               new Class<?>[] {
                 Shell.class, IVariables.class, Object.class, PipelineMeta.class, String.class
               });
+
       return dialogConstructor.newInstance(arguments);
     } catch (Exception e) {
       // do nothing and try an other alternative

@@ -61,12 +61,8 @@ public class FilterRowsDialog extends BaseTransformDialog {
   private Condition backupCondition;
 
   public FilterRowsDialog(
-      Shell parent,
-      IVariables variables,
-      FilterRowsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, FilterRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     condition = new Condition(input.getCondition());
   }

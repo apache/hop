@@ -110,12 +110,8 @@ public class FuzzyMatchDialog extends BaseTransformDialog {
   private boolean gotLookupFields = false;
 
   public FuzzyMatchDialog(
-      Shell parent,
-      IVariables variables,
-      FuzzyMatchMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, FuzzyMatchMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

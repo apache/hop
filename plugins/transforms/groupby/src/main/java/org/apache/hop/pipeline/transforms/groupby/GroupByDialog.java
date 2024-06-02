@@ -93,12 +93,8 @@ public class GroupByDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   public GroupByDialog(
-      Shell parent,
-      IVariables variables,
-      GroupByMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, GroupByMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

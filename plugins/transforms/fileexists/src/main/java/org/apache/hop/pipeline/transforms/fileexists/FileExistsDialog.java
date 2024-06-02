@@ -63,12 +63,8 @@ public class FileExistsDialog extends BaseTransformDialog {
   private final FileExistsMeta input;
 
   public FileExistsDialog(
-      Shell parent,
-      IVariables variables,
-      FileExistsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, FileExistsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

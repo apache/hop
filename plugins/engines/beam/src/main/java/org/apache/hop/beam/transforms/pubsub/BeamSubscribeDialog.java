@@ -54,9 +54,8 @@ public class BeamSubscribeDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       BeamSubscribeMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

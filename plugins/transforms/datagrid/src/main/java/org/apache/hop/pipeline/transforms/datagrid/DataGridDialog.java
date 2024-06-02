@@ -76,12 +76,8 @@ public class DataGridDialog extends BaseTransformDialog {
   private static final String SYSTEM_COMBO_YES = "System.Combo.Yes";
 
   public DataGridDialog(
-      Shell parent,
-      IVariables variables,
-      DataGridMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String sname) {
-    super(parent, variables, transformMeta, pipelineMeta, sname);
+      Shell parent, IVariables variables, DataGridMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
 
     dataGridMeta = input.clone();

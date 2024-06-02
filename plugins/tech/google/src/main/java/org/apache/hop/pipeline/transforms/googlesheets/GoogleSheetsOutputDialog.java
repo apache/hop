@@ -75,9 +75,8 @@ public class GoogleSheetsOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       GoogleSheetsOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.meta = transformMeta;
   }
 

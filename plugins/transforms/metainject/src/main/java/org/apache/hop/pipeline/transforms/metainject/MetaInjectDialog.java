@@ -150,12 +150,8 @@ public class MetaInjectDialog extends BaseTransformDialog {
   private String filterString = null;
 
   public MetaInjectDialog(
-      Shell parent,
-      IVariables variables,
-      MetaInjectMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, MetaInjectMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     metaInjectMeta = transformMeta;
     transModified = false;
 

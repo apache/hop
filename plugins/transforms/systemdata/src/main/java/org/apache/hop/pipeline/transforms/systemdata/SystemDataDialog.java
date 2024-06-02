@@ -58,12 +58,8 @@ public class SystemDataDialog extends BaseTransformDialog {
   private final SystemDataMeta input;
 
   public SystemDataDialog(
-      Shell parent,
-      IVariables variables,
-      SystemDataMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, SystemDataMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

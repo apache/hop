@@ -98,9 +98,8 @@ public class FileMetadataDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       FileMetadataMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     meta = transformMeta;
   }
 

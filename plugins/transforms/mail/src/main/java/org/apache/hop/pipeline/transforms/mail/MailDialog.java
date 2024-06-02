@@ -197,12 +197,8 @@ public class MailDialog extends BaseTransformDialog {
   private final MailMeta input;
 
   public MailDialog(
-      Shell parent,
-      IVariables variables,
-      MailMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, MailMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

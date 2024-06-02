@@ -50,12 +50,8 @@ public class Edi2XmlDialog extends BaseTransformDialog {
   private ComboVar wEdiField;
 
   public Edi2XmlDialog(
-      Shell parent,
-      IVariables variables,
-      Edi2XmlMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, Edi2XmlMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

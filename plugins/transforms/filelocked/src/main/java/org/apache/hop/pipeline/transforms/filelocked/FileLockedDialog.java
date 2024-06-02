@@ -55,12 +55,8 @@ public class FileLockedDialog extends BaseTransformDialog {
   private boolean gotPreviousFields = false;
 
   public FileLockedDialog(
-      Shell parent,
-      IVariables variables,
-      FileLockedMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, FileLockedMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

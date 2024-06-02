@@ -58,9 +58,8 @@ public class AzureWriterDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       AzureWriterMeta inputMetadata,
-      PipelineMeta transMeta,
-      String transformName) {
-    super(parent, variables, inputMetadata, transMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
     input = inputMetadata;
   }
 

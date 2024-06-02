@@ -141,12 +141,8 @@ public class LdapInputDialog extends BaseTransformDialog {
   private Button wbbFilename;
 
   public LdapInputDialog(
-      Shell parent,
-      IVariables variables,
-      LdapInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, LdapInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

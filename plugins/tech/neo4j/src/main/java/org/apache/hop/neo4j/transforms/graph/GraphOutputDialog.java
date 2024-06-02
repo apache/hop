@@ -99,9 +99,8 @@ public class GraphOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       GraphOutputMeta inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, inputMetadata, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
     input = inputMetadata;
   }
 

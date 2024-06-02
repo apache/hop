@@ -54,12 +54,8 @@ public class BeamOutputDialog extends BaseTransformDialog {
   private Button wWindowed;
 
   public BeamOutputDialog(
-      Shell parent,
-      IVariables variables,
-      BeamOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, BeamOutputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

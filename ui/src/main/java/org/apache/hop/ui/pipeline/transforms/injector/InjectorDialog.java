@@ -49,12 +49,8 @@ public class InjectorDialog extends BaseTransformDialog {
   private InjectorMeta input;
 
   public InjectorDialog(
-      Shell parent,
-      IVariables variables,
-      InjectorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, InjectorMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

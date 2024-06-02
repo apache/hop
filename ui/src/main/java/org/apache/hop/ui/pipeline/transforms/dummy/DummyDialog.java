@@ -41,12 +41,8 @@ public class DummyDialog extends BaseTransformDialog {
   private DummyMeta input;
 
   public DummyDialog(
-      Shell parent,
-      IVariables variables,
-      DummyMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, DummyMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

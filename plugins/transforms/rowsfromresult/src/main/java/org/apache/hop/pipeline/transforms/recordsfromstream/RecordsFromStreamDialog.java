@@ -34,8 +34,7 @@ public class RecordsFromStreamDialog extends RowsFromResultDialog {
       final Shell parent,
       final IVariables variables,
       final RecordsFromStreamMeta transformMeta,
-      final PipelineMeta pipelineMeta,
-      final String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      final PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
   }
 }

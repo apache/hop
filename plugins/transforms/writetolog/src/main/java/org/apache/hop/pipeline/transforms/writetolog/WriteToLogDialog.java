@@ -76,12 +76,8 @@ public class WriteToLogDialog extends BaseTransformDialog {
   private ColumnInfo[] colinf;
 
   public WriteToLogDialog(
-      Shell parent,
-      IVariables variables,
-      WriteToLogMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, WriteToLogMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

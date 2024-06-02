@@ -78,12 +78,8 @@ public class DBProcDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   public DBProcDialog(
-      Shell parent,
-      IVariables variables,
-      DBProcMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, DBProcMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

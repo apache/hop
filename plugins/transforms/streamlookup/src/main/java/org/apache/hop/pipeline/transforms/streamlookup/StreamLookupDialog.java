@@ -74,9 +74,8 @@ public class StreamLookupDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       StreamLookupMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

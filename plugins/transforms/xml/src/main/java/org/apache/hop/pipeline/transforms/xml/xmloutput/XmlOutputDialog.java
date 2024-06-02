@@ -113,12 +113,8 @@ public class XmlOutputDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   public XmlOutputDialog(
-      Shell parent,
-      IVariables variables,
-      XmlOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, XmlOutputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

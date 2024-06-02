@@ -72,9 +72,8 @@ public class BeamBQInputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       BeamBQInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

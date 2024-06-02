@@ -51,12 +51,8 @@ public class BeamInputDialog extends BaseTransformDialog {
   private MetaSelectionLine<FileDefinition> wFileDefinition;
 
   public BeamInputDialog(
-      Shell parent,
-      IVariables variables,
-      BeamInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, BeamInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

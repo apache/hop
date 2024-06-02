@@ -54,12 +54,8 @@ public class FakeDialog extends BaseTransformDialog {
   private final FakeMeta input;
 
   public FakeDialog(
-      Shell parent,
-      IVariables variables,
-      FakeMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, FakeMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

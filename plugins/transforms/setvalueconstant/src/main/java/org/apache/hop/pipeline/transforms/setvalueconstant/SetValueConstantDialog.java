@@ -65,9 +65,8 @@ public class SetValueConstantDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       SetValueConstantMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

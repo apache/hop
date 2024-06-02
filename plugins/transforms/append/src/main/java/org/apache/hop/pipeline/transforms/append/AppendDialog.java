@@ -47,12 +47,8 @@ public class AppendDialog extends BaseTransformDialog {
   private final AppendMeta input;
 
   public AppendDialog(
-      Shell parent,
-      IVariables variables,
-      AppendMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AppendMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

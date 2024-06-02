@@ -112,15 +112,10 @@ public class SqsReaderDialog extends BaseTransformDialog {
    * @param parent the SWT shell to open the dialog in
    * @param in the meta object holding the transform's settings
    * @param pipelineMeta pipeline description
-   * @param sname the transform name
    */
   public SqsReaderDialog(
-      Shell parent,
-      IVariables variables,
-      SqsReaderMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, SqsReaderMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     meta = transformMeta;
   }
 

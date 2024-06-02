@@ -93,9 +93,8 @@ public class Neo4JOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       Neo4JOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

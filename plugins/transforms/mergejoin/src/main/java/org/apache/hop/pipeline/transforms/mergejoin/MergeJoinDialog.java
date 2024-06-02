@@ -65,12 +65,8 @@ public class MergeJoinDialog extends BaseTransformDialog {
   private final MergeJoinMeta input;
 
   public MergeJoinDialog(
-      Shell parent,
-      IVariables variables,
-      MergeJoinMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, MergeJoinMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

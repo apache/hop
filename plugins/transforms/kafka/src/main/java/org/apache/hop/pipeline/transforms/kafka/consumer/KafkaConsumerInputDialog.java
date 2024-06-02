@@ -127,9 +127,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       KafkaConsumerInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.meta = transformMeta;
     hopGui = HopGui.getInstance();
   }

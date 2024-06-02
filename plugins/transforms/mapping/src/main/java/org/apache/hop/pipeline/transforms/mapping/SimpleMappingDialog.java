@@ -149,9 +149,8 @@ public class SimpleMappingDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       SimpleMappingMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     mappingMeta = transformMeta;
     transModified = false;
 

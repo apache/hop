@@ -88,12 +88,8 @@ public class RegexEvalDialog extends BaseTransformDialog {
   private TableView wFields;
 
   public RegexEvalDialog(
-      Shell parent,
-      IVariables variables,
-      RegexEvalMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String sname) {
-    super(parent, variables, transformMeta, pipelineMeta, sname);
+      Shell parent, IVariables variables, RegexEvalMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

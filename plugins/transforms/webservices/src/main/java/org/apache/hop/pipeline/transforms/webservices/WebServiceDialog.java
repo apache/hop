@@ -772,12 +772,8 @@ public class WebServiceDialog extends BaseTransformDialog {
   }
 
   public WebServiceDialog(
-      Shell aShell,
-      IVariables variables,
-      WebServiceMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(aShell, variables, transformMeta, pipelineMeta, name);
+      Shell aShell, IVariables variables, WebServiceMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(aShell, variables, transformMeta, pipelineMeta);
     meta = transformMeta;
   }
 

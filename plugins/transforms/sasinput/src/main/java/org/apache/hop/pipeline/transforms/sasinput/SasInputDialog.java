@@ -65,12 +65,8 @@ public class SasInputDialog extends BaseTransformDialog {
   private TableView wFields;
 
   public SasInputDialog(
-      Shell parent,
-      IVariables variables,
-      SasInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, SasInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

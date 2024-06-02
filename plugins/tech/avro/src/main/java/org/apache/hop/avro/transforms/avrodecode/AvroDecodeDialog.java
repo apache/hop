@@ -74,12 +74,8 @@ public class AvroDecodeDialog extends BaseTransformDialog {
   private RowProducer rowProducer;
 
   public AvroDecodeDialog(
-      Shell parent,
-      IVariables variables,
-      AvroDecodeMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AvroDecodeMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     input = transformMeta;
   }

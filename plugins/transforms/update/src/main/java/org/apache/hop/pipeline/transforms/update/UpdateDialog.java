@@ -97,12 +97,8 @@ public class UpdateDialog extends BaseTransformDialog {
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public UpdateDialog(
-      Shell parent,
-      IVariables variables,
-      UpdateMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, UpdateMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

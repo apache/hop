@@ -65,12 +65,8 @@ public class FormulaDialog extends BaseTransformDialog {
   private String[] fieldNames;
 
   public FormulaDialog(
-      Shell parent,
-      IVariables variables,
-      FormulaMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, FormulaMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     // The order here is important... currentMeta is looked at for changes
     currentMeta = transformMeta;

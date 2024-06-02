@@ -113,12 +113,8 @@ public class SnsNotifyDialog extends BaseTransformDialog {
    * @param transformName the transform name
    */
   public SnsNotifyDialog(
-      Shell parent,
-      IVariables variables,
-      SnsNotifyMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, SnsNotifyMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     meta = transformMeta;
   }
 

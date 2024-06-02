@@ -84,12 +84,8 @@ public class TableInputDialog extends BaseTransformDialog {
   private Label wlPosition;
 
   public TableInputDialog(
-      Shell parent,
-      IVariables variables,
-      TableInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, TableInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

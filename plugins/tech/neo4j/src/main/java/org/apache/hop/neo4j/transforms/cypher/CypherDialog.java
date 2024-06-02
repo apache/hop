@@ -112,12 +112,8 @@ public class CypherDialog extends BaseTransformDialog {
   private CypherMeta input;
 
   public CypherDialog(
-      Shell parent,
-      IVariables variables,
-      CypherMeta inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, inputMetadata, pipelineMeta, transformName);
+      Shell parent, IVariables variables, CypherMeta inputMetadata, PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
     input = inputMetadata;
 
     metadataProvider = HopGui.getInstance().getMetadataProvider();

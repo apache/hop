@@ -122,9 +122,8 @@ public class VerticaBulkLoaderDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       VerticaBulkLoaderMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     inputFields = new HashMap<>();
   }

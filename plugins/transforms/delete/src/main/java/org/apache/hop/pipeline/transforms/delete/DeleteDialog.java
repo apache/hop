@@ -81,12 +81,8 @@ public class DeleteDialog extends BaseTransformDialog {
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public DeleteDialog(
-      Shell parent,
-      IVariables variables,
-      DeleteMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, DeleteMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

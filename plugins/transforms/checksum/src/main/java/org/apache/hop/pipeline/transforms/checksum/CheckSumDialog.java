@@ -69,12 +69,8 @@ public class CheckSumDialog extends BaseTransformDialog {
   private CCombo wResultType;
 
   public CheckSumDialog(
-      Shell parent,
-      IVariables variables,
-      CheckSumMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, CheckSumMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

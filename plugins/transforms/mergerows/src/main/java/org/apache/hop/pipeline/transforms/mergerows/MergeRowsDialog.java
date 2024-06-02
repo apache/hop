@@ -65,12 +65,8 @@ public class MergeRowsDialog extends BaseTransformDialog {
   private final MergeRowsMeta input;
 
   public MergeRowsDialog(
-      Shell parent,
-      IVariables variables,
-      MergeRowsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, MergeRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -45,12 +45,8 @@ public class DelayDialog extends BaseTransformDialog {
   private LabelTextVar wTimeout;
 
   public DelayDialog(
-      Shell parent,
-      IVariables variables,
-      DelayMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, DelayMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

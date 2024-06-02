@@ -147,9 +147,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       PipelineExecutorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     pipelineExecutorMeta = transformMeta;
     jobModified = false;
   }

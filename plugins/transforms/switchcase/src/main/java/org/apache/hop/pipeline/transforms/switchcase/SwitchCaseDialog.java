@@ -67,12 +67,8 @@ public class SwitchCaseDialog extends BaseTransformDialog {
   private final SwitchCaseMeta input;
 
   public SwitchCaseDialog(
-      Shell parent,
-      IVariables variables,
-      SwitchCaseMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String sname) {
-    super(parent, variables, transformMeta, pipelineMeta, sname);
+      Shell parent, IVariables variables, SwitchCaseMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

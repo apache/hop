@@ -110,9 +110,8 @@ public class SQLFileOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       SQLFileOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

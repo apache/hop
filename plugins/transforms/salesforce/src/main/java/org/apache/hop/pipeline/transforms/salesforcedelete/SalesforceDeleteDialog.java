@@ -86,9 +86,8 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
       Shell parent,
       IVariables variables,
       SalesforceDeleteMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

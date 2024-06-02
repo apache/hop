@@ -88,9 +88,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       KafkaProducerOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     meta = transformMeta;
   }
 

@@ -55,12 +55,8 @@ public class FlattenerDialog extends BaseTransformDialog {
   private final FlattenerMeta input;
 
   public FlattenerDialog(
-      Shell parent,
-      IVariables variables,
-      FlattenerMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, FlattenerMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.input = transformMeta;
   }
 

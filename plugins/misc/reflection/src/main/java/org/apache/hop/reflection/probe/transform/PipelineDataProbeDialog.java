@@ -46,9 +46,8 @@ public class PipelineDataProbeDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       PipelineDataProbeMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.input = transformMeta;
   }
 

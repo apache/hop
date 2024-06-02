@@ -65,9 +65,8 @@ public class StringOperationsDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       StringOperationsMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String sname) {
-    super(parent, variables, transformMeta, pipelineMeta, sname);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

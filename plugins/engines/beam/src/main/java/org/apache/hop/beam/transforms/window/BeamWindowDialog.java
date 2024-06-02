@@ -56,12 +56,8 @@ public class BeamWindowDialog extends BaseTransformDialog {
   private Combo wTriggerType;
 
   public BeamWindowDialog(
-      Shell parent,
-      IVariables variables,
-      BeamWindowMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, BeamWindowMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -67,12 +67,8 @@ public class CalculatorDialog extends BaseTransformDialog {
   private ColumnInfo[] colinf;
 
   public CalculatorDialog(
-      Shell parent,
-      IVariables variables,
-      CalculatorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, CalculatorMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     // The order here is important... currentMeta is looked at for changes
     currentMeta = transformMeta;

@@ -74,12 +74,8 @@ public class ImporterDialog extends BaseTransformDialog {
   private ImporterMeta input;
 
   public ImporterDialog(
-      Shell parent,
-      IVariables variables,
-      ImporterMeta inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, inputMetadata, pipelineMeta, transformName);
+      Shell parent, IVariables variables, ImporterMeta inputMetadata, PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
     input = inputMetadata;
   }
 

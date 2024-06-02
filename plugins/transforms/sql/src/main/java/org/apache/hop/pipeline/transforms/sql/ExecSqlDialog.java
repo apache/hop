@@ -100,12 +100,8 @@ public class ExecSqlDialog extends BaseTransformDialog {
   private ColumnInfo[] colinf;
 
   public ExecSqlDialog(
-      Shell parent,
-      IVariables variables,
-      ExecSqlMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, ExecSqlMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

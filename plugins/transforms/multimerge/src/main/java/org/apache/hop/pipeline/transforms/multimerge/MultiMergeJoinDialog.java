@@ -78,9 +78,8 @@ public class MultiMergeJoinDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       MultiMergeJoinMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     joinMeta = transformMeta;
 
     String[] inputTransformNames = getInputTransformNames();

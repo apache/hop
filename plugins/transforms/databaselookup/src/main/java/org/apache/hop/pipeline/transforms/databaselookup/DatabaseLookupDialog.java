@@ -102,9 +102,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       DatabaseLookupMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

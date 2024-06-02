@@ -68,10 +68,9 @@ public class SSTableOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       SSTableOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, transformMeta, pipelineMeta, name);
+    super(parent, variables, transformMeta, pipelineMeta);
 
     input = transformMeta;
   }

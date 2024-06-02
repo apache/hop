@@ -43,9 +43,8 @@ public class DetectEmptyStreamDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       DetectEmptyStreamMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

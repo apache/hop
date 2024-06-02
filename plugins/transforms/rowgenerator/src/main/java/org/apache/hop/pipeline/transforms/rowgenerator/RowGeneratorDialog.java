@@ -76,9 +76,8 @@ public class RowGeneratorDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       RowGeneratorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

@@ -62,9 +62,8 @@ public class GenerateCsvDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       GenerateCsvMeta inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, inputMetadata, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
     input = inputMetadata;
   }
 

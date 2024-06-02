@@ -61,12 +61,8 @@ public class CoalesceDialog extends BaseTransformDialog {
   private String[] fieldNames;
 
   public CoalesceDialog(
-      Shell parent,
-      IVariables variables,
-      CoalesceMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, CoalesceMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

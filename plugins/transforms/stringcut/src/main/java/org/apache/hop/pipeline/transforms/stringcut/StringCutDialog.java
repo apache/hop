@@ -59,12 +59,8 @@ public class StringCutDialog extends BaseTransformDialog {
   private ColumnInfo[] ciKey;
 
   public StringCutDialog(
-      Shell parent,
-      IVariables variables,
-      StringCutMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, StringCutMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

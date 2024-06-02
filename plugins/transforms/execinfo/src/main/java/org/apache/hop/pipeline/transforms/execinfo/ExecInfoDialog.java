@@ -56,12 +56,8 @@ public class ExecInfoDialog extends BaseTransformDialog {
   private final ExecInfoMeta input;
 
   public ExecInfoDialog(
-      Shell parent,
-      IVariables variables,
-      ExecInfoMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, ExecInfoMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.input = transformMeta;
   }
 

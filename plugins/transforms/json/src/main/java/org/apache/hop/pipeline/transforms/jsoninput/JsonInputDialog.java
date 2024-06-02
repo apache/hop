@@ -154,12 +154,8 @@ public class JsonInputDialog extends BaseTransformDialog {
   private ModifyListener lsMod;
 
   public JsonInputDialog(
-      Shell parent,
-      IVariables variables,
-      JsonInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, JsonInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

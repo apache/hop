@@ -149,9 +149,8 @@ public class TableOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       TableOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

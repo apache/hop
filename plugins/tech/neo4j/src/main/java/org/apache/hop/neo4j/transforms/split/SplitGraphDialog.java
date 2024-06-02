@@ -57,12 +57,8 @@ public class SplitGraphDialog extends BaseTransformDialog {
   private SplitGraphMeta input;
 
   public SplitGraphDialog(
-      Shell parent,
-      IVariables variables,
-      SplitGraphMeta inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, inputMetadata, pipelineMeta, transformName);
+      Shell parent, IVariables variables, SplitGraphMeta inputMetadata, PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
     input = inputMetadata;
   }
 

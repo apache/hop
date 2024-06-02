@@ -112,12 +112,8 @@ public class HttpDialog extends BaseTransformDialog {
   private TextVar wCloseIdleConnectionsTime;
 
   public HttpDialog(
-      Shell parent,
-      IVariables variables,
-      HttpMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, HttpMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

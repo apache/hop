@@ -117,9 +117,8 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
       Shell parent,
       IVariables variables,
       SalesforceInsertMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     inputFields = new HashMap<>();
   }

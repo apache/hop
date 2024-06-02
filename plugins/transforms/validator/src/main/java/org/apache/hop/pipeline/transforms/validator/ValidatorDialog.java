@@ -116,12 +116,8 @@ public class ValidatorDialog extends BaseTransformDialog {
   private TextVar wConcatSeparator;
 
   public ValidatorDialog(
-      Shell parent,
-      IVariables variables,
-      ValidatorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, ValidatorMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
 
     // Just to make sure everything is nicely in sync...

@@ -91,10 +91,9 @@ public class MongoDbOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       MongoDbOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, transformMeta, pipelineMeta, name);
+    super(parent, variables, transformMeta, pipelineMeta);
 
     currentMeta = transformMeta;
     originalMeta = (MongoDbOutputMeta) currentMeta.clone();

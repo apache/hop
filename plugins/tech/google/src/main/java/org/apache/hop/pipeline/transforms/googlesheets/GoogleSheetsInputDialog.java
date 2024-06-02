@@ -79,9 +79,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       GoogleSheetsInputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     this.meta = transformMeta;
   }
 

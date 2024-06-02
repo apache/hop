@@ -65,12 +65,8 @@ public class AbortDialog extends BaseTransformDialog {
   private final int margin = props.getMargin();
 
   public AbortDialog(
-      Shell parent,
-      IVariables variables,
-      AbortMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AbortMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

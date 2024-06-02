@@ -58,9 +58,8 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       ClosureGeneratorMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

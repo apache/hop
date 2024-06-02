@@ -137,12 +137,8 @@ public class JsonOutputDialog extends BaseTransformDialog {
   private final List<String> inputFields = new ArrayList<>();
 
   public JsonOutputDialog(
-      Shell parent,
-      IVariables variables,
-      JsonOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, JsonOutputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

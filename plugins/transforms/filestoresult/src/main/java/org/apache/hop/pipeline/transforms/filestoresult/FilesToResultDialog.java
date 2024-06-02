@@ -53,9 +53,8 @@ public class FilesToResultDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       FilesToResultMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

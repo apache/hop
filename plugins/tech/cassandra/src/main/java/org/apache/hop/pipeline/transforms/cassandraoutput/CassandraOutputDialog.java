@@ -97,10 +97,9 @@ public class CassandraOutputDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       CassandraOutputMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, transformMeta, pipelineMeta, name);
+    super(parent, variables, transformMeta, pipelineMeta);
 
     input = transformMeta;
   }

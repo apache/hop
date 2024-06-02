@@ -43,9 +43,8 @@ public class RowsToResultDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       RowsToResultMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

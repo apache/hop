@@ -91,12 +91,8 @@ public class XsltDialog extends BaseTransformDialog {
   private final Map<String, Integer> inputFields;
 
   public XsltDialog(
-      Shell parent,
-      IVariables variables,
-      XsltMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    super(parent, variables, transformMeta, pipelineMeta, name);
+      Shell parent, IVariables variables, XsltMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     inputFields = new HashMap<>();
   }

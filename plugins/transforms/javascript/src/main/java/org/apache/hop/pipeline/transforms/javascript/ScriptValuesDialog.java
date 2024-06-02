@@ -171,10 +171,9 @@ public class ScriptValuesDialog extends BaseTransformDialog {
       Shell parent,
       IVariables variables,
       ScriptValuesMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String name) {
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, transformMeta, pipelineMeta, name);
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
     genMeta = null;
     try {

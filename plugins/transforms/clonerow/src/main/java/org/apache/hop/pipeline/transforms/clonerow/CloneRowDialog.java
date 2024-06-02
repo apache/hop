@@ -66,12 +66,8 @@ public class CloneRowDialog extends BaseTransformDialog {
   private boolean gotPreviousFields = false;
 
   public CloneRowDialog(
-      Shell parent,
-      IVariables variables,
-      CloneRowMeta transformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, transformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, CloneRowMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
     input = transformMeta;
   }
 

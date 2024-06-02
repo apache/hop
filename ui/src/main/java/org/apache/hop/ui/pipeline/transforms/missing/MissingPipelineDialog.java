@@ -57,9 +57,8 @@ public class MissingPipelineDialog extends BaseTransformDialog {
       IVariables variables,
       List<Missing> missingPipeline,
       ITransformMeta baseTransformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, baseTransformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, baseTransformMeta, pipelineMeta);
     this.shellParent = parent;
     this.missingPipeline = missingPipeline;
     this.mode = MISSING_PIPELINE_TRANSFORMS;
