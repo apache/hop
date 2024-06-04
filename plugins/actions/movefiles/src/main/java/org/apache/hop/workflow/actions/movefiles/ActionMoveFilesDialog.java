@@ -348,7 +348,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
           @Override
           public void widgetSelected(SelectionEvent e) {
 
-            RefreshArgFromPrevious();
+            refreshArgFromPrevious();
           }
         });
     FormData fdSettings = new FormData();
@@ -575,7 +575,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     fdFields.bottom = new FormAttachment(100, -margin);
     wFields.setLayoutData(fdFields);
 
-    RefreshArgFromPrevious();
+    refreshArgFromPrevious();
 
     // Add the file to the list of files...
     SelectionAdapter selA =
@@ -1457,7 +1457,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wMovedDateTimeFormat.setEnabled(wSpecifyMoveFormat.getSelection());
   }
 
-  private void RefreshArgFromPrevious() {
+  private void refreshArgFromPrevious() {
 
     wlFields.setEnabled(!wPrevious.getSelection());
     wFields.setEnabled(!wPrevious.getSelection());

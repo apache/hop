@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;
+import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystem;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemOptions;
@@ -131,6 +132,19 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
     }
 
     return new AzureFileSystem((AzureFileName) fileName, service, fsOptions, account);
+  }
+
+  @Override
+  public FileObject findFile(
+      FileObject baseFileObject, String uri, FileSystemOptions fileSystemOptions)
+      throws FileSystemException {
+    return super.findFile(baseFileObject, uri, fileSystemOptions);
+  }
+
+  @Override
+  protected FileObject findFile(FileName fileName, FileSystemOptions fileSystemOptions)
+      throws FileSystemException {
+    return super.findFile(fileName, fileSystemOptions);
   }
 
   @Override
