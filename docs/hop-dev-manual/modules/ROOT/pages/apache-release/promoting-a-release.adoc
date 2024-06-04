@@ -66,6 +66,7 @@ first take a copy of the source code release and build the software
 unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/
 unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp
 unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/
+unzip -j ./assemblies/lib-jdbc/target/hop-assemblies-*.zip -d ./assemblies/lib-jdbc/target/jdbc-drivers
 
 # Create image (make sure to add correct version)
 docker buildx build --platform linux/amd64,linux/arm64 . -f docker/Dockerfile -t docker.io/apache/hop:X.XX -t docker.io/apache/hop:latest --push

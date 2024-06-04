@@ -121,6 +121,7 @@ pipeline {
                 sh "unzip ./assemblies/client/target/hop-client-*.zip -d ./assemblies/client/target/"
                 sh "unzip ./assemblies/web/target/hop.war -d ./assemblies/web/target/webapp"
                 sh "unzip ./assemblies/plugins/dist/target/hop-assemblies-*.zip -d ./assemblies/plugins/dist/target/"
+                sh "unzip -j ./assemblies/lib-jdbc/target/hop-assemblies-*.zip -d ./assemblies/lib-jdbc/target/jdbc-drivers"
             }
         }
         stage('Generate Hop fat jar'){

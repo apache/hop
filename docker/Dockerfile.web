@@ -32,7 +32,7 @@ ENV HOP_OPTIONS="-XX:+AggressiveHeap"
 ENV HOP_PASSWORD_ENCODER_PLUGIN="Hop"
 ENV HOP_PLUGIN_BASE_FOLDERS="plugins"
 # path to jdbc drivers
-ENV HOP_SHARED_JDBC_FOLDERS=""
+ENV HOP_SHARED_JDBC_FOLDERS="${CATALINA_HOME}/jdbc-drivers"
 ENV HOP_WEB_THEME="light"
 ENV HOP_GUI_ZOOM_FACTOR=1.0
 
@@ -70,7 +70,7 @@ RUN rm -rf webapps/* \
 # Copy resources
 COPY ./assemblies/web/target/webapp/ "${CATALINA_HOME}"/webapps/ROOT/
 COPY ./assemblies/plugins/dist/target/plugins "${CATALINA_HOME}"/plugins
-
+COPY ./assemblies/lib-jdbc/target/jdbc-drivers/ "${CATALINA_HOME}"/jdbc-drivers
 COPY --chown=hop ./docker/resources/run-web.sh /tmp/
 
 # Fix hop-config.json
