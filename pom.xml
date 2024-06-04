@@ -185,9 +185,9 @@
         <okhttp.version>4.12.0</okhttp.version>
         <opencensus-api.version>0.31.1</opencensus-api.version>
         <opencensus-contrib-http-util.version>0.31.1</opencensus-contrib-http-util.version>
-        <org.eclipse.platform.version>3.123.0</org.eclipse.platform.version>
-        <org.eclipse.commands.version>3.9.600</org.eclipse.commands.version>
-        <org.eclipse.equinox.version>3.10.600</org.eclipse.equinox.version>
+        <org.eclipse.platform.version>3.125.0</org.eclipse.platform.version>
+        <org.eclipse.commands.version>3.12.0</org.eclipse.commands.version>
+        <org.eclipse.equinox.version>3.19.0</org.eclipse.equinox.version>
         <opencsv.version>5.7.1</opencsv.version>
         <paranamer.version>2.8</paranamer.version>
         <perfmark.version>0.26.0</perfmark.version>
