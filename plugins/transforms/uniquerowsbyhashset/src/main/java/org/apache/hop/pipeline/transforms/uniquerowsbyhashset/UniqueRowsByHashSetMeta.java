@@ -163,6 +163,7 @@ public class UniqueRowsByHashSetMeta
   public void setDefault() {
     rejectDuplicateRow = false;
     errorDescription = null;
+    storeValues = true;
     int nrFields = 0;
 
     allocate(nrFields);
