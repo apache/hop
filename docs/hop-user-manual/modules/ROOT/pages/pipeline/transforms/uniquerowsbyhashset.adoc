@@ -40,6 +40,8 @@ This transform differs from the xref:pipeline/transforms/uniquerows.adoc[Unique 
 !===
 |===
 
+WARNING: When using this transform on larger sets of data there is a risk of hash collisions unless "Compare using stored row values" is enabled.
+
 == Options
 
 [options="header"]
