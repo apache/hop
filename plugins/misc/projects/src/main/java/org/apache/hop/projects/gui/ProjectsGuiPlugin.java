@@ -1141,6 +1141,14 @@ public class ProjectsGuiPlugin {
                   HopVfs.getFileObject(projectHome).getParent().getName().getURI();
               zipFile(
                   projectDirectory, projectDirectory.getName().getURI(), zos, projectHomeFolder);
+              zipFile(
+                  HopVfs.getFileObject(
+                      Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG),
+                  projectDirectory.getName().getBaseName()
+                      + Const.FILE_SEPARATOR
+                      + Const.HOP_CONFIG,
+                  zos,
+                  projectHomeFolder);
               zipString(
                   variablesJson, "variables.json", zos, projectDirectory.getName().getBaseName());
               zipString(
