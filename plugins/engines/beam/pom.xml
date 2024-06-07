@@ -31,15 +31,13 @@
     <name>Hop Plugins Engines Beam</name>
 
     <properties>
-        <bigtable-hbase-beam.version>2.11.0</bigtable-hbase-beam.version>
+        <bigtable-hbase-beam.version>2.14.2</bigtable-hbase-beam.version>
         <hive-storage.version>2.7.0</hive-storage.version>
 
         <json-simple.version>1.1.1</json-simple.version>
         <!--        https://github.com/apache/hive/blob/df0a1429d4a67bc180cf1e15ff10432f6723bb1c/pom.xml-->
         <libfb303.version>0.9.3</libfb303.version>
     </properties>
-
-    <dependencyManagement></dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -375,7 +373,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-vendor-guava-26_0-jre</artifactId>
+            <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

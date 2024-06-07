@@ -31,7 +31,7 @@
     <description></description>
 
     <properties>
-        <bigtable-hbase-beam.version>2.11.0</bigtable-hbase-beam.version>
+        <bigtable-hbase-beam.version>2.14.2</bigtable-hbase-beam.version>
     </properties>
 
     <dependencies>
