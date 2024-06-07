@@ -23,8 +23,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -41,7 +39,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class AzureWriterDialog extends BaseTransformDialog implements ITransformDialog {
+public class AzureWriterDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       AzureWriterMeta.class; // for i18n purposes, needed by Translator2!!
@@ -59,11 +57,10 @@ public class AzureWriterDialog extends BaseTransformDialog implements ITransform
   public AzureWriterDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
-      PipelineMeta transMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, transMeta, transformName);
-    input = (AzureWriterMeta) inputMetadata;
+      AzureWriterMeta inputMetadata,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
+    input = inputMetadata;
   }
 
   @Override

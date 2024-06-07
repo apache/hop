@@ -26,7 +26,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -50,7 +49,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class ExecProcessDialog extends BaseTransformDialog implements ITransformDialog {
+public class ExecProcessDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExecProcessMeta.class; // For Translator
 
   private CCombo wProcess;
@@ -70,9 +69,12 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
   private boolean gotPreviousFields = false;
 
   public ExecProcessDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (ExecProcessMeta) in, pipelineMeta, sname);
-    input = (ExecProcessMeta) in;
+      Shell parent,
+      IVariables variables,
+      ExecProcessMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

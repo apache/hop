@@ -21,7 +21,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.ui.core.PropsUi;
@@ -40,7 +39,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-public class MissingPipelineDialog extends BaseTransformDialog implements ITransformDialog {
+public class MissingPipelineDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MissingPipelineDialog.class; // For Translator
 
@@ -58,9 +57,8 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
       IVariables variables,
       List<Missing> missingPipeline,
       ITransformMeta baseTransformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, baseTransformMeta, pipelineMeta, transformName);
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, baseTransformMeta, pipelineMeta);
     this.shellParent = parent;
     this.missingPipeline = missingPipeline;
     this.mode = MISSING_PIPELINE_TRANSFORMS;

@@ -32,8 +32,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -67,7 +65,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class TikaDialog extends BaseTransformDialog implements ITransformDialog {
+public class TikaDialog extends BaseTransformDialog {
   public static final int[] dateLengths = new int[] {23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6};
   private static final Class<?> PKG = TikaMeta.class; // for Translator
   private static final String[] YES_NO_COMBO =
@@ -121,11 +119,10 @@ public class TikaDialog extends BaseTransformDialog implements ITransformDialog 
   public TikaDialog(
       final Shell parent,
       IVariables variables,
-      final Object baseTransformMeta,
-      final PipelineMeta pipelineMeta,
-      final String transformName) {
-    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
-    input = (TikaMeta) baseTransformMeta;
+      final TikaMeta transformMeta,
+      final PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   public String open() {

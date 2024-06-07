@@ -37,8 +37,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -71,7 +69,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for MongoDbDelete step */
-public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransformDialog {
+public class MongoDbDeleteDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MongoDbDeleteDialog.class;
 
@@ -93,10 +91,13 @@ public class MongoDbDeleteDialog extends BaseTransformDialog implements ITransfo
   private final List<String> inputFields = new ArrayList<>();
 
   public MongoDbDeleteDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String name) {
+      Shell parent,
+      IVariables variables,
+      MongoDbDeleteMeta transformMeta,
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, name);
-    currentMeta = (MongoDbDeleteMeta) in;
+    super(parent, variables, transformMeta, pipelineMeta);
+    currentMeta = transformMeta;
     originalMeta = (MongoDbDeleteMeta) currentMeta.clone();
   }
 

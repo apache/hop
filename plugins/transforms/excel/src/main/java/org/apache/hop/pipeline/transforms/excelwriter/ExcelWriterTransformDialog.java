@@ -33,8 +33,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.util.SchemaDefinitionUtil;
@@ -77,7 +75,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class ExcelWriterTransformDialog extends BaseTransformDialog implements ITransformDialog {
+public class ExcelWriterTransformDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // For Translator
 
   private TextVar wFilename;
@@ -179,9 +177,12 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private static final String LABEL_FORMATXLS = "ExcelWriterDialog.FormatXLS.Label";
 
   public ExcelWriterTransformDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (ExcelWriterTransformMeta) in;
+      Shell parent,
+      IVariables variables,
+      ExcelWriterTransformMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

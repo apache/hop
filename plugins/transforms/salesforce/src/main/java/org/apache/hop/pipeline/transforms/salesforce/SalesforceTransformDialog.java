@@ -23,16 +23,13 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.MessageBox;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 
-public abstract class SalesforceTransformDialog extends BaseTransformDialog
-    implements ITransformDialog {
+public abstract class SalesforceTransformDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SalesforceTransformMeta.class; // For Translator
 
   protected static final String DEFAULT_DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss'.000'Z";
@@ -41,9 +38,12 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog
   private final Class<? extends SalesforceTransformMeta> META_CLASS;
 
   public SalesforceTransformDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    META_CLASS = ((SalesforceTransformMeta) in).getClass();
+      Shell parent,
+      IVariables variables,
+      SalesforceTransformMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    META_CLASS = transformMeta.getClass();
   }
 
   protected abstract void getInfo(SalesforceTransformMeta meta) throws HopException;

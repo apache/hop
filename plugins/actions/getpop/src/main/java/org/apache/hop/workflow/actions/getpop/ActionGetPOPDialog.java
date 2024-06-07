@@ -38,7 +38,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -61,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Get POP action settings. */
-public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
+public class ActionGetPOPDialog extends ActionDialog {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
 
   private Text wName;
@@ -215,9 +214,9 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private MailConnection mailConn = null;
 
   public ActionGetPOPDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionGetPOP action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionGetPOP) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionGetPOP.Name.Default"));
     }
@@ -225,9 +224,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

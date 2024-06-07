@@ -36,8 +36,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.mongo.metadata.MongoDbConnection;
 import org.apache.hop.mongo.wrapper.MongoClientWrapper;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -65,7 +63,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the MongoDB output transform */
-public class MongoDbOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class MongoDbOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = MongoDbOutputMeta.class; // For Translator
 
@@ -90,11 +88,14 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
   private TableView wMongoIndexes;
 
   public MongoDbOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String name) {
+      Shell parent,
+      IVariables variables,
+      MongoDbOutputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, (BaseTransformMeta) in, tr, name);
+    super(parent, variables, transformMeta, pipelineMeta);
 
-    currentMeta = (MongoDbOutputMeta) in;
+    currentMeta = transformMeta;
     originalMeta = (MongoDbOutputMeta) currentMeta.clone();
   }
 

@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.stream.IStream;
@@ -58,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
+public class MultiMergeJoinDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MultiMergeJoinMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MultiMergeJoinSortWarning";
@@ -77,9 +75,12 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
   private final MultiMergeJoinMeta joinMeta;
 
   public MultiMergeJoinDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    joinMeta = (MultiMergeJoinMeta) in;
+      Shell parent,
+      IVariables variables,
+      MultiMergeJoinMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    joinMeta = transformMeta;
 
     String[] inputTransformNames = getInputTransformNames();
     wInputTransformArray = new CCombo[inputTransformNames.length];

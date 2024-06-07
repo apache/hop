@@ -37,8 +37,6 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.splunk.SplunkConnection;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -67,7 +65,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SplunkInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class SplunkInputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       SplunkInputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -85,11 +83,10 @@ public class SplunkInputDialog extends BaseTransformDialog implements ITransform
   public SplunkInputDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
-    input = (SplunkInputMeta) inputMetadata;
+      SplunkInputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

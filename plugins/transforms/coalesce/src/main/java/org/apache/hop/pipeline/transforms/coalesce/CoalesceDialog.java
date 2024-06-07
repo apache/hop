@@ -28,8 +28,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -51,7 +49,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class CoalesceDialog extends BaseTransformDialog implements ITransformDialog {
+public class CoalesceDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CoalesceMeta.class; // For Translator
 
   private final CoalesceMeta input;
@@ -63,9 +61,9 @@ public class CoalesceDialog extends BaseTransformDialog implements ITransformDia
   private String[] fieldNames;
 
   public CoalesceDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (CoalesceMeta) in;
+      Shell parent, IVariables variables, CoalesceMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

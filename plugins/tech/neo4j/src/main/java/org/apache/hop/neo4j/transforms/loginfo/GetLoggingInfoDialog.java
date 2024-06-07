@@ -25,8 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -52,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransformDialog {
+public class GetLoggingInfoDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       GetLoggingInfo.class; // for i18n purposes, needed by Translator2!!
 
@@ -65,9 +63,12 @@ public class GetLoggingInfoDialog extends BaseTransformDialog implements ITransf
   private boolean isReceivingInput = false;
 
   public GetLoggingInfoDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (GetLoggingInfoMeta) in;
+      Shell parent,
+      IVariables variables,
+      GetLoggingInfoMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

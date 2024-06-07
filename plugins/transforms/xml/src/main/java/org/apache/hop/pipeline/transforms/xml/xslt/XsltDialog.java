@@ -30,8 +30,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -62,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
+public class XsltDialog extends BaseTransformDialog {
   private static final Class<?> PKG = XsltMeta.class; // For Translator
 
   private LabelTextVar wResultField;
@@ -93,9 +91,9 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
   private final Map<String, Integer> inputFields;
 
   public XsltDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (XsltMeta) in;
+      Shell parent, IVariables variables, XsltMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
     inputFields = new HashMap<>();
   }
 

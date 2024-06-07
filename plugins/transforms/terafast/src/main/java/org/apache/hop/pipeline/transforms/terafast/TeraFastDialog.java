@@ -30,7 +30,6 @@ import org.apache.hop.core.util.KeyValue;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -62,7 +61,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
-public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
+public class TeraFastDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = TeraFastMeta.class; // For Translator
 
@@ -126,11 +125,10 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
   public TeraFastDialog(
       final Shell parent,
       IVariables variables,
-      final Object baseTransformMeta,
-      final PipelineMeta pipelineMeta,
-      final String transformName) {
-    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
-    this.meta = (TeraFastMeta) baseTransformMeta;
+      final TeraFastMeta transformMeta,
+      final PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    this.meta = transformMeta;
   }
 
   /**

@@ -29,7 +29,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -39,7 +38,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class EndRepeatDialog extends ActionDialog implements IActionDialog {
+public class EndRepeatDialog extends ActionDialog {
 
   private static final Class<?> PKG = EndRepeatDialog.class; // For Translator
 
@@ -48,9 +47,9 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
   private Text wName;
 
   public EndRepeatDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, EndRepeat action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (EndRepeat) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName("End Repeat");
@@ -60,9 +59,7 @@ public class EndRepeatDialog extends ActionDialog implements IActionDialog {
   @Override
   public IAction open() {
 
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     shell.setMinimumSize(400, 130);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);

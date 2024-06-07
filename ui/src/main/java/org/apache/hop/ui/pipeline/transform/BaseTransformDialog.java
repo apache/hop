@@ -40,6 +40,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -78,7 +79,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This class provides functionality common to Transform Dialogs. */
-public class BaseTransformDialog extends Dialog {
+public abstract class BaseTransformDialog extends Dialog implements ITransformDialog {
   private static final Class<?> PKG = ITransform.class; // For Translator
 
   /** The logging object interface for this dialog. */
@@ -172,22 +173,20 @@ public class BaseTransformDialog extends Dialog {
    * @param parent the parent shell
    * @param baseTransformMeta the associated base transform metadata
    * @param pipelineMeta the associated pipeline metadata
-   * @param transformName the transform name
    */
   public BaseTransformDialog(
       Shell parent,
       IVariables variables,
-      BaseTransformMeta<?, ?> baseTransformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
+      ITransformMeta baseTransformMeta,
+      PipelineMeta pipelineMeta) {
     super(parent, SWT.NONE);
 
     this.log = new LogChannel(baseTransformMeta);
     this.variables = variables;
     this.pipelineMeta = pipelineMeta;
-    this.transformName = transformName;
-    this.transformMeta = pipelineMeta.findTransform(transformName);
     this.baseTransformMeta = (ITransformMeta) baseTransformMeta;
+    this.transformName = baseTransformMeta.getParentTransformMeta().getName();
+    this.transformMeta = pipelineMeta.findTransform(transformName);
     this.backupChanged = baseTransformMeta.hasChanged();
     this.props = PropsUi.getInstance();
     this.metadataProvider = HopGui.getInstance().getMetadataProvider();

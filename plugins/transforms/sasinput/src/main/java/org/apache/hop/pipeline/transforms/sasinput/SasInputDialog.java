@@ -35,8 +35,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -57,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SasInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class SasInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SasInputMeta.class; // for Translator
 
   private CCombo wAccField;
@@ -67,9 +65,9 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
   private TableView wFields;
 
   public SasInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (SasInputMeta) in;
+      Shell parent, IVariables variables, SasInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

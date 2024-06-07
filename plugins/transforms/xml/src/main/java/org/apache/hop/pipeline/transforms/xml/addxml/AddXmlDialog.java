@@ -33,8 +33,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -64,7 +62,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class AddXmlDialog extends BaseTransformDialog implements ITransformDialog {
+public class AddXmlDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AddXmlMeta.class; // For Translator
 
   private Button wOmitXMLHeader;
@@ -88,9 +86,9 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
   private final Map<String, Integer> inputFields;
 
   public AddXmlDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (AddXmlMeta) in;
+      Shell parent, IVariables variables, AddXmlMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
     inputFields = new HashMap<>();
   }
 

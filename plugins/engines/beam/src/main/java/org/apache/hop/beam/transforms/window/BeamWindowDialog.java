@@ -23,8 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -40,7 +38,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class BeamWindowDialog extends BaseTransformDialog implements ITransformDialog {
+public class BeamWindowDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamWindowDialog.class; // For Translator
   private final BeamWindowMeta input;
 
@@ -58,9 +56,9 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
   private Combo wTriggerType;
 
   public BeamWindowDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (BeamWindowMeta) in;
+      Shell parent, IVariables variables, BeamWindowMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

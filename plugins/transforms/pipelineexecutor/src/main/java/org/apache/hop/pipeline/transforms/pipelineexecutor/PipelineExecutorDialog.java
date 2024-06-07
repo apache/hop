@@ -35,8 +35,6 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -76,7 +74,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class PipelineExecutorDialog extends BaseTransformDialog implements ITransformDialog {
+public class PipelineExecutorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PipelineExecutorDialog.class; // For Translator
 
   private static final int FIELD_DESCRIPTION = 1;
@@ -146,9 +144,12 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   private final int margin = props.getMargin();
 
   public PipelineExecutorDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    pipelineExecutorMeta = (PipelineExecutorMeta) in;
+      Shell parent,
+      IVariables variables,
+      PipelineExecutorMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    pipelineExecutorMeta = transformMeta;
     jobModified = false;
   }
 

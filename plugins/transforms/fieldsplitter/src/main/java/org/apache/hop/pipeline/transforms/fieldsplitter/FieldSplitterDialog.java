@@ -29,8 +29,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -50,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class FieldSplitterDialog extends BaseTransformDialog implements ITransformDialog {
+public class FieldSplitterDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FieldSplitterMeta.class; // For Translator
 
   private CCombo wSplitField;
@@ -68,9 +66,12 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
   private boolean gotPreviousFields = false;
 
   public FieldSplitterDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (FieldSplitterMeta) in;
+      Shell parent,
+      IVariables variables,
+      FieldSplitterMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

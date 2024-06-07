@@ -34,7 +34,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
@@ -51,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Write to file action settings. */
-public class ActionWriteToFileDialog extends ActionDialog implements IActionDialog {
+public class ActionWriteToFileDialog extends ActionDialog {
   private static final Class<?> PKG = ActionWriteToFile.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -76,9 +75,9 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
   private boolean gotEncodings = false;
 
   public ActionWriteToFileDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionWriteToFile action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionWriteToFile) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionWriteToFile.Name.Default"));
     }
@@ -86,9 +85,8 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

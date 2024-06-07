@@ -83,9 +83,12 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
   private Button wRollbackAllChangesOnError;
 
   public SalesforceDeleteDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, in, pipelineMeta, sname);
-    input = (SalesforceDeleteMeta) in;
+      Shell parent,
+      IVariables variables,
+      SalesforceDeleteMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

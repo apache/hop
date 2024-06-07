@@ -22,8 +22,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -38,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class GetServerStatusDialog extends BaseTransformDialog implements ITransformDialog {
+public class GetServerStatusDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetServerStatusDialog.class; // For Translator
   private final GetServerStatusMeta input;
 
@@ -64,9 +62,12 @@ public class GetServerStatusDialog extends BaseTransformDialog implements ITrans
   private Text wResponseNs;
 
   public GetServerStatusDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (GetServerStatusMeta) in;
+      Shell parent,
+      IVariables variables,
+      GetServerStatusMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

@@ -46,9 +46,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileCSVImportProgressDialog;
@@ -95,9 +93,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class CsvInputDialog extends BaseTransformDialog
-    implements ITransformDialog,
-        IGetFieldsCapableTransformDialog<CsvInputMeta>,
-        ICsvInputAwareTransformDialog {
+    implements IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
   private static final Class<?> PKG = CsvInput.class; // For Translator
   public static final String STRING_USAGE_INFO_PARAMETER = "UsageInfoParameter";
 
@@ -131,9 +127,9 @@ public class CsvInputDialog extends BaseTransformDialog
   private MetaSelectionLine<SchemaDefinition> wSchemaDefinition;
 
   public CsvInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    inputMeta = (CsvInputMeta) in;
+      Shell parent, IVariables variables, CsvInputMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    inputMeta = transformMeta;
   }
 
   @Override

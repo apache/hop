@@ -33,8 +33,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -67,7 +65,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SimpleMappingDialog extends BaseTransformDialog implements ITransformDialog {
+public class SimpleMappingDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
   private SimpleMappingMeta mappingMeta;
@@ -148,9 +146,12 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   private List<ApplyChanges> changeList;
 
   public SimpleMappingDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    mappingMeta = (SimpleMappingMeta) in;
+      Shell parent,
+      IVariables variables,
+      SimpleMappingMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    mappingMeta = transformMeta;
     transModified = false;
 
     // Make a copy for our own purposes...

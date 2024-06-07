@@ -43,7 +43,6 @@ import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline.Parameter;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline.ParameterDefinition;
 import org.eclipse.swt.SWT;
@@ -56,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 /** This dialog allows you to edit the pipeline action (ActionPipeline) */
-public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
+public class ActionPipelineDialog extends ActionBaseDialog {
   private static final Class<?> PKG = ActionPipeline.class; // For Translator
 
   private ActionPipeline action;
@@ -70,9 +69,9 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
       };
 
   public ActionPipelineDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionPipeline action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, action, workflowMeta, variables);
-    this.action = (ActionPipeline) action;
+    this.action = action;
   }
 
   @Override

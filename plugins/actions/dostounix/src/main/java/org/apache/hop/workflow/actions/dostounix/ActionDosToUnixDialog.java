@@ -32,7 +32,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -52,7 +51,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the XML valid action settings. */
-public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog {
+public class ActionDosToUnixDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDosToUnix.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -97,9 +96,9 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
   private TextVar wNrErrorsLessThan;
 
   public ActionDosToUnixDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionDosToUnix action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionDosToUnix) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionDosToUnix.Name.Default"));

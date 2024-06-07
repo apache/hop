@@ -24,8 +24,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -50,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SystemDataDialog extends BaseTransformDialog implements ITransformDialog {
+public class SystemDataDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SystemDataMeta.class; // For Translator
 
   private Text wTransformName;
@@ -60,9 +58,9 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
   private final SystemDataMeta input;
 
   public SystemDataDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (SystemDataMeta) in;
+      Shell parent, IVariables variables, SystemDataMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

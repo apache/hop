@@ -32,8 +32,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -71,7 +69,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the Oracle bulk loader transformation. */
-public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
+public class OraBulkLoaderDialog extends BaseTransformDialog {
   private static final Class<?> PKG =
       OraBulkLoaderDialog.class; // for i18n purposes, needed by Translator2!!
 
@@ -123,9 +121,12 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
       new String[] {BaseMessages.getString(PKG, "OraBulkLoaderDialog.Filetype.All")};
 
   public OraBulkLoaderDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (OraBulkLoaderMeta) in;
+      Shell parent,
+      IVariables variables,
+      OraBulkLoaderMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   public String open() {

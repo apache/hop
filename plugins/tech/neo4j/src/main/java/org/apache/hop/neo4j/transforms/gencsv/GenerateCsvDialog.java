@@ -23,8 +23,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -44,7 +42,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class GenerateCsvDialog extends BaseTransformDialog implements ITransformDialog {
+public class GenerateCsvDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       GenerateCsvMeta.class; // for i18n purposes, needed by Translator2!!
@@ -63,11 +61,10 @@ public class GenerateCsvDialog extends BaseTransformDialog implements ITransform
   public GenerateCsvDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
-    input = (GenerateCsvMeta) inputMetadata;
+      GenerateCsvMeta inputMetadata,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
+    input = inputMetadata;
   }
 
   @Override

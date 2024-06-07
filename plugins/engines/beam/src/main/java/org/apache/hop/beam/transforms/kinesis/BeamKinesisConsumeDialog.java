@@ -23,8 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -40,7 +38,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class BeamKinesisConsumeDialog extends BaseTransformDialog implements ITransformDialog {
+public class BeamKinesisConsumeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamKinesisConsume.class; // For Translator
   private final BeamKinesisConsumeMeta input;
 
@@ -74,9 +72,12 @@ public class BeamKinesisConsumeDialog extends BaseTransformDialog implements ITr
   private TextVar wMaxCapacityPerShard;
 
   public BeamKinesisConsumeDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (BeamKinesisConsumeMeta) in;
+      Shell parent,
+      IVariables variables,
+      BeamKinesisConsumeMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

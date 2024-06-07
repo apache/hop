@@ -27,8 +27,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -57,7 +55,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class SqsReaderDialog extends BaseTransformDialog implements ITransformDialog {
+public class SqsReaderDialog extends BaseTransformDialog {
 
   /**
    * The PKG member is used when looking up internationalized strings. The properties file with
@@ -114,12 +112,11 @@ public class SqsReaderDialog extends BaseTransformDialog implements ITransformDi
    * @param parent the SWT shell to open the dialog in
    * @param in the meta object holding the transform's settings
    * @param pipelineMeta pipeline description
-   * @param sname the transform name
    */
   public SqsReaderDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    meta = (SqsReaderMeta) in;
+      Shell parent, IVariables variables, SqsReaderMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    meta = transformMeta;
   }
 
   /**

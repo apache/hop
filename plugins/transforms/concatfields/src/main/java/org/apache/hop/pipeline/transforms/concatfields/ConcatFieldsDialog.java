@@ -29,8 +29,6 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -61,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
  * ConcatFieldsDialog
  *
  */
-public class ConcatFieldsDialog extends BaseTransformDialog implements ITransformDialog {
+public class ConcatFieldsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = ConcatFieldsMeta.class; // For Translator
 
   private TextVar wTargetFieldName;
@@ -83,14 +81,12 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
   private final List<String> inputFields = new ArrayList<>();
 
   public ConcatFieldsDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(
-        parent,
-        variables,
-        (BaseTransformMeta<ConcatFields, ConcatFieldsData>) in,
-        pipelineMeta,
-        sname);
-    input = (ConcatFieldsMeta) in;
+      Shell parent,
+      IVariables variables,
+      ConcatFieldsMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

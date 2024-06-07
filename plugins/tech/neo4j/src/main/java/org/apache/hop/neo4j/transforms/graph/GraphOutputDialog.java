@@ -42,8 +42,6 @@ import org.apache.hop.neo4j.model.GraphProperty;
 import org.apache.hop.neo4j.model.GraphRelationship;
 import org.apache.hop.neo4j.shared.NeoConnection;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterMappingDialog;
@@ -68,7 +66,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class GraphOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class GraphOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       GraphOutputMeta.class; // for i18n purposes, needed by Translator2!!
@@ -100,11 +98,10 @@ public class GraphOutputDialog extends BaseTransformDialog implements ITransform
   public GraphOutputDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, pipelineMeta, transformName);
-    input = (GraphOutputMeta) inputMetadata;
+      GraphOutputMeta inputMetadata,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, inputMetadata, pipelineMeta);
+    input = inputMetadata;
   }
 
   @Override

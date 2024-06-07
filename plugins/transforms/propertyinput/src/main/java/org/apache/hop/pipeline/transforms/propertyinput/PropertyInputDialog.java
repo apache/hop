@@ -38,7 +38,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -74,7 +73,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.ini4j.Wini;
 
-public class PropertyInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class PropertyInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PropertyInputMeta.class; // For Translator
   private static final String[] YES_NO_COMBO =
       new String[] {
@@ -164,9 +163,12 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
   private boolean gotPreviousFields = false;
 
   public PropertyInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (PropertyInputMeta) in, pipelineMeta, sname);
-    input = (PropertyInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      PropertyInputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

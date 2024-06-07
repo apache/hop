@@ -44,8 +44,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -79,7 +77,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
+public class DimensionLookupDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DimensionLookupMeta.class; // For Translator
 
   private CTabFolder wTabFolder;
@@ -158,10 +156,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public DimensionLookupDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(
-        parent, variables, (BaseTransformMeta<DimensionLookup, DimensionLookupData>) in, tr, sname);
-    input = (DimensionLookupMeta) in;
+      Shell parent,
+      IVariables variables,
+      DimensionLookupMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

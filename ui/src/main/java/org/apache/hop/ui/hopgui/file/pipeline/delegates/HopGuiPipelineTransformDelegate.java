@@ -81,18 +81,6 @@ public class HopGuiPipelineTransformDelegate {
   public ITransformDialog getTransformDialog(
       ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName)
       throws HopException {
-    Class<?>[] paramClasses =
-        new Class<?>[] {
-          Shell.class, IVariables.class, Object.class, PipelineMeta.class, String.class
-        };
-    Object[] paramArgs =
-        new Object[] {
-          hopGui.getShell(),
-          pipelineGraph.getVariables(),
-          transformMeta,
-          pipelineMeta,
-          transformName
-        };
 
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin(TransformPluginType.class, transformMeta);
@@ -101,7 +89,6 @@ public class HopGuiPipelineTransformDelegate {
     }
 
     String dialogClassName = plugin.getClassMap().get(ITransformDialog.class);
-
     if (dialogClassName == null) {
       // Calculate it from the base meta class...
       //
@@ -118,34 +105,69 @@ public class HopGuiPipelineTransformDelegate {
 
     try {
       Class<ITransformDialog> dialogClass = registry.getClass(plugin, dialogClassName);
-      Constructor<ITransformDialog> dialogConstructor = dialogClass.getConstructor(paramClasses);
-      return dialogConstructor.newInstance(paramArgs);
-    } catch (Exception e) {
-      // try the old way for compatibility
-      try {
-        Class<?>[] sig =
-            new Class<?>[] {
-              Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class
-            };
-        Method method = transformMeta.getClass().getDeclaredMethod("getDialog", sig);
-        if (method != null) {
-          hopGui
-              .getLog()
-              .logDebug(
-                  "Use of ITransformMeta#getDialog is deprecated, use PluginDialog annotation instead.");
-          return (ITransformDialog) method.invoke(transformMeta, paramArgs);
-        }
-      } catch (Throwable ignored) {
-      }
+      Constructor<ITransformDialog> dialogConstructor =
+          dialogClass.getConstructor(
+              new Class<?>[] {
+                Shell.class, IVariables.class, transformMeta.getClass(), PipelineMeta.class
+              });
 
+      Object[] arguments =
+          new Object[] {
+            hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta
+          };
+
+      return dialogConstructor.newInstance(arguments);
+    } catch (Exception e) {
+      // do nothing and try an other alternative
+    }
+
+    Object[] arguments =
+        new Object[] {
+          hopGui.getShell(),
+          pipelineGraph.getVariables(),
+          transformMeta,
+          pipelineMeta,
+          transformName
+        };
+
+    // TODO: To remove in future version, try old parameters version (before 2.10)
+    try {
+      Class<ITransformDialog> dialogClass = registry.getClass(plugin, dialogClassName);
+      Constructor<ITransformDialog> dialogConstructor =
+          dialogClass.getConstructor(
+              new Class<?>[] {
+                Shell.class, IVariables.class, Object.class, PipelineMeta.class, String.class
+              });
+
+      return dialogConstructor.newInstance(arguments);
+    } catch (Exception e) {
+      // do nothing and try an other alternative
+    }
+
+    // try the old way for compatibility
+    try {
+      Class<?>[] sig =
+          new Class<?>[] {
+            Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class
+          };
+      Method method = transformMeta.getClass().getDeclaredMethod("getDialog", sig);
+      if (method != null) {
+        hopGui
+            .getLog()
+            .logDebug(
+                "Use of ITransformMeta#getDialog is deprecated, use PluginDialog annotation instead.");
+        return (ITransformDialog) method.invoke(transformMeta, arguments);
+      }
+    } catch (Throwable e) {
       String errorTitle =
           BaseMessages.getString(PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Title");
       String errorMsg =
           BaseMessages.getString(
               PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Message", dialogClassName);
       new ErrorDialog(hopGui.getActiveShell(), errorTitle, errorMsg, e);
-      throw new HopException(e);
     }
+
+    return null;
   }
 
   public String editTransform(PipelineMeta pipelineMeta, TransformMeta transformMeta) {

@@ -21,8 +21,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ComboVar;
@@ -41,7 +39,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDialog {
+public class Edi2XmlDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
 
@@ -52,9 +50,9 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
   private ComboVar wEdiField;
 
   public Edi2XmlDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (Edi2XmlMeta) in;
+      Shell parent, IVariables variables, Edi2XmlMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

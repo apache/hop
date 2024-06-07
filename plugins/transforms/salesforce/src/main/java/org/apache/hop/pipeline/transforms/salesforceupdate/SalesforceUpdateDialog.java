@@ -108,9 +108,12 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
   private boolean getModulesListError = false; /* True if error getting modules list */
 
   public SalesforceUpdateDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, in, pipelineMeta, sname);
-    input = (SalesforceUpdateMeta) in;
+      Shell parent,
+      IVariables variables,
+      SalesforceUpdateMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.calculator.CalculatorMetaFunction.CalculationType;
 import org.apache.hop.ui.core.ConstUi;
@@ -53,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class CalculatorDialog extends BaseTransformDialog implements ITransformDialog {
+public class CalculatorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = CalculatorMeta.class; // For Translator
 
   private Text wTransformName;
@@ -69,12 +67,12 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
   private ColumnInfo[] colinf;
 
   public CalculatorDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
+      Shell parent, IVariables variables, CalculatorMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
     // The order here is important... currentMeta is looked at for changes
-    currentMeta = (CalculatorMeta) in;
-    originalMeta = (CalculatorMeta) currentMeta.clone();
+    currentMeta = transformMeta;
+    originalMeta = transformMeta.clone();
   }
 
   @Override

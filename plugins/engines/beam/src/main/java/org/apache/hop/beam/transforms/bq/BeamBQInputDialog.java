@@ -36,8 +36,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -57,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class BeamBQInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class BeamBQInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = BeamBQInputDialog.class; // For Translator
   private final BeamBQInputMeta input;
 
@@ -71,9 +69,12 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
   private TableView wFields;
 
   public BeamBQInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (BeamBQInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      BeamBQInputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

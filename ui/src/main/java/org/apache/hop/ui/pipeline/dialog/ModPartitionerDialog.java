@@ -29,7 +29,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.ModPartitioner;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -48,7 +47,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 
-public class ModPartitionerDialog extends BaseTransformDialog implements ITransformDialog {
+public class ModPartitionerDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PipelineDialog.class; // For Translator
 
   private TransformPartitioningMeta partitioningMeta;

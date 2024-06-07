@@ -34,8 +34,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -71,7 +69,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class WorkflowExecutorDialog extends BaseTransformDialog implements ITransformDialog {
+public class WorkflowExecutorDialog extends BaseTransformDialog {
   private static final Class<?> PKG = WorkflowExecutorMeta.class; // For Translator
 
   private static final int FIELD_DESCRIPTION = 1;
@@ -134,9 +132,12 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
 
   public WorkflowExecutorDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    workflowExecutorMeta = (WorkflowExecutorMeta) in;
+      Shell parent,
+      IVariables variables,
+      WorkflowExecutorMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    workflowExecutorMeta = transformMeta;
     jobModified = false;
   }
 

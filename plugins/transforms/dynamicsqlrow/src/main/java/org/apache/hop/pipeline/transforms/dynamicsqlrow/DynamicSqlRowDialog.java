@@ -26,8 +26,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -56,7 +54,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransformDialog {
+public class DynamicSqlRowDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DynamicSqlRowMeta.class; // For Translator
 
   private boolean gotPreviousFields = false;
@@ -80,9 +78,12 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
   private final DynamicSqlRowMeta input;
 
   public DynamicSqlRowDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (DynamicSqlRowMeta) in;
+      Shell parent,
+      IVariables variables,
+      DynamicSqlRowMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

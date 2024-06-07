@@ -30,7 +30,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
@@ -46,7 +45,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Copy/Move result filenames action settings. */
-public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements IActionDialog {
+public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // For Translator
 
   private Text wName;
@@ -102,9 +101,12 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private Button wAddDestinationFilename;
 
   public ActionCopyMoveResultFilenamesDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent,
+      ActionCopyMoveResultFilenames action,
+      WorkflowMeta workflowMeta,
+      IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionCopyMoveResultFilenames) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionDeleteResultFilenames.Name.Default"));

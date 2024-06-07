@@ -28,8 +28,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -58,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the CassandraInput transform. */
-public class CassandraInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class CassandraInputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = CassandraInputMeta.class;
 
@@ -75,9 +73,12 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
   private Button wExecuteForEachRow;
 
   public CassandraInputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String name) {
-    super(parent, variables, (BaseTransformMeta) in, tr, name);
-    input = (CassandraInputMeta) in;
+      Shell parent,
+      IVariables variables,
+      CassandraInputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

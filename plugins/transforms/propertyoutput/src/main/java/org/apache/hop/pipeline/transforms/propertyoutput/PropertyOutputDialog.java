@@ -23,8 +23,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -51,7 +49,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class PropertyOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class PropertyOutputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = PropertyOutputMeta.class; // For Translator
 
   private Button wAddToResult;
@@ -95,9 +93,12 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
   private final PropertyOutputMeta input;
 
   public PropertyOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (PropertyOutputMeta) in;
+      Shell parent,
+      IVariables variables,
+      PropertyOutputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

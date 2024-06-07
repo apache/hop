@@ -35,8 +35,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorField;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
@@ -77,7 +75,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITransformDialog {
+public class KafkaConsumerInputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = KafkaConsumerInputDialog.class; // For Translator
 
@@ -126,9 +124,12 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
   private final int margin = props.getMargin();
 
   public KafkaConsumerInputDialog(
-      Shell parent, IVariables variables, Object meta, PipelineMeta pipelineMeta, String name) {
-    super(parent, variables, (BaseTransformMeta) meta, pipelineMeta, name);
-    this.meta = (KafkaConsumerInputMeta) meta;
+      Shell parent,
+      IVariables variables,
+      KafkaConsumerInputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    this.meta = transformMeta;
     hopGui = HopGui.getInstance();
   }
 

@@ -36,8 +36,6 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
@@ -81,7 +79,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
+public class SnowflakeBulkLoaderDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       SnowflakeBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
@@ -242,9 +240,12 @@ public class SnowflakeBulkLoaderDialog extends BaseTransformDialog implements IT
   private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public SnowflakeBulkLoaderDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (SnowflakeBulkLoaderMeta) in;
+      Shell parent,
+      IVariables variables,
+      SnowflakeBulkLoaderMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
     this.pipelineMeta = pipelineMeta;
   }
 

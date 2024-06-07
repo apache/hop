@@ -33,7 +33,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -53,7 +52,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the eval files metrics action settings. */
-public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActionDialog {
+public class ActionEvalFilesMetricsDialog extends ActionDialog {
   private static final Class<?> PKG = ActionEvalFilesMetrics.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -113,9 +112,12 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
   private TextVar wMaxValue;
 
   public ActionEvalFilesMetricsDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent,
+      ActionEvalFilesMetrics action,
+      WorkflowMeta workflowMeta,
+      IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionEvalFilesMetrics) action;
+    this.action = action;
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionEvalFilesMetrics.Name.Default"));
     }
@@ -123,9 +125,8 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

@@ -26,8 +26,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -55,7 +53,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SortRowsDialog extends BaseTransformDialog implements ITransformDialog {
+public class SortRowsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
   private TextVar wSortDir;
@@ -77,9 +75,9 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
   private ColumnInfo[] colinf;
 
   public SortRowsDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (SortRowsMeta) in;
+      Shell parent, IVariables variables, SortRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

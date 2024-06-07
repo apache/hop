@@ -32,8 +32,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.staticschema.metadata.SchemaDefinition;
 import org.apache.hop.staticschema.metadata.SchemaFieldDefinition;
@@ -62,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class SchemaMappingDialog extends BaseTransformDialog implements ITransformDialog {
+public class SchemaMappingDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SchemaMappingDialog.class; // For Translator
 
   private final SchemaMappingMeta input;
@@ -85,9 +83,12 @@ public class SchemaMappingDialog extends BaseTransformDialog implements ITransfo
   private final List<String> inputFields = new ArrayList<>();
 
   public SchemaMappingDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (SchemaMappingMeta) in;
+      Shell parent,
+      IVariables variables,
+      SchemaMappingMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

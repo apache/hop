@@ -35,7 +35,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -56,7 +55,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog that allows you to enter the settings for a Shell action. */
-public class ActionShellDialog extends ActionDialog implements IActionDialog {
+public class ActionShellDialog extends ActionDialog {
   private static final Class<?> PKG = ActionShell.class; // For Translator
 
   private static final String[] FILEFORMATS =
@@ -128,17 +127,17 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
   private Text wScript;
 
   public ActionShellDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionShell action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionShell) action;
+    this.action = action;
   }
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-    display = parent.getDisplay();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    display = getParent().getDisplay();
+
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

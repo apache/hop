@@ -28,8 +28,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -52,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
+public class UniqueRowsDialog extends BaseTransformDialog {
   private static final Class<?> PKG = UniqueRowsMeta.class; // For Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "UniqueSortWarning";
@@ -76,9 +74,9 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
   private TextVar wErrorDesc;
 
   public UniqueRowsDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (UniqueRowsMeta) in;
+      Shell parent, IVariables variables, UniqueRowsMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

@@ -22,8 +22,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -38,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class PipelineLoggingDialog extends BaseTransformDialog implements ITransformDialog {
+public class PipelineLoggingDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = PipelineLoggingDialog.class; // For Translator
 
@@ -48,11 +46,10 @@ public class PipelineLoggingDialog extends BaseTransformDialog implements ITrans
   public PipelineLoggingDialog(
       Shell parent,
       IVariables variables,
-      Object input,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) input, pipelineMeta, transformName);
-    this.input = (PipelineLoggingMeta) input;
+      PipelineLoggingMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    this.input = transformMeta;
   }
 
   @Override

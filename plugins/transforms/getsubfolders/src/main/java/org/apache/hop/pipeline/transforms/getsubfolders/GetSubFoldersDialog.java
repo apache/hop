@@ -25,7 +25,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
@@ -57,7 +56,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class GetSubFoldersDialog extends BaseTransformDialog implements ITransformDialog {
+public class GetSubFoldersDialog extends BaseTransformDialog {
   private static final Class<?> PKG = GetSubFoldersMeta.class; // For Translator
 
   public static final String YES = BaseMessages.getString(PKG, "System.Combo.Yes");
@@ -95,9 +94,12 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
   private TextVar wInclRowNumberField;
 
   public GetSubFoldersDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (GetSubFoldersMeta) in, pipelineMeta, sname);
-    input = (GetSubFoldersMeta) in;
+      Shell parent,
+      IVariables variables,
+      GetSubFoldersMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

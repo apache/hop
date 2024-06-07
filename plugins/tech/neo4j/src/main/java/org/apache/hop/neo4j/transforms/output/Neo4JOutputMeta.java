@@ -37,10 +37,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.eclipse.swt.widgets.Shell;
 import org.w3c.dom.Node;
 
 @Transform(
@@ -164,15 +161,6 @@ public class Neo4JOutputMeta extends BaseTransformMeta<Neo4JOutput, Neo4JOutputD
   // Unused fields from previous version
   //
   private String key;
-
-  public ITransformDialog getDialog(
-      Shell shell,
-      IVariables variables,
-      ITransformMeta meta,
-      PipelineMeta pipelineMeta,
-      String name) {
-    return new Neo4JOutputDialog(shell, variables, meta, pipelineMeta, name);
-  }
 
   @Override
   public void setDefault() {

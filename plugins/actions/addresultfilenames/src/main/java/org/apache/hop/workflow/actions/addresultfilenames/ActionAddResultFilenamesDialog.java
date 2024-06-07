@@ -33,7 +33,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -49,7 +48,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Delete Files action settings. */
-public class ActionAddResultFilenamesDialog extends ActionDialog implements IActionDialog {
+public class ActionAddResultFilenamesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionAddResultFilenamesDialog.class; // For Translator
 
   private static final String[] FILETYPES =
@@ -83,9 +82,12 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
   private Button wbaFilename; // Add or change
 
   public ActionAddResultFilenamesDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent,
+      ActionAddResultFilenames action,
+      WorkflowMeta workflowMeta,
+      IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionAddResultFilenames) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionAddResultFilenames.Name.Default"));
@@ -94,9 +96,7 @@ public class ActionAddResultFilenamesDialog extends ActionDialog implements IAct
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
-
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

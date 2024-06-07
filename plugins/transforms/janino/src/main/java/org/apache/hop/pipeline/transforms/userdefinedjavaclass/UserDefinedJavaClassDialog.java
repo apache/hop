@@ -43,8 +43,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.GeneratorField;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
@@ -101,7 +99,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
+public class UserDefinedJavaClassDialog extends BaseTransformDialog {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
   private ModifyListener lsMod;
@@ -165,9 +163,12 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private String[] nextTransformNames;
 
   public UserDefinedJavaClassDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (UserDefinedJavaClassMeta) in;
+      Shell parent,
+      IVariables variables,
+      UserDefinedJavaClassMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
     genMeta = null;
     try {
       imageActiveScript =

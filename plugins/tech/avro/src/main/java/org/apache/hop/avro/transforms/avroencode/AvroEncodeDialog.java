@@ -24,8 +24,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -44,7 +42,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class AvroEncodeDialog extends BaseTransformDialog implements ITransformDialog {
+public class AvroEncodeDialog extends BaseTransformDialog {
   private static final Class<?> PKG = AvroEncodeMeta.class; // For Translator
 
   private AvroEncodeMeta input;
@@ -56,14 +54,10 @@ public class AvroEncodeDialog extends BaseTransformDialog implements ITransformD
   private TableView wFields;
 
   public AvroEncodeDialog(
-      Shell parent,
-      IVariables variables,
-      Object baseTransformMeta,
-      PipelineMeta pipelineMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName);
+      Shell parent, IVariables variables, AvroEncodeMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
 
-    input = (AvroEncodeMeta) baseTransformMeta;
+    input = transformMeta;
   }
 
   @Override

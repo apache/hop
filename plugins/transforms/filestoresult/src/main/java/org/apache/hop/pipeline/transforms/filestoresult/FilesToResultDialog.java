@@ -23,8 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -42,7 +40,7 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class FilesToResultDialog extends BaseTransformDialog implements ITransformDialog {
+public class FilesToResultDialog extends BaseTransformDialog {
   private static final Class<?> PKG = FilesToResultMeta.class; // For Translator
 
   private CCombo wFilenameField;
@@ -52,14 +50,12 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
   private final FilesToResultMeta input;
 
   public FilesToResultDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String transformName) {
-    super(
-        parent,
-        variables,
-        (BaseTransformMeta<FilesToResult, FilesToResultData>) in,
-        tr,
-        transformName);
-    input = (FilesToResultMeta) in;
+      Shell parent,
+      IVariables variables,
+      FilesToResultMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

@@ -34,7 +34,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableDefinition;
 import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableType;
 import org.eclipse.swt.SWT;
@@ -51,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Set variables action settings. */
-public class ActionSetVariablesDialog extends ActionDialog implements IActionDialog {
+public class ActionSetVariablesDialog extends ActionDialog {
   private static final Class<?> PKG = ActionSetVariables.class; // For Translator
 
   private Text wName;
@@ -69,9 +68,9 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
   private boolean changed;
 
   public ActionSetVariablesDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionSetVariables action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionSetVariables) action;
+    this.action = action;
 
     if (this.action.getName() == null) {
       this.action.setName(BaseMessages.getString(PKG, "ActionSetVariables.Name.Default"));
@@ -80,9 +79,8 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

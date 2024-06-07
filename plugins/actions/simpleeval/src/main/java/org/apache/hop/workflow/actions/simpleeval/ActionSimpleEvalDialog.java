@@ -33,7 +33,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.FieldType;
 import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.SuccessBooleanCondition;
 import org.apache.hop.workflow.actions.simpleeval.ActionSimpleEval.SuccessNumberCondition;
@@ -54,7 +53,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** This dialog allows you to edit the Simple Eval action settings. */
-public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialog {
+public class ActionSimpleEvalDialog extends ActionDialog {
   private static final Class<?> PKG = ActionSimpleEval.class; // For Translator
 
   private Text wName;
@@ -96,16 +95,15 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
   private TextVar wFieldName;
 
   public ActionSimpleEvalDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionSimpleEval action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionSimpleEval) action;
+    this.action = action;
   }
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);
 

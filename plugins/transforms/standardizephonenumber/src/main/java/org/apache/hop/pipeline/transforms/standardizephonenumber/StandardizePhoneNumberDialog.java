@@ -27,8 +27,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
@@ -48,16 +46,19 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class StandardizePhoneNumberDialog extends BaseTransformDialog implements ITransformDialog {
+public class StandardizePhoneNumberDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = StandardizePhoneNumberMeta.class; // for i18n
   private final StandardizePhoneNumberMeta input; // purposes
   private TableView wFields;
 
   public StandardizePhoneNumberDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname);
-    input = (StandardizePhoneNumberMeta) in;
+      Shell parent,
+      IVariables variables,
+      StandardizePhoneNumberMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   protected void getData() {

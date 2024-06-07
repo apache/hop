@@ -28,8 +28,6 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -63,7 +61,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-public class RegexEvalDialog extends BaseTransformDialog implements ITransformDialog {
+public class RegexEvalDialog extends BaseTransformDialog {
   private static final Class<?> PKG = RegexEvalMeta.class; // For Translator
 
   private StyledTextComp wScript;
@@ -90,9 +88,9 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
   private TableView wFields;
 
   public RegexEvalDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (RegexEvalMeta) in;
+      Shell parent, IVariables variables, RegexEvalMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

@@ -23,8 +23,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
@@ -44,7 +42,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class AzureListenerDialog extends BaseTransformDialog implements ITransformDialog {
+public class AzureListenerDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG =
       AzureListenerMeta.class; // for i18n purposes, needed by Translator2!!
@@ -77,11 +75,10 @@ public class AzureListenerDialog extends BaseTransformDialog implements ITransfo
   public AzureListenerDialog(
       Shell parent,
       IVariables variables,
-      Object inputMetadata,
-      PipelineMeta transMeta,
-      String transformName) {
-    super(parent, variables, (BaseTransformMeta) inputMetadata, transMeta, transformName);
-    input = (AzureListenerMeta) inputMetadata;
+      AzureListenerMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

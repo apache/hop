@@ -26,7 +26,6 @@ import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.dummy.ActionDummy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
@@ -37,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class ActionDummyDialog extends ActionDialog implements IActionDialog {
+public class ActionDummyDialog extends ActionDialog {
   private static final Class<?> PKG = ActionDummy.class; // For Translator
 
   private ActionDummy action;
@@ -47,16 +46,15 @@ public class ActionDummyDialog extends ActionDialog implements IActionDialog {
   private Text wName;
 
   public ActionDummyDialog(
-      Shell parent, IAction action, WorkflowMeta workflowMeta, IVariables variables) {
+      Shell parent, ActionDummy action, WorkflowMeta workflowMeta, IVariables variables) {
     super(parent, workflowMeta, variables);
-    this.action = (ActionDummy) action;
+    this.action = action;
   }
 
   @Override
   public IAction open() {
-    Shell parent = getParent();
 
-    shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
+    shell = new Shell(getParent(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE);
     shell.setMinimumSize(400, 120);
     PropsUi.setLook(shell);
     WorkflowDialog.setShellImage(shell, action);

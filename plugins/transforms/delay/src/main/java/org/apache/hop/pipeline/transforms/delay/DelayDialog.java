@@ -21,8 +21,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.LabelTextVar;
@@ -38,7 +36,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-public class DelayDialog extends BaseTransformDialog implements ITransformDialog {
+public class DelayDialog extends BaseTransformDialog {
   private static final Class<?> PKG = DelayMeta.class; // For Translator
 
   private final DelayMeta input;
@@ -46,9 +44,10 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
 
   private LabelTextVar wTimeout;
 
-  public DelayDialog(Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname) {
-    super(parent, variables, (BaseTransformMeta) in, tr, sname);
-    input = (DelayMeta) in;
+  public DelayDialog(
+      Shell parent, IVariables variables, DelayMeta transformMeta, PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = transformMeta;
   }
 
   @Override

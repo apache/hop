@@ -23,8 +23,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -45,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 /** Dialog class for the SSTableOutput transform. */
-public class SSTableOutputDialog extends BaseTransformDialog implements ITransformDialog {
+public class SSTableOutputDialog extends BaseTransformDialog {
 
   private static final Class<?> PKG = SSTableOutputMeta.class;
 
@@ -67,11 +65,14 @@ public class SSTableOutputDialog extends BaseTransformDialog implements ITransfo
   private Button wbGetFields;
 
   public SSTableOutputDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta tr, String name) {
+      Shell parent,
+      IVariables variables,
+      SSTableOutputMeta transformMeta,
+      PipelineMeta pipelineMeta) {
 
-    super(parent, variables, (BaseTransformMeta) in, tr, name);
+    super(parent, variables, transformMeta, pipelineMeta);
 
-    input = (SSTableOutputMeta) in;
+    input = transformMeta;
   }
 
   @Override

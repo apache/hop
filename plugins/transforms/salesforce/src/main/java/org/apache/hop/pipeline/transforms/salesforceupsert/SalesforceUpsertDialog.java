@@ -115,9 +115,12 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   private String[] moduleFields;
 
   public SalesforceUpsertDialog(
-      Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, variables, in, pipelineMeta, sname);
-    input = (SalesforceUpsertMeta) in;
+      Shell parent,
+      IVariables variables,
+      SalesforceUpsertMeta transformMeta,
+      PipelineMeta pipelineMeta) {
+    super(parent, variables, transformMeta, pipelineMeta);
+    input = (SalesforceUpsertMeta) transformMeta;
     inputFields = new HashMap<>();
   }
 
