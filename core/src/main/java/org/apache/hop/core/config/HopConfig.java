@@ -208,4 +208,12 @@ public class HopConfig extends ConfigFile implements IConfigFile {
   public void setConfigFilename(String configFilename) {
     this.configFilename = configFilename;
   }
+
+  public void reload() {
+    try {
+      readFromFile();
+    } catch (Exception e) {
+      throw new RuntimeException("Error reading the hop config file '" + configFilename + "'", e);
+    }
+  }
 }
