@@ -1,0 +1,78 @@
+{
+  "variableValues": [],
+  "database_replacements": [
+    {
+      "original_connection": "cratedb-test",
+      "replacement_connection": "cratedb-test"
+    }
+  ],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [
+    {
+      "field_mappings": [
+        {
+          "transform_field": "longitude",
+          "data_set_field": "longitude"
+        },
+        {
+          "transform_field": "latitude",
+          "data_set_field": "latitude"
+        },
+        {
+          "transform_field": "housing_median_age",
+          "data_set_field": "housing_median_age"
+        },
+        {
+          "transform_field": "total_rooms",
+          "data_set_field": "total_rooms"
+        },
+        {
+          "transform_field": "total_bedrooms",
+          "data_set_field": "total_bedrooms"
+        },
+        {
+          "transform_field": "population",
+          "data_set_field": "population"
+        },
+        {
+          "transform_field": "households",
+          "data_set_field": "households"
+        },
+        {
+          "transform_field": "median_income",
+          "data_set_field": "median_income"
+        },
+        {
+          "transform_field": "median_house_value",
+          "data_set_field": "median_house_value"
+        },
+        {
+          "transform_field": "ocean_proximity",
+          "data_set_field": "ocean_proximity"
+        }
+      ],
+      "field_order": [
+        "longitude",
+        "latitude",
+        "housing_median_age",
+        "total_rooms",
+        "total_bedrooms",
+        "population",
+        "households",
+        "median_income",
+        "median_house_value",
+        "ocean_proximity"
+      ],
+      "data_set_name": "Housing",
+      "transform_name": "Dummy (do nothing)"
+    }
+  ],
+  "input_data_sets": [],
+  "name": "0003-http-endpoint-double-precision UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0003-http-endpoint-double-precision.hpl",
+  "test_type": "UNIT_TEST"
+}

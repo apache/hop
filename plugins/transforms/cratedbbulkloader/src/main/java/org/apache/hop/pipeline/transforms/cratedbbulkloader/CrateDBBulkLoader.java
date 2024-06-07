@@ -19,7 +19,6 @@ package org.apache.hop.pipeline.transforms.cratedbbulkloader;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -37,7 +36,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
@@ -60,6 +58,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       CrateDBBulkLoader.class; // for i18n purposes, needed by Translator2!!
   public static final String TIMESTAMP_CONVERSION_MASK = "yyyy-MM-dd HH:mm:ss.SSS";
   public static final String DATE_CONVERSION_MASK = "yyyy-MM-dd";
+  public static final String NUMBER_CONVERSION_MASK = "#############0.##############";
 
   private final BulkImportClient bulkImportClient =
       new BulkImportClient(meta.getHttpEndpoint(), meta.getHttpLogin(), meta.getHttpPassword());
@@ -282,10 +281,6 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     return true;
   }
 
-  private OutputStream createFileIfNotExisting(String localPath) throws HopFileException {
-    return HopVfs.getOutputStream(localPath + "dataset-100.csv", true);
-  }
-
   private void incrementLinesRejected(int count) {
     for (int i = 0; i < count; i++) {
       incrementLinesRejected();
@@ -299,6 +294,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
   }
 
   private void defineAllFieldsMetadataList() throws HopException {
+    data.insertRowMeta = new RowMeta();
     for (int i = 0; i < meta.getFields().size(); i++) {
       int streamFieldLocation =
           data.insertRowMeta.indexOfValue(meta.getFields().get(i).getStreamField());
@@ -388,8 +384,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     try {
       final HttpBulkImportResponse httpResponse =
           bulkImportClient.batchInsert(schema, table, columns, data.httpBulkArgs);
-      // TODO Serasoft
-      // Review this way to calculate lines output
+
       for (int i = 0; i < httpResponse.outputRows(); i++) {
         incrementLinesOutput();
       }
@@ -436,35 +431,39 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     IValueMeta vc = null;
     String convertedValue = null;
 
-    if (!data.convertedRowMetaReady && data.convertedRowMeta == null)
+    if (!data.convertedRowMetaReady && data.convertedRowMeta == null) {
       data.convertedRowMeta = data.insertRowMeta.clone();
-
-    switch (v.getType()) {
-      case IValueMeta.TYPE_STRING:
-        convertedValue = (String) rowItem;
-        break;
-      case IValueMeta.TYPE_INTEGER:
-        convertedValue = String.valueOf(rowItem);
-        break;
-      case IValueMeta.TYPE_TIMESTAMP:
-        vc = new ValueMetaString();
-        vc.setName(v.getName());
-        v.setConversionMask(TIMESTAMP_CONVERSION_MASK);
-        vc.setConversionMask(TIMESTAMP_CONVERSION_MASK);
-        convertedValue = (String) vc.convertData(v, rowItem);
-        break;
-      case IValueMeta.TYPE_DATE:
-        vc = new ValueMetaString();
-        vc.setName(v.getName());
-        v.setConversionMask(DATE_CONVERSION_MASK);
-        vc.setConversionMask(DATE_CONVERSION_MASK);
-        convertedValue = (String) vc.convertData(v, rowItem);
-        break;
-      default:
-        convertedValue = (String) rowItem;
-        break;
     }
 
+    if (rowItem != null) {
+      switch (v.getType()) {
+        case IValueMeta.TYPE_STRING:
+          convertedValue = (String) rowItem;
+          break;
+        case IValueMeta.TYPE_INTEGER:
+        case IValueMeta.TYPE_NUMBER:
+        case IValueMeta.TYPE_BIGNUMBER:
+          convertedValue = String.valueOf(rowItem);
+          break;
+        case IValueMeta.TYPE_TIMESTAMP:
+          vc = new ValueMetaString();
+          vc.setName(v.getName());
+          v.setConversionMask(TIMESTAMP_CONVERSION_MASK);
+          vc.setConversionMask(TIMESTAMP_CONVERSION_MASK);
+          convertedValue = (String) vc.convertData(v, rowItem);
+          break;
+        case IValueMeta.TYPE_DATE:
+          vc = new ValueMetaString();
+          vc.setName(v.getName());
+          v.setConversionMask(DATE_CONVERSION_MASK);
+          vc.setConversionMask(DATE_CONVERSION_MASK);
+          convertedValue = (String) vc.convertData(v, rowItem);
+          break;
+        default:
+          convertedValue = String.valueOf(rowItem);
+          break;
+      }
+    }
     logDetailed("Field: " + v.getName() + " - Converted Value: " + convertedValue);
 
     if (vc != null && !data.convertedRowMetaReady) data.convertedRowMeta.setValueMeta(pos, vc);
