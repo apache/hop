@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -30,8 +29,7 @@
     <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Actions Get/Put/Delete a file with FTP/SFTP</name>
-    <description />
-
+    <description></description>
 
     <properties>
         <commons-net-version>3.9.0</commons-net-version>
@@ -39,14 +37,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-action-ftp</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>${commons-net-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-action-ftp</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

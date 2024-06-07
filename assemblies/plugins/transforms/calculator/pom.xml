@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,18 +30,13 @@
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Calculator</name>
-    <description />
+    <description></description>
 
     <properties>
         <com.wcohen.secondstring.version>0.1</com.wcohen.secondstring.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-calculator</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.wcohen</groupId>
             <artifactId>com.wcohen.secondstring</artifactId>
@@ -54,7 +48,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-calculator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
-
 
 </project>

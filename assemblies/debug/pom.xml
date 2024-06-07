@@ -16,14 +16,8 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>hop-assemblies-debug</artifactId>
-    <packaging>pom</packaging>
-
-    <name>Hop Assemblies Debug</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
@@ -31,14 +25,16 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>hop-assemblies-debug</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Hop Assemblies Debug</name>
+
     <properties>
+        <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
         <!-- swt -->
-        <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}
-        </org.eclipse.swt.gtk.linux.x86_64.version>
-        <org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}
-        </org.eclipse.swt.win32.win32.x86_64.version>
-        <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}
-        </org.eclipse.swt.cocoa.macosx.x86_64.version>
+        <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
+        <org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.win32.win32.x86_64.version>
     </properties>
 
     <dependencies>
@@ -53,12 +49,6 @@
             <artifactId>hop-engine</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui-rcp</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -79,13 +69,17 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui-rcp</artifactId>
+            <version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
 
     </dependencies>
 
     <build>
-        <plugins>
-
-        </plugins>
+        <plugins></plugins>
     </build>
 
     <profiles>
@@ -97,8 +91,8 @@
                 </os>
             </activation>
             <properties>
-                <swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
                 <env>linux</env>
+                <swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -124,8 +118,8 @@
                 </os>
             </activation>
             <properties>
-                <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
                 <env>mac</env>
+                <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -151,8 +145,8 @@
                 </os>
             </activation>
             <properties>
-                <swt.artifactId>org.eclipse.swt.win32.win32.x86_64</swt.artifactId>
                 <env>windows</env>
+                <swt.artifactId>org.eclipse.swt.win32.win32.x86_64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -16,9 +16,14 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-tech</artifactId>
+        <version>2.10.0-SNAPSHOT</version>
+    </parent>
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-tech-azure</artifactId>
@@ -28,18 +33,12 @@
     <name>Hop Plugins Technology Azure</name>
     <url>http://maven.apache.org</url>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-tech</artifactId>
-        <version>2.10.0-SNAPSHOT</version>
-    </parent>
-
     <licenses>
         <license>
             <name>Apache License, version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
             <distribution>repo</distribution>
-            <comments />
+            <comments></comments>
         </license>
     </licenses>
 
@@ -48,23 +47,11 @@
       Run 'mvn dependency:tree' in that plugin to verify.
     -->
     <properties>
-        <azure-storage.version>8.6.6</azure-storage.version>
         <azure-eventhubs.version>3.3.0</azure-eventhubs.version>
+        <azure-storage.version>8.6.6</azure-storage.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>${json-smart.version}</version>
-        </dependency>
-        <!-- Azure VFS -->
-
-        <dependency>
-            <groupId>com.microsoft.azure</groupId>
-            <artifactId>azure-storage</artifactId>
-            <version>${azure-storage.version}</version>
-        </dependency>
 
         <!-- Azure Event Hubs -->
 
@@ -84,6 +71,30 @@
             <artifactId>azure-eventhubs-eph</artifactId>
             <version>${azure-eventhubs.version}</version>
         </dependency>
+        <!-- Azure VFS -->
+
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>azure-storage</artifactId>
+            <version>${azure-storage.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.minidev</groupId>
+            <artifactId>json-smart</artifactId>
+            <version>${json-smart.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!-- Test and Hop dependencies -->
 
@@ -96,25 +107,13 @@
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
-            <scope>compile</scope>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
+            <artifactId>hop-engine</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>

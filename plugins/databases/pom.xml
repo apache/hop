@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,18 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins-databases</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
-    <modules>
-    </modules>
-    <packaging>pom</packaging>
-
-    <name>Hop Plugins Databases</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
@@ -34,144 +24,18 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-plugins-databases</artifactId>
+    <version>2.10.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Hop Plugins Databases</name>
+    <modules></modules>
+
     <properties>
         <!-- Test running configuration -->
         <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
     </properties>
-
-    <profiles>
-        <profile>
-            <id>lowdeps</id>
-            <activation>
-                <property>
-                    <name>!skipDefault</name>
-                </property>
-            </activation>
-            <modules>
-                <module>postgresql</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>highdeps</id>
-            <activation>
-                <property>
-                    <name>!skipDefault</name>
-                </property>
-            </activation>
-            <modules>
-                <module>postgresql</module>
-                <module>generic</module>
-                <module>greenplum</module>
-                <module>redshift</module>
-                <module>vertica</module>
-                <module>sybase</module>
-                <module>sybaseiq</module>
-                <module>vectorwise</module>
-                <module>teradata</module>
-                <module>universe</module>
-                <module>firebird</module>
-                <module>ingres</module>
-                <module>as400</module>
-                <module>db2</module>
-                <module>mariadb</module>
-                <module>infobright</module>
-                <module>derby</module>
-                <module>monetdb</module>
-                <module>cache</module>
-                <module>iris</module>
-                <module>exasol4</module>
-                <module>sqlbase</module>
-                <module>h2</module>
-                <module>hypersonic</module>
-                <module>informix</module>
-                <module>interbase</module>
-                <module>kingbasees</module>
-                <module>access</module>
-                <module>mssqlnative</module>
-                <module>mssql</module>
-                <module>mysql</module>
-                <module>netezza</module>
-                <module>oracle</module>
-                <module>oraclerdb</module>
-                <module>sapdb</module>
-                <module>sqlite</module>
-                <module>googlebigquery</module>
-                <module>doris</module>
-                <module>snowflake</module>
-                <module>clickhouse</module>
-                <module>cockroachdb</module>
-                <module>hive</module>
-                <module>duckdb</module>
-                <module>cratedb</module>
-            </modules>
-        </profile>
-
-    </profiles>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet-api.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.framework.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <dependencyManagement>
         <dependencies>
@@ -207,4 +71,138 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.framework.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>lowdeps</id>
+            <activation>
+                <property>
+                    <name>!skipDefault</name>
+                </property>
+            </activation>
+            <modules>
+                <module>postgresql</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>highdeps</id>
+            <activation>
+                <property>
+                    <name>!skipDefault</name>
+                </property>
+            </activation>
+            <modules>
+                <module>access</module>
+                <module>as400</module>
+                <module>cache</module>
+                <module>clickhouse</module>
+                <module>cockroachdb</module>
+                <module>cratedb</module>
+                <module>db2</module>
+                <module>derby</module>
+                <module>doris</module>
+                <module>duckdb</module>
+                <module>exasol4</module>
+                <module>firebird</module>
+                <module>generic</module>
+                <module>googlebigquery</module>
+                <module>greenplum</module>
+                <module>h2</module>
+                <module>hive</module>
+                <module>hypersonic</module>
+                <module>infobright</module>
+                <module>informix</module>
+                <module>ingres</module>
+                <module>interbase</module>
+                <module>iris</module>
+                <module>kingbasees</module>
+                <module>mariadb</module>
+                <module>monetdb</module>
+                <module>mssql</module>
+                <module>mssqlnative</module>
+                <module>mysql</module>
+                <module>netezza</module>
+                <module>oracle</module>
+                <module>oraclerdb</module>
+                <module>postgresql</module>
+                <module>redshift</module>
+                <module>sapdb</module>
+                <module>snowflake</module>
+                <module>sqlbase</module>
+                <module>sqlite</module>
+                <module>sybase</module>
+                <module>sybaseiq</module>
+                <module>teradata</module>
+                <module>universe</module>
+                <module>vectorwise</module>
+                <module>vertica</module>
+            </modules>
+        </profile>
+
+    </profiles>
 </project>

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,62 +15,61 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.apache.hop</groupId>
-  <artifactId>hop-plugins-misc</artifactId>
-  <version>2.10.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins</artifactId>
+        <version>2.10.0-SNAPSHOT</version>
+    </parent>
 
-  <name>Hop Plugins Miscellaneous</name>
-
-  <parent>
     <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins</artifactId>
+    <artifactId>hop-plugins-misc</artifactId>
     <version>2.10.0-SNAPSHOT</version>
-  </parent>
+    <packaging>pom</packaging>
 
-  <profiles>
-    <profile>
-      <id>lowdeps</id>
-      <activation>
-        <property>
-          <name>!skipDefault</name>
-        </property>
-      </activation>
-      <modules>
-        <module>async</module>
-        <module>debug</module>
-        <module>git</module>
-        <module>import</module>
-        <module>passwords</module>
-        <module>projects</module>
-        <module>reflection</module>
-        <module>static-schema</module>
-        <module>testing</module>
-      </modules>
-    </profile>
-  </profiles>
+    <name>Hop Plugins Miscellaneous</name>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/java</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.svg</include>
-        </includes>
-      </resource>
-      <resource>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.properties</include>
-          <include>**/*.svg</include>
-        </includes>
-      </resource>
-    </resources>
-  </build>
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>lowdeps</id>
+            <activation>
+                <property>
+                    <name>!skipDefault</name>
+                </property>
+            </activation>
+            <modules>
+                <module>async</module>
+                <module>debug</module>
+                <module>git</module>
+                <module>import</module>
+                <module>passwords</module>
+                <module>projects</module>
+                <module>reflection</module>
+                <module>static-schema</module>
+                <module>testing</module>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

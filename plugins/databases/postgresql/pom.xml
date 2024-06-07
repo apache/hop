@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -16,31 +16,22 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-databases-postgresql</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
-
-    <packaging>jar</packaging>
-
-    <name>Hop Plugins Databases PostgreSQL</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-databases</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
+
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-databases-postgresql</artifactId>
+    <version>2.10.0-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+
+    <name>Hop Plugins Databases PostgreSQL</name>
 
     <properties>
         <postgresql.version>42.7.2</postgresql.version>
@@ -56,6 +47,14 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>

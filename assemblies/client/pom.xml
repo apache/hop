@@ -15,14 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <artifactId>hop-client</artifactId>
-    <packaging>pom</packaging>
-
-    <name>Hop Client</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
@@ -30,13 +24,18 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>hop-client</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Hop Client</name>
+
     <properties>
+        <org.eclipse.swt.cocoa.macosx.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.aarch64.version>
+        <org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
+        <org.eclipse.swt.gtk.linux.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.aarch64.version>
         <!-- swt -->
-			<org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
-			<org.eclipse.swt.gtk.linux.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.aarch64.version>
-			<org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.win32.win32.x86_64.version>
-			<org.eclipse.swt.cocoa.macosx.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.x86_64.version>
-			<org.eclipse.swt.cocoa.macosx.aarch64.version>${org.eclipse.platform.version}</org.eclipse.swt.cocoa.macosx.aarch64.version>
+        <org.eclipse.swt.gtk.linux.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.gtk.linux.x86_64.version>
+        <org.eclipse.swt.win32.win32.x86_64.version>${org.eclipse.platform.version}</org.eclipse.swt.win32.win32.x86_64.version>
     </properties>
 
     <dependencies>
@@ -78,18 +77,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine-beam</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
             <artifactId>hop-assemblies-plugins-dist</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
@@ -112,27 +99,61 @@
                 </exclusion>
             </exclusions>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.hop</groupId>-->
-<!--            <artifactId>hop-assemblies-samples</artifactId>-->
-<!--            <version>${project.version}</version>-->
-<!--            <type>zip</type>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>*</groupId>-->
-<!--                    <artifactId>*</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine-beam</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.apache.hop</groupId>-->
+        <!--            <artifactId>hop-assemblies-samples</artifactId>-->
+        <!--            <version>${project.version}</version>-->
+        <!--            <type>zip</type>-->
+        <!--            <exclusions>-->
+        <!--                <exclusion>-->
+        <!--                    <groupId>*</groupId>-->
+        <!--                    <artifactId>*</artifactId>-->
+        <!--                </exclusion>-->
+        <!--            </exclusions>-->
+        <!--        </dependency>-->
 
-		<!-- RCP fragment -->
+        <!-- RCP fragment -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-ui-rcp</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-jaas</artifactId>
+            <version>${jetty.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-security</artifactId>
+            <version>${jetty.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
-		<!-- Jetty -->
+        <!-- Jetty -->
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
@@ -146,7 +167,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-security</artifactId>
+            <artifactId>jetty-servlet</artifactId>
             <version>${jetty.version}</version>
             <exclusions>
                 <exclusion>
@@ -168,18 +189,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-xml</artifactId>
+            <artifactId>jetty-util</artifactId>
             <version>${jetty.version}</version>
             <exclusions>
                 <exclusion>
@@ -201,7 +211,7 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-jaas</artifactId>
+            <artifactId>jetty-xml</artifactId>
             <version>${jetty.version}</version>
             <exclusions>
                 <exclusion>
@@ -211,44 +221,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>${jetty.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-		<!-- swt -->
-        <dependency>
             <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-            <version>${org.eclipse.swt.gtk.linux.x86_64.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.swt.gtk.linux.aarch64</artifactId>
-            <version>${org.eclipse.swt.gtk.linux.aarch64.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-            <version>${org.eclipse.swt.win32.win32.x86_64.version}</version>
+            <artifactId>org.eclipse.swt.cocoa.macosx.aarch64</artifactId>
+            <version>${org.eclipse.swt.cocoa.macosx.aarch64.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -269,8 +244,32 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.platform</groupId>
-            <artifactId>org.eclipse.swt.cocoa.macosx.aarch64</artifactId>
-            <version>${org.eclipse.swt.cocoa.macosx.aarch64.version}</version>
+            <artifactId>org.eclipse.swt.gtk.linux.aarch64</artifactId>
+            <version>${org.eclipse.swt.gtk.linux.aarch64.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- swt -->
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+            <version>${org.eclipse.swt.gtk.linux.x86_64.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.platform</groupId>
+            <artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+            <version>${org.eclipse.swt.win32.win32.x86_64.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>

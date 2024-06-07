@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -33,6 +33,15 @@
     <url>https://hop.apache.org</url>
     <inceptionYear>2020</inceptionYear>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
     <developers>
         <developer>
             <name>The Apache Hop Team</name>
@@ -64,6 +73,13 @@
         </mailingList>
     </mailingLists>
 
+    <scm>
+        <connection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</connection>
+        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://gitbox.apache.org/repos/asf?p=hop.git;a=summary</url>
+    </scm>
+
     <issueManagement>
         <system>GitHub Issues</system>
         <url>https://github.com/apache/hop/issues</url>
@@ -80,28 +96,107 @@
         </site>
     </distributionManagement>
 
-
-    <scm>
-        <connection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</connection>
-        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</developerConnection>
-        <url>https://gitbox.apache.org/repos/asf?p=hop.git;a=summary</url>
-        <tag>HEAD</tag>
-    </scm>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-
     <properties>
-        <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
-        <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
-        <maven-surefire-plugin.argLine>
-            -Duser.timezone=UTC
+        <accessors-smart.version>2.4.9</accessors-smart.version>
+
+        <!-- Third-party dependencies -->
+        <akka.version>2.5.32</akka.version>
+        <apache-beam.version>2.56.0</apache-beam.version>
+        <apache-flink.version>1.16.3</apache-flink.version>
+        <apache-spark.version>3.4.3</apache-spark.version>
+        <asm.version>9.3</asm.version>
+        <assembly_appendId>false</assembly_appendId>
+        <assembly_package-phase>package</assembly_package-phase>
+        <attach-sources-phase>verify</attach-sources-phase>
+        <avro.version>1.11.3</avro.version>
+        <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
+        <batik.version>1.17</batik.version>
+        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+        <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
+
+        <!-- Test dependencies -->
+        <byte-buddy.version>1.12.19</byte-buddy.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <commons-codec.version>1.15</commons-codec.version>
+        <commons-compress.version>1.26.0</commons-compress.version>
+        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <commons-lang3.version>3.12.0</commons-lang3.version>
+        <commons-logging.version>1.1.3</commons-logging.version>
+        <curator.version>5.4.0</curator.version>
+        <encoder.version>1.2</encoder.version>
+        <gax.version>2.19.6</gax.version>
+        <google-api-client.version>2.2.0</google-api-client.version>
+        <google-api-common.version>2.13.0</google-api-common.version>
+        <google-api-services-bigquery.version>v2-rev20240229-2.0.0</google-api-services-bigquery.version>
+        <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
+        <google-auth-library-credentials.version>1.12.1</google-auth-library-credentials.version>
+        <google-auth-library-oauth2-http.version>1.12.1</google-auth-library-oauth2-http.version>
+        <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
+        <google-http-client.version>1.42.3</google-http-client.version>
+        <google-oauth-client.version>1.34.1</google-oauth-client.version>
+        <grpc.version>1.60.1</grpc.version>
+        <gson.version>2.10</gson.version>
+        <guava.version>32.1.2-jre</guava.version>
+        <hadoop.version>3.3.6</hadoop.version>
+        <hive.version>2.3.9</hive.version>
+        <httpccore.version>4.4.15</httpccore.version>
+        <httpclient.version>4.5.13</httpclient.version>
+        <jackcess.version>4.0.4</jackcess.version>
+        <jackson.version>2.15.0</jackson.version>
+
+        <!-- Copy from master POM (NEEDS CLEANUP) -->
+        <!-- VERSIONS -->
+        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <jakarta-mail.version>2.0.1</jakarta-mail.version>
+        <jakarta.version>3.1.0</jakarta.version>
+        <jandex.version>3.1.8</jandex.version>
+        <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
+        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
+        <jetty.version>9.4.41.v20210516</jetty.version>
+        <joda-time.version>2.12.1</joda-time.version>
+        <jsch.version>0.1.55</jsch.version>
+        <json-simple.version>1.1.1</json-simple.version>
+        <json-smart.version>2.5.0</json-smart.version>
+        <json4s.version>3.7.0-M11</json4s.version>
+        <junit.version>4.13.1</junit.version>
+        <juniversalchardet.version>2.4.0</juniversalchardet.version>
+        <kafka-clients.version>3.3.1</kafka-clients.version>
+        <kryo.version>5.3.0</kryo.version>
+        <libthrift.version>0.16.0</libthrift.version>
+        <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
+        <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
+        <license.inceptionYear>2020</license.inceptionYear>
+        <license.licenseFile>LICENSE.txt</license.licenseFile>
+
+        <!-- License Configuration -->
+        <license.licenseName>apache_v2</license.licenseName>
+
+        <!-- License Configuration -->
+        <license.organizationName>Apache</license.organizationName>
+        <log4j.version>2.19.0</log4j.version>
+        <lz4.version>1.8.0</lz4.version>
+        <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+        <maven-bundle-plugin.version>5.1.9</maven-bundle-plugin.version>
+        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
+        <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
+        <!-- default setting is forkCount = 1 -->
+        <maven-failsafe-plugin.argLine></maven-failsafe-plugin.argLine>
+        <!-- default setting is reuseForks = true -->
+        <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
+        <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
+        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+        <maven-install-plugin.version>3.1.2</maven-install-plugin.version>
+        <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
+        <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
+        <maven-jxr-plugin.version>3.4.0</maven-jxr-plugin.version>
+        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-surefire-plugin.argLine>-Duser.timezone=UTC
             -Dfile.encoding=UTF-8
             -Duser.language=en -Duser.country=US
             --add-opens java.xml/jdk.xml.internal=ALL-UNNAMED
@@ -119,174 +214,155 @@
             --add-opens java.base/sun.security.action=ALL-UNNAMED
             --add-opens java.base/sun.util.calendar=ALL-UNNAMED
             --add-opens java.security.jgss/sun.security.krb5=ALL-UNNAMED
-            --add-exports java.base/sun.nio.ch=ALL-UNNAMED
-        </maven-surefire-plugin.argLine>
-
-        <!-- License Configuration -->
-        <license.licenseName>apache_v2</license.licenseName>
-
-        <!-- Third-party dependencies -->
-        <akka.version>2.5.32</akka.version>
-        <accessors-smart.version>2.4.9</accessors-smart.version>
-        <avro.version>1.11.3</avro.version>
-        <apache-beam.version>2.56.0</apache-beam.version>
-        <apache-spark.version>3.4.3</apache-spark.version>
-        <apache-flink.version>1.16.3</apache-flink.version>
-        <asm.version>9.3</asm.version>
-        <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
-        <batik.version>1.17</batik.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <commons-codec.version>1.15</commons-codec.version>
-        <commons-compress.version>1.26.0</commons-compress.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-logging.version>1.1.3</commons-logging.version>
-        <curator.version>5.4.0</curator.version>
-        <encoder.version>1.2</encoder.version>
-        <gax.version>2.19.6</gax.version>
-        <google-api-common.version>2.13.0</google-api-common.version>
-        <google-api-client.version>2.2.0</google-api-client.version>
-        <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
-        <google-api-services-bigquery.version>v2-rev20240229-2.0.0</google-api-services-bigquery.version>
-        <google-auth-library-credentials.version>1.12.1</google-auth-library-credentials.version>
-        <google-auth-library-oauth2-http.version>1.12.1</google-auth-library-oauth2-http.version>
-        <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
-        <google-http-client.version>1.42.3</google-http-client.version>
-        <google-oauth-client.version>1.34.1</google-oauth-client.version>
-        <grpc.version>1.60.1</grpc.version>
-        <gson.version>2.10</gson.version>
-        <guava.version>32.1.2-jre</guava.version>
-        <hadoop.version>3.3.6</hadoop.version>
-        <httpclient.version>4.5.13</httpclient.version>
-        <httpccore.version>4.4.15</httpccore.version>
-        <jackcess.version>4.0.4</jackcess.version>
-        <jackson.version>2.15.0</jackson.version>
-        <jakarta.version>3.1.0</jakarta.version>
-        <jakarta-mail.version>2.0.1</jakarta-mail.version>
-        <jandex.version>3.1.8</jandex.version>
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <jetty.version>9.4.41.v20210516</jetty.version>
-        <joda-time.version>2.12.1</joda-time.version>
-        <json4s.version>3.7.0-M11</json4s.version>
-        <json-simple.version>1.1.1</json-simple.version>
-        <json-smart.version>2.5.0</json-smart.version>
-        <jsch.version>0.1.55</jsch.version>
-        <juniversalchardet.version>2.4.0</juniversalchardet.version>
-        <kafka-clients.version>3.3.1</kafka-clients.version>
-        <kryo.version>5.3.0</kryo.version>
-        <libthrift.version>0.16.0</libthrift.version>
-        <log4j.version>2.19.0</log4j.version>
-        <lz4.version>1.8.0</lz4.version>
-        <metrics.version>4.2.12</metrics.version>
-        <minlog.version>1.3.1</minlog.version>
-        <netty.version>4.1.89.Final</netty.version>
-        <ognl.version>3.3.4</ognl.version>
-        <okio.version>3.9.0</okio.version>
-        <okhttp.version>4.12.0</okhttp.version>
-        <opencensus-api.version>0.31.1</opencensus-api.version>
-        <opencensus-contrib-http-util.version>0.31.1</opencensus-contrib-http-util.version>
-        <org.eclipse.platform.version>3.125.0</org.eclipse.platform.version>
-        <org.eclipse.commands.version>3.12.0</org.eclipse.commands.version>
-        <org.eclipse.equinox.version>3.19.0</org.eclipse.equinox.version>
-        <opencsv.version>5.7.1</opencsv.version>
-        <paranamer.version>2.8</paranamer.version>
-        <perfmark.version>0.26.0</perfmark.version>
-        <protobuf.version>3.23.2</protobuf.version>
-        <rhino.version>1.7.14</rhino.version>
-        <scala.version>2.12.17</scala.version>
-        <slf4j.version>2.0.4</slf4j.version>
-        <sshlib.version>2.2.23</sshlib.version>
-        <snappy-java.version>1.1.10.5</snappy-java.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
-        <woodstox.version>6.4.0</woodstox.version>
-        <zookeeper.version>3.8.4</zookeeper.version>
-        <xerces.version>2.12.2</xerces.version>
-        <hive.version>2.3.9</hive.version>
-
-        <!-- Test dependencies -->
-        <byte-buddy.version>1.12.19</byte-buddy.version>
-        <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
-        <junit.version>4.13.1</junit.version>
-        <mockito-core.version>5.12.0</mockito-core.version>
-        <objenesis.version>3.2</objenesis.version>
-
-        <!-- Copy from master POM (NEEDS CLEANUP) -->
-        <!-- VERSIONS -->
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
-        <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
-        <maven-install-plugin.version>3.1.2</maven-install-plugin.version>
-        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
-        <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
-        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
-        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
-        <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
-        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
-        <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
-        <maven-jxr-plugin.version>3.4.0</maven-jxr-plugin.version>
-        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
-        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-        <maven-surefire-report-plugin.version>3.2.5</maven-surefire-report-plugin.version>
-        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
-        <maven-bundle-plugin.version>5.1.9</maven-bundle-plugin.version>
-        <wagon-plugin.version>2.0.2</wagon-plugin.version>
-
-        <!-- jdk version -->
-        <source.jdk.version>17</source.jdk.version>
-        <target.jdk.version>17</target.jdk.version>
-        <maven.compiler.source>${source.jdk.version}</maven.compiler.source>
-        <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
-
-        <!-- PHASE BINDINGS -->
-        <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
-        <test-unit-execute-phase>test</test-unit-execute-phase>
-        <assembly_package-phase>package</assembly_package-phase>
-        <assembly_appendId>false</assembly_appendId>
-        <test-integration_add-resources-phase>pre-integration-test</test-integration_add-resources-phase>
-        <test-integration_add-source-phase>pre-integration-test</test-integration_add-source-phase>
-        <test-integration_compile-phase>pre-integration-test</test-integration_compile-phase>
-        <test-integration_execute-phase>integration-test</test-integration_execute-phase>
-        <attach-sources-phase>verify</attach-sources-phase>
-        <test-integration_report-phase>verify</test-integration_report-phase>
-
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
-
-        <!-- License Configuration -->
-        <license.organizationName>Apache</license.organizationName>
-        <license.inceptionYear>2020</license.inceptionYear>
-        <license.licenseFile>LICENSE.txt</license.licenseFile>
-        <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
-        <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
+            --add-exports java.base/sun.nio.ch=ALL-UNNAMED</maven-surefire-plugin.argLine>
+        <!-- default setting is reuseForks = true -->
+        <maven-surefire-plugin.forkCount>1</maven-surefire-plugin.forkCount>
 
         <!-- Documentation properties -->
         <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
 
-
         <!-- http://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html -->
-        <maven-surefire-plugin.reuseForks>true
-        </maven-surefire-plugin.reuseForks> <!-- default setting is reuseForks = true -->
-        <maven-surefire-plugin.forkCount>1</maven-surefire-plugin.forkCount> <!-- default setting is forkCount = 1 -->
+        <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
+        <!-- default setting is forkCount = 1 -->
         <maven-surefire-plugin.testFailureIgnore>false</maven-surefire-plugin.testFailureIgnore>
-        <maven-failsafe-plugin.reuseForks>true
-        </maven-failsafe-plugin.reuseForks> <!-- default setting is reuseForks = true -->
-        <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount> <!-- default setting is forkCount = 1 -->
-        <maven-failsafe-plugin.argLine />
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-surefire-report-plugin.version>3.2.5</maven-surefire-report-plugin.version>
+        <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
+        <maven.compiler.source>${source.jdk.version}</maven.compiler.source>
+        <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
+        <metrics.version>4.2.12</metrics.version>
+        <minlog.version>1.3.1</minlog.version>
+        <mockito-core.version>5.12.0</mockito-core.version>
+        <netty.version>4.1.89.Final</netty.version>
+        <objenesis.version>3.2</objenesis.version>
+        <ognl.version>3.3.4</ognl.version>
+        <okhttp.version>4.12.0</okhttp.version>
+        <okio.version>3.9.0</okio.version>
+        <opencensus-api.version>0.31.1</opencensus-api.version>
+        <opencensus-contrib-http-util.version>0.31.1</opencensus-contrib-http-util.version>
+        <opencsv.version>5.7.1</opencsv.version>
+        <org.eclipse.commands.version>3.12.0</org.eclipse.commands.version>
+        <org.eclipse.equinox.version>3.19.0</org.eclipse.equinox.version>
+        <org.eclipse.platform.version>3.125.0</org.eclipse.platform.version>
+        <paranamer.version>2.8</paranamer.version>
+        <perfmark.version>0.26.0</perfmark.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <protobuf.version>3.23.2</protobuf.version>
+        <rhino.version>1.7.14</rhino.version>
+        <scala.version>2.12.17</scala.version>
+
+        <!-- PHASE BINDINGS -->
+        <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
+        <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
+        <slf4j.version>2.0.4</slf4j.version>
+        <snakeyaml.version>2.0</snakeyaml.version>
+        <snappy-java.version>1.1.10.5</snappy-java.version>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+
+        <!-- jdk version -->
+        <source.jdk.version>17</source.jdk.version>
+        <sshlib.version>2.2.23</sshlib.version>
+        <target.jdk.version>17</target.jdk.version>
+        <test-integration_add-resources-phase>pre-integration-test</test-integration_add-resources-phase>
+        <test-integration_add-source-phase>pre-integration-test</test-integration_add-source-phase>
+        <test-integration_compile-phase>pre-integration-test</test-integration_compile-phase>
+        <test-integration_execute-phase>integration-test</test-integration_execute-phase>
+        <test-integration_report-phase>verify</test-integration_report-phase>
+        <test-unit-execute-phase>test</test-unit-execute-phase>
+        <wagon-plugin.version>2.0.2</wagon-plugin.version>
+        <woodstox.version>6.4.0</woodstox.version>
+        <xerces.version>2.12.2</xerces.version>
+        <zookeeper.version>3.8.4</zookeeper.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-
-            <!-- Third-party dependencies -->
             <dependency>
-                <groupId>org.mozilla</groupId>
-                <artifactId>rhino</artifactId>
-                <version>${rhino.version}</version>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-core</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-emr</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-iam</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-pricing</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-redshift</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>${aws-java-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-cbor</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-smile</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.dataformat</groupId>
+                <artifactId>jackson-dataformat-yaml</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-base</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jaxrs</groupId>
+                <artifactId>jackson-jaxrs-json-provider</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.jr</groupId>
+                <artifactId>jackson-jr-objects</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.module</groupId>
+                <artifactId>jackson-module-jaxb-annotations</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -317,6 +393,11 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>commons-fileupload</groupId>
+                <artifactId>commons-fileupload</artifactId>
+                <version>${commons-fileupload.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>commons-logging</groupId>
                 <artifactId>commons-logging</artifactId>
                 <version>${commons-logging.version}</version>
@@ -328,9 +409,27 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${commons-compress.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>3.0.0-M4</version>
+                <type>maven-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>${wagon-plugin.version}</version>
+            </dependency>
+
+            <!-- Third-party dependencies -->
+            <dependency>
+                <groupId>org.mozilla</groupId>
+                <artifactId>rhino</artifactId>
+                <version>${rhino.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -349,13 +448,10 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
-            <!-- Test dependencies -->
             <dependency>
-                <groupId>org.mockito</groupId>
-                <artifactId>mockito-core</artifactId>
-                <version>${mockito-core.version}</version>
-                <scope>test</scope>
+                <groupId>xerces</groupId>
+                <artifactId>xercesImpl</artifactId>
+                <version>${xerces.version}</version>
                 <exclusions>
                     <exclusion>
                         <groupId>*</groupId>
@@ -388,18 +484,6 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.objenesis</groupId>
-                <artifactId>objenesis</artifactId>
-                <version>${objenesis.version}</version>
-                <scope>test</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.hamcrest</groupId>
                 <artifactId>java-hamcrest</artifactId>
                 <version>${java-hamcrest.version}</version>
@@ -411,117 +495,31 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <!-- Test dependencies -->
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-base</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-jaxb-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-smile</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jr</groupId>
-                <artifactId>jackson-jr-objects</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${commons-fileupload.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-core</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-iam</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-emr</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-pricing</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-redshift</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>${xerces.version}</version>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito-core.version}</version>
+                <scope>test</scope>
                 <exclusions>
-                  <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                  </exclusion>
-              </exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>${commons-compress.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M4</version>
-                <type>maven-plugin</type>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>wagon-maven-plugin</artifactId>
-                <version>${wagon-plugin.version}</version>
+                <groupId>org.objenesis</groupId>
+                <artifactId>objenesis</artifactId>
+                <version>${objenesis.version}</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>*</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -535,6 +533,32 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
     <build>
         <pluginManagement>
             <plugins>
@@ -544,10 +568,10 @@
                     <executions>
                         <execution>
                             <id>attach-sources</id>
-                            <phase>${attach-sources-phase}</phase>
                             <goals>
                                 <goal>jar-no-fork</goal>
                             </goals>
+                            <phase>${attach-sources-phase}</phase>
                         </execution>
                     </executions>
                 </plugin>
@@ -675,7 +699,6 @@
             </plugins>
         </pluginManagement>
 
-
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
@@ -695,10 +718,10 @@
                     </execution>
                     <execution>
                         <id>coverage-report</id>
-                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <phase>post-integration-test</phase>
                         <configuration>
                             <excludes>
                                 <exclude>**/*Dialog*</exclude>
@@ -726,14 +749,14 @@
                 <executions>
                     <execution>
                         <id>default-test</id>
-                        <phase>${test-unit-execute-phase}</phase>
                         <goals>
                             <goal>test</goal>
                         </goals>
+                        <phase>${test-unit-execute-phase}</phase>
                         <configuration>
                             <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding}
-                                ${maven-surefire-plugin.argLine}
-                            </argLine> <!-- this is set by jacoco's prepare-agent execution -->
+                                ${maven-surefire-plugin.argLine}</argLine>
+                            <!-- this is set by jacoco's prepare-agent execution -->
                             <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
                             <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
                             <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
@@ -871,11 +894,24 @@
                         <includes>
                             <include>src/**/*.java</include>
                         </includes>
-                        <googleJavaFormat>
-                        </googleJavaFormat>
-                        <importOrder />
-                        <removeUnusedImports />
+                        <googleJavaFormat></googleJavaFormat>
+                        <importOrder></importOrder>
+                        <removeUnusedImports></removeUnusedImports>
                     </java>
+                    <pom>
+                        <includes>
+                            <include>pom.xml</include>
+                        </includes>
+                        <sortPom>
+                            <nrOfIndentSpace>4</nrOfIndentSpace>
+                            <sortProperties>true</sortProperties>
+                            <sortModules>true</sortModules>
+                            <sortExecutions>true</sortExecutions>
+                            <sortDependencies>scope,groupId,artifactId</sortDependencies>
+                            <sortDependencyExclusions>scope,groupId,artifactId</sortDependencyExclusions>
+                            <sortDependencyManagement>scope,groupId,artifactId</sortDependencyManagement>
+                        </sortPom>
+                    </pom>
                 </configuration>
                 <executions>
                     <execution>
@@ -890,6 +926,54 @@
         </plugins>
     </build>
 
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>cim</report>
+                            <report>issue-tracking</report>
+                            <report>license</report>
+                            <report>scm</report>
+                            <report>dependency-convergence</report>
+                            <report>dependency-management</report>
+                            <report>index</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>${maven-javadoc-plugin.version}</version>
+                <configuration>
+                    <show>public</show>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate-no-fork</report>
+                            <report>test-aggregate-no-fork</report>
+                        </reports>
+                        <inherited>false</inherited>
+                    </reportSet>
+                    <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
     <profiles>
         <profile>
             <id>base</id>
@@ -903,11 +987,11 @@
                 <module>core</module>
                 <module>engine</module>
                 <module>engine-beam</module>
-                <module>ui</module>
+                <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
                 <module>rest</module>
-                <module>plugins</module>
+                <module>ui</module>
             </modules>
         </profile>
         <profile>
@@ -968,10 +1052,10 @@
                         <executions>
                             <execution>
                                 <id>assembly_package</id>
-                                <phase>${assembly_package-phase}</phase>
                                 <goals>
                                     <goal>single</goal>
                                 </goals>
+                                <phase>${assembly_package-phase}</phase>
                                 <configuration>
                                     <descriptorSourceDirectory>${basedir}/src/assembly</descriptorSourceDirectory>
                                     <appendAssemblyId>${assembly_appendId}</appendAssemblyId>
@@ -990,8 +1074,8 @@
                 </os>
             </activation>
             <properties>
-                <swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
                 <env>linux</env>
+                <swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -1017,8 +1101,8 @@
                 </os>
             </activation>
             <properties>
-                <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
                 <env>mac</env>
+                <swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -1044,8 +1128,8 @@
                 </os>
             </activation>
             <properties>
-                <swt.artifactId>org.eclipse.swt.win32.win32.x86_64</swt.artifactId>
                 <env>windows</env>
+                <swt.artifactId>org.eclipse.swt.win32.win32.x86_64</swt.artifactId>
             </properties>
             <dependencyManagement>
                 <dependencies>
@@ -1087,80 +1171,5 @@
             </build>
         </profile>
     </profiles>
-
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>${maven-project-info-reports-plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <reports>
-                            <report>dependencies</report>
-                            <report>cim</report>
-                            <report>issue-tracking</report>
-                            <report>license</report>
-                            <report>scm</report>
-                            <report>dependency-convergence</report>
-                            <report>dependency-management</report>
-                            <report>index</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
-                <configuration>
-                    <show>public</show>
-                </configuration>
-                <reportSets>
-                    <reportSet>
-                        <id>aggregate</id>
-                        <inherited>false</inherited>
-                        <reports>
-                            <report>aggregate-no-fork</report>
-                            <report>test-aggregate-no-fork</report>
-                        </reports>
-                    </reportSet>
-                    <reportSet>
-                        <id>default</id>
-                        <reports>
-                            <report>javadoc</report>
-                        </reports>
-                    </reportSet>
-                </reportSets>
-            </plugin>
-        </plugins>
-    </reporting>
-
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <url>https://repo1.maven.org/maven2/</url>
-            <name>Maven Central</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>apache.snapshots</id>
-            <url>https://repository.apache.org/snapshots/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
 
 </project>

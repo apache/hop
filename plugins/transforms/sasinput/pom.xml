@@ -16,13 +16,12 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>hop-plugins-transforms</artifactId>
         <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
     <artifactId>hop-transform-sasinput</artifactId>
@@ -41,12 +40,6 @@
             <artifactId>parso</artifactId>
             <version>${epam-parso-version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
@@ -59,13 +52,18 @@
             <version>${byte-buddy.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.objenesis</groupId>
             <artifactId>objenesis</artifactId>
             <version>${objenesis.version}</version>
             <scope>test</scope>
         </dependency>
-
 
     </dependencies>
 

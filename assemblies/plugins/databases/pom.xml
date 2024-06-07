@@ -15,67 +15,65 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <artifactId>hop-assemblies-plugins</artifactId>
-    <groupId>org.apache.hop</groupId>
-    <version>2.10.0-SNAPSHOT</version>
-  </parent>
-  <modelVersion>4.0.0</modelVersion>
-  <packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies-plugins</artifactId>
+        <version>2.10.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>hop-assemblies-plugins-databases</artifactId>
+    <artifactId>hop-assemblies-plugins-databases</artifactId>
+    <packaging>pom</packaging>
 
-  <name>Hop Assemblies Plugins Databases</name>
-  <description />
+    <name>Hop Assemblies Plugins Databases</name>
+    <description></description>
 
-  <modules>
-    <module>access-assemblies</module>
-    <module>as400-assemblies</module>
-    <module>cache-assemblies</module>
-    <module>clickhouse-assemblies</module>
-    <module>cockroachdb-assemblies</module>
-    <module>cratedb-assemblies</module>
-    <module>db2-assemblies</module>
-    <module>derby-assemblies</module>
-    <module>doris-assemblies</module>
-    <module>duckdb-assemblies</module>
-    <module>exasol4-assemblies</module>
-    <module>firebird-assemblies</module>
-    <module>generic-assemblies</module>
-    <module>googlebigquery-assemblies</module>
-    <module>greenplum-assemblies</module>
-    <module>h2-assemblies</module>
-    <module>hive-assemblies</module>
-    <module>hypersonic-assemblies</module>
-    <module>infobright-assemblies</module>
-    <module>informix-assemblies</module>
-    <module>ingres-assemblies</module>
-    <module>interbase-assemblies</module>
-    <module>iris-assemblies</module>
-    <module>kingbasees-assemblies</module>
-    <module>mariadb-assemblies</module>
-    <module>monetdb-assemblies</module>
-    <module>mssql-assemblies</module>
-    <module>mssqlnative-assemblies</module>
-    <module>mysql-assemblies</module>
-    <module>netezza-assemblies</module>
-    <module>oracle-assemblies</module>
-    <module>oraclerdb-assemblies</module>
-    <module>postgresql-assemblies</module>
-    <module>redshift-assemblies</module>
-    <module>sapdb-assemblies</module>
-    <module>snowflake-assemblies</module>
-    <module>sqlbase-assemblies</module>
-    <module>sqlite-assemblies</module>
-    <module>sybase-assemblies</module>
-    <module>sybaseiq-assemblies</module>
-    <module>teradata-assemblies</module>
-    <module>universe-assemblies</module>
-    <module>vectorwise-assemblies</module>
-    <module>vertica-assemblies</module>
-  </modules>
-
+    <modules>
+        <module>access-assemblies</module>
+        <module>as400-assemblies</module>
+        <module>cache-assemblies</module>
+        <module>clickhouse-assemblies</module>
+        <module>cockroachdb-assemblies</module>
+        <module>cratedb-assemblies</module>
+        <module>db2-assemblies</module>
+        <module>derby-assemblies</module>
+        <module>doris-assemblies</module>
+        <module>duckdb-assemblies</module>
+        <module>exasol4-assemblies</module>
+        <module>firebird-assemblies</module>
+        <module>generic-assemblies</module>
+        <module>googlebigquery-assemblies</module>
+        <module>greenplum-assemblies</module>
+        <module>h2-assemblies</module>
+        <module>hive-assemblies</module>
+        <module>hypersonic-assemblies</module>
+        <module>infobright-assemblies</module>
+        <module>informix-assemblies</module>
+        <module>ingres-assemblies</module>
+        <module>interbase-assemblies</module>
+        <module>iris-assemblies</module>
+        <module>kingbasees-assemblies</module>
+        <module>mariadb-assemblies</module>
+        <module>monetdb-assemblies</module>
+        <module>mssql-assemblies</module>
+        <module>mssqlnative-assemblies</module>
+        <module>mysql-assemblies</module>
+        <module>netezza-assemblies</module>
+        <module>oracle-assemblies</module>
+        <module>oraclerdb-assemblies</module>
+        <module>postgresql-assemblies</module>
+        <module>redshift-assemblies</module>
+        <module>sapdb-assemblies</module>
+        <module>snowflake-assemblies</module>
+        <module>sqlbase-assemblies</module>
+        <module>sqlite-assemblies</module>
+        <module>sybase-assemblies</module>
+        <module>sybaseiq-assemblies</module>
+        <module>teradata-assemblies</module>
+        <module>universe-assemblies</module>
+        <module>vectorwise-assemblies</module>
+        <module>vertica-assemblies</module>
+    </modules>
 
 </project>

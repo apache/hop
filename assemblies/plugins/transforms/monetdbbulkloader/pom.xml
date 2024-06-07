@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +30,7 @@
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms MonetDB Bulk Loader</name>
-    <description />
+    <description></description>
 
     <properties>
         <monetdb.version>3.3</monetdb.version>
@@ -39,28 +38,28 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-monetdbbulkloader</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>monetdb</groupId>
             <artifactId>monetdb-jdbc</artifactId>
             <version>${monetdb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-monetdbbulkloader</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <repositories>
         <repository>
-            <id>clojars</id>
-            <url>https://clojars.org/repo/</url>
-            <name>Clojars</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
             <releases>
                 <enabled>true</enabled>
             </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>clojars</id>
+            <name>Clojars</name>
+            <url>https://clojars.org/repo/</url>
         </repository>
     </repositories>
 
