@@ -25,13 +25,12 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>hop-assemblies-plugins-transforms-tokenreplacement</artifactId>
     <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Token Replacement</name>
-    <description />
+    <description></description>
 
     <dependencies>
         <dependency>

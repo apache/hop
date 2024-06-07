@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,13 +25,30 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>hop-assemblies-plugins-transforms-splunk</artifactId>
     <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Splunk</name>
-    <description />
+    <description></description>
+
+    <properties>
+        <splunk.version>1.6.5.0</splunk.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.splunk</groupId>
+            <artifactId>splunk</artifactId>
+            <version>${splunk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-splunk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
     <repositories>
         <repository>
@@ -41,22 +57,4 @@
             <url>https://splunk.jfrog.io/splunk/ext-releases-local</url>
         </repository>
     </repositories>
-
-    <properties>
-        <splunk.version>1.6.5.0</splunk.version>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-splunk</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.splunk</groupId>
-            <artifactId>splunk</artifactId>
-            <version>${splunk.version}</version>
-        </dependency>
-    </dependencies>
 </project>

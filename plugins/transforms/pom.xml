@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,18 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-plugins-transforms</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
-    <modules>
-    </modules>
-    <packaging>pom</packaging>
-
-    <name>Hop Plugins Transforms</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
@@ -34,10 +24,129 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-plugins-transforms</artifactId>
+    <version>2.10.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>Hop Plugins Transforms</name>
+    <modules></modules>
+
     <properties>
         <!-- Test running configuration -->
         <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-core</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- test dependencies -->
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-engine</artifactId>
+                <version>${project.version}</version>
+                <type>test-jar</type>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring.framework.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.svg</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
 
     <profiles>
         <profile>
@@ -144,9 +253,9 @@
                 <module>nullif</module>
                 <module>numberrange</module>
                 <module>orabulkloader</module>
-                <module>pipelineexecutor</module>
                 <module>pgbulkloader</module>
                 <module>pgp</module>
+                <module>pipelineexecutor</module>
                 <module>processfiles</module>
                 <module>propertyinput</module>
                 <module>propertyoutput</module>
@@ -158,8 +267,8 @@
                 <module>rowgenerator</module>
                 <module>rowsfromresult</module>
                 <module>rowstoresult</module>
-                <module>samplerows</module>
                 <module>salesforce</module>
+                <module>samplerows</module>
                 <module>sasinput</module>
                 <module>schemamapping</module>
                 <module>script</module>
@@ -209,115 +318,4 @@
         </profile>
 
     </profiles>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet-api.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.framework.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-core</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <!-- test dependencies -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-engine</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-
-        </dependencies>
-    </dependencyManagement>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.svg</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.svg</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 </project>

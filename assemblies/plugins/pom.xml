@@ -16,30 +16,29 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-assemblies</artifactId>
+        <version>2.10.0-SNAPSHOT</version>
+    </parent>
 
     <artifactId>hop-assemblies-plugins</artifactId>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins</name>
 
-    <parent>
-        <artifactId>hop-assemblies</artifactId>
-        <groupId>org.apache.hop</groupId>
-        <version>2.10.0-SNAPSHOT</version>
-    </parent>
-
     <modules>
         <module>actions</module>
         <module>databases</module>
+        <module>dist</module>
         <module>engines</module>
         <module>misc</module>
         <module>tech</module>
         <module>transforms</module>
         <module>valuetypes</module>
-        <module>dist</module>
     </modules>
 
 </project>

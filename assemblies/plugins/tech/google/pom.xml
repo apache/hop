@@ -15,7 +15,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -29,25 +28,20 @@
     <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Technology Google</name>
-    <description />
+    <description></description>
 
     <properties>
-        <gax.version>2.27.0</gax.version>
         <commons-vfs2.version>2.9.0</commons-vfs2.version>
-        <google-api-sheets.version>v4-rev20230526-2.0.0</google-api-sheets.version>
+        <gax.version>2.27.0</gax.version>
         <google-api-drive.version>v3-rev20230610-2.0.0</google-api-drive.version>
         <google-api-services-analytics.version>v3-rev169-1.25.0</google-api-services-analytics.version>
         <google-api-services-drive.version>v3-rev197-1.25.0</google-api-services-drive.version>
-        <jetty-client.version>6.1.26</jetty-client.version>
+        <google-api-sheets.version>v4-rev20230526-2.0.0</google-api-sheets.version>
         <google-api-sqladmin.version>v1-rev20230721-2.0.0</google-api-sqladmin.version>
+        <jetty-client.version>6.1.26</jetty-client.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-plugins-tech-google</artifactId>
-            <version>${project.version}</version>
-        </dependency>
 
         <!-- Google Analytics 4 -->
         <dependency>
@@ -56,36 +50,9 @@
             <version>0.28.0</version>
         </dependency>
         <dependency>
-            <groupId>com.google.api.grpc</groupId>
-            <artifactId>proto-google-analytics-data-v1beta</artifactId>
-            <version>0.28.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>3.23.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java-util</artifactId>
-            <version>3.23.3</version>
-        </dependency>
-
-        <!-- force lib version to match Beam -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.api.grpc</groupId>
-            <artifactId>proto-google-iam-v1</artifactId>
-            <version>1.6.10</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-context</artifactId>
-            <version>${grpc.version}</version>
+            <groupId>com.google.api</groupId>
+            <artifactId>api-common</artifactId>
+            <version>${google-api-common.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.api</groupId>
@@ -99,40 +66,53 @@
         </dependency>
         <dependency>
             <groupId>com.google.api.grpc</groupId>
+            <artifactId>proto-google-analytics-data-v1beta</artifactId>
+            <version>0.28.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.api.grpc</groupId>
             <artifactId>proto-google-common-protos</artifactId>
             <version>2.21.0</version>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-            <version>${joda-time.version}</version>
+            <groupId>com.google.api.grpc</groupId>
+            <artifactId>proto-google-iam-v1</artifactId>
+            <version>1.6.10</version>
         </dependency>
         <dependency>
-            <groupId>com.google.api</groupId>
-            <artifactId>api-common</artifactId>
-            <version>${google-api-common.version}</version>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-drive</artifactId>
+            <version>${google-api-drive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-sheets</artifactId>
+            <version>${google-api-sheets.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-sqladmin</artifactId>
+            <version>${google-api-sqladmin.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-storage</artifactId>
             <version>${google-api-services-storage.version}</version>
         </dependency>
+
+        <!-- Google Cloud Storage VFS dependencies -->
+
         <dependency>
-            <groupId>org.threeten</groupId>
-            <artifactId>threetenbp</artifactId>
-            <version>1.6.8</version>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>${google-cloud-storage.version}</version>
         </dependency>
 
-        <!-- Google Analytics dependencies -->
+        <!-- force lib version to match Beam -->
         <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client</artifactId>
-            <version>${google-oauth-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client-jackson2</artifactId>
-            <version>${google-http-client.version}</version>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
@@ -147,31 +127,16 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet-api.version}</version>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client-jackson2</artifactId>
+            <version>${google-http-client.version}</version>
         </dependency>
 
-        <!-- Google Sheets dependencies -->
+        <!-- Google Analytics dependencies -->
         <dependency>
             <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-jetty</artifactId>
+            <artifactId>google-oauth-client</artifactId>
             <version>${google-oauth-client.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-sheets</artifactId>
-            <version>${google-api-sheets.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-drive</artifactId>
-            <version>${google-api-drive.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-sqladmin</artifactId>
-            <version>${google-api-sqladmin.version}</version>
         </dependency>
 
         <!-- Google VFS dependencies -->
@@ -181,23 +146,57 @@
             <artifactId>google-oauth-client-java6</artifactId>
             <version>${google-oauth-client.version}</version>
         </dependency>
+
+        <!-- Google Sheets dependencies -->
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>${google-oauth-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>3.23.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>3.23.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-context</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${javax.servlet-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>${joda-time.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-vfs2</artifactId>
             <version>${commons-vfs2.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-plugins-tech-google</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.mortbay.jetty</groupId>
             <artifactId>jetty-client</artifactId>
             <version>${jetty-client.version}</version>
         </dependency>
-
-        <!-- Google Cloud Storage VFS dependencies -->
-
         <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-storage</artifactId>
-            <version>${google-cloud-storage.version}</version>
+            <groupId>org.threeten</groupId>
+            <artifactId>threetenbp</artifactId>
+            <version>1.6.8</version>
         </dependency>
 
     </dependencies>

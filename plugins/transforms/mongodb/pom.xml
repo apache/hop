@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,16 +26,22 @@
     </parent>
 
     <artifactId>hop-transform-mongodb</artifactId>
-    <name>Hop Plugins Transforms MongoDB</name>
     <packaging>jar</packaging>
+    <name>Hop Plugins Transforms MongoDB</name>
 
     <properties>
-        <mongo-legacy-driver.version>3.12.11</mongo-legacy-driver.version>
         <easymock.version>3.4</easymock.version>
         <hamcrest.version>2.2</hamcrest.version>
+        <mongo-legacy-driver.version>3.12.11</mongo-legacy-driver.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>${mongo-legacy-driver.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
@@ -57,21 +62,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongo-java-driver</artifactId>
-            <version>${mongo-legacy-driver.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -86,10 +79,11 @@
             <version>${byte-buddy.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>${easymock.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest -->
@@ -99,11 +93,16 @@
             <version>${hamcrest.version}</version>
             <scope>test</scope>
         </dependency>
-
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>${easymock.version}</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

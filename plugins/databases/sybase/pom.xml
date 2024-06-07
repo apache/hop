@@ -16,28 +16,27 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>hop-plugins-databases</artifactId>
         <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-databases</artifactId>
         <version>2.10.0-SNAPSHOT</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
 
     <artifactId>hop-databases-sybase</artifactId>
+
+    <packaging>jar</packaging>
+
+    <name>Hop Plugins Databases Sybase</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
-            <scope>compile</scope>
             <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
-
-    <packaging>jar</packaging>
-
-    <name>Hop Plugins Databases Sybase</name>
 
 </project>

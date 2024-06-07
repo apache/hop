@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,32 +25,20 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>hop-assemblies-plugins-transforms-excel</artifactId>
     <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Excel Writer</name>
-    <description />
+    <description></description>
 
     <properties>
+        <odfdom-java.version>0.8.7</odfdom-java.version>
         <poi.version>5.2.4</poi.version>
         <xerces.version>2.12.2</xerces.version>
-        <odfdom-java.version>0.8.7</odfdom-java.version>
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.odftoolkit</groupId>
-            <artifactId>odfdom-java</artifactId>
-            <version>${odfdom-java.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-excel</artifactId>
@@ -66,6 +53,17 @@
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
             <version>${poi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.odftoolkit</groupId>
+            <artifactId>odfdom-java</artifactId>
+            <version>${odfdom-java.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>xerces</groupId>

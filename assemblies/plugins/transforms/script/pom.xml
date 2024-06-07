@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,14 +30,9 @@
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Script</name>
-    <description />
+    <description></description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-script</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy</artifactId>
@@ -48,6 +42,11 @@
             <groupId>org.apache.groovy</groupId>
             <artifactId>groovy-jsr223</artifactId>
             <version>4.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-script</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.python</groupId>

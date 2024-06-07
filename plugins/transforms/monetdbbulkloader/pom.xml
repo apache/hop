@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,8 +26,8 @@
     </parent>
 
     <artifactId>hop-transform-monetdbbulkloader</artifactId>
-    <name>Hop Plugins Transforms MonetDB Bulk Loader</name>
     <packaging>jar</packaging>
+    <name>Hop Plugins Transforms MonetDB Bulk Loader</name>
 
     <properties>
         <monetdb-jdbc.version>3.3</monetdb-jdbc.version>
@@ -36,8 +35,20 @@
 
     <dependencies>
         <dependency>
+            <groupId>monetdb</groupId>
+            <artifactId>monetdb-jdbc</artifactId>
+            <version>${monetdb-jdbc.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-databases-monetdb</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
@@ -53,31 +64,19 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-databases-monetdb</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>monetdb</groupId>
-            <artifactId>monetdb-jdbc</artifactId>
-            <version>${monetdb-jdbc.version}</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <repositories>
         <repository>
-            <id>clojars</id>
-            <url>https://clojars.org/repo/</url>
-            <name>Clojars</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
             <releases>
                 <enabled>true</enabled>
             </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>clojars</id>
+            <name>Clojars</name>
+            <url>https://clojars.org/repo/</url>
         </repository>
     </repositories>
 

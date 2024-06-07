@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,9 +15,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-tech</artifactId>
+        <version>2.10.0-SNAPSHOT</version>
+    </parent>
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-tech-parquet</artifactId>
@@ -26,18 +31,12 @@
 
     <name>Hop Plugins Technology Parquet</name>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-tech</artifactId>
-        <version>2.10.0-SNAPSHOT</version>
-    </parent>
-
     <licenses>
         <license>
             <name>Apache License, version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
             <distribution>repo</distribution>
-            <comments />
+            <comments></comments>
         </license>
     </licenses>
 
@@ -46,6 +45,36 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-avro</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.parquet</groupId>
+            <artifactId>parquet-column</artifactId>
+            <version>${parquet.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.apache.parquet</groupId>
@@ -60,39 +89,9 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-column</artifactId>
-            <version>${parquet.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.parquet</groupId>
-            <artifactId>parquet-avro</artifactId>
-            <version>${parquet.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <scope>compile</scope>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-core.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -108,16 +107,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
+            <artifactId>hop-core</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -127,10 +121,15 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
             <scope>test</scope>
         </dependency>
 

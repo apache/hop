@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +25,6 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>hop-assemblies-plugins-transforms-drools</artifactId>
     <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -34,39 +32,33 @@
     <name>Hop Assemblies Plugins Transforms for Drools</name>
 
     <properties>
+        <antlr.version>3.5.3</antlr.version>
         <drools.version>7.74.1.Final</drools.version>
         <kie.version>7.74.1.Final</kie.version>
-        <antlr.version>3.5.3</antlr.version>
         <mvel2.version>2.4.14.Final</mvel2.version>
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+            <version>3.5.3</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-drools</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.drools</groupId>
             <artifactId>drools-core</artifactId>
-            <version>${drools.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-internal</artifactId>
-            <version>${kie.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-api</artifactId>
-            <version>${kie.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-core-reflective</artifactId>
             <version>${drools.version}</version>
         </dependency>
 
@@ -78,13 +70,7 @@
 
         <dependency>
             <groupId>org.drools</groupId>
-            <artifactId>drools-compiler</artifactId>
-            <version>${drools.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-templates</artifactId>
+            <artifactId>drools-core-reflective</artifactId>
             <version>${drools.version}</version>
         </dependency>
 
@@ -101,8 +87,20 @@
         </dependency>
 
         <dependency>
-            <groupId>org.kie.soup</groupId>
-            <artifactId>kie-soup-maven-support</artifactId>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-templates</artifactId>
+            <version>${drools.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>${kie.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-internal</artifactId>
             <version>${kie.version}</version>
         </dependency>
 
@@ -114,14 +112,14 @@
 
         <dependency>
             <groupId>org.kie.soup</groupId>
-            <artifactId>kie-soup-project-datamodel-commons</artifactId>
+            <artifactId>kie-soup-maven-support</artifactId>
             <version>${kie.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr-runtime</artifactId>
-            <version>3.5.3</version>
+            <groupId>org.kie.soup</groupId>
+            <artifactId>kie-soup-project-datamodel-commons</artifactId>
+            <version>${kie.version}</version>
         </dependency>
 
         <dependency>

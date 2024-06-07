@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,31 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>Central Repository</name>
-            <url>https://repo.maven.apache.org/maven2</url>
-            <layout>default</layout>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-        </repository>
-    </repositories>
-
-    <artifactId>hop-plugins-engines-beam</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-
-    <name>Hop Plugins Engines Beam</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
@@ -47,29 +24,132 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
+    <artifactId>hop-plugins-engines-beam</artifactId>
+    <version>2.10.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Hop Plugins Engines Beam</name>
+
     <properties>
+        <bigtable-hbase-beam.version>2.14.2</bigtable-hbase-beam.version>
+        <hive-storage.version>2.7.0</hive-storage.version>
 
         <json-simple.version>1.1.1</json-simple.version>
-        <bigtable-hbase-beam.version>2.11.0</bigtable-hbase-beam.version>
-<!--        https://github.com/apache/hive/blob/df0a1429d4a67bc180cf1e15ff10432f6723bb1c/pom.xml-->
+        <!--        https://github.com/apache/hive/blob/df0a1429d4a67bc180cf1e15ff10432f6723bb1c/pom.xml-->
         <libfb303.version>0.9.3</libfb303.version>
-        <hive-storage.version>2.7.0</hive-storage.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-scala_2.12</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.google.api.grpc</groupId>
             <artifactId>proto-google-iam-v1</artifactId>
             <version>1.6.10</version>
         </dependency>
         <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0-rc4</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-bigquery</artifactId>
+            <version>1.128.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>${google-cloud-storage.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.cloud.bigtable</groupId>
+            <artifactId>bigtable-hbase-beam</artifactId>
+            <version>${bigtable-hbase-beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud.bigtable</groupId>
+            <artifactId>bigtable-metrics-api</artifactId>
+            <version>1.26.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+            <version>${json-simple.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.15</version>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty-shaded</artifactId>
+            <artifactId>grpc-alts</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-api</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-auth</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-context</artifactId>
             <version>${grpc.version}</version>
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-core</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-grpclb</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty</artifactId>
+            <version>${grpc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
             <version>${grpc.version}</version>
         </dependency>
         <dependency>
@@ -84,139 +164,8 @@
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
-            <artifactId>grpc-api</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-context</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
             <artifactId>grpc-stub</artifactId>
             <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-netty</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-grpclb</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-auth</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.grpc</groupId>
-            <artifactId>grpc-alts</artifactId>
-            <version>${grpc.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client-api</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-groupby</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-sort</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-uniquerows</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-rowgenerator</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.15</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.module</groupId>
-            <artifactId>jackson-module-scala_2.12</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-core</artifactId>
-            <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>${jackson.version}</version>
         </dependency>
 
         <!-- The Apache Beam dependencies -->
@@ -230,12 +179,31 @@
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
                 <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.fasterxml.jackson.module</groupId>
                     <artifactId>jackson-module-scala_2.11</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-runners-flink-1.16</artifactId>
+            <version>${apache-beam.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -249,12 +217,12 @@
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>io.grpc</groupId>
@@ -283,25 +251,6 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-runners-flink-1.16</artifactId>
-            <version>${apache-beam.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-extensions-join-library</artifactId>
             <version>${apache-beam.version}</version>
             <exclusions>
@@ -310,14 +259,24 @@
                     <artifactId>jackson-core</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
+            <version>${apache-beam.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-azure</artifactId>
+            <version>${apache-beam.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
@@ -359,6 +318,17 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-hcatalog</artifactId>
+            <version>${apache-beam.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-io-kafka</artifactId>
             <version>${apache-beam.version}</version>
             <exclusions>
@@ -378,25 +348,43 @@
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-io-hcatalog</artifactId>
+            <artifactId>beam-sdks-java-io-kinesis</artifactId>
+            <version>${apache-beam.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-sdks-java-io-synthetic</artifactId>
             <version>${apache-beam.version}</version>
             <exclusions>
                 <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.module</groupId>
+                    <artifactId>jackson-module-scala_2.11</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.hive.hcatalog</groupId>
-            <artifactId>hive-hcatalog-core</artifactId>
-            <version>${hive.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.beam</groupId>
+            <artifactId>beam-vendor-guava-32_1_2-jre</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client</artifactId>
+            <version>${hadoop.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-client-api</artifactId>
+            <version>${hadoop.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
@@ -412,7 +400,18 @@
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
+            <version>${hive.version}</version>
             <classifier>core</classifier>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hive</groupId>
+            <artifactId>hive-metastore</artifactId>
             <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
@@ -445,8 +444,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
-            <artifactId>hive-metastore</artifactId>
-            <version>${hive.version}</version>
+            <artifactId>hive-storage-api</artifactId>
+            <version>${hive-storage.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -466,9 +465,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.hive</groupId>
-            <artifactId>hive-storage-api</artifactId>
-            <version>${hive-storage.version}</version>
+            <groupId>org.apache.hive.hcatalog</groupId>
+            <artifactId>hive-hcatalog-core</artifactId>
+            <version>${hive.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -498,76 +497,72 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.thrift</groupId>
-            <artifactId>libthrift</artifactId>
-            <version>${libthrift.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-core</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.thrift</groupId>
-            <artifactId>libfb303</artifactId>
-            <version>${libfb303.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-constant</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-filterrows</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-groupby</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-io-synthetic</artifactId>
-            <version>${apache-beam.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-memgroupby</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-storage</artifactId>
-            <version>${google-cloud-storage.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.core</groupId>
-                    <artifactId>jackson-databind</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.fasterxml.jackson.module</groupId>
-                    <artifactId>jackson-module-scala_2.11</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-mergejoin</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-vendor-guava-26_0-jre</artifactId>
-            <version>0.1</version>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-rowgenerator</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
-            <version>1.0-rc4</version>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-sort</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-streamlookup</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-switchcase</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-uniquerows</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-ui</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka-clients.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -596,16 +591,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-io-amazon-web-services</artifactId>
-            <version>${apache-beam.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-io-azure</artifactId>
-            <version>${apache-beam.version}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -627,74 +612,82 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-bigquery</artifactId>
-            <version>1.128.3</version>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libfb303</artifactId>
+            <version>${libfb303.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.kafka</groupId>
-            <artifactId>kafka-clients</artifactId>
-            <version>${kafka-clients.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>${json-simple.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.cloud.bigtable</groupId>
-            <artifactId>bigtable-hbase-beam</artifactId>
-            <version>${bigtable-hbase-beam.version}</version>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>${libthrift.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.google.cloud.bigtable</groupId>
-            <artifactId>bigtable-metrics-api</artifactId>
-            <version>1.26.3</version>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.beam</groupId>
-            <artifactId>beam-sdks-java-io-kinesis</artifactId>
-            <version>${apache-beam.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-memgroupby</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-constant</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <artifactId>hop-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-filterrows</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <artifactId>hop-engine</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-streamlookup</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-mergejoin</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-switchcase</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <groupId>org.objenesis</groupId>
+            <artifactId>objenesis</artifactId>
+            <version>${objenesis.version}</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
 
-
-    <dependencyManagement>
-
-    </dependencyManagement>
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>Central Repository</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <id>confluent</id>
+            <url>https://packages.confluent.io/maven/</url>
+        </repository>
+    </repositories>
 
 </project>

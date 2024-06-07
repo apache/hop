@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -15,9 +15,14 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-tech</artifactId>
+        <version>2.10.0-SNAPSHOT</version>
+    </parent>
 
     <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-tech-cassandra</artifactId>
@@ -27,18 +32,12 @@
     <name>Hop Plugins Technology Cassandra</name>
     <url>http://maven.apache.org</url>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-tech</artifactId>
-        <version>2.10.0-SNAPSHOT</version>
-    </parent>
-
     <licenses>
         <license>
             <name>Apache License, version 2.0</name>
             <url>https://www.apache.org/licenses/LICENSE-2.0</url>
             <distribution>repo</distribution>
-            <comments />
+            <comments></comments>
         </license>
     </licenses>
 
@@ -48,12 +47,6 @@
     </properties>
 
     <dependencies>
-        <!-- Cassandra: APL -->
-        <dependency>
-            <groupId>org.apache.cassandra</groupId>
-            <artifactId>cassandra-all</artifactId>
-            <version>${cassandra-all.version}</version>
-        </dependency>
         <dependency>
             <groupId>com.datastax.oss</groupId>
             <artifactId>java-driver-core</artifactId>
@@ -64,6 +57,12 @@
             <artifactId>java-driver-query-builder</artifactId>
             <version>${cassandra-java-driver.version}</version>
         </dependency>
+        <!-- Cassandra: APL -->
+        <dependency>
+            <groupId>org.apache.cassandra</groupId>
+            <artifactId>cassandra-all</artifactId>
+            <version>${cassandra-all.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
 
@@ -71,6 +70,18 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -84,18 +95,6 @@
                     <artifactId>*</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.objenesis</groupId>

@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ Licensed to the Apache Software Foundation (ASF) under one or more
   ~ contributor license agreements.  See the NOTICE file distributed with
@@ -16,7 +16,6 @@
   ~ limitations under the License.
   ~
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -30,17 +29,15 @@
 
     <name>Hop Plugins Transforms Javascript</name>
 
-
     <dependencies>
         <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-fieldsplitter</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-transform-rowgenerator</artifactId>
+            <artifactId>hop-transform-fieldsplitter</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
@@ -51,9 +48,10 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>mail</artifactId>
-            <version>1.4</version>
+            <groupId>org.apache.hop</groupId>
+            <artifactId>hop-transform-rowgenerator</artifactId>
+            <version>2.10.0-SNAPSHOT</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

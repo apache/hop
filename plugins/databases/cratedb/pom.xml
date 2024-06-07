@@ -15,15 +15,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.apache.hop</groupId>
-    <artifactId>hop-databases-cratedb</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
-    <packaging>jar</packaging>
-    <name>Hop Plugins Databases CrateDB</name>
 
     <parent>
         <groupId>org.apache.hop</groupId>
@@ -31,21 +24,38 @@
         <version>2.10.0-SNAPSHOT</version>
     </parent>
 
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop-databases-cratedb</artifactId>
+    <version>2.10.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Hop Plugins Databases CrateDB</name>
+
     <properties>
         <cratedb-jdbc.version>2.7.0</cratedb-jdbc.version>
     </properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.crate</groupId>
+                <artifactId>crate-jdbc</artifactId>
+                <version>${cratedb-jdbc.version}</version>
+                <!-- Adjust according to your CrateDB version -->
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
-        <dependency>
-            <groupId>io.crate</groupId>
-            <artifactId>crate-jdbc</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-postgresql</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.crate</groupId>
+            <artifactId>crate-jdbc</artifactId>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.testcontainers</groupId>
@@ -54,16 +64,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>io.crate</groupId>
-                <artifactId>crate-jdbc</artifactId>
-                <version>${cratedb-jdbc.version}</version> <!-- Adjust according to your CrateDB version -->
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
