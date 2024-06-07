@@ -39,7 +39,7 @@
             <email>dev@hop.apache.org</email>
             <url>https://hop.apache.org</url>
             <organization>Apache Software Foundation</organization>
-            <organizationUrl>http://apache.org/</organizationUrl>
+            <organizationUrl>https://apache.org/</organizationUrl>
         </developer>
     </developers>
 
@@ -82,8 +82,8 @@
 
 
     <scm>
-        <connection>scm:git:http://gitbox.apache.org/repos/asf/hop.git</connection>
-        <developerConnection>scm:git:http://gitbox.apache.org/repos/asf/hop.git</developerConnection>
+        <connection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</connection>
+        <developerConnection>scm:git:https://gitbox.apache.org/repos/asf/hop.git</developerConnection>
         <url>https://gitbox.apache.org/repos/asf?p=hop.git;a=summary</url>
         <tag>HEAD</tag>
     </scm>
@@ -213,32 +213,27 @@
         <!-- Copy from master POM (NEEDS CLEANUP) -->
         <!-- VERSIONS -->
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
-        <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-        <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-        <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-        <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-        <maven-dependency-plugin.version>3.1.0</maven-dependency-plugin.version>
-        <build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-        <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
-        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
-        <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
-        <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
-        <maven-resources-plugin.version>3.0.2</maven-resources-plugin.version>
-        <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
-        <maven-surefire-report-plugin.version>3.0.0-M5</maven-surefire-report-plugin.version>
-        <maven-verifier-plugin.version>1.1</maven-verifier-plugin.version>
-        <sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
-        <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
-        <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
-        <wagon-plugin.version>2.0.0</wagon-plugin.version>
-
-        <!-- spring-security version -->
-        <spring-security.version>4.1.5.RELEASE</spring-security.version>
+        <maven-clean-plugin.version>3.3.2</maven-clean-plugin.version>
+        <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
+        <maven-install-plugin.version>3.1.2</maven-install-plugin.version>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
+        <build-helper-maven-plugin.version>3.6.0</build-helper-maven-plugin.version>
+        <maven-assembly-plugin.version>3.7.1</maven-assembly-plugin.version>
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+        <maven-jar-plugin.version>3.4.1</maven-jar-plugin.version>
+        <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
+        <maven-jxr-plugin.version>3.4.0</maven-jxr-plugin.version>
+        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
+        <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+        <maven-surefire-report-plugin.version>3.2.5</maven-surefire-report-plugin.version>
+        <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
+        <maven-bundle-plugin.version>5.1.9</maven-bundle-plugin.version>
+        <wagon-plugin.version>2.0.2</wagon-plugin.version>
 
         <!-- jdk version -->
         <source.jdk.version>17</source.jdk.version>
@@ -593,10 +588,6 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-verifier-plugin</artifactId>
-                    <version>${maven-verifier-plugin.version}</version>
-                </plugin>
-                <plugin>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${maven-jar-plugin.version}</version>
                     <configuration>
@@ -729,6 +720,7 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven-surefire-plugin.version}</version>
                 <executions>
@@ -1102,9 +1094,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
                 <version>${maven-project-info-reports-plugin.version}</version>
-                <configuration>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                </configuration>
                 <reportSets>
                     <reportSet>
                         <reports>
