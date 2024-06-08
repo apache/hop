@@ -30,6 +30,7 @@ import org.w3c.dom.Node;
 @ValueMetaPlugin(
     id = "303",
     name = "Graph",
+    image = "graph.svg",
     description = "Graph data type containing nodes, relationships and their properties")
 public class ValueMetaGraph extends ValueMetaBase implements IValueMeta {
 
