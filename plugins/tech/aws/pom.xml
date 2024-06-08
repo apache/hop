@@ -34,8 +34,6 @@
         <aws-java-sdk-s3.version>1.12.651</aws-java-sdk-s3.version>
         <aws-java-sdk-sns.version>1.12.651</aws-java-sdk-sns.version>
         <aws-java-sdk-sqs.version>1.12.651</aws-java-sdk-sqs.version>
-        <!-- Test dependencies -->
-        <mockito.version>5.12.0</mockito.version>
         <redshift.jdbc.version>2.1.0.28</redshift.jdbc.version>
     </properties>
 
@@ -90,8 +88,6 @@
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
         </dependency>
-
-        <!-- Hop dependencies -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>
@@ -104,45 +100,6 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito.version}</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
 </project>

@@ -63,48 +63,25 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-avro</artifactId>
             <version>${parquet.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-column</artifactId>
             <version>${parquet.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-common</artifactId>
             <version>${parquet.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.parquet</groupId>
             <artifactId>parquet-format-structures</artifactId>
             <version>${parquet.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy-agent</artifactId>
-            <version>${byte-buddy.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
@@ -120,18 +97,5 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>${mockito-core.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.objenesis</groupId>
-            <artifactId>objenesis</artifactId>
-            <version>${objenesis.version}</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 </project>

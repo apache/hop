@@ -171,13 +171,6 @@
             <version>${joda-time.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>1.12.18</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-sdks-java-core</artifactId>
             <version>${apache-beam.version}</version>
