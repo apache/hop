@@ -26,18 +26,16 @@ public class DeleteLookupField {
 
   @HopMetadataProperty(
       key = "key",
-      injectionGroupDescription = "Delete.Injection.Fields",
-      injectionKeyDescription = "Delete.Injection.Field")
+      injectionGroupKey = "KEYS",
+      injectionGroupDescription = "DeleteMeta.Injection.Fields")
   private List<DeleteKeyField> fields;
 
-  /** The target schema name */
-  @HopMetadataProperty(
-      key = "schema",
-      injectionKeyDescription = "Delete.Injection.SchemaName.Field")
+  /** The lookup schema name */
+  @HopMetadataProperty(key = "schema", injectionKeyDescription = "DeleteMeta.Injection.SchemaName")
   private String schemaName;
 
   /** The lookup table name */
-  @HopMetadataProperty(key = "table", injectionKeyDescription = "Delete.Injection.TableName.Field")
+  @HopMetadataProperty(key = "table", injectionKeyDescription = "DeleteMeta.Injection.TableName")
   private String tableName;
 
   public DeleteLookupField() {
