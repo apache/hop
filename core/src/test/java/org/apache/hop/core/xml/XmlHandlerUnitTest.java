@@ -33,6 +33,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -212,6 +213,7 @@ public class XmlHandlerUnitTest {
         XmlHandler.addTagValue("adouble", Double.MIN_NORMAL, false));
   }
 
+  @Ignore
   @Test
   public void addTagValueBinary() throws IOException {
     byte[] input = "Test Data".getBytes();

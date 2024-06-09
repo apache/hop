@@ -52,9 +52,6 @@
     </properties>
 
     <dependencies>
-
-        <!-- Azure Event Hubs -->
-
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-eventhubs</artifactId>
@@ -71,8 +68,6 @@
             <artifactId>azure-eventhubs-eph</artifactId>
             <version>${azure-eventhubs.version}</version>
         </dependency>
-        <!-- Azure VFS -->
-
         <dependency>
             <groupId>com.microsoft.azure</groupId>
             <artifactId>azure-storage</artifactId>
@@ -94,15 +89,6 @@
             <artifactId>hop-ui</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
-        </dependency>
-
-        <!-- Test and Hop dependencies -->
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>

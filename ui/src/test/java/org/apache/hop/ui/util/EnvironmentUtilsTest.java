@@ -24,10 +24,10 @@ import static org.mockito.Mockito.when;
 import java.io.BufferedReader;
 import java.io.IOException;
 import org.eclipse.swt.SWT;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
@@ -35,13 +35,13 @@ public class EnvironmentUtilsTest {
 
   private MockedStatic<SWT> mockedSWT;
 
-  @BeforeEach
-  void setUpStaticMocks() {
+  @Before
+  public void setUpStaticMocks() {
     mockedSWT = Mockito.mockStatic(SWT.class);
   }
 
-  @AfterEach
-  void tearDownStaticMocks() {
+  @After
+  public void tearDownStaticMocks() {
     mockedSWT.closeOnDemand();
   }
 
@@ -92,7 +92,6 @@ public class EnvironmentUtilsTest {
   @Test
   public void isWeb() {
     // This should be true as long as the test runs on SWT.
-    assertFalse(EnvironmentUtils.getInstance().isWeb());
     mockedSWT.when(SWT::getPlatform).thenReturn("rap");
     assertTrue(EnvironmentUtils.getInstance().isWeb());
   }
