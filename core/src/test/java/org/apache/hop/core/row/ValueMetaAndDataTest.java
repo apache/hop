@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.plugins.IPlugin;
@@ -37,7 +36,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.EnvUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -118,8 +116,6 @@ public class ValueMetaAndDataTest {
 
   @Test
   public void testLoadXml() throws HopValueException, HopPluginException, ParseException {
-    Mockito.when(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_DATE_FORMAT))
-        .thenReturn("yyyy-MM-dd HH:mm:ss.SSS");
     ValueMetaAndData valueMetaAndData =
         new ValueMetaAndData(Mockito.mock(IValueMeta.class), new Object());
     List<IPlugin> pluginTypeList = new ArrayList<>();
