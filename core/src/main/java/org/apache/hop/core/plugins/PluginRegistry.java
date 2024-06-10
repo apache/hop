@@ -65,6 +65,7 @@ public class PluginRegistry {
   private static final Class<?> PKG = PluginRegistry.class; // For Translator
 
   private static final PluginRegistry pluginRegistry = new PluginRegistry();
+  private static final String CONST_PUGIN_CLASS = "Plugin class ";
 
   private static final List<IPluginType> pluginTypes = new ArrayList<>();
   private static final List<IPluginRegistryExtension> extensions = new ArrayList<>();
@@ -567,7 +568,7 @@ public class PluginRegistry {
             //
             pluginType.handlePluginAnnotation(clazz, annotation, new ArrayList<>(), true, null);
             LogChannel.GENERAL.logBasic(
-                "Plugin class "
+                CONST_PUGIN_CLASS
                     + className
                     + " registered for plugin type '"
                     + pluginType.getName()
@@ -575,7 +576,7 @@ public class PluginRegistry {
           } else {
             if (HopLogStore.isInitialized() && LogChannel.GENERAL.isDebug()) {
               LogChannel.GENERAL.logDebug(
-                  "Plugin class "
+                  CONST_PUGIN_CLASS
                       + className
                       + " doesn't contain annotation for plugin type '"
                       + pluginType.getName()
@@ -585,7 +586,7 @@ public class PluginRegistry {
         } else {
           if (HopLogStore.isInitialized() && LogChannel.GENERAL.isDebug()) {
             LogChannel.GENERAL.logDebug(
-                "Plugin class "
+                CONST_PUGIN_CLASS
                     + className
                     + " doesn't contain valid class for plugin type '"
                     + pluginType.getName()
@@ -932,8 +933,7 @@ public class PluginRegistry {
                 } else {
                   ucl = classLoaders.get(plugin);
                   if (ucl == null) {
-                    if (plugin.getLibraries().size() == 0
-                        && plugin instanceof IClassLoadingPlugin) {
+                    if (plugin.getLibraries().isEmpty() && plugin instanceof IClassLoadingPlugin) {
                       return ((IClassLoadingPlugin) plugin).getClassLoader();
                     }
                     ucl = createClassLoader(plugin);

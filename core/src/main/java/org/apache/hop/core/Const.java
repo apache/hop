@@ -98,6 +98,9 @@ public class Const {
     public abstract String getMessage();
   }
 
+  private static final String CONST_WINDOWS = "Windows";
+  private static final String CONST_LINUX = "Linux";
+
   /** Sleep time waiting when buffer is empty (the default) */
   public static final int TIMEOUT_GET_MILLIS = 50;
 
@@ -207,22 +210,25 @@ public class Const {
   public static final int LENGTH = 350;
 
   /**
-   * The margin between the different dialog components & widgets. This method is deprecated. Please
-   * use PropsUi.getMargin() instead.
+   * @deprecated The margin between the different dialog components & widgets. This method is
+   *     deprecated. Please use PropsUi.getMargin() instead.
    */
-  @Deprecated public static final int MARGIN = 4;
+  @Deprecated(since = "2.10")
+  public static final int MARGIN = 4;
 
   /**
-   * The default percentage of the width of screen where we consider the middle of a dialog. This
-   * method is deprecated. Please use PropsUi.getMiddlePct() instead.
+   * @deprecated The default percentage of the width of screen where we consider the middle of a
+   *     dialog. This method is deprecated. Please use PropsUi.getMiddlePct() instead.
    */
-  @Deprecated public static final int MIDDLE_PCT = 35;
+  @Deprecated(since = "2.10")
+  public static final int MIDDLE_PCT = 35;
 
   /**
-   * The horizontal and vertical margin of a dialog box. This method is deprecated. Please use
-   * PropsUi.getFormMargin() instead.
+   * @deprecated The horizontal and vertical margin of a dialog box. This method is deprecated.
+   *     Please use PropsUi.getFormMargin() instead.
    */
-  @Deprecated public static final int FORM_MARGIN = 5;
+  @Deprecated(since = "2.10")
+  public static final int FORM_MARGIN = 5;
 
   /** The default locale for the hop environment (system defined) */
   public static final Locale DEFAULT_LOCALE = Locale.getDefault();
@@ -1396,14 +1402,14 @@ public class Const {
    * @return True if the OS is a Windows derivate.
    */
   public static boolean isWindows() {
-    return getHopPlatformOs().startsWith("Windows") || getSystemOs().startsWith("Windows");
+    return getHopPlatformOs().startsWith(CONST_WINDOWS) || getSystemOs().startsWith(CONST_WINDOWS);
   }
 
   /**
    * @return True if the OS is a Linux derivate.
    */
   public static boolean isLinux() {
-    return getHopPlatformOs().startsWith("Linux") || getSystemOs().startsWith("Linux");
+    return getHopPlatformOs().startsWith(CONST_LINUX) || getSystemOs().startsWith(CONST_LINUX);
   }
 
   /**
@@ -1565,7 +1571,7 @@ public class Const {
         || os.equalsIgnoreCase("Windows 95")
         || os.equalsIgnoreCase("Windows 98")
         || os.equalsIgnoreCase("Windows Me")
-        || os.startsWith("Windows")) {
+        || os.startsWith(CONST_WINDOWS)) {
       try {
         Process p = Runtime.getRuntime().exec("nbtstat -a " + ip);
 
@@ -1584,7 +1590,7 @@ public class Const {
       } catch (Exception e) {
         errorOccured = true;
       }
-    } else if (os.equalsIgnoreCase("Linux")) {
+    } else if (os.equalsIgnoreCase(CONST_LINUX)) {
       try {
         Process p = Runtime.getRuntime().exec("/sbin/ifconfig -a");
 

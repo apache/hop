@@ -43,6 +43,10 @@ public class ResultFile implements Cloneable {
   public static final int FILE_TYPE_ERRORLINE = 2;
   public static final int FILE_TYPE_ERROR = 3;
   public static final int FILE_TYPE_WARNING = 4;
+  private static final String CONST_PARENT_ORIGIN = "parentorigin";
+  private static final String CONST_ORIGIN = "origin";
+  private static final String CONST_COMMENT = "comment";
+  private static final String CONST_TIMESTAMP = "timestamp";
 
   public static final String[] fileTypeCode = {"GENERAL", "LOG", "ERRORLINE", "ERROR", "WARNING"};
 
@@ -250,16 +254,16 @@ public class ResultFile implements Cloneable {
     row.addValue(new ValueMetaString("path"), file.getName().getURI());
 
     // The origin parent
-    row.addValue(new ValueMetaString("parentorigin"), originParent);
+    row.addValue(new ValueMetaString(CONST_PARENT_ORIGIN), originParent);
 
     // The origin
-    row.addValue(new ValueMetaString("origin"), origin);
+    row.addValue(new ValueMetaString(CONST_ORIGIN), origin);
 
     // The comment
-    row.addValue(new ValueMetaString("comment"), comment);
+    row.addValue(new ValueMetaString(CONST_COMMENT), comment);
 
     // The timestamp
-    row.addValue(new ValueMetaDate("timestamp"), timestamp);
+    row.addValue(new ValueMetaDate(CONST_TIMESTAMP), timestamp);
 
     return row;
   }
@@ -272,10 +276,10 @@ public class ResultFile implements Cloneable {
 
     xml.append(XmlHandler.addTagValue("type", getTypeCode()));
     xml.append(XmlHandler.addTagValue("file", file.getName().toString()));
-    xml.append(XmlHandler.addTagValue("parentorigin", originParent));
-    xml.append(XmlHandler.addTagValue("origin", origin));
-    xml.append(XmlHandler.addTagValue("comment", comment));
-    xml.append(XmlHandler.addTagValue("timestamp", timestamp));
+    xml.append(XmlHandler.addTagValue(CONST_PARENT_ORIGIN, originParent));
+    xml.append(XmlHandler.addTagValue(CONST_ORIGIN, origin));
+    xml.append(XmlHandler.addTagValue(CONST_COMMENT, comment));
+    xml.append(XmlHandler.addTagValue(CONST_TIMESTAMP, timestamp));
 
     xml.append(XmlHandler.closeTag(XML_TAG));
 
@@ -286,16 +290,16 @@ public class ResultFile implements Cloneable {
     try {
       type = getType(XmlHandler.getTagValue(node, "type"));
       file = HopVfs.getFileObject(XmlHandler.getTagValue(node, "file"));
-      originParent = XmlHandler.getTagValue(node, "parentorigin");
-      origin = XmlHandler.getTagValue(node, "origin");
-      comment = XmlHandler.getTagValue(node, "comment");
-      timestamp = XmlHandler.stringToDate(XmlHandler.getTagValue(node, "timestamp"));
+      originParent = XmlHandler.getTagValue(node, CONST_PARENT_ORIGIN);
+      origin = XmlHandler.getTagValue(node, CONST_ORIGIN);
+      comment = XmlHandler.getTagValue(node, CONST_COMMENT);
+      timestamp = XmlHandler.stringToDate(XmlHandler.getTagValue(node, CONST_TIMESTAMP));
     } catch (Exception e) {
       throw new HopFileException(e);
     }
   }
 
-  public static enum FileType implements IEnumHasCodeAndDescription {
+  public enum FileType implements IEnumHasCodeAndDescription {
     GENERAL(
         "GENERAL", BaseMessages.getString(PKG, "ResultFile.FileType.General"), FILE_TYPE_GENERAL),
     LOG("LOG", BaseMessages.getString(PKG, "ResultFile.FileType.Log"), FILE_TYPE_LOG),

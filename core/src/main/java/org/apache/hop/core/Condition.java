@@ -74,8 +74,10 @@ import org.w3c.dom.Node;
 public class Condition implements Cloneable {
   public static final String XML_TAG = "condition";
 
+  private static final String CONST_OR_NOT = "OR NOT";
+  private static final String CONST_AND_NOT = "AND NOT";
   public static final String[] operators =
-      new String[] {"-", "OR", "AND", "NOT", "OR NOT", "AND NOT", "XOR"};
+      new String[] {"-", "OR", "AND", "NOT", CONST_OR_NOT, CONST_AND_NOT, "XOR"};
   public static final int OPERATOR_NONE = 0;
   public static final int OPERATOR_OR = 1;
   public static final int OPERATOR_AND = 2;
@@ -258,7 +260,7 @@ public class Condition implements Cloneable {
   }
 
   public static final String[] getRealOperators() {
-    return new String[] {"OR", "AND", "OR NOT", "AND NOT", "XOR"};
+    return new String[] {"OR", "AND", CONST_OR_NOT, CONST_AND_NOT, "XOR"};
   }
 
   public void setLeftValueName(String leftValueName) {
@@ -568,7 +570,7 @@ public class Condition implements Cloneable {
     return evaluation;
   }
 
-  public void addCondition(Condition cb) throws HopValueException {
+  public void addCondition(Condition cb) {
     if (isAtomic() && getLeftValueName() != null) {
       /*
        * Copy current atomic setup...
@@ -586,7 +588,7 @@ public class Condition implements Cloneable {
     children.add(cb);
   }
 
-  public void addCondition(int idx, Condition cb) throws HopValueException {
+  public void addCondition(int idx, Condition cb) {
     if (isAtomic() && getLeftValueName() != null) {
       /*
        * Copy current atomic setup...
@@ -1049,8 +1051,8 @@ public class Condition implements Cloneable {
     OR("OR", OPERATOR_OR),
     AND("AND", OPERATOR_AND),
     NOT("NOT", OPERATOR_NOT),
-    OR_NOT("OR NOT", OPERATOR_OR_NOT),
-    AND_NOT("AND NOT", OPERATOR_AND_NOT),
+    OR_NOT(Condition.CONST_OR_NOT, OPERATOR_OR_NOT),
+    AND_NOT(Condition.CONST_AND_NOT, OPERATOR_AND_NOT),
     XOR("XOR", OPERATOR_XOR);
     private final String code;
     private final int type;
