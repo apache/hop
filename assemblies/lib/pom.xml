@@ -131,6 +131,18 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>net.sf.flexjson</groupId>
             <artifactId>flexjson</artifactId>
             <version>${flexjson.version}</version>
@@ -146,7 +158,6 @@
             <artifactId>hadoop-hdfs-client</artifactId>
             <version>${hadoop.version}</version>
         </dependency>
-        <!-- hop -->
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-core</artifactId>

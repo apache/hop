@@ -53,6 +53,11 @@
                 <include>org.apache.groovy:groovy:jar</include>
                 <include>org.apache.groovy:groovy-jsr223:jar</include>
                 <include>org.python:jython-standalone:jar</include>
+                <include>org.openjdk.nashorn:nashorn-core:jar</include>
+                <include>org.ow2.asm:asm:jar</include>
+                <include>org.ow2.asm:asm-commons:jar</include>
+                <include>org.ow2.asm:asm-tree:jar</include>
+                <include>org.ow2.asm:asm-util:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

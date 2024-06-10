@@ -85,7 +85,8 @@ RUN chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
   && cd ${DEPLOYMENT_PATH}/hop \
   && ./hop-conf.sh --generate-fat-jar=/tmp/hop-fatjar.jar \
   # Download the Vertica JDBC driver
-  && wget -c https://repo1.maven.org/maven2/com/vertica/jdbc/vertica-jdbc/23.4.0-0/vertica-jdbc-23.4.0-0.jar -O /opt/hop/lib/jdbc/vertica-jdbc-23.4.0-0.jar
+  && wget -c https://repo1.maven.org/maven2/com/vertica/jdbc/vertica-jdbc/23.4.0-0/vertica-jdbc-23.4.0-0.jar -O /opt/hop/lib/jdbc/vertica-jdbc-23.4.0-0.jar \
+  && wget -c https://repo1.maven.org/maven2/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar -O /opt/hop/plugins/transforms/script/lib/nashorn-core-15.4.jar
 
 # make volume available so that hop pipeline and workflow files can be provided easily
 VOLUME ["/files"]
@@ -95,3 +96,5 @@ ENV GOOGLE_APPLICATION_CREDENTIALS="/tmp/google-key-apache-hop-it.json"
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []
+
+
