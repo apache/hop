@@ -105,6 +105,7 @@ public class ScriptUtils {
       System.setProperty(
           "org.jruby.embed.localvariable.behavior",
           "persistent"); // required for JRuby, transparent
+      System.setProperty("nashorn.args", "--language=es6");
       // for others
       scriptEngineManager = new ScriptEngineManager(ScriptUtils.class.getClassLoader());
     }
