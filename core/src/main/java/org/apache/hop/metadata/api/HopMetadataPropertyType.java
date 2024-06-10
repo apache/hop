@@ -5,6 +5,7 @@ public enum HopMetadataPropertyType {
   NONE,
   FIELD_LIST,
   FILE_PATH,
+  FILE_REFERENCE,
   FILE_NAME,
   FILE_WILDCARD,
   FILE_ENCODING,
