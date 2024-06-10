@@ -49,6 +49,7 @@ Most of the times you can replace ctrl with cmd.
 |DEL|Delete an object
 |Alt + <-|Navigate to the previous file
 |Alt + ->|Navigate to the next file
+|Alt + o|Close the current dialog (similar to pressing the `Ok` button)
 |F8|Execute work item
 |===
 
