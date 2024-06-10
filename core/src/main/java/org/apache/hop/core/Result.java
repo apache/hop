@@ -562,7 +562,7 @@ public class Result implements Cloneable {
 
     // The high level results...
     //
-    xml.append(XmlHandler.addTagValue("result", result));
+    xml.append(XmlHandler.addTagValue(XML_TAG, result));
     xml.append(XmlHandler.addTagValue("exit_status", exitStatus));
     xml.append(XmlHandler.addTagValue("is_stopped", stopped));
     xml.append(XmlHandler.addTagValue("log_channel_id", logChannelId));
@@ -607,7 +607,7 @@ public class Result implements Cloneable {
 
     // The high level results...
     //
-    result = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "result"));
+    result = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, XML_TAG));
     exitStatus = Integer.parseInt(XmlHandler.getTagValue(node, "exit_status"));
     stopped = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "is_stopped"));
 

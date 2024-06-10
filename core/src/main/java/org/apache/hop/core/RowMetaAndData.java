@@ -31,8 +31,8 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 
 public class RowMetaAndData implements Cloneable {
   private IRowMeta rowMeta;
-
   private Object[] data;
+  private static final String CONST_UNKNOWN_COLUMN = "Unknown column '";
 
   public RowMetaAndData() {
     clear();
@@ -141,7 +141,7 @@ public class RowMetaAndData implements Cloneable {
   public long getInteger(String valueName, long def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getInteger(idx, def);
   }
@@ -157,7 +157,7 @@ public class RowMetaAndData implements Cloneable {
   public Long getInteger(String valueName) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return rowMeta.getInteger(data, idx);
   }
@@ -169,7 +169,7 @@ public class RowMetaAndData implements Cloneable {
   public double getNumber(String valueName, double def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getNumber(idx, def);
   }
@@ -185,7 +185,7 @@ public class RowMetaAndData implements Cloneable {
   public Date getDate(String valueName, Date def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getDate(idx, def);
   }
@@ -201,7 +201,7 @@ public class RowMetaAndData implements Cloneable {
   public BigDecimal getBigNumber(String valueName, BigDecimal def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getBigNumber(idx, def);
   }
@@ -217,7 +217,7 @@ public class RowMetaAndData implements Cloneable {
   public boolean getBoolean(String valueName, boolean def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getBoolean(idx, def);
   }
@@ -233,7 +233,7 @@ public class RowMetaAndData implements Cloneable {
   public String getString(String valueName, String def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getString(idx, def);
   }
@@ -249,7 +249,7 @@ public class RowMetaAndData implements Cloneable {
   public byte[] getBinary(String valueName, byte[] def) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
     return getBinary(idx, def);
   }
@@ -281,7 +281,7 @@ public class RowMetaAndData implements Cloneable {
   public boolean isEmptyValue(String valueName) throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
 
     IValueMeta metaType = rowMeta.getValueMeta(idx);
@@ -339,7 +339,7 @@ public class RowMetaAndData implements Cloneable {
       throws HopValueException {
     int idx = rowMeta.indexOfValue(valueName);
     if (idx < 0) {
-      throw new HopValueException("Unknown column '" + valueName + "'");
+      throw new HopValueException(CONST_UNKNOWN_COLUMN + valueName + "'");
     }
 
     IValueMeta metaType = rowMeta.getValueMeta(idx);

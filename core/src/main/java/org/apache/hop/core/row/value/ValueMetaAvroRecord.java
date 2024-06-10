@@ -52,6 +52,9 @@ import org.json.simple.parser.JSONParser;
 public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
   private Schema schema;
+  private static final String CONST_SCHEMA = "schema";
+  private static final String CONST_SPECIFIED = " specified.";
+  private static final String CONST_UNKNOWN_STORAGE_TYPE = " : Unknown storage type ";
 
   public ValueMetaAvroRecord() {
     super(null, IValueMeta.TYPE_AVRO);
@@ -153,7 +156,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
       // Convert schema AND data to JSON...
       //
       JSONObject json = (JSONObject) new JSONParser().parse(jsonString);
-      JSONObject schemaObject = (JSONObject) json.get("schema");
+      JSONObject schemaObject = (JSONObject) json.get(CONST_SCHEMA);
       JSONObject dataObject = (JSONObject) json.get("data");
 
       Schema schema = new Schema.Parser().parse(schemaObject.toJSONString());
@@ -192,7 +195,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           if (string != null) {
             string = trim(string);
@@ -237,7 +240,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           break;
 
@@ -254,7 +257,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break; // just go for the default toString()
             default:
               throw new HopValueException(
-                  toString() + " : Unknown storage type " + storageType + " specified.");
+                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           break;
 
@@ -274,7 +277,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
           break;
 
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+          throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
       }
 
       if (isOutputPaddingEnabled() && getLength() > 0) {
@@ -376,7 +379,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
     if (schema != null) {
       xml.append(
           XmlHandler.addTagValue(
-              "schema", HttpUtil.encodeBase64ZippedString(schema.toString(false))));
+              CONST_SCHEMA, HttpUtil.encodeBase64ZippedString(schema.toString(false))));
     }
     xml.append(XmlHandler.closeTag(XML_META_TAG));
 
@@ -394,7 +397,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
       if (schema != null) {
         String schemaJson = schema.toString(false);
         Object jSchema = new JSONParser().parse(schemaJson);
-        jValue.put("schema", jSchema);
+        jValue.put(CONST_SCHEMA, jSchema);
       }
     } catch (Exception e) {
       throw new HopException(
@@ -410,7 +413,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
     // Load the schema (if any)...
     //
-    Object jSchema = jValue.get("schema");
+    Object jSchema = jValue.get(CONST_SCHEMA);
     if (jSchema != null) {
       String schemaJson = ((JSONObject) jSchema).toJSONString();
       schema = new Schema.Parser().parse(schemaJson);

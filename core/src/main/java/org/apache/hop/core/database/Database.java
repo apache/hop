@@ -106,6 +106,15 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private final DatabaseMeta databaseMeta;
 
   private static final String DATA_SERVICES_PLUGIN_ID = "HopThin";
+  private static final String CONST_INOUT = "INOUT";
+  private static final String CONST_BETWEEN = "BETWEEN";
+  private static final String CONST_IS_NULL = "IS NULL";
+  private static final String CONST_IS_NOT_NULL = "IS NULL";
+  private static final String CONST_BETWEEN_AND = " BETWEEN ? AND ? ";
+  private static final String CONST_TRUNCATE_NOT_SUPPORTED = "Truncate table not supported by ";
+  private static final String CONST_TABLE_CAT = "TABLE_CAT";
+  private static final String CONST_TABLE_SCHEM = "TABLE_SCHEM";
+  private static final String CONST_READ = "read :";
 
   private int rowlimit;
   private int commitsize;
@@ -883,7 +892,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     for (int i = 0; i < argnrs.length; i++) {
-      if (argdir[i].equalsIgnoreCase("IN") || argdir[i].equalsIgnoreCase("INOUT")) {
+      if (argdir[i].equalsIgnoreCase("IN") || argdir[i].equalsIgnoreCase(CONST_INOUT)) {
         IValueMeta valueMeta = rowMeta.getValueMeta(argnrs[i]);
         Object value = data[argnrs[i]];
 
@@ -2550,10 +2559,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           sql += " AND ";
         }
         sql += databaseMeta.quoteField(codes[i]);
-        if ("BETWEEN".equalsIgnoreCase(condition[i])) {
-          sql += " BETWEEN ? AND ? ";
-        } else if ("IS NULL".equalsIgnoreCase(condition[i])
-            || "IS NOT NULL".equalsIgnoreCase(condition[i])) {
+        if (CONST_BETWEEN.equalsIgnoreCase(condition[i])) {
+          sql += CONST_BETWEEN_AND;
+        } else if (CONST_IS_NULL.equalsIgnoreCase(condition[i])
+            || CONST_IS_NOT_NULL.equalsIgnoreCase(condition[i])) {
           sql += " " + condition[i] + " ";
         } else {
           sql += " " + condition[i] + " ? ";
@@ -2612,10 +2621,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           sql.append("AND   ");
         }
         sql.append(databaseMeta.quoteField(codes[i]));
-        if ("BETWEEN".equalsIgnoreCase(condition[i])) {
-          sql.append(" BETWEEN ? AND ? ");
-        } else if ("IS NULL".equalsIgnoreCase(condition[i])
-            || "IS NOT NULL".equalsIgnoreCase(condition[i])) {
+        if (CONST_BETWEEN.equalsIgnoreCase(condition[i])) {
+          sql.append(CONST_BETWEEN_AND);
+        } else if (CONST_IS_NULL.equalsIgnoreCase(condition[i])
+            || CONST_IS_NOT_NULL.equalsIgnoreCase(condition[i])) {
           sql.append(' ').append(condition[i]).append(' ');
         } else {
           sql.append(' ').append(condition[i]).append(" ? ");
@@ -2676,10 +2685,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           sql += "AND   ";
         }
         sql += codes[i];
-        if ("BETWEEN".equalsIgnoreCase(condition[i])) {
-          sql += " BETWEEN ? AND ? ";
-        } else if ("IS NULL".equalsIgnoreCase(condition[i])
-            || "IS NOT NULL".equalsIgnoreCase(condition[i])) {
+        if (CONST_BETWEEN.equalsIgnoreCase(condition[i])) {
+          sql += CONST_BETWEEN_AND;
+        } else if (CONST_IS_NULL.equalsIgnoreCase(condition[i])
+            || CONST_IS_NOT_NULL.equalsIgnoreCase(condition[i])) {
           sql += " " + condition[i] + " ";
         } else {
           sql += " " + condition[i] + " ? ";
@@ -2765,7 +2774,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           pos++;
         }
         for (int i = 0; i < arg.length; i++) {
-          if (argdir[i].equalsIgnoreCase("OUT") || argdir[i].equalsIgnoreCase("INOUT")) {
+          if (argdir[i].equalsIgnoreCase("OUT") || argdir[i].equalsIgnoreCase(CONST_INOUT)) {
             switch (argtype[i]) {
               case IValueMeta.TYPE_NUMBER:
                 cstmt.registerOutParameter(i + pos, java.sql.Types.DOUBLE);
@@ -3060,7 +3069,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       String truncateStatement = databaseMeta.getTruncateTableStatement(this, null, tableName);
       if (truncateStatement == null) {
         throw new HopDatabaseException(
-            "Truncate table not supported by " + databaseMeta.getIDatabase().getPluginName());
+            CONST_TRUNCATE_NOT_SUPPORTED + databaseMeta.getIDatabase().getPluginName());
       }
       execStatement(truncateStatement);
     } else {
@@ -3073,7 +3082,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       String truncateStatement = databaseMeta.getTruncateTableStatement(this, schema, tableName);
       if (truncateStatement == null) {
         throw new HopDatabaseException(
-            "Truncate table not supported by " + databaseMeta.getIDatabase().getPluginName());
+            CONST_TRUNCATE_NOT_SUPPORTED + databaseMeta.getIDatabase().getPluginName());
       }
       execStatement(truncateStatement);
     } else {
@@ -3192,30 +3201,26 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         IValueMeta val;
 
         switch (sqltype) {
-          case java.sql.Types.CHAR:
-          case java.sql.Types.VARCHAR:
+          case java.sql.Types.CHAR, java.sql.Types.VARCHAR:
             val = new ValueMetaString(name);
             break;
-          case java.sql.Types.BIGINT:
-          case java.sql.Types.INTEGER:
-          case java.sql.Types.NUMERIC:
-          case java.sql.Types.SMALLINT:
-          case java.sql.Types.TINYINT:
+          case java.sql.Types.BIGINT,
+              java.sql.Types.INTEGER,
+              java.sql.Types.NUMERIC,
+              java.sql.Types.SMALLINT,
+              java.sql.Types.TINYINT:
             val = new ValueMetaInteger(name);
             break;
-          case java.sql.Types.DECIMAL:
-          case java.sql.Types.DOUBLE:
-          case java.sql.Types.FLOAT:
-          case java.sql.Types.REAL:
+          case java.sql.Types.DECIMAL,
+              java.sql.Types.DOUBLE,
+              java.sql.Types.FLOAT,
+              java.sql.Types.REAL:
             val = new ValueMetaNumber(name);
             break;
-          case java.sql.Types.DATE:
-          case java.sql.Types.TIME:
-          case java.sql.Types.TIMESTAMP:
+          case java.sql.Types.DATE, java.sql.Types.TIME, java.sql.Types.TIMESTAMP:
             val = new ValueMetaDate(name);
             break;
-          case java.sql.Types.BOOLEAN:
-          case java.sql.Types.BIT:
+          case java.sql.Types.BOOLEAN, java.sql.Types.BIT:
             val = new ValueMetaBoolean(name);
             break;
           default:
@@ -3562,7 +3567,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       while (alltables.next()) {
         String cat = "";
         try {
-          cat = alltables.getString("TABLE_CAT");
+          cat = alltables.getString(CONST_TABLE_CAT);
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
@@ -3572,7 +3577,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         String schema = "";
         try {
-          schema = alltables.getString("TABLE_SCHEM");
+          schema = alltables.getString(CONST_TABLE_SCHEM);
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
@@ -3625,7 +3630,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     if (log.isDetailed()) {
-      log.logDetailed("read :" + multimapSize(tableMap) + " table names from db meta-data.");
+      log.logDetailed(CONST_READ + multimapSize(tableMap) + " table names from db meta-data.");
     }
 
     return tableMap;
@@ -3679,7 +3684,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       while (allviews.next()) {
         String cat = "";
         try {
-          cat = allviews.getString("TABLE_CAT");
+          cat = allviews.getString(CONST_TABLE_CAT);
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
@@ -3689,7 +3694,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         String schema = "";
         try {
-          schema = allviews.getString("TABLE_SCHEM");
+          schema = allviews.getString(CONST_TABLE_SCHEM);
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
@@ -3725,7 +3730,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     if (log.isDetailed()) {
-      log.logDetailed("read :" + multimapSize(viewMap) + " views from db meta-data.");
+      log.logDetailed(CONST_READ + multimapSize(viewMap) + " views from db meta-data.");
     }
 
     return viewMap;
@@ -3779,7 +3784,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       while (alltables.next()) {
         String cat = "";
         try {
-          cat = alltables.getString("TABLE_CAT");
+          cat = alltables.getString(CONST_TABLE_CAT);
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
@@ -3789,7 +3794,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
         String schema = "";
         try {
-          schema = alltables.getString("TABLE_SCHEM");
+          schema = alltables.getString(CONST_TABLE_SCHEM);
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
@@ -3825,7 +3830,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     if (log.isDetailed()) {
-      log.logDetailed("read :" + multimapSize(synonymMap) + " synonyms from db meta-data.");
+      log.logDetailed(CONST_READ + multimapSize(synonymMap) + " synonyms from db meta-data.");
     }
 
     return synonymMap;
@@ -3870,7 +3875,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     if (log.isDetailed()) {
-      log.logDetailed("read :" + catalogList.size() + " schemas from db meta-data.");
+      log.logDetailed(CONST_READ + catalogList.size() + " schemas from db meta-data.");
     }
 
     return catalogList.toArray(new String[catalogList.size()]);
@@ -3898,7 +3903,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     }
 
     if (log.isDetailed()) {
-      log.logDetailed("read :" + catalogList.size() + " catalogs from db meta-data.");
+      log.logDetailed(CONST_READ + catalogList.size() + " catalogs from db meta-data.");
     }
 
     return catalogList.toArray(new String[catalogList.size()]);
@@ -4197,7 +4202,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         pos++;
       }
       for (int i = 0; i < arg.length; i++) {
-        if (argdir[i].equalsIgnoreCase("OUT") || argdir[i].equalsIgnoreCase("INOUT")) {
+        if (argdir[i].equalsIgnoreCase("OUT") || argdir[i].equalsIgnoreCase(CONST_INOUT)) {
           IValueMeta vMeta = ValueMetaFactory.createValueMeta(arg[i], argtype[i]);
           Object v = null;
           switch (argtype[i]) {
@@ -4322,7 +4327,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       String truncateStatement = databaseMeta.getTruncateTableStatement(this, schema, tableName);
       if (truncateStatement == null) {
         throw new HopDatabaseException(
-            "Truncate table not supported by " + databaseMeta.getIDatabase().getPluginName());
+            CONST_TRUNCATE_NOT_SUPPORTED + databaseMeta.getIDatabase().getPluginName());
       }
       return truncateStatement;
     } else {
@@ -4380,8 +4385,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           // Normal cases...
           //
           switch (valueMeta.getType()) {
-            case IValueMeta.TYPE_BOOLEAN:
-            case IValueMeta.TYPE_STRING:
+            case IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_STRING:
               String string = valueMeta.getString(valueData);
               // Have the database dialect do the quoting.
               // This also adds the single quotes around the string (thanks to

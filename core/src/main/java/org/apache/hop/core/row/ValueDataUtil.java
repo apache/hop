@@ -52,6 +52,8 @@ import org.apache.hop.core.xml.XmlCheck;
 public class ValueDataUtil {
 
   private static final Log log = LogFactory.getLog(ValueDataUtil.class);
+  private static final String CONST_ROUND_ONLY_WORK_ON_NUMERIC =
+      "The 'round' function only works on numeric data";
 
   /**
    * System property sets rounding mode of calculator's function ROUND(A,B)
@@ -995,7 +997,7 @@ public class ValueDataUtil {
         return new BigDecimal(Math.round(metaA.getNumber(dataA).doubleValue()));
 
       default:
-        throw new HopValueException("The 'round' function only works on numeric data");
+        throw new HopValueException(CONST_ROUND_ONLY_WORK_ON_NUMERIC);
     }
   }
 
@@ -1023,7 +1025,7 @@ public class ValueDataUtil {
       case IValueMeta.TYPE_BIGNUMBER:
         return Const.round(metaA.getBigNumber(dataA), 0, roundingMode);
       default:
-        throw new HopValueException("The 'round' function only works on numeric data");
+        throw new HopValueException(CONST_ROUND_ONLY_WORK_ON_NUMERIC);
     }
   }
 
@@ -1079,7 +1081,7 @@ public class ValueDataUtil {
         return Const.round(
             metaA.getBigNumber(dataA), metaB.getInteger(dataB).intValue(), roundingMode);
       default:
-        throw new HopValueException("The 'round' function only works on numeric data");
+        throw new HopValueException(CONST_ROUND_ONLY_WORK_ON_NUMERIC);
     }
   }
 

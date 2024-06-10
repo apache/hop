@@ -27,6 +27,9 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 
 public class SpeedTest {
+  private static final String CONST_TIMES = " times : ";
+  private static final String CONST_MS = " ms (";
+  private static final String CONST_RS = " r/s)";
   private Object[] rowString10;
   private Object[] rowString100;
   private Object[] rowString1000;
@@ -180,6 +183,7 @@ public class SpeedTest {
 
   public static final int ITERATIONS = 1000000;
 
+  @SuppressWarnings("java:S106")
   public static void main(String[] args) throws HopValueException {
     SpeedTest speedTest = new SpeedTest();
 
@@ -187,60 +191,60 @@ public class SpeedTest {
     System.out.println(
         "Time to run 'String10' test "
             + ITERATIONS
-            + " times : "
+            + CONST_TIMES
             + timeString10
-            + " ms ("
+            + CONST_MS
             + (1000 * ITERATIONS / timeString10)
-            + " r/s)");
+            + CONST_RS);
     long timeMixed10 = speedTest.runTestMixed10(ITERATIONS);
     System.out.println(
         "Time to run 'Mixed10' test "
             + ITERATIONS
-            + " times : "
+            + CONST_TIMES
             + timeMixed10
-            + " ms ("
+            + CONST_MS
             + (1000 * ITERATIONS / timeMixed10)
-            + " r/s)");
+            + CONST_RS);
     System.out.println();
 
     long timeString100 = speedTest.runTestStrings100(ITERATIONS);
     System.out.println(
         "Time to run 'String100' test "
             + ITERATIONS
-            + " times : "
+            + CONST_TIMES
             + timeString100
-            + " ms ("
+            + CONST_MS
             + (1000 * ITERATIONS / timeString100)
-            + " r/s)");
+            + CONST_RS);
     long timeMixed100 = speedTest.runTestMixed100(ITERATIONS);
     System.out.println(
         "Time to run 'Mixed100' test "
             + ITERATIONS
-            + " times : "
+            + CONST_TIMES
             + timeMixed100
-            + " ms ("
+            + CONST_MS
             + (1000 * ITERATIONS / timeMixed100)
-            + " r/s)");
+            + CONST_RS);
     System.out.println();
 
     long timeString1000 = speedTest.runTestStrings1000(ITERATIONS);
     System.out.println(
         "Time to run 'String1000' test "
             + ITERATIONS
-            + " times : "
+            + CONST_TIMES
             + timeString1000
-            + " ms ("
+            + CONST_MS
             + (1000 * ITERATIONS / timeString1000)
-            + " r/s)");
+            + CONST_RS);
     long timeMixed1000 = speedTest.runTestMixed1000(ITERATIONS);
     System.out.println(
         "Time to run 'Mixed1000' test "
             + ITERATIONS
-            + " times : "
+            + CONST_TIMES
             + timeMixed1000
-            + " ms ("
+            + CONST_MS
             + (1000 * ITERATIONS / timeMixed1000)
-            + " r/s)");
+            + CONST_RS);
     System.out.println();
   }
 }

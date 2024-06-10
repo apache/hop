@@ -59,6 +59,9 @@ public class ValueMetaTimestamp extends ValueMetaDate {
     super(name, IValueMeta.TYPE_TIMESTAMP);
   }
 
+  private static final String CONST_SPECIFIED = " specified.";
+  private static final String CONST_UNKNOWN_TYPE = " : Unknown storage type ";
+
   @Override
   public boolean isDate() {
     return true;
@@ -132,7 +135,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             return (Timestamp) index[((Integer) object).intValue()];
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -145,7 +148,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             return convertStringToTimestamp((String) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_NUMBER:
         switch (storageType) {
@@ -158,7 +161,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             return convertNumberToTimestamp((Double) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_INTEGER:
         switch (storageType) {
@@ -171,7 +174,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             return convertIntegerToTimestamp((Long) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BIGNUMBER:
         switch (storageType) {
@@ -184,7 +187,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             return convertBigNumberToTimestamp((BigDecimal) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BOOLEAN:
         throw new HopValueException(
@@ -197,7 +200,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             toString() + " : I don't know how to convert a serializable value to timestamp.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+        throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
     }
   }
 
@@ -584,7 +587,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
         return convertStringToBinaryString(getString(index[((Integer) object).intValue()]));
       default:
         throw new HopValueException(
-            toString() + " : Unknown storage type " + storageType + " specified.");
+            toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
     }
   }
 
@@ -619,7 +622,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             break;
 
           default:
-            throw new HopFileException(toString() + " : Unknown storage type " + getStorageType());
+            throw new HopFileException(toString() + CONST_UNKNOWN_TYPE + getStorageType());
         }
       }
     } catch (ClassCastException e) {
@@ -673,7 +676,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           return readSmallInteger(inputStream); // just an index: 4-bytes should be enough.
 
         default:
-          throw new HopFileException(toString() + " : Unknown storage type " + getStorageType());
+          throw new HopFileException(toString() + CONST_UNKNOWN_TYPE + getStorageType());
       }
     } catch (EOFException e) {
       throw new HopEofException(e);

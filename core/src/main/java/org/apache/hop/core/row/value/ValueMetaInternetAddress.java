@@ -41,6 +41,8 @@ import org.apache.hop.core.variables.IVariables;
     description = "Internet Address",
     image = "images/inet.svg")
 public class ValueMetaInternetAddress extends ValueMetaDate {
+  private static final String CONST_SPECIFIED = " specified.";
+  private static final String CONST_UNKNOWN_TYPE = " : Unknown storage type ";
 
   @Override
   public int compare(Object data1, Object data2) throws HopValueException {
@@ -91,7 +93,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
             return (InetAddress) index[((Integer) object)];
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -104,7 +106,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
             return convertStringToInternetAddress((String) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_NUMBER:
         switch (storageType) {
@@ -117,7 +119,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
             return convertNumberToInternetAddress((Double) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_INTEGER:
         switch (storageType) {
@@ -130,7 +132,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
             return convertIntegerToInternetAddress((Long) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BIGNUMBER:
         switch (storageType) {
@@ -144,7 +146,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
                 (BigDecimal) index[((Integer) object).intValue()]);
           default:
             throw new HopValueException(
-                toString() + " : Unknown storage type " + storageType + " specified.");
+                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BOOLEAN:
         throw new HopValueException(
@@ -158,7 +160,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
                 + " : I don't know how to convert a serializable value to Internet address.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + " specified.");
+        throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
     }
   }
 
@@ -248,7 +250,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
             convertInternetAddressToString((InetAddress) index[((Integer) object)]));
       default:
         throw new HopValueException(
-            toString() + " : Unknown storage type " + storageType + " specified.");
+            toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
     }
   }
 
@@ -310,8 +312,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     }
   }
 
-  protected synchronized String convertInternetAddressToString(InetAddress inetAddress)
-      throws HopValueException {
+  protected synchronized String convertInternetAddressToString(InetAddress inetAddress) {
 
     if (inetAddress == null) {
       return null;

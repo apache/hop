@@ -39,6 +39,8 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
   private static final String DEFAULT_DATE_FORMAT = ValueMetaBase.DEFAULT_DATE_FORMAT_MASK;
   private SimpleDateFormat datePattern = new SimpleDateFormat(DEFAULT_DATE_FORMAT);
   private int precision = 0;
+  private static final String CONST_VALUE = "'.    value = '";
+  private static final String CONST_PERIOD = "'.";
 
   public SimpleDateFormat getDatePattern() {
     return datePattern;
@@ -104,9 +106,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type string.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
     String stringValue = (String) value;
 
@@ -161,9 +163,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type Date.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -196,9 +198,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type Double.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -237,9 +239,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type Boolean.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -269,9 +271,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type Long.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -315,9 +317,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type BigNumber(BigDecimal).    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -355,9 +357,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type Timestamp.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     Date dateValue;
@@ -393,9 +395,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type InetAddress.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     InetAddress origInetAddress = (InetAddress) value;
@@ -430,9 +432,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type ByteBuffer.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -462,9 +464,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
       handleConversionError(
           "Error.  Expecting value of type Serializable.    actual value type = '"
               + value.getClass()
-              + "'.    value = '"
+              + CONST_VALUE
               + value
-              + "'.");
+              + CONST_PERIOD);
     }
 
     try {
@@ -491,9 +493,9 @@ public class ValueMetaConverter implements Serializable, IValueMetaConverter {
             + IValueMeta.getTypeDescription(targetValueMetaType)
             + ".  Actual value type = '"
             + sourceValue.getClass()
-            + "'.    value = '"
+            + CONST_VALUE
             + sourceValue
-            + "'.");
+            + CONST_PERIOD);
   }
 
   private void throwErroredConversion(

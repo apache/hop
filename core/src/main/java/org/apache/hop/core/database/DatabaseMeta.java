@@ -65,6 +65,8 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMetadata {
   private static final Class<?> PKG = Database.class; // For Translator
 
+  private static final String CONST_TABLE = "TABLE";
+  private static final String CONST_CONNECTION_ERROR = "DatabaseMeta.report.ConnectionError";
   public static final String XML_TAG = "connection";
 
   public static final String GUI_PLUGIN_ELEMENT_PARENT_ID = "DatabaseMeta-PluginSpecific-Options";
@@ -1613,7 +1615,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       r.addValue(
           val,
           IValueMeta.TYPE_STRING,
-          getQuotedSchemaTableCombination(variables, "SCHEMA", "TABLE"));
+          getQuotedSchemaTableCombination(variables, "SCHEMA", CONST_TABLE));
       list.add(r);
       // Limit clause
       r = new RowMetaAndData();
@@ -1626,7 +1628,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       r.addValue(
           val,
           IValueMeta.TYPE_STRING,
-          getAddColumnStatement("TABLE", testValue, null, false, null, false));
+          getAddColumnStatement(CONST_TABLE, testValue, null, false, null, false));
       list.add(r);
       // drop column statement
       r = new RowMetaAndData();
@@ -1634,7 +1636,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       r.addValue(
           val,
           IValueMeta.TYPE_STRING,
-          getDropColumnStatement("TABLE", testValue, null, false, null, false));
+          getDropColumnStatement(CONST_TABLE, testValue, null, false, null, false));
       list.add(r);
       // Modify column statement
       r = new RowMetaAndData();
@@ -1642,7 +1644,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       r.addValue(
           val,
           IValueMeta.TYPE_STRING,
-          getModifyColumnStatement("TABLE", testValue, null, false, null, false));
+          getModifyColumnStatement(CONST_TABLE, testValue, null, false, null, false));
       list.add(r);
 
       // List of reserved words
@@ -1735,7 +1737,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       // SQL: get truncate table statement?
       r = new RowMetaAndData();
       r.addValue(par, IValueMeta.TYPE_STRING, "SQL: truncate table");
-      String truncateStatement = getTruncateTableStatement(variables, "SCHEMA", "TABLE");
+      String truncateStatement = getTruncateTableStatement(variables, "SCHEMA", CONST_TABLE);
       r.addValue(
           val,
           IValueMeta.TYPE_STRING,
@@ -2101,15 +2103,11 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
                   PKG, "BaseDatabaseMeta.TestConnectionReportNotImplemented.Message"))
           .append(Const.CR);
       report.append(
-          BaseMessages.getString(PKG, "DatabaseMeta.report.ConnectionError", getName())
-              + e.toString()
-              + Const.CR);
+          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
     } catch (Exception e) {
       report.append(
-          BaseMessages.getString(PKG, "DatabaseMeta.report.ConnectionError", getName())
-              + e.toString()
-              + Const.CR);
+          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
     }
     return report.toString();
@@ -2132,17 +2130,13 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
                   PKG, "BaseDatabaseMeta.TestConnectionReportNotImplemented.Message"))
           .append(Const.CR);
       report.append(
-          BaseMessages.getString(PKG, "DatabaseMeta.report.ConnectionError", getName())
-              + e.toString()
-              + Const.CR);
+          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
       databaseTestResults.setMessage(report.toString());
       databaseTestResults.setSuccess(false);
     } catch (Exception e) {
       report.append(
-          BaseMessages.getString(PKG, "DatabaseMeta.report.ConnectionError", getName())
-              + e.toString()
-              + Const.CR);
+          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
       databaseTestResults.setMessage(report.toString());
       databaseTestResults.setSuccess(false);
