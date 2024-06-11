@@ -55,7 +55,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -135,6 +134,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     implements ITransform, IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
   private static final Class<?> PKG = BaseTransform.class; // For Translator
+  private static final String CONST_NUMBER_FORMAT_EXCEPTION =
+      "BaseTransform.Log.NumberFormatException";
 
   protected IVariables variables = new Variables();
 
@@ -462,7 +463,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
               .getPartitionSchema()
               .calculatePartitionIds(this);
 
-      if (partitionIdList.size() > 0) {
+      if (!partitionIdList.isEmpty()) {
         String partitionId = partitionIdList.get(partitionNr);
         setVariable(Const.INTERNAL_VARIABLE_TRANSFORM_PARTITION_ID, partitionId);
       } else {
@@ -516,7 +517,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         log.logError(
             BaseMessages.getString(
                 PKG,
-                "BaseTransform.Log.NumberFormatException",
+                CONST_NUMBER_FORMAT_EXCEPTION,
                 BaseMessages.getString(PKG, "BaseTransform.Property.MaxErrors.Name"),
                 this.transformName,
                 (transformErrorMeta.getMaxErrors() != null
@@ -534,7 +535,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         log.logError(
             BaseMessages.getString(
                 PKG,
-                "BaseTransform.Log.NumberFormatException",
+                CONST_NUMBER_FORMAT_EXCEPTION,
                 BaseMessages.getString(
                     PKG, "BaseTransform.Property.MinRowsForErrorsPercentCalc.Name"),
                 this.transformName,
@@ -553,7 +554,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         log.logError(
             BaseMessages.getString(
                 PKG,
-                "BaseTransform.Log.NumberFormatException",
+                CONST_NUMBER_FORMAT_EXCEPTION,
                 BaseMessages.getString(PKG, "BaseTransform.Property.MaxPercentErrors.Name"),
                 this.transformName,
                 (transformErrorMeta.getMaxPercentErrors() != null
@@ -582,7 +583,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.pipeline.transform.ITransform#cleanup()
    */
   @Override
-  public void cleanup() {}
+  public void cleanup() {
+    // Do nothing
+  }
 
   /*
    * (non-Javadoc)
@@ -1123,7 +1126,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // This is the case for non-clustered partitioning...
       //
       List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms(transformMeta);
-      if (nextTransforms.size() > 0) {
+      if (!nextTransforms.isEmpty()) {
         nextTransformPartitioningMeta = nextTransforms.get(0).getTransformPartitioningMeta();
       }
 
@@ -1611,7 +1614,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       if (waitingTime == null) {
         Integer waitTime =
             Const.toInt(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_BUFFER_POLLING_WAITTIME), 20);
-        ;
         if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
             instanceof LocalPipelineRunConfiguration) {
           LocalPipelineRunConfiguration runconfig =
@@ -3435,7 +3437,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     if (!Utils.isEmpty(variableName)) {
       String value = getVariable(variableName);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return defaultValue;
@@ -3501,7 +3503,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @throws HopTransformException In case there is an error
    */
   @Override
-  public void initBeforeStart() throws HopTransformException {}
+  public void initBeforeStart() throws HopTransformException {
+    // Do nothing
+  }
 
   @Override
   public boolean processRow() throws HopException {
@@ -3751,13 +3755,19 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.pipeline.transform.ITransform#batchComplete()
    */
   @Override
-  public void batchComplete() throws HopException {}
+  public void batchComplete() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void startBundle() throws HopException {}
+  public void startBundle() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void finishBundle() throws HopException {}
+  public void finishBundle() throws HopException {
+    // Do nothing
+  }
 
   /**
    * Returns the registration date

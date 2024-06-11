@@ -58,6 +58,9 @@ import org.apache.hop.server.HopServer;
 public abstract class AbstractMeta
     implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes {
 
+  private static final String CONST_UNABLE_TO_LOAD = "Unable to load database with name '";
+  private static final String CONST_FROM_METADATA = "' from the metadata";
+
   /** Constant = 1 */
   public static final int TYPE_UNDO_CHANGE = 1;
 
@@ -108,8 +111,6 @@ public abstract class AbstractMeta
 
   private boolean showDialog = true;
   private boolean alwaysShowRunOptions = true;
-
-  private Boolean versioningEnabled;
 
   public boolean isShowDialog() {
     return showDialog;
@@ -250,14 +251,14 @@ public abstract class AbstractMeta
 
   /** This method sets various internal hop variables. */
   @Override
-  public abstract void setInternalHopVariables(IVariables var);
+  public abstract void setInternalHopVariables(IVariables variables);
 
   /**
    * Sets the internal filename hop variables.
    *
-   * @param var the new internal filename hop variables
+   * @param variables the new internal filename hop variables
    */
-  protected abstract void setInternalFilenameHopVariables(IVariables var);
+  protected abstract void setInternalFilenameHopVariables(IVariables variables);
 
   /**
    * Find a database connection by it's name
@@ -272,11 +273,9 @@ public abstract class AbstractMeta
       return null;
     }
     try {
-      DatabaseMeta databaseMeta = metadataProvider.getSerializer(DatabaseMeta.class).load(name);
-      return databaseMeta;
+      return metadataProvider.getSerializer(DatabaseMeta.class).load(name);
     } catch (HopException e) {
-      throw new RuntimeException(
-          "Unable to load database with name '" + name + "' from the metadata", e);
+      throw new RuntimeException(CONST_UNABLE_TO_LOAD + name + CONST_FROM_METADATA, e);
     }
   }
 
@@ -308,7 +307,7 @@ public abstract class AbstractMeta
           metadataProvider.getSerializer(DatabaseMeta.class).load(variables.resolve(name));
       if (databaseMeta == null && haltOnMissingMeta) {
         throw new RuntimeException(
-            "Unable to load database with name '"
+            CONST_UNABLE_TO_LOAD
                 + variables.resolve(name)
                 + "' from the metadata. Please verify that the case of the connection name is correct because that could be an issue!");
       }
@@ -316,8 +315,7 @@ public abstract class AbstractMeta
       return databaseMeta;
     } catch (HopException e) {
       throw new RuntimeException(
-          "Unable to load database with name '" + variables.resolve(name) + "' from the metadata",
-          e);
+          CONST_UNABLE_TO_LOAD + variables.resolve(name) + CONST_FROM_METADATA, e);
     }
   }
 
@@ -487,7 +485,7 @@ public abstract class AbstractMeta
       return metadataProvider.getSerializer(HopServer.class).load(getName());
     } catch (HopException e) {
       throw new RuntimeException(
-          "Unable to load hop server with name '" + getName() + "' from the metadata", e);
+          "Unable to load hop server with name '" + getName() + CONST_FROM_METADATA, e);
     }
   }
 
@@ -529,7 +527,7 @@ public abstract class AbstractMeta
     // Add 4
     // 01234
 
-    while (undo.size() > undoPosition + 1 && undo.size() > 0) {
+    while (undo.size() > undoPosition + 1 && !undo.isEmpty()) {
       int last = undo.size() - 1;
       undo.remove(last);
     }
@@ -580,9 +578,7 @@ public abstract class AbstractMeta
 
     undoPosition++;
 
-    ChangeAction retval = undo.get(undoPosition);
-
-    return retval;
+    return undo.get(undoPosition);
   }
 
   /*
@@ -597,9 +593,7 @@ public abstract class AbstractMeta
       return null; // no redo left...
     }
 
-    ChangeAction retval = undo.get(undoPosition + 1);
-
-    return retval;
+    return undo.get(undoPosition + 1);
   }
 
   // get previous undo, change position
@@ -632,9 +626,7 @@ public abstract class AbstractMeta
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get(undoPosition);
-
-    return retval;
+    return undo.get(undoPosition);
   }
 
   // View previous undo, don't change position
@@ -649,9 +641,7 @@ public abstract class AbstractMeta
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get(undoPosition);
-
-    return retval;
+    return undo.get(undoPosition);
   }
 
   /*
@@ -672,7 +662,7 @@ public abstract class AbstractMeta
   @Override
   public void setMaxUndo(int mu) {
     maxUndo = mu;
-    while (undo.size() > mu && undo.size() > 0) {
+    while (undo.size() > mu && !undo.isEmpty()) {
       undo.remove(0);
     }
   }
@@ -1003,7 +993,7 @@ public abstract class AbstractMeta
    *
    * @param var the new internal name hop variable
    */
-  protected abstract void setInternalNameHopVariable(IVariables var);
+  protected abstract void setInternalNameHopVariable(IVariables variables);
 
   /**
    * Gets the date the pipeline was created.
@@ -1138,10 +1128,7 @@ public abstract class AbstractMeta
     if (changedFlag.hasChanged()) {
       return true;
     }
-    if (haveNotesChanged()) {
-      return true;
-    }
-    return false;
+    return haveNotesChanged();
   }
 
   /**
@@ -1187,8 +1174,7 @@ public abstract class AbstractMeta
       if (!Utils.isEmpty(meta1.getName()) && Utils.isEmpty(meta2.getName())) {
         return 1;
       }
-      int cmpName = meta1.getName().compareTo(meta2.getName());
-      return cmpName;
+      return meta1.getName().compareTo(meta2.getName());
     } else {
       return meta1.getFilename().compareTo(meta2.getFilename());
     }

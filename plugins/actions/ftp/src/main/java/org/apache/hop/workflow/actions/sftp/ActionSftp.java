@@ -60,6 +60,8 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/sftp.html")
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSftp.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_PASSWORD = "password";
 
   private static final int DEFAULT_PORT = 22;
   private String serverName;
@@ -118,39 +120,43 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
 
     retval.append(super.getXml());
 
-    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    retval.append("      ").append(XmlHandler.addTagValue("serverport", serverPort));
-    retval.append("      ").append(XmlHandler.addTagValue("username", userName));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("servername", serverName));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("serverport", serverPort));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("username", userName));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
-                "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
-    retval.append("      ").append(XmlHandler.addTagValue("sftpdirectory", sftpDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("targetdirectory", targetDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("remove", remove));
-    retval.append("      ").append(XmlHandler.addTagValue("isaddresult", isaddresult));
+                CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(getPassword())));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("sftpdirectory", sftpDirectory));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("targetdirectory", targetDirectory));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("remove", remove));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("isaddresult", isaddresult));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("createtargetfolder", createtargetfolder));
-    retval.append("      ").append(XmlHandler.addTagValue("copyprevious", copyprevious));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("copyprevious", copyprevious));
 
-    retval.append("      ").append(XmlHandler.addTagValue("usekeyfilename", usekeyfilename));
-    retval.append("      ").append(XmlHandler.addTagValue("keyfilename", keyfilename));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("usekeyfilename", usekeyfilename));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("keyfilename", keyfilename));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "keyfilepass", Encr.encryptPasswordIfNotUsingVariables(keyfilepass)));
-    retval.append("      ").append(XmlHandler.addTagValue("compression", compression));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("compression", compression));
 
-    retval.append("      ").append(XmlHandler.addTagValue("proxyType", proxyType));
-    retval.append("      ").append(XmlHandler.addTagValue("proxyHost", proxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("proxyPort", proxyPort));
-    retval.append("      ").append(XmlHandler.addTagValue("proxyUsername", proxyUsername));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxyType", proxyType));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxyHost", proxyHost));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxyPort", proxyPort));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxyUsername", proxyUsername));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "proxyPassword", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
@@ -167,7 +173,8 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       serverPort = XmlHandler.getTagValue(entrynode, "serverport");
       userName = XmlHandler.getTagValue(entrynode, "username");
       password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, CONST_PASSWORD));
       sftpDirectory = XmlHandler.getTagValue(entrynode, "sftpdirectory");
       targetDirectory = XmlHandler.getTagValue(entrynode, "targetdirectory");
       wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
@@ -426,7 +433,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     HashSet<String> listPreviousFilenames = new HashSet<>();
 
     if (copyprevious) {
-      if (rows.size() == 0) {
+      if (rows.isEmpty()) {
         if (log.isDetailed()) {
           logDetailed(BaseMessages.getString(PKG, "ActionSftp.ArgsFromPreviousNothing"));
         }
@@ -741,7 +748,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "password",
+            CONST_PASSWORD,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
     ActionValidatorUtils.andValidator()

@@ -41,6 +41,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/startExec";
+  private static final String CONST_HREF = "<a href=\"";
 
   public StartExecutionPipelineServlet() {}
 
@@ -123,7 +124,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
                     + Encode.forHtml("\'" + pipelineName + "\'")
                     + " has been executed.</H1>");
             out.println(
-                "<a href=\""
+                CONST_HREF
                     + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
                     + "?name="
                     + URLEncoder.encode(pipelineName, UTF_8)
@@ -141,7 +142,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
           } else {
             out.println("<H1>" + Encode.forHtml(message) + "</H1>");
             out.println(
-                "<a href=\""
+                CONST_HREF
                     + convertContextPath(GetStatusServlet.CONTEXT_PATH)
                     + "\">"
                     + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
@@ -163,7 +164,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
                           PKG, "PipelineStatusServlet.Log.CoundNotFindPipeline", pipelineName))
                   + "</H1>");
           out.println(
-              "<a href=\""
+              CONST_HREF
                   + convertContextPath(GetStatusServlet.CONTEXT_PATH)
                   + "\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")

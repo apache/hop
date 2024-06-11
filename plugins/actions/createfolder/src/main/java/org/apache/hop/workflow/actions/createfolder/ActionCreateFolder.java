@@ -49,6 +49,7 @@ import org.apache.hop.workflow.action.validator.ValidatorContext;
     keywords = "i18n::ActionCreateFolder.keyword",
     documentationUrl = "/workflow/actions/createfolder.html")
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
+  private static final String CONST_FOLDER = "Folder [";
 
   @HopMetadataProperty(key = "foldername")
   private String folderName;
@@ -100,7 +101,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
           //
           result.setResult(false);
           if (isFolder) {
-            logError("Folder [" + realFolderName + "] exists, failing.");
+            logError(CONST_FOLDER + realFolderName + "] exists, failing.");
           } else {
             logError("File [" + realFolderName + "] exists, failing.");
           }
@@ -109,7 +110,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
           //
           result.setResult(true);
           if (log.isDetailed()) {
-            logDetailed("Folder [" + realFolderName + "] already exists, not recreating.");
+            logDetailed(CONST_FOLDER + realFolderName + "] already exists, not recreating.");
           }
         }
         return result;
@@ -118,7 +119,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
       // No Folder yet, create an empty Folder.
       folderObject.createFolder();
       if (log.isDetailed()) {
-        logDetailed("Folder [" + realFolderName + "] created!");
+        logDetailed(CONST_FOLDER + realFolderName + "] created!");
       }
       result.setResult(true);
 

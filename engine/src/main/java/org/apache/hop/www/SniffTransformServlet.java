@@ -47,6 +47,8 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/sniffTransform";
+  private static final String CONST_HEADER_END = "</H1>";
+  private static final String CONST_HEADER_START = "<H1>";
 
   public static final String TYPE_INPUT = "input";
   public static final String TYPE_OUTPUT = "output";
@@ -161,7 +163,9 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
                 @Override
                 public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row)
-                    throws HopTransformException {}
+                    throws HopTransformException {
+                  // Do nothing
+                }
               };
 
           component.addRowListener(rowListener);
@@ -220,11 +224,11 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
           out.println("</HEAD>");
           out.println("<BODY>");
           out.println(
-              "<H1>"
+              CONST_HEADER_START
                   + Encode.forHtml(
                       BaseMessages.getString(
                           PKG, "SniffTransformServlet.SniffResultsForTransform", transformName))
-                  + "</H1>");
+                  + CONST_HEADER_END);
 
           try {
             out.println("<table border=\"1\">");
@@ -280,13 +284,13 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
                   .getXml());
         } else {
           out.println(
-              "<H1>"
+              CONST_HEADER_START
                   + Encode.forHtml(
                       BaseMessages.getString(
                           PKG,
                           "SniffTransformServlet.Log.CoundNotFindSpecTransform",
                           transformName))
-                  + "</H1>");
+                  + CONST_HEADER_END);
           out.println(
               "<a href=\""
                   + convertContextPath(GetStatusServlet.CONTEXT_PATH)
@@ -305,11 +309,11 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
                 .getXml());
       } else {
         out.println(
-            "<H1>"
+            CONST_HEADER_START
                 + Encode.forHtml(
                     BaseMessages.getString(
                         PKG, "SniffTransformServlet.Log.CoundNotFindPipeline", pipelineName))
-                + "</H1>");
+                + CONST_HEADER_END);
         out.println(
             "<a href=\""
                 + convertContextPath(GetStatusServlet.CONTEXT_PATH)

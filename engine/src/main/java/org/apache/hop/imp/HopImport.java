@@ -17,7 +17,6 @@
 
 package org.apache.hop.imp;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
@@ -46,8 +45,10 @@ import picocli.CommandLine.ExecutionException;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.ParameterException;
 
+@SuppressWarnings("java:S106")
 @Command(versionProvider = HopVersionProvider.class)
 public class HopImport implements Runnable, IHasHopMetadataProvider {
+  private static final String CONST_IMPORT = "Import is ";
 
   @Option(
       names = {"-t", "--type"},
@@ -162,20 +163,20 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
       hopImport.setSharedXmlFilename(sharedXmlFilename);
       if (skippingExistingTargetFiles != null) {
         log.logBasic(
-            "Import is "
+            CONST_IMPORT
                 + (skippingExistingTargetFiles ? "" : "not ")
                 + "skipping existing target files");
         hopImport.setSkippingExistingTargetFiles(skippingExistingTargetFiles);
       }
       if (skippingHiddenFilesAndFolders != null) {
         log.logBasic(
-            "Import is "
+            CONST_IMPORT
                 + (skippingHiddenFilesAndFolders ? "" : "not ")
                 + "skipping hidden files and folders");
         hopImport.setSkippingHiddenFilesAndFolders(skippingHiddenFilesAndFolders);
       }
       if (skippingFolders != null) {
-        log.logBasic("Import is " + (skippingFolders ? "" : "not ") + "skipping sub-folders");
+        log.logBasic(CONST_IMPORT + (skippingFolders ? "" : "not ") + "skipping sub-folders");
         hopImport.setSkippingFolders(skippingFolders);
       }
       hopImport.setTargetConfigFilename(targetConfigFilename);
@@ -241,13 +242,13 @@ public class HopImport implements Runnable, IHasHopMetadataProvider {
     }
   }
 
-  private void buildVariableSpace() throws IOException {
+  private void buildVariableSpace() {
     // Also grabs the system properties from hop.config.
     //
     variables = Variables.getADefaultVariableSpace();
   }
 
-  private boolean validateOptions() throws HopException {
+  private boolean validateOptions() {
     boolean ok = true;
     if (StringUtils.isEmpty(inputFolderName)) {
       log.logBasic("Please specify an input folder to read from");

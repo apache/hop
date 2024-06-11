@@ -64,6 +64,9 @@ import org.apache.hop.i18n.BaseMessages;
 /** MailConnection handles the process of connecting to, reading from POP3/IMAP. */
 public class MailConnection {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final String CONST_POP3_UNSUPPORTED =
+      "MailConnection.Error.ReceivedDatePOP3Unsupported";
+  private static final String CONST_MAIL = "mail.";
 
   /** Target mail server. */
   private String server;
@@ -187,13 +190,13 @@ public class MailConnection {
       if (usessl && protocol != MailConnectionMeta.PROTOCOL_MBOX) {
         // Supports IMAP/POP3 connection with SSL, the connection is established via SSL.
         this.prop.setProperty(
-            "mail." + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        this.prop.setProperty("mail." + protocolString + ".socketFactory.fallback", "false");
-        this.prop.setProperty("mail." + protocolString + ".port", "" + port);
-        this.prop.setProperty("mail." + protocolString + ".socketFactory.port", "" + port);
+            CONST_MAIL + protocolString + ".socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        this.prop.setProperty(CONST_MAIL + protocolString + ".socketFactory.fallback", "false");
+        this.prop.setProperty(CONST_MAIL + protocolString + ".port", "" + port);
+        this.prop.setProperty(CONST_MAIL + protocolString + ".socketFactory.port", "" + port);
         if (usexoauth2) {
-          this.prop.setProperty("mail." + protocolString + ".ssl.enable", "true");
-          this.prop.setProperty("mail." + protocolString + ".auth.mechanisms", "XOAUTH2");
+          this.prop.setProperty(CONST_MAIL + protocolString + ".ssl.enable", "true");
+          this.prop.setProperty(CONST_MAIL + protocolString + ".auth.mechanisms", "XOAUTH2");
         }
 
         // Create session object
@@ -585,7 +588,7 @@ public class MailConnection {
    */
   public void setReceivedDateTermEQ(Date receiveddate) {
     if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
-      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
+      log.logError(BaseMessages.getString(PKG, CONST_POP3_UNSUPPORTED));
     } else {
       addSearchTerm(new ReceivedDateTerm(ComparisonTerm.EQ, receiveddate));
     }
@@ -598,7 +601,7 @@ public class MailConnection {
    */
   public void setReceivedDateTermLT(Date futureDate) {
     if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
-      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
+      log.logError(BaseMessages.getString(PKG, CONST_POP3_UNSUPPORTED));
     } else {
       addSearchTerm(new ReceivedDateTerm(ComparisonTerm.LT, futureDate));
     }
@@ -611,7 +614,7 @@ public class MailConnection {
    */
   public void setReceivedDateTermGT(Date pastDate) {
     if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
-      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
+      log.logError(BaseMessages.getString(PKG, CONST_POP3_UNSUPPORTED));
     } else {
       addSearchTerm(new ReceivedDateTerm(ComparisonTerm.GT, pastDate));
     }
@@ -619,7 +622,7 @@ public class MailConnection {
 
   public void setReceivedDateTermBetween(Date beginDate, Date endDate) {
     if (this.protocol == MailConnectionMeta.PROTOCOL_POP3) {
-      log.logError(BaseMessages.getString(PKG, "MailConnection.Error.ReceivedDatePOP3Unsupported"));
+      log.logError(BaseMessages.getString(PKG, CONST_POP3_UNSUPPORTED));
     } else {
       addSearchTerm(
           new AndTerm(

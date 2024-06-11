@@ -41,7 +41,9 @@ public class SingleThreadedPipelineExecutor {
   private List<List<IStream>> transformInfoStreams;
   private List<List<IRowSet>> transformInfoRowSets;
   private ILogChannel log;
-  private Class<?> PKG = SingleThreadedPipelineExecutor.class;
+  private static final Class<?> PKG = SingleThreadedPipelineExecutor.class;
+  private static final String CONST_SEPARATOR =
+      "-------------------------------------------------------";
 
   public SingleThreadedPipelineExecutor(Pipeline pipeline) {
     initializeObject(pipeline, false);
@@ -141,7 +143,7 @@ public class SingleThreadedPipelineExecutor {
     // output so other threads
     // don't get logs in our
     // output.
-    tLogString.append("-------------------------------------------------------").append("\n");
+    tLogString.append(CONST_SEPARATOR).append("\n");
     tLogString.append("--SingleThreadedPipelineExecutor.sortTransforms(cocktail)").append("\n");
     tLogString.append("--Pipeline: ").append(pipeline.getName()).append("\n");
     tLogString.append("-").append("\n");
@@ -263,7 +265,7 @@ public class SingleThreadedPipelineExecutor {
     long endTime = System.currentTimeMillis();
     long totalTime = (endTime - startTime);
 
-    tLogString.append("-------------------------------------------------------").append("\n");
+    tLogString.append(CONST_SEPARATOR).append("\n");
     tLogString.append("Transforms sort time: " + totalTime + "ms").append("\n");
     tLogString.append("Total iterations: " + actualIterations).append("\n");
     tLogString.append("Transform count: " + transforms.size()).append("\n");
@@ -271,14 +273,14 @@ public class SingleThreadedPipelineExecutor {
     for (TransformMetaDataCombi combi : transforms) {
       tLogString.append(combi.transform.getTransformName()).append("\n");
     }
-    tLogString.append("-------------------------------------------------------").append("\n");
+    tLogString.append(CONST_SEPARATOR).append("\n");
 
     if (log.isDetailed()) {
       log.logDetailed(tLogString.toString());
     }
   }
 
-  public boolean init() throws HopException {
+  public boolean init() {
 
     // Initialize all the transforms...
     //
@@ -472,7 +474,7 @@ public class SingleThreadedPipelineExecutor {
     }
   }
 
-  public void dispose() throws HopException {
+  public void dispose() {
 
     // Call output done.
     //

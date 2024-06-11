@@ -60,77 +60,44 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/ftpdelete.html")
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpDelete.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_PASSWORD = "password";
 
   private String serverName;
-
   private String serverPort;
-
   private String userName;
-
   private String password;
-
   private String remoteDirectory;
-
   private String wildcard;
-
   private int timeout;
-
   private boolean activeConnection;
-
   private boolean publicPublicKey;
-
   private String keyFilename;
-
   private String keyFilePass;
-
   private boolean useProxy;
-
   private String proxyHost;
-
   private String proxyPort; /* string to allow variable substitution */
-
   private String proxyUsername;
-
   private String proxyPassword;
-
   private String socksProxyHost;
-
   private String socksProxyPort;
-
   private String socksProxyUsername;
-
   private String socksProxyPassword;
-
   private String protocol;
-
   public static final String PROTOCOL_FTP = "FTP";
-
   public static final String PROTOCOL_SFTP = "SFTP";
-
-  public String SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED = "success_when_at_least";
-
-  public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
-
-  public String SUCCESS_IF_ALL_FILES_DOWNLOADED = "success_is_all_files_downloaded";
-
+  public static final String SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED = "success_when_at_least";
+  public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
+  public static final String SUCCESS_IF_ALL_FILES_DOWNLOADED = "success_is_all_files_downloaded";
   private String nrLimitSuccess;
-
   private String successCondition;
-
   private boolean copyPrevious;
-
   long nrErrors = 0;
-
   long nrFilesDeleted = 0;
-
   boolean successConditionBroken = false;
-
   String targetFilename = null;
-
   int limitFiles = 0;
-
   FTPClient ftpclient = null;
-
   SftpClient sftpclient = null;
 
   public ActionFtpDelete(String n) {
@@ -162,45 +129,59 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     StringBuilder retval = new StringBuilder(550); // 448 characters in spaces and tag names alone
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("protocol", protocol));
-    retval.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    retval.append("      ").append(XmlHandler.addTagValue("port", serverPort));
-    retval.append("      ").append(XmlHandler.addTagValue("username", userName));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("protocol", protocol));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("servername", serverName));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("port", serverPort));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("username", userName));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
-                "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
-    retval.append("      ").append(XmlHandler.addTagValue("ftpdirectory", remoteDirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
-    retval.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
-
-    retval.append("      ").append(XmlHandler.addTagValue("useproxy", useProxy));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    retval.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+                CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(getPassword())));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("ftpdirectory", remoteDirectory));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("timeout", timeout));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("active", activeConnection));
+
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("useproxy", useProxy));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_host", proxyHost));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
 
-    retval.append("      ").append(XmlHandler.addTagValue("publicpublickey", publicPublicKey));
-    retval.append("      ").append(XmlHandler.addTagValue("keyfilename", keyFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("keyfilepass", keyFilePass));
-
-    retval.append("      ").append(XmlHandler.addTagValue("nr_limit_success", nrLimitSuccess));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval.append("      ").append(XmlHandler.addTagValue("copyprevious", copyPrevious));
-
-    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
-    retval.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("publicpublickey", publicPublicKey));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("keyfilename", keyFilename));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("keyfilepass", keyFilePass));
+
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("nr_limit_success", nrLimitSuccess));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("copyprevious", copyPrevious));
+
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "socksproxy_password",
@@ -220,7 +201,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
       serverName = XmlHandler.getTagValue(entrynode, "servername");
       userName = XmlHandler.getTagValue(entrynode, "username");
       password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, CONST_PASSWORD));
       remoteDirectory = XmlHandler.getTagValue(entrynode, "ftpdirectory");
       wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
       timeout = Const.toInt(XmlHandler.getTagValue(entrynode, "timeout"), 10000);
@@ -823,7 +805,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "password",
+            CONST_PASSWORD,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
   }

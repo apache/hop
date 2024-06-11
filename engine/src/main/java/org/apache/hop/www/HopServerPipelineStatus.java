@@ -38,19 +38,13 @@ import org.w3c.dom.Node;
 
 public class HopServerPipelineStatus {
   public static final String XML_TAG = "pipeline-status";
-
+  private static final String CONST_TRANSFORM_STATUS = "transform_status_list";
   private String id;
-
   private String pipelineName;
-
   private String statusDescription;
-
   private String errorDescription;
-
   private String loggingString;
-
   private int firstLoggingLineNr;
-
   private int lastLoggingLineNr;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
@@ -110,12 +104,12 @@ public class HopServerPipelineStatus {
             XmlHandler.addTagValue("execution_end_date", XmlHandler.date2string(executionEndDate)));
     xml.append("  ").append(XmlHandler.addTagValue("paused", paused));
 
-    xml.append("  ").append(XmlHandler.openTag("transform_status_list")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.openTag(CONST_TRANSFORM_STATUS)).append(Const.CR);
     for (int i = 0; i < transformStatusList.size(); i++) {
       TransformStatus transformStatus = transformStatusList.get(i);
       xml.append("    ").append(transformStatus.getXml()).append(Const.CR);
     }
-    xml.append("  ").append(XmlHandler.closeTag("transform_status_list")).append(Const.CR);
+    xml.append("  ").append(XmlHandler.closeTag(CONST_TRANSFORM_STATUS)).append(Const.CR);
 
     xml.append("  ").append(XmlHandler.addTagValue("first_log_line_nr", firstLoggingLineNr));
     xml.append("  ").append(XmlHandler.addTagValue("last_log_line_nr", lastLoggingLineNr));
@@ -146,7 +140,7 @@ public class HopServerPipelineStatus {
         XmlHandler.stringToDate(XmlHandler.getTagValue(pipelineStatusNode, "execution_end_date"));
     paused = "Y".equalsIgnoreCase(XmlHandler.getTagValue(pipelineStatusNode, "paused"));
 
-    Node statusListNode = XmlHandler.getSubNode(pipelineStatusNode, "transform_status_list");
+    Node statusListNode = XmlHandler.getSubNode(pipelineStatusNode, CONST_TRANSFORM_STATUS);
     int nr = XmlHandler.countNodes(statusListNode, TransformStatus.XML_TAG);
     for (int i = 0; i < nr; i++) {
       Node transformStatusNode =

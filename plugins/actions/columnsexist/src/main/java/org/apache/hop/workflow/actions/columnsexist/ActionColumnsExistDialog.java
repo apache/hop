@@ -64,19 +64,14 @@ import org.eclipse.swt.widgets.Text;
  */
 public class ActionColumnsExistDialog extends ActionDialog {
   private static final Class<?> PKG = ActionColumnsExist.class; // For Translator
+  private static final String CONST_ERROR_TITLE = "System.Dialog.Error.Title";
 
   private Text wName;
-
   private MetaSelectionLine<DatabaseMeta> wConnection;
-
   private TextVar wTablename;
-
   private ActionColumnsExist action;
-
   private boolean changed;
-
   private TableView wFields;
-
   private TextVar wSchemaname;
 
   public ActionColumnsExistDialog(
@@ -287,7 +282,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
         MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
         mb.setMessage(
             BaseMessages.getString(PKG, "ActionColumnsExist.ConnectionError.DialogMessage"));
-        mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+        mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
         mb.open();
       }
     }
@@ -382,13 +377,13 @@ public class ActionColumnsExistDialog extends ActionDialog {
             MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
             mb.setMessage(
                 BaseMessages.getString(PKG, "ActionColumnsExist.GetListColumsNoRow.DialogMessage"));
-            mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+            mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
             mb.open();
           }
         } catch (Exception e) {
           new ErrorDialog(
               shell,
-              BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+              BaseMessages.getString(PKG, CONST_ERROR_TITLE),
               BaseMessages.getString(
                   PKG, "ActionColumnsExist.ConnectionError2.DialogMessage", wTablename.getText()),
               e);
@@ -431,7 +426,7 @@ public class ActionColumnsExistDialog extends ActionDialog {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_ERROR_TITLE),
             BaseMessages.getString(PKG, "System.Dialog.AvailableSchemas.ConnectionError"),
             e);
       }

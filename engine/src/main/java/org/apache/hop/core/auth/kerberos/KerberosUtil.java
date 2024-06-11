@@ -35,6 +35,8 @@ import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
 public class KerberosUtil {
+  private static final String CONST_PRINCIPAL = "principal";
+
   /** A Login Configuration that is pre-configured based on our static configuration. */
   public static class HopLoginConfiguration extends Configuration {
     private AppConfigurationEntry[] entries;
@@ -119,7 +121,7 @@ public class KerberosUtil {
       throws LoginException {
     Map<String, String> keytabConfig = new HashMap<>(LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB);
     keytabConfig.put("keyTab", keytab);
-    keytabConfig.put("principal", principal);
+    keytabConfig.put(CONST_PRINCIPAL, principal);
 
     // Create the configuration and from them, a new login context
     AppConfigurationEntry config =
@@ -134,7 +136,7 @@ public class KerberosUtil {
   public LoginContext getLoginContextFromUsernamePassword(
       final String principal, final String password) throws LoginException {
     Map<String, String> opts = new HashMap<>(LOGIN_CONFIG_OPTS_KERBEROS_USER);
-    opts.put("principal", principal);
+    opts.put(CONST_PRINCIPAL, principal);
     AppConfigurationEntry[] appConfigurationEntries =
         new AppConfigurationEntry[] {
           new AppConfigurationEntry(
@@ -164,7 +166,7 @@ public class KerberosUtil {
 
   public LoginContext getLoginContextFromKerberosCache(String principal) throws LoginException {
     Map<String, String> opts = new HashMap<>(LOGIN_CONFIG_OPTS_KERBEROS_USER_NOPASS);
-    opts.put("principal", principal);
+    opts.put(CONST_PRINCIPAL, principal);
     AppConfigurationEntry[] appConfigurationEntries =
         new AppConfigurationEntry[] {
           new AppConfigurationEntry(

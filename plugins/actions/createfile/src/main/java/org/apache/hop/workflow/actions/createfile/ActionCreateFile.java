@@ -56,6 +56,9 @@ import org.w3c.dom.Node;
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionCreateFile.class; // For Translator
   private String filename;
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_FILE = "File [";
+  private static final String CONST_FILENAME = "filename";
 
   private boolean failIfFileExists;
   private boolean addfilenameresult;
@@ -73,8 +76,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
 
   @Override
   public Object clone() {
-    ActionCreateFile je = (ActionCreateFile) super.clone();
-    return je;
+    return super.clone();
   }
 
   @Override
@@ -82,9 +84,11 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
     StringBuilder xml = new StringBuilder(50);
 
     xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("filename", filename));
-    xml.append("      ").append(XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists));
-    xml.append("      ").append(XmlHandler.addTagValue("add_filename_result", addfilenameresult));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue(CONST_FILENAME, filename));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("fail_if_file_exists", failIfFileExists));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("add_filename_result", addfilenameresult));
 
     return xml.toString();
   }
@@ -94,7 +98,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       throws HopXmlException {
     try {
       super.loadXml(entrynode);
-      filename = XmlHandler.getTagValue(entrynode, "filename");
+      filename = XmlHandler.getTagValue(entrynode, CONST_FILENAME);
       failIfFileExists =
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "fail_if_file_exists"));
       addfilenameresult =
@@ -134,11 +138,11 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
           if (isFailIfFileExists()) {
             // File exists and fail flag is on.
             result.setResult(false);
-            logError("File [" + realFilename + "] exists, failing.");
+            logError(CONST_FILE + realFilename + "] exists, failing.");
           } else {
             // File already exists, no reason to try to create it
             result.setResult(true);
-            logBasic("File [" + realFilename + "] already exists, not recreating.");
+            logBasic(CONST_FILE + realFilename + "] already exists, not recreating.");
           }
           // add filename to result filenames if needed
           if (isAddFilenameToResult()) {
@@ -147,7 +151,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
         } else {
           // No file yet, create an empty file.
           fileObject.createFile();
-          logBasic("File [" + realFilename + "] created!");
+          logBasic(CONST_FILE + realFilename + "] created!");
           // add filename to result filenames if needed
           if (isAddFilenameToResult()) {
             addFilenameToResult(realFilename, result, parentWorkflow);
@@ -242,6 +246,6 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
         ctx,
         ActionValidatorUtils.notNullValidator(),
         ActionValidatorUtils.fileDoesNotExistValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME, remarks, ctx);
   }
 }

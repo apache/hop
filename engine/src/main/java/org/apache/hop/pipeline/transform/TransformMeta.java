@@ -64,18 +64,13 @@ public class TransformMeta
   private static final Class<?> PKG = TransformMeta.class; // For Translator
 
   public static final String XML_TAG = "transform";
-
   public static final String STRING_ID_MAPPING = "Mapping";
-
   public static final String STRING_ID_SINGLE_THREADER = "SingleThreader";
-
   public static final String STRING_ID_ETL_META_INJECT = "MetaInject";
-
   public static final String STRING_ID_WORKFLOW_EXECUTOR = "WorkflowExecutor";
-
   public static final String STRING_ID_MAPPING_INPUT = "MappingInput";
-
   public static final String STRING_ID_MAPPING_OUTPUT = "MappingOutput";
+  private static final String CONST_TARGET_TRANSFORM_PARTITIONING = "target_transform_partitioning";
 
   @HopMetadataProperty(key = "type")
   private String transformPluginId; // --> transform plugin id
@@ -108,7 +103,7 @@ public class TransformMeta
   @HopMetadataProperty(key = "partitioning")
   private TransformPartitioningMeta transformPartitioningMeta;
 
-  @HopMetadataProperty(key = "target_transform_partitioning")
+  @HopMetadataProperty(key = CONST_TARGET_TRANSFORM_PARTITIONING)
   private TransformPartitioningMeta targetTransformPartitioningMeta;
 
   private TransformErrorMeta transformErrorMeta;
@@ -137,6 +132,7 @@ public class TransformMeta
    * @param transformName The name of the new transform
    * @param transform The transform metadata interface to use (TextFileInputMeta, etc)
    */
+  @SuppressWarnings("java:S106")
   public TransformMeta(String transformName, ITransformMeta transform) {
     if (transform != null) {
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -183,9 +179,9 @@ public class TransformMeta
 
     xml.append(transformPartitioningMeta.getXml());
     if (targetTransformPartitioningMeta != null) {
-      xml.append(XmlHandler.openTag("target_transform_partitioning"))
+      xml.append(XmlHandler.openTag(CONST_TARGET_TRANSFORM_PARTITIONING))
           .append(targetTransformPartitioningMeta.getXml())
-          .append(XmlHandler.closeTag("target_transform_partitioning"));
+          .append(XmlHandler.closeTag(CONST_TARGET_TRANSFORM_PARTITIONING));
     }
 
     xml.append(transform.getXml());
@@ -287,7 +283,8 @@ public class TransformMeta
 
         // Target partitioning information?
         //
-        Node targetPartNode = XmlHandler.getSubNode(transformNode, "target_transform_partitioning");
+        Node targetPartNode =
+            XmlHandler.getSubNode(transformNode, CONST_TARGET_TRANSFORM_PARTITIONING);
         partNode = XmlHandler.getSubNode(targetPartNode, "partitioning");
         if (partNode != null) {
           targetTransformPartitioningMeta =
@@ -308,7 +305,7 @@ public class TransformMeta
     Document doc;
     try {
       doc = XmlHandler.loadXmlString(metaXml);
-      Node transformNode = XmlHandler.getSubNode(doc, "transform");
+      Node transformNode = XmlHandler.getSubNode(doc, XML_TAG);
       return new TransformMeta(transformNode, null);
     } catch (HopXmlException | HopPluginLoaderException e) {
       throw new RuntimeException(e);
@@ -340,7 +337,7 @@ public class TransformMeta
       List<String> partitionIDs =
           getTransformPartitioningMeta().getPartitionSchema().calculatePartitionIds(variables);
       if (partitionIDs != null
-          && partitionIDs.size() > 0) { // these are the partitions the transform can "reach"
+          && !partitionIDs.isEmpty()) { // these are the partitions the transform can "reach"
         return partitionIDs.size();
       }
     }

@@ -67,7 +67,8 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   private String limit;
   private int successCondition;
 
-  private static final String selectCount = "SELECT count(*) FROM ";
+  private static final String SELECT_COUNT = "SELECT count(*) FROM ";
+  private static final String CONST_SPACE_SHORT = "      ";
 
   public static final String[] successConditionsDesc =
       new String[] {
@@ -149,21 +150,25 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
 
     retval.append(super.getXml());
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue("connection", connection == null ? null : connection.getName()));
-    retval.append("      ").append(XmlHandler.addTagValue("schemaname", schemaname));
-    retval.append("      ").append(XmlHandler.addTagValue("tablename", tableName));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("schemaname", schemaname));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("tablename", tableName));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue("success_condition", getSuccessConditionCode(successCondition)));
-    retval.append("      ").append(XmlHandler.addTagValue("limit", limit));
-    retval.append("      ").append(XmlHandler.addTagValue("is_custom_sql", useCustomSql));
-    retval.append("      ").append(XmlHandler.addTagValue("is_usevars", useVars));
-    retval.append("      ").append(XmlHandler.addTagValue("custom_sql", customSql));
-    retval.append("      ").append(XmlHandler.addTagValue("add_rows_result", addRowsResult));
-    retval.append("      ").append(XmlHandler.addTagValue("clear_result_rows", clearResultList));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("limit", limit));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("is_custom_sql", useCustomSql));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("is_usevars", useVars));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("custom_sql", customSql));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("add_rows_result", addRowsResult));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("clear_result_rows", clearResultList));
 
     return retval.toString();
   }
@@ -298,11 +303,11 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
           if (!Utils.isEmpty(realTablename)) {
             if (!Utils.isEmpty(realSchemaname)) {
               countSqlStatement =
-                  selectCount
+                  SELECT_COUNT
                       + db.getDatabaseMeta()
                           .getQuotedSchemaTableCombination(this, realSchemaname, realTablename);
             } else {
-              countSqlStatement = selectCount + db.getDatabaseMeta().quoteField(realTablename);
+              countSqlStatement = SELECT_COUNT + db.getDatabaseMeta().quoteField(realTablename);
             }
           } else {
             errCount++;

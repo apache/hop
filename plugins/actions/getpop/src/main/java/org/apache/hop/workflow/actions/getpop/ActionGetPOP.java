@@ -63,6 +63,9 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/getpop.html")
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_PASSWORD = "password";
+  private static final String CONST_MESSAGE_DELETED = "ActionGetMailsFromPOP.MessageDeleted";
 
   static final int FOLDER_OUTPUT = 0;
   static final int FOLDER_ATTACHMENTS = 1;
@@ -181,84 +184,105 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   public String getXml() {
     StringBuilder retval = new StringBuilder(550);
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("servername", servername));
-    retval.append("      ").append(XmlHandler.addTagValue("username", username));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("servername", servername));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("username", username));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
-            XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
-    retval.append("      ").append(XmlHandler.addTagValue("usessl", usessl));
-    retval.append("      ").append(XmlHandler.addTagValue("sslport", sslport));
-    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
-    retval.append("      ").append(XmlHandler.addTagValue("outputdirectory", outputdirectory));
-    retval.append("      ").append(XmlHandler.addTagValue("filenamepattern", filenamepattern));
-    retval.append("      ").append(XmlHandler.addTagValue("retrievemails", retrievemails));
-    retval.append("      ").append(XmlHandler.addTagValue("firstmails", firstmails));
-    retval.append("      ").append(XmlHandler.addTagValue("delete", delete));
-    retval.append("      ").append(XmlHandler.addTagValue("savemessage", savemessage));
-    retval.append("      ").append(XmlHandler.addTagValue("saveattachment", saveattachment));
+            XmlHandler.addTagValue(
+                CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(password)));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("usessl", usessl));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("sslport", sslport));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("outputdirectory", outputdirectory));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("filenamepattern", filenamepattern));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("retrievemails", retrievemails));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("firstmails", firstmails));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("delete", delete));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("savemessage", savemessage));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("saveattachment", saveattachment));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "usedifferentfolderforattachment", usedifferentfolderforattachment));
-    retval.append("      ").append(XmlHandler.addTagValue("protocol", protocol));
-    retval.append("      ").append(XmlHandler.addTagValue("attachmentfolder", attachmentfolder));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("protocol", protocol));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("attachmentfolder", attachmentfolder));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("attachmentwildcard", attachmentwildcard));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "valueimaplist", MailConnectionMeta.getValueImapListCode(valueimaplist)));
-    retval.append("      ").append(XmlHandler.addTagValue("imapfirstmails", imapfirstmails));
-    retval.append("      ").append(XmlHandler.addTagValue("imapfolder", imapfolder));
-    // search term
-    retval.append("      ").append(XmlHandler.addTagValue("sendersearch", senderSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("imapfirstmails", imapfirstmails));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("imapfolder", imapfolder));
+    // search term
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("sendersearch", senderSearch));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("nottermsendersearch", notTermSenderSearch));
 
-    retval.append("      ").append(XmlHandler.addTagValue("receipientsearch", receipientSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("receipientsearch", receipientSearch));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("nottermreceipientsearch", notTermReceipientSearch));
-    retval.append("      ").append(XmlHandler.addTagValue("subjectsearch", subjectSearch));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("subjectsearch", subjectSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("nottermsubjectsearch", notTermSubjectSearch));
-    retval.append("      ").append(XmlHandler.addTagValue("bodysearch", bodySearch));
-    retval.append("      ").append(XmlHandler.addTagValue("nottermbodysearch", notTermBodySearch));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("bodysearch", bodySearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("nottermbodysearch", notTermBodySearch));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "conditionreceiveddate",
                 MailConnectionMeta.getConditionDateCode(conditionReceivedDate)));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("nottermreceiveddatesearch", notTermReceivedDateSearch));
-    retval.append("      ").append(XmlHandler.addTagValue("receiveddate1", receivedDate1));
-    retval.append("      ").append(XmlHandler.addTagValue("receiveddate2", receivedDate2));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("receiveddate1", receivedDate1));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("receiveddate2", receivedDate2));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue("actiontype", MailConnectionMeta.getActionTypeCode(actiontype)));
-    retval.append("      ").append(XmlHandler.addTagValue("movetoimapfolder", moveToIMAPFolder));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("movetoimapfolder", moveToIMAPFolder));
 
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("createmovetofolder", createmovetofolder));
-    retval.append("      ").append(XmlHandler.addTagValue("createlocalfolder", createlocalfolder));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("createlocalfolder", createlocalfolder));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "aftergetimap", MailConnectionMeta.getAfterGetIMAPCode(aftergetimap)));
-    retval.append("      ").append(XmlHandler.addTagValue("includesubfolders", includesubfolders));
-    retval.append("      ").append(XmlHandler.addTagValue("useproxy", useproxy));
-    retval.append("      ").append(XmlHandler.addTagValue("proxyusername", proxyusername));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("includesubfolders", includesubfolders));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("useproxy", useproxy));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxyusername", proxyusername));
     return retval.toString();
   }
 
@@ -270,7 +294,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       servername = XmlHandler.getTagValue(entrynode, "servername");
       username = XmlHandler.getTagValue(entrynode, "username");
       password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, CONST_PASSWORD));
       usessl = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usessl"));
       sslport = XmlHandler.getTagValue(entrynode, "sslport");
       usexoauth2 = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "usexoauth2"));
@@ -1061,8 +1086,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 // Delete this message
                 mailConn.deleteMessage();
                 if (isDebug()) {
-                  logDebug(
-                      BaseMessages.getString(PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + i));
+                  logDebug(BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + i));
                 }
               }
             } else {
@@ -1183,8 +1207,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                     mailConn.deleteMessage();
                     if (isDebug()) {
                       logDebug(
-                          BaseMessages.getString(
-                              PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + messagenumber));
+                          BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
                     }
                   }
                 } else {
@@ -1194,8 +1217,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                       mailConn.deleteMessage();
                       if (isDebug()) {
                         logDebug(
-                            BaseMessages.getString(
-                                PKG, "ActionGetMailsFromPOP.MessageDeleted", "" + messagenumber));
+                            BaseMessages.getString(PKG, CONST_MESSAGE_DELETED, "" + messagenumber));
                       }
                       break;
                     case MailConnectionMeta.AFTER_GET_IMAP_MOVE:
@@ -1299,7 +1321,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "password",
+            CONST_PASSWORD,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 

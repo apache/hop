@@ -59,6 +59,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/deletefolders.html")
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFolders.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
 
   public boolean argFromPrevious;
 
@@ -110,9 +111,13 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     StringBuilder retval = new StringBuilder(300);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval.append("      ").append(XmlHandler.addTagValue("limit_folders", limitFolders));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("limit_folders", limitFolders));
 
     retval.append("      <fields>").append(Const.CR);
     if (arguments != null) {

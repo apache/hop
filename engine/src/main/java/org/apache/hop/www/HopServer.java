@@ -67,8 +67,11 @@ import org.w3c.dom.Node;
 import picocli.CommandLine;
 import picocli.CommandLine.Parameters;
 
+@SuppressWarnings("java:S106")
 public class HopServer implements Runnable, IHasHopMetadataProvider {
   private static final Class<?> PKG = HopServer.class; // For Translator
+  private static final String CONST_FOUND = " found.";
+  private static final String CONST_SPACE = "        ";
 
   @Parameters(description = "One XML configuration file or a hostname and port", arity = "0..3")
   private List<String> parameters;
@@ -370,14 +373,14 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
         HopServerStatus status = config.getHopServer().getStatus(variables);
         // List the pipelines...
         //
-        System.out.println("Pipelines: " + status.getPipelineStatusList().size() + " found.");
+        System.out.println("Pipelines: " + status.getPipelineStatusList().size() + CONST_FOUND);
         for (HopServerPipelineStatus pipelineStatus : status.getPipelineStatusList()) {
           printPipelineStatus(pipelineStatus, false);
         }
         System.out.println();
         // List the workflows...
         //
-        System.out.println("Workflows: " + status.getWorkflowStatusList().size() + " found.");
+        System.out.println("Workflows: " + status.getWorkflowStatusList().size() + CONST_FOUND);
         for (HopServerWorkflowStatus workflowStatus : status.getWorkflowStatusList()) {
           printWorkflowStatus(workflowStatus, false);
         }
@@ -423,10 +426,10 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       // Print logging & transform metrics
       //
       System.out.println(
-          "      Transforms: " + pipelineStatus.getTransformStatusList().size() + " found.");
+          "      Transforms: " + pipelineStatus.getTransformStatusList().size() + CONST_FOUND);
       int nr = 1;
       for (TransformStatus transformStatus : pipelineStatus.getTransformStatusList()) {
-        System.out.println("        " + nr++);
+        System.out.println(CONST_SPACE + nr++);
         System.out.println("          Name:      " + transformStatus.getTransformName());
         System.out.println("          Copy:      " + transformStatus.getCopy());
         System.out.println("          Status:    " + transformStatus.getStatusDescription());

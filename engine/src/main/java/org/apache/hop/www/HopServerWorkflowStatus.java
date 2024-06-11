@@ -34,6 +34,7 @@ import org.w3c.dom.Node;
 
 public class HopServerWorkflowStatus {
   public static final String XML_TAG = "workflow-status";
+  private static final String CONST_LOG_DATE = "log_date";
 
   private String workflowName;
   private String id;
@@ -70,7 +71,7 @@ public class HopServerWorkflowStatus {
   }
 
   @JsonIgnore
-  public String getXml() throws HopException {
+  public String getXml() {
     boolean sendResultXmlWithStatus =
         EnvUtil.getSystemProperty("HOP_COMPATIBILITY_SEND_RESULT_XML_WITH_FULL_STATUS", "N")
             .equalsIgnoreCase("Y");
@@ -81,7 +82,8 @@ public class HopServerWorkflowStatus {
     xml.append("  ").append(XmlHandler.addTagValue("id", id));
     xml.append("  ").append(XmlHandler.addTagValue("status_desc", statusDescription));
     xml.append("  ").append(XmlHandler.addTagValue("error_desc", errorDescription));
-    xml.append("  ").append(XmlHandler.addTagValue("log_date", XmlHandler.date2string(logDate)));
+    xml.append("  ")
+        .append(XmlHandler.addTagValue(CONST_LOG_DATE, XmlHandler.date2string(logDate)));
     xml.append("  ")
         .append(
             XmlHandler.addTagValue(
@@ -110,12 +112,12 @@ public class HopServerWorkflowStatus {
     id = XmlHandler.getTagValue(workflowStatusNode, "id");
     statusDescription = XmlHandler.getTagValue(workflowStatusNode, "status_desc");
     errorDescription = XmlHandler.getTagValue(workflowStatusNode, "error_desc");
-    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "log_date"));
+    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, CONST_LOG_DATE));
     executionStartDate =
         XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "execution_start_date"));
     executionEndDate =
         XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "execution_end_date"));
-    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, "log_date"));
+    logDate = XmlHandler.stringToDate(XmlHandler.getTagValue(workflowStatusNode, CONST_LOG_DATE));
     firstLoggingLineNr =
         Const.toInt(XmlHandler.getTagValue(workflowStatusNode, "first_log_line_nr"), 0);
     lastLoggingLineNr =
@@ -164,9 +166,8 @@ public class HopServerWorkflowStatus {
 
   public static HopServerWorkflowStatus fromXml(String xml) throws HopException {
     Document document = XmlHandler.loadXmlString(xml);
-    HopServerWorkflowStatus status =
-        new HopServerWorkflowStatus(XmlHandler.getSubNode(document, XML_TAG));
-    return status;
+
+    return new HopServerWorkflowStatus(XmlHandler.getSubNode(document, XML_TAG));
   }
 
   /**

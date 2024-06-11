@@ -48,8 +48,11 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
   private static final Class<?> PKG = GetWorkflowStatusServlet.class; // For Translator
 
   private static final long serialVersionUID = 3634806745372015720L;
-
   public static final String CONTEXT_PATH = "/hop/workflowStatus";
+  private static final String CONST_LINK = "<a target=\"_blank\" href=\"";
+  private static final String CONST_NAME = "?name=";
+  private static final String CONST_DIV_CLOSE = "</div>";
+  private static final String CONST_TD_CLOSE = "</td>";
 
   private static final byte[] XML_HEADER =
       XmlHandler.getXmlHeader(Const.XML_ENCODING).getBytes(Charset.forName(Const.XML_ENCODING));
@@ -197,7 +200,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.println(
               "<META http-equiv=\"Refresh\" content=\"10;url="
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
-                  + "?name="
+                  + CONST_NAME
                   + URLEncoder.encode(Const.NVL(workflowName, ""), UTF_8)
                   + "&id="
                   + URLEncoder.encode(id, UTF_8)
@@ -218,8 +221,8 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                 + Encode.forHtml(
                     BaseMessages.getString(
                         PKG, "GetWorkflowStatusServlet.WorkflowStatus", workflowName))
-                + "</div>");
-        out.println("</div>");
+                + CONST_DIV_CLOSE);
+        out.println(CONST_DIV_CLOSE);
 
         try {
           out.println("<div class=\"row\" style=\"padding: 0px 0px 0px 30px\">");
@@ -231,7 +234,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                   + "/images/back.svg\" style=\"margin-right: 5px; width: 16px; height: 16px; vertical-align: middle;\">");
           out.print(
               BaseMessages.getString(PKG, "HopServerStatusServlet.BackToHopServerStatus") + "</a>");
-          out.println("</div>");
+          out.println(CONST_DIV_CLOSE);
           out.println("<div class=\"row\" style=\"padding: 30px 0px 75px 0px; display: table;\">");
           out.println("<div style=\"display: table-row;\">");
           out.println(
@@ -240,7 +243,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
               "<img src=\""
                   + prefix
                   + "/images/workflow.svg\" style=\"width: 60px; height: 60px;\"></img>");
-          out.println("</div>");
+          out.println(CONST_DIV_CLOSE);
           out.println("<div style=\"vertical-align: top; display: table-cell;\">");
           out.println(
               "<table style=\"border-collapse: collapse;\" border=\"" + tableBorder + "\">");
@@ -258,19 +261,19 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print(
               "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableFirstColumn\">"
                   + Const.NVL(Encode.forHtml(id), "")
-                  + "</td>");
+                  + CONST_TD_CLOSE);
           out.print(
               "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell\" id=\"statusColor\" style=\"font-weight: bold;\">"
                   + workflow.getStatusDescription()
-                  + "</td>");
+                  + CONST_TD_CLOSE);
           String dateStr = XmlHandler.date2string(workflow.getExecutionStartDate());
           out.print(
               "<td style=\"padding: 8px 10px 10px 10px\" class=\"cellTableCell cellTableLastColumn\">"
                   + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
-                  + "</td>");
+                  + CONST_TD_CLOSE);
           out.print("</tr>");
           out.print("</table>");
-          out.print("</div>");
+          out.print(CONST_DIV_CLOSE);
 
           // Download as XML section...
           //
@@ -282,9 +285,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print(
               "<div style=\"display: block; margin-left: auto; margin-right: auto; padding: 5px 0px;\">");
           out.print(
-              "<a target=\"_blank\" href=\""
+              CONST_LINK
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
-                  + "?name="
+                  + CONST_NAME
                   + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
                   + URLEncoder.encode(id, UTF_8)
@@ -292,24 +295,24 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                   + "<img src=\""
                   + prefix
                   + "/images/download.svg\" style=\"display: block; margin: auto; width: 22px; height: 22px;\"></a>");
-          out.print("</div>"); // End of icon
+          out.print(CONST_DIV_CLOSE); // End of icon
 
           // Show as XML text
           //
           out.println("<div style=\"text-align: center; padding-top: 12px; font-size: 12px;\">");
           out.print(
-              "<a target=\"_blank\" href=\""
+              CONST_LINK
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
-                  + "?name="
+                  + CONST_NAME
                   + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
                   + URLEncoder.encode(id, UTF_8)
                   + "&xml=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsXml")
                   + "</a>");
-          out.print("</div>"); // End of XML text
+          out.print(CONST_DIV_CLOSE); // End of XML text
 
-          out.print("</div>"); // End of XML block
+          out.print(CONST_DIV_CLOSE); // End of XML block
 
           // Download as JSON block...
           //
@@ -321,9 +324,9 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.print(
               "<div style=\"display: block; margin-left: auto; margin-right: auto; padding: 5px 0px;\">");
           out.print(
-              "<a target=\"_blank\" href=\""
+              CONST_LINK
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
-                  + "?name="
+                  + CONST_NAME
                   + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
                   + URLEncoder.encode(id, UTF_8)
@@ -331,26 +334,26 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                   + "<img src=\""
                   + prefix
                   + "/images/download.svg\" style=\"display: block; margin: auto; width: 22px; height: 22px;\"></a>");
-          out.print("</div>"); // End of JSON icon
+          out.print(CONST_DIV_CLOSE); // End of JSON icon
 
           // View as JSON text
           //
           out.println("<div style=\"text-align: center; padding-top: 12px; font-size: 12px;\">");
           out.print(
-              "<a target=\"_blank\" href=\""
+              CONST_LINK
                   + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
-                  + "?name="
+                  + CONST_NAME
                   + URLEncoder.encode(workflowName, UTF_8)
                   + "&id="
                   + URLEncoder.encode(id, UTF_8)
                   + "&json=y\">"
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.ShowAsJson")
                   + "</a>");
-          out.print("</div>"); // End of JSON text
-          out.print("</div>"); // End of JSON block
+          out.print(CONST_DIV_CLOSE); // End of JSON text
+          out.print(CONST_DIV_CLOSE); // End of JSON block
 
-          out.print("</div>");
-          out.print("</div>");
+          out.print(CONST_DIV_CLOSE);
+          out.print(CONST_DIV_CLOSE);
 
           if (supportGraphicEnvironment) {
             out.print("<div class=\"row\" style=\"padding: 0px 0px 75px 0px;\">");
@@ -367,12 +370,12 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                     + (max.x + 100)
                     + "px\" src=\""
                     + convertContextPath(GetWorkflowImageServlet.CONTEXT_PATH)
-                    + "?name="
+                    + CONST_NAME
                     + URLEncoder.encode(workflowName, UTF_8)
                     + "&id="
                     + URLEncoder.encode(id, UTF_8)
                     + "\"></iframe>");
-            out.print("</div>");
+            out.print(CONST_DIV_CLOSE);
           }
 
           // Put the logging below that.
@@ -384,7 +387,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
                   + "name=\"Workflow log\" readonly=\"readonly\" style=\"height: auto; width: 100%;\">"
                   + Encode.forHtml(getLogText(workflow, startLineNr, lastLineNr))
                   + "</textarea>");
-          out.print("</div>");
+          out.print(CONST_DIV_CLOSE);
 
           out.println("<script type=\"text/javascript\">");
           out.println("element = document.getElementById( 'statusColor' );");
@@ -405,7 +408,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           out.println("</pre>");
         }
 
-        out.println("</div>");
+        out.println(CONST_DIV_CLOSE);
         out.println("</BODY>");
         out.println("</HTML>");
       }

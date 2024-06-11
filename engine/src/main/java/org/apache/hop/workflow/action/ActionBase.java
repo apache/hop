@@ -46,7 +46,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
@@ -113,6 +113,8 @@ public abstract class ActionBase
   protected Map<String, Object> extensionDataMap;
 
   protected WorkflowMeta parentWorkflowMeta;
+
+  private static final String CONST_SPACE = "      ";
 
   /** Instantiates a new action base object. */
   protected ActionBase() {
@@ -324,9 +326,9 @@ public abstract class ActionBase
   @Override
   public String getXml() {
     StringBuilder xml = new StringBuilder();
-    xml.append("      ").append(XmlHandler.addTagValue("name", getName()));
-    xml.append("      ").append(XmlHandler.addTagValue("description", getDescription()));
-    xml.append("      ").append(XmlHandler.addTagValue("type", pluginId));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("name", getName()));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("description", getDescription()));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("type", pluginId));
 
     xml.append(AttributesUtil.getAttributesXml(attributesMap));
 
@@ -584,7 +586,7 @@ public abstract class ActionBase
     if (!Utils.isEmpty(variableName)) {
       String value = resolve(variableName);
       if (!Utils.isEmpty(value)) {
-        return ValueMetaString.convertStringToBoolean(value);
+        return ValueMetaBase.convertStringToBoolean(value);
       }
     }
     return defaultValue;

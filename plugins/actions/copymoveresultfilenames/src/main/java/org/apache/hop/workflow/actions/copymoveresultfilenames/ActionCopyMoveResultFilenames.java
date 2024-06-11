@@ -69,9 +69,10 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
   private String destinationFolder;
   private String nrErrorsLessThan;
 
-  public String SUCCESS_IF_AT_LEAST_X_FILES = "success_when_at_least";
-  public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
-  public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+  public static final String SUCCESS_IF_AT_LEAST_X_FILES = "success_when_at_least";
+  public static final String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
+  public static final String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
+  private static final String CONST_SPACE_SHORT = "      ";
   private String successCondition;
   private Pattern wildcardPattern;
   private Pattern wildcardExcludePattern;
@@ -132,26 +133,32 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     StringBuilder xml = new StringBuilder(500); // 358 chars in just tags and spaces alone
 
     xml.append(super.getXml());
-    xml.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    xml.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
-    xml.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    xml.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
-    xml.append("      ").append(XmlHandler.addTagValue("destination_folder", destinationFolder));
-    xml.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    xml.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
-    xml.append("      ").append(XmlHandler.addTagValue("add_date", addDate));
-    xml.append("      ").append(XmlHandler.addTagValue("add_time", addTime));
-    xml.append("      ").append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    xml.append("      ").append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    xml.append("      ").append(XmlHandler.addTagValue("action", action));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("foldername", folderName));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("destination_folder", destinationFolder));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("success_condition", successCondition));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("add_date", addDate));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("add_time", addTime));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("action", action));
+    xml.append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    xml.append("      ").append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
+    xml.append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("CreateDestinationFolder", createDestinationFolder));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("RemovedSourceFilename", removedSourceFilename));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("AddDestinationFilename", addDestinationFilename));
 
     return xml.toString();
@@ -375,7 +382,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
         }
 
         List<ResultFile> resultFiles = result.getResultFilesList();
-        if (resultFiles != null && resultFiles.size() > 0) {
+        if (resultFiles != null && !resultFiles.isEmpty()) {
           for (Iterator<ResultFile> it = resultFiles.iterator();
               it.hasNext() && !parentWorkflow.isStopped(); ) {
             if (successConditionBroken) {
@@ -395,8 +402,8 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
             file = resultFile.getFile();
             if (file != null && file.exists()) {
               if (!specifyWildcard
-                  || (CheckFileWildcard(file.getName().getBaseName(), wildcardPattern, true)
-                      && !CheckFileWildcard(
+                  || (checkFileWildcard(file.getName().getBaseName(), wildcardPattern, true)
+                      && !checkFileWildcard(
                           file.getName().getBaseName(), wildcardExcludePattern, false)
                       && specifyWildcard)) {
                 // Copy or Move file
@@ -665,14 +672,13 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
     return shortfilename;
   }
 
-  /**********************************************************
-   *
+  /**
    * @param selectedfile
    * @param pattern
    * @param include
    * @return True if the selectedfile matches the wildcard
-   **********************************************************/
-  private boolean CheckFileWildcard(String selectedfile, Pattern pattern, boolean include) {
+   */
+  private boolean checkFileWildcard(String selectedfile, Pattern pattern, boolean include) {
     boolean getIt = include;
     if (pattern != null) {
       Matcher matcher = pattern.matcher(selectedfile);

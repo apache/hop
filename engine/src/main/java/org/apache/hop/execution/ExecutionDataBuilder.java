@@ -49,6 +49,7 @@ public final class ExecutionDataBuilder {
   public static final String RESULT_KEY_RESULT = "result?";
   public static final String RESULT_KEY_ERRORS = "errors";
   public static final String RESULT_KEY_STOPPED = "stopped?";
+  public static final String CONST_VALUE = "value";
 
   private ExecutionType executionType;
   private ExecutionDataSetMeta dataSetMeta;
@@ -130,7 +131,7 @@ public final class ExecutionDataBuilder {
       IVariables variables,
       String logChannelId,
       String actionName) {
-    IRowMeta rowMeta = new RowMetaBuilder().addString("variable").addString("value").build();
+    IRowMeta rowMeta = new RowMetaBuilder().addString("variable").addString(CONST_VALUE).build();
     RowBuffer rowBuffer = new RowBuffer(rowMeta);
 
     // Get all the variables but avoid system properties.
@@ -196,7 +197,7 @@ public final class ExecutionDataBuilder {
     // The result data
     //
     {
-      IRowMeta resultRowMeta = new RowMetaBuilder().addString("key").addString("value").build();
+      IRowMeta resultRowMeta = new RowMetaBuilder().addString("key").addString(CONST_VALUE).build();
       RowBuffer resultBuffer = new RowBuffer(resultRowMeta);
       resultBuffer.addRow(RESULT_KEY_RESULT, result.getResult() ? "true" : "false");
       resultBuffer.addRow(RESULT_KEY_ERRORS, Long.toString(result.getNrErrors()));
@@ -259,7 +260,7 @@ public final class ExecutionDataBuilder {
     // The variables as well...
     //
     {
-      IRowMeta rowMeta = new RowMetaBuilder().addString("variable").addString("value").build();
+      IRowMeta rowMeta = new RowMetaBuilder().addString("variable").addString(CONST_VALUE).build();
       RowBuffer rowBuffer = new RowBuffer(rowMeta);
 
       // Get all the variables but avoid system properties.

@@ -26,11 +26,13 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.mozilla.javascript.Context;
 
 /**
- * This class contains common code from {@linkplain
- * org.apache.hop.pipeline.transforms.script.Script} and {@linkplain
- * org.apache.hop.pipeline.transforms .scriptvalues_mod.ScriptValuesMod} classes
+ * This class contains common code from {@linkplain org.apache.hop.pipeline.transforms.script} and
+ * {@linkplain org.apache.hop.pipeline.transforms} classes
  */
 public class JavaScriptUtils {
+  private static final String CONST_UNDEFINED = "org.mozilla.javascript.Undefined";
+  private static final String CONST_NATIVE_JAVA_OBJECT = "org.mozilla.javascript.NativeJavaObject";
+  private static final String CONST_NATIVE_NUMBER = "org.mozilla.javascript.NativeNumber";
 
   public static Object convertFromJs(Object value, int type, String fieldName)
       throws HopValueException {
@@ -69,16 +71,16 @@ public class JavaScriptUtils {
   }
 
   public static Number jsToNumber(Object value, String classType) {
-    if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+    if (classType.equalsIgnoreCase(CONST_UNDEFINED)) {
       return null;
-    } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")) {
+    } else if (classType.equalsIgnoreCase(CONST_NATIVE_JAVA_OBJECT)) {
       try {
         return (Double) Context.jsToJava(value, Double.class);
       } catch (Exception e) {
         String string = Context.toString(value);
         return Double.parseDouble(Const.trim(string));
       }
-    } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeNumber")) {
+    } else if (classType.equalsIgnoreCase(CONST_NATIVE_NUMBER)) {
       Number nb = Context.toNumber(value);
       return nb.doubleValue();
     } else {
@@ -94,12 +96,12 @@ public class JavaScriptUtils {
       String classType = clazz.getName();
       if (classType.equalsIgnoreCase("java.lang.String")) {
         return (Long.valueOf((String) value));
-      } else if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+      } else if (classType.equalsIgnoreCase(CONST_UNDEFINED)) {
         return null;
-      } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeNumber")) {
+      } else if (classType.equalsIgnoreCase(CONST_NATIVE_NUMBER)) {
         Number nb = Context.toNumber(value);
         return nb.longValue();
-      } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")) {
+      } else if (classType.equalsIgnoreCase(CONST_NATIVE_JAVA_OBJECT)) {
         // Is it a Value?
         //
         try {
@@ -121,12 +123,12 @@ public class JavaScriptUtils {
 
   public static Date jsToDate(Object value, String classType) throws HopValueException {
     double dbl;
-    if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+    if (classType.equalsIgnoreCase(CONST_UNDEFINED)) {
       return null;
     } else {
       if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeDate")) {
         dbl = Context.toNumber(value);
-      } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")
+      } else if (classType.equalsIgnoreCase(CONST_NATIVE_JAVA_OBJECT)
           || classType.equalsIgnoreCase("java.util.Date")) {
         // Is it a java Date() class ?
         try {
@@ -152,12 +154,12 @@ public class JavaScriptUtils {
   }
 
   public static BigDecimal jsToBigNumber(Object value, String classType) {
-    if (classType.equalsIgnoreCase("org.mozilla.javascript.Undefined")) {
+    if (classType.equalsIgnoreCase(CONST_UNDEFINED)) {
       return null;
-    } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeNumber")) {
+    } else if (classType.equalsIgnoreCase(CONST_NATIVE_NUMBER)) {
       Number nb = Context.toNumber(value);
       return BigDecimal.valueOf(nb.doubleValue());
-    } else if (classType.equalsIgnoreCase("org.mozilla.javascript.NativeJavaObject")) {
+    } else if (classType.equalsIgnoreCase(CONST_NATIVE_JAVA_OBJECT)) {
       // Is it a BigDecimal class ?
       try {
         return (BigDecimal) Context.jsToJava(value, BigDecimal.class);
