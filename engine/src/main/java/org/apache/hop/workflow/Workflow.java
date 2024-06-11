@@ -93,7 +93,10 @@ public abstract class Workflow extends Variables
         IExecutor,
         IExtensionData,
         IWorkflowEngine<WorkflowMeta> {
-  protected static Class<?> PKG = Workflow.class; // For Translator
+  protected static final Class<?> PKG = Workflow.class; // For Translator
+  private static final String CONST_WORKFLOW_FINISHED = "Workflow.Comment.WorkflowFinished";
+  private static final String CONST_REASON_STARTED = "Workflow.Reason.Started";
+  private static final String CONST_WORKFLOW_STARTED = "Workflow.Comment.WorkflowStarted";
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME =
       "__workflow_execution_configuration__.xml";
@@ -325,7 +328,7 @@ public abstract class Workflow extends Variables
         ExtensionPointHandler.callExtensionPoint(
             log, this, HopExtensionPoint.WorkflowFinish.id, this);
 
-        log.logBasic(BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"));
+        log.logBasic(BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED));
         fireExecutionFinishedListeners();
 
         // release unused vfs connections
@@ -349,7 +352,7 @@ public abstract class Workflow extends Variables
         new ActionResult(
             res,
             this.getLogChannelId(),
-            BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"),
+            BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED),
             null,
             null,
             null);
@@ -373,7 +376,7 @@ public abstract class Workflow extends Variables
       setStopped(false);
       HopEnvironment.setExecutionInformation(this);
 
-      log.logBasic(BaseMessages.getString(PKG, "Workflow.Comment.WorkflowStarted"));
+      log.logBasic(BaseMessages.getString(PKG, CONST_WORKFLOW_STARTED));
 
       ExtensionPointHandler.callExtensionPoint(log, this, HopExtensionPoint.WorkflowStart.id, this);
 
@@ -382,8 +385,8 @@ public abstract class Workflow extends Variables
           new ActionResult(
               null,
               null,
-              BaseMessages.getString(PKG, "Workflow.Comment.WorkflowStarted"),
-              BaseMessages.getString(PKG, "Workflow.Reason.Started"),
+              BaseMessages.getString(PKG, CONST_WORKFLOW_STARTED),
+              BaseMessages.getString(PKG, CONST_REASON_STARTED),
               null,
               null);
       workflowTracker.addWorkflowTracker(new WorkflowTracker(workflowMeta, jerStart));
@@ -442,29 +445,25 @@ public abstract class Workflow extends Variables
           isFirst = false;
           res =
               executeFromStart(
-                  0,
-                  inputRes,
-                  startpoint,
-                  null,
-                  BaseMessages.getString(PKG, "Workflow.Reason.Started"));
+                  0, inputRes, startpoint, null, BaseMessages.getString(PKG, CONST_REASON_STARTED));
         }
         jerEnd =
             new ActionResult(
                 res,
                 jes.getLogChannelId(),
-                BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"),
+                BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED),
                 BaseMessages.getString(PKG, "Workflow.Reason.Finished"),
                 null,
                 null);
       } else {
         res =
             executeFromStart(
-                0, res, startpoint, null, BaseMessages.getString(PKG, "Workflow.Reason.Started"));
+                0, res, startpoint, null, BaseMessages.getString(PKG, CONST_REASON_STARTED));
         jerEnd =
             new ActionResult(
                 res,
                 startpoint.getAction().getLogChannel().getLogChannelId(),
-                BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"),
+                BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED),
                 BaseMessages.getString(PKG, "Workflow.Reason.Finished"),
                 null,
                 null);
@@ -528,6 +527,10 @@ public abstract class Workflow extends Variables
     return res;
   }
 
+  /**
+   * @deprecated
+   * @param listener workflow started listener
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void addWorkflowStartedListener(
@@ -551,6 +554,10 @@ public abstract class Workflow extends Variables
     }
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowStartedListeners() throws HopException {
@@ -567,6 +574,10 @@ public abstract class Workflow extends Variables
     }
   }
 
+  /**
+   * @deprecated
+   * @param listener
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void addWorkflowFinishedListener(
@@ -590,6 +601,10 @@ public abstract class Workflow extends Variables
     }
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void fireWorkflowFinishListeners() throws HopException {
@@ -702,7 +717,7 @@ public abstract class Workflow extends Variables
           new ActionResult(
               null,
               null,
-              BaseMessages.getString(PKG, "Workflow.Comment.WorkflowStarted"),
+              BaseMessages.getString(PKG, CONST_WORKFLOW_STARTED),
               reason,
               actionMeta.getName(),
               resolve(actionMeta.getAction().getFilename()));
@@ -757,7 +772,7 @@ public abstract class Workflow extends Variables
           new ActionResult(
               newResult,
               cloneJei.getLogChannel().getLogChannelId(),
-              BaseMessages.getString(PKG, "Workflow.Comment.WorkflowFinished"),
+              BaseMessages.getString(PKG, CONST_WORKFLOW_FINISHED),
               null,
               actionMeta.getName(),
               resolve(actionMeta.getAction().getFilename()));
@@ -923,7 +938,7 @@ public abstract class Workflow extends Variables
 
     // See if there where any errors in the parallel execution
     //
-    if (threadExceptions.size() > 0) {
+    if (!threadExceptions.isEmpty()) {
       res.setResult(false);
       res.setNrErrors(threadExceptions.size());
 
@@ -1680,8 +1695,7 @@ public abstract class Workflow extends Variables
   }
 
   /**
-   * Gets workflowFinishedListeners
-   *
+   * @deprecated Gets workflowFinishedListeners
    * @return value of workflowFinishedListeners
    */
   @Override
@@ -1692,6 +1706,7 @@ public abstract class Workflow extends Variables
   }
 
   /**
+   * @deprecated
    * @param workflowFinishedListeners The workflowFinishedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -1701,8 +1716,7 @@ public abstract class Workflow extends Variables
   }
 
   /**
-   * Gets workflowStartedListeners
-   *
+   * @deprecated Gets workflowStartedListeners
    * @return value of workflowStartedListeners
    */
   @Override
@@ -1713,6 +1727,7 @@ public abstract class Workflow extends Variables
   }
 
   /**
+   * @deprecated
    * @param workflowStartedListeners The workflowStartedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)

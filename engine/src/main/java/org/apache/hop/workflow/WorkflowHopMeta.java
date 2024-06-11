@@ -32,6 +32,7 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
 
   public static final String XML_EVALUATION_TAG = "evaluation";
   public static final String XML_UNCONDITIONAL_TAG = "unconditional";
+  private static final String CONST_SPACE = "      ";
 
   private boolean evaluation;
   private boolean unconditional;
@@ -88,7 +89,8 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     String strFrom = (this.from == null) ? "(empty)" : this.from.getName();
     String strTo = (this.to == null) ? "(empty)" : this.to.getName();
     String strEnabled = enabled ? "enabled" : "disabled";
-    String strEvaluation = unconditional ? "unconditional" : evaluation ? "success" : "failure";
+    String strEvaluation =
+        unconditional ? XML_UNCONDITIONAL_TAG : evaluation ? "success" : "failure";
     return strFrom + " --> " + strTo + " [" + strEnabled + ", " + strEvaluation + ")";
   }
 
@@ -121,11 +123,11 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     StringBuilder xml = new StringBuilder(200);
     if ((null != this.from) && (null != this.to)) {
       xml.append("    ").append(XmlHandler.openTag(XML_HOP_TAG)).append(Const.CR);
-      xml.append("      ").append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
-      xml.append("      ").append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
-      xml.append("      ").append(XmlHandler.addTagValue(XML_ENABLED_TAG, this.enabled));
-      xml.append("      ").append(XmlHandler.addTagValue(XML_EVALUATION_TAG, this.evaluation));
-      xml.append("      ")
+      xml.append(CONST_SPACE).append(XmlHandler.addTagValue(XML_FROM_TAG, this.from.getName()));
+      xml.append(CONST_SPACE).append(XmlHandler.addTagValue(XML_TO_TAG, this.to.getName()));
+      xml.append(CONST_SPACE).append(XmlHandler.addTagValue(XML_ENABLED_TAG, this.enabled));
+      xml.append(CONST_SPACE).append(XmlHandler.addTagValue(XML_EVALUATION_TAG, this.evaluation));
+      xml.append(CONST_SPACE)
           .append(XmlHandler.addTagValue(XML_UNCONDITIONAL_TAG, this.unconditional));
       xml.append("    ").append(XmlHandler.closeTag(XML_HOP_TAG)).append(Const.CR);
     }
@@ -133,8 +135,21 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     return xml.toString();
   }
 
-  // TODO: Rename method isEvaluation()
+  /**
+   * @deprecated replaced by isEvaluation()
+   * @see #isEvaluation()
+   * @return the evaluation
+   */
+  @Deprecated(since = "2.10")
   public boolean getEvaluation() {
+    return evaluation;
+  }
+
+  /**
+   * @return the evaluation
+   */
+  @SuppressWarnings("java:S4144")
+  public boolean isEvaluation() {
     return evaluation;
   }
 
@@ -174,7 +189,7 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneabl
     if (isUnconditional()) {
       return BaseMessages.getString(PKG, "WorkflowHopMeta.Msg.ExecNextActionUncondition");
     } else {
-      if (getEvaluation()) {
+      if (isEvaluation()) {
         return BaseMessages.getString(PKG, "WorkflowHopMeta.Msg.ExecNextActionFlawLess");
       } else {
         return BaseMessages.getString(PKG, "WorkflowHopMeta.Msg.ExecNextActionFailed");

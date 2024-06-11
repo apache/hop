@@ -115,6 +115,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
   private static final String CONST_TABLE_CAT = "TABLE_CAT";
   private static final String CONST_TABLE_SCHEM = "TABLE_SCHEM";
   private static final String CONST_READ = "read :";
+  private static final String CONST_ERROR_UPDATING_BATCH = "Error updating batch";
 
   private int rowlimit;
   private int commitsize;
@@ -1185,10 +1186,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
       return rowsAreSafe;
     } catch (BatchUpdateException ex) {
-      throw createHopDatabaseBatchException("Error updating batch", ex);
+      throw createHopDatabaseBatchException(CONST_ERROR_UPDATING_BATCH, ex);
     } catch (SQLException ex) {
       if (isBatchUpdate) {
-        throw createHopDatabaseBatchException("Error updating batch", ex);
+        throw createHopDatabaseBatchException(CONST_ERROR_UPDATING_BATCH, ex);
       } else {
         throw new HopDatabaseException("Error inserting/updating row", ex);
       }
@@ -1286,10 +1287,10 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         if (closeStatement) ps.close();
       }
     } catch (BatchUpdateException ex) {
-      throw createHopDatabaseBatchException("Error updating batch", ex);
+      throw createHopDatabaseBatchException(CONST_ERROR_UPDATING_BATCH, ex);
     } catch (SQLException ex) {
       if (isBatchUpdate) {
-        throw createHopDatabaseBatchException("Error updating batch", ex);
+        throw createHopDatabaseBatchException(CONST_ERROR_UPDATING_BATCH, ex);
       } else {
         throw new HopDatabaseException("Unable to empty ps and commit connection.", ex);
       }

@@ -34,6 +34,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -102,6 +103,11 @@ public class PipelineMeta extends AbstractMeta
         IHasFilename {
 
   public static final String PIPELINE_EXTENSION = ".hpl";
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_ERROR_OPENING_OR_VALIDATING =
+      "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile";
+  private static final String CONST_PARAMETER = "parameter";
+  private static final String CONST_EMPTY = "        ";
 
   private static final Class<?> PKG = Pipeline.class; // For Translator
 
@@ -1509,17 +1515,6 @@ public class PipelineMeta extends AbstractMeta
    */
   @Override
   public String getXml(IVariables variables) throws HopException {
-    /*
-    TODO : HOP-4286 : Cleanup XML of PipelineMeta
-    try {
-      return XmlFormatter.format(
-          XmlHandler.openTag(XML_TAG)
-              + XmlMetadataUtil.serializeObjectToXml(this)
-              + XmlHandler.closeTag(XML_TAG));
-    } catch (Exception e) {
-      throw new HopException("Error serializing pipeline metadata to XML", e);
-    }
-     */
 
     StringBuilder xml = new StringBuilder(800);
 
@@ -1535,7 +1530,7 @@ public class PipelineMeta extends AbstractMeta
     xml.append("    ")
         .append(
             XmlHandler.addTagValue("name_sync_with_filename", isNameSynchronizedWithFilename()));
-    xml.append("    ").append(XmlHandler.addTagValue("description", getDescription()));
+    xml.append("    ").append(XmlHandler.addTagValue(CONST_DESCRIPTION, getDescription()));
     xml.append("    ")
         .append(XmlHandler.addTagValue("extended_description", getExtendedDescription()));
     xml.append("    ").append(XmlHandler.addTagValue("pipeline_version", getPipelineVersion()));
@@ -1548,13 +1543,14 @@ public class PipelineMeta extends AbstractMeta
     xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
     String[] parameters = listParameters();
     for (int idx = 0; idx < parameters.length; idx++) {
-      xml.append("      ").append(XmlHandler.openTag("parameter")).append(Const.CR);
-      xml.append("        ").append(XmlHandler.addTagValue("name", parameters[idx]));
-      xml.append("        ")
+      xml.append("      ").append(XmlHandler.openTag(CONST_PARAMETER)).append(Const.CR);
+      xml.append(CONST_EMPTY).append(XmlHandler.addTagValue("name", parameters[idx]));
+      xml.append(CONST_EMPTY)
           .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
-      xml.append("        ")
-          .append(XmlHandler.addTagValue("description", getParameterDescription(parameters[idx])));
-      xml.append("      ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
+      xml.append(CONST_EMPTY)
+          .append(
+              XmlHandler.addTagValue(CONST_DESCRIPTION, getParameterDescription(parameters[idx])));
+      xml.append("      ").append(XmlHandler.closeTag(CONST_PARAMETER)).append(Const.CR);
     }
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
 
@@ -1672,9 +1668,7 @@ public class PipelineMeta extends AbstractMeta
       throw ke;
     } catch (HopException | FileSystemException e) {
       throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile", fname),
-          e);
+          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, fname), e);
     }
 
     if (doc != null) {
@@ -1691,8 +1685,7 @@ public class PipelineMeta extends AbstractMeta
 
     } else {
       throw new HopXmlException(
-          BaseMessages.getString(
-              PKG, "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile", fname));
+          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, fname));
     }
   }
 
@@ -1760,12 +1753,6 @@ public class PipelineMeta extends AbstractMeta
         //
         setFilename(filename);
 
-        // TODO: HOP-4286 : Cleanup XML of PipelineMeta
-        //
-        // XmlMetadataUtil.deSerializeFromXml(
-        //    pipelineNode, PipelineMeta.class, this, metadataProvider);
-        //
-
         // Read the notes...
         Node notepadsNode = XmlHandler.getSubNode(pipelineNode, XML_TAG_NOTEPADS);
         List<Node> notepadNodes = XmlHandler.getNodes(notepadsNode, NotePadMeta.XML_TAG);
@@ -1825,7 +1812,7 @@ public class PipelineMeta extends AbstractMeta
         // Handle Hops
         //
         Node orderNode = XmlHandler.getSubNode(pipelineNode, XML_TAG_ORDER);
-        List<Node> hopNodes = XmlHandler.getNodes(orderNode, PipelineHopMeta.XML_HOP_TAG);
+        List<Node> hopNodes = XmlHandler.getNodes(orderNode, BaseHopMeta.XML_HOP_TAG);
 
         if (LogChannel.GENERAL.isDebug()) {
           LogChannel.GENERAL.logDebug(
@@ -1854,7 +1841,7 @@ public class PipelineMeta extends AbstractMeta
 
         // description
         //
-        info.setDescription(XmlHandler.getTagValue(infoNode, "description"));
+        info.setDescription(XmlHandler.getTagValue(infoNode, CONST_DESCRIPTION));
 
         // extended description
         //
@@ -1873,14 +1860,14 @@ public class PipelineMeta extends AbstractMeta
 
         // Read the named parameters.
         Node paramsNode = XmlHandler.getSubNode(infoNode, XML_TAG_PARAMETERS);
-        int nrParams = XmlHandler.countNodes(paramsNode, "parameter");
+        int nrParams = XmlHandler.countNodes(paramsNode, CONST_PARAMETER);
 
         for (int i = 0; i < nrParams; i++) {
-          Node paramNode = XmlHandler.getSubNodeByNr(paramsNode, "parameter", i);
+          Node paramNode = XmlHandler.getSubNodeByNr(paramsNode, CONST_PARAMETER, i);
 
           String paramName = XmlHandler.getTagValue(paramNode, "name");
           String defaultValue = XmlHandler.getTagValue(paramNode, "default_value");
-          String descr = XmlHandler.getTagValue(paramNode, "description");
+          String descr = XmlHandler.getTagValue(paramNode, CONST_DESCRIPTION);
 
           addParameterDefinition(paramName, defaultValue, descr);
         }
@@ -2097,8 +2084,8 @@ public class PipelineMeta extends AbstractMeta
     if (errorHandingNode != null) {
       NodeList errors = errorHandingNode.getChildNodes();
 
-      Node nodeHopFrom = XmlHandler.getSubNode(checkNode, PipelineHopMeta.XML_FROM_TAG);
-      Node nodeHopTo = XmlHandler.getSubNode(checkNode, PipelineHopMeta.XML_TO_TAG);
+      Node nodeHopFrom = XmlHandler.getSubNode(checkNode, BaseHopMeta.XML_FROM_TAG);
+      Node nodeHopTo = XmlHandler.getSubNode(checkNode, BaseHopMeta.XML_TO_TAG);
 
       int i = 0;
       while (i < errors.getLength()) {
@@ -3554,14 +3541,10 @@ public class PipelineMeta extends AbstractMeta
       return exportFileName;
     } catch (FileSystemException e) {
       throw new HopException(
-          BaseMessages.getString(
-              PKG, "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile", getFilename()),
-          e);
+          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, getFilename()), e);
     } catch (HopFileException e) {
       throw new HopException(
-          BaseMessages.getString(
-              PKG, "PipelineMeta.Exception.ErrorOpeningOrValidatingTheXMLFile", getFilename()),
-          e);
+          BaseMessages.getString(PKG, CONST_ERROR_OPENING_OR_VALIDATING, getFilename()), e);
     }
   }
 
@@ -3783,6 +3766,7 @@ public class PipelineMeta extends AbstractMeta
    * The PipelineType enum describes the various types of pipelines in terms of execution, including
    * Normal, Serial Single-Threaded, and Single-Threaded.
    */
+  @SuppressWarnings("java:S115")
   public enum PipelineType {
 
     /** A normal pipeline. */

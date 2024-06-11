@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.FileTypeSelector;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiElementType;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
@@ -61,6 +62,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
   public static final String FILENAME_EXECUTION_JSON = "execution.json";
   public static final String FILENAME_STATE_JSON = "state.json";
   public static final String FILENAME_STATE_LOG = "state.log";
+  public static final String CONST_DATA_JSON = "-data.json";
 
   public static final int MAX_JSON_LOGGING_TEXT_SIZE = 2000;
 
@@ -118,7 +120,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
       // We can write out a single simple JSON file with execution details
       //
-      String registrationFileName = folderName + "/" + FILENAME_EXECUTION_JSON;
+      String registrationFileName = folderName + Const.FILE_SEPARATOR + FILENAME_EXECUTION_JSON;
 
       // Create the folder(s) of the parent:
       //
@@ -418,10 +420,10 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
       // For a workflow to find its children.
       // For a Beam pipeline to find child transforms.
       //
-      String suffix = "-data.json";
+      String suffix = CONST_DATA_JSON;
       FileObject folderObject = HopVfs.getFileObject(getSubFolder(parentExecutionId));
 
-      // In this folder we have a number of files ending with "-data.json"
+      // In this folder we have a number of files ending with CONST_DATA_JSON
       for (FileObject child : folderObject.getChildren()) {
         if (child == null) {
           continue;
@@ -547,7 +549,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
           return null;
         }
 
-        FileObject dataFileObject = folder.getChild(executionId + "-data.json");
+        FileObject dataFileObject = folder.getChild(executionId + CONST_DATA_JSON);
         if (dataFileObject == null || !dataFileObject.exists()) {
           return null;
         }
@@ -596,7 +598,7 @@ public class FileExecutionInfoLocation implements IExecutionInfoLocation {
 
   private String getDataFilename(ExecutionData data) {
     String filename = getSubFolder(data);
-    filename += "/" + data.getOwnerId() + "-data.json";
+    filename += "/" + data.getOwnerId() + CONST_DATA_JSON;
     return filename;
   }
 

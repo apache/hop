@@ -27,23 +27,15 @@ import org.w3c.dom.Node;
 
 public class SslConfiguration {
   private static final Class<?> PKG = SslConfiguration.class; // For Translator
-
   public static final String XML_TAG = "sslConfig";
-
   private static final String XML_TAG_KEY_STORE = "keyStore";
-
   private static final String XML_TAG_KEY_STORE_TYPE = "keyStoreType";
-
   private static final String XML_TAG_KEY_PASSWORD = "keyPassword";
-
   private static final String XML_TAG_KEY_STORE_PASSWORD = "keyStorePassword";
-
   private static final String EMPTY = "empty";
-
   private static final String NULL = "null";
-
+  private static final String CONST_ILLEGAL_PARAMETER = "WebServer.Error.IllegalSslParameter";
   @HopMetadataProperty private String keyStoreType = "JKS";
-
   @HopMetadataProperty private String keyStore;
 
   @HopMetadataProperty(password = true)
@@ -94,13 +86,9 @@ public class SslConfiguration {
    */
   public void setKeyStore(String keyStore) {
     Validate.notNull(
-        keyStore,
-        BaseMessages.getString(
-            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE, NULL));
+        keyStore, BaseMessages.getString(PKG, CONST_ILLEGAL_PARAMETER, XML_TAG_KEY_STORE, NULL));
     Validate.notEmpty(
-        keyStore,
-        BaseMessages.getString(
-            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE, EMPTY));
+        keyStore, BaseMessages.getString(PKG, CONST_ILLEGAL_PARAMETER, XML_TAG_KEY_STORE, EMPTY));
     this.keyStore = keyStore;
   }
 
@@ -117,12 +105,10 @@ public class SslConfiguration {
   public void setKeyStorePassword(String keyStorePassword) {
     Validate.notNull(
         keyStorePassword,
-        BaseMessages.getString(
-            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE_PASSWORD, NULL));
+        BaseMessages.getString(PKG, CONST_ILLEGAL_PARAMETER, XML_TAG_KEY_STORE_PASSWORD, NULL));
     Validate.notEmpty(
         keyStorePassword,
-        BaseMessages.getString(
-            PKG, "WebServer.Error.IllegalSslParameter", XML_TAG_KEY_STORE_PASSWORD, EMPTY));
+        BaseMessages.getString(PKG, CONST_ILLEGAL_PARAMETER, XML_TAG_KEY_STORE_PASSWORD, EMPTY));
     this.keyStorePassword = keyStorePassword;
   }
 

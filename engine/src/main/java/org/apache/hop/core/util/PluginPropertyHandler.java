@@ -24,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.w3c.dom.Node;
 
 public final class PluginPropertyHandler {
+  private static final String CONST_NODE_CANNOT_BE_NULL = "Node cannot be null";
 
   public abstract static class AbstractHandler implements Closure {
     /**
@@ -31,7 +32,6 @@ public final class PluginPropertyHandler {
      *
      * @throws IllegalArgumentException if property is null.
      * @throws FunctorException if HopException in handle thrown.
-     * @see org.apache.commons.collections.Closure#execute(java.lang.Object)
      */
     @Override
     public final void execute(final Object property)
@@ -97,7 +97,7 @@ public final class PluginPropertyHandler {
      */
     public LoadXml(final Node node) throws IllegalArgumentException {
       super();
-      Assert.assertNotNull(node, "Node cannot be null");
+      Assert.assertNotNull(node, CONST_NODE_CANNOT_BE_NULL);
       this.node = node;
     }
 
@@ -119,7 +119,7 @@ public final class PluginPropertyHandler {
      */
     public SaveToPreferences(final Preferences node) throws IllegalArgumentException {
       super();
-      Assert.assertNotNull(node, "Node cannot be null");
+      Assert.assertNotNull(node, CONST_NODE_CANNOT_BE_NULL);
       this.node = node;
     }
 
@@ -141,7 +141,7 @@ public final class PluginPropertyHandler {
      */
     public ReadFromPreferences(final Preferences node) throws IllegalArgumentException {
       super();
-      Assert.assertNotNull(node, "Node cannot be null");
+      Assert.assertNotNull(node, CONST_NODE_CANNOT_BE_NULL);
       this.node = node;
     }
 

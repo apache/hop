@@ -65,6 +65,10 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   private static final int CR = 0x0d;
 
   private static final Class<?> PKG = ActionDosToUnix.class; // For Translator
+  private static final String CONST_SPACE = "          ";
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_SUCCESS_CONDITION_BROKEN =
+      "ActionDosToUnix.Error.SuccessConditionbroken";
 
   public static final String[] ConversionTypeDesc =
       new String[] {
@@ -154,21 +158,31 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder(300);
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
-    retval.append("      ").append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    retval.append("      ").append(XmlHandler.addTagValue("success_condition", successCondition));
-    retval.append("      ").append(XmlHandler.addTagValue("resultfilenames", resultFilenames));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("arg_from_previous", argFromPrevious));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("include_subfolders", includeSubFolders));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("success_condition", successCondition));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("resultfilenames", resultFilenames));
     retval.append("      <fields>").append(Const.CR);
     if (sourceFileFolder != null) {
       for (int i = 0; i < sourceFileFolder.length; i++) {
         retval.append("        <field>").append(Const.CR);
         retval
-            .append("          ")
+            .append(CONST_SPACE)
             .append(XmlHandler.addTagValue("source_filefolder", sourceFileFolder[i]));
-        retval.append("          ").append(XmlHandler.addTagValue("wildcard", wildcard[i]));
+        retval.append(CONST_SPACE).append(XmlHandler.addTagValue("wildcard", wildcard[i]));
         retval
-            .append("          ")
+            .append(CONST_SPACE)
             .append(
                 XmlHandler.addTagValue(
                     "ConversionType", getConversionTypeCode(conversionTypes[i])));
@@ -294,9 +308,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       for (int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++) {
         if (successConditionBroken) {
           if (!successConditionBrokenExit) {
-            logError(
-                BaseMessages.getString(
-                    PKG, "ActionDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
+            logError(BaseMessages.getString(PKG, CONST_SUCCESS_CONDITION_BROKEN, "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
           result.setEntryNr(nrAllErrors);
@@ -328,9 +340,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       for (int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++) {
         if (successConditionBroken) {
           if (!successConditionBrokenExit) {
-            logError(
-                BaseMessages.getString(
-                    PKG, "ActionDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
+            logError(BaseMessages.getString(PKG, CONST_SUCCESS_CONDITION_BROKEN, "" + nrAllErrors));
             successConditionBrokenExit = true;
           }
           result.setEntryNr(nrAllErrors);
@@ -581,7 +591,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
                 if (!successConditionBrokenExit) {
                   logError(
                       BaseMessages.getString(
-                          PKG, "ActionDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors));
+                          PKG, CONST_SUCCESS_CONDITION_BROKEN, "" + nrAllErrors));
                   successConditionBrokenExit = true;
                 }
                 return false;

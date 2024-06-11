@@ -65,6 +65,13 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/folderscompare.html")
 public class ActionFoldersCompare extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFoldersCompare.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_IS_A_FILE = "ActionFoldersCompare.Log.IsAFile";
+  private static final String CONST_IS_A_FOLDER = "ActionFoldersCompare.Log.IsAFolder";
+  private static final String CONST_IS_UNKNOWN_FILE_TYPE =
+      "ActionFoldersCompare.Log.IsUnknownFileType";
+  private static final String CONST_FILENAME1 = "filename1";
+  private static final String CONST_FILENAME2 = "filename2";
 
   private String filename1;
   private String filename2;
@@ -109,16 +116,20 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     StringBuilder retval = new StringBuilder(200); // 133 chars in just spaces and tag names alone
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("include_subfolders", includesubfolders));
     retval
-        .append("      ")
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("include_subfolders", includesubfolders));
+    retval
+        .append(CONST_SPACE_SHORT)
         .append(XmlHandler.addTagValue("compare_filecontent", comparefilecontent));
-    retval.append("      ").append(XmlHandler.addTagValue("compare_filesize", comparefilesize));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("compare_filesize", comparefilesize));
 
-    retval.append("      ").append(XmlHandler.addTagValue("compareonly", compareonly));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("filename1", filename1));
-    retval.append("      ").append(XmlHandler.addTagValue("filename2", filename2));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("compareonly", compareonly));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue(CONST_FILENAME1, filename1));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue(CONST_FILENAME2, filename2));
 
     return retval.toString();
   }
@@ -136,8 +147,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
       compareonly = XmlHandler.getTagValue(entrynode, "compareonly");
       wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
-      filename1 = XmlHandler.getTagValue(entrynode, "filename1");
-      filename2 = XmlHandler.getTagValue(entrynode, "filename2");
+      filename1 = XmlHandler.getTagValue(entrynode, CONST_FILENAME1);
+      filename2 = XmlHandler.getTagValue(entrynode, CONST_FILENAME2);
     } catch (HopXmlException xe) {
       throw new HopXmlException(
           BaseMessages.getString(PKG, "ActionFoldersCompare.Meta.UnableLoadXML", xe.getMessage()));
@@ -263,27 +274,19 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                 BaseMessages.getString(PKG, "ActionFoldersCompare.Log.CanNotCompareFilesFolders"));
 
             if (folder1.getType() == FileType.FILE) {
-              logError(
-                  BaseMessages.getString(PKG, "ActionFoldersCompare.Log.IsAFile", realFilename1));
+              logError(BaseMessages.getString(PKG, CONST_IS_A_FILE, realFilename1));
             } else if (folder1.getType() == FileType.FOLDER) {
-              logError(
-                  BaseMessages.getString(PKG, "ActionFoldersCompare.Log.IsAFolder", realFilename1));
+              logError(BaseMessages.getString(PKG, CONST_IS_A_FOLDER, realFilename1));
             } else {
-              logError(
-                  BaseMessages.getString(
-                      PKG, "ActionFoldersCompare.Log.IsUnknownFileType", realFilename1));
+              logError(BaseMessages.getString(PKG, CONST_IS_UNKNOWN_FILE_TYPE, realFilename1));
             }
 
             if (folder2.getType() == FileType.FILE) {
-              logError(
-                  BaseMessages.getString(PKG, "ActionFoldersCompare.Log.IsAFile", realFilename2));
+              logError(BaseMessages.getString(PKG, CONST_IS_A_FILE, realFilename2));
             } else if (folder2.getType() == FileType.FOLDER) {
-              logError(
-                  BaseMessages.getString(PKG, "ActionFoldersCompare.Log.IsAFolder", realFilename2));
+              logError(BaseMessages.getString(PKG, CONST_IS_A_FOLDER, realFilename2));
             } else {
-              logError(
-                  BaseMessages.getString(
-                      PKG, "ActionFoldersCompare.Log.IsUnknownFileType", realFilename2));
+              logError(BaseMessages.getString(PKG, CONST_IS_UNKNOWN_FILE_TYPE, realFilename2));
             }
 
           } else {
@@ -348,7 +351,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                           BaseMessages.getString(
                               PKG,
                               "ActionFoldersCompare.Log.FileCanNotBeFoundIn",
-                              entree.getKey().toString(),
+                              entree.getKey(),
                               realFilename2));
                     }
                   } else {
@@ -357,7 +360,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                           BaseMessages.getString(
                               PKG,
                               "ActionFoldersCompare.Log.FileIsFoundIn",
-                              entree.getKey().toString(),
+                              entree.getKey(),
                               realFilename2));
                     }
 
@@ -378,34 +381,26 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
                       if (filefolder1.getType() == FileType.FILE) {
                         logError(
-                            BaseMessages.getString(
-                                PKG, "ActionFoldersCompare.Log.IsAFile", filefolder1.toString()));
+                            BaseMessages.getString(PKG, CONST_IS_A_FILE, filefolder1.toString()));
                       } else if (filefolder1.getType() == FileType.FOLDER) {
                         logError(
-                            BaseMessages.getString(
-                                PKG, "ActionFoldersCompare.Log.IsAFolder", filefolder1.toString()));
+                            BaseMessages.getString(PKG, CONST_IS_A_FOLDER, filefolder1.toString()));
                       } else {
                         logError(
                             BaseMessages.getString(
-                                PKG,
-                                "ActionFoldersCompare.Log.IsUnknownFileType",
-                                filefolder1.toString()));
+                                PKG, CONST_IS_UNKNOWN_FILE_TYPE, filefolder1.toString()));
                       }
 
                       if (filefolder2.getType() == FileType.FILE) {
                         logError(
-                            BaseMessages.getString(
-                                PKG, "ActionFoldersCompare.Log.IsAFile", filefolder2.toString()));
+                            BaseMessages.getString(PKG, CONST_IS_A_FILE, filefolder2.toString()));
                       } else if (filefolder2.getType() == FileType.FOLDER) {
                         logError(
-                            BaseMessages.getString(
-                                PKG, "ActionFoldersCompare.Log.IsAFolder", filefolder2.toString()));
+                            BaseMessages.getString(PKG, CONST_IS_A_FOLDER, filefolder2.toString()));
                       } else {
                         logError(
                             BaseMessages.getString(
-                                PKG,
-                                "ActionFoldersCompare.Log.IsUnknownFileType",
-                                filefolder2.toString()));
+                                PKG, CONST_IS_UNKNOWN_FILE_TYPE, filefolder2.toString()));
                       }
 
                     } else {
@@ -469,8 +464,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                       BaseMessages.getString(
                           PKG,
                           "ActionFoldersCompare.Log.FoldersDifferentFiles",
-                          realFilename1.toString(),
-                          realFilename2.toString()));
+                          realFilename1,
+                          realFilename2));
                 }
               }
             }
@@ -550,7 +545,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
             if ((info.getFile().getType() == FileType.FILE && compareonly.equals("only_files"))
                 || (info.getFile().getType() == FileType.FOLDER
                     && compareonly.equals("only_folders"))
-                || (GetFileWildcard(shortFilename) && compareonly.equals("specify"))
+                || (getFileWildcard(shortFilename) && compareonly.equals("specify"))
                 || (compareonly.equals("all"))) {
               returncode = true;
             }
@@ -560,7 +555,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
               if ((info.getFile().getType() == FileType.FILE && compareonly.equals("only_files"))
                   || (info.getFile().getType() == FileType.FOLDER
                       && compareonly.equals("only_folders"))
-                  || (GetFileWildcard(shortFilename) && compareonly.equals("specify"))
+                  || (getFileWildcard(shortFilename) && compareonly.equals("specify"))
                   || (compareonly.equals("all"))) {
                 returncode = true;
               }
@@ -585,12 +580,11 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     }
   }
 
-  /**********************************************************
-   *
+  /**
    * @param selectedfile
    * @return True if the selectedfile matches the wildcard
-   **********************************************************/
-  private boolean GetFileWildcard(String selectedfile) {
+   */
+  private boolean getFileWildcard(String selectedfile) {
     Pattern pattern = null;
     boolean getIt = true;
 
@@ -645,7 +639,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     AbstractFileValidator.putVariableSpace(ctx, getVariables());
     AndValidator.putValidators(
         ctx, ActionValidatorUtils.notNullValidator(), ActionValidatorUtils.fileExistsValidator());
-    ActionValidatorUtils.andValidator().validate(this, "filename1", remarks, ctx);
-    ActionValidatorUtils.andValidator().validate(this, "filename2", remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME1, remarks, ctx);
+    ActionValidatorUtils.andValidator().validate(this, CONST_FILENAME2, remarks, ctx);
   }
 }

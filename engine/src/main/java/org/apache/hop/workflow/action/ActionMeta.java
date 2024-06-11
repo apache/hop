@@ -45,6 +45,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
   public static final String XML_TAG = "action";
 
   private static final String XML_ATTRIBUTE_WORKFLOW_ACTION_COPY = AttributesUtil.XML_TAG + "_hac";
+  private static final String CONST_SPACE = "      ";
 
   private IAction action;
 
@@ -80,9 +81,9 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
         parentWorkflowMeta); // Attempt to set the WorkflowMeta for entries that need it
     xml.append(action.getXml());
 
-    xml.append("      ").append(XmlHandler.addTagValue("parallel", launchingInParallel));
-    xml.append("      ").append(XmlHandler.addTagValue("xloc", location.x));
-    xml.append("      ").append(XmlHandler.addTagValue("yloc", location.y));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("parallel", launchingInParallel));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("xloc", location.x));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("yloc", location.y));
 
     xml.append(AttributesUtil.getAttributesXml(attributesMap, XML_ATTRIBUTE_WORKFLOW_ACTION_COPY));
 

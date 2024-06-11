@@ -48,6 +48,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
 public class SvgGc implements IGc {
+  private static final String CONST_FREESANS = "FreeSans";
 
   private static SvgFile imageLocked;
   private static SvgFile imageFailure;
@@ -172,7 +173,7 @@ public class SvgGc implements IGc {
     return map;
   }
 
-  private void init() throws HopException {
+  private void init() {
     this.lineStyle = ELineStyle.SOLID;
     this.lineWidth = 1;
     this.alpha = 255;
@@ -249,9 +250,9 @@ public class SvgGc implements IGc {
     imageArrowDisabled =
         new SvgFile("ui/images/hop-arrow-disabled.svg", this.getClass().getClassLoader());
 
-    fontGraph = new Font("FreeSans", Font.PLAIN, 10);
-    fontNote = new Font("FreeSans", Font.PLAIN, 10);
-    fontSmall = new Font("FreeSans", Font.PLAIN, 8);
+    fontGraph = new Font(CONST_FREESANS, Font.PLAIN, 10);
+    fontNote = new Font(CONST_FREESANS, Font.PLAIN, 10);
+    fontSmall = new Font(CONST_FREESANS, Font.PLAIN, 8);
 
     gc.setFont(fontGraph);
 
@@ -260,7 +261,9 @@ public class SvgGc implements IGc {
   }
 
   @Override
-  public void dispose() {}
+  public void dispose() {
+    // Do nothing
+  }
 
   @Override
   public void drawLine(int x, int y, int x2, int y2) {

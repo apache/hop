@@ -23,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.Date;
@@ -107,21 +106,18 @@ import org.w3c.dom.Node;
     documentationUrl = "/metadata-types/hop-server.html")
 public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopMetadata {
   private static final Class<?> PKG = HopServer.class; // For Translator
-
   public static final String STRING_HOP_SERVER = "Hop Server";
-
   private static final Random RANDOM = new Random();
-
   public static final String XML_TAG = "hop-server";
-
   private static final String HTTP = "http";
   private static final String HTTPS = "https";
-
   public static final String SSL_MODE_TAG = "sslMode";
-
   public static final int HOP_SERVER_RETRIES = getNumberOfHopServerRetries();
-
   public static final int HOP_SERVER_RETRY_BACKOFF_INCREMENTS = getBackoffIncrements();
+  private static final String CONST_SPACE = "        ";
+  private static final String CONST_NAME = "/?name=";
+  private static final String CONST_XML = "&xml=Y";
+  private static final String CONST_ID = "&id=";
 
   private static int getNumberOfHopServerRetries() {
     try {
@@ -271,19 +267,19 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
     xml.append("      ").append(XmlHandler.openTag(XML_TAG)).append(Const.CR);
 
-    xml.append("        ").append(XmlHandler.addTagValue("name", name));
-    xml.append("        ").append(XmlHandler.addTagValue("hostname", hostname));
-    xml.append("        ").append(XmlHandler.addTagValue("port", port));
-    xml.append("        ").append(XmlHandler.addTagValue("shutdownPort", shutdownPort));
-    xml.append("        ").append(XmlHandler.addTagValue("webAppName", webAppName));
-    xml.append("        ").append(XmlHandler.addTagValue("username", username));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("name", name));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("hostname", hostname));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("port", port));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("shutdownPort", shutdownPort));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("webAppName", webAppName));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("username", username));
     xml.append(
         XmlHandler.addTagValue(
             "password", Encr.encryptPasswordIfNotUsingVariables(password), false));
-    xml.append("        ").append(XmlHandler.addTagValue("proxy_hostname", proxyHostname));
-    xml.append("        ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    xml.append("        ").append(XmlHandler.addTagValue("non_proxy_hosts", nonProxyHosts));
-    xml.append("        ").append(XmlHandler.addTagValue(SSL_MODE_TAG, isSslMode(), false));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("proxy_hostname", proxyHostname));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("non_proxy_hosts", nonProxyHosts));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue(SSL_MODE_TAG, isSslMode(), false));
     if (sslConfig != null) {
       xml.append(sslConfig.getXml());
     }
@@ -328,7 +324,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     if (!Utils.isEmpty(realHostname)) {
       return realHostname + getPortSpecification(variables);
     }
-    return "Hop Server";
+    return STRING_HOP_SERVER;
   }
 
   @Override
@@ -488,8 +484,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return portSpec;
   }
 
-  public String constructUrl(IVariables variables, String serviceAndArguments)
-      throws UnsupportedEncodingException {
+  public String constructUrl(IVariables variables, String serviceAndArguments) {
     String realHostname = null;
     String proxyHostname = null;
     realHostname = variables.resolve(hostname);
@@ -512,16 +507,14 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
     return result;
   }
 
-  HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service)
-      throws Exception {
+  HttpPost buildSendXmlMethod(IVariables variables, byte[] content, String service) {
     String encoding = Const.XML_ENCODING;
     return buildSendMethod(variables, content, encoding, service, "text/xml");
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
   HttpPost buildSendMethod(
-      IVariables variables, byte[] content, String encoding, String service, String contentType)
-      throws Exception {
+      IVariables variables, byte[] content, String encoding, String service, String contentType) {
     // Prepare HTTP put
     //
     String urlString = constructUrl(variables, service);
@@ -609,8 +602,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   // Method is defined as package-protected in order to be accessible by unit tests
-  HttpPost buildSendExportMethod(IVariables variables, String type, String load, InputStream is)
-      throws UnsupportedEncodingException {
+  HttpPost buildSendExportMethod(IVariables variables, String type, String load, InputStream is) {
     String serviceUrl = RegisterPackageServlet.CONTEXT_PATH;
     if (type != null && load != null) {
       serviceUrl +=
@@ -678,7 +670,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
    * @throws HopException if response not ok
    */
   private String executeAuth(IVariables variables, HttpUriRequest method)
-      throws IOException, ClientProtocolException, HopException {
+      throws IOException, HopException {
     HttpResponse httpResponse = getHttpClient().execute(method, getAuthContext(variables));
     return getResponse(variables, method, httpResponse);
   }
@@ -816,8 +808,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   // Method is defined as package-protected in order to be accessible by unit tests
   HttpGet buildExecuteServiceMethod(
-      IVariables variables, String service, Map<String, String> headerValues)
-      throws UnsupportedEncodingException {
+      IVariables variables, String service, Map<String, String> headerValues) {
     HttpGet method = new HttpGet(constructUrl(variables, service));
 
     for (String key : headerValues.keySet()) {
@@ -917,9 +908,9 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
       throws Exception {
     String query =
         GetPipelineStatusServlet.CONTEXT_PATH
-            + "/?name="
+            + CONST_NAME
             + URLEncoder.encode(pipelineName, UTF_8)
-            + "&id="
+            + CONST_ID
             + Const.NVL(serverObjectId, "")
             + "&xml=Y&from="
             + startLogLineNr;
@@ -937,9 +928,9 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             GetWorkflowStatusServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(workflowName, UTF_8)
-                + "&id="
+                + CONST_ID
                 + Const.NVL(serverObjectId, "")
                 + "&xml=Y&from="
                 + startLogLineNr,
@@ -953,11 +944,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             StopPipelineServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(pipelineName, UTF_8)
-                + "&id="
+                + CONST_ID
                 + Const.NVL(serverObjectId, "")
-                + "&xml=Y");
+                + CONST_XML);
     return WebResult.fromXmlString(xml);
   }
 
@@ -967,11 +958,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             PausePipelineServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(pipelineName, UTF_8)
-                + "&id="
+                + CONST_ID
                 + Const.NVL(serverObjectId, "")
-                + "&xml=Y");
+                + CONST_XML);
     return WebResult.fromXmlString(xml);
   }
 
@@ -981,11 +972,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             RemovePipelineServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(pipelineName, UTF_8)
-                + "&id="
+                + CONST_ID
                 + Const.NVL(serverObjectId, "")
-                + "&xml=Y");
+                + CONST_XML);
     return WebResult.fromXmlString(xml);
   }
 
@@ -995,11 +986,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             RemoveWorkflowServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(workflowName, UTF_8)
-                + "&id="
+                + CONST_ID
                 + Const.NVL(serverObjectId, "")
-                + "&xml=Y");
+                + CONST_XML);
     return WebResult.fromXmlString(xml);
   }
 
@@ -1009,7 +1000,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             StopWorkflowServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(pipelineName, UTF_8)
                 + "&xml=Y&id="
                 + Const.NVL(serverObjectId, ""));
@@ -1022,11 +1013,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             StartPipelineServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(pipelineName, UTF_8)
-                + "&id="
+                + CONST_ID
                 + Const.NVL(serverObjectId, "")
-                + "&xml=Y");
+                + CONST_XML);
     return WebResult.fromXmlString(xml);
   }
 
@@ -1036,7 +1027,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         execService(
             variables,
             StartWorkflowServlet.CONTEXT_PATH
-                + "/?name="
+                + CONST_NAME
                 + URLEncoder.encode(workflowName, UTF_8)
                 + "&xml=Y&id="
                 + Const.NVL(serverObjectId, ""));
@@ -1115,7 +1106,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         SniffTransformServlet.CONTEXT_PATH
             + "/?pipeline="
             + URLEncoder.encode(pipelineName, UTF_8)
-            + "&id="
+            + CONST_ID
             + URLEncoder.encode(id, UTF_8)
             + "&transform="
             + URLEncoder.encode(transformName, UTF_8)
@@ -1125,7 +1116,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
             + type
             + "&lines="
             + lines
-            + "&xml=Y");
+            + CONST_XML);
   }
 
   public HopServer getClient() {

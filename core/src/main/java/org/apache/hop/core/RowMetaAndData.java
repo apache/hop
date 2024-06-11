@@ -33,6 +33,7 @@ public class RowMetaAndData implements Cloneable {
   private IRowMeta rowMeta;
   private Object[] data;
   private static final String CONST_UNKNOWN_COLUMN = "Unknown column '";
+  private static final String CONST_WRONG_VALUE_CONVERSION = "Wrong value conversion to ";
 
   public RowMetaAndData() {
     clear();
@@ -304,8 +305,9 @@ public class RowMetaAndData implements Cloneable {
         return rowMeta.getDate(data, idx) == null;
       case IValueMeta.TYPE_INET:
         return rowMeta.getString(data, idx) == null;
+      default:
+        throw new HopValueException("Unknown source type: " + metaType.getTypeDesc());
     }
-    throw new HopValueException("Unknown source type: " + metaType.getTypeDesc());
   }
 
   /** Converts string value into specified type. Used for constant injection. */
@@ -329,7 +331,7 @@ public class RowMetaAndData implements Cloneable {
     } else if (destinationType.isEnum()) {
       return converter.string2enum(destinationType, vs);
     } else {
-      throw new RuntimeException("Wrong value conversion to " + destinationType);
+      throw new RuntimeException(CONST_WRONG_VALUE_CONVERSION + destinationType);
     }
   }
 
@@ -367,7 +369,7 @@ public class RowMetaAndData implements Cloneable {
         } else if (destinationType.isEnum()) {
           return converter.boolean2enum(destinationType, vb);
         } else {
-          throw new RuntimeException("Wrong value conversion to " + destinationType);
+          throw new HopValueException(CONST_WRONG_VALUE_CONVERSION + destinationType);
         }
       case IValueMeta.TYPE_INTEGER:
         Long vi = rowMeta.getInteger(data, idx);
@@ -388,7 +390,7 @@ public class RowMetaAndData implements Cloneable {
         } else if (destinationType.isEnum()) {
           return converter.integer2enum(destinationType, vi);
         } else {
-          throw new RuntimeException("Wrong value conversion to " + destinationType);
+          throw new HopValueException(CONST_WRONG_VALUE_CONVERSION + destinationType);
         }
       case IValueMeta.TYPE_NUMBER:
         Double vn = rowMeta.getNumber(data, idx);
@@ -409,12 +411,12 @@ public class RowMetaAndData implements Cloneable {
         } else if (destinationType.isEnum()) {
           return converter.number2enum(destinationType, vn);
         } else {
-          throw new RuntimeException("Wrong value conversion to " + destinationType);
+          throw new HopValueException(CONST_WRONG_VALUE_CONVERSION + destinationType);
         }
+      default:
+        throw new HopValueException(
+            "Unknown conversion from " + metaType.getTypeDesc() + " into " + destinationType);
     }
-
-    throw new HopValueException(
-        "Unknown conversion from " + metaType.getTypeDesc() + " into " + destinationType);
   }
 
   public void removeValue(String valueName) throws HopValueException {

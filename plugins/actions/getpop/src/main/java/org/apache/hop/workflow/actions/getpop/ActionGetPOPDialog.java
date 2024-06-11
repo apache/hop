@@ -62,155 +62,82 @@ import org.eclipse.swt.widgets.Text;
 /** This dialog allows you to edit the Get POP action settings. */
 public class ActionGetPOPDialog extends ActionDialog {
   private static final Class<?> PKG = ActionGetPOP.class; // For Translator
+  private static final String CONST_OK = "System.Button.OK";
 
   private Text wName;
-
   private TextVar wServerName;
-
   private TextVar wSender;
-
   private TextVar wRecipient;
-
   private TextVar wSubject;
-
   private TextVar wBody;
-
   private Label wlAttachmentFolder;
-
   private TextVar wAttachmentFolder;
-
   private Button wbAttachmentFolder;
-
   private Label wlAttachmentWildcard;
-
   private TextVar wAttachmentWildcard;
-
   private TextVar wUserName;
-
   private Label wlIMAPFolder;
-
   private TextVar wIMAPFolder;
-
   private Label wlMoveToFolder;
-
   private TextVar wMoveToFolder;
-
   private Button wSelectMoveToFolder;
-
   private Button wTestMoveToFolder;
-
   private TextVar wPassword;
-
   private Label wlOutputDirectory;
-
   private TextVar wOutputDirectory;
-
   private Label wlFilenamePattern;
-
   private TextVar wFilenamePattern;
-
   private Button wbDirectory;
-
   private Label wlListmails;
-
   private CCombo wListmails;
-
   private Label wlIMAPListmails;
-
   private CCombo wIMAPListmails;
-
   private Label wlAfterGetIMAP;
-
   private CCombo wAfterGetIMAP;
-
   private Label wlFirstmails;
-
   private TextVar wFirstmails;
-
   private Label wlIMAPFirstmails;
-
   private TextVar wIMAPFirstmails;
-
   private TextVar wPort;
-
   private Button wUseSSL;
-
   private Button wUseXOAUTH2;
-
   private Button wUseProxy;
-
   private Label wlProxyUsername;
-
   private TextVar wProxyUsername;
-
   private Label wlIncludeSubFolders;
-
   private Button wIncludeSubFolders;
-
   private Label wlCreateMoveToFolder;
-
   private Button wCreateMoveToFolder;
-
   private Label wlCreateLocalFolder;
-
   private Button wCreateLocalFolder;
-
   private Button wNegateSender;
-
   private Button wNegateReceipient;
-
   private Button wNegateSubject;
-
   private Button wNegateBody;
-
   private Button wNegateReceivedDate;
-
   private Label wlGetAttachment;
-
   private Button wGetAttachment;
-
   private Label wlGetMessage;
-
   private Button wGetMessage;
-
   private Label wlDifferentFolderForAttachment;
-
   private Button wDifferentFolderForAttachment;
-
   private Label wlPOP3Message;
-
   private Label wlDelete;
-
   private Button wDelete;
-
   private ActionGetPOP action;
-
   private boolean changed;
-
   private Label wlReadFrom;
-
   private TextVar wReadFrom;
-
   private Button open;
-
   private Label wlConditionOnReceivedDate;
-
   private CCombo wConditionOnReceivedDate;
-
   private CCombo wActionType;
-
   private Label wlReadTo;
-
   private TextVar wReadTo;
-
   private Button opento;
-
   private CCombo wProtocol;
-
   private Button wTestIMAPFolder;
-
   private Button wSelectFolder;
-
   private MailConnection mailConn = null;
 
   public ActionGetPOPDialog(
@@ -258,7 +185,7 @@ public class ActionGetPOPDialog extends ActionDialog {
     // Buttons go at the very bottom
     //
     Button wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString(PKG, CONST_OK));
     wOk.addListener(SWT.Selection, e -> ok());
     Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
@@ -1415,7 +1342,7 @@ public class ActionGetPOPDialog extends ActionDialog {
             new Label(dialog, SWT.NONE);
 
             Button ok = new Button(dialog, SWT.PUSH);
-            ok.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+            ok.setText(BaseMessages.getString(PKG, CONST_OK));
             ok.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             ok.addSelectionListener(
                 new SelectionAdapter() {
@@ -1481,7 +1408,7 @@ public class ActionGetPOPDialog extends ActionDialog {
             new Label(dialogto, SWT.NONE);
             new Label(dialogto, SWT.NONE);
             Button okto = new Button(dialogto, SWT.PUSH);
-            okto.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+            okto.setText(BaseMessages.getString(PKG, CONST_OK));
             okto.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             okto.addSelectionListener(
                 new SelectionAdapter() {

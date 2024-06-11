@@ -38,6 +38,7 @@ import org.w3c.dom.Node;
 @XmlRootElement
 public class TransformStatus {
   public static final String XML_TAG = "transform_status";
+  private static final String CONST_SAMPLES = "samples";
 
   private String transformName;
   private int copy;
@@ -183,7 +184,7 @@ public class TransformStatus {
       xml.append(XmlHandler.addTagValue("paused", paused, false));
 
       if (sampleRowMeta != null) {
-        xml.append(XmlHandler.openTag("samples"));
+        xml.append(XmlHandler.openTag(CONST_SAMPLES));
         xml.append(sampleRowMeta.getMetaXml());
         xml.append(Const.CR);
         if (sampleRows != null) {
@@ -196,7 +197,7 @@ public class TransformStatus {
             }
           }
         }
-        xml.append(XmlHandler.closeTag("samples"));
+        xml.append(XmlHandler.closeTag(CONST_SAMPLES));
       }
 
       xml.append(XmlHandler.closeTag(XML_TAG));
@@ -226,7 +227,7 @@ public class TransformStatus {
     stopped = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "stopped"));
     paused = "Y".equalsIgnoreCase(XmlHandler.getTagValue(node, "paused"));
 
-    Node samplesNode = XmlHandler.getSubNode(node, "samples");
+    Node samplesNode = XmlHandler.getSubNode(node, CONST_SAMPLES);
     if (samplesNode != null) {
       Node rowMetaNode = XmlHandler.getSubNode(samplesNode, RowMeta.XML_META_TAG);
       if (rowMetaNode != null) {
@@ -252,25 +253,22 @@ public class TransformStatus {
   }
 
   public String[] getPipelineLogFields(String overrideDescription) {
-    String[] fields =
-        new String[] {
-          "", // Row number
-          transformName,
-          Integer.toString(copy),
-          Long.toString(linesRead),
-          Long.toString(linesWritten),
-          Long.toString(linesInput),
-          Long.toString(linesOutput),
-          Long.toString(linesUpdated),
-          Long.toString(linesRejected),
-          Long.toString(errors),
-          overrideDescription,
-          convertSeconds(seconds),
-          speed,
-          priority,
-        };
-
-    return fields;
+    return new String[] {
+      "", // Row number
+      transformName,
+      Integer.toString(copy),
+      Long.toString(linesRead),
+      Long.toString(linesWritten),
+      Long.toString(linesInput),
+      Long.toString(linesOutput),
+      Long.toString(linesUpdated),
+      Long.toString(linesRejected),
+      Long.toString(errors),
+      overrideDescription,
+      convertSeconds(seconds),
+      speed,
+      priority,
+    };
   }
 
   private String convertSeconds(double seconds) {
@@ -301,23 +299,20 @@ public class TransformStatus {
 
   @JsonIgnore
   public String[] getPeekFields() {
-    String[] fields =
-        new String[] {
-          Integer.toString(copy),
-          Long.toString(linesRead),
-          Long.toString(linesWritten),
-          Long.toString(linesInput),
-          Long.toString(linesOutput),
-          Long.toString(linesUpdated),
-          Long.toString(linesRejected),
-          Long.toString(errors),
-          statusDescription,
-          convertSeconds(seconds),
-          speed,
-          priority,
-        };
-
-    return fields;
+    return new String[] {
+      Integer.toString(copy),
+      Long.toString(linesRead),
+      Long.toString(linesWritten),
+      Long.toString(linesInput),
+      Long.toString(linesOutput),
+      Long.toString(linesUpdated),
+      Long.toString(linesRejected),
+      Long.toString(errors),
+      statusDescription,
+      convertSeconds(seconds),
+      speed,
+      priority,
+    };
   }
 
   /**

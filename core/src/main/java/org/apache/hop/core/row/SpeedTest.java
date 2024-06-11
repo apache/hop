@@ -30,6 +30,7 @@ public class SpeedTest {
   private static final String CONST_TIMES = " times : ";
   private static final String CONST_MS = " ms (";
   private static final String CONST_RS = " r/s)";
+  private static final String CONST_STRINGS = "String";
   private Object[] rowString10;
   private Object[] rowString100;
   private Object[] rowString1000;
@@ -85,27 +86,27 @@ public class SpeedTest {
       Object[] rowMixed10,
       IRowMeta metaMixed10) {
     rowString10[i] = StringUtil.generateRandomString(20, "", "", false);
-    IValueMeta meta = new ValueMetaString("String" + (i + 1), 20, 0);
+    IValueMeta meta = new ValueMetaString(CONST_STRINGS + (i + 1), 20, 0);
     metaString10.addValueMeta(meta);
 
     rowMixed10[i * 5 + 0] = StringUtil.generateRandomString(20, "", "", false);
-    IValueMeta meta0 = new ValueMetaString("String" + (i * 5 + 1), 20, 0);
+    IValueMeta meta0 = new ValueMetaString(CONST_STRINGS + (i * 5 + 1), 20, 0);
     metaMixed10.addValueMeta(meta0);
 
     rowMixed10[i * 5 + 1] = new Date();
-    IValueMeta meta1 = new ValueMetaDate("String" + (i * 5 + 1));
+    IValueMeta meta1 = new ValueMetaDate(CONST_STRINGS + (i * 5 + 1));
     metaMixed10.addValueMeta(meta1);
 
     rowMixed10[i * 5 + 2] = Double.valueOf(Math.random() * 1000000);
-    IValueMeta meta2 = new ValueMetaNumber("String" + (i * 5 + 1), 12, 4);
+    IValueMeta meta2 = new ValueMetaNumber(CONST_STRINGS + (i * 5 + 1), 12, 4);
     metaMixed10.addValueMeta(meta2);
 
     rowMixed10[i * 5 + 3] = Long.valueOf((long) (Math.random() * 1000000));
-    IValueMeta meta3 = new ValueMetaInteger("String" + (i * 5 + 1), 8, 0);
+    IValueMeta meta3 = new ValueMetaInteger(CONST_STRINGS + (i * 5 + 1), 8, 0);
     metaMixed10.addValueMeta(meta3);
 
     rowMixed10[i * 5 + 4] = Boolean.valueOf(Math.random() > 0.5);
-    IValueMeta meta4 = new ValueMetaBoolean("String" + (i * 5 + 1));
+    IValueMeta meta4 = new ValueMetaBoolean(CONST_STRINGS + (i * 5 + 1));
     metaMixed10.addValueMeta(meta4);
   }
 

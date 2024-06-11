@@ -55,6 +55,7 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/deleteresultfilenames.html")
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteResultFilenames.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
 
   private String folderName;
   private boolean specifyWildcard;
@@ -84,10 +85,14 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     StringBuilder retval = new StringBuilder(100); // 75 chars in just tag names and spaces
 
     retval.append(super.getXml());
-    retval.append("      ").append(XmlHandler.addTagValue("foldername", folderName));
-    retval.append("      ").append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("foldername", folderName));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
+    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
+    retval
+        .append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
 
     return retval.toString();
   }
@@ -168,14 +173,14 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
         } else {
 
           List<ResultFile> resultFiles = result.getResultFilesList();
-          if (resultFiles != null && resultFiles.size() > 0) {
+          if (resultFiles != null && !resultFiles.isEmpty()) {
             for (Iterator<ResultFile> it = resultFiles.iterator();
                 it.hasNext() && !parentWorkflow.isStopped(); ) {
               ResultFile resultFile = it.next();
               FileObject file = resultFile.getFile();
               if (file != null && file.exists()) {
-                if (CheckFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
-                    && !CheckFileWildcard(
+                if (checkFileWildcard(file.getName().getBaseName(), resolve(wildcard), true)
+                    && !checkFileWildcard(
                         file.getName().getBaseName(), resolve(wildcardExclude), false)) {
                   // Remove file from result files list
                   result.getResultFiles().remove(resultFile.getFile().toString());
@@ -198,13 +203,12 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     return result;
   }
 
-  /**********************************************************
-   *
+  /**
    * @param selectedfile
    * @param wildcard
    * @return True if the selectedfile matches the wildcard
-   **********************************************************/
-  private boolean CheckFileWildcard(String selectedfile, String wildcard, boolean include) {
+   */
+  private boolean checkFileWildcard(String selectedfile, String wildcard, boolean include) {
     Pattern pattern = null;
     boolean getIt = include;
 

@@ -37,6 +37,7 @@ import org.w3c.dom.Node;
 
 public class PipelineExecutionConfiguration implements IExecutionConfiguration, IXml {
   public static final String XML_TAG = "pipeline_execution_configuration";
+  private static final String CONST_VALUE = "value";
 
   private boolean passingExport;
 
@@ -171,7 +172,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     }
 
     List<String> vars = pipelineMeta.getUsedVariables();
-    if (vars != null && vars.size() > 0) {
+    if (vars != null && !vars.isEmpty()) {
       HashMap<String, String> newVariables = new HashMap<>();
 
       for (int i = 0; i < vars.size(); i++) {
@@ -227,7 +228,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
       String value = parametersMap.get(name);
       xml.append("    <parameter>");
       xml.append(XmlHandler.addTagValue("name", name, false));
-      xml.append(XmlHandler.addTagValue("value", value, false));
+      xml.append(XmlHandler.addTagValue(CONST_VALUE, value, false));
       xml.append("</parameter>").append(Const.CR);
     }
     xml.append("    </parameters>").append(Const.CR);
@@ -241,7 +242,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
       String value = variablesMap.get(name);
       xml.append("    <variable>");
       xml.append(XmlHandler.addTagValue("name", name, false));
-      xml.append(XmlHandler.addTagValue("value", value, false));
+      xml.append(XmlHandler.addTagValue(CONST_VALUE, value, false));
       xml.append("</variable>").append(Const.CR);
     }
     xml.append("    </variables>").append(Const.CR);
@@ -280,7 +281,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     for (int i = 0; i < nrVariables; i++) {
       Node argNode = XmlHandler.getSubNodeByNr(varsNode, "variable", i);
       String name = XmlHandler.getTagValue(argNode, "name");
-      String value = XmlHandler.getTagValue(argNode, "value");
+      String value = XmlHandler.getTagValue(argNode, CONST_VALUE);
       if (!Utils.isEmpty(name)) {
         variablesMap.put(name, Const.NVL(value, ""));
       }
@@ -293,7 +294,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration, 
     for (int i = 0; i < nrParams; i++) {
       Node parmNode = XmlHandler.getSubNodeByNr(parmsNode, "parameter", i);
       String name = XmlHandler.getTagValue(parmNode, "name");
-      String value = XmlHandler.getTagValue(parmNode, "value");
+      String value = XmlHandler.getTagValue(parmNode, CONST_VALUE);
       if (!Utils.isEmpty(name)) {
         parametersMap.put(name, value);
       }

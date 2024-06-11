@@ -29,6 +29,7 @@ import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.base.AbstractMeta;
+import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProgressMonitor;
@@ -78,31 +79,24 @@ import org.w3c.dom.Node;
 public class WorkflowMeta extends AbstractMeta
     implements Cloneable, Comparable<WorkflowMeta>, IXml, IResourceExport, IHasFilename {
   private static final Class<?> PKG = WorkflowMeta.class; // For Translator
-
   public static final String WORKFLOW_EXTENSION = ".hwf";
-
   public static final String XML_TAG = "workflow";
-
-  static final int BORDER_INDENT = 20;
+  public static final int BORDER_INDENT = 20;
+  private static final String CONST_DESCRIPTION = "description";
+  private static final String CONST_PARAMETER = "parameter";
+  private static final String CONST_SPACE = "        ";
 
   @HopMetadataProperty(inline = true)
   protected WorkflowMetaInfo info;
 
   protected String workflowVersion;
-
   protected int workflowStatus;
-
   protected List<ActionMeta> workflowActions;
-
   protected List<WorkflowHopMeta> workflowHops;
-
   protected String[] arguments;
-
   protected boolean changedActions;
   protected boolean changedHops;
-
   protected String startActionName;
-
   protected boolean expandingRemoteWorkflow;
 
   /** Constant = "OK" */
@@ -336,15 +330,6 @@ public class WorkflowMeta extends AbstractMeta
   @Override
   public String getXml(IVariables variables) throws HopException {
 
-    /*
-     * TODO: HOP-4287 : Cleanup XML of WorkflowMeta
-
-      return XmlFormatter.format(
-          XmlHandler.openTag(XML_TAG)
-              + XmlMetadataUtil.serializeObjectToXml(this)
-              + XmlHandler.closeTag(XML_TAG));
-    */
-
     StringBuilder xml = new StringBuilder(500);
 
     xml.append(XmlHandler.getLicenseHeader(variables));
@@ -359,7 +344,7 @@ public class WorkflowMeta extends AbstractMeta
             XmlHandler.addTagValue(
                 "name_sync_with_filename", info.isNameSynchronizedWithFilename()));
 
-    xml.append("  ").append(XmlHandler.addTagValue("description", info.getDescription()));
+    xml.append("  ").append(XmlHandler.addTagValue(CONST_DESCRIPTION, info.getDescription()));
     xml.append("  ")
         .append(XmlHandler.addTagValue("extended_description", info.getExtendedDescription()));
     xml.append("  ").append(XmlHandler.addTagValue("workflow_version", workflowVersion));
@@ -380,20 +365,21 @@ public class WorkflowMeta extends AbstractMeta
     xml.append("    ").append(XmlHandler.openTag(XML_TAG_PARAMETERS)).append(Const.CR);
     String[] parameters = listParameters();
     for (int idx = 0; idx < parameters.length; idx++) {
-      xml.append("      ").append(XmlHandler.openTag("parameter")).append(Const.CR);
-      xml.append("        ").append(XmlHandler.addTagValue("name", parameters[idx]));
+      xml.append("      ").append(XmlHandler.openTag(CONST_PARAMETER)).append(Const.CR);
+      xml.append(CONST_SPACE).append(XmlHandler.addTagValue("name", parameters[idx]));
       try {
-        xml.append("        ")
+        xml.append(CONST_SPACE)
             .append(XmlHandler.addTagValue("default_value", getParameterDefault(parameters[idx])));
-        xml.append("        ")
+        xml.append(CONST_SPACE)
             .append(
-                XmlHandler.addTagValue("description", getParameterDescription(parameters[idx])));
+                XmlHandler.addTagValue(
+                    CONST_DESCRIPTION, getParameterDescription(parameters[idx])));
       } catch (UnknownParamException e) {
         // skip the default value and/or description. This exception should never happen because we
         // use listParameters()
         // above.
       }
-      xml.append("      ").append(XmlHandler.closeTag("parameter")).append(Const.CR);
+      xml.append("      ").append(XmlHandler.closeTag(CONST_PARAMETER)).append(Const.CR);
     }
     xml.append("    ").append(XmlHandler.closeTag(XML_TAG_PARAMETERS)).append(Const.CR);
 
@@ -527,13 +513,6 @@ public class WorkflowMeta extends AbstractMeta
 
       setFilename(filename);
 
-      /*
-        TODO: HOP-4287 : Cleanup XML of WorkflowMeta
-
-        XmlMetadataUtil.deSerializeFromXml(workflowNode, WorkflowMeta.class, this, metadataProvider);
-
-      */
-
       // get workflow info:
       //
       info.setName(XmlHandler.getTagValue(workflowNode, "name"));
@@ -542,7 +521,7 @@ public class WorkflowMeta extends AbstractMeta
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(workflowNode, "name_sync_with_filename")));
 
       // description
-      info.setDescription(XmlHandler.getTagValue(workflowNode, "description"));
+      info.setDescription(XmlHandler.getTagValue(workflowNode, CONST_DESCRIPTION));
 
       // extended description
       info.setExtendedDescription(XmlHandler.getTagValue(workflowNode, "extended_description"));
@@ -571,11 +550,11 @@ public class WorkflowMeta extends AbstractMeta
       // Read the named parameters.
       //
       Node paramsNode = XmlHandler.getSubNode(workflowNode, XML_TAG_PARAMETERS);
-      List<Node> paramNodes = XmlHandler.getNodes(paramsNode, "parameter");
+      List<Node> paramNodes = XmlHandler.getNodes(paramsNode, CONST_PARAMETER);
       for (Node paramNode : paramNodes) {
         String parameterName = XmlHandler.getTagValue(paramNode, "name");
         String defaultValue = XmlHandler.getTagValue(paramNode, "default_value");
-        String description = XmlHandler.getTagValue(paramNode, "description");
+        String description = XmlHandler.getTagValue(paramNode, CONST_DESCRIPTION);
 
         addParameterDefinition(parameterName, defaultValue, description);
       }
@@ -603,7 +582,7 @@ public class WorkflowMeta extends AbstractMeta
       }
 
       Node hopsNode = XmlHandler.getSubNode(workflowNode, XML_TAG_HOPS);
-      List<Node> hopNodes = XmlHandler.getNodes(hopsNode, WorkflowHopMeta.XML_HOP_TAG);
+      List<Node> hopNodes = XmlHandler.getNodes(hopsNode, BaseHopMeta.XML_HOP_TAG);
       for (Node hopNode : hopNodes) {
         WorkflowHopMeta hi = new WorkflowHopMeta(hopNode, this);
         workflowHops.add(hi);

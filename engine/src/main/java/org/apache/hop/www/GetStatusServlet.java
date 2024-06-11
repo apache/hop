@@ -48,6 +48,36 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
   private static final long serialVersionUID = 3634806745372015720L;
 
   public static final String CONTEXT_PATH = "/hop/status";
+  private static final String CONST_DIV_CLOSE = "\"/></div></td>";
+  private static final String CONST_TABLE_HEADER = "</th> <th class=\"cellTableHeader\">";
+  private static final String CONST_TD = "</td>";
+  private static final String CONST_TD_MOUSE_EVENT =
+      "<td onMouseEnter=\"mouseEnterFunction( this, '";
+  private static final String CONST_TABLE_CELL = "\" class=\"cellTableCell ";
+  private static final String CONST_TABLE_ROW =
+      "<tr style=\"font-size: 12;\"> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableFirstColumn\">";
+  private static final String CONST_WORKFLOW_LABEL = "GetStatusServlet.TheWorkflow.Label";
+  private static final String CONST_SELECTED_PIPELINE = " ' + selectedPipelineName + ' ";
+  private static final String CONST_SELECTED_WORKFLOW = " ' + selectedWorkflowName + ' ";
+  private static final String CONST_PIPELINE_LABEL = "GetStatusServlet.ThePipeline.Label";
+  private static final String CONST_DIV = "</div>";
+  private static final String CONST_NO_LIMIT = "GetStatusServlet.NoLimit";
+  private static final String CONST_END_TABLE_ROW = "</td> </tr>";
+  private static final String CONST_TRUE = ", true );\n";
+  private static final String CONST_END_TABLE_DATA_AND_OPEN =
+      "</td> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableLastColumn\">";
+  private static final String CONST_ELEMENT_STARTS_WITH =
+      "if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {";
+  private static final String CONST_SELECTED_PIPELINE_ROW =
+      "} else if ( selectedPipelineRowIndex != -1 ) {";
+  private static final String CONST_BUTTON_DISABLED =
+      "if( !element.classList.contains('toolbar-button-disabled') ) {";
+  private static final String CONST_ELSE = "} else {";
+  private static final String CONST_END_WITH_ROW = "if( tableClass.endsWith( 'Row' ) ) {";
+  private static final String CONST_VAR_ROWNUM = "var rowNum = getRowNum( element.id );";
+  private static final String CONST_ELEMENT_STARTS_WITH2 = "if( element.id.startsWith( 'j-' ) ) {";
+  private static final String CONST_CLOSE_BRACKET = "}";
+  private static final String CONST_SINGLE_QUOTE = "'";
 
   public GetStatusServlet() {}
 
@@ -157,13 +187,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           out.println(
               ".hop-table td, tr.cellTableRow, td.gwt-MenuItem, .toolbar-button:not(.toolbar-button-disabled) {");
           out.println("  cursor: pointer;");
-          out.println("}");
+          out.println(CONST_CLOSE_BRACKET);
           out.println(".toolbar-button-disabled {");
           out.println("  opacity: 0.4;");
-          out.println("}");
+          out.println(CONST_CLOSE_BRACKET);
           out.println("div#messageDialogBody:first-letter {");
           out.println("  text-transform: capitalize;");
-          out.println("}");
+          out.println(CONST_CLOSE_BRACKET);
           out.println("</style>");
         }
         tableBorder = 0;
@@ -176,7 +206,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Empty div for containing currently selected item
       out.println("<div id=\"selectedTableItem\">");
       out.println("<value></value>"); // initialize to none
-      out.println("</div>");
+      out.println(CONST_DIV);
 
       out.println("<div class=\"row\" id=\"pucHeader\">");
 
@@ -189,7 +219,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
               + "</"
               + htmlClass
               + ">");
-      out.println("</div>");
+      out.println(CONST_DIV);
 
       try {
         // Tooltips
@@ -222,7 +252,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/run.svg\" title=\""
                 + run
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("stop")
@@ -231,7 +261,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/stop.svg\" title=\""
                 + stop
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("cleanup")
@@ -240,7 +270,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/cleanup.svg\" title=\""
                 + cleanup
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("view")
@@ -249,7 +279,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/view.svg\" title=\""
                 + view
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("close")
@@ -258,7 +288,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/close.svg\" title=\""
                 + remove
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println("</tr></tbody></table>");
         out.println(
             "<div id=\"runActions\" class=\"custom-dropdown-popup\" style=\"visibility: hidden; overflow: visible; position: fixed;\" onLoad=\"repositionActions( this, document.getElementById( "
@@ -277,13 +307,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         out.print(
             "<tr> <th class=\"cellTableHeader\">"
                 + BaseMessages.getString(PKG, "GetStatusServlet.PipelineName")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.ServerId")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.Status")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.StartDate")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.LastLogTime")
                 + "</th> </tr>");
 
@@ -316,8 +346,6 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
               evenRow ? "cellTableEvenRow" : "cellTableOddRow"; // alternating row color
           String tdClass = evenRow ? "cellTableEvenRowCell" : "cellTableOddRowCell";
           evenRow = !evenRow; // flip
-          String firstColumn = i == 0 ? "cellTableFirstColumn" : "";
-          String lastColumn = i == pipelineEntries.size() - 1 ? "cellTableLastColumn" : "";
           out.print(
               "<tr onMouseEnter=\"mouseEnterFunction( this, '"
                   + trClass
@@ -334,7 +362,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + trClass
                   + "\">");
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -349,9 +377,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + tdClass
                   + "\">"
                   + name
-                  + "</td>");
+                  + CONST_TD);
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -362,13 +390,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"cellTableCell_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + tdClass
                   + "\">"
                   + id
-                  + "</td>");
+                  + CONST_TD);
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -379,14 +407,14 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"cellTableCellStatus_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + tdClass
                   + "\">"
                   + statusDescription
-                  + "</td>");
+                  + CONST_TD);
           String dateStr = XmlHandler.date2string(pipeline.getExecutionStartDate());
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -397,13 +425,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"cellTableCell_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + tdClass
                   + "\">"
                   + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
-                  + "</td>");
+                  + CONST_TD);
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -418,11 +446,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + tdClass
                   + "\">"
                   + (dateStr != null ? dateStr.substring(dateStr.indexOf(' ')) : "-")
-                  + "</td>");
+                  + CONST_TD);
           out.print("</tr>");
         }
         out.print("</table></table>");
-        out.print("</div>"); // end div
+        out.print(CONST_DIV); // end div
 
         // Tooltips
         String runJ = BaseMessages.getString(PKG, "HopServerStatusServlet.Run");
@@ -451,7 +479,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/run.svg\" title=\""
                 + runJ
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("j-stop")
@@ -460,7 +488,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/stop.svg\" title=\""
                 + stopJ
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("j-view")
@@ -469,7 +497,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/view.svg\" title=\""
                 + viewJ
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println(
             "<td "
                 + setupIconEnterLeaveJavascript("j-close")
@@ -478,19 +506,19 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                 + prefix
                 + "/images/close.svg\" title=\""
                 + removeJ
-                + "\"/></div></td>");
+                + CONST_DIV_CLOSE);
         out.println("</tr></tbody></table>");
         out.println("<table class=\"hop-table\" border=\"" + tableBorder + "\">");
         out.print(
             "<tr> <th class=\"cellTableHeader\">"
                 + BaseMessages.getString(PKG, "GetStatusServlet.WorkflowName")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.ServerId")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.Status")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.StartDate")
-                + "</th> <th class=\"cellTableHeader\">"
+                + CONST_TABLE_HEADER
                 + BaseMessages.getString(PKG, "GetStatusServlet.LastLogTime")
                 + "</th> </tr>");
 
@@ -534,11 +562,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"j-cellTableRow_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + trClass
                   + "\">");
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -555,7 +583,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + name
                   + "</a></td>");
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -566,13 +594,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"j-cellTableCell_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + tdClass
                   + "\">"
                   + id
-                  + "</td>");
+                  + CONST_TD);
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -583,14 +611,14 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"j-cellTableCell_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + tdClass
                   + "\">"
                   + status
-                  + "</td>");
+                  + CONST_TD);
           String dateStr = XmlHandler.date2string(workflow.getExecutionStartDate());
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -601,13 +629,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + "' )\" "
                   + "id=\"j-cellTableCell_"
                   + i
-                  + "\" class=\"cellTableCell "
+                  + CONST_TABLE_CELL
                   + tdClass
                   + "\">"
                   + (dateStr != null ? dateStr.substring(0, dateStr.indexOf(' ')) : "-")
-                  + "</td>");
+                  + CONST_TD);
           out.print(
-              "<td onMouseEnter=\"mouseEnterFunction( this, '"
+              CONST_TD_MOUSE_EVENT
                   + tdClass
                   + "' )\" "
                   + "onMouseLeave=\"mouseLeaveFunction( this, '"
@@ -622,11 +650,11 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
                   + tdClass
                   + "\">"
                   + (dateStr != null ? dateStr.substring(dateStr.indexOf(' ')) : "-")
-                  + "</td>");
+                  + CONST_TD);
           out.print("</tr>");
         }
         out.print("</table></table>");
-        out.print("</div>"); // end div
+        out.print(CONST_DIV); // end div
 
       } catch (Exception ex) {
         out.println("<pre>");
@@ -652,51 +680,51 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       if (serverConfig != null) {
         String maxLines = "";
         if (serverConfig.getMaxLogLines() == 0) {
-          maxLines = BaseMessages.getString(PKG, "GetStatusServlet.NoLimit");
+          maxLines = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxLines =
               serverConfig.getMaxLogLines() + BaseMessages.getString(PKG, "GetStatusServlet.Lines");
         }
         out.print(
-            "<tr style=\"font-size: 12;\"> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableFirstColumn\">"
+            CONST_TABLE_ROW
                 + BaseMessages.getString(PKG, "GetStatusServlet.Parameter.MaxLogLines")
-                + "</td> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableLastColumn\">"
+                + CONST_END_TABLE_DATA_AND_OPEN
                 + maxLines
-                + "</td> </tr>");
+                + CONST_END_TABLE_ROW);
 
         // The max age of log lines
         //
         String maxAge = "";
         if (serverConfig.getMaxLogTimeoutMinutes() == 0) {
-          maxAge = BaseMessages.getString(PKG, "GetStatusServlet.NoLimit");
+          maxAge = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxAge =
               serverConfig.getMaxLogTimeoutMinutes()
                   + BaseMessages.getString(PKG, "GetStatusServlet.Minutes");
         }
         out.print(
-            "<tr style=\"font-size: 12;\"> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableFirstColumn\">"
+            CONST_TABLE_ROW
                 + BaseMessages.getString(PKG, "GetStatusServlet.Parameter.MaxLogLinesAge")
-                + "</td> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableLastColumn\">"
+                + CONST_END_TABLE_DATA_AND_OPEN
                 + maxAge
-                + "</td> </tr>");
+                + CONST_END_TABLE_ROW);
 
         // The max age of stale objects
         //
         String maxObjAge = "";
         if (serverConfig.getObjectTimeoutMinutes() == 0) {
-          maxObjAge = BaseMessages.getString(PKG, "GetStatusServlet.NoLimit");
+          maxObjAge = BaseMessages.getString(PKG, CONST_NO_LIMIT);
         } else {
           maxObjAge =
               serverConfig.getObjectTimeoutMinutes()
                   + BaseMessages.getString(PKG, "GetStatusServlet.Minutes");
         }
         out.print(
-            "<tr style=\"font-size: 12;\"> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableFirstColumn\">"
+            CONST_TABLE_ROW
                 + BaseMessages.getString(PKG, "GetStatusServlet.Parameter.MaxObjectsAge")
-                + "</td> <td style=\"padding: 2px 10px 2px 10px\" class=\"cellTableCell cellTableEvenRowCell cellTableLastColumn\">"
+                + CONST_END_TABLE_DATA_AND_OPEN
                 + maxObjAge
-                + "</td> </tr>");
+                + CONST_END_TABLE_ROW);
 
         out.print("</table>");
 
@@ -705,16 +733,16 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           filename =
               BaseMessages.getString(PKG, "GetStatusServlet.ConfigurationDetails.UsingDefaults");
         }
-        out.println("</div>"); // end div
+        out.println(CONST_DIV); // end div
         out.print("<div class=\"row\">");
         out.println(
             "<i>"
                 + BaseMessages.getString(
                     PKG, "GetStatusServlet.ConfigurationDetails.Advice", filename)
                 + "</i>");
-        out.print("</div>");
-        out.print("</div>");
-        out.print("</div>");
+        out.print(CONST_DIV);
+        out.print(CONST_DIV);
+        out.print(CONST_DIV);
       }
 
       out.println("<script type=\"text/javascript\">");
@@ -722,13 +750,13 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("  String.prototype.endsWith = function(suffix) {");
       out.println("    return this.indexOf(suffix, this.length - suffix.length) !== -1;");
       out.println("  };");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
       out.println("if (!String.prototype.startsWith) {");
       out.println("  String.prototype.startsWith = function(searchString, position) {");
       out.println("    position = position || 0;");
       out.println("    return this.indexOf(searchString, position) === position;");
       out.println("  };");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
       out.println("var selectedPipelineRowIndex = -1;"); // currently selected table item
       out.println("var selectedWorkflowRowIndex = -1;"); // currently selected table item
       out.println("var removeElement = null;"); // element of remove button clicked
@@ -738,92 +766,92 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       // Click function for stop button
       out.println("function repositionActions( element, elementFrom ) {");
       out.println("element.style.left = ( 10 + elementFrom.getBoundingClientRect().left ) + 'px';");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       // Click function for resume button
       out.println("function resumeFunction( element ) {");
-      out.println("if( !element.classList.contains('toolbar-button-disabled') ) {");
-      out.println("if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
+      out.println(CONST_BUTTON_DISABLED);
+      out.println(CONST_ELEMENT_STARTS_WITH);
       out.println(
           setupAjaxCall(
               setupWorkflowURI(convertContextPath(StartWorkflowServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.StartWorkflow.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
-                  + " ' + selectedWorkflowName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
+                  + CONST_SELECTED_WORKFLOW
                   + BaseMessages.getString(PKG, "GetStatusServlet.StartWorkflow.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
-                  + " ' + selectedWorkflowName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
+                  + CONST_SELECTED_WORKFLOW
                   + BaseMessages.getString(PKG, "GetStatusServlet.StartWorkflow.Failure.Body")
-                  + "'"));
+                  + CONST_SINGLE_QUOTE));
       out.println(
           "} else if ( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Running') {");
       out.println(
           setupAjaxCall(
               setupPipelineURI(convertContextPath(PausePipelineServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.PausePipeline.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.PausePipeline.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.PausePipeline.Failure.Body")
-                  + "'"));
+                  + CONST_SINGLE_QUOTE));
       out.println(
           "} else if( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 && document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Paused') {");
       out.println(
           setupAjaxCall(
               setupPipelineURI(convertContextPath(PausePipelineServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.ResumePipeline.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.ResumePipeline.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.ResumePipeline.Failure.Body")
-                  + "'"));
+                  + CONST_SINGLE_QUOTE));
       out.println("} else if( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 ){");
       out.println("repositionActions( document.getElementById( 'runActions' ), element );");
       out.println("document.getElementById( 'runActions' ).style.visibility = 'visible';");
-      out.println("}");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       // Click function for stop button
       out.println("function stopFunction( element ) {");
-      out.println("if( !element.classList.contains('toolbar-button-disabled') ) {");
-      out.println("if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
+      out.println(CONST_BUTTON_DISABLED);
+      out.println(CONST_ELEMENT_STARTS_WITH);
       out.println(
           setupAjaxCall(
               setupWorkflowURI(convertContextPath(StopWorkflowServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.StopWorkflow.Title"),
-              "'"
+              CONST_SINGLE_QUOTE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopWorkflow.Success.Body1")
                   + " "
-                  + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
-                  + " ' + selectedWorkflowName + ' "
+                  + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
+                  + CONST_SELECTED_WORKFLOW
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopWorkflow.Success.Body2")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
-                  + " ' + selectedWorkflowName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
+                  + CONST_SELECTED_WORKFLOW
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopWorkflow.Failure.Body")
-                  + "'"));
+                  + CONST_SINGLE_QUOTE));
       out.println(
           "} else if ( !element.id.startsWith( 'j-' ) && selectedPipelineRowIndex != -1 ) {");
       out.println("repositionActions( document.getElementById( 'stopActions' ), element );");
       out.println("document.getElementById( 'stopActions' ).style.visibility = 'visible';");
-      out.println("}");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       out.println("function runPipelineSelector( element ) {");
       out.println("if( element.innerHTML == 'Prepare the execution' ){");
@@ -831,33 +859,33 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           setupAjaxCall(
               setupPipelineURI(convertContextPath(PrepareExecutionPipelineServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.PreparePipeline.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.PreparePipeline.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.PreparePipeline.Failure.Body")
-                  + "'"));
-      out.println("} else {");
+                  + CONST_SINGLE_QUOTE));
+      out.println(CONST_ELSE);
       out.println(
           setupAjaxCall(
               setupPipelineURI(convertContextPath(StartPipelineServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.StartPipeline.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StartPipeline.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StartPipeline.Failure.Body")
-                  + "'"));
-      out.println("}");
-      out.println("}");
+                  + CONST_SINGLE_QUOTE));
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       // Click function for stop button
       out.println("function stopPipelineSelector( element ) {");
@@ -866,105 +894,105 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           setupAjaxCall(
               setupPipelineURI(convertContextPath(StopPipelineServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.StopPipeline.Title"),
-              "'"
+              CONST_SINGLE_QUOTE
                   + BaseMessages.getString(PKG, "GetStatusServlet.PipelineStop.Success.Body1")
                   + " "
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.PipelineStop.Success.Body2")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopPipeline.Failure.Body")
-                  + "'"));
+                  + CONST_SINGLE_QUOTE));
       out.println("} else if( element.innerHTML == 'Stop input processing' ) {");
       out.println(
           setupAjaxCall(
               setupPipelineURI(convertContextPath(StopPipelineServlet.CONTEXT_PATH))
                   + " + '&inputOnly=Y'",
               BaseMessages.getString(PKG, "GetStatusServlet.StopInputPipeline.Title"),
-              "'"
+              CONST_SINGLE_QUOTE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopInputPipeline.Success.Body1")
                   + " "
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopInputPipeline.Success.Body2")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.StopInputPipeline.Failure.Body")
-                  + "'"));
-      out.println("}");
+                  + CONST_SINGLE_QUOTE));
+      out.println(CONST_CLOSE_BRACKET);
       out.println("document.getElementById( 'stopActions' ).style.visibility = 'hidden';");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       // Click function for view button
       out.println("function viewFunction( element ) {");
-      out.println("if( !element.classList.contains('toolbar-button-disabled') ) {");
-      out.println("if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
+      out.println(CONST_BUTTON_DISABLED);
+      out.println(CONST_ELEMENT_STARTS_WITH);
       out.println(
           "window.location.replace( '"
               + convertContextPath(GetWorkflowStatusServlet.CONTEXT_PATH)
-              + "'"
+              + CONST_SINGLE_QUOTE
               + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedWorkflowRowIndex ).innerHTML"
               + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedWorkflowRowIndex ).innerHTML );");
-      out.println("} else if ( selectedPipelineRowIndex != -1 ) {");
+      out.println(CONST_SELECTED_PIPELINE_ROW);
       out.println(
           "window.location.replace( '"
               + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
-              + "'"
+              + CONST_SINGLE_QUOTE
               + " + '?name=' + document.getElementById( 'cellTableFirstCell_' + selectedPipelineRowIndex ).innerHTML"
               + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedPipelineRowIndex ).innerHTML );");
-      out.println("}");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       // Click function for remove button
       out.println("function removeFunction( element ) {");
-      out.println("if( !element.classList.contains('toolbar-button-disabled') ) {");
+      out.println(CONST_BUTTON_DISABLED);
       out.println("removeElement = element;");
-      out.println("if( element.id.startsWith( 'j-' ) && selectedWorkflowRowIndex != -1 ) {");
+      out.println(CONST_ELEMENT_STARTS_WITH);
       out.println(
           "openMessageDialog( '"
               + BaseMessages.getString(PKG, "GetStatusServlet.RemoveWorkflow.Title")
               + "',"
-              + "'"
+              + CONST_SINGLE_QUOTE
               + BaseMessages.getString(PKG, "GetStatusServlet.RemoveWorkflow.Confirm.Body")
               + " "
-              + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
+              + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
               + " ' + selectedWorkflowName + '?"
-              + "'"
+              + CONST_SINGLE_QUOTE
               + ", false );");
-      out.println("} else if ( selectedPipelineRowIndex != -1 ) {");
+      out.println(CONST_SELECTED_PIPELINE_ROW);
       out.println(
           "openMessageDialog( '"
               + BaseMessages.getString(PKG, "GetStatusServlet.RemovePipeline.Title")
               + "',"
-              + "'"
+              + CONST_SINGLE_QUOTE
               + BaseMessages.getString(PKG, "GetStatusServlet.RemovePipeline.Confirm.Body")
               + " "
-              + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
+              + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
               + " ' + selectedPipelineName + '?"
-              + "'"
+              + CONST_SINGLE_QUOTE
               + ", false );");
-      out.println("}");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       // OnClick function for table element
       out.println("function clickFunction( element, tableClass ) {");
       out.println("var prefix = element.id.startsWith( 'j-' ) ? 'j-' : '';");
-      out.println("var rowNum = getRowNum( element.id );");
-      out.println("if( tableClass.endsWith( 'Row' ) ) {");
+      out.println(CONST_VAR_ROWNUM);
+      out.println(CONST_END_WITH_ROW);
       out.println("element.className='cellTableRow ' + tableClass + ' cellTableSelectedRow';");
-      out.println("} else {");
+      out.println(CONST_ELSE);
       out.println(
           "document.getElementById( prefix + 'cellTableFirstCell_' + rowNum ).className='cellTableCell cellTableFirstColumn ' + tableClass + ' cellTableSelectedRowCell';");
       out.println("element.className='cellTableCell ' + tableClass + ' cellTableSelectedRowCell';");
-      out.println("}");
-      out.println("if( element.id.startsWith( 'j-' ) ) {");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_ELEMENT_STARTS_WITH2);
       out.println(
           "document.getElementById( \"j-pause\" ).classList.remove( \"toolbar-button-disabled\" )");
       out.println(
@@ -982,9 +1010,9 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           "document.getElementById( prefix + 'cellTableCell_' + selectedWorkflowRowIndex ).className='cellTableCell ' + tableClass;");
       out.println(
           "document.getElementById( prefix + 'cellTableLastCell_' + selectedWorkflowRowIndex ).className='cellTableCell cellTableLastColumn ' + tableClass;");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
       out.println("selectedWorkflowRowIndex = rowNum;");
-      out.println("} else {");
+      out.println(CONST_ELSE);
       out.println(
           "document.getElementById( \"pause\" ).classList.remove( \"toolbar-button-disabled\" )");
       out.println(
@@ -1004,7 +1032,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           "document.getElementById( prefix + 'cellTableCell_' + selectedPipelineRowIndex ).className='cellTableCell ' + tableClass;");
       out.println(
           "document.getElementById( prefix + 'cellTableLastCell_' + selectedPipelineRowIndex ).className='cellTableCell cellTableLastColumn ' + tableClass;");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
       out.println("selectedPipelineRowIndex = rowNum;");
       out.println(
           "if( document.getElementById( 'cellTableCellStatus_' + selectedPipelineRowIndex ).innerHTML == 'Running' ) {");
@@ -1018,10 +1046,10 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           "document.getElementById( 'pause' ).innerHTML = '<img style=\"width: 22px; height: 22px\" src=\""
               + prefix
               + "/images/pause.svg\" title=\"Resume pipeline\"/>';");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
       out.println("setSelectedNames();");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       // Function to set the pipeline or workflow name of the selected pipeline or workflow
       out.println("function setSelectedNames() {");
@@ -1037,21 +1065,21 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("      }");
       out.println("    }");
       out.println("  }");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       // OnMouseEnter function
       out.println("function mouseEnterFunction( element, tableClass ) {");
       out.println("var prefix = '';");
-      out.println("var rowNum = getRowNum( element.id );");
+      out.println(CONST_VAR_ROWNUM);
       out.println("var selectedIndex = selectedPipelineRowIndex;");
-      out.println("if( element.id.startsWith( 'j-' ) ) {");
+      out.println(CONST_ELEMENT_STARTS_WITH2);
       out.println("prefix = 'j-';");
       out.println("selectedIndex = selectedWorkflowRowIndex;");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
       out.println("if( rowNum != selectedIndex ) {");
-      out.println("if( tableClass.endsWith( 'Row' ) ) {");
+      out.println(CONST_END_WITH_ROW);
       out.println("element.className='cellTableRow ' + tableClass + ' cellTableHoveredRow';");
-      out.println("} else {");
+      out.println(CONST_ELSE);
       out.println(
           "document.getElementById( prefix + 'cellTableFirstCell_' + element.id.charAt( element.id.length - 1 ) ).className='cellTableCell cellTableFirstColumn ' + tableClass + ' "
               + "cellTableHoveredRowCell';");
@@ -1060,32 +1088,32 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println(
           "document.getElementById( prefix + 'cellTableLastCell_' + element.id.charAt( element.id.length - 1 ) ).className='cellTableCell cellTableLastColumn ' + tableClass + ' "
               + "cellTableHoveredRowCell';");
-      out.println("}");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       // OnMouseLeave function
       out.println("function mouseLeaveFunction( element, tableClass ) {");
       out.println("var prefix = '';");
-      out.println("var rowNum = getRowNum( element.id );");
+      out.println(CONST_VAR_ROWNUM);
       out.println("var selectedIndex = selectedPipelineRowIndex;");
-      out.println("if( element.id.startsWith( 'j-' ) ) {");
+      out.println(CONST_ELEMENT_STARTS_WITH2);
       out.println("prefix = 'j-';");
       out.println("selectedIndex = selectedWorkflowRowIndex;");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
       out.println("if( rowNum != selectedIndex ) {");
-      out.println("if( tableClass.endsWith( 'Row' ) ) {");
+      out.println(CONST_END_WITH_ROW);
       out.println("element.className='cellTableRow ' + tableClass;");
-      out.println("} else {");
+      out.println(CONST_ELSE);
       out.println(
           "document.getElementById( prefix + 'cellTableFirstCell_' + element.id.charAt( element.id.length - 1 ) ).className='cellTableCell cellTableFirstColumn ' + tableClass;");
       out.println(
           "document.getElementById( prefix + 'cellTableCell_' + element.id.charAt( element.id.length - 1 ) ).className='cellTableCell ' + tableClass;");
       out.println(
           "document.getElementById( prefix + 'cellTableLastCell_' + element.id.charAt( element.id.length - 1 ) ).className='cellTableCell cellTableLastColumn ' + tableClass;");
-      out.println("}");
-      out.println("}");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
+      out.println(CONST_CLOSE_BRACKET);
 
       // Onclick function for closing message dialog-->make it hidden
       out.println("function closeMessageDialog( refresh ) {");
@@ -1095,7 +1123,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("  if( refresh ) {");
       out.println("    window.location.reload();");
       out.println("  }");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       // Function to open the message dialog--> make it visible
       out.println("function openMessageDialog( title, body, single ) {");
@@ -1111,7 +1139,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       out.println("    document.getElementById( \"singleButton\" ).style.display = 'none';");
       out.println("    document.getElementById( \"doubleButton\" ).style.display = 'block';");
       out.println("  }");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       // Function to remove selected pipeline/workflow after user confirms
       out.println("function removeSelection() {");
@@ -1122,38 +1150,38 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           setupAjaxCall(
               setupWorkflowURI(convertContextPath(RemoveWorkflowServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.RemoveWorkflow.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
-                  + " ' + selectedWorkflowName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
+                  + CONST_SELECTED_WORKFLOW
                   + BaseMessages.getString(PKG, "GetStatusServlet.RemoveWorkflow.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.TheWorkflow.Label")
-                  + " ' + selectedWorkflowName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_WORKFLOW_LABEL)
+                  + CONST_SELECTED_WORKFLOW
                   + BaseMessages.getString(PKG, "GetStatusServlet.RemoveWorkflow.Failure.Body")
-                  + "'"));
-      out.println("} else if ( selectedPipelineRowIndex != -1 ) {");
+                  + CONST_SINGLE_QUOTE));
+      out.println(CONST_SELECTED_PIPELINE_ROW);
       out.println(
           setupAjaxCall(
               setupPipelineURI(convertContextPath(RemovePipelineServlet.CONTEXT_PATH)),
               BaseMessages.getString(PKG, "GetStatusServlet.RemovePipeline.Title"),
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.RemovePipeline.Success.Body")
-                  + "'",
-              "'"
-                  + BaseMessages.getString(PKG, "GetStatusServlet.ThePipeline.Label")
-                  + " ' + selectedPipelineName + ' "
+                  + CONST_SINGLE_QUOTE,
+              CONST_SINGLE_QUOTE
+                  + BaseMessages.getString(PKG, CONST_PIPELINE_LABEL)
+                  + CONST_SELECTED_PIPELINE
                   + BaseMessages.getString(PKG, "GetStatusServlet.RemovePipeline.Failure.Body")
-                  + "'"));
+                  + CONST_SINGLE_QUOTE));
       out.println("    }");
       out.println("  }");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       out.println("function getRowNum( id ) {");
       out.println("  return id.substring( id.indexOf('_') + 1, id.length);");
-      out.println("}");
+      out.println(CONST_CLOSE_BRACKET);
 
       out.println("</script>");
 
@@ -1253,7 +1281,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     retVal += "xhttp.onreadystatechange = function() {\n";
     retVal += " if ( this.readyState === 4 ) {\n";
     retVal += "   if ( this.status === 200 ) {\n";
-    retVal += "     openMessageDialog( '" + title + "', " + success + ", true );\n";
+    retVal += "     openMessageDialog( '" + title + "', " + success + CONST_TRUE;
     retVal += "   } else {\n";
     retVal +=
         "     openMessageDialog( '"
@@ -1262,27 +1290,27 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
             + title
             + "', "
             + failure
-            + ", true );\n";
+            + CONST_TRUE;
     retVal += "   }\n";
     retVal += " }\n";
     retVal += "};\n";
-    retVal += "xhttp.open( \"GET\", " + uri + ", true );\n";
+    retVal += "xhttp.open( \"GET\", " + uri + CONST_TRUE;
     retVal += "xhttp.send();\n";
     return retVal;
   }
 
   private String setupPipelineURI(String context) {
-    return "'"
+    return CONST_SINGLE_QUOTE
         + context
-        + "'"
+        + CONST_SINGLE_QUOTE
         + " + '?name=' + document.getElementById( 'cellTableFirstCell_' + selectedPipelineRowIndex ).innerHTML"
         + " + '&id=' + document.getElementById( 'cellTableCell_' + selectedPipelineRowIndex ).innerHTML";
   }
 
   private String setupWorkflowURI(String context) {
-    return "'"
+    return CONST_SINGLE_QUOTE
         + context
-        + "'"
+        + CONST_SINGLE_QUOTE
         + " + '?name=' + document.getElementById( 'j-cellTableFirstCell_' + selectedWorkflowRowIndex ).innerHTML"
         + " + '&id=' + document.getElementById( 'j-cellTableCell_' + selectedWorkflowRowIndex ).innerHTML";
   }

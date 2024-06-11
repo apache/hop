@@ -35,6 +35,7 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
   public static final String XML_ERROR_TAG = "error";
   public static final String XML_SOURCE_TRANSFORM_TAG = "source_transform";
   public static final String XML_TARGET_TRANSFORM_TAG = "target_transform";
+  private static final String CONST_SPACE = "        ";
 
   /** The source transform that can send the error rows */
   private TransformMeta sourceTransform;
@@ -144,25 +145,26 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
     xml.append("      ")
         .append(XmlHandler.openTag(TransformErrorMeta.XML_ERROR_TAG))
         .append(Const.CR);
-    xml.append("        ")
+    xml.append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue(
                 TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG,
                 sourceTransform != null ? sourceTransform.getName() : ""));
-    xml.append("        ")
+    xml.append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue(
                 TransformErrorMeta.XML_TARGET_TRANSFORM_TAG,
                 targetTransform != null ? targetTransform.getName() : ""));
-    xml.append("        ").append(XmlHandler.addTagValue("is_enabled", enabled));
-    xml.append("        ").append(XmlHandler.addTagValue("nr_valuename", nrErrorsValuename));
-    xml.append("        ")
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("is_enabled", enabled));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("nr_valuename", nrErrorsValuename));
+    xml.append(CONST_SPACE)
         .append(XmlHandler.addTagValue("descriptions_valuename", errorDescriptionsValuename));
-    xml.append("        ").append(XmlHandler.addTagValue("fields_valuename", errorFieldsValuename));
-    xml.append("        ").append(XmlHandler.addTagValue("codes_valuename", errorCodesValuename));
-    xml.append("        ").append(XmlHandler.addTagValue("max_errors", maxErrors));
-    xml.append("        ").append(XmlHandler.addTagValue("max_pct_errors", maxPercentErrors));
-    xml.append("        ").append(XmlHandler.addTagValue("min_pct_rows", minPercentRows));
+    xml.append(CONST_SPACE)
+        .append(XmlHandler.addTagValue("fields_valuename", errorFieldsValuename));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("codes_valuename", errorCodesValuename));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("max_errors", maxErrors));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("max_pct_errors", maxPercentErrors));
+    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("min_pct_rows", minPercentRows));
     xml.append("      ")
         .append(XmlHandler.closeTag(TransformErrorMeta.XML_ERROR_TAG))
         .append(Const.CR);

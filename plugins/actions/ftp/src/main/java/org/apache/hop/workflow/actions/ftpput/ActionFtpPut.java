@@ -18,7 +18,6 @@
 package org.apache.hop.workflow.actions.ftpput;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
@@ -64,6 +63,9 @@ import org.w3c.dom.Node;
     documentationUrl = "/workflow/actions/ftpput.html")
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtpConnection {
   private static final Class<?> PKG = ActionFtpPut.class; // For Translator
+  private static final String CONST_SPACE_SHORT = "      ";
+  private static final String CONST_PASSWORD = "password";
+  private static final String CONST_LOCAL_DIRECTORY = "localDirectory";
 
   public static final int FTP_DEFAULT_PORT = 21;
 
@@ -125,34 +127,38 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
 
     xml.append(super.getXml());
 
-    xml.append("      ").append(XmlHandler.addTagValue("servername", serverName));
-    xml.append("      ").append(XmlHandler.addTagValue("serverport", serverPort));
-    xml.append("      ").append(XmlHandler.addTagValue("username", userName));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("servername", serverName));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("serverport", serverPort));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("username", userName));
+    xml.append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
-                "password", Encr.encryptPasswordIfNotUsingVariables(getPassword())));
-    xml.append("      ").append(XmlHandler.addTagValue("remoteDirectory", remoteDirectory));
-    xml.append("      ").append(XmlHandler.addTagValue("localDirectory", localDirectory));
-    xml.append("      ").append(XmlHandler.addTagValue("wildcard", wildcard));
-    xml.append("      ").append(XmlHandler.addTagValue("binary", binaryMode));
-    xml.append("      ").append(XmlHandler.addTagValue("timeout", timeout));
-    xml.append("      ").append(XmlHandler.addTagValue("remove", remove));
-    xml.append("      ").append(XmlHandler.addTagValue("only_new", onlyPuttingNewFiles));
-    xml.append("      ").append(XmlHandler.addTagValue("active", activeConnection));
-    xml.append("      ").append(XmlHandler.addTagValue("control_encoding", controlEncoding));
+                CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(getPassword())));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("remoteDirectory", remoteDirectory));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue(CONST_LOCAL_DIRECTORY, localDirectory));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("binary", binaryMode));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("timeout", timeout));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("remove", remove));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("only_new", onlyPuttingNewFiles));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("active", activeConnection));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("control_encoding", controlEncoding));
 
-    xml.append("      ").append(XmlHandler.addTagValue("proxy_host", proxyHost));
-    xml.append("      ").append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    xml.append("      ").append(XmlHandler.addTagValue("proxy_username", proxyUsername));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_host", proxyHost));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_port", proxyPort));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_username", proxyUsername));
+    xml.append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
-    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
-    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
-    xml.append("      ").append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
-    xml.append("      ")
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
+    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
+    xml.append(CONST_SPACE_SHORT)
+        .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
+    xml.append(CONST_SPACE_SHORT)
         .append(
             XmlHandler.addTagValue(
                 "socksproxy_password",
@@ -170,9 +176,10 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
       serverPort = XmlHandler.getTagValue(entrynode, "serverport");
       userName = XmlHandler.getTagValue(entrynode, "username");
       password =
-          Encr.decryptPasswordOptionallyEncrypted(XmlHandler.getTagValue(entrynode, "password"));
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(entrynode, CONST_PASSWORD));
       remoteDirectory = XmlHandler.getTagValue(entrynode, "remoteDirectory");
-      localDirectory = XmlHandler.getTagValue(entrynode, "localDirectory");
+      localDirectory = XmlHandler.getTagValue(entrynode, CONST_LOCAL_DIRECTORY);
       wildcard = XmlHandler.getTagValue(entrynode, "wildcard");
       binaryMode = "Y".equalsIgnoreCase(XmlHandler.getTagValue(entrynode, "binary"));
       timeout = Const.toInt(XmlHandler.getTagValue(entrynode, "timeout"), 10000);
@@ -684,7 +691,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
   }
 
   // package-local visibility for testing purposes
-  FTPClient createAndSetUpFtpClient() throws IOException, HopException {
+  FTPClient createAndSetUpFtpClient() throws HopException {
 
     FTPClient ftpClient = FtpClientUtil.connectAndLogin(log, this, this, getName());
 
@@ -724,7 +731,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "localDirectory",
+            CONST_LOCAL_DIRECTORY,
             remarks,
             AndValidator.putValidators(
                 ActionValidatorUtils.notBlankValidator(),
@@ -738,7 +745,7 @@ public class ActionFtpPut extends ActionBase implements Cloneable, IAction, IFtp
     ActionValidatorUtils.andValidator()
         .validate(
             this,
-            "password",
+            CONST_PASSWORD,
             remarks,
             AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
     ActionValidatorUtils.andValidator()

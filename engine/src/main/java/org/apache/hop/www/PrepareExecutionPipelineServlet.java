@@ -40,7 +40,12 @@ import org.owasp.encoder.Encode;
 @HopServerServlet(id = "prepareExec", name = "Prepare the execution of a pipeline")
 public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = PrepareExecutionPipelineServlet.class; // For Translator
-
+  private static final String CONST_NAME = "?name=";
+  private static final String CONST_HEADER_CLOSE = "</H1>";
+  private static final String CONST_HEADER_OPEN = "<H1>";
+  private static final String CONST_LINK_OPEN = "<a href=\"";
+  private static final String CONST_LINK_CLOSE = "</a><p>";
+  private static final String CONST_CLOSE_TAG = "\">";
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/prepareExec";
 
@@ -88,9 +93,9 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
       out.println(
           "<META http-equiv=\"Refresh\" content=\"2;url="
               + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
-              + "?name="
+              + CONST_NAME
               + URLEncoder.encode(pipelineName, UTF_8)
-              + "\">");
+              + CONST_CLOSE_TAG);
       out.println("<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">");
       out.println("<link rel=\"icon\" type=\"image/svg+xml\" href=\"/static/images/favicon.svg\">");
       out.println("</HEAD>");
@@ -137,21 +142,21 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
           } else {
 
             out.println(
-                "<H1>"
+                CONST_HEADER_OPEN
                     + Encode.forHtml(
                         BaseMessages.getString(
                             PKG, "PrepareExecutionPipelineServlet.PipelinePrepared", pipelineName))
-                    + "</H1>");
+                    + CONST_HEADER_CLOSE);
             out.println(
-                "<a href=\""
+                CONST_LINK_OPEN
                     + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
-                    + "?name="
+                    + CONST_NAME
                     + URLEncoder.encode(pipelineName, UTF_8)
                     + "&id="
                     + URLEncoder.encode(id, UTF_8)
-                    + "\">"
+                    + CONST_CLOSE_TAG
                     + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToPipelineStatusPage")
-                    + "</a><p>");
+                    + CONST_LINK_CLOSE);
           }
         } catch (Throwable e) {
           String logText =
@@ -173,27 +178,27 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
                             + Const.getStackTracker(e))));
           } else {
             out.println(
-                "<H1>"
+                CONST_HEADER_OPEN
                     + Encode.forHtml(
                         BaseMessages.getString(
                             PKG,
                             "PrepareExecutionPipelineServlet.Log.PipelineNotInit",
                             pipelineName))
-                    + "</H1>");
+                    + CONST_HEADER_CLOSE);
             out.println("<pre>");
             out.println(Encode.forHtml(logText));
             out.println(Encode.forHtml(Const.getStackTracker(e)));
             out.println("</pre>");
             out.println(
-                "<a href=\""
+                CONST_LINK_OPEN
                     + convertContextPath(GetPipelineStatusServlet.CONTEXT_PATH)
-                    + "?name="
+                    + CONST_NAME
                     + URLEncoder.encode(pipelineName, UTF_8)
                     + "&id="
                     + URLEncoder.encode(id, UTF_8)
-                    + "\">"
+                    + CONST_CLOSE_TAG
                     + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToPipelineStatusPage")
-                    + "</a><p>");
+                    + CONST_LINK_CLOSE);
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
           }
         }
@@ -206,17 +211,17 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
                       PKG, "PipelineStatusServlet.Log.CoundNotFindSpecPipeline", pipelineName)));
         } else {
           out.println(
-              "<H1>"
+              CONST_HEADER_OPEN
                   + Encode.forHtml(
                       BaseMessages.getString(
                           PKG, "PipelineStatusServlet.Log.CoundNotFindPipeline", pipelineName))
-                  + "</H1>");
+                  + CONST_HEADER_CLOSE);
           out.println(
-              "<a href=\""
+              CONST_LINK_OPEN
                   + convertContextPath(GetStatusServlet.CONTEXT_PATH)
-                  + "\">"
+                  + CONST_CLOSE_TAG
                   + BaseMessages.getString(PKG, "PipelineStatusServlet.BackToStatusPage")
-                  + "</a><p>");
+                  + CONST_LINK_CLOSE);
           response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         }
       }

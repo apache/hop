@@ -24,13 +24,14 @@ import org.apache.hop.core.compress.CompressionInputStream;
 import org.apache.hop.core.compress.ICompressionProvider;
 
 public class ZipCompressionInputStream extends CompressionInputStream {
+  private static final String CONST_NO_VALID_INPUT_STREAM = "Not a valid input stream!";
 
   public ZipCompressionInputStream(InputStream in, ICompressionProvider provider)
       throws IOException {
     super(getDelegate(in), provider);
   }
 
-  protected static ZipInputStream getDelegate(InputStream in) throws IOException {
+  protected static ZipInputStream getDelegate(InputStream in) {
     ZipInputStream delegate = null;
     if (in instanceof ZipInputStream) {
       delegate = (ZipInputStream) in;
@@ -44,7 +45,7 @@ public class ZipCompressionInputStream extends CompressionInputStream {
   public void close() throws IOException {
     ZipInputStream zis = (ZipInputStream) delegate;
     if (zis == null) {
-      throw new IOException("Not a valid input stream!");
+      throw new IOException(CONST_NO_VALID_INPUT_STREAM);
     }
     zis.close();
   }
@@ -53,7 +54,7 @@ public class ZipCompressionInputStream extends CompressionInputStream {
   public int read() throws IOException {
     ZipInputStream zis = (ZipInputStream) delegate;
     if (zis == null) {
-      throw new IOException("Not a valid input stream!");
+      throw new IOException(CONST_NO_VALID_INPUT_STREAM);
     }
     return zis.read();
   }
@@ -62,7 +63,7 @@ public class ZipCompressionInputStream extends CompressionInputStream {
   public Object nextEntry() throws IOException {
     ZipInputStream zis = (ZipInputStream) delegate;
     if (zis == null) {
-      throw new IOException("Not a valid input stream!");
+      throw new IOException(CONST_NO_VALID_INPUT_STREAM);
     }
     return zis.getNextEntry();
   }
