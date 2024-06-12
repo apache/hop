@@ -47,117 +47,129 @@ You can also choose to remove the field from the result (output) after all value
 
 [options=header]
 |===
-|Function|Description
-|Set field to constant A|
-|Create a copy of field A|
-|A + B|A plus B.
-|A - B|A minus B.
-|A * B|A multiplied by B.
-|A / B|A divided by B.
-|A * A|The square of A.
-|SQRT( A )|The square root of A.
-|100 * A / B|Percentage of A in B.
-|A - ( A * B / 100 )|Subtract B% of A.
-|A + ( A * B / 100 )|Add B% to A.
-|A + B *C|Add A and B times C.
-|SQRT( A*A + B*B )|Calculate ?(A2+B2).
-|ROUND( A )|Returns the closest Integer to the argument.
+|Function (Hop GUI view)|Function (Metadata Injection view)|Description
+|Set field to constant A|CONSTANT|
+|Create a copy of field A|COPY_OF_FIELD|
+|A + B|ADD|A plus B.
+|A - B|SUBTRACT|A minus B.
+|A * B|MULTIPLY|A multiplied by B.
+|A / B|DIVIDE|A divided by B.
+|A * A|SQUARE|The square of A.
+|SQRT( A )|SQUARE_ROOT|The square root of A.
+|100 * A / B|PERCENT_1|Percentage of A in B.
+|A - ( A * B / 100 )|PERCENT_2|Subtract B% of A.
+|A + ( A * B / 100 )|PERCENT_3|Add B% to A.
+|A + B *C|COMBINATION_1|Add A and B times C.
+|SQRT( A*A + B*B )|COMBINATION_2|Calculate ?(A2+B2).
+|ROUND( A )|ROUND_1|Returns the closest Integer to the argument.
 The result is rounded to an Integer by adding 1/2, taking the floor of the result, and casting the result to type int.
 In other words, the result is equal to the value of the expression: floor (a + 0.5).
 In case you need the rounding method "Round half to even", use the following method ROUND( A, B ) with no decimals (B=0).
-|ROUND( A, B )|Round A to the nearest even number with B decimals.
+|ROUND( A, B )|ROUND_2|Round A to the nearest even number with B decimals.
 The used rounding method is "Round half to even", it is also called unbiased rounding, convergent rounding, statistician's rounding, Dutch rounding, Gaussian rounding, odd-even rounding, bankers' rounding or broken rounding, and is widely used in bookkeeping.
 This is the default rounding mode used in IEEE 754 computing functions and operators.
 In Germany it is often called "Mathematisches Runden".
-|STDROUND( A )|Round A to the nearest integer.
+|STDROUND( A )|ROUND_STD_1|Round A to the nearest integer.
 The used rounding method is "Round half away from zero", it is also called standard or common rounding.
 In Germany it is known as "kaufmännische Rundung" (and defined in DIN 1333).
-|STDROUND( A, B )|Same rounding method used as in STDROUND (A) but with B decimals.
-|CEIL( A )|The ceiling function map a number to the smallest following integer.
-|FLOOR( A )|The floor function map a number to the largest previous integer.
-|NVL( A, B )|If A is not NULL, return A, else B. Note that sometimes your variable won't be null but an empty string.
-|Date A + B days|Add B days to Date field A.
+|STDROUND( A, B )|ROUND_STD_2|Same rounding method used as in STDROUND (A) but with B decimals.
+|CEIL( A )|CEIL|The ceiling function map a number to the smallest following integer.
+|FLOOR( A )|FLOOR|The floor function map a number to the largest previous integer.
+|NVL( A, B )|NVL|If A is not NULL, return A, else B. Note that sometimes your variable won't be null but an empty string.
+|Date A + B days|ADD_DAYS|Add B days to Date field A.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with hours.
-|Year of date A|Calculate the year of date A.
-|Month of date A|Calculate number the month of date A.
-|Day of year of date|A Calculate the day of year (1-365).
-|Day of month of date A|Calculate the day of month (1-31).
-|Day of week of date A|Calculate the day of week (1-7). 1 is Sunday, 2 is Monday, etc.
-|Week of year of date A|Calculate the week of year (1-54).
-|ISO8601 Week of year of date A|Calculate the week of the year ISO8601 style (1-53).
-|ISO8601 Year of date A|Calculate the year ISO8601 style.
-|Byte to hex encode of string A|Encode bytes in a string to a hexadecimal representation.
-|Hex encode of string A|Encode a string in its own hexadecimal representation.
-|Char to hex encode of string A|Encode characters in a string to a hexadecimal representation.
-|Hex decode of string A|Decode a string from its hexadecimal representation (add a leading 0 when A is of odd length).
-|Checksum of a file A using CRC-32|Calculate the checksum of a file using CRC-32.
-|Checksum of a file A using Adler-32|Calculate the checksum of a file using Adler-32.
-|Checksum of a file A using MD5|Calculate the checksum of a file using MD5.
-|Checksum of a file A using SHA-1|Calculate the checksum of a file using SHA-1.
-|Levenshtein Distance (Source A and Target B)|Calculates the Levenshtein Distance: http://en.wikipedia.org/wiki/Levenshtein_distance
-|Metaphone of A (Phonetics)|Calculates the metaphone of A:  http://en.wikipedia.org/wiki/Metaphone
-|Double metaphone of A|Calculates the double metaphone of A: http://en.wikipedia.org/wiki/Double_Metaphone
-|Absolute value ABS(A)|Calculates the Absolute value of A.
-|Remove time from a date A|Removes time value of A. Note: Daylight Savings Time (DST) changes in Sao Paulo and some other parts of Brazil at midnight 0:00. This makes it impossible to set the time to 0:00 at the specific date, when the DST changes from 0:00 to 1:00 am.
+|Year of date A|YEAR_OF_DATE|Calculate the year of date A.
+|Month of date A|MONTH_OF_DATE|Calculate number the month of date A.
+|Day of year of date A|DAY_OF_YEAR|Calculate the day of year (1-365).
+|Day of month of date A|DAY_OF_MONTH|Calculate the day of month (1-31).
+|Day of week of date A|DAY_OF_WEEK|Calculate the day of week (1-7). 1 is Sunday, 2 is Monday, etc.
+|Week of year of date A|WEEK_OF_YEAR|Calculate the week of year (1-54).
+|ISO8601 Week of year of date A|WEEK_OF_YEAR_ISO8601|Calculate the week of the year ISO8601 style (1-53).
+|ISO8601 Year of date A|YEAR_OF_DATE_ISO8601|Calculate the year ISO8601 style.
+|Byte to hex encode of string A|BYTE_TO_HEX_ENCODE|Encode bytes in a string to a hexadecimal representation.
+|Hex encode of string A|HEX_TO_BYTE_DECODE|Encode a string in its own hexadecimal representation.
+|Char to hex encode of string A|CHAR_TO_HEX_ENCODE|Encode characters in a string to a hexadecimal representation.
+|Hex decode of string A|HEX_TO_CHAR_DECODE|Decode a string from its hexadecimal representation (add a leading 0 when A is of odd length).
+|Checksum of a file A using CRC-32|CRC32|Calculate the checksum of a file using CRC-32.
+|Checksum of a file A using Adler-32|ADLER32|Calculate the checksum of a file using Adler-32.
+|Checksum of a file A using MD5|MD5|Calculate the checksum of a file using MD5.
+|Checksum of a file A using SHA-1|SHA1|Calculate the checksum of a file using SHA-1.
+|Levenshtein Distance (Source A and Target B)|LEVENSHTEIN_DISTANCE|Calculates the Levenshtein Distance: http://en.wikipedia.org/wiki/Levenshtein_distance
+|Metaphone of A (Phonetics)|METAPHONE|Calculates the metaphone of A:  http://en.wikipedia.org/wiki/Metaphone
+|Double metaphone of A|DOUBLE_METAPHONE|Calculates the double metaphone of A: http://en.wikipedia.org/wiki/Double_Metaphone
+|Absolute value ABS(A)|ABS|Calculates the Absolute value of A.
+|Remove time from a date A|REMOVE_TIME_FROM_DATE|Removes time value of A. Note: Daylight Savings Time (DST) changes in Sao Paulo and some other parts of Brazil at midnight 0:00. This makes it impossible to set the time to 0:00 at the specific date, when the DST changes from 0:00 to 1:00 am.
 So, there is one date in one year in these regions where this function will fail with an "IllegalArgumentException: HOUR_OF_DAY: 0 -> 1".
 It is not an issue for Europe, the US and other regions where the time changes at 1:00 or 2:00 or 3:00 am.
-|Date A - Date B (in days)|Calculates difference, in days, between A date field and B date field.
-|A + B + C|A plus B plus C.
-|First letter of each word of a string A in capital|Transforms the first letter of each word within a string.
-|UpperCase of a string A|Transforms a string to uppercase.
-|LowerCase of a string A|Transforms a string to lowercase.
-|Mask XML content from string A|Escape XML content; replace characters with &values.
-|Protect (CDATA) XML content from string A|Indicates an XML string is general character data, rather than non-character data or character data with a more specific, limited structure.
+|Date A - Date B (in days)|DATE_DIFF|Calculates difference, in days, between A date field and B date field.
+|A + B + C|ADD3|A plus B plus C.
+|First letter of each word of a string A in capital|INITCAP|Transforms the first letter of each word within a string.
+|UpperCase of a string A|UPPER_CASE|Transforms a string to uppercase.
+|LowerCase of a string A|LOWER_CASE|Transforms a string to lowercase.
+|Mask XML content from string A|MASK_XML|Escape XML content; replace characters with &values.
+|Protect (CDATA) XML content from string A|USE_CDATA|Indicates an XML string is general character data, rather than non-character data or character data with a more specific, limited structure.
 The given string will be enclosed into <![CDATA[String]]>.
-|Remove CR from a string A|Removes carriage returns from a string.
-|Remove LF from a string A|Removes linefeeds from a string.
-|Remove CRLF from a string A|Removes carriage returns/linefeeds from a string.
-|Remove TAB from a string A|Removes tab characters from a string.
-|Return only digits from string A|Outputs only digits (0-9) from a string.
-|Remove digits from string A|Removes all digits (0-9) from a string.
-|Return the length of a string A|Returns the length of the string.
-|Load file content in binary|Loads the content of the given file (in field A) to a binary data type (e.g. pictures).
-|Add time B to date A|Add the time to a date, returns date and time as one value.
-|Quarter of date A|Returns the quarter (1 to 4) of the date.
-|variable substitution in string A|Substitute variables within a string.
-|Unescape XML content|Unescape XML content from the string.
-|Escape HTML content|Escape HTML within the string.
-|Unescape HTML content|Unescape HTML within the string.
-|Escape SQL content|Escapes the characters in a String to be suitable to pass to an SQL query.
-|Date A - Date B (working days)|Calculates the difference between Date field A and Date field B (only working days Mon-Fri).
-|Date A + B Months|Add B months to Date field A.
+|Remove CR from a string A|REMOVE_CR|Removes carriage returns from a string.
+|Remove LF from a string A|REMOVE_LF|Removes linefeeds from a string.
+|Remove CRLF from a string A|REMOVE_CRLF|Removes carriage returns/linefeeds from a string.
+|Remove TAB from a string A|REMOVE_TAB|Removes tab characters from a string.
+|Return only digits from string A|GET_ONLY_DIGITS|Outputs only digits (0-9) from a string.
+|Remove digits from string A|REMOVE_DIGITS|Removes all digits (0-9) from a string.
+|Return the length of a string A|STRING_LEN|Returns the length of the string.
+|Load file content in binary|LOAD_FILE_CONTENT_BINARY|Loads the content of the given file (in field A) to a binary data type (e.g. pictures).
+|Add time B to date A|ADD_TIME_TO_DATE|Add the time to a date, returns date and time as one value.
+|Quarter of date A|QUARTER_OF_DATE|Returns the quarter (1 to 4) of the date.
+|variable substitution in string A|SUBSTITUTE_VARIABLE|Substitute variables within a string.
+|Unescape XML content|UNESCAPE_XML|Unescape XML content from the string.
+|Escape HTML content|ESCAPE_HTML|Escape HTML within the string.
+|Unescape HTML content|UNESCAPE_HTML|Unescape HTML within the string.
+|Escape SQL content|ESCAPE_SQL|Escapes the characters in a String to be suitable to pass to an SQL query.
+|Date A - Date B (working days)|DATE_WORKING_DIFF|Calculates the difference between Date field A and Date field B (only working days Mon-Fri).
+|Date A + B Months|ADD_MONTHS|Add B months to Date field A.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with days.
-|Check if an XML file A is well formed|Validates XML file input.
-|Check if an XML string A is well formed|Validates XML string input.
-|Get encoding of file A|Guess the best encoding (UTF-8) for the given file.
-|Dameraulevenshtein distance between String A and String B|Calculates Dameraulevenshtein distance between strings: http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
-|NeedlemanWunsch distance between String A and String B|Calculates NeedlemanWunsch distance between strings: http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
-|Jaro similitude between String A and String B|Returns the Jaro similarity coefficient between two strings.
-|JaroWinkler similitude between String A and String B|Returns the Jaro similarity coefficient between two string: http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance
-|SoundEx of String A|Encodes a string into a Soundex value.
-|RefinedSoundEx of String A|Retrieves the Refined Soundex code for a given string object
-|Date A + B Hours|Add B hours to Date field.
+|Check if an XML file A is well formed|CHECK_XML_FILE_WELL_FORMED|Validates XML file input.
+|Check if an XML string A is well formed|CHECK_XML_WELL_FORMED|Validates XML string input.
+|Get encoding of file A|GET_FILE_ENCODING|Guess the best encoding (UTF-8) for the given file.
+|Dameraulevenshtein distance between String A and String B|DAMERAU_LEVENSHTEIN|Calculates Dameraulevenshtein distance between strings: http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
+|NeedlemanWunsch distance between String A and String B|NEEDLEMAN_WUNSH|Calculates NeedlemanWunsch distance between strings: http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
+|Jaro similitude between String A and String B|JARO|Returns the Jaro similarity coefficient between two strings.
+|JaroWinkler similitude between String A and String B|JARO_WINKLER|Returns the Jaro similarity coefficient between two string: http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance
+|SoundEx of String A|SOUNDEX|Encodes a string into a Soundex value.
+|RefinedSoundEx of String A|REFINED_SOUNDEX|Retrieves the Refined Soundex code for a given string object
+|Date A + B Hours|ADD_HOURS|Add B hours to Date field.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with minutes.
-|Date A + B Minutes|Add B minutes to Date field.
+|Date A + B Minutes|ADD_MINUTES|Add B minutes to Date field.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with seconds.
-|Date A - Date B (milliseconds)|Subtract B milliseconds from Date field A
-|Date A - Date B (seconds)|Subtract B seconds from Date field A.
+|Date A - Date B (milliseconds)|DATE_DIFF_MSEC|Subtract B milliseconds from Date field A
+|Date A - Date B (seconds)|DATE_DIFF_SEC|Subtract B seconds from Date field A.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with milliseconds.
-|Date A - Date B (minutes)|Subtract B minutes from Date field A.
+|Date A - Date B (minutes)|DATE_DIFF_MN|Subtract B minutes from Date field A.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with seconds.
-|Date A - Date B (hours)|Subtract B hours from Date field A.
+|Date A - Date B (hours)|DATE_DIFF_HR|Subtract B hours from Date field A.
 Note: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with minutes.
-|Hour of Day of Date A|Extract the hour part of the given date
-|Minute of Hour of Date A|Extract the minute part of the given date
-|Second of Hour of Date A|Extract the second part of a given date
+|Hour of Day of Date A|HOUR_OF_DAY|Extract the hour part of the given date
+|Minute of Hour of Date A|MINUTE_OF_HOUR|Extract the minute part of the given date
+|Second of Hour of Date A|SECOND_OF_MINUTE|Extract the second part of a given date
+|ROUND_CUSTOM( A , B )|ROUND_CUSTOM_1|(... not implemented...?)
+|ROUND_CUSTOM( A , B , C )|ROUND_CUSTOM_2|(... not implemented...?)
+|Date A + B seconds|ADD_SECONDS|Add B seconds to date field A
+|Remainder of A / B|REMAINDER|Remainder of integer division between A and B (A modulo B)
+|Base64 Encode|BASE64_ENCODE|Encode a string in Base64 encoding
+|Base64 Decode|BASE64_DECODE|Decode a Base64 encoded string
 |===
+
+== Metadata Injection support
+
+All fields of this transform support metadata injection. You can use this transform with ETL Metadata Injection to pass metadata to your pipeline at runtime.
+
+Use the values in the column "Function (Metadata Injection view)" from the table above to specify the operation (Calculation type) applied to the fields.
 
 == FAQ on length and precision and data types affecting the results
 
