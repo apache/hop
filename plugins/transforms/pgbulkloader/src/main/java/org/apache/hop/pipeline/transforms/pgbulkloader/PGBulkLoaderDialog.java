@@ -59,6 +59,7 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -119,6 +120,15 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     setShellImage(shell, input);
 
     ModifyListener lsMod = e -> input.setChanged();
+    SelectionListener lsSelection =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            setTableFieldCombo();
+          }
+        };
+
     FocusListener lsFocusLost =
         new FocusAdapter() {
           @Override
@@ -158,7 +168,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
     Label wlSchema = new Label(shell, SWT.RIGHT);
@@ -458,14 +469,14 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         }
         String dateMask = mapping.getDateMask();
         if (dateMask != null) {
-          if (PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH.equals(dateMask)) {
-            item.setText(3, BaseMessages.getString(PKG, PASSTROUGH_LABEL));
-          } else if (PGBulkLoaderMeta.DATE_MASK_DATE.equals(dateMask)) {
-            item.setText(3, BaseMessages.getString(PKG, DATEMASK_LABEL));
-          } else if (PGBulkLoaderMeta.DATE_MASK_DATETIME.equals(dateMask)) {
-            item.setText(3, BaseMessages.getString(PKG, DATETIMEMASK_LABEL));
-          } else {
-            item.setText(3, "");
+          switch (dateMask) {
+            case PGBulkLoaderMeta.DATE_MASK_PASS_THROUGH ->
+                item.setText(3, BaseMessages.getString(PKG, PASSTROUGH_LABEL));
+            case PGBulkLoaderMeta.DATE_MASK_DATE ->
+                item.setText(3, BaseMessages.getString(PKG, DATEMASK_LABEL));
+            case PGBulkLoaderMeta.DATE_MASK_DATETIME ->
+                item.setText(3, BaseMessages.getString(PKG, DATETIMEMASK_LABEL));
+            default -> item.setText(3, "");
           }
         } else {
           item.setText(3, "");
@@ -473,8 +484,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       }
     }
 
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     if (input.getSchemaName() != null) {
       wSchema.setText(input.getSchemaName());
@@ -543,7 +554,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    input.setConnection(wConnection.getText());
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
@@ -700,7 +711,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
     inf.setSchemaName(wSchema.getText());
     inf.setTableName(wTable.getText());
-    inf.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    inf.setConnection(wConnection.getText());
     inf.setDelimiter(wDelimiter.getText());
     inf.setEnclosure(wEnclosure.getText());
     inf.setStopOnError(wStopOnError.getSelection());
@@ -731,7 +742,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "PGBulkLoaderDialog.InvalidConnection.DialogMessage"));
@@ -808,6 +819,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
           new TransformMeta(
               BaseMessages.getString(PKG, "PGBulkLoaderDialog.TransformMeta.Title"), name, info);
       IRowMeta prev = pipelineMeta.getPrevTransformFields(variables, transformName);
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
 
       SqlStatement sql =
           info.getSqlStatements(variables, pipelineMeta, transformMeta, prev, metadataProvider);
@@ -815,12 +827,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  info.getDatabaseMeta(),
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);

@@ -73,7 +73,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
    * @return a string containing the control file contents
    */
   public String getCopyCommand() throws HopException {
-    DatabaseMeta dm = meta.getDatabaseMeta();
+    DatabaseMeta dm = getPipelineMeta().findDatabase(meta.getConnection(), variables);
 
     StringBuilder contents = new StringBuilder(500);
 
@@ -163,11 +163,10 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
   @VisibleForTesting
   Database getDatabase(ILoggingObject parentObject, PGBulkLoaderMeta pgBulkLoaderMeta) {
-    DatabaseMeta dbMeta = pgBulkLoaderMeta.getDatabaseMeta();
+    DatabaseMeta dbMeta = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     // If dbNameOverride is present, clone the origin db meta and override the DB name
     String dbNameOverride = resolve(pgBulkLoaderMeta.getDbNameOverride());
     if (!Utils.isEmpty(dbNameOverride)) {
-      dbMeta = (DatabaseMeta) pgBulkLoaderMeta.getDatabaseMeta().clone();
       dbMeta.setDBName(dbNameOverride.trim());
       logDebug("DB name overridden to the value: " + dbNameOverride);
     }
@@ -184,7 +183,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     String loadAction = resolve(meta.getLoadAction());
 
     if (loadAction.equalsIgnoreCase("truncate")) {
-      DatabaseMeta dm = meta.getDatabaseMeta();
+      DatabaseMeta dm = getPipelineMeta().findDatabase(meta.getConnection(), variables);
       String tableName =
           dm.getQuotedSchemaTableCombination(this, meta.getSchemaName(), meta.getTableName());
       logBasic("Launching command: " + "TRUNCATE " + tableName);
@@ -424,7 +423,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
   protected void verifyDatabaseConnection() throws HopException {
     // Confirming Database Connection is defined.
-    if (meta.getDatabaseMeta() == null) {
+    if (meta.getConnection() == null) {
       throw new HopException(
           BaseMessages.getString(PKG, "PGBulkLoaderMeta.GetSQL.NoConnectionDefined"));
     }
