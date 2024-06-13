@@ -21,7 +21,6 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesDatabaseConnectionInformation;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -49,8 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     keywords = "i18n::OraBulkLoader.Keywords",
     documentationUrl = "/pipeline/transforms/orabulkloader.html")
-public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkLoaderData>
-    implements IProvidesDatabaseConnectionInformation {
+public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkLoaderData> {
   private static final Class<?> PKG =
       OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -62,9 +60,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   /** Database connection */
   @HopMetadataProperty(
       key = "connection",
-      storeWithName = true,
       injectionKeyDescription = "OraBulkLoader.Injection.Connection")
-  private DatabaseMeta databaseMeta;
+  private String connection;
 
   /** Schema for the target */
   @HopMetadataProperty(
@@ -274,18 +271,12 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
     this.commitSize = commitSize;
   }
 
-  /**
-   * @return Returns the database.
-   */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  public String getConnection() {
+    return connection;
   }
 
-  /**
-   * @param database The database to set.
-   */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**
@@ -352,7 +343,7 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
+    connection = null;
     commitSize = Integer.toString(DEFAULT_COMMIT_SIZE);
     bindSize = Integer.toString(DEFAULT_BIND_SIZE); // Use platform default
     readSize = Integer.toString(DEFAULT_READ_SIZE); // Use platform default
@@ -391,6 +382,9 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -551,6 +545,10 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -619,6 +617,9 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     if (prev != null) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
@@ -660,6 +661,8 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
   public IRowMeta getRequiredFields(IVariables variables) throws HopException {
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, variables, databaseMeta);
@@ -848,10 +851,5 @@ public class OraBulkLoaderMeta extends BaseTransformMeta<OraBulkLoader, OraBulkL
    */
   public void setParallel(boolean parallel) {
     this.parallel = parallel;
-  }
-
-  @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    return null;
   }
 }
