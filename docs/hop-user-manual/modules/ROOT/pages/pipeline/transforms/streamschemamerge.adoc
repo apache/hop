@@ -22,12 +22,13 @@ under the License.
 
 [%noheader,cols="3a,1a", role="table-no-borders" ]
 |===
-|
+a|
 == Description
 
 The Stream Schema Merge transform merges multiple inputs with different structures and creates a combination of fields.
 
-INFO: If the streams to merge contain fields with the same name but different types, these fields with be combined into a singled field of type `String`. If you want to make sure fields keep their original data type, make sure to convert them to identical types. e.g. through the `Metadata` tab in the xref:/pipeline/transforms/selectvalues.adoc[Select Values] transform.
+TIP: If the streams to merge contain fields with the same name but different types, these fields with be combined into a single field of type `String`. +
+If you want to make sure fields keep their original data type, make sure to convert them to identical types. e.g. through the `Metadata` tab in the xref:/pipeline/transforms/selectvalues.adoc[Select Values] transform.
 
 |
 == Supported Engines
