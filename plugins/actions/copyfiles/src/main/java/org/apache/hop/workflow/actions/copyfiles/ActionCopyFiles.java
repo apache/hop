@@ -618,7 +618,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       logError(
           BaseMessages.getString(
               PKG,
-              CONST_COPY_PROCESS,
+              "ActionCopyFiles.Error.Exception.CopyProcess",
               HopVfs.getFriendlyURI(realSourceFileFolderName, getVariables()),
               HopVfs.getFriendlyURI(realDestinationFileFolderName, getVariables()),
               e.getMessage()),
@@ -1105,7 +1105,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
                     CONST_SPACE_SHORT
                         + BaseMessages.getString(
                             PKG,
-                            CONST_FILE_EXISTS,
+                            "ActionCopyFiles.Log.FileExists",
                             HopVfs.getFriendlyURI(filename, getVariables())));
               }
 
