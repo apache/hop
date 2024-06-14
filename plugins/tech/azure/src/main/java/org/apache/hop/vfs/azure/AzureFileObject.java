@@ -19,7 +19,6 @@
 package org.apache.hop.vfs.azure;
 
 import com.microsoft.azure.storage.StorageException;
-import com.microsoft.azure.storage.blob.CloudAppendBlob;
 import com.microsoft.azure.storage.blob.CloudBlob;
 import com.microsoft.azure.storage.blob.CloudBlobClient;
 import com.microsoft.azure.storage.blob.CloudBlobContainer;
@@ -32,11 +31,8 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
@@ -46,14 +42,14 @@ import org.apache.commons.vfs2.provider.UriParser;
 
 public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
-  public class AppendBlobOutputStream extends OutputStream {
+  public class BlockBlobOutputStream extends OutputStream {
 
-    private CloudAppendBlob ab;
+    private CloudBlockBlob bb;
     private final OutputStream outputStream;
     long written = 0;
 
-    public AppendBlobOutputStream(CloudAppendBlob ab, OutputStream outputStream) {
-      this.ab = ab;
+    public BlockBlobOutputStream(CloudBlockBlob bb, OutputStream outputStream) {
+      this.bb = bb;
       this.outputStream = outputStream;
     }
 
@@ -87,17 +83,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
     @Override
     public void close() throws IOException {
-
-      HashMap<String, String> md = new HashMap<>(ab.getMetadata());
-      md.put("ActualLength", String.valueOf(written));
-      ab.getProperties().setContentDisposition("vfs ; length=\"" + written + "\"");
-      ab.setMetadata(md);
-      try {
-        ab.uploadProperties();
-      } catch (StorageException e) {
-        throw new IOException("Failed to update meta-data.", e);
-      }
-
       outputStream.close();
       closeBlob();
     }
@@ -114,83 +99,13 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   private CloudBlob cloudBlob;
   private CloudBlobDirectory cloudDir;
   private String markerFileName = ".cvfs.temp";
+  private OutputStream blobOutputStream;
 
   public AzureFileObject(
       AbstractFileName fileName, AzureFileSystem fileSystem, CloudBlobClient service)
       throws FileSystemException {
     super(fileName, fileSystem);
     this.service = service;
-  }
-
-  @Override
-  protected void doSetAttribute(String attrName, Object value) throws Exception {
-    if (container != null && !containerPath.equals("")) {
-      if (cloudBlob != null) {
-        if (attrName.equals("cacheControl"))
-          cloudBlob.getProperties().setCacheControl(value.toString());
-        else if (attrName.equals("contentType"))
-          cloudBlob.getProperties().setContentType(value.toString());
-        else if (attrName.equals("contentMD5"))
-          cloudBlob.getProperties().setContentMD5(value.toString());
-        else if (attrName.equals("contentLanguage"))
-          cloudBlob.getProperties().setContentLanguage(value.toString());
-        else if (attrName.equals("contentDisposition"))
-          cloudBlob.getProperties().setContentDisposition(value.toString());
-        else if (attrName.equals("contentEncoding"))
-          cloudBlob.getProperties().setContentEncoding(value.toString());
-        else cloudBlob.getMetadata().put(attrName, value.toString());
-      }
-    } else {
-      throw new FileSystemException("Setting of attributes not supported on this file.");
-    }
-  }
-
-  @Override
-  protected Map<String, Object> doGetAttributes() throws Exception {
-    Map<String, Object> attrs = new HashMap<>();
-    if (container != null && !containerPath.equals("")) {
-      if (cloudBlob != null) {
-        attrs.put("cacheControl", cloudBlob.getProperties().getCacheControl());
-        attrs.put("blobType", cloudBlob.getProperties().getBlobType());
-        attrs.put("contentDisposition", cloudBlob.getProperties().getContentDisposition());
-        attrs.put("contentEncoding", cloudBlob.getProperties().getContentEncoding());
-        attrs.put("contentLanguage", cloudBlob.getProperties().getContentLanguage());
-        attrs.put("contentType", cloudBlob.getProperties().getContentType());
-        attrs.put("copyState", cloudBlob.getProperties().getCopyState());
-        attrs.put("etag", cloudBlob.getProperties().getEtag());
-        attrs.put("leaseDuration", cloudBlob.getProperties().getLeaseDuration());
-        attrs.put("leaseState", cloudBlob.getProperties().getLeaseState());
-        attrs.put("leaseStatus", cloudBlob.getProperties().getLeaseStatus());
-        attrs.put("pageBlobSequenceNumber", cloudBlob.getProperties().getPageBlobSequenceNumber());
-        attrs.putAll(cloudBlob.getMetadata());
-      }
-    }
-    return attrs;
-  }
-
-  @Override
-  protected void doRemoveAttribute(String attrName) throws Exception {
-    if (container != null && !containerPath.equals("") && cloudBlob != null) {
-      if (Arrays.asList(
-              "cacheControl",
-              "blobType",
-              "contentDisposition",
-              "contentEncoding",
-              "contentLanguage",
-              "contentType",
-              "copyState",
-              "etag",
-              "leaseDuration",
-              "leaseState",
-              "leaseStatus",
-              "pageBlobSequenceNumber")
-          .contains(attrName)) {
-        throw new FileSystemException("Removal of this attributes not supported on this file.");
-      }
-      cloudBlob.getMetadata().remove(attrName);
-    } else {
-      throw new FileSystemException("Removal of attributes not supported on this file.");
-    }
   }
 
   @Override
@@ -412,18 +327,24 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
+  public void createFile() throws FileSystemException {
+    try {
+      blobOutputStream =
+          container.getBlockBlobReference(removeLeadingSlash(containerPath)).openOutputStream();
+    } catch (StorageException e) {
+      throw new FileSystemException(e);
+    } catch (URISyntaxException e) {
+      throw new FileSystemException(e);
+    }
+  }
+
+  @Override
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
     if (container != null && !containerPath.equals("")) {
       if (bAppend) throw new UnsupportedOperationException();
-      final CloudAppendBlob cab =
-          container.getAppendBlobReference(removeLeadingSlash(containerPath));
-
-      if (type == FileType.IMAGINARY) {
-        type = FileType.FILE;
-        return new AppendBlobOutputStream(cab, cab.openWriteNew());
-      } else {
-        return new AppendBlobOutputStream(cab, cab.openWriteExisting());
-      }
+      final CloudBlockBlob cbb = container.getBlockBlobReference(removeLeadingSlash(containerPath));
+      type = FileType.FILE;
+      return new BlockBlobOutputStream(cbb, blobOutputStream);
     } else {
       throw new UnsupportedOperationException();
     }
@@ -432,7 +353,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected InputStream doGetInputStream() throws Exception {
     if (container != null && !containerPath.equals("") && type == FileType.FILE) {
-      return new AppendBlobInputStream(cloudBlob.openInputStream(), size);
+      return new BlobInputStream(cloudBlob.openInputStream(), size);
     } else {
       throw new UnsupportedOperationException();
     }

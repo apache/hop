@@ -18,17 +18,17 @@
 
 package org.apache.hop.vfs.azure;
 
-import com.microsoft.azure.storage.blob.BlobInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class AppendBlobInputStream extends InputStream {
+public class BlobInputStream extends InputStream {
 
-  private BlobInputStream inputStream;
+  private com.microsoft.azure.storage.blob.BlobInputStream inputStream;
   private long fileSize;
   private long totalRead = 0;
 
-  public AppendBlobInputStream(BlobInputStream inputStream, long fileSize) {
+  public BlobInputStream(
+      com.microsoft.azure.storage.blob.BlobInputStream inputStream, long fileSize) {
     this.inputStream = inputStream;
     this.fileSize = fileSize;
   }
