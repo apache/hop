@@ -89,7 +89,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     }
 
     String realFolderName = getRealFolderName();
-    try (FileObject folderObject = HopVfs.getFileObject(realFolderName)) {
+    try (FileObject folderObject = HopVfs.getFileObject(realFolderName, getVariables())) {
 
       if (folderObject.exists()) {
         boolean isFolder = folderObject.getType() == FileType.FOLDER;

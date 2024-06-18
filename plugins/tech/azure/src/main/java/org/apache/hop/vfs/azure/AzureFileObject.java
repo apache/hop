@@ -84,7 +84,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     @Override
     public void close() throws IOException {
       outputStream.close();
-      closeBlob();
     }
   }
 
@@ -233,6 +232,10 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     return getName().getBaseName().equals(markerFileName);
   }
 
+  public boolean canRenameTo(FileObject newfile) {
+    throw new UnsupportedOperationException();
+  }
+
   @Override
   protected void doDelete() throws Exception {
     if (container == null) {
@@ -327,23 +330,13 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
-  public void createFile() throws FileSystemException {
-    try {
-      blobOutputStream =
-          container.getBlockBlobReference(removeLeadingSlash(containerPath)).openOutputStream();
-    } catch (StorageException e) {
-      throw new FileSystemException(e);
-    } catch (URISyntaxException e) {
-      throw new FileSystemException(e);
-    }
-  }
-
-  @Override
   protected OutputStream doGetOutputStream(boolean bAppend) throws Exception {
     if (container != null && !containerPath.equals("")) {
       if (bAppend) throw new UnsupportedOperationException();
       final CloudBlockBlob cbb = container.getBlockBlobReference(removeLeadingSlash(containerPath));
       type = FileType.FILE;
+      blobOutputStream =
+          container.getBlockBlobReference(removeLeadingSlash(containerPath)).openOutputStream();
       return new BlockBlobOutputStream(cbb, blobOutputStream);
     } else {
       throw new UnsupportedOperationException();
@@ -377,20 +370,6 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   @Override
   protected long doGetContentSize() throws Exception {
     return size;
-  }
-
-  private void closeBlob() {
-    String pathAfterContainer =
-        removeLeadingSlash(((AzureFileName) getName().getParent()).getPathAfterContainer()) + "/";
-    for (ListBlobItem item : container.listBlobs(pathAfterContainer)) {
-      String itemPath = item.getUri().getPath();
-      itemPath = removeTrailingSlash(itemPath);
-      if (itemPath.equals(getName().getPath())) {
-        if (item instanceof CloudBlob) {
-          cloudBlob = (CloudBlob) item;
-        }
-      }
-    }
   }
 
   private static String removeTrailingSlash(String itemPath) {

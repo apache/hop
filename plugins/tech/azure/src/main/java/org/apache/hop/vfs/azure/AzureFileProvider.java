@@ -51,7 +51,7 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
           Arrays.asList(
               Capability.CREATE,
               Capability.DELETE,
-              // Capability.RENAME,
+              Capability.RENAME,
               Capability.ATTRIBUTES,
               Capability.GET_TYPE,
               Capability.GET_LAST_MODIFIED,
