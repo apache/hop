@@ -181,7 +181,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     String realFileFolderName = resolve(name);
     String realWildcard = resolve(wildcard);
 
-    try (FileObject fileFolder = HopVfs.getFileObject(realFileFolderName)) {
+    try (FileObject fileFolder = HopVfs.getFileObject(realFileFolderName, getVariables())) {
       FileObject[] files = new FileObject[] {fileFolder};
       if (fileFolder.exists()) {
         // the file or folder exists

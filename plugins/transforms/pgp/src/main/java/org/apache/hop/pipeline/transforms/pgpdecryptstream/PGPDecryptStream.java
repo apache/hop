@@ -181,7 +181,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG(resolve(meta.getGPGLocation()), log);
+        data.gpg = new GPG(resolve(meta.getGPGLocation()), log, variables);
       } catch (Exception e) {
         logError(BaseMessages.getString(PKG, "PGPDecryptStream.Init.Error"), e);
         return false;

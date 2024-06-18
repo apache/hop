@@ -208,10 +208,12 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
       in1 =
           new DataInputStream(
-              new BufferedInputStream(HopVfs.getInputStream(HopVfs.getFilename(file1))));
+              new BufferedInputStream(
+                  HopVfs.getInputStream(HopVfs.getFilename(file1), getVariables())));
       in2 =
           new DataInputStream(
-              new BufferedInputStream(HopVfs.getInputStream(HopVfs.getFilename(file2))));
+              new BufferedInputStream(
+                  HopVfs.getInputStream(HopVfs.getFilename(file2), getVariables())));
 
       char ch1;
       char ch2;
@@ -264,8 +266,8 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     try {
       if (filename1 != null && filename2 != null) {
         // Get Folders/Files to compare
-        folder1 = HopVfs.getFileObject(realFilename1);
-        folder2 = HopVfs.getFileObject(realFilename2);
+        folder1 = HopVfs.getFileObject(realFilename1, getVariables());
+        folder2 = HopVfs.getFileObject(realFilename2, getVariables());
 
         if (folder1.exists() && folder2.exists()) {
           if (!folder1.getType().equals(folder2.getType())) {
@@ -364,8 +366,9 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
                               realFilename2));
                     }
 
-                    filefolder1 = HopVfs.getFileObject(entree.getValue());
-                    filefolder2 = HopVfs.getFileObject(collection2.get(entree.getKey()));
+                    filefolder1 = HopVfs.getFileObject(entree.getValue(), getVariables());
+                    filefolder2 =
+                        HopVfs.getFileObject(collection2.get(entree.getKey()), getVariables());
 
                     if (!filefolder2.getType().equals(filefolder1.getType())) {
                       // The file1 exist in the folder2..but they don't have the same type
