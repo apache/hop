@@ -17,6 +17,8 @@
 package org.apache.hop.vfs.azure.metadatatype;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
@@ -192,5 +194,11 @@ public class AzureMetadataTypeEditor extends MetadataEditor<AzureMetadataType> {
       return false;
     }
     return wName.setFocus();
+  }
+
+  @Override
+  public void save() throws HopException {
+    super.save();
+    HopVfs.reset();
   }
 }
