@@ -18,7 +18,9 @@
 
 package org.apache.hop.vfs.dropbox;
 
+import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 
@@ -32,5 +34,10 @@ public class DropboxVfsPlugin implements IVfs {
   @Override
   public FileProvider getProvider() {
     return new DropboxFileProvider();
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(IVariables variables) {
+    return null;
   }
 }

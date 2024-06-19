@@ -71,7 +71,7 @@ public class ParquetInput extends BaseTransform<ParquetInputMeta, ParquetInputDa
     }
 
     String filename = getInputRowMeta().getString(row, data.filenameFieldIndex);
-    FileObject fileObject = HopVfs.getFileObject(filename);
+    FileObject fileObject = HopVfs.getFileObject(filename, variables);
 
     try {
       long size = fileObject.getContent().getSize();

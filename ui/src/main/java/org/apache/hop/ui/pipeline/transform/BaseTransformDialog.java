@@ -1290,7 +1290,8 @@ public abstract class BaseTransformDialog extends Dialog implements ITransformDi
     int answer = box.open();
     if ((answer & SWT.YES) != 0) {
       try {
-        String baseName = HopVfs.getFileObject(variables.resolve(filename)).getName().getBaseName();
+        String baseName =
+            HopVfs.getFileObject(variables.resolve(filename), variables).getName().getBaseName();
         wTransformName.setText(baseName);
       } catch (Exception e) {
         new ErrorDialog(

@@ -211,7 +211,7 @@ public class ParquetInputDialog extends BaseTransformDialog {
               new String[] {"Parquet files", "All files"},
               true);
       if (filename != null) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename), variables);
 
         long size = fileObject.getContent().getSize();
         InputStream inputStream = HopVfs.getInputStream(fileObject);

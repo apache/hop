@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang.StringUtils;
@@ -39,12 +40,14 @@ import org.apache.commons.vfs2.impl.DefaultFileReplicator;
 import org.apache.commons.vfs2.impl.DefaultFileSystemManager;
 import org.apache.commons.vfs2.impl.FileContentInfoFilenameFactory;
 import org.apache.commons.vfs2.impl.StandardFileSystemManager;
+import org.apache.commons.vfs2.provider.FileProvider;
 import org.apache.commons.vfs2.provider.local.LocalFile;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.i18n.BaseMessages;
@@ -55,6 +58,7 @@ public class HopVfs {
   public static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
 
   private static DefaultFileSystemManager fsm;
+  private static DefaultFileSystemManager extendedFsm;
 
   private static final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -64,11 +68,53 @@ public class HopVfs {
       if (fsm == null) {
         try {
           fsm = createFileSystemManager();
+          fsm.init();
         } catch (Exception e) {
           throw new RuntimeException("Error initializing file system manager : ", e);
         }
       }
       return fsm;
+    } finally {
+      lock.readLock().unlock();
+    }
+  }
+
+  public static DefaultFileSystemManager getFileSystemManager(IVariables variables) {
+    lock.readLock().lock();
+    try {
+      if (extendedFsm == null) {
+        try {
+          extendedFsm = createFileSystemManager();
+          // Here are extra VFS plugins to register
+          //
+          PluginRegistry registry = PluginRegistry.getInstance();
+          List<IPlugin> plugins = registry.getPlugins(VfsPluginType.class);
+          for (IPlugin plugin : plugins) {
+            IVfs iVfs = registry.loadClass(plugin, IVfs.class);
+            try {
+              Map<String, FileProvider> fileProviderMap = iVfs.getProviders(variables);
+              if (fileProviderMap != null) {
+                for (Map.Entry<String, FileProvider> entry : fileProviderMap.entrySet()) {
+                  extendedFsm.addProvider(entry.getKey(), entry.getValue());
+                }
+              }
+            } catch (Exception e) {
+              throw new HopException(
+                  "Error registering provider for VFS plugin "
+                      + plugin.getIds()[0]
+                      + " : "
+                      + plugin.getName()
+                      + " : ",
+                  e);
+            }
+          }
+
+          extendedFsm.init();
+        } catch (Exception e) {
+          throw new RuntimeException("Error initializing file system manager : ", e);
+        }
+      }
+      return extendedFsm;
     } finally {
       lock.readLock().unlock();
     }
@@ -141,12 +187,58 @@ public class HopVfs {
               e);
         }
       }
-
-      fsm.init();
-
       return fsm;
     } catch (Exception e) {
       throw new HopException("Error creating file system manager", e);
+    }
+  }
+
+  public static synchronized FileObject getFileObject(String vfsFilename, IVariables variables)
+      throws HopFileException {
+    lock.readLock().lock();
+    try {
+      DefaultFileSystemManager fsManager = getFileSystemManager(variables);
+
+      try {
+        // We have one problem with VFS: if the file is in a subdirectory of the current one:
+        // somedir/somefile
+        // In that case, VFS doesn't parse the file correctly.
+        // We need to put file: in front of it to make it work.
+        // However, how are we going to verify this?
+        //
+        // We are going to see if the filename starts with one of the known protocols like file:
+        // zip: ram: smb: jar: etc.
+        // If not, we are going to assume it's a file.
+        //
+        boolean relativeFilename = true;
+        String[] initialSchemes = fsManager.getSchemes();
+
+        relativeFilename = checkForScheme(initialSchemes, relativeFilename, vfsFilename);
+
+        String filename;
+        if (vfsFilename.startsWith("\\\\")) {
+          File file = new File(vfsFilename);
+          filename = file.toURI().toString();
+        } else {
+          if (relativeFilename) {
+            File file = new File(vfsFilename);
+            filename = file.getAbsolutePath();
+          } else {
+            filename = vfsFilename;
+          }
+        }
+
+        return fsManager.resolveFile(filename);
+      } catch (Exception e) {
+        throw new HopFileException(
+            "Unable to get VFS File object for filename '"
+                + cleanseFilename(vfsFilename)
+                + "' : "
+                + e.getMessage(),
+            e);
+      }
+    } finally {
+      lock.readLock().unlock();
     }
   }
 
@@ -280,6 +372,17 @@ public class HopVfs {
     }
   }
 
+  public static InputStream getInputStream(String vfsFilename, IVariables variables)
+      throws HopFileException {
+    try {
+      FileObject fileObject = getFileObject(vfsFilename, variables);
+
+      return getInputStream(fileObject);
+    } catch (IOException e) {
+      throw new HopFileException(e);
+    }
+  }
+
   public static OutputStream getOutputStream(FileObject fileObject, boolean append)
       throws IOException {
     FileObject parent = fileObject.getParent();
@@ -314,6 +417,16 @@ public class HopVfs {
       } else {
         throw e;
       }
+    }
+  }
+
+  public static OutputStream getOutputStream(
+      String vfsFilename, boolean append, IVariables variables) throws HopFileException {
+    try {
+      FileObject fileObject = getFileObject(vfsFilename, variables);
+      return getOutputStream(fileObject, append);
+    } catch (IOException e) {
+      throw new HopFileException(e);
     }
   }
 
@@ -355,6 +468,21 @@ public class HopVfs {
     String friendlyName;
     try {
       friendlyName = getFriendlyURI(HopVfs.getFileObject(filename));
+    } catch (Exception e) {
+      // unable to get a friendly name from VFS object.
+      // Cleanse name of pwd before returning
+      friendlyName = cleanseFilename(filename);
+    }
+    return friendlyName;
+  }
+
+  public static String getFriendlyURI(String filename, IVariables variables) {
+    if (filename == null) {
+      return null;
+    }
+    String friendlyName;
+    try {
+      friendlyName = getFriendlyURI(HopVfs.getFileObject(filename, variables));
     } catch (Exception e) {
       // unable to get a friendly name from VFS object.
       // Cleanse name of pwd before returning
@@ -495,6 +623,11 @@ public class HopVfs {
       fsm.freeUnusedResources();
       fsm.close();
       fsm = null;
+    }
+    if (extendedFsm != null) {
+      extendedFsm.freeUnusedResources();
+      extendedFsm.close();
+      extendedFsm = null;
     }
   }
 

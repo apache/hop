@@ -1040,7 +1040,7 @@ public class TextFileOutputMeta extends BaseTransformMeta<TextFileOutput, TextFi
       if (!fileNameInField) {
 
         if (!Utils.isEmpty(fileName)) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName));
+          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName), variables);
           fileName = iResourceNaming.nameResource(fileObject, variables, true);
         }
       }

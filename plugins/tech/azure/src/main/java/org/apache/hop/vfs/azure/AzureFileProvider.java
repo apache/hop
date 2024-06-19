@@ -37,10 +37,12 @@ import org.apache.commons.vfs2.FileSystemOptions;
 import org.apache.commons.vfs2.UserAuthenticationData;
 import org.apache.commons.vfs2.provider.AbstractOriginatingFileProvider;
 import org.apache.commons.vfs2.util.UserAuthenticatorUtils;
+import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.vfs.azure.config.AzureConfig;
 import org.apache.hop.vfs.azure.config.AzureConfigSingleton;
+import org.apache.hop.vfs.azure.metadatatype.AzureMetadataType;
 
 public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
@@ -73,9 +75,20 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
   private Log logger = LogFactory.getLog(AzureFileProvider.class);
 
+  private IVariables variables;
+
+  private AzureMetadataType azureMetadataType;
+
   public AzureFileProvider() {
     super();
     setFileNameParser(AzureFileNameParser.getInstance());
+  }
+
+  public AzureFileProvider(IVariables variables, AzureMetadataType azureMetadataType) {
+    super();
+    this.variables = variables;
+    this.azureMetadataType = azureMetadataType;
+    setFileNameParser(new AzureCustomFileNameParser(azureMetadataType.getName()));
   }
 
   @Override
@@ -88,29 +101,52 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
     CloudBlobClient service;
 
     String account;
+    String key;
+    String url;
 
     try {
       authData = UserAuthenticatorUtils.authenticate(fsOptions, AUTHENTICATOR_TYPES);
 
       logger.info("Initialize Azure client");
 
-      AzureConfig config = AzureConfigSingleton.getConfig();
+      if (azureMetadataType != null) {
 
-      if (StringUtils.isEmpty(config.getAccount())) {
-        throw new FileSystemException(
-            "Please configure the Azure account to use in the configuration (Options dialog or with hop-conf)");
+        if (StringUtils.isEmpty(azureMetadataType.getStorageAccountName())) {
+          throw new FileSystemException(
+              "Azure configuration \""
+                  + azureMetadataType.getName()
+                  + "\" is missing a storage account name");
+        }
+        if (StringUtils.isEmpty(azureMetadataType.getStorageAccountKey())) {
+          throw new FileSystemException(
+              "Azure configuration \""
+                  + azureMetadataType.getName()
+                  + "\" is missing a storage account key");
+        }
+
+        account = variables.resolve(azureMetadataType.getStorageAccountName());
+        key =
+            Encr.decryptPasswordOptionallyEncrypted(
+                variables.resolve(azureMetadataType.getStorageAccountKey()));
+        url = variables.resolve(azureMetadataType.getStorageAccountEndpoint());
+
+      } else {
+        AzureConfig config = AzureConfigSingleton.getConfig();
+
+        if (StringUtils.isEmpty(config.getAccount())) {
+          throw new FileSystemException(
+              "Please configure the Azure account to use in the configuration (Options dialog or with hop-conf)");
+        }
+        if (StringUtils.isEmpty(config.getKey())) {
+          throw new FileSystemException(
+              "Please configure the Azure key to use in the configuration (Options dialog or with hop-conf)");
+        }
+
+        IVariables newVariables = Variables.getADefaultVariableSpace();
+        account = newVariables.resolve(config.getAccount());
+        key = Encr.decryptPasswordOptionallyEncrypted(newVariables.resolve(config.getKey()));
+        url = newVariables.resolve(config.getEmulatorUrl());
       }
-      if (StringUtils.isEmpty(config.getKey())) {
-        throw new FileSystemException(
-            "Please configure the Azure key to use in the configuration (Options dialog or with hop-conf)");
-      }
-      IVariables variables = Variables.getADefaultVariableSpace();
-
-      account = variables.resolve(config.getAccount());
-
-      String key = variables.resolve(config.getKey());
-
-      String url = variables.resolve(config.getEmulatorUrl());
 
       String storageConnectionString =
           StringUtils.isBlank(url)
