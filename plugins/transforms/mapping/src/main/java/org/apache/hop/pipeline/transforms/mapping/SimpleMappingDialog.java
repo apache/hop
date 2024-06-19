@@ -771,6 +771,8 @@ public class SimpleMappingDialog extends BaseTransformDialog {
 
     transformName = wTransformName.getText(); // return value
     String pipelinePath = wPath.getText();
+    mappingMeta.setFilename(pipelinePath);
+    mappingMeta.setRunConfigurationName(wRunConfig.getText());
     // Prepare a regexp checker to see if the pipeline name contains a variable
     Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
     Matcher m = p.matcher(mappingMeta.getFilename());
@@ -788,9 +790,6 @@ public class SimpleMappingDialog extends BaseTransformDialog {
         return;
       }
     }
-
-    mappingMeta.setFilename(pipelinePath);
-    mappingMeta.setRunConfigurationName(wRunConfig.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...
