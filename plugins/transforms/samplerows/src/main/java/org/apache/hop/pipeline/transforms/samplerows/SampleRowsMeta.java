@@ -22,19 +22,17 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
 @Transform(
     id = "SampleRows",
@@ -48,18 +46,16 @@ import org.w3c.dom.Node;
 public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // For Translator
 
-  private String linesrange;
-  private String linenumfield;
+  @HopMetadataProperty(key = "linesrange")
+  private String linesRange;
+
+  @HopMetadataProperty(key = "linenumfield")
+  private String lineNumberField;
+
   public static String DEFAULT_RANGE = "1";
 
   public SampleRowsMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode, metadataProvider);
   }
 
   @Override
@@ -77,55 +73,35 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
       IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
-    if (!Utils.isEmpty(linenumfield)) {
+    if (!Utils.isEmpty(lineNumberField)) {
 
-      IValueMeta v = new ValueMetaInteger(variables.resolve(linenumfield));
+      IValueMeta v = new ValueMetaInteger(variables.resolve(lineNumberField));
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
   }
 
-  private void readData(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    try {
-      linesrange = XmlHandler.getTagValue(transformNode, "linesrange");
-      linenumfield = XmlHandler.getTagValue(transformNode, "linenumfield");
-    } catch (Exception e) {
-      throw new HopXmlException(
-          BaseMessages.getString(PKG, "SampleRowsMeta.Exception.UnableToReadTransformMeta"), e);
-    }
-  }
-
   public String getLinesRange() {
-    return this.linesrange;
+    return this.linesRange;
   }
 
-  public void setLinesRange(String linesrange) {
-    this.linesrange = linesrange;
+  public void setLinesRange(String linesRange) {
+    this.linesRange = linesRange;
   }
 
   public String getLineNumberField() {
-    return this.linenumfield;
+    return this.lineNumberField;
   }
 
-  public void setLineNumberField(String linenumfield) {
-    this.linenumfield = linenumfield;
+  public void setLineNumberField(String lineNumberField) {
+    this.lineNumberField = lineNumberField;
   }
 
   @Override
   public void setDefault() {
-    linesrange = DEFAULT_RANGE;
-    linenumfield = null;
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder();
-    retval.append("    " + XmlHandler.addTagValue("linesrange", linesrange));
-    retval.append("    " + XmlHandler.addTagValue("linenumfield", linenumfield));
-
-    return retval.toString();
+    linesRange = DEFAULT_RANGE;
+    lineNumberField = null;
   }
 
   @Override
@@ -141,7 +117,7 @@ public class SampleRowsMeta extends BaseTransformMeta<SampleRows, SampleRowsData
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
-    if (Utils.isEmpty(linesrange)) {
+    if (Utils.isEmpty(linesRange)) {
       cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_ERROR,
