@@ -30,10 +30,6 @@ import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
  */
 public class MappingParameters implements Cloneable {
 
-  public static final String XML_TAG = "parameters";
-
-  private static final String XML_VARIABLES_TAG = "variablemapping";
-
   @HopMetadataProperty(key = "variablemapping")
   private List<MappingVariableMapping> variableMappings;
 
@@ -79,41 +75,6 @@ public class MappingParameters implements Cloneable {
   public String getXml() throws HopException {
     return XmlMetadataUtil.serializeObjectToXml(this);
   }
-
-  /* public MappingParameters(Node paramNode) {
-      this();
-      int nrVariables = XmlHandler.countNodes(paramNode, XML_VARIABLES_TAG);
-      variable = new String[nrVariables];
-      input = new String[nrVariables];
-
-      for (int i = 0; i < variable.length; i++) {
-        Node variableMappingNode = XmlHandler.getSubNodeByNr(paramNode, XML_VARIABLES_TAG, i);
-
-        variable[i] = XmlHandler.getTagValue(variableMappingNode, "variable");
-        input[i] = XmlHandler.getTagValue(variableMappingNode, "input");
-      }
-
-      inheritingAllVariables =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(paramNode, "inherit_all_vars"));
-    }
-
-    public String getXml() {
-      StringBuilder xml = new StringBuilder(200);
-
-      xml.append("    ").append(XmlHandler.openTag(XML_TAG));
-
-      for (int i = 0; i < variable.length; i++) {
-        xml.append("       ").append(XmlHandler.openTag(XML_VARIABLES_TAG));
-        xml.append(XmlHandler.addTagValue("variable", variable[i], false));
-        xml.append(XmlHandler.addTagValue("input", input[i], false));
-        xml.append(XmlHandler.closeTag(XML_VARIABLES_TAG)).append(Const.CR);
-      }
-      xml.append("    ").append(XmlHandler.addTagValue("inherit_all_vars", inheritingAllVariables));
-      xml.append("    ").append(XmlHandler.closeTag(XML_TAG));
-
-      return xml.toString();
-    }
-  */
 
   /**
    * Gets mappings
