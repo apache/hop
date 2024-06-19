@@ -871,7 +871,7 @@ public class Condition implements Cloneable {
       IValueMeta valueMeta = v.getValueMeta();
       Object valueData = v.getValueData();
       nullValue = valueMeta.isNull(valueData);
-      text = valueMeta.getCompatibleString(valueData);
+      text = valueMeta.getString(valueData);
       name = valueMeta.getName();
       type = valueMeta.getTypeDesc();
       length = valueMeta.getLength();
@@ -893,7 +893,7 @@ public class Condition implements Cloneable {
       IValueMeta valueMeta = ValueMetaFactory.createValueMeta(name, getHopType());
       valueMeta.setLength(length, precision);
       valueMeta.setConversionMask(mask);
-      valueMeta.setDecimalSymbol(".");
+      valueMeta.setDecimalSymbol(String.valueOf(Const.DEFAULT_DECIMAL_SEPARATOR));
       valueMeta.setGroupingSymbol(null);
       valueMeta.setCurrencySymbol(null);
       return valueMeta;
