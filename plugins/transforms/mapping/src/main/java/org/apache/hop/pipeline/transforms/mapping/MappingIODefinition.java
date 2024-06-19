@@ -34,6 +34,7 @@ public class MappingIODefinition implements Cloneable {
 
   public static final String XML_TAG = "mapping";
 
+  @SuppressWarnings("java:S2065")
   private transient TransformMeta inputTransform;
 
   @HopMetadataProperty(key = "input_transform")
@@ -108,54 +109,10 @@ public class MappingIODefinition implements Cloneable {
         this, mappingNode, MappingIODefinition.class, new MemoryMetadataProvider());
   }
 
-  /*
-    inputTransformName = XmlHandler.getTagValue(mappingNode, "input_transform");
-    outputTransformName = XmlHandler.getTagValue(mappingNode, "output_transform");
-    mainDataPath = "Y".equalsIgnoreCase(XmlHandler.getTagValue(mappingNode, "main_path"));
-    renamingOnOutput =
-        "Y".equalsIgnoreCase(XmlHandler.getTagValue(mappingNode, "rename_on_output"));
-    description = XmlHandler.getTagValue(mappingNode, "description");
-
-    int nrConnectors = XmlHandler.countNodes(mappingNode, "connector");
-
-    for (int i = 0; i < nrConnectors; i++) {
-      Node inputConnector = XmlHandler.getSubNodeByNr(mappingNode, "connector", i);
-      String parentField = XmlHandler.getTagValue(inputConnector, "parent");
-      String childField = XmlHandler.getTagValue(inputConnector, "child");
-      valueRenames.add(new MappingValueRename(parentField, childField));
-    }
-  }
-  */
-
   public String getXml() throws HopException {
 
     return XmlMetadataUtil.serializeObjectToXml(this);
   }
-
-  /*
-
-    StringBuilder xml = new StringBuilder(200);
-
-    xml.append("    ").append(XmlHandler.openTag(XML_TAG));
-
-    xml.append("    ").append(XmlHandler.addTagValue("input_transform", inputTransformName));
-    xml.append("    ").append(XmlHandler.addTagValue("output_transform", outputTransformName));
-    xml.append("    ").append(XmlHandler.addTagValue("main_path", mainDataPath));
-    xml.append("    ").append(XmlHandler.addTagValue("rename_on_output", renamingOnOutput));
-    xml.append("    ").append(XmlHandler.addTagValue("description", description));
-
-    for (MappingValueRename valueRename : valueRenames) {
-      xml.append("       ").append(XmlHandler.openTag("connector"));
-      xml.append(XmlHandler.addTagValue("parent", valueRename.getSourceValueName(), false));
-      xml.append(XmlHandler.addTagValue("child", valueRename.getTargetValueName(), false));
-      xml.append(XmlHandler.closeTag("connector")).append(Const.CR);
-    }
-
-    xml.append("    ").append(XmlHandler.closeTag(XML_TAG));
-
-    return xml.toString();
-  }
-   */
 
   /**
    * @return the TransformName, the name of the transform to "connect" to. If no transform name is

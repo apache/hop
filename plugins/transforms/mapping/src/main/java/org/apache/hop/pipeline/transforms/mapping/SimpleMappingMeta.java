@@ -284,7 +284,9 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
   }
 
   @Override
-  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {}
+  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
+    // Do nothing
+  }
 
   @Override
   public PipelineType[] getSupportedPipelineTypes() {
