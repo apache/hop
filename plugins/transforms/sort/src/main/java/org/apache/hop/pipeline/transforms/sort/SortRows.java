@@ -407,6 +407,11 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         }
       }
 
+      String[] fieldNames = new String[meta.getSortFields().size()];
+      for (int i = 0; i < fieldNames.length; i++) {
+        fieldNames[i] = meta.getSortFields().get(i).getFieldName();
+      }
+      data.fieldnrs = new int[fieldNames.length];
       List<Integer> toConvert = new ArrayList<>();
 
       // Metadata
@@ -414,14 +419,14 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
       data.comparator = new RowTemapFileComparator(data.outputRowMeta, data.fieldnrs);
 
-      for (int i = 0; i < meta.getGroupFields().size(); i++) {
-        data.fieldnrs[i] = inputRowMeta.indexOfValue(meta.getGroupFields().get(i).getFieldName());
+      for (int i = 0; i < meta.getSortFields().size(); i++) {
+        data.fieldnrs[i] = inputRowMeta.indexOfValue(meta.getSortFields().get(i).getFieldName());
         if (data.fieldnrs[i] < 0) {
           throw new HopException(
               BaseMessages.getString(
                   PKG,
                   "SortRowsMeta.CheckResult.TransformFieldNotInInputStream",
-                  meta.getGroupFields().get(i).getFieldName(),
+                  meta.getSortFields().get(i).getFieldName(),
                   getTransformName()));
         }
         // do we need binary conversion for this type?
@@ -645,6 +650,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     if (!data.isBeamContext()) {
       preSortBeforeFlush();
       passBuffer();
+      setOutputDone();
       setOutputDone();
     }
   }

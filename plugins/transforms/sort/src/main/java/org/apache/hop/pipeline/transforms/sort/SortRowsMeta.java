@@ -52,7 +52,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
   @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS")
-  private List<SortRowsField> groupFields = new ArrayList<>();
+  private List<SortRowsField> sortFields = new ArrayList<>();
 
   /** Directory to store the temp files */
   @HopMetadataProperty(key = "directory", injectionKey = "SORT_DIRECTORY")
@@ -88,6 +88,8 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   @HopMetadataProperty(key = "compress_variables", injectionKey = "COMPRESS_VARIABLE")
   private String compressFilesVariable;
 
+  private List<SortRowsField> groupFields;
+
   public SortRowsMeta() {
     super(); // allocate BaseTransformMeta
   }
@@ -120,12 +122,12 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     this.prefix = prefix;
   }
 
-  public List<SortRowsField> getGroupFields() {
-    return groupFields;
+  public List<SortRowsField> getSortFields() {
+    return sortFields;
   }
 
-  public void setGroupFields(List<SortRowsField> groupFields) {
-    this.groupFields = groupFields;
+  public void setSortFields(List<SortRowsField> sortFields) {
+    this.sortFields = sortFields;
   }
 
   @Override
@@ -181,8 +183,8 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   }
 
   public void assignSortingCriteria(IRowMeta inputRowMeta) {
-    for (int i = 0; i < groupFields.size(); i++) {
-      SortRowsField field = groupFields.get(i);
+    for (int i = 0; i < sortFields.size(); i++) {
+      SortRowsField field = sortFields.get(i);
       int idx = inputRowMeta.indexOfValue(field.getFieldName());
       if (idx >= 0) {
         IValueMeta valueMeta = inputRowMeta.getValueMeta(idx);
@@ -226,8 +228,8 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < groupFields.size(); i++) {
-        SortRowsField field = groupFields.get(i);
+      for (int i = 0; i < sortFields.size(); i++) {
+        SortRowsField field = sortFields.get(i);
         int idx = prev.indexOfValue(field.getFieldName());
         if (idx < 0) {
           errorMessage += "\t\t" + field.getFieldName() + Const.CR;
@@ -242,7 +244,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (groupFields.size() > 0) {
+        if (sortFields.size() > 0) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -388,6 +390,25 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   }
 
   public boolean isGroupSortEnabled() {
-    return this.getGroupFields() != null;
+    return this.getSortFields() != null;
+  }
+
+  public void setGroupFields(List<SortRowsField> groupFields) {
+    this.groupFields = groupFields;
+  }
+
+  public List<SortRowsField> getGroupFields() {
+    if (this.groupFields == null) {
+      groupFields = new ArrayList<>();
+      for (int i = 0; i < getSortFields().size(); i++) {
+        if (getSortFields().get(i).isPreSortedField()) {
+          //          if (groupFields == null) {
+          //            groupFields = new ArrayList<>();
+          //          }
+          groupFields.add(getSortFields().get(i));
+        }
+      }
+    }
+    return groupFields;
   }
 }

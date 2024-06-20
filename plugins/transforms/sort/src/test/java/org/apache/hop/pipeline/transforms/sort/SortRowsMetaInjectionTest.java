@@ -45,12 +45,12 @@ public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRow
     check("FREE_MEMORY_TRESHOLD", () -> meta.getFreeMemoryLimit());
     check("ONLY_PASS_UNIQUE_ROWS", () -> meta.isOnlyPassingUniqueRows());
     check("COMPRESS_TEMP_FILES", () -> meta.isCompressFiles());
-    check("NAME", () -> meta.getGroupFields().get(0).getFieldName());
-    check("SORT_ASCENDING", () -> meta.getGroupFields().get(0).isAscending());
-    check("IGNORE_CASE", () -> meta.getGroupFields().get(0).isCaseSensitive());
-    check("PRESORTED", () -> meta.getGroupFields().get(0).isPreSortedField());
-    check("COLLATOR_ENABLED", () -> meta.getGroupFields().get(0).isCollatorEnabled());
-    check("COLLATOR_STRENGTH", () -> meta.getGroupFields().get(0).getCollatorStrength());
+    check("NAME", () -> meta.getSortFields().get(0).getFieldName());
+    check("SORT_ASCENDING", () -> meta.getSortFields().get(0).isAscending());
+    check("IGNORE_CASE", () -> meta.getSortFields().get(0).isCaseSensitive());
+    check("PRESORTED", () -> meta.getSortFields().get(0).isPreSortedField());
+    check("COLLATOR_ENABLED", () -> meta.getSortFields().get(0).isCollatorEnabled());
+    check("COLLATOR_STRENGTH", () -> meta.getSortFields().get(0).getCollatorStrength());
     check("COMPRESS_VARIABLE", () -> meta.getCompressFilesVariable());
     //    check("NAME", () -> meta.getFieldName()[0]);
     //    check("SORT_ASCENDING", () -> meta.getAscending()[0]);

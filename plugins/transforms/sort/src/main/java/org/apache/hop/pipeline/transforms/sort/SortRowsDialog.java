@@ -275,7 +275,7 @@ public class SortRowsDialog extends BaseTransformDialog {
     fdlFields.top = new FormAttachment(wUniqueRows, margin);
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = input.getGroupFields().size();
+    final int FieldsRows = input.getSortFields().size();
 
     colinf =
         new ColumnInfo[] {
@@ -402,11 +402,11 @@ public class SortRowsDialog extends BaseTransformDialog {
     wUniqueRows.setSelection(input.isOnlyPassingUniqueRows());
 
     Table table = wFields.table;
-    if (input.getGroupFields().size() > 0) {
+    if (input.getSortFields().size() > 0) {
       table.removeAll();
     }
-    for (int i = 0; i < input.getGroupFields().size(); i++) {
-      SortRowsField field = input.getGroupFields().get(i);
+    for (int i = 0; i < input.getSortFields().size(); i++) {
+      SortRowsField field = input.getSortFields().get(i);
       TableItem ti = new TableItem(table, SWT.NONE);
       ti.setText(0, "" + (i + 1));
       ti.setText(1, field.getFieldName());
@@ -470,7 +470,6 @@ public class SortRowsDialog extends BaseTransformDialog {
     int nrFields = wFields.nrNonEmpty();
 
     List<SortRowsField> fields = new ArrayList<>(nrFields);
-    //    input.allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
       TableItem ti = wFields.getNonEmpty(i);
@@ -491,7 +490,9 @@ public class SortRowsDialog extends BaseTransformDialog {
       }
       field.setPreSortedField(
           BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(ti.getText(6)));
+      fields.add(field);
     }
+    input.setSortFields(fields);
     dispose();
   }
 

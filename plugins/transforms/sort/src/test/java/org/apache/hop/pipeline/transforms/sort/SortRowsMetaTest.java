@@ -56,7 +56,7 @@ public class SortRowsMetaTest {
             "CompressFiles",
             "CompressFilesVariable",
             "OnlyPassingUniqueRows",
-            "GroupFields");
+            "SortFields");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
@@ -86,7 +86,7 @@ public class SortRowsMetaTest {
     loadSaveTester
         .getFieldLoadSaveValidatorFactory()
         .registerValidator(
-            SortRowsMeta.class.getDeclaredField("groupFields").getGenericType().toString(),
+            SortRowsMeta.class.getDeclaredField("sortFields").getGenericType().toString(),
             new ListLoadSaveValidator<>(new SortRowsFieldLoadSaveValidator()));
     loadSaveTester.testSerialization();
   }
@@ -133,11 +133,11 @@ public class SortRowsMetaTest {
     sortRowsFields.add(new SortRowsField("field3", false, true, true, 3, false));
     sortRowsFields.add(new SortRowsField("field4", true, false, false, 0, false));
     sortRowsFields.add(new SortRowsField("field5", true, true, false, 0, false));
-    sortRows.setGroupFields(sortRowsFields);
+    sortRows.setSortFields(sortRowsFields);
 
     // check the field names
-    for (int i = 0; i < sortRows.getGroupFields().size(); i++) {
-      SortRowsField sortRowsField = sortRows.getGroupFields().get(i);
+    for (int i = 0; i < sortRows.getSortFields().size(); i++) {
+      SortRowsField sortRowsField = sortRows.getSortFields().get(i);
       Assert.assertEquals("field" + (i + 1), sortRowsField.getFieldName());
     }
 
