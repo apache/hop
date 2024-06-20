@@ -83,6 +83,7 @@ public class PGBulkLoaderTest {
     when(transformMockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(transformMockHelper.iLogChannel);
     when(transformMockHelper.pipeline.isRunning()).thenReturn(true);
+
     pgBulkLoader =
         new PGBulkLoader(
             transformMockHelper.transformMeta,
@@ -101,7 +102,10 @@ public class PGBulkLoaderTest {
   @Test
   public void testCreateCommandLine() throws Exception {
     PGBulkLoaderMeta meta = mock(PGBulkLoaderMeta.class);
-    doReturn(new DatabaseMeta()).when(meta).getDatabaseMeta();
+
+    when(transformMockHelper.pipelineMeta.findDatabase(any(), any()))
+        .thenReturn(getDatabaseMetaSpy());
+
     doReturn(new ArrayList<>()).when(meta).getMappings();
     PGBulkLoaderData data = mock(PGBulkLoaderData.class);
 
@@ -129,6 +133,8 @@ public class PGBulkLoaderTest {
   public void testDBNameOverridden_IfDbNameOverrideSetUp() throws Exception {
     // Db Name Override is set up
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(DB_NAME_OVVERRIDE);
+    when(transformMockHelper.pipelineMeta.findDatabase(any(), any()))
+        .thenReturn(getDatabaseMetaSpy());
     Database database = pgBulkLoader.getDatabase(pgBulkLoader, pgBulkLoaderMock);
     assertNotNull(database);
     // Verify DB name is overridden
@@ -145,6 +151,8 @@ public class PGBulkLoaderTest {
   public void testDBNameNOTOverridden_IfDbNameOverrideEmpty() throws Exception {
     // Db Name Override is empty
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(DB_NAME_EMPTY);
+    DatabaseMeta databaseMeta = getDatabaseMetaSpy();
+    when(transformMockHelper.pipelineMeta.findDatabase(any(), any())).thenReturn(databaseMeta);
     Database database = pgBulkLoader.getDatabase(pgBulkLoader, pgBulkLoaderMock);
     assertNotNull(database);
     // Verify DB name is NOT overridden
@@ -161,6 +169,8 @@ public class PGBulkLoaderTest {
   public void testDBNameNOTOverridden_IfDbNameOverrideNull() throws Exception {
     // Db Name Override is null
     PGBulkLoaderMeta pgBulkLoaderMock = getPgBulkLoaderMock(null);
+    DatabaseMeta databaseMeta = getDatabaseMetaSpy();
+    when(transformMockHelper.pipelineMeta.findDatabase(any(), any())).thenReturn(databaseMeta);
     Database database = pgBulkLoader.getDatabase(pgBulkLoader, pgBulkLoaderMock);
     assertNotNull(database);
     // Verify DB name is NOT overridden
@@ -189,7 +199,7 @@ public class PGBulkLoaderTest {
   @Test
   public void testNoDatabaseConnection() {
     try {
-      doReturn(null).when(transformMockHelper.iTransformMeta).getDatabaseMeta();
+      doReturn(null).when(transformMockHelper.iTransformMeta).getConnection();
       assertFalse(pgBulkLoader.init());
       // Verify that the database connection being set to null throws a HopException with the
       // following message.
@@ -207,8 +217,7 @@ public class PGBulkLoaderTest {
       throws HopXmlException {
     PGBulkLoaderMeta pgBulkLoaderMetaMock = mock(PGBulkLoaderMeta.class);
     when(pgBulkLoaderMetaMock.getDbNameOverride()).thenReturn(DbNameOverride);
-    DatabaseMeta databaseMeta = getDatabaseMetaSpy();
-    when(pgBulkLoaderMetaMock.getDatabaseMeta()).thenReturn(databaseMeta);
+
     return pgBulkLoaderMetaMock;
   }
 
