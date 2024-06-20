@@ -20,20 +20,19 @@ package org.apache.hop.pipeline.transforms.sort;
 import static org.junit.Assert.assertEquals;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveBooleanArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.ListLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -47,7 +46,7 @@ public class SortRowsMetaTest {
    * @throws HopException
    */
   @Test
-  public void testRoundTrips() throws HopException {
+  public void testRoundTrips() throws Exception {
     List<String> attributes =
         Arrays.asList(
             "Directory",
@@ -57,30 +56,23 @@ public class SortRowsMetaTest {
             "CompressFiles",
             "CompressFilesVariable",
             "OnlyPassingUniqueRows",
-            "FieldName",
-            "Ascending",
-            "CaseSensitive",
-            "CollatorEnabled",
-            "CollatorStrength",
-            "PreSortedField");
+            "GroupFields");
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap = new HashMap<>();
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-        new ArrayLoadSaveValidator<>(new StringLoadSaveValidator(), 25);
-    IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
-        new PrimitiveBooleanArrayLoadSaveValidator(new BooleanLoadSaveValidator(), 25);
-    IFieldLoadSaveValidator<int[]> intArrayLoadSaveValidator =
-        new PrimitiveIntArrayLoadSaveValidator(new IntLoadSaveValidator(), 25);
 
-    fieldLoadSaveValidatorAttributeMap.put("FieldName", stringArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("Ascending", booleanArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("CaseSensitive", booleanArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("CollatorEnabled", booleanArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("CollatorStrength", intArrayLoadSaveValidator);
-    fieldLoadSaveValidatorAttributeMap.put("PreSortedField", booleanArrayLoadSaveValidator);
+    IFieldLoadSaveValidator<String> stringFieldLoadSaveValidator = new StringLoadSaveValidator();
+    IFieldLoadSaveValidator<Boolean> booleanFieldLoadSaveValidator = new BooleanLoadSaveValidator();
+
+    fieldLoadSaveValidatorAttributeMap.put("Directory", stringFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("Prefix", stringFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("SortSize", stringFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("FreeMemoryLimit", stringFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("CompressFiles", booleanFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("CompressFilesVariable", stringFieldLoadSaveValidator);
+    fieldLoadSaveValidatorAttributeMap.put("OnlyPassingUniqueRows", booleanFieldLoadSaveValidator);
 
     LoadSaveTester<SortRowsMeta> loadSaveTester =
         new LoadSaveTester<>(
@@ -91,7 +83,35 @@ public class SortRowsMetaTest {
             fieldLoadSaveValidatorAttributeMap,
             new HashMap<>());
 
+    loadSaveTester
+        .getFieldLoadSaveValidatorFactory()
+        .registerValidator(
+            SortRowsMeta.class.getDeclaredField("groupFields").getGenericType().toString(),
+            new ListLoadSaveValidator<>(new SortRowsFieldLoadSaveValidator()));
     loadSaveTester.testSerialization();
+  }
+
+  private final class SortRowsFieldLoadSaveValidator
+      implements IFieldLoadSaveValidator<SortRowsField> {
+
+    @Override
+    public SortRowsField getTestObject() {
+      return new SortRowsField(UUID.randomUUID().toString(), true, true, true, 0, true);
+    }
+
+    @Override
+    public boolean validateTestObject(SortRowsField testObject, Object actual) throws HopException {
+      if (!(actual instanceof SortRowsField)) {
+        return false;
+      }
+      SortRowsField actualObject = (SortRowsField) actual;
+      return testObject.getFieldName().equals(actualObject.getFieldName())
+          && testObject.isAscending() == actualObject.isAscending()
+          && testObject.isCaseSensitive() == actualObject.isCaseSensitive()
+          && testObject.isCollatorEnabled() == actualObject.isCollatorEnabled()
+          && testObject.getCollatorStrength() == actualObject.getCollatorStrength()
+          && testObject.isPreSortedField() == actualObject.isPreSortedField();
+    }
   }
 
   @Test
@@ -107,30 +127,25 @@ public class SortRowsMetaTest {
     SortRowsMeta sortRowsReal = new SortRowsMeta();
     SortRowsMeta sortRows = Mockito.spy(sortRowsReal);
     sortRows.setDirectory("/tmp");
-    sortRows.setFieldName(new String[] {"field1", "field2", "field3", "field4", "field5"});
-    sortRows.setAscending(new boolean[] {false, true, false});
-    sortRows.setCaseSensitive(new boolean[] {true, false, true, false});
-    sortRows.setCollatorEnabled(new boolean[] {false, false, true});
-    sortRows.setCollatorStrength(new int[] {2, 1, 3});
-    sortRows.setPreSortedField(new boolean[] {true, true, false});
+    List<SortRowsField> sortRowsFields = new ArrayList<>();
+    sortRowsFields.add(new SortRowsField("field1", false, true, false, 2, true));
+    sortRowsFields.add(new SortRowsField("field2", true, false, false, 1, true));
+    sortRowsFields.add(new SortRowsField("field3", false, true, true, 3, false));
+    sortRowsFields.add(new SortRowsField("field4", true, false, false, 0, false));
+    sortRowsFields.add(new SortRowsField("field5", true, true, false, 0, false));
+    sortRows.setGroupFields(sortRowsFields);
 
-    try {
-      String badXml = sortRows.getXml();
-      Assert.fail(
-          "Before calling afterInjectionSynchronization, should have thrown an ArrayIndexOOB");
-    } catch (Exception expected) {
-      // Do Nothing
+    // check the field names
+    for (int i = 0; i < sortRows.getGroupFields().size(); i++) {
+      SortRowsField sortRowsField = sortRows.getGroupFields().get(i);
+      Assert.assertEquals("field" + (i + 1), sortRowsField.getFieldName());
     }
-    sortRows.afterInjectionSynchronization();
-    // run without a exception
-    String ktrXml = sortRows.getXml();
 
-    int targetSz = sortRows.getFieldName().length;
-
-    Assert.assertEquals(targetSz, sortRows.getAscending().length);
-    Assert.assertEquals(targetSz, sortRows.getCaseSensitive().length);
-    Assert.assertEquals(targetSz, sortRows.getCollatorEnabled().length);
-    Assert.assertEquals(targetSz, sortRows.getCollatorStrength().length);
-    Assert.assertEquals(targetSz, sortRows.getPreSortedField().length);
+    // check the properties for SortRowField 3.
+    Assert.assertFalse(sortRowsFields.get(2).isAscending());
+    Assert.assertTrue(sortRowsFields.get(2).isCaseSensitive());
+    Assert.assertTrue(sortRowsFields.get(2).isCollatorEnabled());
+    Assert.assertEquals(3, sortRowsFields.get(2).getCollatorStrength());
+    Assert.assertFalse(sortRowsFields.get(2).isPreSortedField());
   }
 }

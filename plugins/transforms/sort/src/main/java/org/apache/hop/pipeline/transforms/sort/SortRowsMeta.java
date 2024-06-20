@@ -28,25 +28,16 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.injection.AfterInjection;
-import org.apache.hop.core.injection.Injection;
-import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.w3c.dom.Node;
 
-@InjectionSupported(
-    localizationPrefix = "SortRows.Injection.",
-    groups = {"FIELDS"})
 @Transform(
     id = "SortRows",
     image = "sortrows.svg",
@@ -60,78 +51,45 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   private static final long serialVersionUID = -9075883720765645655L;
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
 
-  /** order by which fields? */
-  @Injection(name = "NAME", group = "FIELDS")
-  private String[] fieldName;
-
-  /** false : descending, true=ascending */
-  @Injection(name = "SORT_ASCENDING", group = "FIELDS")
-  private boolean[] ascending;
-
-  /** false : case insensitive, true=case sensitive */
-  @Injection(name = "IGNORE_CASE", group = "FIELDS")
-  private boolean[] caseSensitive;
-
-  /** false : collator disabeld, true=collator enabled */
-  @Injection(name = "COLLATOR_ENABLED", group = "FIELDS")
-  private boolean[] collatorEnabled;
-
-  // collator strength, 0,1,2,3
-  @Injection(name = "COLLATOR_STRENGTH", group = "FIELDS")
-  private int[] collatorStrength;
-
-  /** false : not a presorted field, true=presorted field */
-  @Injection(name = "PRESORTED", group = "FIELDS")
-  private boolean[] preSortedField;
-
-  private List<String> groupFields;
+  @HopMetadataProperty(groupKey = "fields", key = "field", injectionGroupKey = "FIELDS")
+  private List<SortRowsField> groupFields = new ArrayList<>();
 
   /** Directory to store the temp files */
-  @Injection(name = "SORT_DIRECTORY")
+  @HopMetadataProperty(key = "directory", injectionKey = "SORT_DIRECTORY")
   private String directory;
 
   /** Temp files prefix... */
-  @Injection(name = "SORT_FILE_PREFIX")
+  @HopMetadataProperty(key = "sort_prefix", injectionKey = "SORT_FILE_PREFIX")
   private String prefix;
 
   /** The sort size: number of rows sorted and kept in memory */
-  @Injection(name = "SORT_SIZE_ROWS")
+  @HopMetadataProperty(key = "sort_size", injectionKey = "SORT_SIZE_ROWS")
   private String sortSize;
 
-  /** The free memory limit in percentages in case we don't use the sort size */
-  @Injection(name = "FREE_MEMORY_TRESHOLD")
+  /**
+   * The free memory limit in percentages in case we don't use the sort size We need the keep the
+   * missing 'H' in FREE_MEMORY_TRESHOLD for backwards compatibility.
+   */
+  @HopMetadataProperty(key = "free_memory", injectionKey = "FREE_MEMORY_TRESHOLD")
   private String freeMemoryLimit;
 
   /** only pass unique rows to the output stream(s) */
-  @Injection(name = "ONLY_PASS_UNIQUE_ROWS")
+  @HopMetadataProperty(key = "unique_rows", injectionKey = "ONLY_PASS_UNIQUE_ROWS")
   private boolean onlyPassingUniqueRows;
 
   /**
    * Compress files: if set to true, temporary files are compressed, thus reducing I/O at the cost
    * of slightly higher CPU usage
    */
-  @Injection(name = "COMPRESS_TEMP_FILES")
+  @HopMetadataProperty(key = "compress", injectionKey = "COMPRESS_TEMP_FILES")
   private boolean compressFiles;
 
   /** The variable to use to set the compressFiles option boolean */
+  @HopMetadataProperty(key = "compress_variables", injectionKey = "COMPRESS_VARIABLE")
   private String compressFilesVariable;
 
   public SortRowsMeta() {
     super(); // allocate BaseTransformMeta
-  }
-
-  /**
-   * @return Returns the ascending.
-   */
-  public boolean[] getAscending() {
-    return ascending;
-  }
-
-  /**
-   * @param ascending The ascending to set.
-   */
-  public void setAscending(boolean[] ascending) {
-    this.ascending = ascending;
   }
 
   /**
@@ -149,20 +107,6 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   }
 
   /**
-   * @return Returns the fieldName.
-   */
-  public String[] getFieldName() {
-    return fieldName;
-  }
-
-  /**
-   * @param fieldName The fieldName to set.
-   */
-  public void setFieldName(String[] fieldName) {
-    this.fieldName = fieldName;
-  }
-
-  /**
    * @return Returns the prefix.
    */
   public String getPrefix() {
@@ -176,75 +120,19 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     this.prefix = prefix;
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
-      throws HopXmlException {
-    readData(transformNode);
+  public List<SortRowsField> getGroupFields() {
+    return groupFields;
   }
 
-  public void allocate(int nrFields) {
-    fieldName = new String[nrFields]; // order by
-    ascending = new boolean[nrFields];
-    caseSensitive = new boolean[nrFields];
-    collatorEnabled = new boolean[nrFields];
-    collatorStrength = new int[nrFields];
-    preSortedField = new boolean[nrFields];
-    groupFields = null;
+  public void setGroupFields(List<SortRowsField> groupFields) {
+    this.groupFields = groupFields;
   }
 
   @Override
   public Object clone() {
     SortRowsMeta retval = (SortRowsMeta) super.clone();
 
-    int nrFields = fieldName.length;
-
-    retval.allocate(nrFields);
-    System.arraycopy(fieldName, 0, retval.fieldName, 0, nrFields);
-    System.arraycopy(ascending, 0, retval.ascending, 0, nrFields);
-    System.arraycopy(caseSensitive, 0, retval.caseSensitive, 0, nrFields);
-    System.arraycopy(collatorEnabled, 0, retval.collatorEnabled, 0, nrFields);
-    System.arraycopy(collatorStrength, 0, retval.collatorStrength, 0, nrFields);
-    System.arraycopy(preSortedField, 0, retval.preSortedField, 0, nrFields);
-
     return retval;
-  }
-
-  private void readData(Node transformNode) throws HopXmlException {
-    try {
-      directory = XmlHandler.getTagValue(transformNode, "directory");
-      prefix = XmlHandler.getTagValue(transformNode, "prefix");
-      sortSize = XmlHandler.getTagValue(transformNode, "sort_size");
-      freeMemoryLimit = XmlHandler.getTagValue(transformNode, "free_memory");
-      compressFiles = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "compress"));
-      compressFilesVariable = XmlHandler.getTagValue(transformNode, "compress_variable");
-      onlyPassingUniqueRows =
-          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "unique_rows"));
-
-      Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
-
-      allocate(nrFields);
-      String defaultStrength = Integer.toString(this.getDefaultCollationStrength());
-
-      for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
-
-        fieldName[i] = XmlHandler.getTagValue(fnode, "name");
-        String asc = XmlHandler.getTagValue(fnode, "ascending");
-        ascending[i] = "Y".equalsIgnoreCase(asc);
-        String sens = XmlHandler.getTagValue(fnode, "case_sensitive");
-        String coll = Const.NVL(XmlHandler.getTagValue(fnode, "collator_enabled"), "N");
-        caseSensitive[i] = Utils.isEmpty(sens) || "Y".equalsIgnoreCase(sens);
-        collatorEnabled[i] = "Y".equalsIgnoreCase(coll);
-        collatorStrength[i] =
-            Integer.parseInt(
-                Const.NVL(XmlHandler.getTagValue(fnode, "collator_strength"), defaultStrength));
-        String presorted = XmlHandler.getTagValue(fnode, "presorted");
-        preSortedField[i] = "Y".equalsIgnoreCase(presorted);
-      }
-    } catch (Exception e) {
-      throw new HopXmlException("Unable to load transform info from XML", e);
-    }
   }
 
   @Override
@@ -258,49 +146,6 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     onlyPassingUniqueRows = false;
 
     int nrFields = 0;
-
-    allocate(nrFields);
-
-    for (int i = 0; i < nrFields; i++) {
-      fieldName[i] = "field" + i;
-      caseSensitive[i] = true;
-      collatorEnabled[i] = false;
-      collatorStrength[i] = 0;
-      preSortedField[i] = false;
-    }
-  }
-
-  @Override
-  public String getXml() {
-    StringBuilder retval = new StringBuilder(256);
-    retval.append("      ").append(XmlHandler.addTagValue("directory", directory));
-    retval.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
-    retval.append("      ").append(XmlHandler.addTagValue("sort_size", sortSize));
-    retval.append("      ").append(XmlHandler.addTagValue("free_memory", freeMemoryLimit));
-    retval.append("      ").append(XmlHandler.addTagValue("compress", compressFiles));
-    retval
-        .append("      ")
-        .append(XmlHandler.addTagValue("compress_variable", compressFilesVariable));
-    retval.append("      ").append(XmlHandler.addTagValue("unique_rows", onlyPassingUniqueRows));
-
-    retval.append("    <fields>").append(Const.CR);
-    for (int i = 0; i < fieldName.length; i++) {
-      retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", fieldName[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("ascending", ascending[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("case_sensitive", caseSensitive[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("collator_enabled", collatorEnabled[i]));
-      retval
-          .append("        ")
-          .append(XmlHandler.addTagValue("collator_strength", collatorStrength[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("presorted", preSortedField[i]));
-      retval.append("      </field>").append(Const.CR);
-    }
-    retval.append("    </fields>").append(Const.CR);
-
-    return retval.toString();
   }
 
   // Returns the default collation strength based on the users' default locale.
@@ -336,24 +181,15 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   }
 
   public void assignSortingCriteria(IRowMeta inputRowMeta) {
-    for (int i = 0; i < fieldName.length; i++) {
-      int idx = inputRowMeta.indexOfValue(fieldName[i]);
+    for (int i = 0; i < groupFields.size(); i++) {
+      SortRowsField field = groupFields.get(i);
+      int idx = inputRowMeta.indexOfValue(field.getFieldName());
       if (idx >= 0) {
         IValueMeta valueMeta = inputRowMeta.getValueMeta(idx);
-        // On all these valueMetas, check to see if the value actually exists before we try to
-        // set them.
-        if (ascending.length > i) {
-          valueMeta.setSortedDescending(!ascending[i]);
-        }
-        if (caseSensitive.length > i) {
-          valueMeta.setCaseInsensitive(!caseSensitive[i]);
-        }
-        if (collatorEnabled.length > i) {
-          valueMeta.setCollatorDisabled(!collatorEnabled[i]);
-        }
-        if (collatorStrength.length > i) {
-          valueMeta.setCollatorStrength(collatorStrength[i]);
-        }
+        valueMeta.setSortedDescending(!field.isAscending());
+        valueMeta.setCaseInsensitive(!field.isCaseSensitive());
+        valueMeta.setCollatorDisabled(!field.isCollatorEnabled());
+        valueMeta.setCollatorStrength(field.getCollatorStrength());
         // Also see if lazy conversion is active on these key fields.
         // If so we want to automatically convert them to the normal storage type.
         // This will improve performance
@@ -390,13 +226,15 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
       boolean errorFound = false;
 
       // Starting from selected fields in ...
-      for (int i = 0; i < fieldName.length; i++) {
-        int idx = prev.indexOfValue(fieldName[i]);
+      for (int i = 0; i < groupFields.size(); i++) {
+        SortRowsField field = groupFields.get(i);
+        int idx = prev.indexOfValue(field.getFieldName());
         if (idx < 0) {
-          errorMessage += "\t\t" + fieldName[i] + Const.CR;
+          errorMessage += "\t\t" + field.getFieldName() + Const.CR;
           errorFound = true;
         }
       }
+
       if (errorFound) {
         errorMessage =
             BaseMessages.getString(PKG, "SortRowsMeta.CheckResult.SortKeysNotFound", errorMessage);
@@ -404,7 +242,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
         cr = new CheckResult(ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta);
         remarks.add(cr);
       } else {
-        if (fieldName.length > 0) {
+        if (groupFields.size() > 0) {
           cr =
               new CheckResult(
                   ICheckResult.TYPE_RESULT_OK,
@@ -496,7 +334,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   /**
    * @return Returns whether temporary files should be compressed
    */
-  public boolean getCompressFiles() {
+  public boolean isCompressFiles() {
     return compressFiles;
   }
 
@@ -536,48 +374,6 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   }
 
   /**
-   * @return the caseSensitive
-   */
-  public boolean[] getCaseSensitive() {
-    return caseSensitive;
-  }
-
-  /**
-   * @param caseSensitive the caseSensitive to set
-   */
-  public void setCaseSensitive(boolean[] caseSensitive) {
-    this.caseSensitive = caseSensitive;
-  }
-
-  /**
-   * @return the collatorEnabled
-   */
-  public boolean[] getCollatorEnabled() {
-    return collatorEnabled;
-  }
-
-  /**
-   * @param collatorEnabled the collatorEnabled to set
-   */
-  public void setCollatorEnabled(boolean[] collatorEnabled) {
-    this.collatorEnabled = collatorEnabled;
-  }
-
-  /**
-   * @return the collatorStrength
-   */
-  public int[] getCollatorStrength() {
-    return collatorStrength;
-  }
-
-  /**
-   * @param collatorStrength the collatorStrength to set
-   */
-  public void setCollatorStrength(int[] collatorStrength) {
-    this.collatorStrength = collatorStrength;
-  }
-
-  /**
    * @return the freeMemoryLimit
    */
   public String getFreeMemoryLimit() {
@@ -591,56 +387,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     this.freeMemoryLimit = freeMemoryLimit;
   }
 
-  /**
-   * @return the preSortedField
-   */
-  public boolean[] getPreSortedField() {
-    return preSortedField;
-  }
-
-  /**
-   * @param preSorted the preSorteField to set
-   */
-  public void setPreSortedField(boolean[] preSorted) {
-    preSortedField = preSorted;
-  }
-
-  public List<String> getGroupFields() {
-    if (this.groupFields == null) {
-      for (int i = 0; i < preSortedField.length; i++) {
-        if (preSortedField[i]) {
-          if (groupFields == null) {
-            groupFields = new ArrayList<>();
-          }
-          groupFields.add(this.fieldName[i]);
-        }
-      }
-    }
-    return groupFields;
-  }
-
   public boolean isGroupSortEnabled() {
     return this.getGroupFields() != null;
-  }
-
-  /**
-   * If we use injection we can have different arrays lengths. We need synchronize them for
-   * consistency behavior with UI
-   */
-  @AfterInjection
-  public void afterInjectionSynchronization() {
-    int nrFields = (fieldName == null) ? -1 : fieldName.length;
-    if (nrFields <= 0) {
-      return;
-    }
-    boolean[][] rtnBooleanArrays =
-        Utils.normalizeArrays(nrFields, ascending, caseSensitive, collatorEnabled, preSortedField);
-    ascending = rtnBooleanArrays[0];
-    caseSensitive = rtnBooleanArrays[1];
-    collatorEnabled = rtnBooleanArrays[2];
-    preSortedField = rtnBooleanArrays[3];
-
-    int[][] rtnIntArrays = Utils.normalizeArrays(nrFields, collatorStrength);
-    collatorStrength = rtnIntArrays[0];
   }
 }
