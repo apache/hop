@@ -19,6 +19,7 @@ package org.apache.hop.workflow.actions.checkfilelocked;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 
 public class LockFile {
@@ -36,7 +37,7 @@ public class LockFile {
    * @param filename
    * @throws HopException
    */
-  public LockFile(String filename) throws HopException {
+  public LockFile(String filename, IVariables variables) throws HopException {
     setFilename(filename);
     setLocked(false);
 
@@ -47,9 +48,9 @@ public class LockFile {
 
     try {
 
-      file = HopVfs.getFileObject(filename);
+      file = HopVfs.getFileObject(filename, variables);
       if (file.exists()) {
-        dummyfile = HopVfs.getFileObject(filename);
+        dummyfile = HopVfs.getFileObject(filename, variables);
         // move file to itself!
         file.moveTo(dummyfile);
       }

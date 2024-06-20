@@ -260,7 +260,9 @@ public class FileMetadataDialog extends BaseTransformDialog {
     wFilenameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {

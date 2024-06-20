@@ -33,8 +33,8 @@ import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
@@ -94,10 +94,18 @@ public class ExcelInputDialog extends BaseTransformDialog {
   /** Marker put on tab to indicate attention required */
   private static final String TAB_FLAG = "!";
 
+  private static final String CONST_COMBO_NO = "System.Combo.No";
+  private static final String CONST_COMBO_YES = "System.Combo.Yes";
+  private static final String CONST_ERROR_TITLE = "System.Dialog.Error.Title";
+  private static final String CONST_BUTTON_BROWSE = "System.Button.Browse";
+  private static final String CONST_BUTTON_VARIABLE = "System.Button.Variable";
+  private static final String CONST_LABEL_EXTENSION = "System.Label.Extension";
+  private static final String CONST_BROWSE_FOR_DIR = "System.Tooltip.BrowseForDir";
+  private static final String CONST_BROWSE_TO_DIR = "System.Tooltip.VariableToDir";
+
   private static final String[] YES_NO_COMBO =
       new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
+        BaseMessages.getString(PKG, CONST_COMBO_NO), BaseMessages.getString(PKG, CONST_COMBO_YES)
       };
 
   private CTabFolder wTabFolder;
@@ -331,7 +339,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbFilename);
-    wbbFilename.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
+    wbbFilename.setText(BaseMessages.getString(PKG, CONST_BUTTON_BROWSE));
     wbbFilename.setToolTipText(
         BaseMessages.getString(PKG, "System.Tooltip.BrowseForFileOrDirAndAdd"));
     FormData fdbFilename = new FormData();
@@ -930,8 +938,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
           new ColumnInfo(
               BaseMessages.getString(PKG, "ExcelInputDialog.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
-              BaseMessages.getString(PKG, "System.Combo.Yes"),
-              BaseMessages.getString(PKG, "System.Combo.No")),
+              BaseMessages.getString(PKG, CONST_COMBO_YES),
+              BaseMessages.getString(PKG, CONST_COMBO_NO)),
           new ColumnInfo(
               BaseMessages.getString(PKG, "ExcelInputDialog.Format.Column"),
               ColumnInfo.COLUMN_TYPE_FORMAT,
@@ -1120,50 +1128,47 @@ public class ExcelInputDialog extends BaseTransformDialog {
       mb.setText(BaseMessages.getString(PKG, "ExcelInputDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
-      if (answer == SWT.YES) {
-        if (!Utils.isEmpty(schemaName)) {
-          try {
-            SchemaDefinition schemaDefinition =
-                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
-            if (schemaDefinition != null) {
-              IRowMeta r = schemaDefinition.getRowMeta();
-              if (r != null) {
-                String[] fieldNames = r.getFieldNames();
-                if (fieldNames != null) {
-                  wFields.clearAll();
-                  for (int i = 0; i < fieldNames.length; i++) {
-                    IValueMeta valueMeta = r.getValueMeta(i);
-                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+      if (answer == SWT.YES && !Utils.isEmpty(schemaName)) {
+        try {
+          SchemaDefinition schemaDefinition =
+              (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+          if (schemaDefinition != null) {
+            IRowMeta r = schemaDefinition.getRowMeta();
+            if (r != null) {
+              String[] fieldNames = r.getFieldNames();
+              if (fieldNames != null) {
+                wFields.clearAll();
+                for (int i = 0; i < fieldNames.length; i++) {
+                  IValueMeta valueMeta = r.getValueMeta(i);
+                  TableItem item = new TableItem(wFields.table, SWT.NONE);
 
-                    item.setText(1, valueMeta.getName());
-                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
-                    item.setText(
-                        3,
-                        valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
-                    item.setText(
-                        4,
-                        valueMeta.getPrecision() >= 0
-                            ? Integer.toString(valueMeta.getPrecision())
-                            : "");
-                    item.setText(
-                        5, Const.NVL(ValueMetaString.getTrimTypeDesc(valueMeta.getTrimType()), ""));
-                    item.setText(7, Const.NVL(valueMeta.getConversionMask(), ""));
-                    item.setText(8, Const.NVL(valueMeta.getCurrencySymbol(), ""));
-                    item.setText(9, Const.NVL(valueMeta.getDecimalSymbol(), ""));
-                    item.setText(10, Const.NVL(valueMeta.getGroupingSymbol(), ""));
-                  }
+                  item.setText(1, valueMeta.getName());
+                  item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                  item.setText(
+                      3, valueMeta.getLength() >= 0 ? Integer.toString(valueMeta.getLength()) : "");
+                  item.setText(
+                      4,
+                      valueMeta.getPrecision() >= 0
+                          ? Integer.toString(valueMeta.getPrecision())
+                          : "");
+                  item.setText(
+                      5, Const.NVL(ValueMetaBase.getTrimTypeDesc(valueMeta.getTrimType()), ""));
+                  item.setText(7, Const.NVL(valueMeta.getConversionMask(), ""));
+                  item.setText(8, Const.NVL(valueMeta.getCurrencySymbol(), ""));
+                  item.setText(9, Const.NVL(valueMeta.getDecimalSymbol(), ""));
+                  item.setText(10, Const.NVL(valueMeta.getGroupingSymbol(), ""));
                 }
               }
             }
-          } catch (HopTransformException | HopPluginException e) {
-
-            // ignore any errors here.
           }
+        } catch (HopTransformException | HopPluginException e) {
 
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-          wFields.optWidth(true);
+          // ignore any errors here.
         }
+
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
       }
     }
   }
@@ -1272,8 +1277,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
       String trim = f.getTrimType().getDescription();
       String rep =
           f.isRepeat()
-              ? BaseMessages.getString(PKG, "System.Combo.Yes")
-              : BaseMessages.getString(PKG, "System.Combo.No");
+              ? BaseMessages.getString(PKG, CONST_COMBO_YES)
+              : BaseMessages.getString(PKG, CONST_COMBO_NO);
       String format = f.getFormat();
       String currency = f.getCurrencySymbol();
       String decimal = f.getDecimalSymbol();
@@ -1394,7 +1399,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
       String sprec = item.getText(4);
       field.setTrimType(IValueMeta.TrimType.lookupDescription(item.getText(5)));
       field.setRepeat(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(6)));
+          BaseMessages.getString(PKG, CONST_COMBO_YES).equalsIgnoreCase(item.getText(6)));
       field.setLength(Const.toInt(slength, -1));
       field.setPrecision(Const.toInt(sprec, -1));
       field.setFormat(item.getText(7));
@@ -1529,8 +1534,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbbWarningDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbWarningDestDir);
-    wbbWarningDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    wbbWarningDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
+    wbbWarningDestDir.setText(BaseMessages.getString(PKG, CONST_BUTTON_BROWSE));
+    wbbWarningDestDir.setToolTipText(BaseMessages.getString(PKG, CONST_BROWSE_FOR_DIR));
     FormData fdbWarningDestDir = new FormData();
     fdbWarningDestDir.right = new FormAttachment(100, 0);
     fdbWarningDestDir.top = new FormAttachment(previous, margin * 4);
@@ -1538,8 +1543,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbvWarningDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbvWarningDestDir);
-    wbvWarningDestDir.setText(BaseMessages.getString(PKG, "System.Button.Variable"));
-    wbvWarningDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.VariableToDir"));
+    wbvWarningDestDir.setText(BaseMessages.getString(PKG, CONST_BUTTON_VARIABLE));
+    wbvWarningDestDir.setToolTipText(BaseMessages.getString(PKG, CONST_BROWSE_TO_DIR));
     FormData fdbvWarningDestDir = new FormData();
     fdbvWarningDestDir.right = new FormAttachment(wbbWarningDestDir, -margin);
     fdbvWarningDestDir.top = new FormAttachment(previous, margin * 4);
@@ -1554,7 +1559,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wWarningExt.setLayoutData(fdWarningDestExt);
 
     wlWarningExt = new Label(wErrorComp, SWT.RIGHT);
-    wlWarningExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    wlWarningExt.setText(BaseMessages.getString(PKG, CONST_LABEL_EXTENSION));
     PropsUi.setLook(wlWarningExt);
     FormData fdlWarningDestExt = new FormData();
     fdlWarningDestExt.top = new FormAttachment(previous, margin * 4);
@@ -1595,8 +1600,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbbErrorDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbErrorDestDir);
-    wbbErrorDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    wbbErrorDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
+    wbbErrorDestDir.setText(BaseMessages.getString(PKG, CONST_BUTTON_BROWSE));
+    wbbErrorDestDir.setToolTipText(BaseMessages.getString(PKG, CONST_BROWSE_FOR_DIR));
     FormData fdbErrorDestDir = new FormData();
     fdbErrorDestDir.right = new FormAttachment(100, 0);
     fdbErrorDestDir.top = new FormAttachment(previous, margin);
@@ -1604,8 +1609,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbvErrorDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbvErrorDestDir);
-    wbvErrorDestDir.setText(BaseMessages.getString(PKG, "System.Button.Variable"));
-    wbvErrorDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.VariableToDir"));
+    wbvErrorDestDir.setText(BaseMessages.getString(PKG, CONST_BUTTON_VARIABLE));
+    wbvErrorDestDir.setToolTipText(BaseMessages.getString(PKG, CONST_BROWSE_TO_DIR));
     FormData fdbvErrorDestDir = new FormData();
     fdbvErrorDestDir.right = new FormAttachment(wbbErrorDestDir, -margin);
     fdbvErrorDestDir.top = new FormAttachment(previous, margin);
@@ -1620,7 +1625,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wErrorExt.setLayoutData(fdErrorDestExt);
 
     wlErrorExt = new Label(wErrorComp, SWT.RIGHT);
-    wlErrorExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    wlErrorExt.setText(BaseMessages.getString(PKG, CONST_LABEL_EXTENSION));
     PropsUi.setLook(wlErrorExt);
     FormData fdlErrorDestExt = new FormData();
     fdlErrorDestExt.top = new FormAttachment(previous, margin);
@@ -1661,8 +1666,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbbLineNrDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbbLineNrDestDir);
-    wbbLineNrDestDir.setText(BaseMessages.getString(PKG, "System.Button.Browse"));
-    wbbLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.BrowseForDir"));
+    wbbLineNrDestDir.setText(BaseMessages.getString(PKG, CONST_BUTTON_BROWSE));
+    wbbLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, CONST_BROWSE_FOR_DIR));
     FormData fdbLineNrDestDir = new FormData();
     fdbLineNrDestDir.right = new FormAttachment(100, 0);
     fdbLineNrDestDir.top = new FormAttachment(previous, margin);
@@ -1670,8 +1675,8 @@ public class ExcelInputDialog extends BaseTransformDialog {
 
     wbvLineNrDestDir = new Button(wErrorComp, SWT.PUSH | SWT.CENTER);
     PropsUi.setLook(wbvLineNrDestDir);
-    wbvLineNrDestDir.setText(BaseMessages.getString(PKG, "System.Button.Variable"));
-    wbvLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, "System.Tooltip.VariableToDir"));
+    wbvLineNrDestDir.setText(BaseMessages.getString(PKG, CONST_BUTTON_VARIABLE));
+    wbvLineNrDestDir.setToolTipText(BaseMessages.getString(PKG, CONST_BROWSE_TO_DIR));
     FormData fdbvLineNrDestDir = new FormData();
     fdbvLineNrDestDir.right = new FormAttachment(wbbLineNrDestDir, -margin);
     fdbvLineNrDestDir.top = new FormAttachment(previous, margin);
@@ -1686,7 +1691,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     wLineNrExt.setLayoutData(fdLineNrDestExt);
 
     wlLineNrExt = new Label(wErrorComp, SWT.RIGHT);
-    wlLineNrExt.setText(BaseMessages.getString(PKG, "System.Label.Extension"));
+    wlLineNrExt.setText(BaseMessages.getString(PKG, CONST_LABEL_EXTENSION));
     PropsUi.setLook(wlLineNrExt);
     FormData fdlLineNrDestExt = new FormData();
     fdlLineNrDestExt.top = new FormAttachment(previous, margin);
@@ -1812,7 +1817,10 @@ public class ExcelInputDialog extends BaseTransformDialog {
       try {
         IKWorkbook workbook =
             WorkbookFactory.getWorkbook(
-                info.getSpreadSheetType(), HopVfs.getFilename(fileObject), info.getEncoding());
+                info.getSpreadSheetType(),
+                HopVfs.getFilename(fileObject),
+                info.getEncoding(),
+                variables);
 
         int nrSheets = workbook.getNumberOfSheets();
         for (int j = 0; j < nrSheets; j++) {
@@ -1828,7 +1836,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_ERROR_TITLE),
             BaseMessages.getString(
                 PKG,
                 "ExcelInputDialog.ErrorReadingFile.DialogMessage",
@@ -1880,13 +1888,13 @@ public class ExcelInputDialog extends BaseTransformDialog {
       try {
         IKWorkbook workbook =
             WorkbookFactory.getWorkbook(
-                info.getSpreadSheetType(), HopVfs.getFilename(file), info.getEncoding());
+                info.getSpreadSheetType(), HopVfs.getFilename(file), info.getEncoding(), variables);
         processingWorkbook(fields, info, workbook);
         workbook.close();
       } catch (Exception e) {
         new ErrorDialog(
             shell,
-            BaseMessages.getString(PKG, "System.Dialog.Error.Title"),
+            BaseMessages.getString(PKG, CONST_ERROR_TITLE),
             BaseMessages.getString(
                 PKG,
                 "ExcelInputDialog.ErrorReadingFile2.DialogMessage",
@@ -2010,7 +2018,7 @@ public class ExcelInputDialog extends BaseTransformDialog {
     } else {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(BaseMessages.getString(PKG, "ExcelInputDialog.NoFilesFound.DialogMessage"));
-      mb.setText(BaseMessages.getString(PKG, "System.Dialog.Error.Title"));
+      mb.setText(BaseMessages.getString(PKG, CONST_ERROR_TITLE));
       mb.open();
     }
   }

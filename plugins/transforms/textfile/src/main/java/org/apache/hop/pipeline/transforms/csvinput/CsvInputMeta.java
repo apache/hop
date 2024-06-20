@@ -683,7 +683,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(filename), variables);
 
         // If the file doesn't exist, forget about this effort too!
         //
@@ -724,7 +724,7 @@ public class CsvInputMeta extends BaseTransformMeta<CsvInput, CsvInputData>
   public FileObject getHeaderFileObject(final IVariables variables) {
     final String filename = variables.resolve(getFilename());
     try {
-      return HopVfs.getFileObject(filename);
+      return HopVfs.getFileObject(filename, variables);
     } catch (final HopFileException e) {
       return null;
     }

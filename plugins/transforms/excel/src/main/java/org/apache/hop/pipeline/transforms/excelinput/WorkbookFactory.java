@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.excelinput;
 import java.io.InputStream;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.poi.PoiWorkbook;
 import org.apache.hop.pipeline.transforms.excelinput.staxpoi.StaxPoiWorkbook;
@@ -30,17 +31,18 @@ public class WorkbookFactory {
     throw new IllegalStateException("Utility class");
   }
 
-  public static IKWorkbook getWorkbook(SpreadSheetType type, String filename, String encoding)
+  public static IKWorkbook getWorkbook(
+      SpreadSheetType type, String filename, String encoding, IVariables variables)
       throws HopException {
     switch (type) {
       case POI:
         return new PoiWorkbook(
-            filename, encoding); // encoding is not used, perhaps detected automatically?
+            filename, encoding, variables); // encoding is not used, perhaps detected automatically?
       case SAX_POI:
-        return new StaxPoiWorkbook(filename, encoding);
+        return new StaxPoiWorkbook(filename, encoding, variables);
       case ODS:
         return new OdfWorkbook(
-            filename, encoding); // encoding is not used, perhaps detected automatically?
+            filename, encoding, variables); // encoding is not used, perhaps detected automatically?
       default:
         throw new HopException(
             "Sorry, spreadsheet type " + type.getDescription() + " is not yet supported");

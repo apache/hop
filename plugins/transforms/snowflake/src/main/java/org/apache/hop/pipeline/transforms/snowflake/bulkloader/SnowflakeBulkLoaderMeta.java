@@ -981,7 +981,7 @@ public class SnowflakeBulkLoaderMeta
     returnValue.append("FILES = (");
     boolean first = true;
     for (String filename : filenames) {
-      String shortFile = HopVfs.getFileObject(filename).getName().getBaseName();
+      String shortFile = HopVfs.getFileObject(filename, variables).getName().getBaseName();
       if (first) {
         returnValue.append("'");
         first = false;

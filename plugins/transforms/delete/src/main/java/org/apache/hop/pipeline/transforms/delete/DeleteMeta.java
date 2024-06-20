@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     name = "i18n::Delete.Name",
     description = "i18n::Delete.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-    keywords = "i18n::DeleteMeta.keyword",
+    keywords = "i18n::DeleteMeta.Keyword",
     documentationUrl = "/pipeline/transforms/delete.html")
 public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
@@ -60,13 +60,13 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private DeleteLookupField lookup;
 
   /** database connection */
-  @HopMetadataProperty(key = "connection", injectionKeyDescription = "Delete.Injection.Connection")
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKeyDescription = "DeleteMeta.Injection.Connection")
   private String connection;
 
   /** Commit size for inserts/updates */
-  @HopMetadataProperty(
-      key = "commit",
-      injectionKeyDescription = "Delete.Injection.CommitSize.Field")
+  @HopMetadataProperty(key = "commit", injectionKeyDescription = "DeleteMeta.Injection.CommitSize")
   private String commitSize;
 
   public DeleteMeta() {

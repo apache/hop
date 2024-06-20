@@ -107,7 +107,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       }
 
       return true;
-    } catch (Throwable t) {
+    } catch (Exception e) {
       // Some unexpected situation occurred.
       // Better to stop the mapping pipeline.
       //
@@ -117,7 +117,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
       // Forward the exception...
       //
-      throw new HopException(t);
+      throw new HopException(e);
     }
   }
 
@@ -270,7 +270,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         // Pass the MetaStore down to the metadata object...
         //
         data.mappingPipelineMeta =
-            SimpleMappingMeta.loadMappingMeta(meta, getMetadataProvider(), this);
+            TransformWithMappingMeta.loadMappingMeta(meta, getMetadataProvider(), this);
         if (data.mappingPipelineMeta != null) { // Do we have a mapping at all?
 
           // OK, now prepare the execution of the mapping.
@@ -312,11 +312,9 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       }
     } else {
       // Close the running pipeline
-      if (data.wasStarted) {
-        if (!data.mappingPipeline.isFinished()) {
-          // Wait until the child pipeline has finished.
-          data.mappingPipeline.waitUntilFinished();
-        }
+      if (data.wasStarted && !data.mappingPipeline.isFinished()) {
+        // Wait until the child pipeline has finished.
+        data.mappingPipeline.waitUntilFinished();
       }
     }
 
@@ -341,16 +339,12 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
   @Override
   public void startBundle() throws HopException {
-    //    if (!first) {
-    //      prepareMappingExecution();
-    //    }
+    // Do nothing
   }
 
   @Override
   public void finishBundle() throws HopException {
-    //    setOutputDone();
-    //    first=true;
-    //    data.wasStarted=false;
+    // Do Nothing
   }
 
   @Override

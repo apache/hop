@@ -132,7 +132,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta, YamlInputData> {
         // source is a file.
 
         data.yaml = new YamlReader();
-        data.yaml.loadFile(HopVfs.getFileObject(fieldvalue));
+        data.yaml.loadFile(HopVfs.getFileObject(fieldvalue, variables));
 
         addFileToResultFilesname(data.yaml.getFile());
 

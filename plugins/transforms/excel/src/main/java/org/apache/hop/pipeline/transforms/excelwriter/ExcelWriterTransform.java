@@ -72,7 +72,7 @@ public class ExcelWriterTransform
   public static final String STREAMER_FORCE_RECALC_PROP_NAME =
       "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
 
-  public static int BYTE_ARRAY_MAX_OVERRIDE = 250000000;
+  public static final int BYTE_ARRAY_MAX_OVERRIDE = 250000000;
 
   public ExcelWriterTransform(
       TransformMeta transformMeta,
@@ -838,7 +838,7 @@ public class ExcelWriterTransform
           // handle template case (must have same format)
           // ensure extensions match
           String templateExt =
-              HopVfs.getFileObject(data.realTemplateFileName).getName().getExtension();
+              HopVfs.getFileObject(data.realTemplateFileName, variables).getName().getExtension();
           if (!meta.getFile().getExtension().equalsIgnoreCase(templateExt)) {
             throw new HopException(
                 "Template Format Mismatch: Template has extension: "
@@ -848,9 +848,9 @@ public class ExcelWriterTransform
                     + ". Template and output file must share the same format!");
           }
 
-          if (HopVfs.getFileObject(data.realTemplateFileName).exists()) {
+          if (HopVfs.getFileObject(data.realTemplateFileName, variables).exists()) {
             // if the template exists just copy the template in place
-            copyFile(HopVfs.getFileObject(data.realTemplateFileName), file);
+            copyFile(HopVfs.getFileObject(data.realTemplateFileName, variables), file);
           } else {
             // template is missing, log it and get out
             if (log.isBasic()) {
@@ -881,7 +881,7 @@ public class ExcelWriterTransform
       Sheet sheet;
       // file is guaranteed to be in place now
       if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")) {
-        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file))) {
+        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file), variables)) {
           XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
           if (meta.getFile().isStreamingData() && !meta.getTemplate().isTemplateEnabled()) {
             wb = new SXSSFWorkbook(xssfWorkbook, 100);
@@ -1020,7 +1020,7 @@ public class ExcelWriterTransform
       if (meta.getFile().getExtension().equalsIgnoreCase("xlsx")
           && meta.getFile().isStreamingData()
           && meta.getTemplate().isTemplateEnabled()) {
-        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file))) {
+        try (InputStream inputStream = HopVfs.getInputStream(HopVfs.getFilename(file), variables)) {
           XSSFWorkbook xssfWorkbook = new XSSFWorkbook(inputStream);
           wb = new SXSSFWorkbook(xssfWorkbook, 100);
           sheet = wb.getSheet(data.realSheetname);
@@ -1170,7 +1170,7 @@ public class ExcelWriterTransform
         (!meta.getFile().isFileNameInField())
             ? buildFilename(getNextSplitNr(meta.getFile().getFileName()))
             : buildFilename(data.inputRowMeta, row);
-    return HopVfs.getFileObject(buildFilename);
+    return HopVfs.getFileObject(buildFilename, variables);
   }
 
   /**

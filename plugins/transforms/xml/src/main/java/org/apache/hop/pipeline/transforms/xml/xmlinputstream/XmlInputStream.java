@@ -187,7 +187,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       if (data.filenr >= data.filenames.length) {
         return false;
       }
-      data.fileObject = HopVfs.getFileObject(data.filenames[data.filenr]);
+      data.fileObject = HopVfs.getFileObject(data.filenames[data.filenr], variables);
       data.inputStream = HopVfs.getInputStream(data.fileObject);
       data.xmlEventReader = data.staxInstance.createXMLEventReader(data.inputStream, data.encoding);
     } catch (IOException e) {

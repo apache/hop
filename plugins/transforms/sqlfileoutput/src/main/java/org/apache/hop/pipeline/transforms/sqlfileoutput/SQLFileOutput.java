@@ -191,7 +191,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL,
-                HopVfs.getFileObject(filename),
+                HopVfs.getFileObject(filename, variables),
                 getPipelineMeta().getName(),
                 getTransformName());
         resultFile.setComment("This file was created with a text file output transform");
@@ -202,7 +202,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
       if (log.isDetailed()) {
         logDetailed("Opening output stream in nocompress mode");
       }
-      OutputStream fos = HopVfs.getOutputStream(filename, meta.isFileAppended());
+      OutputStream fos = HopVfs.getOutputStream(filename, meta.isFileAppended(), variables);
       outputStream = fos;
 
       if (log.isDetailed()) {
@@ -297,7 +297,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta, SQLFileOutpu
           try {
             // Get parent folder
             String filename = resolve(meta.getFileName());
-            parentfolder = HopVfs.getFileObject(filename).getParent();
+            parentfolder = HopVfs.getFileObject(filename, variables).getParent();
             if (!parentfolder.exists()) {
               log.logBasic(
                   "Folder parent", "Folder parent " + parentfolder.getName() + " does not exist !");

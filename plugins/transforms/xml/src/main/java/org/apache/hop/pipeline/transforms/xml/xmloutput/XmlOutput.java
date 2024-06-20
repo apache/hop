@@ -264,7 +264,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> {
 
     try {
 
-      FileObject file = HopVfs.getFileObject(buildFilename(true));
+      FileObject file = HopVfs.getFileObject(buildFilename(true), variables);
 
       if (meta.isAddToResultFiles()) {
         // Add this to the result file names...

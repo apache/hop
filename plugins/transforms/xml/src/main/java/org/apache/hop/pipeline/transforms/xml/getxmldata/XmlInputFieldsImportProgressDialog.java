@@ -30,6 +30,7 @@ import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.xml.Dom4JUtil;
@@ -106,11 +107,11 @@ public class XmlInputFieldsImportProgressDialog {
     this.fields = null;
   }
 
-  public RowMetaAndData[] open() {
+  public RowMetaAndData[] open(IVariables variables) {
     IRunnableWithProgress op =
         monitor -> {
           try {
-            fields = doScan(monitor);
+            fields = doScan(monitor, variables);
           } catch (Exception e) {
             e.printStackTrace();
             throw new InvocationTargetException(
@@ -139,7 +140,7 @@ public class XmlInputFieldsImportProgressDialog {
     return fields;
   }
 
-  private RowMetaAndData[] doScan(IProgressMonitor monitor) throws Exception {
+  private RowMetaAndData[] doScan(IProgressMonitor monitor, IVariables variables) throws Exception {
     monitor.beginTask(
         BaseMessages.getString(
             PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile", filename),
@@ -170,7 +171,7 @@ public class XmlInputFieldsImportProgressDialog {
 
       Document document = null;
       if (!Utils.isEmpty(filename)) {
-        is = HopVfs.getInputStream(filename);
+        is = HopVfs.getInputStream(filename, variables);
         document = reader.read(is, encoding);
       } else {
         if (!Utils.isEmpty(xml)) {

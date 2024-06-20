@@ -22,7 +22,6 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.IProvidesDatabaseConnectionInformation;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
@@ -52,8 +51,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     documentationUrl = "/pipeline/transforms/postgresbulkloader.html",
     classLoaderGroup = "postgres-db",
     isIncludeJdbcDrivers = true)
-public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData>
-    implements IProvidesDatabaseConnectionInformation {
+public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoaderData> {
 
   private static final Class<?> PKG = PGBulkLoaderMeta.class; // For Translator
 
@@ -72,9 +70,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      storeWithName = true,
       injectionKeyDescription = "PGBulkLoader.Injection.Connection.Label")
-  private DatabaseMeta databaseMeta;
+  private String connection;
 
   /** Field value to dateMask after lookup */
   @HopMetadataProperty(
@@ -136,7 +133,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
 
   @Override
   public void setDefault() {
-    databaseMeta = null;
+    connection = null;
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "GPBulkLoaderMeta.DefaultTableName");
     dbNameOverride = "";
@@ -172,7 +169,10 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     CheckResult cr;
     String errorMessage = "";
 
-    if (databaseMeta != null) {
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
+    if (connection != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
@@ -330,6 +330,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
       IRowMeta prev,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -400,6 +403,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
+
     if (prev != null) {
       /* DEBUG CHECK THIS */
       // Insert dateMask fields : read/write
@@ -428,7 +434,9 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     String realTableName = variables.resolve(tableName);
     String realSchemaName = variables.resolve(schemaName);
 
-    if (databaseMeta != null) {
+    if (connection != null) {
+      DatabaseMeta databaseMeta =
+          getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
       Database db = new Database(loggingObject, variables, databaseMeta);
       try {
         db.connect();
@@ -464,7 +472,6 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
   /**
    * @return the schemaName
    */
-  @Override
   public String getSchemaName() {
     return schemaName;
   }
@@ -508,11 +515,6 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     this.enclosure = enclosure;
   }
 
-  @Override
-  public String getMissingDatabaseConnectionInformationMessage() {
-    return null;
-  }
-
   public boolean isStopOnError() {
     return this.stopOnError;
   }
@@ -525,25 +527,17 @@ public class PGBulkLoaderMeta extends BaseTransformMeta<PGBulkLoader, PGBulkLoad
     this.stopOnError = value;
   }
 
-  /**
-   * @return Returns the database.
-   */
-  @Override
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  public String getConnection() {
+    return connection;
   }
 
-  /**
-   * @param database The database to set.
-   */
-  public void setDatabaseMeta(DatabaseMeta database) {
-    this.databaseMeta = database;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**
    * @return Returns the tableName.
    */
-  @Override
   public String getTableName() {
     return tableName;
   }

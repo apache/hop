@@ -23,21 +23,27 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 public class DeleteKeyField {
 
   /** which field in input stream to compare with? */
-  @HopMetadataProperty(key = "name", injectionKeyDescription = "Delete.Injection.KeyStream.Field")
+  @HopMetadataProperty(
+      key = "name",
+      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyStream")
   private String keyStream;
 
   /** field in table */
-  @HopMetadataProperty(key = "field", injectionKeyDescription = "Delete.Injection.KeyLookup.Field")
+  @HopMetadataProperty(
+      key = "field",
+      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyLookup")
   private String keyLookup;
 
   /** Comparator: =, <>, BETWEEN, ... */
   @HopMetadataProperty(
       key = "condition",
-      injectionKeyDescription = "Delete.Injection.KeyCondition.Field")
+      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyCondition")
   private String keyCondition;
 
   /** Extra field for between... */
-  @HopMetadataProperty(key = "name2", injectionKeyDescription = "Delete.Injection.KeyStream2.Field")
+  @HopMetadataProperty(
+      key = "name2",
+      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyStream2")
   private String keyStream2;
 
   public DeleteKeyField() {}

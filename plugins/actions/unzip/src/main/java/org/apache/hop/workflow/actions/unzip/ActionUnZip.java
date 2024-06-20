@@ -309,7 +309,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       boolean exitaction = false;
 
       // Target folder
-      targetdir = HopVfs.getFileObject(realTargetdirectory);
+      targetdir = HopVfs.getFileObject(realTargetdirectory, getVariables());
 
       if (!targetdir.exists()) {
         if (createfolder) {
@@ -346,7 +346,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           log.logError(BaseMessages.getString(PKG, "ActionUnZip.MoveToDirectoryEmpty.Label"));
           exitaction = true;
         } else {
-          movetodir = HopVfs.getFileObject(realMovetodirectory);
+          movetodir = HopVfs.getFileObject(realMovetodirectory, getVariables());
           if (!(movetodir.exists()) || !(movetodir.getType() == FileType.FOLDER)) {
             if (createMoveToDirectory) {
               movetodir.createFolder();
@@ -391,7 +391,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             realFilenameSource = resultRow.getString(0, null);
             realWildcardSource = resultRow.getString(1, null);
 
-            fileObject = HopVfs.getFileObject(realFilenameSource);
+            fileObject = HopVfs.getFileObject(realFilenameSource, getVariables());
             if (fileObject.exists()) {
               processOneFile(
                   result,
@@ -412,7 +412,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           }
         }
       } else {
-        fileObject = HopVfs.getFileObject(realFilenameSource);
+        fileObject = HopVfs.getFileObject(realFilenameSource, getVariables());
         if (!fileObject.exists()) {
           log.logError(
               BaseMessages.getString(
@@ -612,7 +612,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
         String folderName =
             realTargetdirectory + "/" + shortSourceFilename.substring(0, lastindexOfDot);
-        FileObject rootfolder = HopVfs.getFileObject(folderName);
+        FileObject rootfolder = HopVfs.getFileObject(folderName, getVariables());
         if (!rootfolder.exists()) {
           try {
             rootfolder.createFolder();
@@ -632,7 +632,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       // Try to read the entries from the VFS object...
       //
       String zipFilename = "zip:" + sourceFileObject.getName().getFriendlyURI();
-      FileObject zipFile = HopVfs.getFileObject(zipFilename);
+      FileObject zipFile = HopVfs.getFileObject(zipFilename, getVariables());
       FileObject[] items =
           zipFile.findFiles(
               new AllFileSelector() {
@@ -674,7 +674,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           return false;
         }
 
-        synchronized (HopVfs.getFileSystemManager()) {
+        synchronized (HopVfs.getFileSystemManager(getVariables())) {
           FileObject newFileObject = null;
           try {
             if (log.isDetailed()) {
@@ -689,7 +689,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             // get real destination filename
             //
             String newFileName = unzipToFolder + Const.FILE_SEPARATOR + getTargetFilename(item);
-            newFileObject = HopVfs.getFileObject(newFileName);
+            newFileObject = HopVfs.getFileObject(newFileName, getVariables());
 
             if (item.getType().equals(FileType.FOLDER)) {
               // Directory
@@ -814,7 +814,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
             }
             // Close file object
             // close() does not release resources!
-            HopVfs.getFileSystemManager().closeFileSystem(item.getFileSystem());
+            HopVfs.getFileSystemManager(getVariables()).closeFileSystem(item.getFileSystem());
             if (items != null) {
               items = null;
             }
@@ -868,7 +868,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       try {
         String destinationFilename =
             movetodir + Const.FILE_SEPARATOR + sourceFileObject.getName().getBaseName();
-        destFile = HopVfs.getFileObject(destinationFilename);
+        destFile = HopVfs.getFileObject(destinationFilename, getVariables());
 
         sourceFileObject.moveTo(destFile);
 
@@ -910,7 +910,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       ResultFile resultFile =
           new ResultFile(
               ResultFile.FILE_TYPE_GENERAL,
-              HopVfs.getFileObject(newfile),
+              HopVfs.getFileObject(newfile, getVariables()),
               parentWorkflow.getWorkflowName(),
               toString());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);

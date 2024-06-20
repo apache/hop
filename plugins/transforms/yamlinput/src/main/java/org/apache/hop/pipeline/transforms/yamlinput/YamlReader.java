@@ -36,6 +36,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.yaml.snakeyaml.Yaml;
 
@@ -82,12 +83,6 @@ public class YamlReader {
   public void loadFile(FileObject file) throws Exception {
     this.file = file;
     this.filename = HopVfs.getFilename(file);
-    loadFile(filename);
-  }
-
-  public void loadFile(String filename) throws Exception {
-    this.filename = filename;
-    this.file = HopVfs.getFileObject(filename);
 
     InputStream is = null;
     try {
@@ -105,6 +100,13 @@ public class YamlReader {
         is.close();
       }
     }
+  }
+
+  public void loadFile(String filename, IVariables variables) throws Exception {
+    this.filename = filename;
+    this.file = HopVfs.getFileObject(filename, variables);
+
+    loadFile(this.file);
   }
 
   private Yaml getYaml() {

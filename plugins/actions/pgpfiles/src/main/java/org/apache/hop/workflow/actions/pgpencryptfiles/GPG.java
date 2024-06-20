@@ -30,6 +30,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 
@@ -97,7 +98,8 @@ public class GPG {
    * @param logInterface ILogChannel
    * @throws HopException
    */
-  public GPG(String gpgFilename, ILogChannel logInterface) throws HopException {
+  public GPG(String gpgFilename, ILogChannel logInterface, IVariables variables)
+      throws HopException {
     this.log = logInterface;
     this.gpgexe = gpgFilename;
     // Let's check GPG filename
@@ -108,7 +110,7 @@ public class GPG {
     // We have a filename, we need to check
     FileObject file = null;
     try {
-      file = HopVfs.getFileObject(getGpgExeFile());
+      file = HopVfs.getFileObject(getGpgExeFile(), variables);
 
       if (!file.exists()) {
         throw new HopException(BaseMessages.getString(PKG, "GPG.GPGFilenameNotFound"));

@@ -369,7 +369,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
         FileObject folder = null;
         try {
-          folder = HopVfs.getFileObject(moveToFolder);
+          folder = HopVfs.getFileObject(moveToFolder, getVariables());
           if (!folder.exists()) {
             if (isDetailed()) {
               logDetailed(
@@ -410,7 +410,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      gpg = new GPG(resolve(gpgLocation), log);
+      gpg = new GPG(resolve(gpgLocation), log, getVariables());
 
       if (argFromPrevious) {
         if (isDetailed()) {
@@ -629,10 +629,10 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
     try {
 
-      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername);
-      destinationfilefolder = HopVfs.getFileObject(realDestinationFilefoldername);
+      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername, getVariables());
+      destinationfilefolder = HopVfs.getFileObject(realDestinationFilefoldername, getVariables());
       if (!Utils.isEmpty(moveToFolder)) {
-        movetofolderfolder = HopVfs.getFileObject(moveToFolder);
+        movetofolderfolder = HopVfs.getFileObject(moveToFolder, getVariables());
       }
 
       if (sourcefilefolder.exists()) {
@@ -679,7 +679,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
               String destinationfilenamefull =
                   destinationfilefolder.toString() + Const.FILE_SEPARATOR + shortfilename;
-              FileObject destinationfile = HopVfs.getFileObject(destinationfilenamefull);
+              FileObject destinationfile =
+                  HopVfs.getFileObject(destinationfilenamefull, getVariables());
 
               entrystatus =
                   EncryptFile(
@@ -696,7 +697,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
               // Source is a file, destination is a file
 
-              FileObject destinationfile = HopVfs.getFileObject(realDestinationFilefoldername);
+              FileObject destinationfile =
+                  HopVfs.getFileObject(realDestinationFilefoldername, getVariables());
 
               // return destination short filename
               String shortfilename = destinationfile.getName().getBaseName();
@@ -716,7 +718,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
                   destinationfilefolder.getParent().toString()
                       + Const.FILE_SEPARATOR
                       + shortfilename;
-              destinationfile = HopVfs.getFileObject(destinationfilenamefull);
+              destinationfile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
 
               entrystatus =
                   EncryptFile(
@@ -936,7 +938,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
           String movetofilenamefull =
               destinationfilename.getParent().toString() + Const.FILE_SEPARATOR + shortFilename;
-          destinationfile = HopVfs.getFileObject(movetofilenamefull);
+          destinationfile = HopVfs.getFileObject(movetofilenamefull, getVariables());
 
           doJob(actionType, sourcefilename, userID, destinationfilename);
           if (isDetailed()) {
@@ -981,7 +983,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
           String movetofilenamefull =
               movetofolderfolder.toString() + Const.FILE_SEPARATOR + shortFilename;
-          destinationfile = HopVfs.getFileObject(movetofilenamefull);
+          destinationfile = HopVfs.getFileObject(movetofilenamefull, getVariables());
           if (!destinationfile.exists()) {
             sourcefilename.moveTo(destinationfile);
             if (isDetailed()) {
@@ -1028,7 +1030,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
               String destinationfilenamefull =
                   movetofolderfolder.toString() + Const.FILE_SEPARATOR + shortFilename;
-              destinationfile = HopVfs.getFileObject(destinationfilenamefull);
+              destinationfile = HopVfs.getFileObject(destinationfilenamefull, getVariables());
 
               sourcefilename.moveTo(destinationfile);
               if (isDetailed()) {
@@ -1127,7 +1129,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         // Built destination filename
         filename =
             HopVfs.getFileObject(
-                realDestinationFilefoldername + Const.FILE_SEPARATOR + shortFilenameFromBaseFolder);
+                realDestinationFilefoldername + Const.FILE_SEPARATOR + shortFilenameFromBaseFolder,
+                getVariables());
 
         if (!currentfile.getParent().toString().equals(sourcefilefolder.toString())) {
 
@@ -1214,7 +1217,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       ResultFile resultFile =
           new ResultFile(
               ResultFile.FILE_TYPE_GENERAL,
-              HopVfs.getFileObject(fileaddentry),
+              HopVfs.getFileObject(fileaddentry, getVariables()),
               parentWorkflow.getWorkflowName(),
               toString());
       result.getResultFiles().put(resultFile.getFile().toString(), resultFile);

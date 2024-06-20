@@ -309,7 +309,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
         createParentFolder(targetFilePath);
       }
 
-      os = HopVfs.getOutputStream(targetFilePath, false);
+      os = HopVfs.getOutputStream(targetFilePath, false, variables);
       os.write(XmlHandler.getXmlHeader().getBytes(Const.XML_ENCODING));
       os.write(data.pipelineMeta.getXml(this).getBytes(Const.XML_ENCODING));
     } catch (Exception e) {
@@ -332,7 +332,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
 
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject(filename).getParent();
+      parentfolder = HopVfs.getFileObject(filename, variables).getParent();
 
       if (parentfolder.exists()) {
         if (isDetailed()) {
@@ -361,7 +361,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> {
                   PKG,
                   "MetaInject.Log.ParentFolderNotExistCreateIt",
                   HopVfs.getFriendlyURI(parentfolder),
-                  HopVfs.getFriendlyURI(filename)));
+                  HopVfs.getFriendlyURI(filename, variables)));
         }
       }
     } finally {

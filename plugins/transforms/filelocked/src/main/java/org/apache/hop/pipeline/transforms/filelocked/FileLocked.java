@@ -93,7 +93,7 @@ public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> {
       String filename = data.previousRowMeta.getString(r, data.indexOfFileename);
       if (!Utils.isEmpty(filename)) {
         // Check if file
-        LockFile locked = new LockFile(filename);
+        LockFile locked = new LockFile(filename, variables);
         fileLocked = locked.isLocked();
 
         // add filename to result filenames?
@@ -102,7 +102,7 @@ public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> {
           ResultFile resultFile =
               new ResultFile(
                   ResultFile.FILE_TYPE_GENERAL,
-                  HopVfs.getFileObject(filename),
+                  HopVfs.getFileObject(filename, variables),
                   getPipelineMeta().getName(),
                   getTransformName());
           resultFile.setComment(BaseMessages.getString(PKG, "FileLocked.Log.FileAddedResult"));

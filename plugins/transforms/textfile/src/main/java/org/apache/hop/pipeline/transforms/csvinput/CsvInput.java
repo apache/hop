@@ -190,7 +190,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       // We'll use the same algorithm...
       //
       for (String filename : data.filenames) {
-        long size = HopVfs.getFileObject(filename).getContent().getSize();
+        long size = HopVfs.getFileObject(filename, variables).getContent().getSize();
         data.fileSizes.add(size);
         data.totalFileSize += size;
       }
@@ -332,7 +332,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
       // Open the next one...
       //
       data.fieldsMapping = createFieldMapping(data.filenames[data.filenr], meta);
-      FileObject fileObject = HopVfs.getFileObject(data.filenames[data.filenr]);
+      FileObject fileObject = HopVfs.getFileObject(data.filenames[data.filenr], variables);
       if (!(fileObject instanceof LocalFile)) {
         // We can only use NIO on local files at the moment, so that's what we limit ourselves to.
         //
@@ -467,7 +467,7 @@ public class CsvInput extends BaseTransform<CsvInputMeta, CsvInputData> {
     String enclosure = resolve(csvInputMeta.getEnclosure());
     String realEncoding = resolve(csvInputMeta.getEncoding());
 
-    try (FileObject fileObject = HopVfs.getFileObject(fileName);
+    try (FileObject fileObject = HopVfs.getFileObject(fileName, variables);
         BOMInputStream inputStream =
             new BOMInputStream(
                 HopVfs.getInputStream(fileObject),

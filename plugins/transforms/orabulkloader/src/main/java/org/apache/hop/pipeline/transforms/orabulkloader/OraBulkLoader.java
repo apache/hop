@@ -186,7 +186,9 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
    */
   public String getControlFileContents(OraBulkLoaderMeta meta, IRowMeta rowMeta, Object[] row)
       throws HopException {
-    DatabaseMeta dm = meta.getDatabaseMeta();
+
+    DatabaseMeta dm = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+
     String inputName = "'" + getFilename(getFileObject(meta.getDataFile(), variables)) + "'";
 
     String loadAction = meta.getLoadAction();
@@ -410,7 +412,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
       }
     }
 
-    DatabaseMeta db = meta.getDatabaseMeta();
+    DatabaseMeta db = getPipelineMeta().findDatabase(meta.getConnection(), variables);
     if (db != null) {
       String user = Const.NVL(db.getUsername(), "");
       String pass =
@@ -579,7 +581,14 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
   }
 
   protected void verifyDatabaseConnection() throws HopException {
-    if (meta.getDatabaseMeta() == null) {
+
+    if (meta.getConnection() == null) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "OraBulkLoaderMeta.GetSQL.NoConnectionDefined"));
+    }
+
+    DatabaseMeta dm = getPipelineMeta().findDatabase(meta.getConnection(), variables);
+    if (dm == null) {
       throw new HopException(
           BaseMessages.getString(PKG, "OraBulkLoaderMeta.GetSQL.NoConnectionDefined"));
     }
@@ -681,6 +690,6 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
 
   @VisibleForTesting
   FileObject getFileObject(String fileName, IVariables variables) throws HopFileException {
-    return HopVfs.getFileObject(variables.resolve(fileName));
+    return HopVfs.getFileObject(variables.resolve(fileName), variables);
   }
 }

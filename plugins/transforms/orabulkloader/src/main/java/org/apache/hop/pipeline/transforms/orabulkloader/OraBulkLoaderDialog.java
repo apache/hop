@@ -55,6 +55,7 @@ import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -216,9 +217,18 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     fdComp.bottom = new FormAttachment(100, 0);
     wBulkLoaderComposite.setLayoutData(fdComp);
 
+    SelectionListener lsSelection =
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            input.setChanged();
+            setTableFieldCombo();
+          }
+        };
+
     // Connection line
-    wConnection =
-        addConnectionLine(wBulkLoaderComposite, wTransformName, input.getDatabaseMeta(), lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection.addSelectionListener(lsSelection);
 
     // Schema line...
     Label wlSchema = new Label(wBulkLoaderComposite, SWT.RIGHT);
@@ -1041,8 +1051,8 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
       }
     }
 
-    if (input.getDatabaseMeta() != null) {
-      wConnection.setText(input.getDatabaseMeta().getName());
+    if (input.getConnection() != null) {
+      wConnection.setText(input.getConnection());
     }
     if (input.getSchemaName() != null) {
       wSchema.setText(input.getSchemaName());
@@ -1159,7 +1169,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     meta.setMappings(mappings);
     meta.setSchemaName(wSchema.getText());
     meta.setTableName(wTable.getText());
-    meta.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    meta.setConnection(wConnection.getText());
     meta.setSqlldr(wSqlldr.getText());
     meta.setControlFile(wControlFile.getText());
     meta.setDataFile(wDataFile.getText());
@@ -1232,7 +1242,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     // Get the information for the dialog into the input structure.
     getInfo(input);
 
-    if (input.getDatabaseMeta() == null) {
+    if (input.getConnection() == null) {
       MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
       mb.setMessage(
           BaseMessages.getString(PKG, "OraBulkLoaderDialog.InvalidConnection.DialogMessage"));
@@ -1352,7 +1362,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
     try {
       OraBulkLoaderMeta info = new OraBulkLoaderMeta();
       getInfo(info);
-
+      DatabaseMeta databaseMeta = pipelineMeta.findDatabase(info.getConnection(), variables);
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
           new TransformMeta(
@@ -1365,12 +1375,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
         if (sql.hasSql()) {
           SqlEditor sqledit =
               new SqlEditor(
-                  shell,
-                  SWT.NONE,
-                  variables,
-                  info.getDatabaseMeta(),
-                  DbCache.getInstance(),
-                  sql.getSql());
+                  shell, SWT.NONE, variables, databaseMeta, DbCache.getInstance(), sql.getSql());
           sqledit.open();
         } else {
           MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
@@ -1419,7 +1424,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog {
       return;
     }
     // refresh data
-    input.setDatabaseMeta(pipelineMeta.findDatabase(wConnection.getText(), variables));
+    input.setConnection(wConnection.getText());
     input.setTableName(variables.resolve(wTable.getText()));
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {

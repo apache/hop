@@ -95,7 +95,7 @@ public class MetadataInputDialog extends BaseTransformDialog {
 
     // See if the transform receives input.
     //
-    boolean isReceivingInput = pipelineMeta.findPreviousTransforms(transformMeta).size() > 0;
+    boolean isReceivingInput = !pipelineMeta.findPreviousTransforms(transformMeta).isEmpty();
 
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);

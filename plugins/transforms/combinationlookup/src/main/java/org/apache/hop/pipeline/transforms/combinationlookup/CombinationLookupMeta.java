@@ -25,7 +25,6 @@ import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -80,7 +79,7 @@ public class CombinationLookupMeta
       storeWithName = true,
       injectionKey = "CONNECTIONNAME",
       injectionKeyDescription = "CombinationLookup.Injection.CONNECTION_NAME")
-  private DatabaseMeta databaseMeta;
+  private String connection;
 
   /** replace fields with technical key? */
   @HopMetadataProperty(
@@ -147,7 +146,7 @@ public class CombinationLookupMeta
   public void setDefault() {
     schemaName = "";
     tableName = BaseMessages.getString(PKG, "CombinationLookupMeta.DimensionTableName.Label");
-    databaseMeta = null;
+    connection = null;
     commitSize = 100;
     cacheSize = DEFAULT_CACHE_SIZE;
     replaceFields = false;
@@ -197,6 +196,9 @@ public class CombinationLookupMeta
       IHopMetadataProvider metadataProvider) {
     CheckResult cr;
     String errorMessage = "";
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
 
     if (databaseMeta != null) {
       Database db = new Database(loggingObject, variables, databaseMeta);
@@ -399,6 +401,9 @@ public class CombinationLookupMeta
       TransformMeta transformMeta,
       IRowMeta prev,
       IHopMetadataProvider metadataProvider) {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     SqlStatement retval =
         new SqlStatement(transformMeta.getName(), databaseMeta, null); // default: nothing to do!
 
@@ -647,6 +652,9 @@ public class CombinationLookupMeta
       String[] output,
       IRowMeta info,
       IHopMetadataProvider metadataProvider) {
+
+    DatabaseMeta databaseMeta =
+        getParentTransformMeta().getParentPipelineMeta().findDatabase(connection, variables);
     // The keys are read-only...
     for (int i = 0; i < fields.getKeyFields().size(); i++) {
       KeyField keyField = fields.getKeyFields().get(i);
@@ -691,22 +699,6 @@ public class CombinationLookupMeta
     return true;
   }
 
-  protected IRowMeta getDatabaseTableFields(Database db, String schemaName, String tableName)
-      throws HopDatabaseException {
-    // First try without connecting to the database... (can be S L O W)
-    String schemaTable = databaseMeta.getQuotedSchemaTableCombination(db, schemaName, tableName);
-    IRowMeta extraFields = db.getTableFields(schemaTable);
-    if (extraFields == null) { // now we need to connect
-      db.connect();
-      extraFields = db.getTableFields(schemaTable);
-    }
-    return extraFields;
-  }
-
-  Database createDatabaseObject(IVariables variables) {
-    return new Database(loggingObject, variables, databaseMeta);
-  }
-
   /**
    * Gets schemaName
    *
@@ -743,22 +735,12 @@ public class CombinationLookupMeta
     this.tableName = tableName;
   }
 
-  /**
-   * Gets databaseMeta
-   *
-   * @return value of databaseMeta
-   */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  public String getConnection() {
+    return connection;
   }
 
-  /**
-   * Sets databaseMeta
-   *
-   * @param databaseMeta value of databaseMeta
-   */
-  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
-    this.databaseMeta = databaseMeta;
+  public void setConnection(String connection) {
+    this.connection = connection;
   }
 
   /**

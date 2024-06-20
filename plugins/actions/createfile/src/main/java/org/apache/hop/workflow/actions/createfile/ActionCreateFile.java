@@ -132,7 +132,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       String realFilename = getRealFilename();
       FileObject fileObject = null;
       try {
-        fileObject = HopVfs.getFileObject(realFilename);
+        fileObject = HopVfs.getFileObject(realFilename, getVariables());
 
         if (fileObject.exists()) {
           if (isFailIfFileExists()) {
@@ -184,7 +184,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       throws HopException {
     FileObject targetFile = null;
     try {
-      targetFile = HopVfs.getFileObject(targetFilename);
+      targetFile = HopVfs.getFileObject(targetFilename, getVariables());
 
       // Add to the result files...
       ResultFile resultFile =

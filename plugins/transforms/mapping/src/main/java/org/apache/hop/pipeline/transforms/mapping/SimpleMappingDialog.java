@@ -47,6 +47,7 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -159,9 +160,9 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     // listeners.
     // Later we need to copy it to the input class on ok()
     //
-    mappingParameters = (MappingParameters) mappingMeta.getMappingParameters().clone();
-    inputMapping = (MappingIODefinition) mappingMeta.getInputMapping().clone();
-    outputMapping = (MappingIODefinition) mappingMeta.getOutputMapping().clone();
+    mappingParameters = mappingMeta.getMappingParameters().clone();
+    inputMapping = mappingMeta.getInputMapping().clone();
+    outputMapping = mappingMeta.getOutputMapping().clone();
 
     changeList = new ArrayList<>();
   }
@@ -182,7 +183,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     formLayout.marginHeight = 15;
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SimpleMappingDialog.Shell.Title"));
@@ -362,15 +363,13 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     addOutputMappingDefinitionTab(outputMapping, 1);
 
     // Prepare a regexp checker to see if the pipeline name contains a variable
-    // boolean containsVar = Pattern.matches("^[/\\w]*(\\$\\{\\w+})[/.\\w]*",
-    // mappingMeta.getFilename());
     Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
     Matcher m = p.matcher(Const.NVL(mappingMeta.getFilename(), ""));
 
     if (!m.lookingAt()) {
       try {
         loadPipeline();
-      } catch (Throwable t) {
+      } catch (Exception e) {
         // Ignore errors
       }
     }
@@ -541,6 +540,10 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     } else {
       // OUTPUT
       //
+      if (mappingPipelineMeta == null) {
+        throw new HopException(
+            BaseMessages.getString(PKG, "SimpleMappingDialog.Exception.NoMappingSpecified"));
+      }
       TransformMeta mappingOutputTransformMeta =
           mappingPipelineMeta.findMappingOutputTransform(null);
       return mappingPipelineMeta.getTransformFields(variables, mappingOutputTransformMeta);
@@ -558,9 +561,9 @@ public class SimpleMappingDialog extends BaseTransformDialog {
 
     final CTabItem wTab;
     if (index >= wTabFolder.getItemCount()) {
-      wTab = new CTabItem(wTabFolder, SWT.CLOSE);
+      wTab = new CTabItem(wTabFolder, SWT.NONE);
     } else {
-      wTab = new CTabItem(wTabFolder, SWT.CLOSE, index);
+      wTab = new CTabItem(wTabFolder, SWT.NONE, index);
     }
     wTab.setFont(GuiResource.getInstance().getFontDefault());
     setMappingDefinitionTabNameAndToolTip(wTab, tabTitle, tabTooltip, definition, input);
@@ -629,6 +632,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
           @Override
           public void widgetSelected(SelectionEvent arg0) {
             try {
+              loadPipeline();
               if (input) {
                 // INPUT
                 //
@@ -665,6 +669,11 @@ public class SimpleMappingDialog extends BaseTransformDialog {
               } else {
                 // OUTPUT
                 //
+                ITableItemInsertListener listener =
+                    (tableItem, v) -> {
+                      tableItem.setText(2, tableItem.getText((1)));
+                      return true;
+                    };
                 IRowMeta sourceRowMeta = getFieldsFromTransform(true, input);
                 BaseTransformDialog.getFieldsFromPrevious(
                     sourceRowMeta,
@@ -676,7 +685,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
                     new int[] {},
                     -1,
                     -1,
-                    null);
+                    listener);
               }
             } catch (HopException e) {
               new ErrorDialog(
@@ -771,6 +780,8 @@ public class SimpleMappingDialog extends BaseTransformDialog {
 
     transformName = wTransformName.getText(); // return value
     String pipelinePath = wPath.getText();
+    mappingMeta.setFilename(pipelinePath);
+    mappingMeta.setRunConfigurationName(wRunConfig.getText());
     // Prepare a regexp checker to see if the pipeline name contains a variable
     Pattern p = Pattern.compile("^[/\\w]*(\\$\\{\\w+})[/.\\w]*");
     Matcher m = p.matcher(mappingMeta.getFilename());
@@ -788,9 +799,6 @@ public class SimpleMappingDialog extends BaseTransformDialog {
         return;
       }
     }
-
-    mappingMeta.setFilename(pipelinePath);
-    mappingMeta.setRunConfigurationName(wRunConfig.getText());
 
     // Load the information on the tabs, optionally do some
     // verifications...

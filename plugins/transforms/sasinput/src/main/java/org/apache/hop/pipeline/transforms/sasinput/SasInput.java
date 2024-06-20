@@ -98,7 +98,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
     ResultFile resultFile =
         new ResultFile(
             ResultFile.FILE_TYPE_GENERAL,
-            HopVfs.getFileObject(filename),
+            HopVfs.getFileObject(filename, variables),
             getPipelineMeta().getName(),
             getTransformName());
     resultFile.setComment(BaseMessages.getString(PKG, "SASInput.ResultFile.Comment"));
@@ -106,7 +106,7 @@ public class SasInput extends BaseTransform<SasInputMeta, SasInputData> {
 
     // Read the SAS File
     //
-    try (InputStream inputStream = HopVfs.getInputStream(filename)) {
+    try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
       SasFileReaderImpl sasFileReader = new SasFileReaderImpl(inputStream);
       SasFileProperties sasFileProperties = sasFileReader.getSasFileProperties();
 

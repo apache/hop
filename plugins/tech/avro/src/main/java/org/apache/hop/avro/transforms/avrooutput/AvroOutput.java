@@ -678,11 +678,11 @@ public class AvroOutput extends BaseTransform<AvroOutputMeta, AvroOutputData> {
   }
 
   protected FileObject getFileObject(String vfsFilename) throws HopFileException {
-    return HopVfs.getFileObject(vfsFilename);
+    return HopVfs.getFileObject(vfsFilename, variables);
   }
 
   protected OutputStream getOutputStream(String vfsFilename, boolean append)
       throws HopFileException {
-    return HopVfs.getOutputStream(vfsFilename, append);
+    return HopVfs.getOutputStream(vfsFilename, append, variables);
   }
 }

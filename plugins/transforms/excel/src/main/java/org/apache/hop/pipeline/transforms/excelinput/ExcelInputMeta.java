@@ -796,7 +796,8 @@ public class ExcelInputMeta extends BaseTransformMeta<ExcelInput, ExcelInputData
         // Replace the filename ONLY (folder or filename)
         //
         for (EIFile file : files) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getName()));
+          FileObject fileObject =
+              HopVfs.getFileObject(variables.resolve(file.getName()), variables);
           file.setName(
               iResourceNaming.nameResource(fileObject, variables, Utils.isEmpty(file.getMask())));
         }

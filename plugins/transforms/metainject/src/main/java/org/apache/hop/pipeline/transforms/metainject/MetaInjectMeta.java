@@ -93,6 +93,8 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
   private static final String SOURCE_OUTPUT_FIELD_PRECISION = "source_output_field_precision";
 
   private static final String GROUP_AND_NAME_DELIMITER = ".";
+  private static final String CONST_SPACE = "      ";
+  private static final String CONST_SPACE_LONG = "        ";
 
   // description of the transformation to execute...
   //
@@ -132,7 +134,6 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     sourceOutputFields = new ArrayList<>();
   }
 
-  // TODO: deep copy
   @Override
   public Object clone() {
     Object retval = super.clone();
@@ -150,20 +151,20 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
     retval.append("    ").append(XmlHandler.addTagValue(SOURCE_TRANSFORM, sourceTransformName));
     retval.append("    ").append(XmlHandler.openTag(SOURCE_OUTPUT_FIELDS));
     for (MetaInjectOutputField field : sourceOutputFields) {
-      retval.append("      ").append(XmlHandler.openTag(SOURCE_OUTPUT_FIELD));
+      retval.append(CONST_SPACE).append(XmlHandler.openTag(SOURCE_OUTPUT_FIELD));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(SOURCE_OUTPUT_FIELD_NAME, field.getName()));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(SOURCE_OUTPUT_FIELD_TYPE, field.getTypeDescription()));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(SOURCE_OUTPUT_FIELD_LENGTH, field.getLength()));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(SOURCE_OUTPUT_FIELD_PRECISION, field.getPrecision()));
-      retval.append("      ").append(XmlHandler.closeTag(SOURCE_OUTPUT_FIELD));
+      retval.append(CONST_SPACE).append(XmlHandler.closeTag(SOURCE_OUTPUT_FIELD));
     }
     retval.append("    ").append(XmlHandler.closeTag(SOURCE_OUTPUT_FIELDS));
 
@@ -183,20 +184,24 @@ public class MetaInjectMeta extends BaseTransformMeta<MetaInject, MetaInjectData
 
     retval.append("    ").append(XmlHandler.openTag(MAPPINGS));
     for (TargetTransformAttribute target : targetSourceMapping.keySet()) {
-      retval.append("      ").append(XmlHandler.openTag(MAPPING));
+      retval.append(CONST_SPACE).append(XmlHandler.openTag(MAPPING));
       SourceTransformField source = targetSourceMapping.get(target);
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(TARGET_TRANSFORM_NAME, target.getTransformName()));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(TARGET_ATTRIBUTE_KEY, target.getAttributeKey()));
-      retval.append("        ").append(XmlHandler.addTagValue(TARGET_DETAIL, target.isDetail()));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
+          .append(XmlHandler.addTagValue(TARGET_DETAIL, target.isDetail()));
+      retval
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue(SOURCE_TRANSFORM, source.getTransformName()));
-      retval.append("        ").append(XmlHandler.addTagValue(SOURCE_FIELD, source.getField()));
-      retval.append("      ").append(XmlHandler.closeTag(MAPPING));
+      retval
+          .append(CONST_SPACE_LONG)
+          .append(XmlHandler.addTagValue(SOURCE_FIELD, source.getField()));
+      retval.append(CONST_SPACE).append(XmlHandler.closeTag(MAPPING));
     }
     retval.append("    ").append(XmlHandler.closeTag(MAPPINGS));
 

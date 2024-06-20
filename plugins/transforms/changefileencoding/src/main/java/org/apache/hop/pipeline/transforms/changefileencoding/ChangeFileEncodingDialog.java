@@ -96,7 +96,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "ChangeFileEncodingDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the very bottom
     wOk = new Button(shell, SWT.PUSH);

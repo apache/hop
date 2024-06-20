@@ -534,12 +534,13 @@ public class ExcelWriterTransformMeta
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if (!Utils.isEmpty(file.getFileName())) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getFileName()));
+        FileObject fileObject =
+            HopVfs.getFileObject(variables.resolve(file.getFileName()), variables);
         file.setFileName(iResourceNaming.nameResource(fileObject, variables, true));
       }
       if (!Utils.isEmpty(template.getTemplateFileName())) {
         FileObject fileObject =
-            HopVfs.getFileObject(variables.resolve(template.getTemplateFileName()));
+            HopVfs.getFileObject(variables.resolve(template.getTemplateFileName()), variables);
         template.setTemplateFileName(iResourceNaming.nameResource(fileObject, variables, true));
       }
 

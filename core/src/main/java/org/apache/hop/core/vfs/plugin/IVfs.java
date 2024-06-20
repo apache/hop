@@ -17,10 +17,14 @@
 
 package org.apache.hop.core.vfs.plugin;
 
+import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.variables.IVariables;
 
 public interface IVfs {
   String[] getUrlSchemes();
 
   FileProvider getProvider();
+
+  Map<String, FileProvider> getProviders(IVariables variables);
 }

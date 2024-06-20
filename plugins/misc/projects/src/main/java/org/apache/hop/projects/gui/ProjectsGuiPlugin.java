@@ -240,6 +240,9 @@ public class ProjectsGuiPlugin {
           HopExtensionPoint.HopGuiProjectAfterEnabled.name(),
           project);
 
+      // Reset VFS filesystem to load additional configurations
+      HopVfs.reset();
+
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);
     }

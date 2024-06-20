@@ -2219,7 +2219,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
       return;
     }
     String[] listXpath;
-    listXpath = pd.open();
+    listXpath = pd.open(variables);
     if (listXpath != null) {
       EnterSelectionDialog s =
           new EnterSelectionDialog(
@@ -2248,7 +2248,7 @@ public class GetXmlDataDialog extends BaseTransformDialog {
     RowMetaAndData[] fields = null;
 
     if (prd != null) {
-      fields = prd.open();
+      fields = prd.open(variables);
       if (fields != null) {
         if (clearFields == SWT.YES) {
           wFields.clearAll(false);

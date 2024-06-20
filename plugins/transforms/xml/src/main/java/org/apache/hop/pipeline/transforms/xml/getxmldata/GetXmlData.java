@@ -165,8 +165,8 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
       if (isInXMLField) {
         // read string to parse
         data.document = reader.read(new StringReader(stringXML));
-      } else if (readurl && HopVfs.startsWithScheme(stringXML)) {
-        data.document = reader.read(HopVfs.getInputStream(stringXML));
+      } else if (readurl && HopVfs.startsWithScheme(stringXML, variables)) {
+        data.document = reader.read(HopVfs.getInputStream(stringXML, variables));
       } else if (readurl) {
         // read url as source
         HttpClient client = HttpClientManager.getInstance().createDefaultClient();
@@ -415,7 +415,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> {
           FileObject file = null;
           try {
             // XML source is a file.
-            file = HopVfs.getFileObject(resolve(fieldvalue));
+            file = HopVfs.getFileObject(resolve(fieldvalue), variables);
 
             if (meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0) {
               logBasic(

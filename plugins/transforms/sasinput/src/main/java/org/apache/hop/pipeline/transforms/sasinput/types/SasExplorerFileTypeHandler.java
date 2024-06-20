@@ -69,7 +69,8 @@ public class SasExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     message += Const.CR;
 
     try {
-      try (InputStream inputStream = HopVfs.getInputStream(explorerFile.getFilename())) {
+      try (InputStream inputStream =
+          HopVfs.getInputStream(explorerFile.getFilename(), getVariables())) {
         SasFileReaderImpl sasFileReader = new SasFileReaderImpl(inputStream);
 
         List<Column> columns = sasFileReader.getColumns();

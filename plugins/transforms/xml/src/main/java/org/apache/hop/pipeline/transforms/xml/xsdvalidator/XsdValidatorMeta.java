@@ -427,7 +427,7 @@ public class XsdValidatorMeta extends BaseTransformMeta<XsdValidator, XsdValidat
       // To : /home/matt/test/files/foo/bar.xsd
       //
       if (!Utils.isEmpty(xsdFilename)) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(xsdFilename));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(xsdFilename), variables);
         xsdFilename = resourceNamingInterface.nameResource(fileObject, variables, true);
         return xsdFilename;
       }
