@@ -235,7 +235,7 @@ public class GetFilesRowsCount extends BaseTransform<GetFilesRowsCountMeta, GetF
                   filename));
         }
 
-        data.file = HopVfs.getFileObject(filename);
+        data.file = HopVfs.getFileObject(filename, variables);
 
         // Init Row number
         if (meta.isFileFromField()) {

@@ -417,7 +417,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
           }
           String fileValue = rowSet.getRowMeta().getString(fileRow, idx);
           try {
-            data.files.addFile(HopVfs.getFileObject(fileValue));
+            data.files.addFile(HopVfs.getFileObject(fileValue, variables));
           } catch (HopFileException e) {
             throw new HopException(
                 BaseMessages.getString(
@@ -582,7 +582,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
 
         data.workbook =
             WorkbookFactory.getWorkbook(
-                meta.getSpreadSheetType(), data.filename, meta.getEncoding());
+                meta.getSpreadSheetType(), data.filename, meta.getEncoding(), variables);
 
         data.errorHandler.handleFile(data.file);
         // Start at the first sheet again...

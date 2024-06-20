@@ -74,10 +74,8 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
       throw new HopException(e); // shouldn't happen on files
     }
 
-    if (checkFeedback(getLinesInput())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "CubeInput.Log.LineNumber") + getLinesInput());
-      }
+    if (checkFeedback(getLinesInput()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "CubeInput.Log.LineNumber") + getLinesInput());
     }
 
     return true;
@@ -95,14 +93,14 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> {
           ResultFile resultFile =
               new ResultFile(
                   ResultFile.FILE_TYPE_GENERAL,
-                  HopVfs.getFileObject(filename),
+                  HopVfs.getFileObject(filename, variables),
                   getPipelineMeta().getName(),
                   toString());
           resultFile.setComment("File was read by a Cube Input transform");
           addResultFile(resultFile);
         }
 
-        data.fis = HopVfs.getInputStream(filename);
+        data.fis = HopVfs.getInputStream(filename, variables);
         data.zip = new GZIPInputStream(data.fis);
         data.dis = new DataInputStream(data.zip);
 

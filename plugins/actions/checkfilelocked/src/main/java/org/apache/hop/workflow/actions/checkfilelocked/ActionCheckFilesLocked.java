@@ -228,7 +228,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
     for (int i = 0; i < files.length && !oneFileLocked; i++) {
       FileObject file = files[i];
       String filename = HopVfs.getFilename(file);
-      LockFile locked = new LockFile(filename);
+      LockFile locked = new LockFile(filename, getVariables());
       if (locked.isLocked()) {
         oneFileLocked = true;
         logError(BaseMessages.getString(PKG, "ActionCheckFilesLocked.Log.FileLocked", filename));

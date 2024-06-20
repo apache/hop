@@ -137,7 +137,7 @@ public class ChangeFileEncoding
                 PKG, "ChangeFileEncoding.Error.TargetFileIsEmpty", meta.getTargetFilenameField()));
       }
 
-      data.sourceFile = HopVfs.getFileObject(sourceFilename);
+      data.sourceFile = HopVfs.getFileObject(sourceFilename, variables);
 
       // Check if source file exists
       if (!data.sourceFile.exists()) {
@@ -258,7 +258,7 @@ public class ChangeFileEncoding
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL,
-                HopVfs.getFileObject(targetFilename),
+                HopVfs.getFileObject(targetFilename, variables),
                 getPipelineMeta().getName(),
                 getTransformName());
         resultFile.setComment(

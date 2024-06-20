@@ -27,6 +27,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -39,15 +40,17 @@ public class PoiWorkbook implements IKWorkbook {
   private Workbook workbook;
   private String filename;
   private String encoding;
+  private IVariables variables;
 
   private POIFSFileSystem poifs;
 
-  public PoiWorkbook(String filename, String encoding) throws HopException {
+  public PoiWorkbook(String filename, String encoding, IVariables variables) throws HopException {
     this.filename = filename;
     this.encoding = encoding;
     this.log = HopLogStore.getLogChannelFactory().create(this);
+    this.variables = variables;
     try {
-      FileObject fileObject = HopVfs.getFileObject(filename);
+      FileObject fileObject = HopVfs.getFileObject(filename, variables);
       if (fileObject instanceof LocalFile) {
         // This supposedly shaves off a little bit of memory usage by allowing POI to randomly
         // access data in the file
@@ -61,7 +64,7 @@ public class PoiWorkbook implements IKWorkbook {
           workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(excelFile, null, true);
         }
       } else {
-        try (InputStream internalIS = HopVfs.getInputStream(filename)) {
+        try (InputStream internalIS = HopVfs.getInputStream(filename, variables)) {
           workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(internalIS);
         }
       }

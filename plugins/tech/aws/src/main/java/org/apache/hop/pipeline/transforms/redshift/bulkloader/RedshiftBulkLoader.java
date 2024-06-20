@@ -71,7 +71,8 @@ public class RedshiftBulkLoader
 
         if (meta.isStreamToS3Csv()) {
           // get the file output stream to write to S3
-          data.writer = HopVfs.getOutputStream(resolve(meta.getCopyFromFilename()), false);
+          data.writer =
+              HopVfs.getOutputStream(resolve(meta.getCopyFromFilename()), false, variables);
         }
 
         data.db = new Database(this, this, data.databaseMeta);

@@ -51,9 +51,11 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/emailinput.html")
 public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
+  private static final String CONST_SPACE = "      ";
+  private static final String CONST_FIELD = "field";
 
   public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
-  public static int DEFAULT_BATCH_SIZE = 500;
+  public static final int DEFAULT_BATCH_SIZE = 500;
 
   public int conditionReceivedDate;
 
@@ -184,11 +186,11 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
 
     rowlimit = XmlHandler.getTagValue(transformNode, "rowlimit");
     Node fields = XmlHandler.getSubNode(transformNode, "fields");
-    int nrFields = XmlHandler.countNodes(fields, "field");
+    int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
     allocate(nrFields);
     for (int i = 0; i < nrFields; i++) {
-      Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+      Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
       inputFields[i] = new MailInputField();
       inputFields[i].setName(XmlHandler.getTagValue(fnode, "name"));
       inputFields[i].setColumn(
@@ -238,7 +240,7 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
     allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      inputFields[i] = new MailInputField("field" + (i + 1));
+      inputFields[i] = new MailInputField(CONST_FIELD + (i + 1));
     }
   }
 
@@ -253,58 +255,60 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
   @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
-    String tab = "      ";
-    retval.append("      ").append(XmlHandler.addTagValue("servername", servername));
-    retval.append("      ").append(XmlHandler.addTagValue("username", username));
+    String tab = CONST_SPACE;
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("servername", servername));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("username", username));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
-    retval.append("      ").append(XmlHandler.addTagValue("usessl", usessl));
-    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
-    retval.append("      ").append(XmlHandler.addTagValue("sslport", sslport));
-    retval.append("      ").append(XmlHandler.addTagValue("retrievemails", retrievemails));
-    retval.append("      ").append(XmlHandler.addTagValue("firstmails", firstmails));
-    retval.append("      ").append(XmlHandler.addTagValue("delete", delete));
-    retval.append("      ").append(XmlHandler.addTagValue("protocol", protocol));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("usessl", usessl));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("sslport", sslport));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("retrievemails", retrievemails));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("firstmails", firstmails));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("delete", delete));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("protocol", protocol));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue(
                 "valueimaplist", MailConnectionMeta.getValueImapListCode(valueimaplist)));
-    retval.append("      ").append(XmlHandler.addTagValue("imapfirstmails", imapfirstmails));
-    retval.append("      ").append(XmlHandler.addTagValue("imapfolder", imapfolder));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("imapfirstmails", imapfirstmails));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("imapfolder", imapfolder));
     // search term
-    retval.append("      ").append(XmlHandler.addTagValue("sendersearch", senderSearch));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("sendersearch", senderSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("nottermsendersearch", notTermSenderSearch));
 
-    retval.append("      ").append(XmlHandler.addTagValue("recipientsearch", recipientSearch));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("recipientsearch", recipientSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("notTermRecipientSearch", notTermRecipientSearch));
-    retval.append("      ").append(XmlHandler.addTagValue("subjectsearch", subjectSearch));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("subjectsearch", subjectSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("nottermsubjectsearch", notTermSubjectSearch));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue(
                 "conditionreceiveddate",
                 MailConnectionMeta.getConditionDateCode(conditionReceivedDate)));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("nottermreceiveddatesearch", notTermReceivedDateSearch));
-    retval.append("      ").append(XmlHandler.addTagValue("receiveddate1", receivedDate1));
-    retval.append("      ").append(XmlHandler.addTagValue("receiveddate2", receivedDate2));
-    retval.append("      ").append(XmlHandler.addTagValue("includesubfolders", includesubfolders));
-    retval.append("      ").append(XmlHandler.addTagValue("useproxy", useproxy));
-    retval.append("      ").append(XmlHandler.addTagValue("proxyusername", proxyusername));
-    retval.append("      ").append(XmlHandler.addTagValue("usedynamicfolder", usedynamicfolder));
-    retval.append("      ").append(XmlHandler.addTagValue("folderfield", folderfield));
-    retval.append("      ").append(XmlHandler.addTagValue("rowlimit", rowlimit));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("receiveddate1", receivedDate1));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("receiveddate2", receivedDate2));
+    retval
+        .append(CONST_SPACE)
+        .append(XmlHandler.addTagValue("includesubfolders", includesubfolders));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("useproxy", useproxy));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("proxyusername", proxyusername));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("usedynamicfolder", usedynamicfolder));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("folderfield", folderfield));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("rowlimit", rowlimit));
     retval.append(tab).append(XmlHandler.addTagValue(Tags.USE_BATCH, useBatch));
     retval.append(tab).append(XmlHandler.addTagValue(Tags.BATCH_SIZE, batchSize));
     retval.append(tab).append(XmlHandler.addTagValue(Tags.START_MSG, start));
@@ -655,21 +659,20 @@ public class MailInputMeta extends BaseTransformMeta<MailInput, MailInputData> {
       MailInputField field = inputFields[i];
       IValueMeta v = new ValueMetaString(variables.resolve(field.getName()));
       switch (field.getColumn()) {
-        case MailInputField.COLUMN_MESSAGE_NR:
-        case MailInputField.COLUMN_SIZE:
-        case MailInputField.COLUMN_ATTACHED_FILES_COUNT:
+        case MailInputField.COLUMN_MESSAGE_NR,
+            MailInputField.COLUMN_SIZE,
+            MailInputField.COLUMN_ATTACHED_FILES_COUNT:
           v = new ValueMetaInteger(variables.resolve(field.getName()));
           v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
           break;
-        case MailInputField.COLUMN_RECEIVED_DATE:
-        case MailInputField.COLUMN_SENT_DATE:
+        case MailInputField.COLUMN_RECEIVED_DATE, MailInputField.COLUMN_SENT_DATE:
           v = new ValueMetaDate(variables.resolve(field.getName()));
           break;
-        case MailInputField.COLUMN_FLAG_DELETED:
-        case MailInputField.COLUMN_FLAG_DRAFT:
-        case MailInputField.COLUMN_FLAG_FLAGGED:
-        case MailInputField.COLUMN_FLAG_NEW:
-        case MailInputField.COLUMN_FLAG_READ:
+        case MailInputField.COLUMN_FLAG_DELETED,
+            MailInputField.COLUMN_FLAG_DRAFT,
+            MailInputField.COLUMN_FLAG_FLAGGED,
+            MailInputField.COLUMN_FLAG_NEW,
+            MailInputField.COLUMN_FLAG_READ:
           v = new ValueMetaBoolean(variables.resolve(field.getName()));
           break;
         default:

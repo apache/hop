@@ -749,7 +749,7 @@ public class XmlOutputMeta extends BaseTransformMeta<XmlOutput, XmlOutputData> {
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if (!Utils.isEmpty(fileName)) {
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName));
+        FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName), variables);
         fileName = resourceNamingInterface.nameResource(fileObject, variables, true);
       }
 

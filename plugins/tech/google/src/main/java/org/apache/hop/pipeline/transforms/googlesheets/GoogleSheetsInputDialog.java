@@ -483,7 +483,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
           GoogleSheetsCredentials.getCredentialsJson(
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
-              variables.resolve(meta.getImpersonation()));
+              variables.resolve(meta.getImpersonation()),
+              variables);
       //
       new Drive.Builder(
               HTTP_TRANSPORT,
@@ -507,7 +508,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
           GoogleSheetsCredentials.getCredentialsJson(
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
-              variables.resolve(meta.getImpersonation()));
+              variables.resolve(meta.getImpersonation()),
+              variables);
       //
       Drive service =
           new Drive.Builder(
@@ -573,7 +575,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
           GoogleSheetsCredentials.getCredentialsJson(
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
-              variables.resolve(meta.getImpersonation()));
+              variables.resolve(meta.getImpersonation()),
+              variables);
       //
       Sheets service =
           new Sheets.Builder(
@@ -779,7 +782,8 @@ public class GoogleSheetsInputDialog extends BaseTransformDialog {
           GoogleSheetsCredentials.getCredentialsJson(
               scope,
               variables.resolve(meta.getJsonCredentialPath()),
-              variables.resolve(meta.getImpersonation()));
+              variables.resolve(meta.getImpersonation()),
+              variables);
       Sheets service =
           new Sheets.Builder(
                   HTTP_TRANSPORT,

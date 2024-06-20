@@ -357,6 +357,25 @@ public class HopVfs {
     }
   }
 
+  public static boolean fileExists(String vfsFilename, IVariables variables)
+      throws HopFileException {
+    FileObject fileObject = null;
+    try {
+      fileObject = getFileObject(vfsFilename, variables);
+      return fileObject.exists();
+    } catch (IOException e) {
+      throw new HopFileException(e);
+    } finally {
+      if (fileObject != null) {
+        try {
+          fileObject.close();
+        } catch (Exception e) {
+          /* Ignore */
+        }
+      }
+    }
+  }
+
   public static InputStream getInputStream(FileObject fileObject) throws FileSystemException {
     FileContent content = fileObject.getContent();
     return content.getInputStream();
@@ -546,6 +565,46 @@ public class HopVfs {
     }
   }
 
+  /**
+   * @param prefix - file name
+   * @param suffix - file extension
+   * @param directory - directory where file will be created
+   * @return FileObject
+   * @throws HopFileException
+   */
+  public static synchronized FileObject createTempFile(
+      String prefix, String suffix, String directory, IVariables variables)
+      throws HopFileException {
+    try {
+      FileObject fileObject;
+      do {
+        // Temporary files are always stored locally.
+        // No other schemes besides file:// make sense
+        //
+        String baseUrl;
+        if (directory.contains("://")) {
+          baseUrl = directory;
+        } else {
+          File directoryFile = new File(directory);
+          baseUrl = "file://" + directoryFile.getAbsolutePath();
+        }
+
+        // Build temporary file name using UUID to ensure uniqueness. Old mechanism would fail using
+        // Sort Rows (for example)
+        // when there multiple nodes with multiple JVMs on each node. In this case, the temp file
+        // names would end up being
+        // duplicated which would cause the sort to fail.
+        //
+        String filename = baseUrl + "/" + prefix + "_" + UUID.randomUUID() + suffix;
+
+        fileObject = getFileObject(filename, variables);
+      } while (fileObject.exists());
+      return fileObject;
+    } catch (IOException e) {
+      throw new HopFileException(e);
+    }
+  }
+
   public static Comparator<FileObject> getComparator() {
     return (o1, o2) -> {
       String filename1 = getFilename(o1);
@@ -561,11 +620,11 @@ public class HopVfs {
    * @param vfsFileName
    * @return boolean
    */
-  public static boolean startsWithScheme(String vfsFileName) {
+  public static boolean startsWithScheme(String vfsFileName, IVariables variables) {
     lock.readLock().lock();
     try {
 
-      DefaultFileSystemManager fsManager = getFileSystemManager();
+      DefaultFileSystemManager fsManager = getFileSystemManager(variables);
 
       boolean found = false;
       String[] schemes = fsManager.getSchemes();

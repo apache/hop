@@ -412,7 +412,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
           for (int i = 0; i < meta.getEmbeddedImages().length; i++) {
             String imageFile = resolve(meta.getEmbeddedImages()[i]);
             String contentID = resolve(meta.getContentIds()[i]);
-            image = HopVfs.getFileObject(imageFile);
+            image = HopVfs.getFileObject(imageFile, variables);
 
             if (image.exists() && image.getType() == FileType.FILE) {
               // Create part for the image
@@ -847,7 +847,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
       }
 
       if (!Utils.isEmpty(realSourceFileFoldername)) {
-        sourcefile = HopVfs.getFileObject(realSourceFileFoldername);
+        sourcefile = HopVfs.getFileObject(realSourceFileFoldername, variables);
         if (sourcefile.exists()) {
           long fileSize = 0;
           FileObject[] list = null;
@@ -874,7 +874,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
             for (int i = 0; i < list.length; i++) {
 
-              file = HopVfs.getFileObject(HopVfs.getFilename(list[i]));
+              file = HopVfs.getFileObject(HopVfs.getFilename(list[i]), variables);
 
               if (zipFiles) {
 
@@ -918,7 +918,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
                 for (int i = 0; i < list.length; i++) {
 
-                  file = HopVfs.getFileObject(HopVfs.getFilename(list[i]));
+                  file = HopVfs.getFileObject(HopVfs.getFilename(list[i]), variables);
 
                   ZipEntry zipEntry = new ZipEntry(file.getName().getBaseName());
                   zipOutputStream.putNextEntry(zipEntry);
@@ -935,7 +935,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
                 }
               }
               if (data.zipFileLimit > 0 && fileSize > data.zipFileLimit || data.zipFileLimit == 0) {
-                file = HopVfs.getFileObject(masterZipfile.getAbsolutePath());
+                file = HopVfs.getFileObject(masterZipfile.getAbsolutePath(), variables);
                 addAttachedFilePart(file);
               }
             }
@@ -1009,7 +1009,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> {
 
   private void addImagePart() throws Exception {
     data.nrEmbeddedImages = 0;
-    if (data.embeddedMimePart != null && data.embeddedMimePart.size() > 0) {
+    if (data.embeddedMimePart != null && !data.embeddedMimePart.isEmpty()) {
       for (Iterator<MimeBodyPart> i = data.embeddedMimePart.iterator(); i.hasNext(); ) {
         MimeBodyPart part = i.next();
         data.parts.addBodyPart(part);

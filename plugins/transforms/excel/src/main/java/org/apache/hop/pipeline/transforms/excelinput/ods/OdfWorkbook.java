@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
@@ -35,13 +36,15 @@ public class OdfWorkbook implements IKWorkbook {
   private String encoding;
   private OdfDocument document;
   private Map<String, OdfSheet> openSheetsMap = new HashMap<>();
+  private IVariables variables;
 
-  public OdfWorkbook(String filename, String encoding) throws HopException {
+  public OdfWorkbook(String filename, String encoding, IVariables variables) throws HopException {
     this.filename = filename;
     this.encoding = encoding;
+    this.variables = variables;
 
     try {
-      document = OdfSpreadsheetDocument.loadDocument(HopVfs.getInputStream(filename));
+      document = OdfSpreadsheetDocument.loadDocument(HopVfs.getInputStream(filename, variables));
     } catch (Exception e) {
       throw new HopException(e);
     }

@@ -144,7 +144,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
         log.logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
         throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.SourceFileEmpty"));
       }
-      data.sourceFile = HopVfs.getFileObject(sourceFilename);
+      data.sourceFile = HopVfs.getFileObject(sourceFilename, variables);
 
       // Check sourcefile
       boolean skip = false;
@@ -186,7 +186,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
           log.logError(toString(), BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
           throw new HopException(BaseMessages.getString(PKG, "ZipFile.Error.TargetFileEmpty"));
         }
-        data.zipFile = HopVfs.getFileObject(targetFilename);
+        data.zipFile = HopVfs.getFileObject(targetFilename, variables);
         if (data.zipFile.exists()) {
           if (log.isDetailed()) {
             log.logDetailed(
@@ -268,7 +268,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
         FileObject moveToFolder = null;
         try {
           // Move to folder
-          moveToFolder = HopVfs.getFileObject(folder);
+          moveToFolder = HopVfs.getFileObject(folder, variables);
 
           if (moveToFolder.exists()) {
             if (moveToFolder.getType() != FileType.FOLDER) {
@@ -284,7 +284,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
               HopVfs.getFilename(moveToFolder)
                   + Const.FILE_SEPARATOR
                   + data.sourceFile.getName().getBaseName();
-          file = HopVfs.getFileObject(targetfilename);
+          file = HopVfs.getFileObject(targetfilename, variables);
 
           // Move file
           data.sourceFile.moveTo(file);
@@ -378,7 +378,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta, ZipFileData> {
 
       // Prepare Zip File
       buffer = new byte[18024];
-      dest = HopVfs.getOutputStream(localrealZipfilename, false);
+      dest = HopVfs.getOutputStream(localrealZipfilename, false, variables);
       buff = new BufferedOutputStream(dest);
       out = new ZipOutputStream(buff);
 

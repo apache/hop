@@ -420,7 +420,8 @@ public class TikaMeta extends BaseTransformMeta<Tika, TikaData> {
       //
       if (!fileInField) {
         for (TikaFile file : files) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(file.getName()));
+          FileObject fileObject =
+              HopVfs.getFileObject(variables.resolve(file.getName()), variables);
           file.setName(
               iResourceNaming.nameResource(
                   fileObject, variables, StringUtils.isEmpty(file.getMask())));

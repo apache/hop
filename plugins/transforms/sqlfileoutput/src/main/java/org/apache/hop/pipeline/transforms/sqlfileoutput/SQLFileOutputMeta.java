@@ -59,6 +59,8 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/sqlfileoutput.html")
 public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileOutputData> {
   private static final Class<?> PKG = SQLFileOutputMeta.class; // For Translator
+  private static final String CONST_SPACE = "      ";
+  private static final String CONST_SPACE_SHORT = "    ";
 
   private String connection;
   private String schemaName;
@@ -118,9 +120,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   @Override
   public Object clone() {
 
-    SQLFileOutputMeta retval = (SQLFileOutputMeta) super.clone();
-
-    return retval;
+    return (SQLFileOutputMeta) super.clone();
   }
 
   /**
@@ -487,28 +487,29 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
   public String getXml() {
     StringBuilder retval = new StringBuilder();
 
-    retval.append("    " + XmlHandler.addTagValue("connection", connection));
-    retval.append("    " + XmlHandler.addTagValue("schema", schemaName));
-    retval.append("    " + XmlHandler.addTagValue("table", tableName));
-    retval.append("    " + XmlHandler.addTagValue("truncate", truncateTable));
-    retval.append("    " + XmlHandler.addTagValue("create", createTable));
-    retval.append("    " + XmlHandler.addTagValue("encoding", encoding));
-    retval.append("    " + XmlHandler.addTagValue("dateformat", dateformat));
-    retval.append("    " + XmlHandler.addTagValue("addtoresult", addToResult));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("connection", connection));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("schema", schemaName));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("table", tableName));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("truncate", truncateTable));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("create", createTable));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("encoding", encoding));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("dateformat", dateformat));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("addtoresult", addToResult));
 
-    retval.append("    " + XmlHandler.addTagValue("startnewline", startNewLine));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("startnewline", startNewLine));
 
     retval.append("    <file>" + Const.CR);
-    retval.append("      " + XmlHandler.addTagValue("name", fileName));
-    retval.append("      " + XmlHandler.addTagValue("extention", extension));
-    retval.append("      " + XmlHandler.addTagValue("append", fileAppended));
-    retval.append("      " + XmlHandler.addTagValue("split", transformNrInFilename));
-    retval.append("      " + XmlHandler.addTagValue("haspartno", partNrInFilename));
-    retval.append("      " + XmlHandler.addTagValue("add_date", dateInFilename));
-    retval.append("      " + XmlHandler.addTagValue("add_time", timeInFilename));
-    retval.append("      " + XmlHandler.addTagValue("splitevery", splitEvery));
-    retval.append("      " + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
-    retval.append("      " + XmlHandler.addTagValue("DoNotOpenNewFileInit", doNotOpenNewFileInit));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("name", fileName));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("extention", extension));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("append", fileAppended));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("split", transformNrInFilename));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("haspartno", partNrInFilename));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("add_date", dateInFilename));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("add_time", timeInFilename));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("splitevery", splitEvery));
+    retval.append(CONST_SPACE + XmlHandler.addTagValue("create_parent_folder", createparentfolder));
+    retval.append(
+        CONST_SPACE + XmlHandler.addTagValue("DoNotOpenNewFileInit", doNotOpenNewFileInit));
 
     retval.append("      </file>" + Const.CR);
 
@@ -924,7 +925,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta<SQLFileOutput, SQLFileO
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName));
+      FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName), variables);
 
       // If the file doesn't exist, forget about this effort too!
       //

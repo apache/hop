@@ -102,7 +102,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
         logError(BaseMessages.getString(PKG, "ProcessFiles.Error.SourceFileEmpty"));
         throw new HopException(BaseMessages.getString(PKG, "ProcessFiles.Error.SourceFileEmpty"));
       }
-      data.sourceFile = HopVfs.getFileObject(sourceFilename);
+      data.sourceFile = HopVfs.getFileObject(sourceFilename, variables);
 
       if (!data.sourceFile.exists()) {
         logError(
@@ -125,7 +125,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           logError(BaseMessages.getString(PKG, "ProcessFiles.Error.TargetFileEmpty"));
           throw new HopException(BaseMessages.getString(PKG, "ProcessFiles.Error.TargetFileEmpty"));
         }
-        data.targetFile = HopVfs.getFileObject(targetFilename);
+        data.targetFile = HopVfs.getFileObject(targetFilename, variables);
         if (data.targetFile.exists()) {
           if (log.isDetailed()) {
             logDetailed(
@@ -190,7 +190,7 @@ public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesDa
           if (((meta.isOverwriteTargetFile() && data.targetFile.exists())
                   || !data.targetFile.exists())
               && !meta.simulate) {
-            data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename));
+            data.sourceFile.moveTo(HopVfs.getFileObject(targetFilename, variables));
             if (log.isDetailed()) {
               logDetailed(
                   BaseMessages.getString(

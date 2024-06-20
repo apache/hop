@@ -59,6 +59,9 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     implements Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
   private static final Class<?> PKG = SortRowsMeta.class; // For Translator
+  private static final String CONST_SPACE = "      ";
+  private static final String CONST_SPACE_LONG = "        ";
+  private static final String CONST_FIELD = "field";
 
   /** order by which fields? */
   @Injection(name = "NAME", group = "FIELDS")
@@ -221,13 +224,13 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
           "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "unique_rows"));
 
       Node fields = XmlHandler.getSubNode(transformNode, "fields");
-      int nrFields = XmlHandler.countNodes(fields, "field");
+      int nrFields = XmlHandler.countNodes(fields, CONST_FIELD);
 
       allocate(nrFields);
       String defaultStrength = Integer.toString(this.getDefaultCollationStrength());
 
       for (int i = 0; i < nrFields; i++) {
-        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
+        Node fnode = XmlHandler.getSubNodeByNr(fields, CONST_FIELD, i);
 
         fieldName[i] = XmlHandler.getTagValue(fnode, "name");
         String asc = XmlHandler.getTagValue(fnode, "ascending");
@@ -262,7 +265,7 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
     allocate(nrFields);
 
     for (int i = 0; i < nrFields; i++) {
-      fieldName[i] = "field" + i;
+      fieldName[i] = CONST_FIELD + i;
       caseSensitive[i] = true;
       collatorEnabled[i] = false;
       collatorStrength[i] = 0;
@@ -273,29 +276,33 @@ public class SortRowsMeta extends BaseTransformMeta<SortRows, SortRowsData>
   @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder(256);
-    retval.append("      ").append(XmlHandler.addTagValue("directory", directory));
-    retval.append("      ").append(XmlHandler.addTagValue("prefix", prefix));
-    retval.append("      ").append(XmlHandler.addTagValue("sort_size", sortSize));
-    retval.append("      ").append(XmlHandler.addTagValue("free_memory", freeMemoryLimit));
-    retval.append("      ").append(XmlHandler.addTagValue("compress", compressFiles));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("directory", directory));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("prefix", prefix));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("sort_size", sortSize));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("free_memory", freeMemoryLimit));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("compress", compressFiles));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("compress_variable", compressFilesVariable));
-    retval.append("      ").append(XmlHandler.addTagValue("unique_rows", onlyPassingUniqueRows));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("unique_rows", onlyPassingUniqueRows));
 
     retval.append("    <fields>").append(Const.CR);
     for (int i = 0; i < fieldName.length; i++) {
       retval.append("      <field>").append(Const.CR);
-      retval.append("        ").append(XmlHandler.addTagValue("name", fieldName[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("ascending", ascending[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("case_sensitive", caseSensitive[i]));
+      retval.append(CONST_SPACE_LONG).append(XmlHandler.addTagValue("name", fieldName[i]));
+      retval.append(CONST_SPACE_LONG).append(XmlHandler.addTagValue("ascending", ascending[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
+          .append(XmlHandler.addTagValue("case_sensitive", caseSensitive[i]));
+      retval
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue("collator_enabled", collatorEnabled[i]));
       retval
-          .append("        ")
+          .append(CONST_SPACE_LONG)
           .append(XmlHandler.addTagValue("collator_strength", collatorStrength[i]));
-      retval.append("        ").append(XmlHandler.addTagValue("presorted", preSortedField[i]));
+      retval
+          .append(CONST_SPACE_LONG)
+          .append(XmlHandler.addTagValue("presorted", preSortedField[i]));
       retval.append("      </field>").append(Const.CR);
     }
     retval.append("    </fields>").append(Const.CR);

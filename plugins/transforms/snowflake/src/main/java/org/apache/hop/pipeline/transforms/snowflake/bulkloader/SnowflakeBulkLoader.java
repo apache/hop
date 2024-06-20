@@ -629,7 +629,8 @@ public class SnowflakeBulkLoader
       data.writer = new BufferedOutputStream(data.out, 5000);
 
       if (log.isDetailed()) {
-        logDetailed("Opened new file with name [" + HopVfs.getFriendlyURI(filename) + "]");
+        logDetailed(
+            "Opened new file with name [" + HopVfs.getFriendlyURI(filename, variables) + "]");
       }
 
     } catch (Exception e) {
@@ -779,7 +780,7 @@ public class SnowflakeBulkLoader
         || !Boolean.parseBoolean(resolve(SnowflakeBulkLoaderMeta.DEBUG_MODE_VAR))) {
       for (String filename : data.previouslyOpenedFiles) {
         try {
-          HopVfs.getFileObject(filename).delete();
+          HopVfs.getFileObject(filename, variables).delete();
           logDetailed("Deleted temp file " + filename);
         } catch (Exception ex) {
           logMinimal("Unable to delete temp file", ex);
@@ -872,7 +873,7 @@ public class SnowflakeBulkLoader
    * @throws HopFileException
    */
   protected FileObject getFileObject(String vfsFilename) throws HopFileException {
-    return HopVfs.getFileObject(vfsFilename);
+    return HopVfs.getFileObject(vfsFilename, variables);
   }
 
   /**
@@ -885,7 +886,7 @@ public class SnowflakeBulkLoader
    */
   protected FileObject getFileObject(String vfsFilename, IVariables variables)
       throws HopFileException {
-    return HopVfs.getFileObject(vfsFilename);
+    return HopVfs.getFileObject(vfsFilename, variables);
   }
 
   /**
@@ -899,6 +900,6 @@ public class SnowflakeBulkLoader
    */
   private OutputStream getOutputStream(String vfsFilename, IVariables variables, boolean append)
       throws HopFileException {
-    return HopVfs.getOutputStream(vfsFilename, append);
+    return HopVfs.getOutputStream(vfsFilename, append, variables);
   }
 }
