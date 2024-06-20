@@ -26,6 +26,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -62,23 +63,25 @@ public class XsltData extends BaseTransformData implements ITransformData {
     setOutputProperties = false;
   }
 
-  public Transformer getTemplate(String xslFilename, boolean isAfile) throws Exception {
+  public Transformer getTemplate(String xslFilename, boolean isAfile, IVariables variables)
+      throws Exception {
     Transformer template = transformers.get(xslFilename);
     if (template != null) {
       template.clearParameters();
       return template;
     }
 
-    return createNewTemplate(xslFilename, isAfile);
+    return createNewTemplate(xslFilename, isAfile, variables);
   }
 
-  private Transformer createNewTemplate(String xslSource, boolean isAfile) throws Exception {
+  private Transformer createNewTemplate(String xslSource, boolean isAfile, IVariables variables)
+      throws Exception {
     FileObject file = null;
     InputStream xslInputStream = null;
     Transformer transformer = null;
     try {
       if (isAfile) {
-        file = HopVfs.getFileObject(xslSource);
+        file = HopVfs.getFileObject(xslSource, variables);
         xslInputStream = HopVfs.getInputStream(file);
       } else {
         xslInputStream = new ByteArrayInputStream(xslSource.getBytes("UTF-8"));

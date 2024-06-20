@@ -114,10 +114,8 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
 
     putRow(data.outputMeta, r); // in case we want it to go further...
 
-    if (checkFeedback(getLinesOutput())) {
-      if (log.isBasic()) {
-        logBasic(BaseMessages.getString(PKG, "CubeOutput.Log.LineNumber") + getLinesOutput());
-      }
+    if (checkFeedback(getLinesOutput()) && log.isBasic()) {
+      logBasic(BaseMessages.getString(PKG, "CubeOutput.Log.LineNumber") + getLinesOutput());
     }
 
     return result;
@@ -172,7 +170,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
     try {
       String filename = resolve(meta.getFilename());
 
-      FileObject fileObject = HopVfs.getFileObject(filename);
+      FileObject fileObject = HopVfs.getFileObject(filename, variables);
 
       // See if we need to create the parent folder(s)...
       //
@@ -192,7 +190,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> {
         addResultFile(resultFile);
       }
 
-      data.fos = HopVfs.getOutputStream(filename, false);
+      data.fos = HopVfs.getOutputStream(filename, false, variables);
       data.zip = new GZIPOutputStream(data.fos);
       data.dos = new DataOutputStream(data.zip);
     } catch (Exception e) {

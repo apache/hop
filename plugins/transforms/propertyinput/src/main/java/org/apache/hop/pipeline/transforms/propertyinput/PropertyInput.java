@@ -405,7 +405,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
                   filename));
         }
 
-        data.file = HopVfs.getFileObject(filename);
+        data.file = HopVfs.getFileObject(filename, variables);
         // Check if file exists!
       }
 

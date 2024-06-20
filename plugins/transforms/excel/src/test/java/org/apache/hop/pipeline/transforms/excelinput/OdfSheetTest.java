@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.spreadsheet.IKCell;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.transforms.excelinput.ods.OdfSheet;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,12 +38,14 @@ public class OdfSheetTest {
         WorkbookFactory.getWorkbook(
             SpreadSheetType.ODS,
             this.getClass().getResource("files/sample-3.4.1.ods").getPath(),
-            null);
+            null,
+            new Variables());
     ods24 =
         WorkbookFactory.getWorkbook(
             SpreadSheetType.ODS,
             this.getClass().getResource("files/sample-2.4.ods").getPath(),
-            null);
+            null,
+            new Variables());
   }
 
   @Test

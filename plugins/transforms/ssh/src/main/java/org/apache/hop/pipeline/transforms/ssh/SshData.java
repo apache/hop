@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 public class SshData extends BaseTransformData implements ITransformData {
+  private static final Class<?> PKG = SshMeta.class; // For Translator
   public int indexOfCommand;
   public Connection conn;
   public boolean wroteOneRow;
@@ -79,14 +80,13 @@ public class SshData extends BaseTransformData implements ITransformData {
       if (meta.isUsePrivateKey()) {
         String keyFilename = variables.resolve(meta.getKeyFileName());
         if (StringUtils.isEmpty(keyFilename)) {
-          throw new HopException(
-              BaseMessages.getString(SshMeta.PKG, "SSH.Error.PrivateKeyFileMissing"));
+          throw new HopException(BaseMessages.getString(PKG, "SSH.Error.PrivateKeyFileMissing"));
         }
-        FileObject keyFileObject = HopVfs.getFileObject(keyFilename);
+        FileObject keyFileObject = HopVfs.getFileObject(keyFilename, variables);
 
         if (!keyFileObject.exists()) {
           throw new HopException(
-              BaseMessages.getString(SshMeta.PKG, "SSH.Error.PrivateKeyNotExist", keyFilename));
+              BaseMessages.getString(PKG, "SSH.Error.PrivateKeyNotExist", keyFilename));
         }
 
         FileContent keyFileContent = keyFileObject.getContent();
@@ -139,7 +139,7 @@ public class SshData extends BaseTransformData implements ITransformData {
       }
       if (!isAuthenticated) {
         throw new HopException(
-            BaseMessages.getString(SshMeta.PKG, "SSH.Error.AuthenticationFailed", username));
+            BaseMessages.getString(PKG, "SSH.Error.AuthenticationFailed", username));
       }
     } catch (Exception e) {
       // Something wrong happened
@@ -148,7 +148,7 @@ public class SshData extends BaseTransformData implements ITransformData {
         connection.close();
       }
       throw new HopException(
-          BaseMessages.getString(SshMeta.PKG, "SSH.Error.ErrorConnecting", hostname, username), e);
+          BaseMessages.getString(PKG, "SSH.Error.ErrorConnecting", hostname, username), e);
     }
     return connection;
   }

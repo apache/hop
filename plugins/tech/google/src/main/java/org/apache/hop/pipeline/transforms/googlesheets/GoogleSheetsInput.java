@@ -77,7 +77,10 @@ public class GoogleSheetsInput extends BaseTransform<GoogleSheetsInputMeta, Goog
       try {
         HttpRequestInitializer credential =
             GoogleSheetsCredentials.getCredentialsJson(
-                scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
+                scope,
+                resolve(meta.getJsonCredentialPath()),
+                resolve(meta.getImpersonation()),
+                variables);
         Sheets service =
             new Sheets.Builder(
                     HTTP_TRANSPORT,

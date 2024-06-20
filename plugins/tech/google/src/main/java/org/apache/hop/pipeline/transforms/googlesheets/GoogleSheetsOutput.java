@@ -88,7 +88,10 @@ public class GoogleSheetsOutput
 
         HttpRequestInitializer credential =
             GoogleSheetsCredentials.getCredentialsJson(
-                scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
+                scope,
+                resolve(meta.getJsonCredentialPath()),
+                resolve(meta.getImpersonation()),
+                variables);
         Drive service =
             new Drive.Builder(
                     HTTP_TRANSPORT,
@@ -321,7 +324,10 @@ public class GoogleSheetsOutput
           String scope = SheetsScopes.SPREADSHEETS;
           HttpRequestInitializer credential =
               GoogleSheetsCredentials.getCredentialsJson(
-                  scope, resolve(meta.getJsonCredentialPath()), resolve(meta.getImpersonation()));
+                  scope,
+                  resolve(meta.getJsonCredentialPath()),
+                  resolve(meta.getImpersonation()),
+                  variables);
           data.service =
               new Sheets.Builder(
                       HTTP_TRANSPORT,

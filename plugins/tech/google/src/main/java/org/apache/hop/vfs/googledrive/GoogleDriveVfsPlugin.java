@@ -17,7 +17,9 @@
 
 package org.apache.hop.vfs.googledrive;
 
+import java.util.Map;
 import org.apache.commons.vfs2.provider.FileProvider;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPlugin;
 
@@ -31,5 +33,10 @@ public class GoogleDriveVfsPlugin implements IVfs {
   @Override
   public FileProvider getProvider() {
     return new GoogleDriveFileProvider();
+  }
+
+  @Override
+  public Map<String, FileProvider> getProviders(IVariables variables) {
+    return null;
   }
 }

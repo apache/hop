@@ -156,7 +156,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "GetFileNamesDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -981,7 +981,7 @@ public class GetFileNamesDialog extends BaseTransformDialog {
   public void getData(GetFileNamesMeta meta) {
     final GetFileNamesMeta in = meta;
 
-    if (in.getFilesList().size() > 0) {
+    if (!in.getFilesList().isEmpty()) {
       wFilenameList.removeAll();
 
       for (int i = 0; i < meta.getFilesList().size(); i++) {

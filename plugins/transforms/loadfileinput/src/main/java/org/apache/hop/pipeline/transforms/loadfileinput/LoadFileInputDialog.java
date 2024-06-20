@@ -66,11 +66,12 @@ import org.eclipse.swt.widgets.Text;
 
 public class LoadFileInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = LoadFileInputMeta.class; // For Translator
+  private static final String CONST_COMBO_NO = "System.Combo.No";
+  private static final String CONST_COMBO_YES = "System.Combo.Yes";
 
   private static final String[] YES_NO_COMBO =
       new String[] {
-        BaseMessages.getString(PKG, "System.Combo.No"),
-        BaseMessages.getString(PKG, "System.Combo.Yes")
+        BaseMessages.getString(PKG, CONST_COMBO_NO), BaseMessages.getString(PKG, CONST_COMBO_YES)
       };
 
   private CTabFolder wTabFolder;
@@ -171,7 +172,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "LoadFileInputDialog.DialogTitle"));
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -285,7 +286,9 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     wFilenameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -536,7 +539,9 @@ public class LoadFileInputDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(org.eclipse.swt.events.FocusEvent e) {}
+          public void focusLost(org.eclipse.swt.events.FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(org.eclipse.swt.events.FocusEvent e) {
@@ -850,8 +855,8 @@ public class LoadFileInputDialog extends BaseTransformDialog {
               BaseMessages.getString(PKG, "LoadFileInputDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, CONST_COMBO_YES),
+                BaseMessages.getString(PKG, CONST_COMBO_NO)
               },
               true),
         };
@@ -1252,8 +1257,8 @@ public class LoadFileInputDialog extends BaseTransformDialog {
         String trim = field.getTrimTypeDesc();
         String rep =
             field.isRepeated()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, CONST_COMBO_YES)
+                : BaseMessages.getString(PKG, CONST_COMBO_NO);
 
         if (name != null) {
           item.setText(1, name);
@@ -1395,7 +1400,7 @@ public class LoadFileInputDialog extends BaseTransformDialog {
       field.setGroupSymbol(item.getText(9));
       field.setTrimType(LoadFileInputField.getTrimTypeByDesc(item.getText(10)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(11)));
+          BaseMessages.getString(PKG, CONST_COMBO_YES).equalsIgnoreCase(item.getText(11)));
 
       in.getInputFields()[i] = field;
     }

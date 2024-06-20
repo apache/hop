@@ -45,8 +45,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::SSHMeta.keyword",
     documentationUrl = "/pipeline/transforms/runssh.html")
 public class SshMeta extends BaseTransformMeta<Ssh, SshData> {
-  static Class<?> PKG = SshMeta.class; // For Translator
-  private static int DEFAULT_PORT = 22;
+  private static final Class<?> PKG = SshMeta.class; // For Translator
+  private static final int DEFAULT_PORT = 22;
 
   @HopMetadataProperty private String command;
   @HopMetadataProperty private boolean dynamicCommandField;
@@ -133,7 +133,7 @@ public class SshMeta extends BaseTransformMeta<Ssh, SshData> {
         remarks.add(cr);
         boolean keyFileExists = false;
         try {
-          keyFileExists = HopVfs.fileExists(keyfilename);
+          keyFileExists = HopVfs.fileExists(keyfilename, variables);
         } catch (Exception e) {
           /* Ignore */
         }

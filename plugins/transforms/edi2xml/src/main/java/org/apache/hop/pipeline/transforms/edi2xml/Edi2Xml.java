@@ -37,6 +37,8 @@ import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifa
 public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
 
   private static final Class<?> PKG = Edi2XmlMeta.class; // For Translator
+  private static final String CONST_UNKNOWN = "<UNKNOWN>";
+  private static final String CONST_PROBLEM_LINE = "Problem line: ";
 
   private FastSimpleGenericEdifactDirectXMLLexer lexer;
   private CommonTokenStream tokens;
@@ -128,7 +130,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
           "error parsing edi on line " + e.line + " position " + e.charPositionInLine);
       errorMessage.append(
           ": expecting "
-              + ((e.expecting > -1) ? parser.getTokenNames()[e.expecting] : "<UNKNOWN>")
+              + ((e.expecting > -1) ? parser.getTokenNames()[e.expecting] : CONST_UNKNOWN)
               + " but found ");
       errorMessage.append(
           (e.token.getType() >= 0) ? parser.getTokenNames()[e.token.getType()] : "<EOF>");
@@ -145,15 +147,15 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
         logError(errorMessage.toString());
 
         // try to determine the error line
-        String errorline = "<UNKNOWN>";
+        String errorline = CONST_UNKNOWN;
         try {
           errorline = inputValue.split("\\r?\\n")[e.line - 1];
         } catch (Exception ee) {
           // Ignore pattern syntax errors
         }
 
-        logError("Problem line: " + errorline);
-        logError(StringUtils.leftPad("^", e.charPositionInLine + "Problem line: ".length() + 1));
+        logError(CONST_PROBLEM_LINE + errorline);
+        logError(StringUtils.leftPad("^", e.charPositionInLine + CONST_PROBLEM_LINE.length() + 1));
         throw new HopException(e);
       }
     } catch (RecognitionException e) {
@@ -178,15 +180,15 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> {
         logError(errorMessage.toString());
 
         // try to determine the error line
-        String errorline = "<UNKNOWN>";
+        String errorline = CONST_UNKNOWN;
         try {
           errorline = inputValue.split("\\r?\\n")[e.line - 1];
         } catch (Exception ee) {
           // Ignore pattern syntax errors
         }
 
-        logError("Problem line: " + errorline);
-        logError(StringUtils.leftPad("^", e.charPositionInLine + "Problem line: ".length() + 1));
+        logError(CONST_PROBLEM_LINE + errorline);
+        logError(StringUtils.leftPad("^", e.charPositionInLine + CONST_PROBLEM_LINE.length() + 1));
 
         throw new HopException(e);
       }

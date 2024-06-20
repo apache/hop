@@ -81,7 +81,7 @@ public class FilesToResult extends BaseTransform<FilesToResultMeta, FilesToResul
               meta.getFileType() == null
                   ? ResultFile.FileType.GENERAL.getType()
                   : meta.getFileType().getType(),
-              HopVfs.getFileObject(filename),
+              HopVfs.getFileObject(filename, variables),
               getPipeline().getPipelineMeta().getName(),
               getTransformName());
 

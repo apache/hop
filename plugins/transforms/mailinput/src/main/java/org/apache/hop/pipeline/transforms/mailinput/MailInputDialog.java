@@ -78,6 +78,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class MailInputDialog extends BaseTransformDialog {
   private static final Class<?> PKG = MailInputMeta.class; // For Translator
+  private static final String CONST_BUTTON_OK = "System.Button.OK";
 
   private final MailInputMeta input;
   private TextVar wServerName;
@@ -212,12 +213,12 @@ public class MailInputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "MailInputdialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the buttom
     //
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString(PKG, CONST_BUTTON_OK));
     wOk.addListener(SWT.Selection, e -> ok());
     wPreview = new Button(shell, SWT.PUSH);
     wPreview.setText(BaseMessages.getString(PKG, "MailInputDialog.Preview"));
@@ -665,7 +666,9 @@ public class MailInputDialog extends BaseTransformDialog {
     wFolderField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -761,7 +764,9 @@ public class MailInputDialog extends BaseTransformDialog {
     wIMAPListmails.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            // Do Nothing
+          }
         });
 
     // Retrieve the first ... mails
@@ -1022,7 +1027,7 @@ public class MailInputDialog extends BaseTransformDialog {
             new Label(dialog, SWT.NONE);
 
             Button ok = new Button(dialog, SWT.PUSH);
-            ok.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+            ok.setText(BaseMessages.getString(PKG, CONST_BUTTON_OK));
             ok.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             ok.addSelectionListener(
                 new SelectionAdapter() {
@@ -1088,7 +1093,7 @@ public class MailInputDialog extends BaseTransformDialog {
             new Label(dialogto, SWT.NONE);
             new Label(dialogto, SWT.NONE);
             Button okto = new Button(dialogto, SWT.PUSH);
-            okto.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+            okto.setText(BaseMessages.getString(PKG, CONST_BUTTON_OK));
             okto.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
             okto.addSelectionListener(
                 new SelectionAdapter() {
@@ -1728,23 +1733,21 @@ public class MailInputDialog extends BaseTransformDialog {
   }
 
   private void checkFolder(String folderName) {
-    if (!Utils.isEmpty(folderName)) {
-      if (connect()) {
-        // check folder
-        if (mailConn.folderExists(folderName)) {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "MailInput.IMAPFolderExists.OK", folderName) + Const.CR);
-          mb.setText(BaseMessages.getString(PKG, "MailInput.IMAPFolderExists.Title.Ok"));
-          mb.open();
-        } else {
-          MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
-          mb.setMessage(
-              BaseMessages.getString(PKG, "MailInput.Connected.NOK.IMAPFolderExists", folderName)
-                  + Const.CR);
-          mb.setText(BaseMessages.getString(PKG, "MailInput.IMAPFolderExists.Title.Bad"));
-          mb.open();
-        }
+    if (!Utils.isEmpty(folderName) && connect()) {
+      // check folder
+      if (mailConn.folderExists(folderName)) {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_INFORMATION);
+        mb.setMessage(
+            BaseMessages.getString(PKG, "MailInput.IMAPFolderExists.OK", folderName) + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "MailInput.IMAPFolderExists.Title.Ok"));
+        mb.open();
+      } else {
+        MessageBox mb = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+        mb.setMessage(
+            BaseMessages.getString(PKG, "MailInput.Connected.NOK.IMAPFolderExists", folderName)
+                + Const.CR);
+        mb.setText(BaseMessages.getString(PKG, "MailInput.IMAPFolderExists.Title.Bad"));
+        mb.open();
       }
     }
   }
@@ -1849,9 +1852,9 @@ public class MailInputDialog extends BaseTransformDialog {
     group.setLayout(groupLayout);
 
     FormData fdGroup = new FormData();
-    fdGroup.left = new FormAttachment(0, props.getMargin());
-    fdGroup.top = new FormAttachment(top, props.getMargin());
-    fdGroup.right = new FormAttachment(100, -props.getMargin());
+    fdGroup.left = new FormAttachment(0, PropsUi.getMargin());
+    fdGroup.top = new FormAttachment(top, PropsUi.getMargin());
+    fdGroup.right = new FormAttachment(100, -PropsUi.getMargin());
     group.setLayoutData(fdGroup);
 
     return group;
@@ -1865,8 +1868,8 @@ public class MailInputDialog extends BaseTransformDialog {
   private void addLabelBelow(Control label, Control widgetAbove) {
     PropsUi.setLook(label);
     FormData fData = new FormData();
-    fData.top = new FormAttachment(widgetAbove, props.getMargin());
-    fData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
+    fData.top = new FormAttachment(widgetAbove, PropsUi.getMargin());
+    fData.right = new FormAttachment(props.getMiddlePct(), -PropsUi.getMargin());
     label.setLayoutData(fData);
   }
 
@@ -1874,8 +1877,8 @@ public class MailInputDialog extends BaseTransformDialog {
     PropsUi.setLook(control);
     FormData fData = new FormData();
     fData.top = new FormAttachment(label, 0, SWT.CENTER);
-    fData.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
-    fData.right = new FormAttachment(100, -props.getMargin());
+    fData.left = new FormAttachment(props.getMiddlePct(), PropsUi.getMargin());
+    fData.right = new FormAttachment(100, -PropsUi.getMargin());
     control.setLayoutData(fData);
   }
 

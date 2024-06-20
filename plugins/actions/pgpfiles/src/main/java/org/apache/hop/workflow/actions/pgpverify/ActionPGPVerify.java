@@ -160,9 +160,9 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         logError(BaseMessages.getString(PKG, "ActionPGPVerify.FilenameMissing"));
         return result;
       }
-      file = HopVfs.getFileObject(realFilename);
+      file = HopVfs.getFileObject(realFilename, getVariables());
 
-      GPG gpg = new GPG(resolve(getGPGLocation()), log);
+      GPG gpg = new GPG(resolve(getGPGLocation()), log, getVariables());
 
       if (useDetachedfilename()) {
         String signature = resolve(getDetachedfilename());
@@ -171,7 +171,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
           logError(BaseMessages.getString(PKG, "ActionPGPVerify.DetachedSignatureMissing"));
           return result;
         }
-        detachedSignature = HopVfs.getFileObject(signature);
+        detachedSignature = HopVfs.getFileObject(signature, getVariables());
 
         gpg.verifyDetachedSignature(detachedSignature, file);
       } else {
@@ -260,7 +260,8 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject(variables.resolve(gpgLocation));
+        FileObject fileObject =
+            HopVfs.getFileObject(variables.resolve(gpgLocation), getVariables());
 
         // If the file doesn't exist, forget about this effort too!
         //

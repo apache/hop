@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.hop.core.IProgressMonitor;
 import org.apache.hop.core.IRunnableWithProgress;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.xml.Dom4JUtil;
@@ -87,11 +88,11 @@ public class LoopNodesImportProgressDialog {
     this.nr = 0;
   }
 
-  public String[] open() {
+  public String[] open(IVariables variables) {
     IRunnableWithProgress op =
         monitor -> {
           try {
-            xpaths = doScan(monitor);
+            xpaths = doScan(monitor, variables);
           } catch (Exception e) {
             e.printStackTrace();
             throw new InvocationTargetException(
@@ -128,7 +129,7 @@ public class LoopNodesImportProgressDialog {
     return xpaths;
   }
 
-  private String[] doScan(IProgressMonitor monitor) throws Exception {
+  private String[] doScan(IProgressMonitor monitor, IVariables variables) throws Exception {
     monitor.beginTask(
         BaseMessages.getString(
             PKG, "GetXMLDateLoopNodesImportProgressDialog.Task.ScanningFile", filename),
@@ -158,7 +159,7 @@ public class LoopNodesImportProgressDialog {
     try {
       Document document = null;
       if (!Utils.isEmpty(filename)) {
-        is = HopVfs.getInputStream(filename);
+        is = HopVfs.getInputStream(filename, variables);
         document = reader.read(is, encoding);
       } else {
         if (!Utils.isEmpty(xml)) {

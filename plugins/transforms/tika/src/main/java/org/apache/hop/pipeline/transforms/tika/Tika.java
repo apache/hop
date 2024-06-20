@@ -131,7 +131,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
 
         try {
           // Source is a file.
-          data.file = HopVfs.getFileObject(fieldvalue);
+          data.file = HopVfs.getFileObject(fieldvalue, variables);
         } catch (HopFileException e) {
           throw new HopException(e);
         } finally {
@@ -290,7 +290,7 @@ public class Tika extends BaseTransform<TikaMeta, TikaData> {
       if (vfsFilename.startsWith("file:")) {
         inputStream = new FileInputStream(vfsFilename.substring(5));
       } else {
-        inputStream = HopVfs.getInputStream(vfsFilename);
+        inputStream = HopVfs.getInputStream(vfsFilename, variables);
       }
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       data.tikaOutput.parse(inputStream, meta.getOutputFormat(), baos);

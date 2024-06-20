@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 
 /** Describe your transform plugin. */
@@ -36,13 +37,14 @@ public class GoogleSheetsCredentials {
   public static final String APPLICATION_NAME = "Apache-Hop-Google-Sheets";
 
   public static HttpCredentialsAdapter getCredentialsJson(
-      String scope, String jsonCredentialPath, String impersonation) throws IOException {
+      String scope, String jsonCredentialPath, String impersonation, IVariables variables)
+      throws IOException {
 
     GoogleCredentials credential;
 
     InputStream in;
     try {
-      in = HopVfs.getInputStream(jsonCredentialPath);
+      in = HopVfs.getInputStream(jsonCredentialPath, variables);
     } catch (HopFileException ex) {
       throw new IOException("Error opening JSON Credentials file " + jsonCredentialPath, ex);
     }

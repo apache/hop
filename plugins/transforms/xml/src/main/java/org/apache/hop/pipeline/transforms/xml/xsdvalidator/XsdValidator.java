@@ -128,7 +128,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
       // Get XSD file
       FileObject xsdfile =
-          StringUtils.isNotEmpty(xsdfilename) ? HopVfs.getFileObject(xsdfilename) : null;
+          StringUtils.isNotEmpty(xsdfilename) ? HopVfs.getFileObject(xsdfilename, variables) : null;
 
       try {
 
@@ -315,7 +315,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
       // Is XSD file exists ?
       FileObject xsdfile = null;
       try {
-        xsdfile = HopVfs.getFileObject(resolve(meta.getXSDFilename()));
+        xsdfile = HopVfs.getFileObject(resolve(meta.getXSDFilename()), variables);
         if (!xsdfile.exists()) {
           logError(BaseMessages.getString(PKG, "XsdValidator.Log.Error.XSDFileNotExists"));
           throw new HopTransformException(
@@ -346,7 +346,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
       // We deal with XML file
       // Get XML File
-      FileObject xmlfileValidator = HopVfs.getFileObject(xmlFieldvalue);
+      FileObject xmlfileValidator = HopVfs.getFileObject(xmlFieldvalue, variables);
       if (xmlfileValidator == null || !xmlfileValidator.exists()) {
         logError(
             BaseMessages.getString(PKG, "XsdValidator.Log.Error.XMLfileMissing", xmlFieldvalue));

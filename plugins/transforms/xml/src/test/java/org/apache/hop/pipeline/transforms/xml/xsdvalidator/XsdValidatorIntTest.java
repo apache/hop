@@ -36,6 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.xml.PipelineTestFactory;
@@ -129,7 +130,7 @@ public class XsdValidatorIntTest {
   private FileObject loadRamFile(String filename) throws Exception {
     String targetUrl = RAMDIR + "/" + filename;
     try (InputStream source = getFileInputStream(filename)) {
-      FileObject fileObject = HopVfs.getFileObject(targetUrl);
+      FileObject fileObject = HopVfs.getFileObject(targetUrl, new Variables());
       try (OutputStream targetStream = fileObject.getContent().getOutputStream()) {
         copy(source, targetStream, -1);
       }
@@ -141,8 +142,8 @@ public class XsdValidatorIntTest {
       throws Exception {
     assertNotNull(dataFilename);
     assertNotNull(schemaFilename);
-    assertTrue(HopVfs.getFileObject(dataFilename).exists());
-    assertTrue(HopVfs.getFileObject(schemaFilename).exists());
+    assertTrue(HopVfs.getFileObject(dataFilename, new Variables()).exists());
+    assertTrue(HopVfs.getFileObject(schemaFilename, new Variables()).exists());
 
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta(new ValueMetaString("DataFile"));

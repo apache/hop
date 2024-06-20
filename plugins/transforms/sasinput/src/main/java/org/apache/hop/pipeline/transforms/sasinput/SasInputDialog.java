@@ -328,7 +328,7 @@ public class SasInputDialog extends BaseTransformDialog {
               true);
       if (filename != null) {
         String realFilename = variables.resolve(filename);
-        try (InputStream inputStream = HopVfs.getInputStream(realFilename)) {
+        try (InputStream inputStream = HopVfs.getInputStream(realFilename, variables)) {
           SasFileReaderImpl sasFileReader = new SasFileReaderImpl(inputStream);
           SasFileProperties fileProperties = sasFileReader.getSasFileProperties();
 

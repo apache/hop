@@ -213,7 +213,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
     data.filename = buildFilename(getPipeline().getExecutionStartDate());
 
     try {
-      FileObject fileObject = HopVfs.getFileObject(data.filename);
+      FileObject fileObject = HopVfs.getFileObject(data.filename, variables);
 
       // See if we need to create the parent folder(s)...
       //
@@ -226,7 +226,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         }
       }
 
-      data.outputStream = HopVfs.getOutputStream(data.filename, false);
+      data.outputStream = HopVfs.getOutputStream(data.filename, false, variables);
       data.outputFile = new ParquetOutputFile(data.outputStream);
 
       data.writer =

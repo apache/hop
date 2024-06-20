@@ -47,6 +47,8 @@ import org.w3c.dom.Node;
     documentationUrl = "/pipeline/transforms/mail.html")
 public class MailMeta extends BaseTransformMeta<Mail, MailData> {
   private static final Class<?> PKG = MailMeta.class; // For Translator
+  private static final String CONST_SPACE = "      ";
+  private static final String CONST_SPACE_SHORT = "    ";
 
   private String server;
 
@@ -157,8 +159,7 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
 
   @Override
   public Object clone() {
-    Object retval = super.clone();
-    return retval;
+    return super.clone();
   }
 
   public void allocate(int value) {
@@ -262,82 +263,89 @@ public class MailMeta extends BaseTransformMeta<Mail, MailData> {
     retval.append(super.getXml());
 
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("include_message_in_output", this.addMessageToOutput));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("message_output_field", this.messageOutputField));
-    retval.append("      ").append(XmlHandler.addTagValue("server", this.server));
-    retval.append("      ").append(XmlHandler.addTagValue("port", this.port));
-    retval.append("      ").append(XmlHandler.addTagValue("destination", this.destination));
-    retval.append("      ").append(XmlHandler.addTagValue("destinationCc", this.destinationCc));
-    retval.append("      ").append(XmlHandler.addTagValue("destinationBCc", this.destinationBCc));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("server", this.server));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("port", this.port));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("destination", this.destination));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("destinationCc", this.destinationCc));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
+        .append(XmlHandler.addTagValue("destinationBCc", this.destinationBCc));
+    retval
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("replyToAddresses", this.replyToAddresses));
-    retval.append("      ").append(XmlHandler.addTagValue("replyto", this.replyAddress));
-    retval.append("      ").append(XmlHandler.addTagValue("replytoname", this.replyName));
-    retval.append("      ").append(XmlHandler.addTagValue("subject", this.subject));
-    retval.append("      ").append(XmlHandler.addTagValue("include_date", this.includeDate));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("replyto", this.replyAddress));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("replytoname", this.replyName));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("subject", this.subject));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("include_date", this.includeDate));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("include_subfolders", this.includeSubFolders));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("zipFilenameDynamic", this.zipFilenameDynamic));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("isFilenameDynamic", this.isFilenameDynamic));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("attachContentFromField", this.attachContentFromField));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("attachContentField", this.attachContentField));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue("attachContentFileNameField", this.attachContentFileNameField));
 
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("dynamicFieldname", this.dynamicFieldname));
-    retval.append("      ").append(XmlHandler.addTagValue("dynamicWildcard", this.dynamicWildcard));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
+        .append(XmlHandler.addTagValue("dynamicWildcard", this.dynamicWildcard));
+    retval
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("dynamicZipFilename", this.dynamicZipFilename));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("sourcefilefoldername", this.sourcefilefoldername));
-    retval.append("      ").append(XmlHandler.addTagValue("sourcewildcard", this.sourcewildcard));
-    retval.append("      ").append(XmlHandler.addTagValue("contact_person", this.contactPerson));
-    retval.append("      ").append(XmlHandler.addTagValue("contact_phone", this.contactPhone));
-    retval.append("      ").append(XmlHandler.addTagValue("comment", this.comment));
-    retval.append("      ").append(XmlHandler.addTagValue("include_files", this.includingFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("zip_files", this.zipFiles));
-    retval.append("      ").append(XmlHandler.addTagValue("zip_name", this.zipFilename));
-    retval.append("      ").append(XmlHandler.addTagValue("zip_limit_size", this.ziplimitsize));
-    retval.append("      ").append(XmlHandler.addTagValue("use_auth", this.usingAuthentication));
-    retval.append("      ").append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
+        .append(XmlHandler.addTagValue("sourcewildcard", this.sourcewildcard));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("contact_person", this.contactPerson));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("contact_phone", this.contactPhone));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("comment", this.comment));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("include_files", this.includingFiles));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("zip_files", this.zipFiles));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("zip_name", this.zipFilename));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("zip_limit_size", this.ziplimitsize));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("use_auth", this.usingAuthentication));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("usexoauth2", usexoauth2));
+    retval
+        .append(CONST_SPACE)
         .append(XmlHandler.addTagValue("use_secure_auth", this.usingSecureAuthentication));
-    retval.append("      ").append(XmlHandler.addTagValue("auth_user", this.authenticationUser));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("auth_user", this.authenticationUser));
     retval
-        .append("      ")
+        .append(CONST_SPACE)
         .append(
             XmlHandler.addTagValue(
                 "auth_password",
                 Encr.encryptPasswordIfNotUsingVariables(this.authenticationPassword)));
-    retval.append("      ").append(XmlHandler.addTagValue("only_comment", this.onlySendComment));
-    retval.append("      ").append(XmlHandler.addTagValue("use_HTML", this.useHTML));
-    retval.append("      ").append(XmlHandler.addTagValue("use_Priority", this.usePriority));
-    retval.append("    " + XmlHandler.addTagValue("encoding", this.encoding));
-    retval.append("    " + XmlHandler.addTagValue("priority", this.priority));
-    retval.append("    " + XmlHandler.addTagValue("importance", this.importance));
-    retval.append("    " + XmlHandler.addTagValue("sensitivity", this.sensitivity));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("only_comment", this.onlySendComment));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("use_HTML", this.useHTML));
+    retval.append(CONST_SPACE).append(XmlHandler.addTagValue("use_Priority", this.usePriority));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("encoding", this.encoding));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("priority", this.priority));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("importance", this.importance));
+    retval.append(CONST_SPACE_SHORT + XmlHandler.addTagValue("sensitivity", this.sensitivity));
     retval.append(
-        "    " + XmlHandler.addTagValue("secureconnectiontype", this.secureConnectionType));
+        CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("secureconnectiontype", this.secureConnectionType));
 
     retval.append("      <embeddedimages>").append(Const.CR);
     if (embeddedimages != null) {

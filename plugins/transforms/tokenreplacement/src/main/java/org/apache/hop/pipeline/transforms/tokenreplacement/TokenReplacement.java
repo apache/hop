@@ -180,13 +180,13 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       if (Utils.isEmpty(inputFilename)) {
         throw new HopValueException("Input filename cannot be empty");
       }
-      if (!HopVfs.fileExists(inputFilename)) {
+      if (!HopVfs.fileExists(inputFilename, variables)) {
         throw new HopException("Input file " + inputFilename + " does not exist.");
       }
       reader =
           new TokenReplacingReader(
               resolver,
-              new InputStreamReader(HopVfs.getInputStream(inputFilename)),
+              new InputStreamReader(HopVfs.getInputStream(inputFilename, variables)),
               resolve(meta.getTokenStartString()),
               resolve(meta.getTokenEndString()));
 
@@ -194,7 +194,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
         ResultFile resultFile =
             new ResultFile(
                 ResultFile.FILE_TYPE_GENERAL,
-                HopVfs.getFileObject(inputFilename),
+                HopVfs.getFileObject(inputFilename, variables),
                 getTransformMeta().getName(),
                 getTransformName());
         resultFile.setComment(BaseMessages.getString(PKG, "TokenReplacement.AddInputResultFile"));
@@ -315,9 +315,10 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
       }
     }
 
-    boolean fileExists = HopVfs.fileExists(filename);
+    boolean fileExists = HopVfs.fileExists(filename, variables);
 
-    OutputStream writer = HopVfs.getOutputStream(filename, meta.isAppendOutputFileName());
+    OutputStream writer =
+        HopVfs.getOutputStream(filename, meta.isAppendOutputFileName(), variables);
     OutputStream bufferedWriter = new BufferedOutputStream(writer, 5000);
 
     try {
@@ -343,7 +344,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
           ResultFile resultFile =
               new ResultFile(
                   ResultFile.FILE_TYPE_GENERAL,
-                  HopVfs.getFileObject(itFilename.next()),
+                  HopVfs.getFileObject(itFilename.next(), variables),
                   getTransformMeta().getName(),
                   getTransformName());
           resultFile.setComment(
@@ -380,7 +381,7 @@ public class TokenReplacement extends BaseTransform<TokenReplacementMeta, TokenR
     FileObject parentfolder = null;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject(filename).getParent();
+      parentfolder = HopVfs.getFileObject(filename, variables).getParent();
       if (parentfolder.exists()) {
         if (isDetailed()) {
           logDetailed(

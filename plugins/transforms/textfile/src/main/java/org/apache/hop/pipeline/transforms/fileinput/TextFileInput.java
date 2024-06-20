@@ -1078,7 +1078,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           }
           String fileValue = prevInfoFields.getString(fileRow, idx);
           try {
-            FileObject fileObject = HopVfs.getFileObject(fileValue);
+            FileObject fileObject = HopVfs.getFileObject(fileValue, variables);
             data.getFiles().addFile(fileObject);
             if (meta.isPassingThruFields()) {
               data.passThruFields.put(fileObject, fileRow);

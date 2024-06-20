@@ -239,6 +239,6 @@ public class OraBulkDataOutput {
 
   @VisibleForTesting
   FileObject getFileObject(String fileName, IVariables variables) throws HopFileException {
-    return HopVfs.getFileObject(variables.resolve(fileName));
+    return HopVfs.getFileObject(variables.resolve(fileName), variables);
   }
 }

@@ -180,7 +180,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
 
     // if the file does not exist, just send an empty row
     try {
-      if (!HopVfs.fileExists(fileName)) {
+      if (!HopVfs.fileExists(fileName, variables)) {
         putRow(data.outputRowMeta, outputRow);
         return;
       }
@@ -257,7 +257,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
 
     try (BufferedReader inputReader =
         new BufferedReader(
-            new InputStreamReader(HopVfs.getInputStream(fileName), detectedCharset))) {
+            new InputStreamReader(HopVfs.getInputStream(fileName, variables), detectedCharset))) {
       while (skipLines > 0) {
         skipLines--;
         // Skip the line. There is no need to use a variable here.
@@ -363,7 +363,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
   }
 
   private Charset detectCharset(String fileName) {
-    try (InputStream stream = HopVfs.getInputStream(fileName)) {
+    try (InputStream stream = HopVfs.getInputStream(fileName, variables)) {
       return EncodingDetector.detectEncoding(
           stream, defaultCharset, limitRows * 500); // estimate a row is ~500 chars
     } catch (FileNotFoundException e) {
@@ -382,7 +382,8 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     // guess the delimiters
 
     try (BufferedReader f =
-        new BufferedReader(new InputStreamReader(HopVfs.getInputStream(fileName), charset))) {
+        new BufferedReader(
+            new InputStreamReader(HopVfs.getInputStream(fileName, variables), charset))) {
 
       DelimiterDetector detector =
           new DelimiterDetectorBuilder()

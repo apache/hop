@@ -129,7 +129,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
 
     try {
       FileObject fileObject =
-          HopVfs.createTempFile(meta.getPrefix(), ".tmp", resolve(meta.getDirectory()));
+          HopVfs.createTempFile(meta.getPrefix(), ".tmp", resolve(meta.getDirectory()), variables);
 
       data.files.add(fileObject); // Remember the files!
       OutputStream outputStream = HopVfs.getOutputStream(fileObject, false);

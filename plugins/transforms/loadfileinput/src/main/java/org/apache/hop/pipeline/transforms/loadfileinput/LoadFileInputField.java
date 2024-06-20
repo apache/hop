@@ -33,6 +33,7 @@ public class LoadFileInputField implements Cloneable {
   public static final int TYPE_TRIM_LEFT = 1;
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
+  private static final String CONST_SPACE = "        ";
 
   public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
@@ -87,17 +88,17 @@ public class LoadFileInputField implements Cloneable {
     String retval = "";
 
     retval += "      <field>" + Const.CR;
-    retval += "        " + XmlHandler.addTagValue("name", getName());
-    retval += "        " + XmlHandler.addTagValue("element_type", getElementTypeCode());
-    retval += "        " + XmlHandler.addTagValue("type", getTypeDesc());
-    retval += "        " + XmlHandler.addTagValue("format", getFormat());
-    retval += "        " + XmlHandler.addTagValue("currency", getCurrencySymbol());
-    retval += "        " + XmlHandler.addTagValue("decimal", getDecimalSymbol());
-    retval += "        " + XmlHandler.addTagValue("group", getGroupSymbol());
-    retval += "        " + XmlHandler.addTagValue("length", getLength());
-    retval += "        " + XmlHandler.addTagValue("precision", getPrecision());
-    retval += "        " + XmlHandler.addTagValue("trim_type", getTrimTypeCode());
-    retval += "        " + XmlHandler.addTagValue("repeat", isRepeated());
+    retval += CONST_SPACE + XmlHandler.addTagValue("name", getName());
+    retval += CONST_SPACE + XmlHandler.addTagValue("element_type", getElementTypeCode());
+    retval += CONST_SPACE + XmlHandler.addTagValue("type", getTypeDesc());
+    retval += CONST_SPACE + XmlHandler.addTagValue("format", getFormat());
+    retval += CONST_SPACE + XmlHandler.addTagValue("currency", getCurrencySymbol());
+    retval += CONST_SPACE + XmlHandler.addTagValue("decimal", getDecimalSymbol());
+    retval += CONST_SPACE + XmlHandler.addTagValue("group", getGroupSymbol());
+    retval += CONST_SPACE + XmlHandler.addTagValue("length", getLength());
+    retval += CONST_SPACE + XmlHandler.addTagValue("precision", getPrecision());
+    retval += CONST_SPACE + XmlHandler.addTagValue("trim_type", getTrimTypeCode());
+    retval += CONST_SPACE + XmlHandler.addTagValue("repeat", isRepeated());
 
     retval += "        </field>" + Const.CR;
 
@@ -322,9 +323,7 @@ public class LoadFileInputField implements Cloneable {
   }
 
   public String getFieldPositionsCode() {
-    String enc = "";
-
-    return enc;
+    return "";
   }
 
   public void guess() {

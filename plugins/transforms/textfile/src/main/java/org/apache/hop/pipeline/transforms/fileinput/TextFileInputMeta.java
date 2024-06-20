@@ -1840,7 +1840,7 @@ public class TextFileInputMeta extends BaseTransformMeta<TextFileInput, TextFile
         // Replace the filename ONLY (folder or filename)
         //
         for (int i = 0; i < fileName.length; i++) {
-          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName[i]));
+          FileObject fileObject = HopVfs.getFileObject(variables.resolve(fileName[i]), variables);
           fileName[i] =
               iResourceNaming.nameResource(fileObject, variables, Utils.isEmpty(fileMask[i]));
         }

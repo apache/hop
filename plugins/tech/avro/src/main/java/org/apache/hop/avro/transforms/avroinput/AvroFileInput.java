@@ -92,7 +92,7 @@ public class AvroFileInput extends BaseTransform<AvroFileInputMeta, AvroFileInpu
     // Read Avro rows of data from the file...
     //
     try {
-      try (InputStream inputStream = HopVfs.getInputStream(filename)) {
+      try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
         GenericDatumReader<GenericRecord> datumReader = new GenericDatumReader<>();
         DataFileStream<GenericRecord> fileStream = new DataFileStream<>(inputStream, datumReader);
         while (fileStream.hasNext()) {

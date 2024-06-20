@@ -390,7 +390,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     String parentFolder = null;
     try {
       parentFolder =
-          HopVfs.getFileObject(variables.resolve(pipelineMeta.getFilename()))
+          HopVfs.getFileObject(variables.resolve(pipelineMeta.getFilename()), variables)
               .getParent()
               .toString();
     } catch (Exception e) {

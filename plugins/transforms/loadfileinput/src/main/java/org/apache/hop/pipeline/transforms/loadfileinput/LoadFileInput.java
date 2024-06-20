@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -134,7 +135,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
         try {
           // Source is a file.
-          data.file = HopVfs.getFileObject(fieldvalue);
+          data.file = HopVfs.getFileObject(fieldvalue, variables);
         } catch (Exception e) {
           throw new HopException(e);
         }
@@ -264,7 +265,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
 
   void getFileContent() throws HopException {
     try {
-      data.filecontent = getFileBinaryContent(data.file.toString());
+      data.filecontent = getFileBinaryContent(data.file.toString(), variables);
     } catch (OutOfMemoryError o) {
       logError(
           "There is no enaugh memory to load the content of the file ["
@@ -283,12 +284,13 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
    * @return The content of the file as a byte[]
    * @throws HopException
    */
-  public static byte[] getFileBinaryContent(String vfsFilename) throws HopException {
+  public static byte[] getFileBinaryContent(String vfsFilename, IVariables variables)
+      throws HopException {
     InputStream inputStream = null;
 
     byte[] retval = null;
     try {
-      inputStream = HopVfs.getInputStream(vfsFilename);
+      inputStream = HopVfs.getInputStream(vfsFilename, variables);
       retval = IOUtils.toByteArray(new BufferedInputStream(inputStream));
     } catch (Exception e) {
       throw new HopException(
@@ -310,7 +312,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
   private void handleMissingFiles() throws HopException {
     List<FileObject> nonExistantFiles = data.files.getNonExistentFiles();
 
-    if (nonExistantFiles.size() != 0) {
+    if (!nonExistantFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonExistantFiles);
       logError(
           BaseMessages.getString(PKG, "LoadFileInput.Log.RequiredFilesTitle"),
@@ -321,7 +323,7 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
     }
 
     List<FileObject> nonAccessibleFiles = data.files.getNonAccessibleFiles();
-    if (nonAccessibleFiles.size() != 0) {
+    if (!nonAccessibleFiles.isEmpty()) {
       String message = FileInputList.getRequiredFilesDescription(nonAccessibleFiles);
       logError(
           BaseMessages.getString(PKG, "LoadFileInput.Log.RequiredFilesTitle"),

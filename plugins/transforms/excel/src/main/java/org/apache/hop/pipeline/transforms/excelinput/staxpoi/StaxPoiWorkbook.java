@@ -31,6 +31,7 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.util.IOUtils;
@@ -58,6 +59,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
   private Map<String, StaxPoiSheet> openSheetsMap;
 
   private OPCPackage opcpkg;
+  private IVariables variables;
 
   protected StaxPoiWorkbook() {
     openSheetsMap = new HashMap<>();
@@ -65,10 +67,11 @@ public class StaxPoiWorkbook implements IKWorkbook {
     this.log = HopLogStore.getLogChannelFactory().create(this);
   }
 
-  public StaxPoiWorkbook(String filename, String encoding) throws HopException {
+  public StaxPoiWorkbook(String filename, String encoding, IVariables variables)
+      throws HopException {
     this();
     try {
-      try (InputStream inputStream = HopVfs.getInputStream(filename)) {
+      try (InputStream inputStream = HopVfs.getInputStream(filename, variables)) {
         opcpkg = OPCPackage.open(inputStream);
         openFile(opcpkg, encoding);
       }

@@ -793,7 +793,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     final boolean includeSubFolders = YES.equalsIgnoreCase(includeSubfolders);
 
     try {
-      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername);
+      sourcefilefolder = HopVfs.getFileObject(realSourceFilefoldername, getVariables());
 
       if (sourcefilefolder.exists()) {
         // File exists

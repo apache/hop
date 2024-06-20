@@ -929,7 +929,7 @@ public class CsvInputDialog extends BaseTransformDialog
     try {
       String filename = variables.resolve(meta.getFilename());
 
-      FileObject fileObject = HopVfs.getFileObject(filename);
+      FileObject fileObject = HopVfs.getFileObject(filename, variables);
       if (!(fileObject instanceof LocalFile)) {
         // We can only use NIO on local files at the moment, so that's what we
         // limit ourselves to.
@@ -962,7 +962,7 @@ public class CsvInputDialog extends BaseTransformDialog
     try {
       final String filename = variables.resolve(meta.getFilename());
 
-      final FileObject fileObject = HopVfs.getFileObject(filename);
+      final FileObject fileObject = HopVfs.getFileObject(filename, variables);
       if (!(fileObject instanceof LocalFile)) {
         // We can only use NIO on local files at the moment, so that's what we
         // limit ourselves to.

@@ -690,6 +690,6 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
 
   @VisibleForTesting
   FileObject getFileObject(String fileName, IVariables variables) throws HopFileException {
-    return HopVfs.getFileObject(variables.resolve(fileName));
+    return HopVfs.getFileObject(variables.resolve(fileName), variables);
   }
 }

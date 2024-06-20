@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
+import org.apache.hop.core.variables.Variables;
 import org.junit.Test;
 
 public class HopVfsTest {
@@ -36,11 +37,11 @@ public class HopVfsTest {
   public void testStartsWithScheme() {
     String fileName =
         "zip:file:///SavedLinkedres.zip!Calculate median and percentiles using the group by transforms.hpl";
-    assertTrue(HopVfs.startsWithScheme(fileName));
+    assertTrue(HopVfs.startsWithScheme(fileName, new Variables()));
 
     fileName =
         "SavedLinkedres.zip!Calculate median and percentiles using the group by transforms.hpl";
-    assertFalse(HopVfs.startsWithScheme(fileName));
+    assertFalse(HopVfs.startsWithScheme(fileName, new Variables()));
   }
 
   @Test

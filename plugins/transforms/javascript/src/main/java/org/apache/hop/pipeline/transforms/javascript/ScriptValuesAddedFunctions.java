@@ -2882,7 +2882,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
               return Context.getUndefinedValue();
             }
             // Returns file content
-            oRC = new String(LoadFileInput.getFileBinaryContent(Context.toString(argList[0])));
+            oRC =
+                new String(
+                    LoadFileInput.getFileBinaryContent(
+                        Context.toString(argList[0]), new Variables()));
           } catch (Exception e) {
             throw Context.reportRuntimeError(
                 "The function call loadFileContent throw an error : " + e.toString());
@@ -2902,7 +2905,9 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
             // Returns file content
             oRC =
                 new String(
-                    LoadFileInput.getFileBinaryContent(Context.toString(argList[0])), encoding);
+                    LoadFileInput.getFileBinaryContent(
+                        Context.toString(argList[0]), new Variables()),
+                    encoding);
           } catch (Exception e) {
             throw Context.reportRuntimeError(
                 "The function call loadFileContent throw an error : " + e.toString());

@@ -178,7 +178,7 @@ public class PropertyOutput extends BaseTransform<PropertyOutputMeta, PropertyOu
   }
 
   private void openNewFile() throws HopException {
-    try (FileObject newFile = HopVfs.getFileObject(data.filename)) {
+    try (FileObject newFile = HopVfs.getFileObject(data.filename, variables)) {
       data.pro = new Properties();
       data.KeySet.clear();
 

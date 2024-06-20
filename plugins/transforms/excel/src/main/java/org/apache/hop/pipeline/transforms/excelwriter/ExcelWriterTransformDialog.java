@@ -1647,37 +1647,35 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog {
       mb.setText(BaseMessages.getString(PKG, "ExcelWriterDialog.Load.SchemaDefinition.Title"));
       int answer = mb.open();
 
-      if (answer == SWT.YES) {
-        if (!Utils.isEmpty(schemaName)) {
-          try {
-            SchemaDefinition schemaDefinition =
-                (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
-            if (schemaDefinition != null) {
-              IRowMeta r = schemaDefinition.getRowMeta();
-              if (r != null) {
-                String[] fieldNames = r.getFieldNames();
-                if (fieldNames != null) {
-                  wFields.clearAll();
-                  for (int i = 0; i < fieldNames.length; i++) {
-                    IValueMeta valueMeta = r.getValueMeta(i);
-                    TableItem item = new TableItem(wFields.table, SWT.NONE);
+      if (answer == SWT.YES && !Utils.isEmpty(schemaName)) {
+        try {
+          SchemaDefinition schemaDefinition =
+              (new SchemaDefinitionUtil()).loadSchemaDefinition(metadataProvider, schemaName);
+          if (schemaDefinition != null) {
+            IRowMeta r = schemaDefinition.getRowMeta();
+            if (r != null) {
+              String[] fieldNames = r.getFieldNames();
+              if (fieldNames != null) {
+                wFields.clearAll();
+                for (int i = 0; i < fieldNames.length; i++) {
+                  IValueMeta valueMeta = r.getValueMeta(i);
+                  TableItem item = new TableItem(wFields.table, SWT.NONE);
 
-                    item.setText(1, valueMeta.getName());
-                    item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
-                    item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
-                  }
+                  item.setText(1, valueMeta.getName());
+                  item.setText(2, ValueMetaFactory.getValueMetaName(valueMeta.getType()));
+                  item.setText(3, Const.NVL(valueMeta.getConversionMask(), ""));
                 }
               }
             }
-          } catch (HopTransformException | HopPluginException e) {
-
-            // ignore any errors here.
           }
+        } catch (HopTransformException | HopPluginException e) {
 
-          wFields.removeEmptyRows();
-          wFields.setRowNums();
-          wFields.optWidth(true);
+          // ignore any errors here.
         }
+
+        wFields.removeEmptyRows();
+        wFields.setRowNums();
+        wFields.optWidth(true);
       }
     }
   }

@@ -83,7 +83,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     final StringBuilder builder = new StringBuilder();
     try {
       final FileObject fileObject =
-          HopVfs.getFileObject(resolve(this.meta.getFastloadPath().getValue()));
+          HopVfs.getFileObject(resolve(this.meta.getFastloadPath().getValue()), variables);
       final String fastloadExec = HopVfs.getFilename(fileObject);
       builder.append(fastloadExec);
     } catch (Exception e) {
@@ -92,7 +92,8 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     // Add log error log, if set.
     if (StringUtils.isNotBlank(this.meta.getLogFile().getValue())) {
       try {
-        FileObject fileObject = HopVfs.getFileObject(resolve(this.meta.getLogFile().getValue()));
+        FileObject fileObject =
+            HopVfs.getFileObject(resolve(this.meta.getLogFile().getValue()), variables);
         builder.append(" -e ");
         builder.append("\"" + HopVfs.getFilename(fileObject) + "\"");
       } catch (Exception e) {
@@ -418,7 +419,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @throws IOException ...
    */
   private String resolveFileName(final String fileName) throws HopException {
-    final FileObject fileObject = HopVfs.getFileObject(resolve(fileName));
+    final FileObject fileObject = HopVfs.getFileObject(resolve(fileName), variables);
     return HopVfs.getFilename(fileObject);
   }
 }

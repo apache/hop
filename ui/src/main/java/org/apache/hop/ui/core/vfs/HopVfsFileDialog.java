@@ -650,7 +650,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private void okButton() {
     try {
-      activeFileObject = HopVfs.getFileObject(wFilename.getText());
+      activeFileObject = HopVfs.getFileObject(wFilename.getText(), variables);
 
       if (!this.browsingDirectories && activeFileObject.isFolder()) {
         navigateTo(HopVfs.getFilename(activeFileObject), true);
@@ -669,7 +669,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void enteredFilenameOrFolder() {
     if (StringUtils.isNotEmpty(saveFilename)) {
       try {
-        FileObject fullObject = HopVfs.getFileObject(wFilename.getText());
+        FileObject fullObject = HopVfs.getFileObject(wFilename.getText(), variables);
         if (!fullObject.isFolder()) {
           // We're saving a filename and now if we hit enter we want this to select the file and
           // close the dialog
@@ -876,7 +876,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     // Browse to the selected file location...
     //
     try {
-      activeFileObject = HopVfs.getFileObject(filename);
+      activeFileObject = HopVfs.getFileObject(filename, variables);
       if (activeFileObject.isFolder()) {
         activeFolder = activeFileObject;
       } else {
@@ -1224,7 +1224,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         String oldFull = wFilename.getText();
         if (StringUtils.isNotEmpty(oldFull)) {
           try {
-            FileObject oldFullObject = HopVfs.getFileObject(oldFull);
+            FileObject oldFullObject = HopVfs.getFileObject(oldFull, variables);
             if (!oldFullObject.isFolder()) {
               saveFilename = oldFullObject.getName().getBaseName();
             }
@@ -1284,7 +1284,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       image = "ui/images/navigate-up.svg")
   public void navigateUp() {
     try {
-      FileObject fileObject = HopVfs.getFileObject(wFilename.getText());
+      FileObject fileObject = HopVfs.getFileObject(wFilename.getText(), variables);
       if (fileObject.isFile()) {
         fileObject = fileObject.getParent();
       }
@@ -1321,7 +1321,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       }
       newPath += folder;
       try {
-        FileObject newFolder = HopVfs.getFileObject(newPath);
+        FileObject newFolder = HopVfs.getFileObject(newPath, variables);
         newFolder.createFolder();
         refreshBrowser();
       } catch (Throwable e) {
@@ -1365,7 +1365,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
                     FileObject newFile =
                         HopVfs.getFileObject(
-                            HopVfs.getFilename(file.getParent()) + "/" + text.getText());
+                            HopVfs.getFilename(file.getParent()) + "/" + text.getText(), variables);
                     file.moveTo(newFile);
                   } catch (Exception e) {
                     showError(
@@ -1490,7 +1490,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     //
     boolean canGoUp;
     try {
-      FileObject fileObject = HopVfs.getFileObject(wFilename.getText());
+      FileObject fileObject = HopVfs.getFileObject(wFilename.getText(), variables);
       if (fileObject.isFile()) {
         canGoUp = fileObject.getParent().getParent() != null;
       } else {

@@ -138,7 +138,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
         data.xslfilename = resolve(meta.getXslFilename());
         FileObject file = null;
         try {
-          file = HopVfs.getFileObject(data.xslfilename);
+          file = HopVfs.getFileObject(data.xslfilename, variables);
           if (!file.exists()) {
             logError(
                 BaseMessages.getString(PKG, "Xslt.Log.ErrorXSLFileNotExists", data.xslfilename));
@@ -230,7 +230,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> {
       }
 
       // Get the template from the cache
-      Transformer transformer = data.getTemplate(data.xslfilename, data.xslIsAfile);
+      Transformer transformer = data.getTemplate(data.xslfilename, data.xslIsAfile, variables);
 
       // Do we need to set output properties?
       if (data.setOutputProperties) {
