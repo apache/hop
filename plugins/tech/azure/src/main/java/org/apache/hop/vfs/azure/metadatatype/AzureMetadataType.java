@@ -33,7 +33,10 @@ public class AzureMetadataType extends HopMetadataBase implements Serializable, 
   private static final Class<?> PKG = AzureMetadataType.class; // For Translator
   @HopMetadataProperty private String description;
   @HopMetadataProperty private String storageAccountName;
-  @HopMetadataProperty private String storageAccountKey;
+
+  @HopMetadataProperty(password = true)
+  private String storageAccountKey;
+
   @HopMetadataProperty private String storageAccountEndpoint;
 
   public AzureMetadataType() {}
