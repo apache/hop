@@ -3,6 +3,7 @@ package org.apache.hop.metadata.api;
 /** A HopMetadataPropertyType provides information about the purpose of a HopMetadataProperty. */
 public enum HopMetadataPropertyType {
   NONE,
+  FIELD_LIST,
   FILE_PATH,
   FILE_NAME,
   FILE_WILDCARD,

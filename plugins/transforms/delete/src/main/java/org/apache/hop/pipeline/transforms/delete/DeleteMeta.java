@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -51,7 +52,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::Delete.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::DeleteMeta.Keyword",
-    documentationUrl = "/pipeline/transforms/delete.html")
+    documentationUrl = "/pipeline/transforms/delete.html",
+    actionTransformTypes = {ActionTransformType.DELETE, ActionTransformType.RDBMS})
 public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
 

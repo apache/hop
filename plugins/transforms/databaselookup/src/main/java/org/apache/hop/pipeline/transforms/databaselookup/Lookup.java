@@ -20,18 +20,21 @@ package org.apache.hop.pipeline.transforms.databaselookup;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class Lookup {
   /** what's the lookup schema name? */
   @HopMetadataProperty(
       key = "schema",
-      injectionKeyDescription = "DatabaseLookupMeta.Injection.SchemaName")
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.SchemaName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** what's the lookup table? */
   @HopMetadataProperty(
       key = "table",
-      injectionKeyDescription = "DatabaseLookupMeta.Injection.TableName")
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.TableName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   @HopMetadataProperty(

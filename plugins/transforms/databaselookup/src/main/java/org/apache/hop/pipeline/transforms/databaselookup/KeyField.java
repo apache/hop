@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class KeyField {
   @HopMetadataProperty(
@@ -41,7 +42,8 @@ public class KeyField {
   @HopMetadataProperty(
       key = "field",
       injectionKey = "key_table_field",
-      injectionKeyDescription = "DatabaseLookupMeta.Injection.KeyTableField")
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.KeyTableField",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String tableField;
 
   public KeyField() {}

@@ -173,21 +173,18 @@ public class RedshiftBulkLoaderMeta
       injectionKeyDescription = "")
   private String copyFromFilename;
 
+  /** Fields containing the values in the input stream to insert */
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
       injectionGroupKey = "FIELDS",
       injectionGroupDescription = "RedshiftBulkLoader.Injection.FIELDS",
       injectionKey = "FIELDSTREAM",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDSTREAM")
-  /** Fields containing the values in the input stream to insert */
+      injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDSTREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.FIELD_LIST)
   private List<RedshiftBulkLoaderField> fields;
 
   @HopMetadataProperty(
-      groupKey = "fields",
-      key = "field",
-      injectionGroupKey = "FIELDS",
-      injectionGroupDescription = "RedshiftBulkLoader.Injection.FIELDS",
       injectionKey = "FIELDDATABASE",
       injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDDATABASE")
   /** Fields in the table to insert */

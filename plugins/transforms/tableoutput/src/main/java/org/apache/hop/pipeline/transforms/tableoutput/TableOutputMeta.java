@@ -177,7 +177,8 @@ public class TableOutputMeta extends BaseTransformMeta<TableOutput, TableOutputD
       injectionKey = "DATABASE_FIELD",
       injectionGroupKey = "DATABASE_FIELDS",
       injectionGroupDescription = "TableOutputMeta.Injection.Fields",
-      injectionKeyDescription = "TableOutputMeta.Injection.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.FIELD_LIST)
   private List<TableOutputField> fields;
 
   public List<TableOutputField> getFields() {
