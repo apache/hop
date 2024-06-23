@@ -35,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -64,7 +65,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "DeleteMeta.Injection.Connection")
+      injectionKeyDescription = "DeleteMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** Commit size for inserts/updates */

@@ -4,6 +4,7 @@ public enum ActionTransformType {
   ENV_CHECK,
   INPUT,
   OUTPUT,
+  JOIN,
   LOOKUP,
   DELETE,
   UPDATE,
