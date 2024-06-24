@@ -326,7 +326,8 @@ public class PipelineExecutionViewer extends BaseExecutionViewer
             HopGuiExtensionPoint.PipelineExecutionViewerUpdate.id,
             this);
       } catch (Exception xe) {
-        LogChannel.UI.logError("Error handling extension point 'HopGuiFileOpenDialog'", xe);
+        LogChannel.UI.logError(
+            "Error handling extension point 'PipelineExecutionViewerUpdate'", xe);
       }
     } catch (Exception e) {
       new ErrorDialog(getShell(), "Error", "Error refreshing pipeline status", e);

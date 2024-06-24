@@ -18,6 +18,7 @@
 package org.apache.hop.projects.xp;
 
 import java.util.ArrayList;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
@@ -87,7 +88,7 @@ public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialog
     // maybe we should clean this up and in the audit split folder and filename
     // check if path ends with slash else remove filename
     int dotFound = filterPath.lastIndexOf(".");
-    int slashFound = filterPath.lastIndexOf("/");
+    int slashFound = filterPath.lastIndexOf(Const.FILE_SEPARATOR);
     filterPath =
         dotFound > slashFound && slashFound > 0 ? filterPath.substring(0, slashFound) : filterPath;
 
