@@ -25,7 +25,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.blob.specialized.AppendBlobClient;
+import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.specialized.BlockBlobClient;
 import com.microsoft.azure.storage.StorageException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -86,7 +87,7 @@ public class AzureMoveFilesIT {
 
   @Parameterized.Parameters
   public static Collection paths() {
-    return Arrays.asList(new Object[][] {{"azfs:///${currentAccount}/"}, {"azure:///"}});
+    return Arrays.asList(new Object[][] {{"azure:///"}, {"azfs:///${currentAccount}/"}});
   }
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -100,12 +101,21 @@ public class AzureMoveFilesIT {
   // "/home/debug.log");
 
   @BeforeClass
-  public static void init() throws HopException {
+  public static void init()
+      throws HopException, URISyntaxException, InvalidKeyException, StorageException, IOException {
     loadAzureProperties();
+
     blobServiceClient =
         new BlobServiceClientBuilder().connectionString(CONNECTION_STRING).buildClient();
+    deleteFilesContainer(CONTAINER_NAME);
+    deleteFilesContainer(ANOTHER_CONTAINER_NAME);
     blobServiceClient.createBlobContainerIfNotExists(CONTAINER_NAME);
     blobServiceClient.createBlobContainerIfNotExists(ANOTHER_CONTAINER_NAME);
+
+    //        await()
+    //            .atMost(Duration.ofMillis(5000))
+    //            .until(() -> blobServiceClient.getBlobContainerClient(CONTAINER_NAME).exists());
+
     HopClientEnvironment.init(List.of(VfsPluginType.getInstance()));
     HopEnvironment.init();
     HopLogStore.init(true, true);
@@ -115,14 +125,8 @@ public class AzureMoveFilesIT {
   public void setup()
       throws URISyntaxException, InvalidKeyException, StorageException, IOException, HopException {
     // Retrieve storage account from connection-string.
-    final BlobContainerClient container = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
-    deleteFiles(CONTAINER_NAME);
-    deleteFiles(ANOTHER_CONTAINER_NAME);
-    if (basePath.contains("${currentAccount}")) {
-      basePath =
-          basePath.replace("${currentAccount}", AzureConfigSingleton.getConfig().getAccount());
-    }
 
+    BlobContainerClient container = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
     uploadFileIntoContainer(
         container.getBlobContainerName(),
         "artists.csv",
@@ -133,6 +137,11 @@ public class AzureMoveFilesIT {
         "canbeoverwritten.csv",
         "artists-wildcard1.csv",
         "artists-wildcard2.csv");
+
+    if (basePath.contains("${currentAccount}")) {
+      basePath =
+          basePath.replace("${currentAccount}", AzureConfigSingleton.getConfig().getAccount());
+    }
   }
 
   @Test
@@ -242,19 +251,28 @@ public class AzureMoveFilesIT {
     // azuriteContainer.stop();
   }
 
-  private void deleteFiles(String containerName)
+  private static void deleteFilesContainer(String containerName)
       throws URISyntaxException, InvalidKeyException, StorageException {
     final BlobContainerClient container = blobServiceClient.getBlobContainerClient(containerName);
-    container.listBlobs().forEach(blob -> container.getBlobClient(blob.getName()).deleteIfExists());
+
+    if (!container.exists()) {
+      return;
+    }
+
+    for (BlobItem blob : container.listBlobs()) {
+      container.getBlobClient(blob.getName()).deleteIfExists();
+    }
   }
 
   @After
   public void tearDown() throws Exception {
     // Clean up the Hop environment
+    deleteFilesContainer(CONTAINER_NAME);
+    deleteFilesContainer(ANOTHER_CONTAINER_NAME);
     HopEnvironment.shutdown();
   }
 
-  private void uploadFileIntoContainer(String containerName, String... fileNames)
+  private static void uploadFileIntoContainer(String containerName, String... fileNames)
       throws URISyntaxException, StorageException, IOException {
 
     for (String fileName : fileNames) {
@@ -263,13 +281,13 @@ public class AzureMoveFilesIT {
 
       blobServiceClient.createBlobContainerIfNotExists(containerName);
       final BlobContainerClient blobContainerClient =
-          blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
-      BlobClient blobClient =
-          blobServiceClient.getBlobContainerClient(containerName).getBlobClient(fileName);
-      AppendBlobClient appendBlobClient = blobClient.getAppendBlobClient();
-      appendBlobClient.create();
+          blobServiceClient.getBlobContainerClient(containerName);
+      BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+      blobClient.deleteIfExists();
 
-      try (OutputStream outputStream = appendBlobClient.getBlobOutputStream()) {
+      BlockBlobClient blockBlobClient = blobClient.getBlockBlobClient();
+
+      try (OutputStream outputStream = blockBlobClient.getBlobOutputStream()) {
 
         // Path to the file you want to upload
         Path filePath = Paths.get("src/test/resources/" + fileName);
