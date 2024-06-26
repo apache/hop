@@ -1992,7 +1992,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
                   pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
           waitTime = Integer.parseInt(runconfig.getWaitTime());
         }
-        if (waitTime == null) waitTime = 20;
 
         if (waitingTime == null) {
           waitingTime =
