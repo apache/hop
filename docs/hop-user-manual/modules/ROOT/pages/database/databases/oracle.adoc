@@ -32,8 +32,9 @@ under the License.
 |Driver folder | <Hop Installation>/lib/jdbc
 |===
 
-TIP: Starting with Oracle Database 11g Release 1 (11.1), data type "Date" will be mapped to "Timestamp" by default. 
-Set JDBC property oracle.jdbc.mapDateToTimestamp=false to avoid data type "Date" being converted to data type "Timestamp".
+TIP: Starting with Oracle Database 11g Release 1 (11.1), data type `Date` will be mapped to `Timestamp` by default.
+Set JDBC property `oracle.jdbc.mapDateToTimestamp=false` to avoid data type `Date` being converted to data type `Timestamp`. +
+Check xref:database/databases.adoc#_options[Options] in the Relational Database Connection docs for more information.
 
 == Creating connections
 
