@@ -25,6 +25,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IProvidesModelerMeta;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -38,6 +39,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -53,7 +55,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "/pipeline/transforms/cratedb-bulkloader.html",
     isIncludeJdbcDrivers = true,
-    classLoaderGroup = "crate-db")
+    classLoaderGroup = "crate-db",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class CrateDBBulkLoaderMeta
     extends BaseTransformMeta<CrateDBBulkLoader, CrateDBBulkLoaderData>
     implements IProvidesModelerMeta {
@@ -67,19 +70,22 @@ public class CrateDBBulkLoaderMeta
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTIONNAME",
-      injectionKeyDescription = "CrateDBBulkLoader.Injection.CONNECTIONNAME")
+      injectionKeyDescription = "CrateDBBulkLoader.Injection.CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
       key = "schema",
       injectionKey = "SCHEMANAME",
-      injectionKeyDescription = "CrateDBBulkLoader.Injection.SCHEMANAME")
+      injectionKeyDescription = "CrateDBBulkLoader.Injection.SCHEMANAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TABLENAME",
-      injectionKeyDescription = "CrateDBBulkLoader.Injection.TABLENAME")
+      injectionKeyDescription = "CrateDBBulkLoader.Injection.TABLENAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tablename;
 
   @HopMetadataProperty(
