@@ -17,6 +17,8 @@ under the License.
 :documentationPath: /workflow/actions/
 :language: en_US
 :description: The Set Variables action sets variables at various scopes.
+:openvar: ${
+:closevar: }
 
 = Set Variables
 
@@ -36,7 +38,7 @@ The Set Variables action sets variables at various scopes.
 * Valid in the current workflow
 * Valid in the parent workflow
 * Valid in the root workflow
-|Variable substitution|Whether or not to substitute variables. Leave unchecked only if you actually want to set a literal value like "${MyVariable}" in the Value column.
+|Variable substitution|Whether or not to substitute variables. Leave unchecked only if you actually want to set a literal value like `{openvar}MyVariable{closevar}` in the Value column.
 |Variables|A list of variables to set to a certain value at a certain scope.
 |===
 
@@ -48,4 +50,4 @@ A properties file is a text file with the `.properties` extension. Each line in 
 
 == Variable substitution
 
-The "Variable substitution" option allows you to dynamically create and set variables based on existing variable values. When enabled, any variable references in the variable name or value fields will be resolved before the variables are set. This enables the creation of new variables whose names and values depend on other variable contents, providing a flexible and dynamic approach to variable management within workflows. The syntax `${MyVariable}` is used to retrieve variable values.
+The "Variable substitution" option allows you to dynamically create and set variables based on existing variable values. When enabled, any variable references in the variable name or value fields will be resolved before the variables are set. This enables the creation of new variables whose names and values depend on other variable contents, providing a flexible and dynamic approach to variable management within workflows. The syntax `{openvar}MyVariable{closevar}` is used to retrieve variable values.

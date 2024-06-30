@@ -137,7 +137,7 @@ The `CLASSPATH` lines in the various scripts should look similar to the one belo
 
 Once the classpaths have been updated, make sure to make the scripts executable: 
 
-`chmod +x ${CATALINA_HOME}/webapps/ROOT/*.sh`
+`chmod +x {openvar}CATALINA_HOME{closevar}/webapps/ROOT/*.sh`
 
 
 === Start Tomcat

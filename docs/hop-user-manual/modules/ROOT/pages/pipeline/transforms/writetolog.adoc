@@ -50,7 +50,7 @@ If no fields are added in the Write to log Fields list, it will write out all fi
 
 A Logging level must be set. Set the Log detail level to Basic if you want variables to be printed out.
 
-Example to print a parameter or variable in the Log Message section: ``COUNTER: ${myCounter}``
+Example to print a parameter or variable in the Log Message section: ``COUNTER: {openvar}myCounter{closevar}``
 
 If a data row does not exist containing fields, logging fields, parameters, or variables will not work. You may use a "Generate rows" transform to create a dummy row in order to print variables or parameters.
 
