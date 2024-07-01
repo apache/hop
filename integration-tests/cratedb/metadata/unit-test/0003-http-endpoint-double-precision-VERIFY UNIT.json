@@ -1,0 +1,14 @@
+{
+  "variableValues": [],
+  "database_replacements": [],
+  "autoOpening": true,
+  "basePath": "",
+  "golden_data_sets": [],
+  "input_data_sets": [],
+  "name": "0003-http-endpoint-double-precision-VERIFY UNIT",
+  "description": "",
+  "persist_filename": "",
+  "trans_test_tweaks": [],
+  "pipeline_filename": "./0003-http-endpoint-double-precision-VERIFY.hpl",
+  "test_type": "UNIT_TEST"
+}

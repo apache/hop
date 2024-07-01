@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+Licensed to the Apache Software Foundation (ASF) under one or more
+contributor license agreements.  See the NOTICE file distributed with
+this work for additional information regarding copyright ownership.
+The ASF licenses this file to You under the Apache License, Version 2.0
+(the "License"); you may not use this file except in compliance with
+the License.  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+-->
+<workflow>
+  <name>main-0003-http-endpoint-double-precision</name>
+  <name_sync_with_filename>Y</name_sync_with_filename>
+  <description/>
+  <extended_description/>
+  <workflow_version/>
+  <created_user>-</created_user>
+  <created_date>2024/04/26 15:51:06.701</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2024/04/26 15:51:06.701</modified_date>
+  <parameters>
+    </parameters>
+  <actions>
+    <action>
+      <name>Start</name>
+      <description/>
+      <type>SPECIAL</type>
+      <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <weekDay>1</weekDay>
+      <parallel>N</parallel>
+      <xloc>96</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0003-http-endpoint-double-precision</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0003-http-endpoint-double-precision.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Create test user and grant privileges</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>DROP USER IF EXISTS bob;
+CREATE USER bob WITH (password='password');
+GRANT DML ON SCHEMA doc TO bob;</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>288</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Create housing table</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>DROP TABLE IF EXISTS doc.housing;
+CREATE TABLE doc.housing
+(
+  	longitude DOUBLE PRECISION, 
+	latitude DOUBLE PRECISION, 
+	housing_median_age DOUBLE PRECISION, 
+	total_rooms DOUBLE PRECISION, total_bedrooms DOUBLE PRECISION, 
+	population DOUBLE PRECISION, 
+	households DOUBLE PRECISION, 
+	median_income DOUBLE PRECISION, 
+	median_house_value DOUBLE PRECISION, 
+	ocean_proximity VARCHAR(50)
+)
+;</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>544</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Refresh housing table</name>
+      <description/>
+      <type>SQL</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <sendOneStatement>N</sendOneStatement>
+      <sql>REFRESH TABLE doc.housing;</sql>
+      <sqlfromfile>N</sqlfromfile>
+      <useVariableSubstitution>N</useVariableSubstitution>
+      <parallel>N</parallel>
+      <xloc>1136</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>0003-http-endpoint-double-precision-VERIFY</name>
+      <description/>
+      <type>PIPELINE</type>
+      <attributes/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/0003-http-endpoint-double-precision-VERIFY.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>1408</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Success</name>
+      <description/>
+      <type>SUCCESS</type>
+      <attributes/>
+      <parallel>N</parallel>
+      <xloc>1888</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+    <action>
+      <name>Assert number of rows</name>
+      <description/>
+      <type>EVAL_TABLE_CONTENT</type>
+      <attributes/>
+      <connection>cratedb-test</connection>
+      <schemaname>doc</schemaname>
+      <tablename>housing</tablename>
+      <success_condition>rows_count_equal</success_condition>
+      <limit>20640</limit>
+      <is_custom_sql>N</is_custom_sql>
+      <is_usevars>N</is_usevars>
+      <custom_sql/>
+      <add_rows_result>N</add_rows_result>
+      <clear_result_rows>Y</clear_result_rows>
+      <parallel>N</parallel>
+      <xloc>1696</xloc>
+      <yloc>144</yloc>
+      <attributes_hac/>
+    </action>
+  </actions>
+  <hops>
+    <hop>
+      <from>Start</from>
+      <to>Create test user and grant privileges</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Create test user and grant privileges</from>
+      <to>Create housing table</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Create housing table</from>
+      <to>0003-http-endpoint-double-precision</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0003-http-endpoint-double-precision</from>
+      <to>Refresh housing table</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Refresh housing table</from>
+      <to>0003-http-endpoint-double-precision-VERIFY</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>0003-http-endpoint-double-precision-VERIFY</from>
+      <to>Assert number of rows</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Assert number of rows</from>
+      <to>Success</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+  <attributes/>
+</workflow>
