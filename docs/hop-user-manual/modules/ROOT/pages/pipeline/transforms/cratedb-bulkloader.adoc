@@ -91,6 +91,7 @@ At the moment, Hop only supports the `Basic` and `Bearer` authentication methods
 |Option|Description
 |HTTP Login|Insert the username for the HTTP authentication
 |HTTP password|Insert the password for the HTTP authentication
+|===
 
 == Fields
 

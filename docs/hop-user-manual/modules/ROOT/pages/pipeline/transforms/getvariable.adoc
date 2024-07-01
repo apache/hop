@@ -51,10 +51,10 @@ Parameters must be unique per pipeline (case is not a differentiator). The pipel
 
   * Use a pipeline executor transform or a Repeat action:
     - Send: add fields on the Parameters tab (parameter name can be same as field name) to send.
-    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: ${myParam}
+    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: {openvar}myParam{closevar}
   * Edit any upstream pipeline’s properties:
     - Send: Add a parameter on the parameters tab of a pipeline’s properties (Edit pipeline icon), and optionally give it a default value. The parameter value can be set in a pipeline using various transforms.
-    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: ${myParam}
+    - Receive: in the immediate downstream pipeline, use Get variables to set variables/fields from Parameters using format: {openvar}myParam{closevar}
 
 
 *Other:*
