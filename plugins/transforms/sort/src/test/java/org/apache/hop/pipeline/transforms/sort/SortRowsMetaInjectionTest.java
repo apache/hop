@@ -17,6 +17,8 @@
 
 package org.apache.hop.pipeline.transforms.sort;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
@@ -28,7 +30,11 @@ public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRow
 
   @Before
   public void setup() throws Exception {
-    setup(new SortRowsMeta());
+    SortRowsMeta sortRowsMeta = new SortRowsMeta();
+    SortRowsField sortRowsField = new SortRowsField();
+    List<SortRowsField> sortRowsFields = new ArrayList<>();
+    sortRowsFields.add(sortRowsField);
+    setup(sortRowsMeta);
   }
 
   @Test
@@ -38,12 +44,19 @@ public class SortRowsMetaInjectionTest extends BaseMetadataInjectionTest<SortRow
     check("SORT_SIZE_ROWS", () -> meta.getSortSize());
     check("FREE_MEMORY_TRESHOLD", () -> meta.getFreeMemoryLimit());
     check("ONLY_PASS_UNIQUE_ROWS", () -> meta.isOnlyPassingUniqueRows());
-    check("COMPRESS_TEMP_FILES", () -> meta.getCompressFiles());
-    check("NAME", () -> meta.getFieldName()[0]);
-    check("SORT_ASCENDING", () -> meta.getAscending()[0]);
-    check("IGNORE_CASE", () -> meta.getCaseSensitive()[0]);
-    check("PRESORTED", () -> meta.getPreSortedField()[0]);
-    check("COLLATOR_STRENGTH", () -> meta.getCollatorStrength()[0]);
-    check("COLLATOR_ENABLED", () -> meta.getCollatorEnabled()[0]);
+    check("COMPRESS_TEMP_FILES", () -> meta.isCompressFiles());
+    check("NAME", () -> meta.getSortFields().get(0).getFieldName());
+    check("SORT_ASCENDING", () -> meta.getSortFields().get(0).isAscending());
+    check("IGNORE_CASE", () -> meta.getSortFields().get(0).isCaseSensitive());
+    check("PRESORTED", () -> meta.getSortFields().get(0).isPreSortedField());
+    check("COLLATOR_ENABLED", () -> meta.getSortFields().get(0).isCollatorEnabled());
+    check("COLLATOR_STRENGTH", () -> meta.getSortFields().get(0).getCollatorStrength());
+    check("COMPRESS_VARIABLE", () -> meta.getCompressFilesVariable());
+    //    check("NAME", () -> meta.getFieldName()[0]);
+    //    check("SORT_ASCENDING", () -> meta.getAscending()[0]);
+    //    check("IGNORE_CASE", () -> meta.getCaseSensitive()[0]);
+    //    check("PRESORTED", () -> meta.getPreSortedField()[0]);
+    //    check("COLLATOR_STRENGTH", () -> meta.getCollatorStrength()[0]);
+    //    check("COLLATOR_ENABLED", () -> meta.getCollatorEnabled()[0]);
   }
 }

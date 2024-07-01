@@ -370,7 +370,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     // wait for first for is available
     Object[] r = getRow();
 
-    List<String> groupFields = null;
+    List<SortRowsField> groupFields = null;
 
     if (first) {
       this.first = false;
@@ -392,8 +392,10 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         groupFields = meta.getGroupFields();
         data.groupnrs = new int[groupFields.size()];
 
+        for (int i = 0; i < data.groupnrs.length; i++) {}
+
         for (int i = 0; i < groupFields.size(); i++) {
-          data.groupnrs[i] = inputRowMeta.indexOfValue(groupFields.get(i));
+          data.groupnrs[i] = inputRowMeta.indexOfValue(groupFields.get(i).getFieldName());
           if (data.groupnrs[i] < 0) {
             logError(
                 BaseMessages.getString(
@@ -405,7 +407,10 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
         }
       }
 
-      String[] fieldNames = meta.getFieldName();
+      String[] fieldNames = new String[meta.getSortFields().size()];
+      for (int i = 0; i < fieldNames.length; i++) {
+        fieldNames[i] = meta.getSortFields().get(i).getFieldName();
+      }
       data.fieldnrs = new int[fieldNames.length];
       List<Integer> toConvert = new ArrayList<>();
 
@@ -414,14 +419,14 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
       meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
       data.comparator = new RowTemapFileComparator(data.outputRowMeta, data.fieldnrs);
 
-      for (int i = 0; i < fieldNames.length; i++) {
-        data.fieldnrs[i] = inputRowMeta.indexOfValue(fieldNames[i]);
+      for (int i = 0; i < meta.getSortFields().size(); i++) {
+        data.fieldnrs[i] = inputRowMeta.indexOfValue(meta.getSortFields().get(i).getFieldName());
         if (data.fieldnrs[i] < 0) {
           throw new HopException(
               BaseMessages.getString(
                   PKG,
                   "SortRowsMeta.CheckResult.TransformFieldNotInInputStream",
-                  meta.getFieldName()[i],
+                  meta.getSortFields().get(i).getFieldName(),
                   getTransformName()));
         }
         // do we need binary conversion for this type?
@@ -429,6 +434,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
           toConvert.add(data.fieldnrs[i]);
         }
       }
+
       data.convertKeysToNative = toConvert.isEmpty() ? null : new int[toConvert.size()];
       int i = 0;
       for (Integer in : toConvert) {
@@ -566,7 +572,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     data.rowbuffer = new ArrayList<>(5000);
 
     data.compressFiles =
-        getVariableBoolean(meta.getCompressFilesVariable(), meta.getCompressFiles());
+        getVariableBoolean(meta.getCompressFilesVariable(), meta.isCompressFiles());
 
     data.tempRows = new ArrayList<>();
 
@@ -644,6 +650,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> {
     if (!data.isBeamContext()) {
       preSortBeforeFlush();
       passBuffer();
+      setOutputDone();
       setOutputDone();
     }
   }
