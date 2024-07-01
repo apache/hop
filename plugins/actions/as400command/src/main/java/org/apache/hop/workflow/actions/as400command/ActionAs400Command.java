@@ -47,7 +47,8 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     image = "as400command.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
     keywords = "i18n::ActionAs400Command.keyword",
-    documentationUrl = "/workflow/actions/as400command.html")
+    documentationUrl = "/workflow/actions/as400command.html",
+    isIncludeJdbcDrivers = true)
 public class ActionAs400Command extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAs400Command.class; // For Translator
 
