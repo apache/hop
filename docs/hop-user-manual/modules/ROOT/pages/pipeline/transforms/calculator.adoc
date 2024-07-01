@@ -27,10 +27,12 @@ under the License.
 
 The Calculator transform provides you with predefined functions that can be executed on input field values.
 
-*_Note:_* The execution speed of the Calculator is far better than the speed provided by custom scripts (JavaScript).
-
 In addition to the arguments (Field A, Field B and Field C) you must also specify the return type of the function.
-You can also choose to remove the field from the result (output) after all values are calculated; this is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
+
+You can choose to remove fields (with the `Remove` option) from the result (output) after all values are calculated. This is useful in cases where you use temporary values that don't need to end up in your pipeline fields.
+
+TIP: The execution speed of the Calculator is far better than the speed provided by custom scripts (JavaScript).
+
 
 |
 == Supported Engines
@@ -43,9 +45,30 @@ You can also choose to remove the field from the result (output) after all value
 !===
 |===
 
+
 == Options
 
-[options=header]
+[%header, width="90%", cols="1,3"]
+|===
+|Column|Description
+|New field|The output field for the calculation result. Set `Remove` to `Y` for temporary fields that are required to calculate later fields, but are not needed in the final result.
+|Calculation|The calculation required for this new field.
+|Field A|The first field to use in the calculation.
+|Field B|The second field to use in the calculation.
+|Field C|The third field to use in the calculation.
+|Value Type|The data type to use for the result of this calculation.
+|Length|The length to set for the result of this calculation.
+|Precision|The precision to set for the result of this calculation.
+|Remove|A boolean flag to set. Set to `Y` for temporary fields that are only required for intermediate calculations and don't need to be included in the output.
+|Conversion mask|Conversion mask to apply to date or numeric fields.
+|Decimal symbol|The decimal symbol to set in the output field.
+|Grouping symbol|The grouping symbol to set in the output field.
+|Currency symbol|The currency symbol to set in the output field.
+|===
+
+The table below lists the supported calculations in the `Calculator` transform:
+
+[options=header, width="90%', cols="2,3,1"]
 |===
 |Function (Hop GUI view)|Function (Metadata Injection view)|Description
 |Set field to constant A|CONSTANT|
@@ -88,9 +111,9 @@ If you need non-integer calculations, please add a second calculation with hours
 |ISO8601 Week of year of date A|WEEK_OF_YEAR_ISO8601|Calculate the week of the year ISO8601 style (1-53).
 |ISO8601 Year of date A|YEAR_OF_DATE_ISO8601|Calculate the year ISO8601 style.
 |Byte to hex encode of string A|BYTE_TO_HEX_ENCODE|Encode bytes in a string to a hexadecimal representation.
-|Hex encode of string A|HEX_TO_BYTE_DECODE|Encode a string in its own hexadecimal representation.
+|Hex to byte encode of string A|HEX_TO_BYTE_DECODE|Encode a string in its own hexadecimal representation.
 |Char to hex encode of string A|CHAR_TO_HEX_ENCODE|Encode characters in a string to a hexadecimal representation.
-|Hex decode of string A|HEX_TO_CHAR_DECODE|Decode a string from its hexadecimal representation (add a leading 0 when A is of odd length).
+|Hex to char decode of string A|HEX_TO_CHAR_DECODE|Decode a string from its hexadecimal representation (add a leading 0 when A is of odd length).
 |Checksum of a file A using CRC-32|CRC32|Calculate the checksum of a file using CRC-32.
 |Checksum of a file A using Adler-32|ADLER32|Calculate the checksum of a file using Adler-32.
 |Checksum of a file A using MD5|MD5|Calculate the checksum of a file using MD5.
@@ -126,11 +149,11 @@ The given string will be enclosed into <![CDATA[String]]>.
 |Unescape HTML content|UNESCAPE_HTML|Unescape HTML within the string.
 |Escape SQL content|ESCAPE_SQL|Escapes the characters in a String to be suitable to pass to an SQL query.
 |Date A - Date B (working days)|DATE_WORKING_DIFF|Calculates the difference between Date field A and Date field B (only working days Mon-Fri).
-|Date A + B Months|ADD_MONTHS|Add B months to Date field A.
-Note: Only integer values for B are supported.
+|Date A + B Months|ADD_MONTHS a|Add B months to Date field A.
+INFO: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with days.
-|Check if an XML file A is well formed|CHECK_XML_FILE_WELL_FORMED|Validates XML file input.
-|Check if an XML string A is well formed|CHECK_XML_WELL_FORMED|Validates XML string input.
+|Check if an XML file A is well-formed|CHECK_XML_FILE_WELL_FORMED|Validates XML file input.
+|Check if an XML string A is well-formed|CHECK_XML_WELL_FORMED|Validates XML string input.
 |Get encoding of file A|GET_FILE_ENCODING|Guess the best encoding (UTF-8) for the given file.
 |Dameraulevenshtein distance between String A and String B|DAMERAU_LEVENSHTEIN|Calculates Dameraulevenshtein distance between strings: http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance
 |NeedlemanWunsch distance between String A and String B|NEEDLEMAN_WUNSH|Calculates NeedlemanWunsch distance between strings: http://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm
@@ -138,22 +161,24 @@ If you need non-integer calculations, please add a second calculation with days.
 |JaroWinkler similitude between String A and String B|JARO_WINKLER|Returns the Jaro similarity coefficient between two string: http://en.wikipedia.org/wiki/Jaro%E2%80%93Winkler_distance
 |SoundEx of String A|SOUNDEX|Encodes a string into a Soundex value.
 |RefinedSoundEx of String A|REFINED_SOUNDEX|Retrieves the Refined Soundex code for a given string object
-|Date A + B Hours|ADD_HOURS|Add B hours to Date field.
-Note: Only integer values for B are supported.
-If you need non-integer calculations, please add a second calculation with minutes.
-|Date A + B Minutes|ADD_MINUTES|Add B minutes to Date field.
-Note: Only integer values for B are supported.
-If you need non-integer calculations, please add a second calculation with seconds.
+|Date A + B Hours|ADD_HOURS
+a|Add B hours to Date field +
+
+TIP: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with minutes.
+|Date A + B Minutes|ADD_MINUTES a|Add B minutes to Date field. +
+
+TIP: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with seconds.
 |Date A - Date B (milliseconds)|DATE_DIFF_MSEC|Subtract B milliseconds from Date field A
-|Date A - Date B (seconds)|DATE_DIFF_SEC|Subtract B seconds from Date field A.
-Note: Only integer values for B are supported.
+|Date A - Date B (seconds) a|DATE_DIFF_SEC a|Subtract B seconds from Date field A. +
+
+TIP: Only integer values for B are supported.
 If you need non-integer calculations, please add a second calculation with milliseconds.
-|Date A - Date B (minutes)|DATE_DIFF_MN|Subtract B minutes from Date field A.
-Note: Only integer values for B are supported.
-If you need non-integer calculations, please add a second calculation with seconds.
-|Date A - Date B (hours)|DATE_DIFF_HR|Subtract B hours from Date field A.
-Note: Only integer values for B are supported.
-If you need non-integer calculations, please add a second calculation with minutes.
+|Date A - Date B (minutes)|DATE_DIFF_MN a|Subtract B minutes from Date field A. +
+
+TIP: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with seconds.
+|Date A - Date B (hours)|DATE_DIFF_HR a|Subtract B hours from Date field A. +
+
+TIP: Only integer values for B are supported. If you need non-integer calculations, please add a second calculation with minutes.
 |Hour of Day of Date A|HOUR_OF_DAY|Extract the hour part of the given date
 |Minute of Hour of Date A|MINUTE_OF_HOUR|Extract the minute part of the given date
 |Second of Hour of Date A|SECOND_OF_MINUTE|Extract the second part of a given date
