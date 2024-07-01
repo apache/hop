@@ -1,4 +1,4 @@
-echo off
+@echo off
 REM
 REM Licensed to the Apache Software Foundation (ASF) under one or more
 REM contributor license agreements.  See the NOTICE file distributed with
@@ -16,7 +16,6 @@ REM See the License for the specific language governing permissions and
 REM limitations under the License.
 REM
 
-echo off
 setlocal
 
 REM switch to script directory
@@ -107,5 +106,3 @@ echo ===[Starting Hop]=========================================================
 
 %_HOP_JAVA% -classpath %CLASSPATH% -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.hopgui.HopGui
 if ERRORLEVEL 1 (pause)
-@echo off
-:End
