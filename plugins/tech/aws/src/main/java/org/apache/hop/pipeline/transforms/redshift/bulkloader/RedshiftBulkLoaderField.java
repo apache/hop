@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.redshift.bulkloader;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class RedshiftBulkLoaderField {
 
@@ -38,7 +39,8 @@ public class RedshiftBulkLoaderField {
   @HopMetadataProperty(
       key = "column_name",
       injectionKey = "DATABASE_FIELDNAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDDATABASE")
+      injectionKeyDescription = "RedshiftBulkLoader.Inject.FIELDDATABASE",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String databaseField;
 
   public String getStreamField() {

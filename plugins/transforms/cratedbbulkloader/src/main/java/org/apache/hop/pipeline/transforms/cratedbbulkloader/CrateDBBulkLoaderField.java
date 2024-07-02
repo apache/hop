@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.cratedbbulkloader;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class CrateDBBulkLoaderField {
 
@@ -38,7 +39,8 @@ public class CrateDBBulkLoaderField {
   @HopMetadataProperty(
       key = "column_name",
       injectionKey = "DATABASE_FIELDNAME",
-      injectionKeyDescription = "CrateDBBulkLoader.Inject.FIELDDATABASE")
+      injectionKeyDescription = "CrateDBBulkLoader.Inject.FIELDDATABASE",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String databaseField;
 
   public String getStreamField() {

@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.delete;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class DeleteKeyField {
 
@@ -31,7 +32,8 @@ public class DeleteKeyField {
   /** field in table */
   @HopMetadataProperty(
       key = "field",
-      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyLookup")
+      injectionKeyDescription = "DeleteMeta.Injection.Field.KeyLookup",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String keyLookup;
 
   /** Comparator: =, <>, BETWEEN, ... */

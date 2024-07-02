@@ -24,6 +24,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -33,6 +34,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -50,16 +52,21 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::ExecSql.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
     keywords = "i18n::ExecSqlMeta.keyword",
-    documentationUrl = "/pipeline/transforms/execsql.html")
+    documentationUrl = "/pipeline/transforms/execsql.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class ExecSqlMeta extends BaseTransformMeta<ExecSql, ExecSqlData> {
   private static final Class<?> PKG = ExecSqlMeta.class; // For Translator
 
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "ExecSqlMeta.Injection.CONNECTIONNAME")
+      injectionKeyDescription = "ExecSqlMeta.Injection.CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
-  @HopMetadataProperty(injectionKeyDescription = "ExecSqlMeta.Injection.SQL", injectionKey = "SQL")
+  @HopMetadataProperty(
+      injectionKeyDescription = "ExecSqlMeta.Injection.SQL",
+      injectionKey = "SQL",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL)
   private String sql;
 
   @HopMetadataProperty(

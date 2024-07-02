@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -35,6 +36,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -53,14 +55,19 @@ import org.apache.hop.workflow.action.validator.AndValidator;
     image = "sql.svg",
     categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
     keywords = "i18n::ActionSql.keyword",
-    documentationUrl = "/workflow/actions/sql.html")
+    documentationUrl = "/workflow/actions/sql.html",
+    actionTransformTypes = {ActionTransformType.RDBMS})
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSql.class; // For Translator
 
-  @HopMetadataProperty(key = "sql")
+  @HopMetadataProperty(
+      key = "sql",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL_SELECT)
   private String sql;
 
-  @HopMetadataProperty(key = "connection")
+  @HopMetadataProperty(
+      key = "connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(key = "useVariableSubstitution")

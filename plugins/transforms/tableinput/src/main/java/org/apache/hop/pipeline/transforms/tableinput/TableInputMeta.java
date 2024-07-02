@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -36,6 +37,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -56,12 +58,16 @@ import org.w3c.dom.Node;
     description = "i18n::TableInput.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl = "/pipeline/transforms/tableinput.html",
-    keywords = "i18n::TableInputMeta.keyword")
+    keywords = "i18n::TableInputMeta.keyword",
+    actionTransformTypes = {ActionTransformType.INPUT, ActionTransformType.RDBMS})
 public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData> {
 
   private static final Class<?> PKG = TableInputMeta.class; // For Translator
 
-  @HopMetadataProperty(key = "sql", injectionKey = "SQL")
+  @HopMetadataProperty(
+      key = "sql",
+      injectionKey = "SQL",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL_SELECT)
   private String sql;
 
   @HopMetadataProperty(key = "limit", injectionKey = "LIMIT")
@@ -74,7 +80,10 @@ public class TableInputMeta extends BaseTransformMeta<TableInput, TableInputData
   @HopMetadataProperty(key = "variables_active", injectionKey = "REPLACE_VARIABLES")
   private boolean variableReplacementActive;
 
-  @HopMetadataProperty(key = "connection", injectionKey = "CONNECTIONNAME")
+  @HopMetadataProperty(
+      key = "connection",
+      injectionKey = "CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty private String lookup;

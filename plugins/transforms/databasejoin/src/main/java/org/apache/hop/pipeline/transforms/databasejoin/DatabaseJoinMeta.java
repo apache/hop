@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -37,6 +38,7 @@ import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -50,14 +52,20 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::DatabaseJoin.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DatabaseJoinMeta.keyword",
-    documentationUrl = "/pipeline/transforms/databasejoin.html")
+    documentationUrl = "/pipeline/transforms/databasejoin.html",
+    actionTransformTypes = {
+      ActionTransformType.RDBMS,
+      ActionTransformType.LOOKUP,
+      ActionTransformType.JOIN
+    })
 public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJoinData> {
 
   private static final Class<?> PKG = DatabaseJoinMeta.class; // For Translator
 
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection")
+      injectionKeyDescription = "DatabaseJoinMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(key = "cache", injectionKeyDescription = "DatabaseJoinMeta.Injection.Cache")
@@ -70,7 +78,10 @@ public class DatabaseJoinMeta extends BaseTransformMeta<DatabaseJoin, DatabaseJo
   private int cacheSize;
 
   /** SQL Statement */
-  @HopMetadataProperty(key = "sql", injectionKeyDescription = "DatabaseJoinMeta.Injection.SQL")
+  @HopMetadataProperty(
+      key = "sql",
+      injectionKeyDescription = "DatabaseJoinMeta.Injection.SQL",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SQL)
   private String sql;
 
   /** Number of rows to return (0=ALL) */

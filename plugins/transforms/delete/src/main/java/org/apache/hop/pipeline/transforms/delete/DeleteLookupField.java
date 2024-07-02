@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class DeleteLookupField {
 
@@ -31,11 +32,17 @@ public class DeleteLookupField {
   private List<DeleteKeyField> fields;
 
   /** The lookup schema name */
-  @HopMetadataProperty(key = "schema", injectionKeyDescription = "DeleteMeta.Injection.SchemaName")
+  @HopMetadataProperty(
+      key = "schema",
+      injectionKeyDescription = "DeleteMeta.Injection.SchemaName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   /** The lookup table name */
-  @HopMetadataProperty(key = "table", injectionKeyDescription = "DeleteMeta.Injection.TableName")
+  @HopMetadataProperty(
+      key = "table",
+      injectionKeyDescription = "DeleteMeta.Injection.TableName",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tableName;
 
   public DeleteLookupField() {

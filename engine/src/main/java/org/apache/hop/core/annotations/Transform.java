@@ -82,4 +82,7 @@ public @interface Transform {
    * @return True if the JDBC drivers have to be loaded for this transform
    */
   boolean isIncludeJdbcDrivers() default false;
+
+  /** an Array of ActionTransformTypes for this transform */
+  ActionTransformType[] actionTransformTypes() default {};
 }

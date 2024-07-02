@@ -44,6 +44,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.TransformWithMappingMeta;
@@ -149,7 +150,9 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  @HopMetadataProperty(key = "filename")
+  @HopMetadataProperty(
+      key = "filename",
+      hopMetadataPropertyType = HopMetadataPropertyType.FILE_REFERENCE)
   private String filename;
 
   @HopMetadataProperty(key = "params_from_previous")
