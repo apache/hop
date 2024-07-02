@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.gui.plugin.action;
 
+@SuppressWarnings("java:S115")
 public enum GuiActionType {
   Create,
   Modify,

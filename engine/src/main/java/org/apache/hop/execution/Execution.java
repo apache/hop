@@ -29,6 +29,7 @@ import org.apache.hop.core.logging.LogLevel;
  */
 public class Execution {
 
+  @SuppressWarnings("java:S115")
   public enum EnvironmentDetailType {
     ContainerId,
     MaxMemory,

@@ -44,6 +44,7 @@ public class BasicDataProfilingDataSampler
     implements IExecutionDataSampler<BasicDataProfilingDataSamplerStore> {
   private static final Class<?> PKG = BasicDataProfilingDataSampler.class; // For Translator
 
+  @SuppressWarnings("java:S115")
   public enum ProfilingType {
     MinValue(BaseMessages.getString(PKG, "BasicDataProfilingDataSampler.Label.MinValue")),
     MaxValue(BaseMessages.getString(PKG, "BasicDataProfilingDataSampler.Label.MaxValue")),

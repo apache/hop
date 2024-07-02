@@ -25,6 +25,7 @@ import javax.net.ssl.SSLSocketFactory;
  * MongoClientWrapper. These properties roughly break down into a set relevant to MongoCredentials,
  * a set relevant to the ServerAddress(es) being used, and the raw MongoClientOptions.
  */
+@SuppressWarnings("java:S115")
 public enum MongoProp {
 
   // Properties relevant to MongoCredential creation

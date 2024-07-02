@@ -19,6 +19,7 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.hop.metadata.api.IEnumHasCode;
 
+@SuppressWarnings("java:S115")
 public enum ModelTargetHint implements IEnumHasCode {
   None("none", "None"),
   SelfRelationshipSource("self-source", "Self relationship source node"),

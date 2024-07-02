@@ -318,6 +318,7 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
     }
   }
 
+  @SuppressWarnings("java:S115")
   public static enum OperationType {
     GetExecutionIds(
         BaseMessages.getString(PKG, "ExecInfoMeta.OperationType.Description.GetExecutionIds"),

@@ -17,6 +17,7 @@
 
 package org.apache.hop.metadata.serializer.json.person.interest;
 
+@SuppressWarnings("java:S115")
 public enum InterestType {
   Sport,
   Food,

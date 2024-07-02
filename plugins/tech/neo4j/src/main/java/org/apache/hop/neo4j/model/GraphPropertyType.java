@@ -25,6 +25,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 
+@SuppressWarnings("java:S115")
 public enum GraphPropertyType {
   String,
   Integer,

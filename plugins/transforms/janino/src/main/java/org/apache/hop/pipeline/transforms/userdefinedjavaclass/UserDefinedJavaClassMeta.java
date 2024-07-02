@@ -72,6 +72,7 @@ public class UserDefinedJavaClassMeta
     extends BaseTransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // For Translator
 
+  @SuppressWarnings("java:S115")
   public enum ElementNames {
     class_type,
     class_name,

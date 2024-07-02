@@ -684,6 +684,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
   }
 
+  @SuppressWarnings("java:S115")
   private enum SingleClickType {
     Workflow,
     Action,

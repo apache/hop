@@ -18,6 +18,7 @@
 
 package org.apache.hop.execution;
 
+@SuppressWarnings("java:S115")
 public enum ExecutionType {
   Pipeline("pipeline"),
   Workflow("workflow"),
