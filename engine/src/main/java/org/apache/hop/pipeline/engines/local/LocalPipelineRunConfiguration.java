@@ -143,6 +143,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
   @HopMetadataProperty(key = "transactional")
   protected boolean transactional;
 
+  @SuppressWarnings("java:S115")
   public enum SampleType {
     None,
     First,

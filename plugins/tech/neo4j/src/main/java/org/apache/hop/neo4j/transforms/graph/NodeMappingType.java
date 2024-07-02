@@ -19,6 +19,7 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.hop.metadata.api.IEnumHasCode;
 
+@SuppressWarnings("java:S115")
 public enum NodeMappingType implements IEnumHasCode {
   All("all", "Select all defined labels (default)"),
   UsingValue("using-value", "Use a field value to select a specific label"),

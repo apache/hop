@@ -31,14 +31,7 @@
     <name>Hop Assemblies Plugins</name>
 
     <modules>
-        <module>actions</module>
-        <module>databases</module>
         <module>dist</module>
-        <module>engines</module>
-        <module>misc</module>
-        <module>tech</module>
-        <module>transforms</module>
-        <module>valuetypes</module>
     </modules>
 
 </project>

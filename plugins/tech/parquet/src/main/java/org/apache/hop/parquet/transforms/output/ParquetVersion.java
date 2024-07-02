@@ -19,6 +19,7 @@ package org.apache.hop.parquet.transforms.output;
 
 import org.apache.hop.metadata.api.IEnumHasCode;
 
+@SuppressWarnings("java:S115")
 public enum ParquetVersion implements IEnumHasCode {
   Version1("1.0", "Parquet 1.0"),
   Version2("2.0", "Parquet 2.0");

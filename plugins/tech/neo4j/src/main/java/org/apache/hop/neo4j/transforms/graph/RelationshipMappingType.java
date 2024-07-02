@@ -19,6 +19,7 @@ package org.apache.hop.neo4j.transforms.graph;
 
 import org.apache.hop.metadata.api.IEnumHasCode;
 
+@SuppressWarnings("java:S115")
 public enum RelationshipMappingType implements IEnumHasCode {
   NoMapping("none", "No mapping"),
   NoRelationship("no-relationship", "Do not update relationship between specified nodes"),

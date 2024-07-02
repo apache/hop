@@ -18,6 +18,7 @@
 
 package org.apache.hop.beam.metadata;
 
+@SuppressWarnings("java:S115")
 public enum RunnerType {
   Direct,
   DataFlow,

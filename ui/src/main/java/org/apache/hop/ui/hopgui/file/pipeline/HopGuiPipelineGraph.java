@@ -849,6 +849,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
+  @SuppressWarnings("java:S115")
   private enum SingleClickType {
     Pipeline,
     Transform,

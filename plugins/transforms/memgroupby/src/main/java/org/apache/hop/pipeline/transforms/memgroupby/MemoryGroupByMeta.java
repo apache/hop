@@ -334,6 +334,7 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
             + " previous transform(s)");
   }
 
+  @SuppressWarnings("java:S115")
   public enum GroupType implements IEnumHasCode {
     None("-", "-"),
     Sum("SUM", BaseMessages.getString(PKG, "MemoryGroupByMeta.TypeGroupLongDesc.SUM")),

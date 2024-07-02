@@ -26,6 +26,7 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardE
 import org.apache.hop.ui.hopgui.perspective.execution.PipelineExecutionViewer;
 import org.apache.hop.ui.hopgui.perspective.explorer.ExplorerPerspective;
 
+@SuppressWarnings("java:S115")
 public enum HopGuiExtensionPoint {
   HopGuiFileOpenDialog(
       "Allows you to modify the file open dialog before it's shown. If you want to show your own, set doIt to false",

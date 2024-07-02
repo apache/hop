@@ -17,6 +17,7 @@
 
 package org.apache.hop.core.extension;
 
+@SuppressWarnings("java:S115")
 public enum HopExtensionPoint {
   HopGuiInit("HopGui before the shell is created"),
   HopGuiStart("HopGui has started"),

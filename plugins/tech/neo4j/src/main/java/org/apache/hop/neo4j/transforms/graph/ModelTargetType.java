@@ -18,6 +18,7 @@
 
 package org.apache.hop.neo4j.transforms.graph;
 
+@SuppressWarnings("java:S115")
 public enum ModelTargetType {
   Unmapped,
   Node,

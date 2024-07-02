@@ -23,6 +23,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.neo4j.core.value.ValueMetaGraph;
 
+@SuppressWarnings("java:S115")
 public enum GraphPropertyDataType {
   String("string"),
   Integer("long"),

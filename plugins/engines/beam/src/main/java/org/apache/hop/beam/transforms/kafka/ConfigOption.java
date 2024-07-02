@@ -21,6 +21,7 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 
 public class ConfigOption {
 
+  @SuppressWarnings("java:S115")
   public enum Type {
     String,
     Short,

@@ -34,8 +34,6 @@ limitations under the License.
     <created_date>2022/09/13 09:48:28.393</created_date>
     <modified_user>-</modified_user>
     <modified_date>2022/09/13 09:48:28.393</modified_date>
-    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA=</key_for_session_key>
-    <is_key_private>N</is_key_private>
   </info>
   <notepads>
   </notepads>
@@ -87,22 +85,22 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <send_true_to/>
-    <send_false_to/>
     <compare>
       <condition>
-        <negated>N</negated>
-        <leftvalue>count</leftvalue>
+        <conditions>
+</conditions>
         <function>&lt;></function>
-        <rightvalue/>
+        <leftvalue>count</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
         <value>
-          <name>constant</name>
-          <type>Integer</type>
-          <text>19</text>
-          <length>-1</length>
-          <precision>0</precision>
           <isnull>N</isnull>
+          <length>-1</length>
           <mask>####0;-####0</mask>
+          <name>constant</name>
+          <precision>0</precision>
+          <text>19</text>
+          <type>Integer</type>
         </value>
       </condition>
     </compare>
@@ -124,7 +122,8 @@ limitations under the License.
       <schema_name/>
     </partitioning>
     <add_linenr>N</add_linenr>
-    <ignore_aggregate>N</ignore_aggregate>
+    <all_rows>N</all_rows>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
         <aggregate>count</aggregate>
@@ -132,10 +131,9 @@ limitations under the License.
       </field>
     </fields>
     <give_back_row>Y</give_back_row>
-    <directory>${java.io.tmpdir}</directory>
     <group>
 </group>
-    <all_rows>N</all_rows>
+    <ignore_aggregate>N</ignore_aggregate>
     <prefix>grp</prefix>
     <attributes/>
     <GUI>
@@ -154,91 +152,90 @@ limitations under the License.
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <header>Y</header>
-    <noempty>Y</noempty>
-    <stoponempty>N</stoponempty>
-    <filefield/>
-    <sheetfield/>
-    <sheetrownumfield/>
-    <rownumfield/>
-    <sheetfield/>
-    <filefield/>
-    <limit>0</limit>
-    <encoding/>
-    <add_to_result_filenames>Y</add_to_result_filenames>
-    <accept_filenames>N</accept_filenames>
     <accept_field/>
+    <accept_filenames>N</accept_filenames>
     <accept_transform_name/>
-    <file>
-      <name>${PROJECT_HOME}/files/sample-file-append.xlsx</name>
-      <filemask/>
-      <exclude_filemask/>
-      <file_required>N</file_required>
-      <include_subfolders>N</include_subfolders>
-    </file>
+    <add_to_result_filenames>Y</add_to_result_filenames>
+    <bad_line_files_destination_directory/>
+    <bad_line_files_extension>warning</bad_line_files_extension>
+    <encoding/>
+    <error_ignored>N</error_ignored>
+    <error_line_files_destination_directory/>
+    <error_line_files_extension>error</error_line_files_extension>
+    <error_line_skipped>N</error_line_skipped>
+    <extensionFieldName/>
     <fields>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
         <name>column1</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <trim_type>none</trim_type>
         <type>Number</type>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
       </field>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
         <name>column2</name>
-        <type>String</type>
-        <length>-1</length>
         <precision>-1</precision>
-        <trim_type>none</trim_type>
         <repeat>N</repeat>
-        <format/>
-        <currency/>
-        <decimal/>
-        <group/>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
       <field>
-        <name>column3</name>
-        <type>String</type>
-        <length>-1</length>
-        <precision>-1</precision>
-        <trim_type>none</trim_type>
-        <repeat>N</repeat>
-        <format/>
         <currency/>
         <decimal/>
+        <format/>
         <group/>
+        <length>-1</length>
+        <name>column3</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <trim_type>none</trim_type>
+        <type>String</type>
       </field>
     </fields>
+    <file>
+      <exclude_filemask/>
+      <file_required>N</file_required>
+      <filemask/>
+      <include_subfolders>N</include_subfolders>
+      <name>${PROJECT_HOME}/files/sample-file-append-test.xlsx</name>
+    </file>
+    <filefield/>
+    <header>Y</header>
+    <hiddenFieldName/>
+    <lastModificationTimeFieldName/>
+    <limit>0</limit>
+    <line_number_files_destination_directory/>
+    <line_number_files_extension>line</line_number_files_extension>
+    <noempty>Y</noempty>
+    <pathFieldName/>
+    <rootUriNameFieldName/>
+    <rownumfield/>
+    <schema_definition/>
+    <sheetfield/>
+    <sheetrownumfield/>
     <sheets>
       <sheet>
         <name>Sheet1</name>
-        <startrow>0</startrow>
         <startcol>0</startcol>
+        <startrow>0</startrow>
       </sheet>
     </sheets>
-    <strict_types>N</strict_types>
-    <error_ignored>N</error_ignored>
-    <error_line_skipped>N</error_line_skipped>
-    <bad_line_files_destination_directory/>
-    <bad_line_files_extension>warning</bad_line_files_extension>
-    <error_line_files_destination_directory/>
-    <error_line_files_extension>error</error_line_files_extension>
-    <line_number_files_destination_directory/>
-    <line_number_files_extension>line</line_number_files_extension>
     <shortFileFieldName/>
-    <pathFieldName/>
-    <hiddenFieldName/>
-    <lastModificationTimeFieldName/>
-    <uriNameFieldName/>
-    <rootUriNameFieldName/>
-    <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>SAX_POI</spreadsheet_type>
+    <stoponempty>N</stoponempty>
+    <strict_types>N</strict_types>
+    <uriNameFieldName/>
     <attributes/>
     <GUI>
       <xloc>144</xloc>

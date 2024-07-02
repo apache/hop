@@ -26,7 +26,6 @@
     <artifactId>hop-assemblies-plugins-dist</artifactId>
 
     <name>Hop Assemblies Plugins Dist</name>
-    <description></description>
 
     <dependencies>
 
@@ -34,7 +33,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-abort</artifactId>
+            <artifactId>hop-action-abort</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -47,7 +46,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-addresultfilenames</artifactId>
+            <artifactId>hop-action-addresultfilenames</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -60,7 +59,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-as400command</artifactId>
+            <artifactId>hop-action-as400command</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -73,7 +72,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-checkdbconnection</artifactId>
+            <artifactId>hop-action-checkdbconnection</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -86,7 +85,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-checkfilelocked</artifactId>
+            <artifactId>hop-action-checkfilelocked</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -99,7 +98,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-columnsexist</artifactId>
+            <artifactId>hop-action-columnsexist</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -112,7 +111,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-copyfiles</artifactId>
+            <artifactId>hop-action-copyfiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -125,7 +124,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-copymoveresultfilenames</artifactId>
+            <artifactId>hop-action-copymoveresultfilenames</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -138,7 +137,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-createfile</artifactId>
+            <artifactId>hop-action-createfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -151,7 +150,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-createfolder</artifactId>
+            <artifactId>hop-action-createfolder</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -164,7 +163,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-delay</artifactId>
+            <artifactId>hop-action-delay</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -177,7 +176,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-deletefile</artifactId>
+            <artifactId>hop-action-deletefile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -190,7 +189,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-deletefiles</artifactId>
+            <artifactId>hop-action-deletefiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -203,7 +202,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-deletefolders</artifactId>
+            <artifactId>hop-action-deletefolders</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -216,7 +215,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-deleteresultfilenames</artifactId>
+            <artifactId>hop-action-deleteresultfilenames</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -229,7 +228,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-dostounix</artifactId>
+            <artifactId>hop-action-dostounix</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -242,7 +241,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-eval</artifactId>
+            <artifactId>hop-action-eval</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -255,7 +254,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-evalfilesmetrics</artifactId>
+            <artifactId>hop-action-evalfilesmetrics</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -268,7 +267,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-evaluatetablecontent</artifactId>
+            <artifactId>hop-action-evaluatetablecontent</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -281,7 +280,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-filecompare</artifactId>
+            <artifactId>hop-action-filecompare</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -294,7 +293,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-fileexists</artifactId>
+            <artifactId>hop-action-fileexists</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -307,7 +306,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-filesexist</artifactId>
+            <artifactId>hop-action-filesexist</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -320,7 +319,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-folderisempty</artifactId>
+            <artifactId>hop-action-folderisempty</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -333,7 +332,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-folderscompare</artifactId>
+            <artifactId>hop-action-folderscompare</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -346,7 +345,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-ftp</artifactId>
+            <artifactId>hop-action-ftp</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -359,7 +358,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-getpop</artifactId>
+            <artifactId>hop-action-getpop</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -372,7 +371,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-http</artifactId>
+            <artifactId>hop-action-http</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -385,7 +384,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-mail</artifactId>
+            <artifactId>hop-action-mail</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -398,7 +397,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-mailvalidator</artifactId>
+            <artifactId>hop-action-mailvalidator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -411,7 +410,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-movefiles</artifactId>
+            <artifactId>hop-action-movefiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -424,7 +423,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-msgboxinfo</artifactId>
+            <artifactId>hop-action-msgboxinfo</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -437,7 +436,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-mssqlbulkload</artifactId>
+            <artifactId>hop-action-mssqlbulkload</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -450,7 +449,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-mysqlbulkfile</artifactId>
+            <artifactId>hop-action-mysqlbulkfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -463,7 +462,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-mysqlbulkload</artifactId>
+            <artifactId>hop-action-mysqlbulkload</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -476,7 +475,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-pgpfiles</artifactId>
+            <artifactId>hop-action-pgpfiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -489,7 +488,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-ping</artifactId>
+            <artifactId>hop-action-ping</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -502,7 +501,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-pipeline</artifactId>
+            <artifactId>hop-action-pipeline</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -515,7 +514,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-repeat</artifactId>
+            <artifactId>hop-action-repeat</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -528,7 +527,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-sendnagiospassivecheck</artifactId>
+            <artifactId>hop-action-sendnagiospassivecheck</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -541,7 +540,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-setvariables</artifactId>
+            <artifactId>hop-action-setvariables</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -554,7 +553,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-shell</artifactId>
+            <artifactId>hop-action-shell</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -567,7 +566,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-simpleeval</artifactId>
+            <artifactId>hop-action-simpleeval</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -580,7 +579,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-snmptrap</artifactId>
+            <artifactId>hop-action-snmptrap</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -593,7 +592,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-snowflake</artifactId>
+            <artifactId>hop-action-snowflake</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -606,7 +605,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-sql</artifactId>
+            <artifactId>hop-action-sql</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -619,7 +618,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-success</artifactId>
+            <artifactId>hop-action-success</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -632,7 +631,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-tableexists</artifactId>
+            <artifactId>hop-action-tableexists</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -645,7 +644,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-telnet</artifactId>
+            <artifactId>hop-action-telnet</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -658,7 +657,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-truncatetables</artifactId>
+            <artifactId>hop-action-truncatetables</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -671,7 +670,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-unzip</artifactId>
+            <artifactId>hop-action-unzip</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -684,7 +683,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-waitforfile</artifactId>
+            <artifactId>hop-action-waitforfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -697,7 +696,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-waitforsql</artifactId>
+            <artifactId>hop-action-waitforsql</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -710,7 +709,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-webserviceavailable</artifactId>
+            <artifactId>hop-action-webserviceavailable</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -723,7 +722,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-workflow</artifactId>
+            <artifactId>hop-action-workflow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -736,7 +735,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-writetofile</artifactId>
+            <artifactId>hop-action-writetofile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -749,7 +748,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-writetolog</artifactId>
+            <artifactId>hop-action-writetolog</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -762,7 +761,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-xml</artifactId>
+            <artifactId>hop-action-xml</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -775,7 +774,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-action-zipfile</artifactId>
+            <artifactId>hop-action-zipfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -788,7 +787,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-access</artifactId>
+            <artifactId>hop-databases-access</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -801,7 +800,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-as400</artifactId>
+            <artifactId>hop-databases-as400</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -814,7 +813,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-cache</artifactId>
+            <artifactId>hop-databases-cache</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -829,7 +828,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-clickhouse</artifactId>
+            <artifactId>hop-databases-clickhouse</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -842,7 +841,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-cockroachdb</artifactId>
+            <artifactId>hop-databases-cockroachdb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -855,7 +854,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-cratedb</artifactId>
+            <artifactId>hop-databases-cratedb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -868,7 +867,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-db2</artifactId>
+            <artifactId>hop-databases-db2</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -881,7 +880,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-derby</artifactId>
+            <artifactId>hop-databases-derby</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -894,7 +893,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-doris</artifactId>
+            <artifactId>hop-databases-doris</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -907,7 +906,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-duckdb</artifactId>
+            <artifactId>hop-databases-duckdb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -920,7 +919,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-exasol4</artifactId>
+            <artifactId>hop-databases-exasol4</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -933,7 +932,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-firebird</artifactId>
+            <artifactId>hop-databases-firebird</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -946,7 +945,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-generic</artifactId>
+            <artifactId>hop-databases-generic</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -959,7 +958,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-googlebigquery</artifactId>
+            <artifactId>hop-databases-googlebigquery</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -972,7 +971,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-greenplum</artifactId>
+            <artifactId>hop-databases-greenplum</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -985,7 +984,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-h2</artifactId>
+            <artifactId>hop-databases-h2</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -998,7 +997,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-hive</artifactId>
+            <artifactId>hop-databases-hive</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1011,7 +1010,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-hypersonic</artifactId>
+            <artifactId>hop-databases-hypersonic</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1024,7 +1023,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-infobright</artifactId>
+            <artifactId>hop-databases-infobright</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1037,7 +1036,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-informix</artifactId>
+            <artifactId>hop-databases-informix</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1050,7 +1049,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-ingres</artifactId>
+            <artifactId>hop-databases-ingres</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1063,7 +1062,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-iris</artifactId>
+            <artifactId>hop-databases-interbase</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1076,7 +1075,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-itnerbase</artifactId>
+            <artifactId>hop-databases-iris</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1089,7 +1088,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-kingbasees</artifactId>
+            <artifactId>hop-databases-kingbasees</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1102,7 +1101,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-mariadb</artifactId>
+            <artifactId>hop-databases-mariadb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1115,7 +1114,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-monetdb</artifactId>
+            <artifactId>hop-databases-monetdb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1128,7 +1127,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-mssql</artifactId>
+            <artifactId>hop-databases-mssql</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1141,7 +1140,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-mssqlnative</artifactId>
+            <artifactId>hop-databases-mssqlnative</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1154,7 +1153,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-mysql</artifactId>
+            <artifactId>hop-databases-mysql</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1167,7 +1166,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-netezza</artifactId>
+            <artifactId>hop-databases-netezza</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1180,7 +1179,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-oracle</artifactId>
+            <artifactId>hop-databases-oracle</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1193,7 +1192,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-oraclerdb</artifactId>
+            <artifactId>hop-databases-oraclerdb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1206,7 +1205,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-postgresql</artifactId>
+            <artifactId>hop-databases-postgresql</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1219,7 +1218,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-redshift</artifactId>
+            <artifactId>hop-databases-redshift</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1232,7 +1231,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-sapdb</artifactId>
+            <artifactId>hop-databases-sapdb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1245,7 +1244,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-snowflake</artifactId>
+            <artifactId>hop-databases-snowflake</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1258,7 +1257,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-sqlbase</artifactId>
+            <artifactId>hop-databases-sqlbase</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1271,7 +1270,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-sqlite</artifactId>
+            <artifactId>hop-databases-sqlite</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1284,7 +1283,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-sybase</artifactId>
+            <artifactId>hop-databases-sybase</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1297,7 +1296,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-sybaseiq</artifactId>
+            <artifactId>hop-databases-sybaseiq</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1310,7 +1309,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-teradata</artifactId>
+            <artifactId>hop-databases-teradata</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1323,7 +1322,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-universe</artifactId>
+            <artifactId>hop-databases-universe</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1336,7 +1335,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-vectorwise</artifactId>
+            <artifactId>hop-databases-vectorwise</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1349,7 +1348,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-databases-vertica</artifactId>
+            <artifactId>hop-databases-vertica</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1362,7 +1361,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
+            <artifactId>hop-engines-beam</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1375,7 +1374,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-async</artifactId>
+            <artifactId>hop-misc-async</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1388,7 +1387,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-debug</artifactId>
+            <artifactId>hop-misc-debug</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1401,7 +1400,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-git</artifactId>
+            <artifactId>hop-misc-git</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1414,7 +1413,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-import</artifactId>
+            <artifactId>hop-misc-import</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1427,7 +1426,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-passwords</artifactId>
+            <artifactId>hop-misc-passwords</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1440,7 +1439,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-projects</artifactId>
+            <artifactId>hop-misc-projects</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1453,7 +1452,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-reflection</artifactId>
+            <artifactId>hop-misc-reflection</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1466,7 +1465,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-misc-testing</artifactId>
+            <artifactId>hop-misc-testing</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1479,7 +1478,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-avro</artifactId>
+            <artifactId>hop-tech-avro</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -1492,7 +1491,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-aws</artifactId>
+            <artifactId>hop-tech-aws</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -1505,7 +1504,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-azure</artifactId>
+            <artifactId>hop-tech-azure</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -1518,7 +1517,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-cassandra</artifactId>
+            <artifactId>hop-tech-cassandra</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -1531,7 +1530,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-dropbox</artifactId>
+            <artifactId>hop-tech-dropbox</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -1544,7 +1543,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-google</artifactId>
+            <artifactId>hop-tech-google</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -1557,7 +1556,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-neo4j</artifactId>
+            <artifactId>hop-tech-neo4j</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1570,8 +1569,8 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-tech-parquet</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <artifactId>hop-tech-parquet</artifactId>
+            <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
                 <exclusion>
@@ -1585,7 +1584,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-abort</artifactId>
+            <artifactId>hop-transform-abort</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1598,7 +1597,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-addsequence</artifactId>
+            <artifactId>hop-transform-addsequence</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1611,7 +1610,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-analyticquery</artifactId>
+            <artifactId>hop-transform-analyticquery</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1624,7 +1623,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-append</artifactId>
+            <artifactId>hop-transform-append</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1637,7 +1636,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-blockingtransform</artifactId>
+            <artifactId>hop-transform-blockingtransform</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1650,7 +1649,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-blockuntiltransformsfinish</artifactId>
+            <artifactId>hop-transform-blockuntiltransformsfinish</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1663,7 +1662,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-calculator</artifactId>
+            <artifactId>hop-transform-calculator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1676,7 +1675,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-changefileencoding</artifactId>
+            <artifactId>hop-transform-changefileencoding</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1689,7 +1688,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-checksum</artifactId>
+            <artifactId>hop-transform-checksum</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1702,7 +1701,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-clonerow</artifactId>
+            <artifactId>hop-transform-clonerow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1715,7 +1714,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-closure</artifactId>
+            <artifactId>hop-transform-closure</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1728,7 +1727,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-coalesce</artifactId>
+            <artifactId>hop-transform-coalesce</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1741,7 +1740,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-columnexists</artifactId>
+            <artifactId>hop-transform-columnexists</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1754,7 +1753,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-combinationlookup</artifactId>
+            <artifactId>hop-transform-combinationlookup</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1767,7 +1766,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-concatfields</artifactId>
+            <artifactId>hop-transform-concatfields</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1780,7 +1779,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-constant</artifactId>
+            <artifactId>hop-transform-constant</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1793,7 +1792,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-cratedbbulkloader</artifactId>
+            <artifactId>hop-transform-cratedbbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1806,7 +1805,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-creditcardvalidator</artifactId>
+            <artifactId>hop-transform-creditcardvalidator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1819,7 +1818,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-cubeinput</artifactId>
+            <artifactId>hop-transform-cubeinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1832,7 +1831,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-cubeoutput</artifactId>
+            <artifactId>hop-transform-cubeoutput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1845,7 +1844,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-databasejoin</artifactId>
+            <artifactId>hop-transform-databasejoin</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1858,7 +1857,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-databaselookup</artifactId>
+            <artifactId>hop-transform-databaselookup</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1871,7 +1870,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-datagrid</artifactId>
+            <artifactId>hop-transform-datagrid</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1884,7 +1883,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-dbproc</artifactId>
+            <artifactId>hop-transform-dbproc</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1897,7 +1896,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-delay</artifactId>
+            <artifactId>hop-transform-delay</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1910,7 +1909,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-delete</artifactId>
+            <artifactId>hop-transform-delete</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1923,7 +1922,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-denormaliser</artifactId>
+            <artifactId>hop-transform-denormaliser</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1936,7 +1935,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-detectemptystream</artifactId>
+            <artifactId>hop-transform-detectemptystream</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1949,7 +1948,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-detectlastrow</artifactId>
+            <artifactId>hop-transform-detectlastrow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1962,7 +1961,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-dimensionlookup</artifactId>
+            <artifactId>hop-transform-dimensionlookup</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1975,7 +1974,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-dorisbulkloader</artifactId>
+            <artifactId>hop-transform-dorisbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -1987,7 +1986,7 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-drools</artifactId>
+            <artifactId>hop-transform-drools</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2000,7 +1999,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-dynamicsqlrow</artifactId>
+            <artifactId>hop-transform-dynamicsqlrow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2013,7 +2012,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-edi2xml</artifactId>
+            <artifactId>hop-transform-edi2xml</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2026,7 +2025,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-excel</artifactId>
+            <artifactId>hop-transform-excel</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2039,7 +2038,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-execinfo</artifactId>
+            <artifactId>hop-transform-execinfo</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2052,7 +2051,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-execprocess</artifactId>
+            <artifactId>hop-transform-execprocess</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2065,7 +2064,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-execsqlrow</artifactId>
+            <artifactId>hop-transform-execsqlrow</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2078,7 +2077,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-fake</artifactId>
+            <artifactId>hop-transform-fake</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2091,7 +2090,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-fieldchangesequence</artifactId>
+            <artifactId>hop-transform-fieldschangesequence</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2104,7 +2103,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-fieldsplitter</artifactId>
+            <artifactId>hop-transform-fieldsplitter</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2117,7 +2116,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-fileexists</artifactId>
+            <artifactId>hop-transform-fileexists</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2130,7 +2129,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-filelocked</artifactId>
+            <artifactId>hop-transform-filelocked</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2143,7 +2142,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-filemetadata</artifactId>
+            <artifactId>hop-transform-filemetadata</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2156,7 +2155,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-filesfromresult</artifactId>
+            <artifactId>hop-transform-filesfromresult</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2169,7 +2168,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-filestoresult</artifactId>
+            <artifactId>hop-transform-filestoresult</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2182,7 +2181,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-filterrows</artifactId>
+            <artifactId>hop-transform-filterrows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2195,7 +2194,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-flattener</artifactId>
+            <artifactId>hop-transform-flattener</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2208,7 +2207,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-formula</artifactId>
+            <artifactId>hop-transform-formula</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2221,7 +2220,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-fuzzymatch</artifactId>
+            <artifactId>hop-transform-fuzzymatch</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2234,7 +2233,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-getfilenames</artifactId>
+            <artifactId>hop-transform-getfilenames</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2247,7 +2246,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-getfilesrowscount</artifactId>
+            <artifactId>hop-transform-getfilesrowcount</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2260,7 +2259,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-getsubfolders</artifactId>
+            <artifactId>hop-transform-getsubfolders</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2273,7 +2272,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-gettablenames</artifactId>
+            <artifactId>hop-transform-gettablenames</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2286,7 +2285,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-getvariable</artifactId>
+            <artifactId>hop-transform-getvariable</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2299,7 +2298,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-groupby</artifactId>
+            <artifactId>hop-transform-groupby</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2312,7 +2311,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-http</artifactId>
+            <artifactId>hop-transform-http</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2325,7 +2324,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-httppost</artifactId>
+            <artifactId>hop-transform-httppost</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2338,7 +2337,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-ifnull</artifactId>
+            <artifactId>hop-transform-ifnull</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2351,7 +2350,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-insertupdate</artifactId>
+            <artifactId>hop-transform-insertupdate</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2364,7 +2363,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-janino</artifactId>
+            <artifactId>hop-transform-janino</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2377,7 +2376,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-javascript</artifactId>
+            <artifactId>hop-transform-javascript</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2390,7 +2389,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-jdbc-metadata</artifactId>
+            <artifactId>hop-transform-jdbc-metadata</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2403,7 +2402,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-joinrows</artifactId>
+            <artifactId>hop-transform-joinrows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2416,7 +2415,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-json</artifactId>
+            <artifactId>hop-transform-json</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2429,7 +2428,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-kafka</artifactId>
+            <artifactId>hop-transform-kafka</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2442,7 +2441,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-ldap</artifactId>
+            <artifactId>hop-transform-ldap</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2455,7 +2454,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-loadfileinput</artifactId>
+            <artifactId>hop-transform-loadfileinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2468,7 +2467,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mail</artifactId>
+            <artifactId>hop-transform-mail</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2481,7 +2480,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mailinput</artifactId>
+            <artifactId>hop-transform-mailinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2494,7 +2493,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mapping</artifactId>
+            <artifactId>hop-transform-mapping</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2507,7 +2506,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-memgroupby</artifactId>
+            <artifactId>hop-transform-memgroupby</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2520,7 +2519,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mergejoin</artifactId>
+            <artifactId>hop-transform-mergejoin</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2533,7 +2532,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mergerows</artifactId>
+            <artifactId>hop-transform-mergerows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2546,7 +2545,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-metadata</artifactId>
+            <artifactId>hop-transform-metadata</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2559,7 +2558,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-metainject</artifactId>
+            <artifactId>hop-transform-metainject</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2572,7 +2571,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-metastructure</artifactId>
+            <artifactId>hop-transform-metastructure</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2585,7 +2584,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-monetdbbulkloader</artifactId>
+            <artifactId>hop-transform-monetdbbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2598,7 +2597,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-mongodb</artifactId>
+            <artifactId>hop-transform-mongodb</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2611,7 +2610,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-multimerge</artifactId>
+            <artifactId>hop-transform-multimerge</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2624,7 +2623,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-normaliser</artifactId>
+            <artifactId>hop-transform-normaliser</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2637,7 +2636,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-nullif</artifactId>
+            <artifactId>hop-transform-nullif</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2650,7 +2649,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-numberrange</artifactId>
+            <artifactId>hop-transform-numberrange</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2663,7 +2662,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-orabulkloader</artifactId>
+            <artifactId>hop-transform-orabulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2676,7 +2675,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-pgbulkloader</artifactId>
+            <artifactId>hop-transform-pgbulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2689,7 +2688,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-pgp</artifactId>
+            <artifactId>hop-transform-pgp</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2702,7 +2701,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-pipelineexecutor</artifactId>
+            <artifactId>hop-transform-pipelineexecutor</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2715,7 +2714,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-processfiles</artifactId>
+            <artifactId>hop-transform-processfiles</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2728,7 +2727,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-propertyinput</artifactId>
+            <artifactId>hop-transform-propertyinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2741,7 +2740,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-propertyoutput</artifactId>
+            <artifactId>hop-transform-propertyoutput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2754,7 +2753,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-randomvalue</artifactId>
+            <artifactId>hop-transform-randomvalue</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -2767,7 +2766,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-regexeval</artifactId>
+            <artifactId>hop-transform-regexeval</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -2780,7 +2779,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-replacestring</artifactId>
+            <artifactId>hop-transform-replacestring</artifactId>
             <version>2.10.0-SNAPSHOT</version>
             <type>zip</type>
             <exclusions>
@@ -2793,7 +2792,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-reservoirsampling</artifactId>
+            <artifactId>hop-transform-reservoirsampling</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2806,7 +2805,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-rest</artifactId>
+            <artifactId>hop-transform-rest</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2819,7 +2818,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-rowgenerator</artifactId>
+            <artifactId>hop-transform-rowgenerator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2832,7 +2831,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-rowsfromresult</artifactId>
+            <artifactId>hop-transform-rowsfromresult</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2845,7 +2844,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-rowstoresult</artifactId>
+            <artifactId>hop-transform-rowstoresult</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2858,7 +2857,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-salesforce</artifactId>
+            <artifactId>hop-transform-salesforce</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2871,7 +2870,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-samplerows</artifactId>
+            <artifactId>hop-transform-samplerows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2884,7 +2883,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-sasinput</artifactId>
+            <artifactId>hop-transform-sasinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2897,7 +2896,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-schemamapping</artifactId>
+            <artifactId>hop-transform-schemamapping</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2910,7 +2909,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-script</artifactId>
+            <artifactId>hop-transform-script</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2923,7 +2922,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-selectvalues</artifactId>
+            <artifactId>hop-transform-selectvalues</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2936,7 +2935,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-serverstatus</artifactId>
+            <artifactId>hop-transform-serverstatus</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2949,7 +2948,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-setvalueconstant</artifactId>
+            <artifactId>hop-transform-setvalueconstant</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2962,7 +2961,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-setvaluefield</artifactId>
+            <artifactId>hop-transform-setvaluefield</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2975,7 +2974,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-setvariable</artifactId>
+            <artifactId>hop-transform-setvariable</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -2988,7 +2987,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-snowflake-bulkloader</artifactId>
+            <artifactId>hop-transform-snowflake-bulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3001,7 +3000,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-sort</artifactId>
+            <artifactId>hop-transform-sort</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3014,7 +3013,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-sortedmerge</artifactId>
+            <artifactId>hop-transform-sortedmerge</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3027,7 +3026,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-splitfieldtorows</artifactId>
+            <artifactId>hop-transform-splitfieldtorows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3040,7 +3039,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-splunk</artifactId>
+            <artifactId>hop-transform-splunk</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3053,7 +3052,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-sql</artifactId>
+            <artifactId>hop-transform-sql</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3066,7 +3065,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-sqlfileoutput</artifactId>
+            <artifactId>hop-transform-sqlfileoutput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3079,7 +3078,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-ssh</artifactId>
+            <artifactId>hop-transform-ssh</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3092,7 +3091,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-standardizephonenumber</artifactId>
+            <artifactId>hop-transform-standardizephonenumber</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3105,7 +3104,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-streamlookup</artifactId>
+            <artifactId>hop-transform-streamlookup</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3118,7 +3117,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-streamschemamerge</artifactId>
+            <artifactId>hop-transform-streamschemamerge</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3131,7 +3130,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-stringcut</artifactId>
+            <artifactId>hop-transform-stringcut</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3144,7 +3143,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-stringoperations</artifactId>
+            <artifactId>hop-transform-stringoperations</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3157,7 +3156,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-switchcase</artifactId>
+            <artifactId>hop-transform-switchcase</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3170,7 +3169,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-synchronizeaftermerge</artifactId>
+            <artifactId>hop-transform-synchronizeaftermerge</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3183,7 +3182,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-systemdata</artifactId>
+            <artifactId>hop-transform-systemdata</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3196,7 +3195,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-tablecompare</artifactId>
+            <artifactId>hop-transform-tablecompare</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3209,7 +3208,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-tableexists</artifactId>
+            <artifactId>hop-transform-tableexists</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3222,7 +3221,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-tableinput</artifactId>
+            <artifactId>hop-transform-tableinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3235,7 +3234,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-tableoutput</artifactId>
+            <artifactId>hop-transform-tableoutput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3248,7 +3247,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-terafast</artifactId>
+            <artifactId>hop-transform-terafast</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3261,7 +3260,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-textfile</artifactId>
+            <artifactId>hop-transform-textfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3274,7 +3273,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-tika</artifactId>
+            <artifactId>hop-transform-tika</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3287,7 +3286,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-tokenreplacement</artifactId>
+            <artifactId>hop-transform-tokenreplacement</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3300,7 +3299,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-uniquerows</artifactId>
+            <artifactId>hop-transform-uniquerows</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3313,7 +3312,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-uniquerowsbyhashset</artifactId>
+            <artifactId>hop-transform-uniquerowsbyhashset</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3326,7 +3325,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-update</artifactId>
+            <artifactId>hop-transform-update</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3339,7 +3338,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-validator</artifactId>
+            <artifactId>hop-transform-validator</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3352,7 +3351,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-valuemapper</artifactId>
+            <artifactId>hop-transform-valuemapper</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3365,7 +3364,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-verticabulkloader</artifactId>
+            <artifactId>hop-transform-verticabulkloader</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3378,7 +3377,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-webserviceavailable</artifactId>
+            <artifactId>hop-transform-webserviceavailable</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3391,7 +3390,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-webservices</artifactId>
+            <artifactId>hop-transform-webservices</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3404,7 +3403,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-workflowexecutor</artifactId>
+            <artifactId>hop-transform-workflowexecutor</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3417,7 +3416,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-writetolog</artifactId>
+            <artifactId>hop-transform-writetolog</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3430,7 +3429,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-xml</artifactId>
+            <artifactId>hop-transform-xml</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3443,7 +3442,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-yamlinput</artifactId>
+            <artifactId>hop-transform-yamlinput</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3456,7 +3455,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-transforms-zipfile</artifactId>
+            <artifactId>hop-transform-zipfile</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>
@@ -3469,7 +3468,7 @@
 
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-assemblies-plugins-valuetypes-json</artifactId>
+            <artifactId>hop-valuetypes-json</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
             <exclusions>

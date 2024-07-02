@@ -17,6 +17,7 @@
 
 package org.apache.hop.ui.core.bus;
 
+@SuppressWarnings("java:S115")
 public enum HopGuiEvents {
   MetadataChanged,
   MetadataCreated,
