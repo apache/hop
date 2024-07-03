@@ -641,8 +641,8 @@ public class KettleImportDialog extends Dialog {
 
       // import jobs and transformations
 
-      String sourceFolder = wImportFrom.getText();
-      String targetFolder = wImportPath.getText();
+      String sourceFolder = variables.resolve(wImportFrom.getText());
+      String targetFolder = variables.resolve(wImportPath.getText());
 
       // See if we can pick up the target folder from a project reference...
       //
@@ -663,9 +663,9 @@ public class KettleImportDialog extends Dialog {
 
       kettleImport.setValidateInputFolder(sourceFolder);
       kettleImport.setValidateOutputFolder(targetFolder);
-      kettleImport.setSharedXmlFilename(wShared.getText());
-      kettleImport.setKettlePropertiesFilename(wKettleProps.getText());
-      kettleImport.setJdbcPropertiesFilename(wJdbcProps.getText());
+      kettleImport.setSharedXmlFilename(variables.resolve(wShared.getText()));
+      kettleImport.setKettlePropertiesFilename(variables.resolve(wKettleProps.getText()));
+      kettleImport.setJdbcPropertiesFilename(variables.resolve(wJdbcProps.getText()));
       kettleImport.setSkippingExistingTargetFiles(wSkipExisting.getSelection());
       kettleImport.setSkippingHiddenFilesAndFolders(wSkipHidden.getSelection());
       kettleImport.setSkippingFolders(wSkipFolders.getSelection());
