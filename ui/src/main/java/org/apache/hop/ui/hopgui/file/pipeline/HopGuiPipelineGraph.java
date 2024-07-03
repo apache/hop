@@ -706,7 +706,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           break;
 
         case HOP_COPY_ICON:
-          // clickedPipelineHop = (PipelineHopMeta) areaOwner.getOwner();
           break;
 
         case HOP_ERROR_ICON:
@@ -2499,7 +2498,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       TransformMeta transformMeta = context.getTransformMeta();
       List<IEngineComponent> componentCopies = pipeline.getComponentCopies(transformMeta.getName());
-      return componentCopies != null && componentCopies.size() > 0;
+      return componentCopies != null && !componentCopies.isEmpty();
     }
 
     return true;
@@ -3047,8 +3046,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           tipImage = GuiResource.getInstance().getImageError();
           break;
 
-        case TRANSFORM_INFO_ICON:
-        case TRANSFORM_ICON:
+        case TRANSFORM_INFO_ICON, TRANSFORM_ICON:
           TransformMeta iconTransformMeta = (TransformMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
@@ -4457,7 +4455,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Show the execution results view...
         //
-        hopDisplay().asyncExec(() -> addAllTabs());
+        hopDisplay().asyncExec(this::addAllTabs);
       } catch (Exception e) {
         new ErrorDialog(
             hopShell(),
@@ -4710,7 +4708,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         checkErrorVisuals();
 
-        hopDisplay().asyncExec(() -> updateGui());
+        hopDisplay().asyncExec(this::updateGui);
       }
     }
   }
@@ -5519,7 +5517,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       String transformId = component.getLogChannelId();
 
       List<Execution> executions = iLocation.findExecutions(transformId);
-      if (executions.size() > 0) {
+      if (!executions.isEmpty()) {
         Execution execution = executions.get(0);
         ExecutionState executionState = iLocation.getExecutionState(execution.getId());
         executionPerspective.createExecutionViewer(locationName, execution, executionState);

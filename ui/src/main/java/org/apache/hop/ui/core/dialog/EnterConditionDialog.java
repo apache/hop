@@ -64,7 +64,7 @@ public class EnterConditionDialog extends Dialog {
     formLayout.marginWidth = PropsUi.getFormMargin();
     formLayout.marginHeight = PropsUi.getFormMargin();
 
-    int margin = props.getMargin() * 2;
+    int margin = PropsUi.getMargin() * 2;
 
     shell.setLayout(formLayout);
 

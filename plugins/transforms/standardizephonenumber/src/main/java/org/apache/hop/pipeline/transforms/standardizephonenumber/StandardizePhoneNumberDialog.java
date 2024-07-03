@@ -104,7 +104,7 @@ public class StandardizePhoneNumberDialog extends BaseTransformDialog {
     shell.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // The buttons at the bottom of the dialog
     //

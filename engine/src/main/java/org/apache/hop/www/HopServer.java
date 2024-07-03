@@ -205,10 +205,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
     } catch (Exception e) {
       log.logError(
           BaseMessages.getString(
-              PKG,
-              "HopServer.Error.CanNotPartPort",
-              hopServer.getHostname(),
-              "" + hopServer.getPort()),
+              PKG, "HopServer.Error.CanNotPartPort", hopServer.getHostname(), hopServer.getPort()),
           e);
       allOK = false;
     }
@@ -245,8 +242,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       Map<String, Object> mixins = cmd.getMixins();
       for (String key : mixins.keySet()) {
         Object mixin = mixins.get(key);
-        if (mixin instanceof IConfigOptions) {
-          IConfigOptions configOptions = (IConfigOptions) mixin;
+        if (mixin instanceof IConfigOptions configOptions) {
           configOptions.handleOption(log, this, variables);
         }
       }
@@ -695,7 +691,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
       String response = target.request().get(String.class);
       if (response == null || !response.contains("<serverstatus>")) {
         throw new HopServerCommandException(
-            BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, "" + port));
+            BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, port));
       }
 
       Socket s = new Socket(InetAddress.getByName(hostname), Integer.parseInt(shutdownPort));
@@ -706,7 +702,7 @@ public class HopServer implements Runnable, IHasHopMetadataProvider {
 
     } catch (Exception e) {
       throw new HopServerCommandException(
-          BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, "" + port), e);
+          BaseMessages.getString(PKG, "HopServer.Error.NoServerFound", hostname, port), e);
     }
   }
 

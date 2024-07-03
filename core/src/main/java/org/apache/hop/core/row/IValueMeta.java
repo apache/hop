@@ -145,7 +145,7 @@ import org.w3c.dom.Node;
 @JsonDeserialize(using = ValueMetaDeserializer.class)
 @HopMetadataObject(objectFactory = IValueMeta.ValueMetaHopMetadataObjectFactory.class)
 public interface IValueMeta extends Cloneable {
-  public static final Class<?> PKG = Const.class; // For Translator
+  Class<?> PKG = Const.class; // For Translator
 
   /** Value type indicating that the value has no type set */
   int TYPE_NONE = 0;

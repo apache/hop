@@ -31,8 +31,8 @@ public class RunThread implements Runnable {
 
   private static final Class<?> PKG = BaseTransform.class; // For Translator
 
-  private ITransform transform;
-  private ILogChannel log;
+  private final ITransform transform;
+  private final ILogChannel log;
 
   public RunThread(TransformMetaDataCombi combi) {
     this.transform = combi.transform;
@@ -81,7 +81,7 @@ public class RunThread implements Runnable {
               "child index = "
                   + childIndex
                   + ", logging object : "
-                  + loggingObject.toString()
+                  + loggingObject
                   + " parent="
                   + parentLogChannelId);
         }

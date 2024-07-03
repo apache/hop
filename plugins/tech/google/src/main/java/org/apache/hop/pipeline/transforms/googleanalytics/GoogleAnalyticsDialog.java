@@ -44,6 +44,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -131,7 +132,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     Shell parent = getParent();
 
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, getInput());
 
     lsMod = e -> getInput().setChanged();
@@ -170,7 +171,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -179,7 +180,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -197,7 +198,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     gConnectLayout.marginWidth = 3;
     gConnectLayout.marginHeight = 3;
     gConnect.setLayout(gConnectLayout);
-    props.setLook(gConnect);
+    PropsUi.setLook(gConnect);
 
     FormData fdConnect = new FormData();
     fdConnect.left = new FormAttachment(0, 0);
@@ -208,7 +209,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // Google Analytics app name
     Label wlGaAppName = new Label(gConnect, SWT.RIGHT);
     wlGaAppName.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.AppName.Label"));
-    props.setLook(wlGaAppName);
+    PropsUi.setLook(wlGaAppName);
     FormData fdlGaAppName = new FormData();
     fdlGaAppName.top = new FormAttachment(0, margin);
     fdlGaAppName.left = new FormAttachment(0, 0);
@@ -217,7 +218,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wGaAppName = new TextVar(variables, gConnect, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wGaAppName.addModifyListener(lsMod);
     wGaAppName.setToolTipText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.AppName.Tooltip"));
-    props.setLook(wGaAppName);
+    PropsUi.setLook(wGaAppName);
     FormData fdGaAppName = new FormData();
     fdGaAppName.top = new FormAttachment(wTransformName, margin);
     fdGaAppName.left = new FormAttachment(middle, 0);
@@ -236,13 +237,13 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     gQueryLayout.marginWidth = 3;
     gQueryLayout.marginHeight = 3;
     gQuery.setLayout(gQueryLayout);
-    props.setLook(gQuery);
+    PropsUi.setLook(gQuery);
 
     // query start date
     Label wlQuStartDate = new Label(gQuery, SWT.RIGHT);
     wlQuStartDate.setText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.StartDate.Label"));
-    props.setLook(wlQuStartDate);
+    PropsUi.setLook(wlQuStartDate);
     FormData fdlQuStartDate = new FormData();
     fdlQuStartDate.top = new FormAttachment(0, margin);
     fdlQuStartDate.left = new FormAttachment(0, 0);
@@ -252,7 +253,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wQuStartDate.addModifyListener(lsMod);
     wQuStartDate.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.StartDate.Tooltip"));
-    props.setLook(wQuStartDate);
+    PropsUi.setLook(wQuStartDate);
     FormData fdQuStartDate = new FormData();
     fdQuStartDate.top = new FormAttachment(0, margin);
     fdQuStartDate.left = new FormAttachment(middle, 0);
@@ -262,7 +263,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // query end date
     Label wlQuEndDate = new Label(gQuery, SWT.RIGHT);
     wlQuEndDate.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.EndDate.Label"));
-    props.setLook(wlQuEndDate);
+    PropsUi.setLook(wlQuEndDate);
     FormData fdlQuEndDate = new FormData();
     fdlQuEndDate.top = new FormAttachment(wQuStartDate, margin);
     fdlQuEndDate.left = new FormAttachment(0, 0);
@@ -272,7 +273,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wQuEndDate.addModifyListener(lsMod);
     wQuEndDate.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.EndDate.Tooltip"));
-    props.setLook(wQuEndDate);
+    PropsUi.setLook(wQuEndDate);
     FormData fdQuEndDate = new FormData();
     fdQuEndDate.top = new FormAttachment(wQuStartDate, margin);
     fdQuEndDate.left = new FormAttachment(middle, 0);
@@ -283,7 +284,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     Label wlQuDimensions = new Label(gQuery, SWT.RIGHT);
     wlQuDimensions.setText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Dimensions.Label"));
-    props.setLook(wlQuDimensions);
+    PropsUi.setLook(wlQuDimensions);
     FormData fdlQuDimensions = new FormData();
     fdlQuDimensions.top = new FormAttachment(wQuEndDate, margin);
     fdlQuDimensions.left = new FormAttachment(0, 0);
@@ -293,13 +294,13 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wQuDimensions.addModifyListener(lsMod);
     wQuDimensions.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Dimensions.Tooltip"));
-    props.setLook(wQuDimensions);
+    PropsUi.setLook(wQuDimensions);
 
     Link wQuDimensionsReference = new Link(gQuery, SWT.SINGLE);
 
     wQuDimensionsReference.setText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
-    props.setLook(wQuDimensionsReference);
+    PropsUi.setLook(wQuDimensionsReference);
     wQuDimensionsReference.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_DIMENSIONS_URI));
 
@@ -321,7 +322,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // query Metrics
     Label wlQuMetrics = new Label(gQuery, SWT.RIGHT);
     wlQuMetrics.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Metrics.Label"));
-    props.setLook(wlQuMetrics);
+    PropsUi.setLook(wlQuMetrics);
     FormData fdlQuMetrics = new FormData();
     fdlQuMetrics.top = new FormAttachment(wQuDimensions, margin);
     fdlQuMetrics.left = new FormAttachment(0, 0);
@@ -331,12 +332,12 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wQuMetrics.addModifyListener(lsMod);
     wQuMetrics.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Metrics.Tooltip"));
-    props.setLook(wQuMetrics);
+    PropsUi.setLook(wQuMetrics);
 
     Link wQuMetricsReference = new Link(gQuery, SWT.SINGLE);
     wQuMetricsReference.setText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
-    props.setLook(wQuMetricsReference);
+    PropsUi.setLook(wQuMetricsReference);
     wQuMetricsReference.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_METRICS_URI));
 
@@ -357,7 +358,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // query Sort
     Label wlQuSort = new Label(gQuery, SWT.RIGHT);
     wlQuSort.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Sort.Label"));
-    props.setLook(wlQuSort);
+    PropsUi.setLook(wlQuSort);
     FormData fdlQuSort = new FormData();
     fdlQuSort.top = new FormAttachment(wQuMetrics, margin);
     fdlQuSort.left = new FormAttachment(0, 0);
@@ -366,12 +367,12 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wQuSort = new TextVar(variables, gQuery, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wQuSort.addModifyListener(lsMod);
     wQuSort.setToolTipText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Sort.Tooltip"));
-    props.setLook(wQuSort);
+    PropsUi.setLook(wQuSort);
 
     Link wQuSortReference = new Link(gQuery, SWT.SINGLE);
     wQuSortReference.setText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Query.Reference.Label"));
-    props.setLook(wQuSortReference);
+    PropsUi.setLook(wQuSortReference);
     wQuSortReference.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_SORT_URI));
 
@@ -400,7 +401,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // Limit input ...
     Label wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.LimitSize.Label"));
-    props.setLook(wlLimit);
+    PropsUi.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment(0, 0);
     fdlLimit.right = new FormAttachment(middle, -margin);
@@ -408,7 +409,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wLimit.setToolTipText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.LimitSize.Tooltip"));
-    props.setLook(wLimit);
+    PropsUi.setLook(wLimit);
     wLimit.addModifyListener(lsMod);
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment(middle, 0);
@@ -424,7 +425,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // lookup fields settings widgets
     Link wlFields = new Link(shell, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.Return.Label"));
-    props.setLook(wlFields);
+    PropsUi.setLook(wlFields);
     wlFields.addListener(
         SWT.Selection, ev -> BareBonesBrowserLaunch.openURL(REFERENCE_DIMENSION_AND_METRIC_URI));
 
@@ -585,7 +586,6 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     getTableView().table.setItemCount(dimensionHeaders.size() + metricHeaders.size());
     for (DimensionHeader colHeader : dimensionHeaders) {
       String name = colHeader.getName();
-      ;
       TableItem item = getTableView().table.getItem(i);
       item.setText(1, GoogleAnalyticsMeta.FIELD_TYPE_DIMENSION);
       item.setText(2, name);
@@ -752,7 +752,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     wFields.removeAll();
     wFields.removeEmptyRows();
-    if (input.getGoogleAnalyticsFields().size() > 0) {
+    if (!input.getGoogleAnalyticsFields().isEmpty()) {
 
       wFields.table.setItemCount(input.getGoogleAnalyticsFields().size());
       List<GoogleAnalyticsField> googleAnalyticsFields = input.getGoogleAnalyticsFields();
@@ -813,7 +813,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     // OathAccount line
     Label wlOauthAccount = new Label(gConnect, SWT.RIGHT);
     wlOauthAccount.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.OauthAccount.Label"));
-    props.setLook(wlOauthAccount);
+    PropsUi.setLook(wlOauthAccount);
 
     FormData fdlOathAccount = new FormData();
     fdlOathAccount.left = new FormAttachment(0, 0);
@@ -824,7 +824,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wOauthAccount = new TextVar(variables, gConnect, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wOauthAccount.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.OauthAccount.Tooltip"));
-    props.setLook(wOauthAccount);
+    PropsUi.setLook(wOauthAccount);
 
     wOauthAccount.addModifyListener(lsMod);
     FormData fdOathAccount = new FormData();
@@ -835,7 +835,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     fileChooser = new Button(gConnect, SWT.PUSH | SWT.CENTER);
     fileChooser.setText(BaseMessages.getString(PKG, ("System.Button.Browse")));
-    props.setLook(fileChooser);
+    PropsUi.setLook(fileChooser);
 
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment(100, 0);
@@ -844,7 +844,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     Label wlFilename = new Label(gConnect, SWT.RIGHT);
     wlFilename.setText(BaseMessages.getString(PKG, ("GoogleAnalyticsDialog.KeyFile.Label")));
-    props.setLook(wlFilename);
+    PropsUi.setLook(wlFilename);
     FormData fdlFilename = new FormData();
     fdlFilename.top = new FormAttachment(wOauthAccount, margin);
     fdlFilename.left = new FormAttachment(0, 0);
@@ -855,7 +855,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     keyFilename.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.KeyFilename.Tooltip"));
     keyFilename.addModifyListener(lsMod);
-    props.setLook(keyFilename);
+    PropsUi.setLook(keyFilename);
 
     FormData fdFilename = new FormData();
     fdFilename.top = new FormAttachment(wOauthAccount, margin);
@@ -865,7 +865,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
 
     Label wlGaPropertyId = new Label(gConnect, SWT.RIGHT);
     wlGaPropertyId.setText(BaseMessages.getString(PKG, "GoogleAnalyticsDialog.PropertyId.Label"));
-    props.setLook(wlGaPropertyId);
+    PropsUi.setLook(wlGaPropertyId);
     FormData fdlGaPropertyId = new FormData();
     fdlGaPropertyId.top = new FormAttachment(keyFilename, margin);
     fdlGaPropertyId.left = new FormAttachment(0, 0);
@@ -876,7 +876,7 @@ public class GoogleAnalyticsDialog extends BaseTransformDialog {
     wGaPropertyId.setToolTipText(
         BaseMessages.getString(PKG, "GoogleAnalyticsDialog.PropertyId.Tooltip"));
     wGaPropertyId.addModifyListener(lsMod);
-    props.setLook(wGaPropertyId);
+    PropsUi.setLook(wGaPropertyId);
     FormData fdGaPropertyId = new FormData();
     fdGaPropertyId.top = new FormAttachment(keyFilename, margin);
     fdGaPropertyId.left = new FormAttachment(middle, 0);

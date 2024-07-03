@@ -62,7 +62,6 @@ public class RulesExecutorDialog extends BaseTransformDialog {
   private RulesExecutorMeta input;
 
   private Label wlRuleFilePath;
-  private Button wbBrowse;
   private Button wbRulesInEditor;
   private TextVar wRuleFilePath;
   private StyledTextComp wRulesEditor;
@@ -94,7 +93,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "RulesExecutor.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
@@ -163,12 +162,9 @@ public class RulesExecutorDialog extends BaseTransformDialog {
   }
 
   private void addRulesTab(CTabFolder wTabFolder, int margin) {
+    Button wbBrowse;
 
-    ModifyListener lsMod =
-        e -> {
-          // changedInDialog = true;
-          input.setChanged();
-        };
+    ModifyListener lsMod = e -> input.setChanged();
 
     CTabItem wRulesTab = new CTabItem(wTabFolder, SWT.NONE);
     wRulesTab.setFont(GuiResource.getInstance().getFontDefault());
@@ -213,7 +209,7 @@ public class RulesExecutorDialog extends BaseTransformDialog {
     FormData fdRuleFilePath = new FormData();
     fdRuleFilePath.left = new FormAttachment(0, 0);
     fdRuleFilePath.top = new FormAttachment(wlRuleFilePath, 5);
-    fdRuleFilePath.right = new FormAttachment(wbBrowse, -props.getMargin());
+    fdRuleFilePath.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
     wRuleFilePath.setLayoutData(fdRuleFilePath);
 
     wbRulesInEditor = new Button(wRulesComp, SWT.CHECK);

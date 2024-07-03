@@ -192,7 +192,6 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
             for (int i = 0; i < keyFields.size(); i++) {
               KeyField keyField = keyFields.get(i);
               String luField = keyField.getTableField();
-              ;
 
               IValueMeta v = r.searchValueMeta(luField);
               if (v == null) {

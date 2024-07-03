@@ -119,7 +119,7 @@ public class GitInfoExplorerFileTypeHandler extends BaseExplorerFileTypeHandler
     this.parentComposite = composite;
 
     PropsUi props = PropsUi.getInstance();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // A label showing the file/folder
     //

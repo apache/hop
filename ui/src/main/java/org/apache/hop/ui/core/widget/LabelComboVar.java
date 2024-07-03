@@ -48,7 +48,7 @@ public class LabelComboVar extends Composite {
     PropsUi.setLook(this);
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;

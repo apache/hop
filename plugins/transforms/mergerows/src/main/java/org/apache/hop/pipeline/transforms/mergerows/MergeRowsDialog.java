@@ -89,7 +89,7 @@ public class MergeRowsDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "MergeRowsDialog.Shell.Label"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);

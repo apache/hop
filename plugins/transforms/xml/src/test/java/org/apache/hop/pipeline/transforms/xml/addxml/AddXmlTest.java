@@ -17,6 +17,7 @@
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
 import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -74,7 +75,7 @@ public class AddXmlTest {
     addXML.setInputRowSets(asList(createSourceRowSet("ADDXML_TEST")));
 
     assertTrue(addXML.processRow());
-    assertTrue(addXML.getErrors() == 0);
+    assertEquals(0, addXML.getErrors());
     assertTrue(addXML.getLinesWritten() > 0);
   }
 

@@ -108,13 +108,13 @@ public class InsertUpdateMetaTest {
   @Test
   public void testCommitCountFixed() {
     umi.setCommitSize("100");
-    Assert.assertTrue(umi.getCommitSizeVar(upd) == 100);
+    Assert.assertEquals(100, umi.getCommitSizeVar(upd));
   }
 
   @Test
   public void testCommitCountVar() {
     umi.setCommitSize("${max.sz}");
-    Assert.assertTrue(umi.getCommitSizeVar(upd) == 10);
+    Assert.assertEquals(10, umi.getCommitSizeVar(upd));
   }
 
   @Test
@@ -288,15 +288,11 @@ public class InsertUpdateMetaTest {
 
     @Override
     public InsertUpdateLookupField getTestObject() {
-
-      InsertUpdateLookupField field =
-          new InsertUpdateLookupField(
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              new ArrayList<InsertUpdateKeyField>(),
-              new ArrayList<InsertUpdateValue>());
-
-      return field;
+      return new InsertUpdateLookupField(
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          new ArrayList<InsertUpdateKeyField>(),
+          new ArrayList<InsertUpdateValue>());
     }
 
     @Override
@@ -320,11 +316,7 @@ public class InsertUpdateMetaTest {
 
     @Override
     public InsertUpdateValue getTestObject() {
-
-      InsertUpdateValue field =
-          new InsertUpdateValue(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-
-      return field;
+      return new InsertUpdateValue(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Override
@@ -346,15 +338,11 @@ public class InsertUpdateMetaTest {
 
     @Override
     public InsertUpdateKeyField getTestObject() {
-
-      InsertUpdateKeyField field =
-          new InsertUpdateKeyField(
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              "=",
-              UUID.randomUUID().toString());
-
-      return field;
+      return new InsertUpdateKeyField(
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          "=",
+          UUID.randomUUID().toString());
     }
 
     @Override

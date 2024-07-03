@@ -46,7 +46,6 @@ import org.apache.hop.metadata.api.HopMetadataProperty;
 @GuiPlugin(id = "GUI-SnowflakeDatabaseMeta")
 public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-  // TODO: Manage all attributes in plugin when HOP-67 is fixed
   @HopMetadataProperty
   @GuiWidgetElement(
       id = "warehouse",
@@ -205,17 +204,14 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
       return ddlForPrimaryKey(useAutoinc) + newline;
     }
     switch (type) {
-      case IValueMeta.TYPE_TIMESTAMP:
-      case IValueMeta.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
         // timestamp w/ local timezone
         fieldDefinitionDdl += "TIMESTAMP_LTZ";
         break;
       case IValueMeta.TYPE_BOOLEAN:
         fieldDefinitionDdl += ddlForBooleanValue();
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_INTEGER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (precision == 0) {
           fieldDefinitionDdl += ddlForIntegerValue(length);
         } else {

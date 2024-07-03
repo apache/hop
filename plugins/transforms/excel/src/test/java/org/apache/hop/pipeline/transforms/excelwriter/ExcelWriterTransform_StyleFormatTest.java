@@ -18,7 +18,7 @@
 package org.apache.hop.pipeline.transforms.excelwriter;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -115,10 +115,10 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @throws Exception
    */
   private void testStyleFormat(String fileType) throws Exception {
-    setupInputOutput(fileType);
+    setupInputOutput();
     createTransformMeta(fileType);
-    createTransformData(fileType);
-    setupTransformMock(fileType);
+    createTransformData();
+    setupTransformMock();
     transform.init();
 
     // We do not run pipeline or executing the whole transform
@@ -147,15 +147,15 @@ public class ExcelWriterTransform_StyleFormatTest {
         assertEquals(cellStyle.getFillPattern(), baseCellStyle.getFillPattern());
       } else {
         // cell A2/A3 has no custom style
-        assertFalse(cellStyle.getBorderRight() == baseCellStyle.getBorderRight());
-        assertFalse(cellStyle.getFillPattern() == baseCellStyle.getFillPattern());
+        assertNotSame(cellStyle.getBorderRight(), baseCellStyle.getBorderRight());
+        assertNotSame(cellStyle.getFillPattern(), baseCellStyle.getFillPattern());
       }
 
       if (i != 1) {
-        assertEquals(format.getFormat(cellStyle.getDataFormat()), "0.00000");
+        assertEquals("0.00000", format.getFormat(cellStyle.getDataFormat()));
       } else {
         // cell B2/B3 use different format from the custom style
-        assertEquals(format.getFormat(cellStyle.getDataFormat()), "##0,000.0");
+        assertEquals("##0,000.0", format.getFormat(cellStyle.getDataFormat()));
       }
     }
   }
@@ -166,7 +166,7 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @param fileType
    * @throws HopException
    */
-  private void createTransformMeta(String fileType) throws HopException {
+  private void createTransformMeta(String fileType) {
     meta = new ExcelWriterTransformMeta();
     meta.setDefault();
 
@@ -201,10 +201,9 @@ public class ExcelWriterTransform_StyleFormatTest {
   /**
    * Setup the data necessary for Excel Writer transform
    *
-   * @param fileType
    * @throws HopException
    */
-  private void createTransformData(String fileType) throws HopException {
+  private void createTransformData() {
     data = new ExcelWriterTransformData();
     data.inputRowMeta = inputRowMeta.clone();
     data.outputRowMeta = inputRowMeta.clone();
@@ -262,7 +261,7 @@ public class ExcelWriterTransform_StyleFormatTest {
     cell.setCellStyle(cellStyle);
   }
 
-  private void setupInputOutput(String fileType) throws Exception {
+  private void setupInputOutput() throws Exception {
     List<Object[]> rows = createRowData();
     String[] outFields = new String[] {"col 1", "col 2", "col 3", "col 4"};
     inputRowSet = transformMockHelper.getMockInputRowSet(rows);
@@ -276,10 +275,9 @@ public class ExcelWriterTransform_StyleFormatTest {
   /**
    * Create ExcelWriterTransform object and mock some of its required data
    *
-   * @param fileType
    * @throws Exception
    */
-  private void setupTransformMock(String fileType) throws Exception {
+  private void setupTransformMock() {
     transform =
         new ExcelWriterTransform(
             transformMockHelper.transformMeta,
@@ -301,19 +299,22 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @return
    * @throws Exception
    */
-  private ArrayList<Object[]> createRowData() throws Exception {
+  private ArrayList<Object[]> createRowData() {
     ArrayList<Object[]> rows = new ArrayList<>();
     Object[] row =
         new Object[] {
-          new Long(123456),
-          new Double(2.34e-4),
+          Long.valueOf(123456),
+          Double.valueOf(2.34e-4),
           new BigDecimal("123456789.987654321"),
-          new Double(504150)
+          Double.valueOf(504150)
         };
     rows.add(row);
     row =
         new Object[] {
-          new Long(1001001), new Double(4.6789e10), new BigDecimal(123123e-2), new Double(12312300)
+          Long.valueOf(1001001),
+          Double.valueOf(4.6789e10),
+          new BigDecimal(123123e-2),
+          Double.valueOf(12312300)
         };
     rows.add(row);
     return rows;
@@ -325,7 +326,7 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @return
    * @throws HopException
    */
-  private IRowMeta createRowMeta() throws HopException {
+  private IRowMeta createRowMeta() {
     IRowMeta rm = new RowMeta();
     try {
       IValueMeta[] valuesMeta = {

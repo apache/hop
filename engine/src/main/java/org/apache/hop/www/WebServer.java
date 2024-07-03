@@ -86,14 +86,14 @@ public class WebServer {
 
   private String hostname;
   private int port;
-  private int shutdownPort;
+  private final int shutdownPort;
 
   private String passwordFile;
-  private WebServerShutdownHook webServerShutdownHook;
+  private final WebServerShutdownHook webServerShutdownHook;
   private IWebServerShutdownHandler webServerShutdownHandler =
       new DefaultWebServerShutdownHandler();
 
-  private SslConfiguration sslConfig;
+  private final SslConfiguration sslConfig;
 
   public WebServer(
       ILogChannel log,
@@ -558,8 +558,8 @@ public class WebServer {
 
   private static class MonitorThread extends Thread {
 
-    private ServerSocket socket;
-    private Server server;
+    private final ServerSocket socket;
+    private final Server server;
 
     public MonitorThread(Server server, String hostname, int shutdownPort) {
       this.server = server;

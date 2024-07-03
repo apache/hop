@@ -16,7 +16,7 @@
  */
 package org.apache.hop.workflow.actions.http;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.encryption.Encr;
@@ -46,8 +46,8 @@ public class ActionHttpTest {
   @Test
   public void testDeprecatedTargetFilenameExtension() {
     actionHttp.setTargetFilenameExtension("txt");
-    assertTrue("txt".equals(actionHttp.getTargetFilenameExtension()));
+    assertEquals("txt", actionHttp.getTargetFilenameExtension());
     actionHttp.setTargetFilenameExtension("zip");
-    assertTrue("zip".equals(actionHttp.getTargetFilenameExtension()));
+    assertEquals("zip", actionHttp.getTargetFilenameExtension());
   }
 }

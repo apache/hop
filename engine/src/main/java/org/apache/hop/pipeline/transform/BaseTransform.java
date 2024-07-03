@@ -182,7 +182,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
   private boolean distributed;
 
-  private IRowDistribution rowDistribution;
+  private final IRowDistribution rowDistribution;
 
   private long errors;
 
@@ -208,15 +208,15 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   /** the rowset for the error rows */
   private IRowSet errorRowSet;
 
-  private AtomicBoolean running;
+  private final AtomicBoolean running;
 
-  private AtomicBoolean stopped;
+  private final AtomicBoolean stopped;
 
   protected AtomicBoolean safeStopped;
 
   private AtomicBoolean paused;
 
-  private boolean init;
+  private final boolean init;
 
   /** the copy number of this thread */
   private int copyNr;
@@ -297,13 +297,13 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * The upper buffer size boundary after which we manage the thread priority a little bit to
    * prevent excessive locking
    */
-  private int upperBufferBoundary;
+  private final int upperBufferBoundary;
 
   /**
    * The lower buffer size boundary after which we manage the thread priority a little bit to
    * prevent excessive locking
    */
-  private int lowerBufferBoundary;
+  private final int lowerBufferBoundary;
 
   /** maximum number of errors to allow */
   private Long maxErrors = -1L;
@@ -331,7 +331,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   private IRowHandler rowHandler;
 
-  private AtomicBoolean markStopped;
+  private final AtomicBoolean markStopped;
 
   /**
    * This is the base transform that forms that basis for all transforms. You can derive from this
@@ -564,9 +564,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       }
 
       // if we failed and environment subsutitue
-      if (envSubFailed) {
-        return false;
-      }
+      return !envSubFailed;
     }
 
     return true;
@@ -1043,7 +1041,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // Are we running yet? If not, wait a bit until all threads have been
     // started.
     //
-    if (this.checkPipelineRunning == false) {
+    if (!this.checkPipelineRunning) {
       int counter = 0;
       while (!pipeline.isRunning() && !stopped.get()) {
         try {
@@ -1503,7 +1501,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // Are we running yet? If not, wait a bit until all threads have been
     // started.
     //
-    if (this.checkPipelineRunning == false) {
+    if (!this.checkPipelineRunning) {
       while (!pipeline.isRunning() && !stopped.get()) {
         try {
           Thread.sleep(1);
@@ -1615,10 +1613,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
         Integer waitTime =
             Const.toInt(EnvUtil.getSystemProperty(Const.HOP_DEFAULT_BUFFER_POLLING_WAITTIME), 20);
         if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
-            instanceof LocalPipelineRunConfiguration) {
-          LocalPipelineRunConfiguration runconfig =
-              (LocalPipelineRunConfiguration)
-                  pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+            instanceof LocalPipelineRunConfiguration runconfig) {
           waitTime = Const.toInt(runconfig.getWaitTime(), waitTime);
         }
         waitingTime = DynamicWaitTimes.build(inputRowSets, this::getCurrentInputRowSetNr, waitTime);
@@ -1931,7 +1926,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     // Have all threads started?
     // Are we running yet? If not, wait a bit until all threads have been
     // started.
-    if (this.checkPipelineRunning == false) {
+    if (!this.checkPipelineRunning) {
       while (!pipeline.isRunning() && !stopped.get()) {
         try {
           Thread.sleep(1);
@@ -1986,10 +1981,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       if (rowData == null) {
         Integer waitTime = 20;
         if (pipeline.getPipelineRunConfiguration().getEngineRunConfiguration()
-            instanceof LocalPipelineRunConfiguration) {
-          LocalPipelineRunConfiguration runconfig =
-              (LocalPipelineRunConfiguration)
-                  pipeline.getPipelineRunConfiguration().getEngineRunConfiguration();
+            instanceof LocalPipelineRunConfiguration runconfig) {
           waitTime = Integer.parseInt(runconfig.getWaitTime());
         }
         if (waitTime == null) waitTime = 20;

@@ -22,8 +22,8 @@ import java.util.Arrays;
 // Package private
 class RowKey {
   // TODO: This field needs to be set by a checkbox in the transform dialog.
-  private boolean storeValues;
-  private int hash;
+  private final boolean storeValues;
+  private final int hash;
   private Object[] storedFieldValues;
 
   public RowKey(Object[] row, UniqueRowsByHashSetData sdi) {

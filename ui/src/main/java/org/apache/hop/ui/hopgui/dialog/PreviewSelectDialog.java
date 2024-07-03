@@ -82,7 +82,7 @@ public class PreviewSelectDialog extends Dialog {
     // screen
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

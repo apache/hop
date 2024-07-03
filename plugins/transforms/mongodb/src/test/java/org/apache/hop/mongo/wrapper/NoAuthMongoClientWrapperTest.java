@@ -18,6 +18,7 @@
 package org.apache.hop.mongo.wrapper;
 
 import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import com.mongodb.BasicDBList;
@@ -112,7 +113,7 @@ public class NoAuthMongoClientWrapperTest {
   private static final Class<?> PKG = NoAuthMongoClientWrapper.class; // For Translator
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     MockitoAnnotations.initMocks(this);
     Mockito.when(
             mongoClientFactory.getMongoClient(
@@ -152,7 +153,7 @@ public class NoAuthMongoClientWrapperTest {
     DBObject config = (DBObject) BasicDBObject.parse(REP_SET_CONFIG);
     Object members = config.get(NoAuthMongoClientWrapper.REPL_SET_MEMBERS);
 
-    assertTrue(members != null);
+    assertNotNull(members);
     assertTrue(members instanceof BasicDBList);
     Assert.assertEquals(3, ((BasicDBList) members).size());
   }

@@ -182,7 +182,7 @@ public class TableOutputDialog extends BaseTransformDialog {
     backupChanged = input.hasChanged();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();

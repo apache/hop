@@ -465,8 +465,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
             });
         setMenu(mPop);
         break;
-      case AREA_BACKGROUND:
-      case AREA_ICON_ADD:
+      case AREA_BACKGROUND, AREA_ICON_ADD:
         mPop = new Menu(widget);
         MenuItem miAdd = new MenuItem(mPop, SWT.PUSH);
         miAdd.setText(BaseMessages.getString(PKG, "ConditionEditor.AddCondition.Label"));
@@ -769,7 +768,7 @@ public class ConditionEditor extends Canvas implements MouseMoveListener {
     /*
      * Draw the up-symbol if needed...
      */
-    if (parents.size() > 0) {
+    if (!parents.isEmpty()) {
       drawUp(gc);
     }
 

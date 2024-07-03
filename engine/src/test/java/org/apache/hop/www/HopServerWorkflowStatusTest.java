@@ -18,7 +18,7 @@
 package org.apache.hop.www;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -71,9 +71,9 @@ public class HopServerWorkflowStatusTest {
         "There should be one \"log_date\" node in the XML",
         1,
         XmlHandler.countNodes(newJobStatus, "log_date"));
-    assertTrue(
+    assertFalse(
         "The \"log_date\" node should have a null value",
-        !Utils.isEmpty(XmlHandler.getTagValue(newJobStatus, "log_date")));
+        Utils.isEmpty(XmlHandler.getTagValue(newJobStatus, "log_date")));
   }
 
   @Test

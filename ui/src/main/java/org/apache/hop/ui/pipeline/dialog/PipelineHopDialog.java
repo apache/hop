@@ -83,7 +83,7 @@ public class PipelineHopDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "PipelineHopDialog.Shell.Label"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int width = 0;
 
     // From transform line

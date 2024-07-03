@@ -80,7 +80,7 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
     PropsUi props = PropsUi.getInstance();
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());

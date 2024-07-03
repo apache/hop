@@ -45,9 +45,6 @@ public class ValueMetaConverterTest {
 
   @Test
   public void convertFromSourceToTargetDataTypeTest() throws Exception {
-    // "-", "Number", "String", "Date", "Boolean", "Integer", "BigNumber", "Serializable", "Binary",
-    // "Timestamp",
-    //  "Internet Address", }
     DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss.SSS");
     Date date1 = (dateFormat.parse("1999/12/31 00:00:00.000"));
     Date timeStamp1 = new Timestamp(dateFormat.parse("2001/11/01 20:30:15.123").getTime());

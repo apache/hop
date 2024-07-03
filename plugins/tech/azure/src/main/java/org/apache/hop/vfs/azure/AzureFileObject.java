@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,7 +45,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
 
   public class BlockBlobOutputStream extends OutputStream {
 
-    private CloudBlockBlob bb;
+    private final CloudBlockBlob bb;
     private final OutputStream outputStream;
     long written = 0;
 
@@ -97,7 +98,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   private String containerPath;
   private CloudBlob cloudBlob;
   private CloudBlobDirectory cloudDir;
-  private String markerFileName = ".cvfs.temp";
+  private final String markerFileName = ".cvfs.temp";
   private OutputStream blobOutputStream;
 
   public AzureFileObject(
@@ -132,7 +133,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
               for (ListBlobItem item : container.listBlobs()) {
                 StringBuilder path = new StringBuilder(item.getUri().getPath());
                 UriParser.extractFirstElement(path);
-                children.add(path.toString().substring(1));
+                children.add(path.substring(1));
               }
               type = FileType.FOLDER;
             } else {
@@ -317,7 +318,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
       byte[] buf =
           ("This is a temporary blob created by a Commons VFS application to simulate a folder. It "
                   + "may be safely deleted, but this will hide the folder in the application if it is empty.")
-              .getBytes("UTF-8");
+              .getBytes(StandardCharsets.UTF_8);
       blob.uploadFromByteArray(buf, 0, buf.length);
       type = FileType.FOLDER;
       children = new ArrayList<>();

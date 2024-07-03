@@ -62,7 +62,7 @@ public class ShowBrowserDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(dialogTitle);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Canvas
     wBrowser = new Browser(shell, SWT.NONE);

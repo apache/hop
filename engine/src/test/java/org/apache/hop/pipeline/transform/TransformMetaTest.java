@@ -34,6 +34,7 @@ import org.apache.hop.core.variables.Variables;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.transforms.missing.Missing;
 import org.apache.hop.utils.TestUtils;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class TransformMetaTest {
@@ -51,14 +52,14 @@ public class TransformMetaTest {
   }
 
   @Test
-  public void testEqualsHashCodeConsistency() throws Exception {
+  public void testEqualsHashCodeConsistency() {
     TransformMeta transform = new TransformMeta();
     transform.setName("transform");
     TestUtils.checkEqualsHashCodeConsistency(transform, transform);
 
     TransformMeta transformSame = new TransformMeta();
     transformSame.setName("transform");
-    assertTrue(transform.equals(transformSame));
+    Assert.assertEquals(transform, transformSame);
     TestUtils.checkEqualsHashCodeConsistency(transform, transformSame);
 
     TransformMeta transformCaps = new TransformMeta();

@@ -140,36 +140,40 @@ public class TransformErrorMeta extends ChangedFlag implements Cloneable {
   }
 
   public String getXml() {
-    StringBuilder xml = new StringBuilder(300);
 
-    xml.append("      ")
-        .append(XmlHandler.openTag(TransformErrorMeta.XML_ERROR_TAG))
-        .append(Const.CR);
-    xml.append(CONST_SPACE)
-        .append(
-            XmlHandler.addTagValue(
+    String xml =
+        "      "
+            + XmlHandler.openTag(TransformErrorMeta.XML_ERROR_TAG)
+            + Const.CR
+            + CONST_SPACE
+            + XmlHandler.addTagValue(
                 TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG,
-                sourceTransform != null ? sourceTransform.getName() : ""));
-    xml.append(CONST_SPACE)
-        .append(
-            XmlHandler.addTagValue(
+                sourceTransform != null ? sourceTransform.getName() : "")
+            + CONST_SPACE
+            + XmlHandler.addTagValue(
                 TransformErrorMeta.XML_TARGET_TRANSFORM_TAG,
-                targetTransform != null ? targetTransform.getName() : ""));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("is_enabled", enabled));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("nr_valuename", nrErrorsValuename));
-    xml.append(CONST_SPACE)
-        .append(XmlHandler.addTagValue("descriptions_valuename", errorDescriptionsValuename));
-    xml.append(CONST_SPACE)
-        .append(XmlHandler.addTagValue("fields_valuename", errorFieldsValuename));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("codes_valuename", errorCodesValuename));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("max_errors", maxErrors));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("max_pct_errors", maxPercentErrors));
-    xml.append(CONST_SPACE).append(XmlHandler.addTagValue("min_pct_rows", minPercentRows));
-    xml.append("      ")
-        .append(XmlHandler.closeTag(TransformErrorMeta.XML_ERROR_TAG))
-        .append(Const.CR);
+                targetTransform != null ? targetTransform.getName() : "")
+            + CONST_SPACE
+            + XmlHandler.addTagValue("is_enabled", enabled)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("nr_valuename", nrErrorsValuename)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("descriptions_valuename", errorDescriptionsValuename)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("fields_valuename", errorFieldsValuename)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("codes_valuename", errorCodesValuename)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("max_errors", maxErrors)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("max_pct_errors", maxPercentErrors)
+            + CONST_SPACE
+            + XmlHandler.addTagValue("min_pct_rows", minPercentRows)
+            + "      "
+            + XmlHandler.closeTag(TransformErrorMeta.XML_ERROR_TAG)
+            + Const.CR;
 
-    return xml.toString();
+    return xml;
   }
 
   public TransformErrorMeta(Node node, List<TransformMeta> transforms) {

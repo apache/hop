@@ -161,7 +161,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   @HopMetadataProperty private boolean overrideExistingProperties;
 
-  private Date changedDate;
+  private final Date changedDate;
 
   @HopMetadataProperty private boolean sslMode;
 
@@ -329,10 +329,9 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   @Override
   public boolean equals(Object obj) {
-    if (!(obj instanceof HopServer)) {
+    if (!(obj instanceof HopServer server)) {
       return false;
     }
-    HopServer server = (HopServer) obj;
     return name.equalsIgnoreCase(server.getName());
   }
 
@@ -1186,7 +1185,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
               "Unable to contact remote hop server '"
                   + this.getName()
                   + "' to check pipeline status : "
-                  + e.toString());
+                  + e);
         }
       }
 
@@ -1201,7 +1200,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
               pipelineName, "The remote pipeline is still running, waiting a few seconds...");
         }
         try {
-          Thread.sleep(sleepTimeSeconds * 1000);
+          Thread.sleep(sleepTimeSeconds * 1000L);
         } catch (Exception e) {
           // Ignore errors
         }
@@ -1267,7 +1266,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
               "Unable to contact remote hop server '"
                   + this.getName()
                   + "' to check workflow status : "
-                  + e.toString());
+                  + e);
         }
       }
 
@@ -1282,7 +1281,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
               workflowName, "The remote workflow is still running, waiting a few seconds...");
         }
         try {
-          Thread.sleep(sleepTimeSeconds * 1000);
+          Thread.sleep(sleepTimeSeconds * 1000L);
         } catch (Exception e) {
           // Ignore errors
         }

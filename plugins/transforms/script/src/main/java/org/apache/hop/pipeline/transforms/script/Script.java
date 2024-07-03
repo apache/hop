@@ -50,7 +50,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @author Matt Burgess
  */
 public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITransform {
-  private static Class<?> PKG = Script.class; // For Translator
+  private static final Class<?> PKG = Script.class; // For Translator
 
   public static final int ABORT_PIPELINE = -1;
   public static final int ERROR_PIPELINE = -2;
@@ -618,7 +618,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
           }
         }
       } catch (Exception e) {
-        logError(BaseMessages.getString(PKG, "Script.Log.UnexpectedError") + " : " + e.toString());
+        logError(BaseMessages.getString(PKG, "Script.Log.UnexpectedError") + " : " + e);
         logError(
             BaseMessages.getString(PKG, "Script.Log.ErrorStackTrace")
                 + Const.CR
@@ -638,8 +638,7 @@ public class Script extends BaseTransform<ScriptMeta, ScriptData> implements ITr
       addValues(getInputRowMeta(), r);
     } catch (HopValueException e) {
       String location = "<unknown>";
-      if (e.getCause() instanceof ScriptException) {
-        ScriptException ee = (ScriptException) e.getCause();
+      if (e.getCause() instanceof ScriptException ee) {
         location = "--> " + ee.getLineNumber() + ":" + ee.getColumnNumber(); // $NON-NLS-1$
         //
       }

@@ -18,6 +18,7 @@
 package org.apache.hop.core.row;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -27,7 +28,6 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.row.value.ValueMetaBigNumber;
 import org.apache.hop.core.row.value.ValueMetaBoolean;
@@ -76,7 +76,7 @@ public class RowTest {
         };
     IRowMeta rowMeta2 = createTestRowMetaNormalStringConversion2();
 
-    assertTrue(rowMeta2.getString(rowData2, 0) == null);
+    assertNull(rowMeta2.getString(rowData2, 0));
     assertEquals("20070507130413", rowMeta2.getString(rowData2, 1));
     assertEquals("9.123,9", rowMeta2.getString(rowData2, 2));
     assertEquals("0012345", rowMeta2.getString(rowData2, 3));
@@ -128,7 +128,7 @@ public class RowTest {
     assertEquals("2007/05/07 13:04:13.203", rowMeta.getString(rowData1, 1));
 
     assertEquals("Red", rowMeta.getString(rowData2, 0));
-    assertTrue(null == rowMeta.getString(rowData2, 1));
+    assertNull(rowMeta.getString(rowData2, 1));
 
     assertEquals("Blue", rowMeta.getString(rowData3, 0));
     assertEquals("2007/05/05 05:15:49.349", rowMeta.getString(rowData3, 1));
@@ -136,7 +136,7 @@ public class RowTest {
     assertEquals("Yellow", rowMeta.getString(rowData4, 0));
     assertEquals("2007/05/05 19:08:44.736", rowMeta.getString(rowData4, 1));
 
-    assertTrue(null == rowMeta.getString(rowData5, 0));
+    assertNull(rowMeta.getString(rowData5, 0));
     assertEquals("2007/05/07 13:04:13.203", rowMeta.getString(rowData5, 1));
   }
 
@@ -155,14 +155,14 @@ public class RowTest {
 
   private void makeTestExtractDataWithTimestampConversion(
       IRowMeta rowMeta, String str, Date date, Timestamp constTimestamp)
-      throws HopEofException, HopFileException, IOException {
+      throws HopFileException, IOException {
     Object[] rowData = new Object[] {str, date};
     byte[] result = RowMeta.extractData(rowMeta, rowData);
     DataInputStream stream = new DataInputStream(new ByteArrayInputStream(result));
     String extractedString = (String) new ValueMetaString().readData(stream);
     Timestamp time = (Timestamp) new ValueMetaTimestamp().readData(stream);
     stream.close();
-    assertTrue(str.equals(extractedString));
+    assertEquals(str, extractedString);
     assertTrue(constTimestamp.equals(time));
   }
 

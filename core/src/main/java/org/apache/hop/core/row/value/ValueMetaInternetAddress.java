@@ -92,8 +92,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return (InetAddress) index[((Integer) object)];
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -105,8 +104,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertStringToInternetAddress((String) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_NUMBER:
         switch (storageType) {
@@ -118,8 +116,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertNumberToInternetAddress((Double) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_INTEGER:
         switch (storageType) {
@@ -131,8 +128,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertIntegerToInternetAddress((Long) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BIGNUMBER:
         switch (storageType) {
@@ -145,22 +141,20 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
             return convertBigNumberToInternetAddress(
                 (BigDecimal) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BOOLEAN:
         throw new HopValueException(
-            toString() + " : I don't know how to convert a boolean to a Internet address.");
+            this + " : I don't know how to convert a boolean to a Internet address.");
       case TYPE_BINARY:
         throw new HopValueException(
-            toString() + " : I don't know how to convert a binary value to Internet address.");
+            this + " : I don't know how to convert a binary value to Internet address.");
       case TYPE_SERIALIZABLE:
         throw new HopValueException(
-            toString()
-                + " : I don't know how to convert a serializable value to Internet address.");
+            this + " : I don't know how to convert a serializable value to Internet address.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
+        throw new HopValueException(this + " : Unknown type " + type + CONST_SPECIFIED);
     }
   }
 
@@ -249,8 +243,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
         return convertStringToBinaryString(
             convertInternetAddressToString((InetAddress) index[((Integer) object)]));
       default:
-        throw new HopValueException(
-            toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
     }
   }
 
@@ -283,7 +276,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     }
 
     for (int i = 0; i < addr.length; i++) {
-      long mask = 0xFF << (i * 8);
+      long mask = 0xFFL << (i * 8);
       addr[addr.length - 1 - i] = (byte) ((l & mask) >> (8 * i));
     }
 
@@ -308,7 +301,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
       return InetAddress.getByName(string);
     } catch (Exception e) {
       throw new HopValueException(
-          toString() + " : couldn't convert string [" + string + "] to an internet address", e);
+          this + " : couldn't convert string [" + string + "] to an internet address", e);
     }
   }
 

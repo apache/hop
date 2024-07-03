@@ -150,8 +150,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective, TabClos
 
     composite = new Composite(parent, SWT.NONE);
     FormLayout layout = new FormLayout();
-    layout.marginRight = props.getMargin();
-    layout.marginBottom = props.getMargin();
+    layout.marginRight = PropsUi.getMargin();
+    layout.marginBottom = PropsUi.getMargin();
     composite.setLayout(layout);
 
     FormData formData = new FormData();

@@ -82,7 +82,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
 
   private TextVar wBootstrapServers;
   private final int middle = props.getMiddlePct();
-  private final int margin = props.getMargin();
+  private final int margin = PropsUi.getMargin();
 
   public KafkaProducerOutputDialog(
       Shell parent,
@@ -150,7 +150,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog {
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    positionBottomButtons(shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+    positionBottomButtons(shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
 
     Label bottomSeparator = new Label(shell, SWT.HORIZONTAL | SWT.SEPARATOR);
     PropsUi.setLook(bottomSeparator);

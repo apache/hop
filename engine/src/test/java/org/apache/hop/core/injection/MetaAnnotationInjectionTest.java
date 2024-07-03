@@ -60,7 +60,7 @@ public class MetaAnnotationInjectionTest {
   }
 
   @Test
-  public void testInjectionDescription() throws Exception {
+  public void testInjectionDescription() {
 
     BeanInjectionInfo<MetaBeanLevel1> ri = new BeanInjectionInfo(MetaBeanLevel1.class);
 
@@ -148,7 +148,7 @@ public class MetaAnnotationInjectionTest {
     beanInjector.setProperty(targetBean, COMPLEX_NAME, createRowMetaAndData(), FIELD_ONE);
 
     assertNotNull(targetBean.getComplexField());
-    assertTrue(targetBean.getComplexField().length == 1);
+    assertEquals(1, targetBean.getComplexField().length);
     assertEquals(TEST_NAME, targetBean.getComplexField()[0].getFieldName());
   }
 
@@ -161,12 +161,12 @@ public class MetaAnnotationInjectionTest {
     beanInjector.setProperty(targetBean, COMPLEX_NAME, createRowMetaAndData(), FIELD_ONE);
 
     assertNotNull(targetBean.getComplexField());
-    assertTrue(targetBean.getComplexField().length == 1);
+    assertEquals(1, targetBean.getComplexField().length);
     assertEquals(TEST_NAME, targetBean.getComplexField()[0].getFieldName());
   }
 
   @Test
-  public void testWrongDeclarations() throws Exception {
+  public void testWrongDeclarations() {
     try {
       new BeanInjectionInfo(MetaBeanWrong1.class);
       fail();
@@ -205,10 +205,10 @@ public class MetaAnnotationInjectionTest {
   }
 
   @Test
-  public void testGenerics() throws Exception {
+  public void testGenerics() {
     BeanInjectionInfo<MetaBeanChild> ri = new BeanInjectionInfo(MetaBeanChild.class);
 
-    assertTrue(ri.getProperties().size() == 7);
+    assertEquals(7, ri.getProperties().size());
     assertTrue(ri.getProperties().containsKey("BASE_ITEM_NAME"));
     assertTrue(ri.getProperties().containsKey("ITEM_CHILD_NAME"));
     assertTrue(ri.getProperties().containsKey("A"));

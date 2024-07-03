@@ -835,7 +835,7 @@ public abstract class Workflow extends Variables
       // green or red, execute the next action...
       //
       if (hi.isUnconditional()
-          || (actionMeta.isEvaluation() && (!(hi.getEvaluation() ^ newResult.getResult())))) {
+          || (actionMeta.isEvaluation() && (hi.getEvaluation() == newResult.getResult()))) {
         // Start this next transform!
         if (log.isBasic()) {
           log.logBasic(
@@ -1048,10 +1048,10 @@ public abstract class Workflow extends Variables
     // Keep an eye on the stopped state of a parent workflow and pipeline as well
     //
     if (parentWorkflow != null && parentWorkflow.isStopped()) {
-      stopped |= true;
+      stopped = true;
     }
     if (parentPipeline != null && parentPipeline.isStopped()) {
-      stopped |= true;
+      stopped = true;
     }
     return stopped;
   }

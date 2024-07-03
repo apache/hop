@@ -18,8 +18,7 @@
 package org.apache.hop.beam.core;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.Date;
 import org.junit.Test;
@@ -34,7 +33,7 @@ public class HopRowTest {
         new Object[] {"AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
     HopRow hopRow1 = new HopRow(row1);
     HopRow hopRow2 = new HopRow(row2);
-    assertTrue(hopRow1.equals(hopRow2));
+    assertEquals(hopRow1, hopRow2);
 
     Object[] row3 =
         new Object[] {"AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
@@ -42,7 +41,7 @@ public class HopRowTest {
         new Object[] {"AAA", "CCC", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
     HopRow hopRow3 = new HopRow(row3);
     HopRow hopRow4 = new HopRow(row4);
-    assertFalse(hopRow3.equals(hopRow4));
+    assertNotEquals(hopRow3, hopRow4);
 
     Object[] row5 =
         new Object[] {"AAA", null, Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
@@ -50,7 +49,7 @@ public class HopRowTest {
         new Object[] {"AAA", null, Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
     HopRow hopRow5 = new HopRow(row5);
     HopRow hopRow6 = new HopRow(row6);
-    assertTrue(hopRow5.equals(hopRow6));
+    assertEquals(hopRow5, hopRow6);
 
     Object[] row7 =
         new Object[] {"AAA", "BBB", Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
@@ -58,7 +57,7 @@ public class HopRowTest {
         new Object[] {"AAA", null, Long.valueOf(100), Double.valueOf(1.234), new Date(876876868)};
     HopRow hopRow7 = new HopRow(row7);
     HopRow hopRow8 = new HopRow(row8);
-    assertFalse(hopRow7.equals(hopRow8));
+    assertNotEquals(hopRow7, hopRow8);
   }
 
   @Test

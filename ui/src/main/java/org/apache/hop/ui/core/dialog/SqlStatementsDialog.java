@@ -92,7 +92,7 @@ public class SqlStatementsDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SQLStatementDialog.Title"));
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Add the buttons at the bottom
     //

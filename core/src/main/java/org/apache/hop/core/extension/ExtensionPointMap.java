@@ -34,7 +34,8 @@ import org.apache.hop.core.variables.IVariables;
 public class ExtensionPointMap {
 
   private static ILogChannel log = new LogChannel("ExtensionPointMap");
-  private static ExtensionPointMap INSTANCE = new ExtensionPointMap(PluginRegistry.getInstance());
+  private static final ExtensionPointMap INSTANCE =
+      new ExtensionPointMap(PluginRegistry.getInstance());
 
   private final PluginRegistry registry;
   private Table<String, String, Supplier<IExtensionPoint>> extensionPointPluginMap;

@@ -136,7 +136,7 @@ public class HopServerWorkflowStatus {
       } catch (IOException e) {
         loggingString =
             "Unable to decode logging from remote server : "
-                + e.toString()
+                + e
                 + Const.CR
                 + Const.getSimpleStackTrace(e)
                 + Const.CR

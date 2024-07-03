@@ -885,7 +885,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
           BaseMessages.getString(
               PKG,
               "ActionEvalFilesMetrics.Error.Exception.Processing",
-              realSourceFilefoldername.toString(),
+              realSourceFilefoldername,
               e.getMessage()));
 
     } finally {
@@ -1196,7 +1196,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
                 remarks,
                 AndValidator.putValidators(ActionValidatorUtils.notNullValidator()));
 
-    if (res == false) {
+    if (!res) {
       return;
     }
 

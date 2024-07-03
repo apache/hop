@@ -88,7 +88,7 @@ public class FileExistsDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "FileExistsDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);

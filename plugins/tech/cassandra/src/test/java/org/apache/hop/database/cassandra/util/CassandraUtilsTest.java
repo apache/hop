@@ -19,7 +19,7 @@ package org.apache.hop.database.cassandra.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,7 +49,7 @@ public class CassandraUtilsTest {
 
     String result = CassandraUtils.removeQuotes(toTest);
 
-    assertEquals(result, "AQuotedMixedCaseItentifier");
+    assertEquals("AQuotedMixedCaseItentifier", result);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class CassandraUtilsTest {
     String result = CassandraUtils.removeQuotes(toTest);
 
     // Without enclosing quotes Cassandra CQL3 is case insensitive
-    assertEquals(result, "mixedcasenoquotes");
+    assertEquals("mixedcasenoquotes", result);
   }
 
   @Test
@@ -68,7 +68,7 @@ public class CassandraUtilsTest {
 
     String result = CassandraUtils.cql3MixedCaseQuote(toTest);
 
-    assertEquals(result, "\"MixedCaseNoQuotes\"");
+    assertEquals("\"MixedCaseNoQuotes\"", result);
   }
 
   @Test
@@ -93,25 +93,20 @@ public class CassandraUtilsTest {
 
   @Test
   public void testGetPartitionerClassInstance() {
-    assertTrue(
+    assertSame(
         CassandraUtils.getPartitionerClassInstance("org.apache.cassandra.dht.Murmur3Partitioner")
-                .getClass()
-            == Murmur3Partitioner.class);
-    assertTrue(
+            .getClass(),
+        Murmur3Partitioner.class);
+    assertSame(
         CassandraUtils.getPartitionerClassInstance(
-                    "org.apache.cassandra.dht.ByteOrderedPartitioner")
-                .getClass()
-            == ByteOrderedPartitioner.class);
-    //    assertTrue(
-    //
-    // CassandraUtils.getPartitionerClassInstance("org.apache.cassandra.dht.RandomPartitioner")
-    //                .getClass()
-    //            == RandomPartitioner.class);
-    assertTrue(
+                "org.apache.cassandra.dht.ByteOrderedPartitioner")
+            .getClass(),
+        ByteOrderedPartitioner.class);
+    assertSame(
         CassandraUtils.getPartitionerClassInstance(
-                    "org.apache.cassandra.dht.OrderPreservingPartitioner")
-                .getClass()
-            == OrderPreservingPartitioner.class);
+                "org.apache.cassandra.dht.OrderPreservingPartitioner")
+            .getClass(),
+        OrderPreservingPartitioner.class);
   }
 
   @Test

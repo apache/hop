@@ -49,14 +49,12 @@ public class PoiCell implements IKCell {
       case STRING:
         return KCellType.LABEL;
 
-      case BLANK:
-      case ERROR:
+      case BLANK, ERROR:
         return KCellType.EMPTY;
 
       case FORMULA:
         switch (cell.getCachedFormulaResultType()) {
-          case BLANK:
-          case ERROR:
+          case BLANK, ERROR:
             return KCellType.EMPTY;
           case BOOLEAN:
             return KCellType.BOOLEAN_FORMULA;
@@ -80,22 +78,18 @@ public class PoiCell implements IKCell {
   public Object getValue() {
     try {
       switch (getType()) {
-        case BOOLEAN_FORMULA:
-        case BOOLEAN:
+        case BOOLEAN_FORMULA, BOOLEAN:
           return Boolean.valueOf(cell.getBooleanCellValue());
-        case DATE_FORMULA:
-        case DATE:
+        case DATE_FORMULA, DATE:
           // Timezone conversion needed since POI doesn't support this apparently
           //
           long time = cell.getDateCellValue().getTime();
           long tzOffset = TimeZone.getDefault().getOffset(time);
 
           return new Date(time + tzOffset);
-        case NUMBER_FORMULA:
-        case NUMBER:
+        case NUMBER_FORMULA, NUMBER:
           return Double.valueOf(cell.getNumericCellValue());
-        case STRING_FORMULA:
-        case LABEL:
+        case STRING_FORMULA, LABEL:
           return cell.getStringCellValue();
         case EMPTY:
         default:

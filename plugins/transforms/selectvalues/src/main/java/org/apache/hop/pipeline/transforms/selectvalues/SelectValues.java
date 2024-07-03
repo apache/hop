@@ -345,7 +345,7 @@ public class SelectValues extends BaseTransform<SelectValuesMeta, SelectValuesDa
       } catch (HopValueException e) {
         throw new HopConversionException(
             e.getMessage(),
-            Collections.<Exception>singletonList(e),
+            Collections.singletonList(e),
             Collections.singletonList(toMeta),
             rowData);
       }

@@ -253,9 +253,7 @@ public class Condition implements Cloneable {
 
   public static String[] getOperators() {
     String[] operatorCodes = new String[Condition.operators.length - 1];
-    for (int i = 1; i < Condition.operators.length; i++) {
-      operatorCodes[i - 1] = Condition.operators[i];
-    }
+    System.arraycopy(Condition.operators, 1, operatorCodes, 0, Condition.operators.length - 1);
     return operatorCodes;
   }
 

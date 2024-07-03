@@ -91,7 +91,7 @@ public class EnterPreviewRowsDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImageHopUi());
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Filename line
     Label wlTransformList = new Label(shell, SWT.NONE);

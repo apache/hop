@@ -126,7 +126,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
   private TableView wResultRowsFields;
 
   private final int middle = props.getMiddlePct();
-  private final int margin = props.getMargin();
+  private final int margin = PropsUi.getMargin();
 
   private HopWorkflowFileType<WorkflowMeta> fileType =
       HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
@@ -171,7 +171,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    positionBottomButtons(shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+    positionBottomButtons(shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -516,7 +516,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog {
     PropsUi.setLook(wMapParameters);
     FormData fdMapParameters = new FormData();
     fdMapParameters.bottom = new FormAttachment(100, 0);
-    fdMapParameters.right = new FormAttachment(wGetParameters, -props.getMargin());
+    fdMapParameters.right = new FormAttachment(wGetParameters, -PropsUi.getMargin());
     wMapParameters.setLayoutData(fdMapParameters);
     wMapParameters.setSelection(workflowExecutorMeta.getParameters().isInheritingAllVariables());
     wMapParameters.addListener(SWT.Selection, e -> mapFieldsToWorkflowParameters());

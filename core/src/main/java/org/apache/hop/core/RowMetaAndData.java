@@ -66,7 +66,7 @@ public class RowMetaAndData implements Cloneable {
     try {
       return rowMeta.getString(data);
     } catch (HopValueException e) {
-      return rowMeta.toString() + ", error presenting data: " + e.toString();
+      return rowMeta.toString() + ", error presenting data: " + e;
     }
   }
 
@@ -300,8 +300,7 @@ public class RowMetaAndData implements Cloneable {
         return rowMeta.getBigNumber(data, idx) == null;
       case IValueMeta.TYPE_BINARY:
         return rowMeta.getBinary(data, idx) == null;
-      case IValueMeta.TYPE_DATE:
-      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
         return rowMeta.getDate(data, idx) == null;
       case IValueMeta.TYPE_INET:
         return rowMeta.getString(data, idx) == null;

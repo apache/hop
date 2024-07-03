@@ -69,7 +69,7 @@ public class LogReaderEditor extends MetadataEditor<LogReader> {
     PropsUi props = PropsUi.getInstance();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // The generic widgets: name, description and pipeline engine type
     //

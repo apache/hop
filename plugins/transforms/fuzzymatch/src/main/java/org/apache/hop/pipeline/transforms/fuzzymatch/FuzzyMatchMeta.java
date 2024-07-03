@@ -176,9 +176,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta<FuzzyMatch, FuzzyMatchData
           v = new ValueMetaInteger(mainField);
           v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH);
           break;
-        case JARO:
-        case JARO_WINKLER:
-        case PAIR_SIMILARITY:
+        case JARO, JARO_WINKLER, PAIR_SIMILARITY:
           v = new ValueMetaNumber(mainField);
           break;
         default:

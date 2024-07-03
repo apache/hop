@@ -216,17 +216,17 @@ public class HopGui
 
   public static final String APP_NAME = "Hop";
 
-  private String id;
+  private final String id;
 
   private MultiMetadataProvider metadataProvider;
 
   private HopGuiEventsHandler eventsHandler;
 
-  private ILoggingObject loggingObject;
-  private ILogChannel log;
+  private final ILoggingObject loggingObject;
+  private final ILogChannel log;
 
   private Shell shell;
-  private Display display;
+  private final Display display;
   private List<String> commandLineArguments;
   private IVariables variables;
   private PropsUi props;
@@ -243,8 +243,8 @@ public class HopGui
   private HopPerspectiveManager perspectiveManager;
   private IHopPerspective activePerspective;
 
-  private static PrintStream originalSystemOut = System.out;
-  private static PrintStream originalSystemErr = System.err;
+  private static final PrintStream originalSystemOut = System.out;
+  private static final PrintStream originalSystemErr = System.err;
 
   public MetadataManager<DatabaseMeta> databaseMetaManager;
   public MetadataManager<HopServer> hopServerManager;
@@ -455,7 +455,6 @@ public class HopGui
 
     boolean doNotShowWelcomeDialog =
         HopConfig.readOptionBoolean(WelcomeDialog.HOP_CONFIG_NO_SHOW_OPTION, false);
-    ;
     doNotShowWelcomeDialog |=
         Const.toBoolean(variables.getVariable(WelcomeDialog.VARIABLE_HOP_NO_WELCOME_DIALOG));
     if (!doNotShowWelcomeDialog) {
@@ -555,7 +554,7 @@ public class HopGui
             GuiRegistry.getInstance()
                 .findKeyboardShortcut(perspectiveClass.getName(), "activate", Const.isOSX());
         if (shortcut != null) {
-          item.setToolTipText(item.getToolTipText() + " (" + shortcut.toString() + ')');
+          item.setToolTipText(item.getToolTipText() + " (" + shortcut + ')');
         }
 
         if (first) {
@@ -879,7 +878,7 @@ public class HopGui
   public void menuEditFind() {
     IHopPerspective perspective = perspectiveManager.findPerspective(HopSearchPerspective.class);
     if (perspective != null) {
-      ((HopSearchPerspective) perspective).activate();
+      perspective.activate();
     }
   }
 
@@ -1666,11 +1665,9 @@ public class HopGui
    */
   public static HopGuiPipelineGraph getActivePipelineGraph() {
     IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
-    if (!(activePerspective instanceof HopDataOrchestrationPerspective)) {
+    if (!(activePerspective instanceof HopDataOrchestrationPerspective perspective)) {
       return null;
     }
-    HopDataOrchestrationPerspective perspective =
-        (HopDataOrchestrationPerspective) activePerspective;
     IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
     if (!(typeHandler instanceof HopGuiPipelineGraph)) {
       return null;
@@ -1680,11 +1677,9 @@ public class HopGui
 
   public static HopGuiWorkflowGraph getActiveWorkflowGraph() {
     IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
-    if (!(activePerspective instanceof HopDataOrchestrationPerspective)) {
+    if (!(activePerspective instanceof HopDataOrchestrationPerspective perspective)) {
       return null;
     }
-    HopDataOrchestrationPerspective perspective =
-        (HopDataOrchestrationPerspective) activePerspective;
     IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
     if (!(typeHandler instanceof HopGuiWorkflowGraph)) {
       return null;

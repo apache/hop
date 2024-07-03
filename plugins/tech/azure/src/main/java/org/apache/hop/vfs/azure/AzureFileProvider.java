@@ -67,13 +67,13 @@ public class AzureFileProvider extends AbstractOriginatingFileProvider {
 
   public static final String AZURE_ENDPOINT_SUFFIX = "core.windows.net";
 
-  private static FileSystemOptions defaultOptions = new FileSystemOptions();
+  private static final FileSystemOptions defaultOptions = new FileSystemOptions();
 
   public static FileSystemOptions getDefaultFileSystemOptions() {
     return defaultOptions;
   }
 
-  private Log logger = LogFactory.getLog(AzureFileProvider.class);
+  private final Log logger = LogFactory.getLog(AzureFileProvider.class);
 
   private IVariables variables;
 

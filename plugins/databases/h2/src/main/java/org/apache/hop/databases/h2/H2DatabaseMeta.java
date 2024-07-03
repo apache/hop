@@ -162,8 +162,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
     int type = v.getType();
     switch (type) {
-      case IValueMeta.TYPE_TIMESTAMP:
-      case IValueMeta.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
       case IValueMeta.TYPE_BOOLEAN:
@@ -173,9 +172,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
           retval += "CHAR(1)";
         }
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_INTEGER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (fieldname.equalsIgnoreCase(tk)
             || // Technical key
             fieldname.equalsIgnoreCase(pk) // Primary key

@@ -460,7 +460,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
-            CheckLimit();
+            checkLimit();
           }
         });
 
@@ -503,7 +503,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
           @Override
           public void widgetSelected(SelectionEvent e) {
             action.setChanged();
-            CheckLimit();
+            checkLimit();
           }
         });
 
@@ -660,7 +660,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
         shell, new Button[] {wOk, wCancel}, margin, wSuccessOn);
 
     getData();
-    CheckLimit();
+    checkLimit();
     setDateTimeFormat();
     activeSuccessCondition();
     setAddDateBeforeExtension();
@@ -686,7 +686,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     wNrErrorsLessThan.setEnabled(wSuccessCondition.getSelectionIndex() != 0);
   }
 
-  private void CheckLimit() {
+  private void checkLimit() {
     wlWildcard.setEnabled(wSpecifyWildcard.getSelection());
     wWildcard.setEnabled(wSpecifyWildcard.getSelection());
     wlWildcardExclude.setEnabled(wSpecifyWildcard.getSelection());
@@ -731,9 +731,13 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     }
 
     if (action.getSuccessCondition() != null) {
-      if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES)) {
+      if (action
+          .getSuccessCondition()
+          .equals(ActionCopyMoveResultFilenames.SUCCESS_IF_AT_LEAST_X_FILES)) {
         wSuccessCondition.select(1);
-      } else if (action.getSuccessCondition().equals(action.SUCCESS_IF_ERRORS_LESS)) {
+      } else if (action
+          .getSuccessCondition()
+          .equals(ActionCopyMoveResultFilenames.SUCCESS_IF_ERRORS_LESS)) {
         wSuccessCondition.select(2);
       } else {
         wSuccessCondition.select(0);
@@ -794,11 +798,11 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog {
     action.setNrErrorsLessThan(wNrErrorsLessThan.getText());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
-      action.setSuccessCondition(action.SUCCESS_IF_AT_LEAST_X_FILES);
+      action.setSuccessCondition(ActionCopyMoveResultFilenames.SUCCESS_IF_AT_LEAST_X_FILES);
     } else if (wSuccessCondition.getSelectionIndex() == 2) {
-      action.setSuccessCondition(action.SUCCESS_IF_ERRORS_LESS);
+      action.setSuccessCondition(ActionCopyMoveResultFilenames.SUCCESS_IF_ERRORS_LESS);
     } else {
-      action.setSuccessCondition(action.SUCCESS_IF_NO_ERRORS);
+      action.setSuccessCondition(ActionCopyMoveResultFilenames.SUCCESS_IF_NO_ERRORS);
     }
 
     if (wAction.getSelectionIndex() == 1) {

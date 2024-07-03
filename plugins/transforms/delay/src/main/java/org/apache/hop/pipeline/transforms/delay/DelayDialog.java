@@ -69,7 +69,7 @@ public class DelayDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "DelayDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);

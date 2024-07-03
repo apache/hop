@@ -178,10 +178,7 @@ public abstract class BaseExecutionViewer extends DragViewZoomBase
         && areaOwner.getAreaType() != null
         && areaOwner.getAreaType().isSupportHover()) {
       switch (areaOwner.getAreaType()) {
-        case ACTION_ICON:
-        case ACTION_NAME:
-        case TRANSFORM_ICON:
-        case TRANSFORM_NAME:
+        case ACTION_ICON, ACTION_NAME, TRANSFORM_ICON, TRANSFORM_NAME:
           cursor = getDisplay().getSystemCursor(SWT.CURSOR_HAND);
           break;
         default:

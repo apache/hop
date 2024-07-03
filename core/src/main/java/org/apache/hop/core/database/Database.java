@@ -136,8 +136,8 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private int written;
 
-  private ILogChannel log;
-  private ILoggingObject parentLoggingObject;
+  private final ILogChannel log;
+  private final ILoggingObject parentLoggingObject;
   private static final String TABLES_META_DATA_TABLE_NAME = "TABLE_NAME";
 
   /**
@@ -160,7 +160,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
 
   private int nrExecutedCommits;
 
-  private static List<IValueMeta> valueMetaPluginClasses;
+  private static final List<IValueMeta> valueMetaPluginClasses;
 
   static {
     try {
@@ -607,7 +607,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         log.logDetailed("Connection to database closed!");
       }
     } catch (SQLException e) {
-      throw new HopDatabaseException("Error disconnecting from database '" + toString() + "'", e);
+      throw new HopDatabaseException("Error disconnecting from database '" + this + "'", e);
     }
   }
 
@@ -709,13 +709,13 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       }
       if (getDatabaseMetaData().supportsTransactions()) {
         if (log.isDebug()) {
-          log.logDebug("Commit on database connection [" + toString() + "]");
+          log.logDebug("Commit on database connection [" + this + "]");
         }
         connection.commit();
         nrExecutedCommits++;
       } else {
         if (log.isDetailed()) {
-          log.logDetailed("No commit possible on database connection [" + toString() + "]");
+          log.logDetailed("No commit possible on database connection [" + this + "]");
         }
       }
     } catch (Exception e) {
@@ -737,13 +737,13 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
       if (getDatabaseMetaData().supportsTransactions()) {
         if (connection != null) {
           if (log.isDebug()) {
-            log.logDebug("Rollback on database connection [" + toString() + "]");
+            log.logDebug("Rollback on database connection [" + this + "]");
           }
           connection.rollback();
         }
       } else {
         if (log.isDetailed()) {
-          log.logDetailed("No rollback possible on database connection [" + toString() + "]");
+          log.logDetailed("No rollback possible on database connection [" + this + "]");
         }
       }
 
@@ -2341,7 +2341,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
     if (databaseMeta.isMySqlVariant()) {
       name = databaseMeta.getIDatabase().getLegacyColumnName(getDatabaseMetaData(), rm, i);
     } else {
-      name = new String(rm.getColumnName(i));
+      name = rm.getColumnName(i);
     }
 
     // Check the name, sometimes it's empty.
@@ -3572,7 +3572,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
-            log.logDebug("Error getting tables for field TABLE_CAT (ignored): " + e.toString());
+            log.logDebug("Error getting tables for field TABLE_CAT (ignored): " + e);
           }
         }
 
@@ -3582,7 +3582,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
-            log.logDebug("Error getting tables for field TABLE_SCHEM (ignored): " + e.toString());
+            log.logDebug("Error getting tables for field TABLE_SCHEM (ignored): " + e);
           }
         }
 
@@ -3689,7 +3689,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
-            log.logDebug("Error getting views for field TABLE_CAT (ignored): " + e.toString());
+            log.logDebug("Error getting views for field TABLE_CAT (ignored): " + e);
           }
         }
 
@@ -3699,7 +3699,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
-            log.logDebug("Error getting views for field TABLE_SCHEM (ignored): " + e.toString());
+            log.logDebug("Error getting views for field TABLE_SCHEM (ignored): " + e);
           }
         }
 
@@ -3789,7 +3789,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
-            log.logDebug("Error getting synonyms for field TABLE_CAT (ignored): " + e.toString());
+            log.logDebug("Error getting synonyms for field TABLE_CAT (ignored): " + e);
           }
         }
 
@@ -3799,7 +3799,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
         } catch (Exception e) {
           // ignore
           if (log.isDebug()) {
-            log.logDebug("Error getting synonyms for field TABLE_SCHEM (ignored): " + e.toString());
+            log.logDebug("Error getting synonyms for field TABLE_SCHEM (ignored): " + e);
           }
         }
 
@@ -3932,7 +3932,7 @@ public class Database implements IVariables, ILoggingObject, AutoCloseable {
           String procSchema = rowMeta.getString(row, "PROCEDURE_SCHEM", null);
           String procName = rowMeta.getString(row, "PROCEDURE_NAME", "");
 
-          StringBuilder name = new StringBuilder("");
+          StringBuilder name = new StringBuilder();
           if (procCatalog != null) {
             name.append(procCatalog).append(".");
           }

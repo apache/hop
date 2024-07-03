@@ -126,10 +126,7 @@ public enum GraphPropertyType {
           }
           return zonedDateTime;
         }
-      case LocalTime:
-      case Time:
-      case Point:
-      case Duration:
+      case LocalTime, Time, Point, Duration:
       default:
         throw new HopValueException(
             "Data conversion to Neo4j type '"

@@ -41,10 +41,7 @@ public class RulesAccumulator extends BaseTransform<RulesAccumulatorMeta, RulesA
   @Override
   public boolean init() {
 
-    if (super.init()) {
-      return true;
-    }
-    return false;
+    return super.init();
   }
 
   public boolean runtimeInit() throws HopTransformException {

@@ -208,9 +208,7 @@ public class CrateDBDatabaseMeta extends PostgreSqlDatabaseMeta {
       IValueMeta v, String tk, String pk, boolean useAutoinc, boolean addFieldName, boolean addCr) {
 
     switch (v.getType()) {
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_BIGNUMBER:
-      case IValueMeta.TYPE_INTEGER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_INTEGER:
         String retval = "";
         String fieldname = v.getName();
         int length = v.getLength();

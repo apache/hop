@@ -121,7 +121,7 @@ public class ErrorDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(title);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

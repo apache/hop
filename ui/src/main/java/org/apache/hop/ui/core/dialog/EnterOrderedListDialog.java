@@ -281,7 +281,7 @@ public class EnterOrderedListDialog extends Dialog {
     wOK.addListener(SWT.Selection, e -> ok());
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOK, wCancel}, props.getMargin(), null);
+        shell, new Button[] {wOK, wCancel}, PropsUi.getMargin(), null);
 
     // Drag & Drop for steps
     Transfer[] ttypes = new Transfer[] {TextTransfer.getInstance()};

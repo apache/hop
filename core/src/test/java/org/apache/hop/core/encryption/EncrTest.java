@@ -17,7 +17,7 @@
 
 package org.apache.hop.core.encryption;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopValueException;
@@ -43,34 +43,33 @@ public class EncrTest {
    * @throws HopValueException
    */
   @Test
-  public void testEncryptPassword() throws HopValueException {
+  public void testEncryptPassword() {
     String encryption;
 
     encryption = Encr.encryptPassword(null);
-    assertTrue("".equals(encryption));
+    assertEquals("", encryption);
 
     encryption = Encr.encryptPassword("");
-    assertTrue("".equals(encryption));
+    assertEquals("", encryption);
 
     encryption = Encr.encryptPassword("     ");
-    assertTrue("2be98afc86aa7f2e4cb79ce309ed2ef9a".equals(encryption));
+    assertEquals("2be98afc86aa7f2e4cb79ce309ed2ef9a", encryption);
 
     encryption = Encr.encryptPassword("Test of different encryptions!!@#$%");
-    assertTrue(
-        "54657374206f6620646966666572656e742067d0fbddb11ad39b8ba50aef31fed1eb9f"
-            .equals(encryption));
+    assertEquals(
+        "54657374206f6620646966666572656e742067d0fbddb11ad39b8ba50aef31fed1eb9f", encryption);
 
     encryption = Encr.encryptPassword("  Spaces left");
-    assertTrue("2be98afe84af48285a81cbd30d297a9ce".equals(encryption));
+    assertEquals("2be98afe84af48285a81cbd30d297a9ce", encryption);
 
     encryption = Encr.encryptPassword("Spaces right");
-    assertTrue("2be98afc839d79387ae0aee62d795a7ce".equals(encryption));
+    assertEquals("2be98afc839d79387ae0aee62d795a7ce", encryption);
 
     encryption = Encr.encryptPassword("     Spaces  ");
-    assertTrue("2be98afe84a87d2c49809af73db81ef9a".equals(encryption));
+    assertEquals("2be98afe84a87d2c49809af73db81ef9a", encryption);
 
     encryption = Encr.encryptPassword("1234567890");
-    assertTrue("2be98afc86aa7c3d6f84dfb2689caf68a".equals(encryption));
+    assertEquals("2be98afc86aa7c3d6f84dfb2689caf68a", encryption);
   }
 
   /**
@@ -79,41 +78,41 @@ public class EncrTest {
    * @throws HopValueException
    */
   @Test
-  public void testDecryptPassword() throws HopValueException {
+  public void testDecryptPassword() {
     String encryption;
     String decryption;
 
     encryption = Encr.encryptPassword(null);
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("".equals(decryption));
+    assertEquals("", decryption);
 
     encryption = Encr.encryptPassword("");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("".equals(decryption));
+    assertEquals("", decryption);
 
     encryption = Encr.encryptPassword("     ");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("     ".equals(decryption));
+    assertEquals("     ", decryption);
 
     encryption = Encr.encryptPassword("Test of different encryptions!!@#$%");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("Test of different encryptions!!@#$%".equals(decryption));
+    assertEquals("Test of different encryptions!!@#$%", decryption);
 
     encryption = Encr.encryptPassword("  Spaces left");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("  Spaces left".equals(decryption));
+    assertEquals("  Spaces left", decryption);
 
     encryption = Encr.encryptPassword("Spaces right");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("Spaces right".equals(decryption));
+    assertEquals("Spaces right", decryption);
 
     encryption = Encr.encryptPassword("     Spaces  ");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("     Spaces  ".equals(decryption));
+    assertEquals("     Spaces  ", decryption);
 
     encryption = Encr.encryptPassword("1234567890");
     decryption = Encr.decryptPassword(encryption);
-    assertTrue("1234567890".equals(decryption));
+    assertEquals("1234567890", decryption);
   }
 
   /**
@@ -122,29 +121,29 @@ public class EncrTest {
    * @throws HopValueException
    */
   @Test
-  public void testEncryptPasswordIfNotUsingVariables() throws HopValueException {
+  public void testEncryptPasswordIfNotUsingVariables() {
     String encryption;
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(null);
-    assertTrue("Encrypted ".equals(encryption));
+    assertEquals("Encrypted ", encryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables("");
-    assertTrue("Encrypted ".equals(encryption));
+    assertEquals("Encrypted ", encryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables("String");
-    assertTrue("Encrypted 2be98afc86aa7f2e4cb799d64cc9ba1dd".equals(encryption));
+    assertEquals("Encrypted 2be98afc86aa7f2e4cb799d64cc9ba1dd", encryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" ${VAR} String");
-    assertTrue(" ${VAR} String".equals(encryption));
+    assertEquals(" ${VAR} String", encryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %%VAR%% String");
-    assertTrue(" %%VAR%% String".equals(encryption));
+    assertEquals(" %%VAR%% String", encryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %% VAR String");
-    assertTrue("Encrypted 2be988fed4f87a4a599599d64cc9ba1dd".equals(encryption));
+    assertEquals("Encrypted 2be988fed4f87a4a599599d64cc9ba1dd", encryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables("${%%$$$$");
-    assertTrue("Encrypted 2be98afc86aa7f2e4ef02eb359ad6eb9e".equals(encryption));
+    assertEquals("Encrypted 2be98afc86aa7f2e4ef02eb359ad6eb9e", encryption);
   }
 
   /**
@@ -153,36 +152,36 @@ public class EncrTest {
    * @throws HopValueException
    */
   @Test
-  public void testDecryptPasswordIfNotUsingVariables() throws HopValueException {
+  public void testDecryptPasswordIfNotUsingVariables() {
     String encryption;
     String decryption;
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(null);
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue("".equals(decryption));
+    assertEquals("", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables("");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue("".equals(decryption));
+    assertEquals("", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables("String");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue("String".equals(decryption));
+    assertEquals("String", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" ${VAR} String");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue(" ${VAR} String".equals(decryption));
+    assertEquals(" ${VAR} String", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %%VAR%% String");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue(" %%VAR%% String".equals(decryption));
+    assertEquals(" %%VAR%% String", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables(" %% VAR String");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue(" %% VAR String".equals(decryption));
+    assertEquals(" %% VAR String", decryption);
 
     encryption = Encr.encryptPasswordIfNotUsingVariables("${%%$$$$");
     decryption = Encr.decryptPasswordOptionallyEncrypted(encryption);
-    assertTrue("${%%$$$$".equals(decryption));
+    assertEquals("${%%$$$$", decryption);
   }
 }

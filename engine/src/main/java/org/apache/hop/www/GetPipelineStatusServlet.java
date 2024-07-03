@@ -608,7 +608,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
 
   @Override
   public String getService() {
-    return CONTEXT_PATH + " (" + toString() + ")";
+    return CONTEXT_PATH + " (" + this + ")";
   }
 
   @Override

@@ -22,6 +22,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
@@ -80,7 +81,7 @@ public class PipelineMetaTest {
   private IHopMetadataProvider metadataProvider;
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     pipelineMeta = new PipelineMeta();
     variables = new Variables();
     metadataProvider = new MemoryMetadataProvider();
@@ -108,7 +109,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testContentChangeListener() throws Exception {
+  public void testContentChangeListener() {
     IContentChangedListener listener = mock(IContentChangedListener.class);
     pipelineMeta.addContentChangedListener(listener);
 
@@ -130,7 +131,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testCompare() throws Exception {
+  public void testCompare() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setNameSynchronizedWithFilename(false);
     pipelineMeta.setFilename("aFile");
@@ -162,19 +163,19 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testEquals() throws Exception {
+  public void testEquals() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setFilename("1");
     pipelineMeta.setName("2");
-    assertFalse(pipelineMeta.equals("somethingelse"));
+    assertNotEquals("somethingelse", pipelineMeta);
     PipelineMeta pipelineMeta2 = new PipelineMeta();
     pipelineMeta2.setFilename("1");
     pipelineMeta2.setName("2");
-    assertTrue(pipelineMeta.equals(pipelineMeta2));
+    assertEquals(pipelineMeta, pipelineMeta2);
   }
 
   @Test
-  public void testPipelineHops() throws Exception {
+  public void testPipelineHops() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setFilename("pipelineFile");
     pipelineMeta.setName("myPipeline");
@@ -212,7 +213,7 @@ public class PipelineMetaTest {
   }
 
   @Test
-  public void testGetAllPipelineHops() throws Exception {
+  public void testGetAllPipelineHops() {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setFilename("pipelineFile");
     pipelineMeta.setName("myPipeline");

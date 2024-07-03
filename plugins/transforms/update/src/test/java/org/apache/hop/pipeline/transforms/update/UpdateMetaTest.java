@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.update;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -227,13 +227,13 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
   @Test
   public void testCommitCountFixed() {
     umi.setCommitSize("100");
-    assertTrue(umi.getCommitSize(upd) == 100);
+    assertEquals(100, umi.getCommitSize(upd));
   }
 
   @Test
   public void testCommitCountVar() {
     umi.setCommitSize("${max.sz}");
-    assertTrue(umi.getCommitSize(upd) == 10);
+    assertEquals(10, umi.getCommitSize(upd));
   }
 
   @Test
@@ -283,15 +283,11 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public UpdateLookupField getTestObject() {
-
-      UpdateLookupField field =
-          new UpdateLookupField(
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString(),
-              new ArrayList<UpdateKeyField>(),
-              new ArrayList<UpdateField>());
-
-      return field;
+      return new UpdateLookupField(
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString(),
+          new ArrayList<UpdateKeyField>(),
+          new ArrayList<UpdateField>());
     }
 
     @Override
@@ -314,11 +310,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public UpdateField getTestObject() {
-
-      UpdateField field =
-          new UpdateField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
-
-      return field;
+      return new UpdateField(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Override
@@ -339,15 +331,11 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public UpdateKeyField getTestObject() {
-
-      UpdateKeyField field =
-          new UpdateKeyField(
-              UUID.randomUUID().toString(),
-              "=",
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString());
-
-      return field;
+      return new UpdateKeyField(
+          UUID.randomUUID().toString(),
+          "=",
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString());
     }
 
     @Override

@@ -94,7 +94,7 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "RulesAccumulator.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);
@@ -206,7 +206,7 @@ public class RulesAccumulatorDialog extends BaseTransformDialog {
     FormData fdRuleFilePath = new FormData();
     fdRuleFilePath.left = new FormAttachment(0, 0);
     fdRuleFilePath.top = new FormAttachment(wlRuleFilePath, 5);
-    fdRuleFilePath.right = new FormAttachment(wbBrowse, -props.getMargin());
+    fdRuleFilePath.right = new FormAttachment(wbBrowse, -PropsUi.getMargin());
     wRuleFilePath.setLayoutData(fdRuleFilePath);
 
     wbRulesInEditor = new Button(wRulesComp, SWT.CHECK);

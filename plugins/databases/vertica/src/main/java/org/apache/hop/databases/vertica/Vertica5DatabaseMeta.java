@@ -62,8 +62,7 @@ public class Vertica5DatabaseMeta extends VerticaDatabaseMeta {
 
     try {
       switch (val.getType()) {
-        case IValueMeta.TYPE_TIMESTAMP:
-        case IValueMeta.TYPE_DATE:
+        case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
           if (val.getOriginalColumnType() == java.sql.Types.TIMESTAMP) {
             data = rs.getTimestamp(index + 1);
             break; // Timestamp extends java.util.Date

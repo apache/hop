@@ -89,7 +89,7 @@ public class EnterListDialog extends Dialog {
 
     shell.setLayout(new FormLayout());
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

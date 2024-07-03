@@ -76,17 +76,17 @@ public class EnvironmentUtilsTest {
   @Test
   public void getBrowserName() {
     EnvironmentUtilsMock mock = new EnvironmentUtilsMock(Case.UBUNTU_16);
-    Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "Midori");
+    Assert.assertEquals("Midori", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.UBUNTU_14);
-    Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "Midori");
+    Assert.assertEquals("Midori", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.MAC_OS_X);
-    Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "Safari");
+    Assert.assertEquals("Safari", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.MACOS_X_WRONG);
-    Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "Safari");
+    Assert.assertEquals("Safari", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.WINDOWS);
-    Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "MSIE");
+    Assert.assertEquals("MSIE", mock.getMockedInstance().getBrowserName());
     mock = new EnvironmentUtilsMock(Case.WINDOWS_WRONG);
-    Assert.assertEquals(mock.getMockedInstance().getBrowserName(), "MSIE");
+    Assert.assertEquals("MSIE", mock.getMockedInstance().getBrowserName());
   }
 
   @Test
@@ -98,7 +98,7 @@ public class EnvironmentUtilsTest {
 
   class EnvironmentUtilsMock extends EnvironmentUtils {
 
-    private Case option;
+    private final Case option;
     private static final String WEBKIT_PATH = "/path/mock/webkit";
     private static final String MAC_OS_X_NAME = "mac os x";
     private static final String LINUX_NAME = "linux";
@@ -130,8 +130,7 @@ public class EnvironmentUtilsTest {
     @Override
     protected String getWebkitPath() {
       switch (option) {
-        case UBUNTU_16:
-        case UBUNTU_14:
+        case UBUNTU_16, UBUNTU_14:
           return WEBKIT_PATH;
         case UBUNTU_WRONG:
           return "";
@@ -143,15 +142,11 @@ public class EnvironmentUtilsTest {
     @Override
     protected String getOsName() {
       switch (option) {
-        case UBUNTU_16:
-        case UBUNTU_WRONG:
-        case UBUNTU_14:
+        case UBUNTU_16, UBUNTU_WRONG, UBUNTU_14:
           return LINUX_NAME;
-        case MAC_OS_X:
-        case MACOS_X_WRONG:
+        case MAC_OS_X, MACOS_X_WRONG:
           return MAC_OS_X_NAME;
-        case WINDOWS:
-        case WINDOWS_WRONG:
+        case WINDOWS, WINDOWS_WRONG:
           return WINDOWS_NAME;
         default:
           return null;
@@ -161,8 +156,7 @@ public class EnvironmentUtilsTest {
     @Override
     protected String getUserAgent() {
       switch (option) {
-        case UBUNTU_16:
-        case UBUNTU_14:
+        case UBUNTU_16, UBUNTU_14:
           return MIDORI_AGENT;
         case MAC_OS_X:
           return SAFARI_9_AGENT;

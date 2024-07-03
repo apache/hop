@@ -141,7 +141,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
   private boolean gotPreviousFields = false;
 
   private final int middle = props.getMiddlePct();
-  private final int margin = props.getMargin();
+  private final int margin = PropsUi.getMargin();
 
   public PipelineExecutorDialog(
       Shell parent,
@@ -187,7 +187,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
-    positionBottomButtons(shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+    positionBottomButtons(shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -282,7 +282,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     wPipelineNameField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -621,7 +623,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog {
     PropsUi.setLook(wMapParameters);
     FormData fdMapParameters = new FormData();
     fdMapParameters.bottom = new FormAttachment(100, 0);
-    fdMapParameters.right = new FormAttachment(wGetParameters, -props.getMargin());
+    fdMapParameters.right = new FormAttachment(wGetParameters, -PropsUi.getMargin());
     wMapParameters.setLayoutData(fdMapParameters);
     wMapParameters.setSelection(pipelineExecutorMeta.getParameters().isInheritingAllVariables());
     wMapParameters.addListener(SWT.Selection, e -> mapFieldsToPipelineParameters());

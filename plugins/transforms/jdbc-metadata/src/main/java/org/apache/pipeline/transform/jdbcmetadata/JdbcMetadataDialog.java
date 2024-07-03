@@ -61,31 +61,18 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
 
   private int middle = props.getMiddlePct();
   private int margin = PropsUi.getMargin();
-
   private boolean dialogChanged;
   private ModifyListener lsMod;
-
   private Composite metadataComposite;
-
   private MetaSelectionLine<DatabaseMeta> wConnection;
-
   private Label alwaysPassInputRowLabel;
-  //
   private Button alwaysPassInputRowButton;
-  //
   private Label methodLabel;
-  //
-  // private CCombo methodCombo;
   private Combo methodCombo;
-
   private Label argumentSourceLabel;
-  //
   private Button argumentSourceFields;
-  //
   private Label removeArgumentFieldsLabel;
-  //
   private Button removeArgumentFieldsButton;
-  //
   private TableView outputFieldsTableView;
 
   public JdbcMetadataDialog(
@@ -113,7 +100,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
   /** Remove the UI to enter method arguments The current values are stored and returned. */
   private List<String> removeArgumentsUI() {
     Control[] controls = metadataComposite.getChildren();
-    List<String> currentValues = new ArrayList<String>();
+    List<String> currentValues = new ArrayList<>();
     for (Control control : controls) {
       if (control == alwaysPassInputRowLabel
           || control == alwaysPassInputRowButton
@@ -136,7 +123,6 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
         logDebug("removeArgumentsUI - number of children in parent composite: " + controls.length);
       }
     }
-    ;
     return currentValues;
   }
 
@@ -156,7 +142,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     label.setText(BaseMessages.getString(PKG, "JdbcMetadata.arguments." + argumentName + ".Label"));
     label.setToolTipText(
         BaseMessages.getString(PKG, "JdbcMetadata.arguments." + argumentName + ".Tooltip"));
-    props.setLook(label);
+    PropsUi.setLook(label);
     FormData labelFormData = new FormData();
     labelFormData.left = new FormAttachment(0, 0);
     labelFormData.right = new FormAttachment(middle, -margin);
@@ -165,15 +151,13 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
 
     ComboVar comboVar =
         new ComboVar(variables, metadataComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(comboVar);
+    PropsUi.setLook(comboVar);
     FormData comboVarFormData = new FormData();
     comboVarFormData.left = new FormAttachment(middle, 0);
     comboVarFormData.right = new FormAttachment(100, 0);
     comboVarFormData.top = new FormAttachment(lastControl, margin);
     comboVar.setLayoutData(comboVarFormData);
     comboVar.setItems(items);
-
-    // comboVar.addModifyListener(lsMod);
 
     return comboVar;
   }
@@ -185,7 +169,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
             + (currentValues == null ? "null" : currentValues.size()));
     Object[] argumentDescriptor;
     int argc = argumentDescriptors.length;
-    List<String> newArguments = new ArrayList<String>(argc);
+    List<String> newArguments = new ArrayList<>(argc);
     Control lastControl = removeArgumentFieldsButton;
     String[] items = argumentSourceFields.getSelection() ? getFieldListForCombo() : emptyFieldList;
     for (int i = 0; i < argc; i++) {
@@ -303,7 +287,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, input);
 
     changed = input.hasChanged();
@@ -330,7 +314,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
 
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -339,7 +323,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -359,7 +343,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     alwaysPassInputRowLabel.setText(BaseMessages.getString(PKG, "JdbcMetadata.passRow.Label"));
     alwaysPassInputRowLabel.setToolTipText(
         BaseMessages.getString(PKG, "JdbcMetadata.passRow.Tooltip"));
-    props.setLook(alwaysPassInputRowLabel);
+    PropsUi.setLook(alwaysPassInputRowLabel);
     FormData alwaysPassInputRowLabelFormData = new FormData();
     alwaysPassInputRowLabelFormData.left = new FormAttachment(0, 0);
     alwaysPassInputRowLabelFormData.right = new FormAttachment(middle, -margin);
@@ -367,7 +351,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     alwaysPassInputRowLabel.setLayoutData(alwaysPassInputRowLabelFormData);
 
     alwaysPassInputRowButton = new Button(shell, SWT.CHECK);
-    props.setLook(alwaysPassInputRowButton);
+    PropsUi.setLook(alwaysPassInputRowButton);
     FormData alwaysPassInputRowButtonFormData = new FormData();
     alwaysPassInputRowButtonFormData.left = new FormAttachment(middle, 0);
     alwaysPassInputRowButtonFormData.right = new FormAttachment(100, 0);
@@ -378,7 +362,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
 
     //
     CTabFolder cTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(cTabFolder, Props.WIDGET_STYLE_TAB);
+    PropsUi.setLook(cTabFolder, Props.WIDGET_STYLE_TAB);
 
     // Metadata tab
     CTabItem metadataTab = new CTabItem(cTabFolder, SWT.NONE);
@@ -390,14 +374,14 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     metadataTabLayout.marginHeight = Const.FORM_MARGIN;
 
     metadataComposite = new Composite(cTabFolder, SWT.NONE);
-    props.setLook(metadataComposite);
+    PropsUi.setLook(metadataComposite);
     metadataComposite.setLayout(metadataTabLayout);
 
     // method
     methodLabel = new Label(metadataComposite, SWT.RIGHT);
     methodLabel.setText(BaseMessages.getString(PKG, "JdbcMetadata.metadataMethod.Label"));
     methodLabel.setToolTipText(BaseMessages.getString(PKG, "JdbcMetadata.metadataMethod.Tooltip"));
-    props.setLook(methodLabel);
+    PropsUi.setLook(methodLabel);
     FormData methodLabelFormData = new FormData();
     methodLabelFormData.left = new FormAttachment(0, 0);
     methodLabelFormData.right = new FormAttachment(middle, -margin);
@@ -405,7 +389,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     methodLabel.setLayoutData(methodLabelFormData);
 
     methodCombo = new Combo(metadataComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(methodCombo);
+    PropsUi.setLook(methodCombo);
     methodCombo.addModifyListener(lsMod);
     FormData methodComboFormData = new FormData();
     methodComboFormData.left = new FormAttachment(middle, 0);
@@ -424,7 +408,9 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     SelectionListener methodComboSelectionListener =
         new SelectionListener() {
           @Override
-          public void widgetDefaultSelected(SelectionEvent selectionEvent) {}
+          public void widgetDefaultSelected(SelectionEvent selectionEvent) {
+            // Do nothing
+          }
 
           @Override
           public void widgetSelected(SelectionEvent selectionEvent) {
@@ -442,7 +428,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     argumentSourceLabel.setText(BaseMessages.getString(PKG, "JdbcMetadata.argumentSource.Label"));
     argumentSourceLabel.setToolTipText(
         BaseMessages.getString(PKG, "JdbcMetadata.argumentSource.Tooltip"));
-    props.setLook(argumentSourceLabel);
+    PropsUi.setLook(argumentSourceLabel);
     FormData argumentSourceLabelFormData = new FormData();
     argumentSourceLabelFormData.left = new FormAttachment(0, 0);
     argumentSourceLabelFormData.right = new FormAttachment(middle, -margin);
@@ -450,7 +436,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     argumentSourceLabel.setLayoutData(argumentSourceLabelFormData);
 
     argumentSourceFields = new Button(metadataComposite, SWT.CHECK);
-    props.setLook(argumentSourceFields);
+    PropsUi.setLook(argumentSourceFields);
     FormData argumentSourceFieldsFormData = new FormData();
     argumentSourceFieldsFormData.left = new FormAttachment(middle, 0);
     argumentSourceFieldsFormData.right = new FormAttachment(100, 0);
@@ -459,7 +445,9 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     SelectionListener argumentSourceFieldsSelectionListener =
         new SelectionListener() {
           @Override
-          public void widgetDefaultSelected(SelectionEvent selectionEvent) {}
+          public void widgetDefaultSelected(SelectionEvent selectionEvent) {
+            // Do nothing
+          }
 
           @Override
           public void widgetSelected(SelectionEvent selectionEvent) {
@@ -488,7 +476,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
         BaseMessages.getString(PKG, "JdbcMetadata.removeArgumentFields.Label"));
     removeArgumentFieldsLabel.setToolTipText(
         BaseMessages.getString(PKG, "JdbcMetadata.removeArgumentFields.Tooltip"));
-    props.setLook(removeArgumentFieldsLabel);
+    PropsUi.setLook(removeArgumentFieldsLabel);
     FormData removeArgumentFieldsLabelFormData = new FormData();
     removeArgumentFieldsLabelFormData.left = new FormAttachment(0, 0);
     removeArgumentFieldsLabelFormData.right = new FormAttachment(middle, -margin);
@@ -496,7 +484,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     removeArgumentFieldsLabel.setLayoutData(removeArgumentFieldsLabelFormData);
 
     removeArgumentFieldsButton = new Button(metadataComposite, SWT.CHECK);
-    props.setLook(removeArgumentFieldsButton);
+    PropsUi.setLook(removeArgumentFieldsButton);
     FormData removeArgumentFieldsButtonFormData = new FormData();
     removeArgumentFieldsButtonFormData.left = new FormAttachment(middle, 0);
     removeArgumentFieldsButtonFormData.right = new FormAttachment(100, 0);
@@ -524,7 +512,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     fieldsTabLayout.marginHeight = Const.FORM_MARGIN;
 
     Composite fieldsComposite = new Composite(cTabFolder, SWT.NONE);
-    props.setLook(fieldsComposite);
+    PropsUi.setLook(fieldsComposite);
     fieldsComposite.setLayout(fieldsTabLayout);
 
     // add UI for the fields tab.
@@ -532,7 +520,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     outputFieldsTableViewLabel.setText(BaseMessages.getString(PKG, "JdbcMetadata.FieldsTab.Label"));
     outputFieldsTableViewLabel.setToolTipText(
         BaseMessages.getString(PKG, "JdbcMetadata.FieldsTab.Tooltip"));
-    props.setLook(outputFieldsTableViewLabel);
+    PropsUi.setLook(outputFieldsTableViewLabel);
     FormData outputFieldsTableViewLabelFormData = new FormData();
     outputFieldsTableViewLabelFormData.left = new FormAttachment(0, 0);
     outputFieldsTableViewLabelFormData.top = new FormAttachment(0, margin);
@@ -569,7 +557,9 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
         new SelectionListener() {
 
           @Override
-          public void widgetDefaultSelected(SelectionEvent arg0) {}
+          public void widgetDefaultSelected(SelectionEvent arg0) {
+            // Do nothing
+          }
 
           @Override
           public void widgetSelected(SelectionEvent arg0) {
@@ -648,7 +638,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     if (value != null) setMethod(value);
 
     argumentSourceFields.setSelection(input.isArgumentSourceFields());
-    if (input.getArguments() != null && input.getArguments().size() > 0) {
+    if (input.getArguments() != null && !input.getArguments().isEmpty()) {
       methodUpdated(input.getArguments());
     } else {
       // If no arguments' values are saved build the arguments' list without assigning any values
@@ -656,7 +646,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
     }
 
     logDebug("Calling methodUpdated from populate dialog.");
-    if (input.getOutputFields() != null && input.getOutputFields().size() > 0) {
+    if (input.getOutputFields() != null && !input.getOutputFields().isEmpty()) {
       updateOutputFields(input.getOutputFields());
     }
 
@@ -688,7 +678,7 @@ public class JdbcMetadataDialog extends BaseTransformDialog {
   }
 
   private List<String> getArguments() {
-    List<String> arguments = new ArrayList<String>();
+    List<String> arguments = new ArrayList<>();
     Control[] controls = metadataComposite.getChildren();
     String text;
     for (Control control : controls) {

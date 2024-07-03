@@ -186,8 +186,7 @@ public class ParquetOutput extends BaseTransform<ParquetOutputMeta, ParquetOutpu
         case IValueMeta.TYPE_BOOLEAN:
           fieldAssembler = fieldBuilder.booleanType().noDefault();
           break;
-        case IValueMeta.TYPE_STRING:
-        case IValueMeta.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_STRING, IValueMeta.TYPE_BIGNUMBER:
           // Convert BigDecimal to String,otherwise we'll have all sorts of conversion issues.
           //
           fieldAssembler = fieldBuilder.stringType().noDefault();

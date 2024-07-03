@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertSame;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.row.IValueMeta;
@@ -35,7 +35,7 @@ public class CalculatorDataTest {
     CalculatorData data = new CalculatorData();
     IValueMeta valueMeta = data.getValueMetaFor(IValueMeta.TYPE_INTEGER, null);
     IValueMeta shouldBeTheSame = data.getValueMetaFor(IValueMeta.TYPE_INTEGER, null);
-    assertTrue(
-        "CalculatorData should cache loaded value meta instances", valueMeta == shouldBeTheSame);
+    assertSame(
+        "CalculatorData should cache loaded value meta instances", valueMeta, shouldBeTheSame);
   }
 }

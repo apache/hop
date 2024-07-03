@@ -82,7 +82,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   private String[] pluginsType;
   private String selectedPluginType;
 
-  public HopPluginExplorePerspective() {}
+  public HopPluginExplorePerspective() {
+    // Do nothing
+  }
 
   @Override
   public String getId() {
@@ -95,7 +97,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   }
 
   @Override
-  public void perspectiveActivated() {}
+  public void perspectiveActivated() {
+    // Do nothing
+  }
 
   @Override
   public boolean isActive() {
@@ -108,7 +112,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   }
 
   @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
+    // Do nothing
+  }
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
@@ -138,7 +144,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     label.setText(BaseMessages.getString(PKG, "PluginExplorerPerspective.PluginType.Label"));
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
-    fdlFields.top = new FormAttachment(0, props.getMargin());
+    fdlFields.top = new FormAttachment(0, PropsUi.getMargin());
     label.setLayoutData(fdlFields);
     PropsUi.setLook(label);
 
@@ -147,7 +153,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
     wPluginType.setText(selectedPluginType);
     PropsUi.setLook(wPluginType);
     FormData fdlSubject = new FormData();
-    fdlSubject.left = new FormAttachment(label, props.getMargin());
+    fdlSubject.left = new FormAttachment(label, PropsUi.getMargin());
     fdlSubject.top = new FormAttachment(label, 0, SWT.CENTER);
     wPluginType.setLayoutData(fdlSubject);
     wPluginType.addSelectionListener(
@@ -182,7 +188,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(wPluginType, props.getMargin());
+    fdFields.top = new FormAttachment(wPluginType, PropsUi.getMargin());
     fdFields.right = new FormAttachment(100, 0);
     fdFields.bottom = new FormAttachment(100, 0);
     wPluginView.setLayoutData(fdFields);
@@ -281,10 +287,14 @@ public class HopPluginExplorePerspective implements IHopPerspective {
   }
 
   @Override
-  public void navigateToPreviousFile() {}
+  public void navigateToPreviousFile() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToNextFile() {}
+  public void navigateToNextFile() {
+    // Do nothing
+  }
 
   @Override
   public boolean hasNavigationPreviousFile() {

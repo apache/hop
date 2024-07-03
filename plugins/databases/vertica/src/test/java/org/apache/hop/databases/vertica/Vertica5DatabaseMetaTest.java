@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -70,11 +69,11 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   public static final int MAX_TEXT_FIELD_LEN = 5;
 
   // Get PKG from class under test
-  private Class<?> PKG = ValueMetaBase.PKG;
+  private static final Class<?> PKG = ValueMetaBase.PKG;
   private StoreLoggingEventListener listener;
 
   @Spy private DatabaseMeta databaseMetaSpy = spy(new DatabaseMeta());
-  private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
+  private final PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private IValueMeta valueMetaBase;
@@ -175,9 +174,9 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
         obj.getValueFromSqlType(
             variables, dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false);
     assertNotNull(binaryValueMeta);
-    assertTrue(TEST_NAME.equals(binaryValueMeta.getName()));
-    assertTrue(IValueMeta.TYPE_BINARY == binaryValueMeta.getType());
-    assertTrue(expectedBinarylength == binaryValueMeta.getLength());
+    assertEquals(TEST_NAME, binaryValueMeta.getName());
+    assertEquals(IValueMeta.TYPE_BINARY, binaryValueMeta.getType());
+    assertEquals(expectedBinarylength, binaryValueMeta.getLength());
     assertFalse(binaryValueMeta.isLargeTextField());
 
     // get value meta for varbinary type
@@ -185,9 +184,9 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
         obj.getValueFromSqlType(
             variables, dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false);
     assertNotNull(varbinaryValueMeta);
-    assertTrue(TEST_NAME.equals(varbinaryValueMeta.getName()));
-    assertTrue(IValueMeta.TYPE_BINARY == varbinaryValueMeta.getType());
-    assertTrue(expectedVarBinarylength == varbinaryValueMeta.getLength());
+    assertEquals(TEST_NAME, varbinaryValueMeta.getName());
+    assertEquals(IValueMeta.TYPE_BINARY, varbinaryValueMeta.getType());
+    assertEquals(expectedVarBinarylength, varbinaryValueMeta.getLength());
     assertFalse(varbinaryValueMeta.isLargeTextField());
   }
 
@@ -209,7 +208,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
   private class StoreLoggingEventListener implements IHopLoggingEventListener {
 
-    private List<HopLoggingEvent> events = new ArrayList<>();
+    private final List<HopLoggingEvent> events = new ArrayList<>();
 
     @Override
     public void eventAdded(HopLoggingEvent event) {

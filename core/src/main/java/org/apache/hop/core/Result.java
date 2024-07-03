@@ -228,7 +228,7 @@ public class Result implements Cloneable {
         + nrErrors
         + ", exit_status="
         + exitStatus
-        + (stopped ? " (Stopped)" : "" + ", result=" + result);
+        + (stopped ? " (Stopped)" : ", result=" + result);
   }
 
   /**

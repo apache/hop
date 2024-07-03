@@ -88,7 +88,7 @@ public class ActionStartDialog extends ActionDialog {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "ActionStart.Name"));
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
 
     // Some buttons at the bottom
@@ -268,7 +268,7 @@ public class ActionStartDialog extends ActionDialog {
 
   private void placeControl(Composite composite, String text, Control control, Control under) {
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     Label label = new Label(composite, SWT.RIGHT);
     label.setText(text);

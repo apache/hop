@@ -33,7 +33,7 @@ public class PipelineConfiguration {
 
   private PipelineMeta pipelineMeta;
   private PipelineExecutionConfiguration pipelineExecutionConfiguration;
-  private SerializableMetadataProvider metadataProvider;
+  private final SerializableMetadataProvider metadataProvider;
 
   /**
    * @param pipelineMeta
@@ -48,7 +48,7 @@ public class PipelineConfiguration {
     this.metadataProvider = metadataProvider;
   }
 
-  public String getXml(IVariables variables) throws IOException, HopException, HopException {
+  public String getXml(IVariables variables) throws IOException, HopException {
     StringBuilder xml = new StringBuilder(200);
 
     xml.append("<" + XML_TAG + ">").append(Const.CR);
@@ -64,8 +64,7 @@ public class PipelineConfiguration {
     return xml.toString();
   }
 
-  public PipelineConfiguration(Node configNode)
-      throws HopException, HopException, ParseException, IOException {
+  public PipelineConfiguration(Node configNode) throws HopException, ParseException, IOException {
     Node trecNode = XmlHandler.getSubNode(configNode, PipelineExecutionConfiguration.XML_TAG);
     pipelineExecutionConfiguration = new PipelineExecutionConfiguration(trecNode);
     String metaStoreJson =
@@ -76,7 +75,7 @@ public class PipelineConfiguration {
   }
 
   public static final PipelineConfiguration fromXml(String xml)
-      throws HopException, HopException, ParseException, IOException {
+      throws HopException, ParseException, IOException {
     Document document = XmlHandler.loadXmlString(xml);
     Node configNode = XmlHandler.getSubNode(document, XML_TAG);
     return new PipelineConfiguration(configNode);

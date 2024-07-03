@@ -23,9 +23,9 @@ import java.util.Map;
 public class Rules {
 
   public static class Row {
-    private Map<String, Object> row;
+    private final Map<String, Object> row;
 
-    private boolean external;
+    private final boolean external;
 
     public Row() {
       this(new Hashtable<String, Object>(), false);

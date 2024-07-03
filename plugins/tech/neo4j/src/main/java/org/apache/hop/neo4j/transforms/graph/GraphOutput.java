@@ -1133,8 +1133,7 @@ public class GraphOutput extends BaseNeoTransform<GraphOutputMeta, GraphOutputDa
                   labels.add(node.getLabels().get(0));
                 }
                 break;
-              case UsingValue:
-              case AddLabel:
+              case UsingValue, AddLabel:
                 // We select the label using the value in a specific field
                 //
                 int valueIndex = data.nodeMappingIndexes.get(i);

@@ -121,7 +121,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
 
   private TextVar wBootstrapServers;
   private final int middle = props.getMiddlePct();
-  private final int margin = props.getMargin();
+  private final int margin = PropsUi.getMargin();
 
   public KafkaConsumerInputDialog(
       Shell parent,
@@ -146,8 +146,8 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog {
     changed = meta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = props.getMargin();
-    formLayout.marginHeight = props.getMargin();
+    formLayout.marginWidth = PropsUi.getMargin();
+    formLayout.marginHeight = PropsUi.getMargin();
 
     shell.setLayout(formLayout);
     shell.setText(getDialogTitle());

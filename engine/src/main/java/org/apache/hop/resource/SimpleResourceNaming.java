@@ -72,8 +72,7 @@ public class SimpleResourceNaming implements IResourceNaming {
       case SHELL_SCRIPT:
         return handleScript(prefix, originalFilePath, extension);
 
-      case PIPELINE:
-      case WORKFLOW:
+      case PIPELINE, WORKFLOW:
         return handlePipelineOrJob(prefix, originalFilePath, extension);
 
       default:

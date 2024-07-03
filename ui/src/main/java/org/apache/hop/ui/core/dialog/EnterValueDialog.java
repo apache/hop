@@ -96,7 +96,7 @@ public class EnterValueDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "EnterValueDialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Type of value
     /*

@@ -17,8 +17,8 @@
 
 package org.apache.hop.pipeline.transform;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -71,7 +71,7 @@ public class BaseTransformTest {
   @Mock IRowHandler rowHandler;
 
   @Before
-  public void setup() throws Exception {
+  public void setup() {
     mockHelper =
         new TransformMockHelper<>("BASE TRANSFORM", ITransformMeta.class, ITransformData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
@@ -240,7 +240,7 @@ public class BaseTransformTest {
       assertTrue(meta.getName(), meta2.exists(meta));
     }
     // whereas instances differ
-    assertFalse(meta1 == meta2);
+    assertNotSame(meta1, meta2);
   }
 
   @Test
@@ -289,9 +289,9 @@ public class BaseTransformTest {
     baseTransform.setRowHandler(rowHandler);
     IRowMeta iRowMeta = mock(IRowMeta.class);
     Object[] objects = new Object[] {"foo", "bar"};
-    baseTransform.putError(iRowMeta, objects, 3l, "desc", "field1,field2", "errorCode");
+    baseTransform.putError(iRowMeta, objects, 3L, "desc", "field1,field2", "errorCode");
     verify(rowHandler, times(1))
-        .putError(iRowMeta, objects, 3l, "desc", "field1,field2", "errorCode");
+        .putError(iRowMeta, objects, 3L, "desc", "field1,field2", "errorCode");
   }
 
   @Test
@@ -444,7 +444,7 @@ public class BaseTransformTest {
     final Object[] row = new Object[] {};
     rowSet.putRow(rowMeta, row);
 
-    baseTransformSpy.setInputRowSets(Arrays.asList(rowSet));
+    baseTransformSpy.setInputRowSets(List.of(rowSet));
     doReturn(rowSet).when(baseTransformSpy).currentInputStream();
 
     baseTransformSpy.getRow();

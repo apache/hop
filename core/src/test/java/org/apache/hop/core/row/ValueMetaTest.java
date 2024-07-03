@@ -107,13 +107,13 @@ public class ValueMetaTest {
     val2.setStringEncoding("UTF8");
 
     String str1 = val2.getString(val1.getBinary("Apache Hop 123"));
-    assertTrue("Apache Hop 123".equals(str1));
+    assertEquals("Apache Hop 123", str1);
 
     String str2 = val2.getString(val1.getBinary("Apache Hop"));
-    assertTrue("Apache Hop".equals(str2));
+    assertEquals("Apache Hop", str2);
 
     String str3 = val2.getString(val1.getBinary("ApacheHop123456"));
-    assertTrue("ApacheHop123456".equals(str3));
+    assertEquals("ApacheHop123456", str3);
   }
 
   @Test
@@ -936,15 +936,15 @@ public class ValueMetaTest {
 
     assertTrue(one.compare(integer1, integer2) < 0);
     assertTrue(one.compare(integer1, integer3) > 0);
-    assertTrue(one.compare(integer1, integer4) == 0);
+    assertEquals(0, one.compare(integer1, integer4));
     assertTrue(one.compare(integer1, integer5) != 0);
-    assertTrue(one.compare(integer5, integer6) == 0);
+    assertEquals(0, one.compare(integer5, integer6));
 
     assertTrue(one.compare(integer1, two, integer2) < 0);
     assertTrue(one.compare(integer1, two, integer3) > 0);
-    assertTrue(one.compare(integer1, two, integer4) == 0);
+    assertEquals(0, one.compare(integer1, two, integer4));
     assertTrue(one.compare(integer1, two, integer5) != 0);
-    assertTrue(one.compare(integer5, two, integer6) == 0);
+    assertEquals(0, one.compare(integer5, two, integer6));
   }
 
   @Test
@@ -961,15 +961,15 @@ public class ValueMetaTest {
 
     assertTrue(one.compare(number1, number2) < 0);
     assertTrue(one.compare(number1, number3) > 0);
-    assertTrue(one.compare(number1, number4) == 0);
+    assertEquals(0, one.compare(number1, number4));
     assertTrue(one.compare(number1, number5) != 0);
-    assertTrue(one.compare(number5, number6) == 0);
+    assertEquals(0, one.compare(number5, number6));
 
     assertTrue(one.compare(number1, two, number2) < 0);
     assertTrue(one.compare(number1, two, number3) > 0);
-    assertTrue(one.compare(number1, two, number4) == 0);
+    assertEquals(0, one.compare(number1, two, number4));
     assertTrue(one.compare(number1, two, number5) != 0);
-    assertTrue(one.compare(number5, two, number6) == 0);
+    assertEquals(0, one.compare(number5, two, number6));
   }
 
   @Test
@@ -986,15 +986,15 @@ public class ValueMetaTest {
 
     assertTrue(one.compare(number1, number2) < 0);
     assertTrue(one.compare(number1, number3) > 0);
-    assertTrue(one.compare(number1, number4) == 0);
+    assertEquals(0, one.compare(number1, number4));
     assertTrue(one.compare(number1, number5) != 0);
-    assertTrue(one.compare(number5, number6) == 0);
+    assertEquals(0, one.compare(number5, number6));
 
     assertTrue(one.compare(number1, two, number2) < 0);
     assertTrue(one.compare(number1, two, number3) > 0);
-    assertTrue(one.compare(number1, two, number4) == 0);
+    assertEquals(0, one.compare(number1, two, number4));
     assertTrue(one.compare(number1, two, number5) != 0);
-    assertTrue(one.compare(number5, two, number6) == 0);
+    assertEquals(0, one.compare(number5, two, number6));
   }
 
   @Test
@@ -1011,15 +1011,15 @@ public class ValueMetaTest {
 
     assertTrue(one.compare(date1, date2) < 0);
     assertTrue(one.compare(date1, date3) > 0);
-    assertTrue(one.compare(date1, date4) == 0);
+    assertEquals(0, one.compare(date1, date4));
     assertTrue(one.compare(date1, date5) != 0);
-    assertTrue(one.compare(date5, date6) == 0);
+    assertEquals(0, one.compare(date5, date6));
 
     assertTrue(one.compare(date1, two, date2) < 0);
     assertTrue(one.compare(date1, two, date3) > 0);
-    assertTrue(one.compare(date1, two, date4) == 0);
+    assertEquals(0, one.compare(date1, two, date4));
     assertTrue(one.compare(date1, two, date5) != 0);
-    assertTrue(one.compare(date5, two, date6) == 0);
+    assertEquals(0, one.compare(date5, two, date6));
   }
 
   @Test
@@ -1034,14 +1034,14 @@ public class ValueMetaTest {
     IValueMeta two = new ValueMetaBoolean("two");
 
     assertTrue(one.compare(boolean1, boolean2) < 0);
-    assertTrue(one.compare(boolean1, boolean3) == 0);
+    assertEquals(0, one.compare(boolean1, boolean3));
     assertTrue(one.compare(boolean1, boolean4) != 0);
-    assertTrue(one.compare(boolean4, boolean5) == 0);
+    assertEquals(0, one.compare(boolean4, boolean5));
 
     assertTrue(one.compare(boolean1, two, boolean2) < 0);
-    assertTrue(one.compare(boolean1, two, boolean3) == 0);
+    assertEquals(0, one.compare(boolean1, two, boolean3));
     assertTrue(one.compare(boolean1, two, boolean4) != 0);
-    assertTrue(one.compare(boolean4, two, boolean5) == 0);
+    assertEquals(0, one.compare(boolean4, two, boolean5));
   }
 
   @Test
@@ -1058,15 +1058,15 @@ public class ValueMetaTest {
 
     assertTrue(one.compare(string1, string2) < 0);
     assertTrue(one.compare(string1, string3) > 0);
-    assertTrue(one.compare(string1, string4) == 0);
+    assertEquals(0, one.compare(string1, string4));
     assertTrue(one.compare(string1, string5) != 0);
-    assertTrue(one.compare(string5, string6) == 0);
+    assertEquals(0, one.compare(string5, string6));
 
     assertTrue(one.compare(string1, two, string2) < 0);
     assertTrue(one.compare(string1, two, string3) > 0);
-    assertTrue(one.compare(string1, two, string4) == 0);
+    assertEquals(0, one.compare(string1, two, string4));
     assertTrue(one.compare(string1, two, string5) != 0);
-    assertTrue(one.compare(string5, two, string6) == 0);
+    assertEquals(0, one.compare(string5, two, string6));
   }
 
   @Test
@@ -1087,7 +1087,7 @@ public class ValueMetaTest {
 
       IValueMeta vm = ValueMetaFactory.createValueMeta("", vmId);
       IValueMeta vmi = ValueMetaFactory.createValueMeta(vmId);
-      assertTrue(vm.getNativeDataTypeClass().equals(vmi.getNativeDataTypeClass()));
+      assertEquals(vm.getNativeDataTypeClass(), vmi.getNativeDataTypeClass());
     }
   }
 }

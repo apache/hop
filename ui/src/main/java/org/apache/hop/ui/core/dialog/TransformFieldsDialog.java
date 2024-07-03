@@ -89,7 +89,7 @@ public class TransformFieldsDialog extends Dialog {
     shell.setImage(GuiResource.getInstance().getImagePipeline());
     shell.setText(shellText);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

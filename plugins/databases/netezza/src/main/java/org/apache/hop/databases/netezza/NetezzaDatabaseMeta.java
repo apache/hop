@@ -255,9 +255,7 @@ public class NetezzaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_BOOLEAN:
         retval += "boolean";
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_INTEGER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (length > 0) {
           if (precision == 0) {
             if (length <= 2) {

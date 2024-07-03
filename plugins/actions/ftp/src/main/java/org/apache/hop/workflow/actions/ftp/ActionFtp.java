@@ -164,67 +164,81 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
 
   @Override
   public String getXml() {
-    StringBuilder xml = new StringBuilder(650); // 528 chars in spaces and tags alone
 
-    xml.append(super.getXml());
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("port", serverPort));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("servername", serverName));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("username", userName));
-    xml.append(CONST_SPACE_SHORT)
-        .append(
-            XmlHandler.addTagValue(
-                CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(password)));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("ftpdirectory", remoteDirectory));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("targetdirectory", targetDirectory));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("binary", binaryMode));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("timeout", timeout));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("remove", remove));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("only_new", onlyGettingNewFiles));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("active", activeConnection));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("control_encoding", controlEncoding));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("movefiles", moveFiles));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("movetodirectory", moveToDirectory));
+    // 528 chars in spaces and tags alone
+    String xml =
+        super.getXml()
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("port", serverPort)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("servername", serverName)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("username", userName)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue(
+                CONST_PASSWORD, Encr.encryptPasswordIfNotUsingVariables(password))
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("ftpdirectory", remoteDirectory)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("targetdirectory", targetDirectory)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("wildcard", wildcard)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("binary", binaryMode)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("timeout", timeout)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("remove", remove)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("only_new", onlyGettingNewFiles)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("active", activeConnection)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("control_encoding", controlEncoding)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("movefiles", moveFiles)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("movetodirectory", moveToDirectory)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("adddate", addDate)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("addtime", addTime)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("SpecifyFormat", specifyFormat)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("date_time_format", dateTimeFormat)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("isaddresult", isAddResult)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("createmovefolder", createMoveFolder)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("proxy_host", proxyHost)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("proxy_port", proxyPort)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("proxy_username", proxyUsername)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue(
+                "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword))
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("socksproxy_host", socksProxyHost)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("socksproxy_port", socksProxyPort)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("socksproxy_username", socksProxyUsername)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue(
+                "socksproxy_password", Encr.encryptPasswordIfNotUsingVariables(socksProxyPassword))
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("ifFileExists", stringIfFileExists)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("nr_limit", nrLimit)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("success_condition", successCondition);
 
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("adddate", addDate));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("addtime", addTime));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("isaddresult", isAddResult));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("createmovefolder", createMoveFolder));
-
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_host", proxyHost));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_port", proxyPort));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("proxy_username", proxyUsername));
-    xml.append(CONST_SPACE_SHORT)
-        .append(
-            XmlHandler.addTagValue(
-                "proxy_password", Encr.encryptPasswordIfNotUsingVariables(proxyPassword)));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("socksproxy_host", socksProxyHost));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("socksproxy_port", socksProxyPort));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("socksproxy_username", socksProxyUsername));
-    xml.append(CONST_SPACE_SHORT)
-        .append(
-            XmlHandler.addTagValue(
-                "socksproxy_password",
-                Encr.encryptPasswordIfNotUsingVariables(socksProxyPassword)));
-
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("ifFileExists", stringIfFileExists));
-
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("nr_limit", nrLimit));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("success_condition", successCondition));
-
-    return xml.toString();
+    return xml;
   }
 
   @Override
@@ -612,14 +626,11 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
   }
 
   private boolean getSuccessStatus() {
-    boolean retval = false;
-
-    if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrFilesRetrieved >= limitFiles
-            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED))
-        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrFilesRetrieved >= limitFiles
+                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED))
+            || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
 
     return retval;
   }
@@ -633,11 +644,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction, IFtpCon
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    boolean retval = false;
-    if ((nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrErrors >= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrErrors >= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
     return retval;
   }
 

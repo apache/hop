@@ -130,15 +130,13 @@ public class VerticaDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
     int type = v.getType();
     switch (type) {
-      case IValueMeta.TYPE_DATE:
-      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
         retval += "TIMESTAMP";
         break;
       case IValueMeta.TYPE_BOOLEAN:
         retval += "BOOLEAN";
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
         retval += "FLOAT";
         break;
       case IValueMeta.TYPE_INTEGER:

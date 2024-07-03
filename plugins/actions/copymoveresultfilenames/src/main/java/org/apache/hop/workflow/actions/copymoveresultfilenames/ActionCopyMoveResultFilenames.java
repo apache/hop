@@ -130,38 +130,46 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
   @Override
   public String getXml() {
-    StringBuilder xml = new StringBuilder(500); // 358 chars in just tags and spaces alone
 
-    xml.append(super.getXml());
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("foldername", folderName));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("specify_wildcard", specifyWildcard));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("wildcardexclude", wildcardExclude));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("destination_folder", destinationFolder));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("success_condition", successCondition));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("add_date", addDate));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("add_time", addTime));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("SpecifyFormat", specifyFormat));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("date_time_format", dateTimeFormat));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("action", action));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension));
-    xml.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("OverwriteFile", overwriteFile));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("CreateDestinationFolder", createDestinationFolder));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("RemovedSourceFilename", removedSourceFilename));
-    xml.append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("AddDestinationFilename", addDestinationFilename));
+    // 358 chars in just tags and spaces alone
+    String xml =
+        super.getXml()
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("foldername", folderName)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("specify_wildcard", specifyWildcard)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("wildcard", wildcard)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("wildcardexclude", wildcardExclude)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("destination_folder", destinationFolder)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("nr_errors_less_than", nrErrorsLessThan)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("success_condition", successCondition)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("add_date", addDate)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("add_time", addTime)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("SpecifyFormat", specifyFormat)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("date_time_format", dateTimeFormat)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("action", action)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("AddDateBeforeExtension", addDateBeforeExtension)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("OverwriteFile", overwriteFile)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("CreateDestinationFolder", createDestinationFolder)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("RemovedSourceFilename", removedSourceFilename)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("AddDestinationFilename", addDestinationFilename);
 
-    return xml.toString();
+    return xml;
   }
 
   @Override
@@ -456,22 +464,18 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    boolean retval = false;
-    if ((nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrErrors >= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrErrors >= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
     return retval;
   }
 
   private boolean getSuccessStatus() {
-    boolean retval = false;
-
-    if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrSuccess >= limitFiles && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES))
-        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrSuccess >= limitFiles
+                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES))
+            || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
 
     return retval;
   }

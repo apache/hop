@@ -121,7 +121,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
           } else {
             out.println(
                 "<H1>Pipeline "
-                    + Encode.forHtml("\'" + pipelineName + "\'")
+                    + Encode.forHtml("'" + pipelineName + "'")
                     + " has been executed.</H1>");
             out.println(
                 CONST_HREF
@@ -200,7 +200,7 @@ public class StartExecutionPipelineServlet extends BaseHttpServlet implements IH
 
   @Override
   public String getService() {
-    return CONTEXT_PATH + " (" + toString() + ")";
+    return CONTEXT_PATH + " (" + this + ")";
   }
 
   protected void startThreads(IPipelineEngine<PipelineMeta> pipeline) throws HopException {

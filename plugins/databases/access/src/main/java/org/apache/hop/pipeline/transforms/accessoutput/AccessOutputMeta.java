@@ -242,9 +242,9 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
 
       int type = column.getType().getSQLType();
       switch (type) {
-        case java.sql.Types.CHAR:
-        case java.sql.Types.VARCHAR:
-        case java.sql.Types.LONGVARCHAR: // Character Large Object
+        case java.sql.Types.CHAR,
+            java.sql.Types.VARCHAR,
+            java.sql.Types.LONGVARCHAR: // Character Large Object
           valtype = IValueMeta.TYPE_STRING;
           length = column.getLength();
           break;
@@ -278,11 +278,11 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
           length = 2;
           break;
 
-        case java.sql.Types.DECIMAL:
-        case java.sql.Types.DOUBLE:
-        case java.sql.Types.FLOAT:
-        case java.sql.Types.REAL:
-        case java.sql.Types.NUMERIC:
+        case java.sql.Types.DECIMAL,
+            java.sql.Types.DOUBLE,
+            java.sql.Types.FLOAT,
+            java.sql.Types.REAL,
+            java.sql.Types.NUMERIC:
           valtype = IValueMeta.TYPE_NUMBER;
           length = column.getLength();
           precision = column.getPrecision();
@@ -312,21 +312,18 @@ public class AccessOutputMeta extends BaseTransformMeta<AccessOutput, AccessOutp
 
           break;
 
-        case java.sql.Types.DATE:
-        case java.sql.Types.TIME:
-        case java.sql.Types.TIMESTAMP:
+        case java.sql.Types.DATE, java.sql.Types.TIME, java.sql.Types.TIMESTAMP:
           valtype = IValueMeta.TYPE_DATE;
           break;
 
-        case java.sql.Types.BOOLEAN:
-        case java.sql.Types.BIT:
+        case java.sql.Types.BOOLEAN, java.sql.Types.BIT:
           valtype = IValueMeta.TYPE_BOOLEAN;
           break;
 
-        case java.sql.Types.BINARY:
-        case java.sql.Types.BLOB:
-        case java.sql.Types.VARBINARY:
-        case java.sql.Types.LONGVARBINARY:
+        case java.sql.Types.BINARY,
+            java.sql.Types.BLOB,
+            java.sql.Types.VARBINARY,
+            java.sql.Types.LONGVARBINARY:
           valtype = IValueMeta.TYPE_BINARY;
           break;
 

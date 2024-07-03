@@ -1285,10 +1285,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
    */
   public boolean isReservedWord(String word) {
     String[] reserved = getReservedWords();
-    if (Const.indexOfString(word, reserved) >= 0) {
-      return true;
-    }
-    return false;
+    return Const.indexOfString(word, reserved) >= 0;
   }
 
   /**
@@ -1301,10 +1298,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     if (fieldname == null) {
       return false;
     }
-    if (fieldname.indexOf(' ') >= 0) {
-      return true;
-    }
-    return false;
+    return fieldname.indexOf(' ') >= 0;
   }
 
   /**
@@ -1356,20 +1350,14 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     if (fieldname.indexOf('@') >= 0) {
       return true;
     }
-    if (fieldname.indexOf('?') >= 0) {
-      return true;
-    }
-    return false;
+    return fieldname.indexOf('?') >= 0;
   }
 
   public boolean hasDotInField(String fieldname) {
     if (fieldname == null) {
       return false;
     }
-    if (fieldname.indexOf('.') >= 0) {
-      return true;
-    }
-    return false;
+    return fieldname.indexOf('.') >= 0;
   }
 
   /**
@@ -2019,7 +2007,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     }
 
     for (int i = 0; i < databases.size(); i++) {
-      DatabaseMeta ci = (DatabaseMeta) databases.get(i);
+      DatabaseMeta ci = databases.get(i);
       if (ci.getName().trim().equalsIgnoreCase(dbname.trim())) {
         return ci;
       }
@@ -2102,12 +2090,10 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
               BaseMessages.getString(
                   PKG, "BaseDatabaseMeta.TestConnectionReportNotImplemented.Message"))
           .append(Const.CR);
-      report.append(
-          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
+      report.append(BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
     } catch (Exception e) {
-      report.append(
-          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
+      report.append(BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
     }
     return report.toString();
@@ -2129,14 +2115,12 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
               BaseMessages.getString(
                   PKG, "BaseDatabaseMeta.TestConnectionReportNotImplemented.Message"))
           .append(Const.CR);
-      report.append(
-          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
+      report.append(BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
       databaseTestResults.setMessage(report.toString());
       databaseTestResults.setSuccess(false);
     } catch (Exception e) {
-      report.append(
-          BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e.toString() + Const.CR);
+      report.append(BaseMessages.getString(PKG, CONST_CONNECTION_ERROR, getName()) + e + Const.CR);
       report.append(Const.getStackTracker(e) + Const.CR);
       databaseTestResults.setMessage(report.toString());
       databaseTestResults.setSuccess(false);

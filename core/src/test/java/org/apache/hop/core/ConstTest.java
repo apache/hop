@@ -40,10 +40,10 @@ import org.junit.Test;
 public class ConstTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  private static String DELIMITER1 = ",";
-  private static String DELIMITER2 = "</newpage>";
-  private static String ENCLOSURE1 = "\"";
-  private static String ENCLOSURE2 = "html";
+  private static final String DELIMITER1 = ",";
+  private static final String DELIMITER2 = "</newpage>";
+  private static final String ENCLOSURE1 = "\"";
+  private static final String ENCLOSURE2 = "html";
 
   protected boolean isArraySorted(String[] arr) {
     if (arr.length < 2) {
@@ -586,11 +586,11 @@ public class ConstTest {
   @Test
   public void testSplitStringWithEscapeString() {
     String string = "aaa:123.4:c:ddd-dd:eeee\\\\:\\\\:eee:fff";
-    String chunks[] =
+    String[] chunks =
         new String[] {
           "aaa", "123.4", "c", "ddd-dd", "eeee::eee", "fff",
         };
-    String parts[] = Const.splitString(string, ":", null, false, "\\\\");
+    String[] parts = Const.splitString(string, ":", null, false, "\\\\");
     assertSplit(chunks, parts);
 
     string = "cpe:2.3:a:lemonldap-ng:lemonldap\\\\:\\\\::2.0.3:*:*:*:*:*:*:*";
@@ -2316,7 +2316,7 @@ public class ConstTest {
     sb = new StringBuffer("short");
     Const.repl(sb, "long pattern", "replacement");
     assertEquals("short", sb.toString());
-    sb = new StringBuffer("");
+    sb = new StringBuffer();
     Const.repl(sb, "anything", "something");
     assertEquals("", sb.toString());
     sb = new StringBuffer("Replace what looks like a regex '[a-z1-3*+]' with '$1'");
@@ -2333,7 +2333,7 @@ public class ConstTest {
     sb2 = new StringBuilder("short");
     Const.repl(sb2, "long pattern", "replacement");
     assertEquals("short", sb2.toString());
-    sb2 = new StringBuilder("");
+    sb2 = new StringBuilder();
     Const.repl(sb2, "anything", "something");
     assertEquals("", sb2.toString());
     sb2 = new StringBuilder("Replace what looks like a regex '[a-z1-3*+]' with '$1'");
@@ -2442,7 +2442,7 @@ public class ConstTest {
   @Test
   public void testGetDistinctStrings() {
     assertNull(Const.getDistinctStrings(null));
-    assertTrue(Const.getDistinctStrings(new String[] {}).length == 0);
+    Assert.assertEquals(0, Const.getDistinctStrings(new String[] {}).length);
     Assert.assertArrayEquals(
         new String[] {"bar", "foo"},
         Const.getDistinctStrings(new String[] {"foo", "bar", "foo", "bar"}));

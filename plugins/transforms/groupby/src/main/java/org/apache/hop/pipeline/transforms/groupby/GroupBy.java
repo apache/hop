@@ -430,15 +430,15 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             data.counts[i]++;
           }
           break;
-        case Aggregation.TYPE_GROUP_MEDIAN:
-        case Aggregation.TYPE_GROUP_PERCENTILE:
-        case Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
+        case Aggregation.TYPE_GROUP_MEDIAN,
+            Aggregation.TYPE_GROUP_PERCENTILE,
+            Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
           if (!subjMeta.isNull(subj)) {
             ((List<Double>) data.agg[i]).add(subjMeta.getNumber(subj));
           }
           break;
-        case Aggregation.TYPE_GROUP_STANDARD_DEVIATION:
-        case Aggregation.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
+        case Aggregation.TYPE_GROUP_STANDARD_DEVIATION,
+            Aggregation.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
           if (!subjMeta.isNull(subj)) {
             data.counts[i]++;
             double n = data.counts[i];
@@ -602,10 +602,10 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
       String fieldName = aggregation.getField();
 
       switch (aggType) {
-        case Aggregation.TYPE_GROUP_SUM:
-        case Aggregation.TYPE_GROUP_AVERAGE:
-        case Aggregation.TYPE_GROUP_CUMULATIVE_SUM:
-        case Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE:
+        case Aggregation.TYPE_GROUP_SUM,
+            Aggregation.TYPE_GROUP_AVERAGE,
+            Aggregation.TYPE_GROUP_CUMULATIVE_SUM,
+            Aggregation.TYPE_GROUP_CUMULATIVE_AVERAGE:
           if (subjMeta.isNumeric()) {
             try {
               vMeta = ValueMetaFactory.createValueMeta(fieldName, subjMeta.getType());
@@ -616,33 +616,32 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             vMeta = new ValueMetaNumber(fieldName);
           }
           break;
-        case Aggregation.TYPE_GROUP_MEDIAN:
-        case Aggregation.TYPE_GROUP_PERCENTILE:
-        case Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
+        case Aggregation.TYPE_GROUP_MEDIAN,
+            Aggregation.TYPE_GROUP_PERCENTILE,
+            Aggregation.TYPE_GROUP_PERCENTILE_NEAREST_RANK:
           vMeta = new ValueMetaNumber(fieldName);
           v = new ArrayList<Double>();
           break;
-        case Aggregation.TYPE_GROUP_STANDARD_DEVIATION:
-        case Aggregation.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
+        case Aggregation.TYPE_GROUP_STANDARD_DEVIATION,
+            Aggregation.TYPE_GROUP_STANDARD_DEVIATION_SAMPLE:
           vMeta = new ValueMetaNumber(fieldName);
           break;
-        case Aggregation.TYPE_GROUP_COUNT_DISTINCT:
-        case Aggregation.TYPE_GROUP_COUNT_ANY:
-        case Aggregation.TYPE_GROUP_COUNT_ALL:
+        case Aggregation.TYPE_GROUP_COUNT_DISTINCT,
+            Aggregation.TYPE_GROUP_COUNT_ANY,
+            Aggregation.TYPE_GROUP_COUNT_ALL:
           vMeta = new ValueMetaInteger(fieldName);
           break;
-        case Aggregation.TYPE_GROUP_FIRST:
-        case Aggregation.TYPE_GROUP_LAST:
-        case Aggregation.TYPE_GROUP_FIRST_INCL_NULL:
-        case Aggregation.TYPE_GROUP_LAST_INCL_NULL:
-        case Aggregation.TYPE_GROUP_MIN:
-        case Aggregation.TYPE_GROUP_MAX:
+        case Aggregation.TYPE_GROUP_FIRST,
+            Aggregation.TYPE_GROUP_LAST,
+            Aggregation.TYPE_GROUP_FIRST_INCL_NULL,
+            Aggregation.TYPE_GROUP_LAST_INCL_NULL,
+            Aggregation.TYPE_GROUP_MIN,
+            Aggregation.TYPE_GROUP_MAX:
           vMeta = subjMeta.clone();
           vMeta.setName(fieldName);
           v = r == null ? null : r[data.subjectnrs[i]];
           break;
-        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
-        case Aggregation.TYPE_GROUP_CONCAT_COMMA:
+        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF, Aggregation.TYPE_GROUP_CONCAT_COMMA:
           vMeta = new ValueMetaString(fieldName);
           v = new StringBuilder();
           break;
@@ -735,8 +734,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
                   new ValueMetaInteger("c"),
                   Long.valueOf(data.counts[i]));
           break;
-        case Aggregation.TYPE_GROUP_MEDIAN:
-        case Aggregation.TYPE_GROUP_PERCENTILE:
+        case Aggregation.TYPE_GROUP_MEDIAN, Aggregation.TYPE_GROUP_PERCENTILE:
           double percentile = 50.0;
           if (aggType == Aggregation.TYPE_GROUP_PERCENTILE) {
             percentile = Double.parseDouble(aggregation.getValue());
@@ -760,8 +758,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
           int index = (int) Math.ceil((percentileValue / 100) * latencies.length);
           ag = latencies[index - 1];
           break;
-        case Aggregation.TYPE_GROUP_COUNT_ANY:
-        case Aggregation.TYPE_GROUP_COUNT_ALL:
+        case Aggregation.TYPE_GROUP_COUNT_ANY, Aggregation.TYPE_GROUP_COUNT_ALL:
           ag = Long.valueOf(data.counts[i]);
           break;
         case Aggregation.TYPE_GROUP_COUNT_DISTINCT:
@@ -789,9 +786,9 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
             ag = Math.sqrt(sum);
             break;
           }
-        case Aggregation.TYPE_GROUP_CONCAT_COMMA:
-        case Aggregation.TYPE_GROUP_CONCAT_STRING:
-        case Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
+        case Aggregation.TYPE_GROUP_CONCAT_COMMA,
+            Aggregation.TYPE_GROUP_CONCAT_STRING,
+            Aggregation.TYPE_GROUP_CONCAT_STRING_CRLF:
           ag = ((StringBuilder) ag).toString();
           break;
         case Aggregation.TYPE_GROUP_CONCAT_DISTINCT:
@@ -881,7 +878,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> {
 
       return row;
     } else {
-      if (data.bufferList.size() > 0) {
+      if (!data.bufferList.isEmpty()) {
         Object[] row = data.bufferList.get(0);
         data.bufferList.remove(0);
         return row;

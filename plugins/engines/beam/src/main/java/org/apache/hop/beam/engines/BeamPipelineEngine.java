@@ -501,9 +501,7 @@ public abstract class BeamPipelineEngine extends Variables
                 engineComponent.setRunning(false);
                 engineComponent.setStatus(ComponentExecutionStatus.STATUS_FINISHED);
                 break;
-              case CANCELLED:
-              case FAILED:
-              case STOPPED:
+              case CANCELLED, FAILED, STOPPED:
                 engineComponent.setStopped(true);
                 engineComponent.setRunning(false);
                 engineComponent.setStatus(ComponentExecutionStatus.STATUS_STOPPED);
@@ -580,8 +578,7 @@ public abstract class BeamPipelineEngine extends Variables
           }
           setStatus(ComponentExecutionStatus.STATUS_FINISHED);
           break;
-        case STOPPED:
-        case CANCELLED:
+        case STOPPED, CANCELLED:
           if (!isStopped()) {
             fireExecutionStoppedListeners();
             cancelRefreshTimer = true;
@@ -599,8 +596,7 @@ public abstract class BeamPipelineEngine extends Variables
           break;
         case UNKNOWN:
           break;
-        case UPDATED:
-        case RUNNING:
+        case UPDATED, RUNNING:
           setRunning(true);
           setStopped(false);
           break;
@@ -958,8 +954,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
-   * Gets executionStartedListeners
-   *
+   * @deprecated Gets executionStartedListeners
    * @return value of executionStartedListeners
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -969,6 +964,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
+   * @deprecated
    * @param executionStartedListeners The executionStartedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -978,8 +974,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
-   * Gets executionFinishedListeners
-   *
+   * @deprecated Gets executionFinishedListeners
    * @return value of executionFinishedListeners
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -989,6 +984,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
+   * @deprecated
    * @param executionFinishedListeners The executionFinishedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -1013,6 +1009,10 @@ public abstract class BeamPipelineEngine extends Variables
     }
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStartedListeners() throws HopException {
@@ -1029,6 +1029,10 @@ public abstract class BeamPipelineEngine extends Variables
     }
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionFinishedListeners() throws HopException {
@@ -1065,6 +1069,10 @@ public abstract class BeamPipelineEngine extends Variables
         logChannel, this, HopExtensionPoint.PipelineCompleted.id, this);
   }
 
+  /**
+   * @deprecated
+   * @throws HopException
+   */
   @Override
   @Deprecated(since = "2.9", forRemoval = true)
   public void firePipelineExecutionStoppedListeners() throws HopException {
@@ -1204,8 +1212,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
-   * Gets executionStoppedListeners
-   *
+   * @deprecated Gets executionStoppedListeners
    * @return value of executionStoppedListeners
    */
   @Deprecated(since = "2.9", forRemoval = true)
@@ -1215,6 +1222,7 @@ public abstract class BeamPipelineEngine extends Variables
   }
 
   /**
+   * @deprecated
    * @param executionStoppedListeners The executionStoppedListeners to set
    */
   @Deprecated(since = "2.9", forRemoval = true)

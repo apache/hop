@@ -273,8 +273,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
             aggregate.counts[i]++;
           }
           break;
-        case Median:
-        case Percentile:
+        case Median, Percentile:
           if (!subjMeta.isNull(subj)) {
             ((List<Double>) aggregate.agg[i]).add(subjMeta.getNumber(subj));
           }
@@ -423,36 +422,26 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
       IValueMeta vMeta = null;
       GAggregate agg = meta.getAggregates().get(i);
       switch (agg.getType()) {
-        case Median:
-        case Percentile:
+        case Median, Percentile:
           vMeta = new ValueMetaNumber(agg.getField());
           v = new ArrayList<Double>();
           break;
         case StandardDeviation:
           vMeta = new ValueMetaNumber(agg.getField());
           break;
-        case CountDistinct:
-        case CountAny:
-        case CountAll:
+        case CountDistinct, CountAny, CountAll:
           vMeta = new ValueMetaInteger(agg.getField());
           break;
-        case Sum:
-        case Average:
+        case Sum, Average:
           vMeta = subjMeta.isNumeric() ? subjMeta.clone() : new ValueMetaNumber();
           vMeta.setName(agg.getField());
           break;
-        case First:
-        case Last:
-        case FirstIncludingNull:
-        case LastIncludingNull:
-        case Minimum:
-        case Maximum:
+        case First, Last, FirstIncludingNull, LastIncludingNull, Minimum, Maximum:
           vMeta = subjMeta.clone();
           vMeta.setName(agg.getField());
           v = r == null ? null : r[data.subjectnrs[i]];
           break;
-        case ConcatComma:
-        case ConcatString:
+        case ConcatComma, ConcatString:
           vMeta = new ValueMetaString(agg.getField());
           v = new StringBuilder();
           break;
@@ -477,7 +466,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
     }
   }
 
-  private void initGroupMeta(IRowMeta previousRowMeta) throws HopValueException {
+  private void initGroupMeta(IRowMeta previousRowMeta) {
     data.groupMeta = new RowMeta();
     data.entryMeta = new RowMeta();
 
@@ -511,8 +500,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
               ValueDataUtil.divide(
                   data.aggMeta.getValueMeta(i), ag, new ValueMetaInteger("c"), aggregate.counts[i]);
           break;
-        case Median:
-        case Percentile:
+        case Median, Percentile:
           double percentile = 50.0;
           if (agg.getType() == Percentile) {
             percentile = Double.parseDouble(agg.getValueField());
@@ -524,9 +512,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           }
           ag = new Percentile().evaluate(values, percentile);
           break;
-        case CountAll:
-        case CountAny:
-        case CountDistinct:
+        case CountAll, CountAny, CountDistinct:
           ag = aggregate.counts[i];
           break;
         case Minimum:
@@ -537,8 +523,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           double sum = (Double) ag / aggregate.counts[i];
           ag = Math.sqrt(sum);
           break;
-        case ConcatComma:
-        case ConcatString:
+        case ConcatComma, ConcatString:
           ag = ((StringBuilder) ag).toString();
           break;
         case ConcatDistinct:

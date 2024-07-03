@@ -77,18 +77,18 @@ public class DatabaseTest {
   private static final String[] TABLE_TYPES_TO_GET = {"TABLE", "VIEW"};
 
   // common fields
-  private String sql = "select * from employees";
-  private String columnName = "salary";
-  private ResultSet rs = mock(ResultSet.class);
-  private DatabaseMeta dbMetaMock = mock(DatabaseMeta.class);
-  private DatabaseMetaData dbMetaDataMock = mock(DatabaseMetaData.class);
-  private ILoggingObject log = mock(ILoggingObject.class);
-  private IDatabase iDatabase = mock(IDatabase.class);
+  private final String sql = "select * from employees";
+  private final String columnName = "salary";
+  private final ResultSet rs = mock(ResultSet.class);
+  private final DatabaseMeta dbMetaMock = mock(DatabaseMeta.class);
+  private final DatabaseMetaData dbMetaDataMock = mock(DatabaseMetaData.class);
+  private final ILoggingObject log = mock(ILoggingObject.class);
+  private final IDatabase iDatabase = mock(IDatabase.class);
 
-  private DatabaseMeta meta = mock(DatabaseMeta.class);
-  private PreparedStatement ps = mock(PreparedStatement.class);
-  private DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
-  private ResultSetMetaData rsMetaData = mock(ResultSetMetaData.class);
+  private final DatabaseMeta meta = mock(DatabaseMeta.class);
+  private final PreparedStatement ps = mock(PreparedStatement.class);
+  private final DatabaseMetaData dbMetaData = mock(DatabaseMetaData.class);
+  private final ResultSetMetaData rsMetaData = mock(ResultSetMetaData.class);
   private Connection conn;
   private IVariables variables;
 

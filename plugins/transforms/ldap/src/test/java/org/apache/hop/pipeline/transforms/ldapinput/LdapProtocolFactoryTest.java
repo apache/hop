@@ -43,9 +43,10 @@ public class LdapProtocolFactoryTest {
     LdapProtocol ldapProtocol =
         ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
     Mockito.verify(variables, Mockito.times(1)).resolve(ldapVariable);
-    Assert.assertTrue(
+    Assert.assertEquals(
         "Invalid protocol created",
-        protocolName.equals(ldapProtocol.getClass().getMethod("getName").invoke(null).toString()));
+        protocolName,
+        ldapProtocol.getClass().getMethod("getName").invoke(null).toString());
   }
 
   @Test
@@ -66,9 +67,10 @@ public class LdapProtocolFactoryTest {
     LdapProtocol ldapProtocol =
         ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
     Mockito.verify(variables, Mockito.times(1)).resolve(ldapVariable);
-    Assert.assertTrue(
+    Assert.assertEquals(
         "Invalid protocol created",
-        protocolName.equals(ldapProtocol.getClass().getMethod("getName").invoke(null).toString()));
+        protocolName,
+        ldapProtocol.getClass().getMethod("getName").invoke(null).toString());
   }
 
   @Test
@@ -89,8 +91,9 @@ public class LdapProtocolFactoryTest {
     LdapProtocol ldapProtocol =
         ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
     Mockito.verify(variables, Mockito.times(1)).resolve(ldapVariable);
-    Assert.assertTrue(
+    Assert.assertEquals(
         "Invalid protocol created",
-        protocolName.equals(ldapProtocol.getClass().getMethod("getName").invoke(null).toString()));
+        protocolName,
+        ldapProtocol.getClass().getMethod("getName").invoke(null).toString());
   }
 }

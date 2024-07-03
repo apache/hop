@@ -301,7 +301,7 @@ public class PipelineMeta extends AbstractMeta
         }
       }
       for (PipelineHopMeta hop : hops) {
-        pipelineMeta.addPipelineHop((PipelineHopMeta) hop.clone());
+        pipelineMeta.addPipelineHop(hop.clone());
       }
       for (NotePadMeta note : notes) {
         pipelineMeta.addNote(note.clone());
@@ -1189,7 +1189,7 @@ public class PipelineMeta extends AbstractMeta
       }
       if (LogChannel.GENERAL.isDebug()) {
         LogChannel.GENERAL.logDebug(
-            BaseMessages.getString(PKG, "PipelineMeta.Log.FoundFieldsToAdd") + add.toString());
+            BaseMessages.getString(PKG, "PipelineMeta.Log.FoundFieldsToAdd") + add);
       }
       if (i == 0) {
         row.addRowMeta(add);
@@ -3706,7 +3706,7 @@ public class PipelineMeta extends AbstractMeta
   }
 
   public void removeMissingPipeline(Missing pipeline) {
-    if (missingPipeline != null && pipeline != null && missingPipeline.contains(pipeline)) {
+    if (missingPipeline != null && pipeline != null) {
       missingPipeline.remove(pipeline);
     }
   }
@@ -3718,7 +3718,7 @@ public class PipelineMeta extends AbstractMeta
 
   private static String getTransformMetaCacheKey(TransformMeta transformMeta, boolean info) {
     return String.format(
-        "%1$b-%2$s-%3$s", info, transformMeta.getTransformPluginId(), transformMeta.toString());
+        "%1$b-%2$s-%3$s", info, transformMeta.getTransformPluginId(), transformMeta);
   }
 
   private static IRowMeta[] cloneRowMetaInterfaces(IRowMeta[] inform) {

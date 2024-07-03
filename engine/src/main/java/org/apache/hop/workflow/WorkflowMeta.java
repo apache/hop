@@ -312,11 +312,7 @@ public class WorkflowMeta extends AbstractMeta
     if (haveActionsChanged()) {
       return true;
     }
-    if (haveWorkflowHopsChanged()) {
-      return true;
-    }
-
-    return false;
+    return haveWorkflowHopsChanged();
   }
 
   /**
@@ -1075,10 +1071,7 @@ public class WorkflowMeta extends AbstractMeta
   public boolean isEntryUsedInHops(ActionMeta action) {
     WorkflowHopMeta from = findWorkflowHopFrom(action);
     WorkflowHopMeta to = findWorkflowHopTo(action);
-    if (from != null || to != null) {
-      return true;
-    }
-    return false;
+    return from != null || to != null;
   }
 
   /**
@@ -1971,7 +1964,7 @@ public class WorkflowMeta extends AbstractMeta
   }
 
   public void removeMissingAction(MissingAction missingAction) {
-    if (missingActions != null && missingAction != null && missingActions.contains(missingAction)) {
+    if (missingActions != null && missingAction != null) {
       missingActions.remove(missingAction);
     }
   }

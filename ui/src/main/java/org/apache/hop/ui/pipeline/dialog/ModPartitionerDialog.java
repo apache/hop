@@ -92,7 +92,7 @@ public class ModPartitionerDialog extends BaseTransformDialog {
     shell.setLayout(formLayout);
     shell.setText(partitioner.getDescription());
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     int middle = props.getMiddlePct();
 

@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Text;
 public class SimpleMappingDialog extends BaseTransformDialog {
   private static final Class<?> PKG = SimpleMappingMeta.class; // For Translator
 
-  private SimpleMappingMeta mappingMeta;
+  private final SimpleMappingMeta mappingMeta;
 
   private TextVar wPath;
 
@@ -83,22 +83,22 @@ public class SimpleMappingDialog extends BaseTransformDialog {
 
   private ModifyListener lsMod;
 
-  private MappingParameters mappingParameters;
+  private final MappingParameters mappingParameters;
 
-  private MappingIODefinition inputMapping;
+  private final MappingIODefinition inputMapping;
 
-  private MappingIODefinition outputMapping;
+  private final MappingIODefinition outputMapping;
 
   private interface ApplyChanges {
-    public void applyChanges();
+    void applyChanges();
   }
 
   private class MappingParametersTab implements ApplyChanges {
-    private TableView wMappingParameters;
+    private final TableView wMappingParameters;
 
-    private MappingParameters parameters;
+    private final MappingParameters parameters;
 
-    private Button wInheritAll;
+    private final Button wInheritAll;
 
     public MappingParametersTab(
         TableView wMappingParameters, Button wInheritAll, MappingParameters parameters) {
@@ -121,9 +121,9 @@ public class SimpleMappingDialog extends BaseTransformDialog {
   }
 
   private class MappingDefinitionTab implements ApplyChanges {
-    private MappingIODefinition definition;
+    private final MappingIODefinition definition;
 
-    private TableView wFieldMappings;
+    private final TableView wFieldMappings;
 
     public MappingDefinitionTab(MappingIODefinition definition, TableView fieldMappings) {
       super();
@@ -144,7 +144,7 @@ public class SimpleMappingDialog extends BaseTransformDialog {
     }
   }
 
-  private List<ApplyChanges> changeList;
+  private final List<ApplyChanges> changeList;
 
   public SimpleMappingDialog(
       Shell parent,

@@ -48,11 +48,11 @@ public class HttpTest {
 
   private static MockedStatic<HttpClientManager> mockedHttpClientManager;
 
-  private ILogChannel log = mock(ILogChannel.class);
-  private IRowMeta rmi = mock(IRowMeta.class);
-  private HttpData data = mock(HttpData.class);
-  private HttpMeta meta = mock(HttpMeta.class);
-  private Http http = mock(Http.class);
+  private final ILogChannel log = mock(ILogChannel.class);
+  private final IRowMeta rmi = mock(IRowMeta.class);
+  private final HttpData data = mock(HttpData.class);
+  private final HttpMeta meta = mock(HttpMeta.class);
+  private final Http http = mock(Http.class);
 
   private final String DATA =
       "This is the description, there's some HTML here, like &lt;strong&gt;this&lt;/strong&gt;. "

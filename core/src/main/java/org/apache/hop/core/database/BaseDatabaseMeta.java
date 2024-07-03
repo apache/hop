@@ -1793,8 +1793,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
       // Normal cases...
       //
       switch (valueMeta.getType()) {
-        case IValueMeta.TYPE_BOOLEAN:
-        case IValueMeta.TYPE_STRING:
+        case IValueMeta.TYPE_BOOLEAN, IValueMeta.TYPE_STRING:
           String string = valueMeta.getString(valueData);
           // Have the database dialect do the quoting.
           // This also adds the single quotes around the string (thanks to PostgreSQL)

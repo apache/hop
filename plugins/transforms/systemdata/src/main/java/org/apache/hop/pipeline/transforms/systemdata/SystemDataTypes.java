@@ -129,8 +129,8 @@ public enum SystemDataTypes {
       "previous result nr files retrieved", "PreviousResultNrFilesRetrieved"),
   TYPE_SYSTEM_INFO_PREVIOUS_RESULT_LOG_TEXT("previous result log text", "PreviousResultLogText");
 
-  private String code;
-  private String description;
+  private final String code;
+  private final String description;
 
   public String getCode() {
     return code;

@@ -173,10 +173,10 @@ public class XmlHandlerUnitTest {
     assertEquals("<along>123</along>", XmlHandler.addTagValue("along", input, false));
 
     assertEquals(
-        "<along>" + String.valueOf(Long.MAX_VALUE) + "</along>",
+        "<along>" + Long.MAX_VALUE + "</along>",
         XmlHandler.addTagValue("along", Long.MAX_VALUE, false));
     assertEquals(
-        "<along>" + String.valueOf(Long.MIN_VALUE) + "</along>",
+        "<along>" + Long.MIN_VALUE + "</along>",
         XmlHandler.addTagValue("along", Long.MIN_VALUE, false));
   }
 
@@ -188,10 +188,10 @@ public class XmlHandlerUnitTest {
     assertEquals("<anint>456</anint>", XmlHandler.addTagValue("anint", input, false));
 
     assertEquals(
-        "<anint>" + String.valueOf(Integer.MAX_VALUE) + "</anint>",
+        "<anint>" + Integer.MAX_VALUE + "</anint>",
         XmlHandler.addTagValue("anint", Integer.MAX_VALUE, false));
     assertEquals(
-        "<anint>" + String.valueOf(Integer.MIN_VALUE) + "</anint>",
+        "<anint>" + Integer.MIN_VALUE + "</anint>",
         XmlHandler.addTagValue("anint", Integer.MIN_VALUE, false));
   }
 
@@ -203,13 +203,13 @@ public class XmlHandlerUnitTest {
     assertEquals("<adouble>123.45</adouble>", XmlHandler.addTagValue("adouble", input, false));
 
     assertEquals(
-        "<adouble>" + String.valueOf(Double.MAX_VALUE) + "</adouble>",
+        "<adouble>" + Double.MAX_VALUE + "</adouble>",
         XmlHandler.addTagValue("adouble", Double.MAX_VALUE, false));
     assertEquals(
-        "<adouble>" + String.valueOf(Double.MIN_VALUE) + "</adouble>",
+        "<adouble>" + Double.MIN_VALUE + "</adouble>",
         XmlHandler.addTagValue("adouble", Double.MIN_VALUE, false));
     assertEquals(
-        "<adouble>" + String.valueOf(Double.MIN_NORMAL) + "</adouble>",
+        "<adouble>" + Double.MIN_NORMAL + "</adouble>",
         XmlHandler.addTagValue("adouble", Double.MIN_NORMAL, false));
   }
 
@@ -248,7 +248,7 @@ public class XmlHandlerUnitTest {
 
   @Test
   public void testEscapingXmlBagCharacters() throws Exception {
-    String testString = "[value_start (\"\'<&>) value_end]";
+    String testString = "[value_start (\"'<&>) value_end]";
     String expectedStrAfterConversion =
         "<[value_start (&#34;&#39;&lt;&amp;&gt;) value_end] "
             + "[value_start (&#34;&#39;&lt;&amp;&gt;) value_end]=\""

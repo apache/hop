@@ -20,38 +20,23 @@ package org.apache.hop.core.compress;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertSame;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class CompressionPluginTypeTest {
-
-  @BeforeClass
-  public static void setUpBeforeClass() throws Exception {}
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
-
-  @Before
-  public void setUp() throws Exception {}
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testGetInstance() {
     CompressionPluginType instance = CompressionPluginType.getInstance();
     CompressionPluginType instance2 = CompressionPluginType.getInstance();
-    assertTrue(instance == instance2);
+    assertSame(instance, instance2);
     assertNotNull(instance);
     CompressionPluginType.pluginType = null;
     CompressionPluginType instance3 = CompressionPluginType.getInstance();
-    assertFalse(instance == instance3);
+    assertNotSame(instance, instance3);
   }
 
   @Test

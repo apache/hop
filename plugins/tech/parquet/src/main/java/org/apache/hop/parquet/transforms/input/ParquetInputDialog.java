@@ -93,7 +93,7 @@ public class ParquetInputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "ParquetInput.Name"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -252,15 +252,13 @@ public class ParquetInputDialog extends BaseTransformDialog {
           PrimitiveType primitiveType = column.getPrimitiveType();
           int hopType = IValueMeta.TYPE_STRING;
           switch (primitiveType.getPrimitiveTypeName()) {
-            case INT32:
-            case INT64:
+            case INT32, INT64:
               hopType = IValueMeta.TYPE_INTEGER;
               break;
             case INT96:
               hopType = IValueMeta.TYPE_BINARY;
               break;
-            case FLOAT:
-            case DOUBLE:
+            case FLOAT, DOUBLE:
               hopType = IValueMeta.TYPE_NUMBER;
               break;
             case BOOLEAN:

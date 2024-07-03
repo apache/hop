@@ -32,7 +32,7 @@ public class LogChannel implements ILogChannel {
 
   public static ILogChannel UI = new LogChannel("GUI");
 
-  private String logChannelId;
+  private final String logChannelId;
 
   private LogLevel logLevel;
 
@@ -42,7 +42,7 @@ public class LogChannel implements ILogChannel {
 
   private boolean forcingSeparateLogging;
 
-  private static MetricsRegistry metricsRegistry = MetricsRegistry.getInstance();
+  private static final MetricsRegistry metricsRegistry = MetricsRegistry.getInstance();
 
   private String filter;
 

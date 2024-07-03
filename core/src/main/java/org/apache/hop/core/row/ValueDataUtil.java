@@ -265,7 +265,7 @@ public class ValueDataUtil {
     if (dataA == null) {
       return null;
     }
-    return "<![CDATA[" + dataA.toString() + "]]>";
+    return "<![CDATA[" + dataA + "]]>";
   }
 
   public static String removeCR(IValueMeta metaA, Object dataA) {

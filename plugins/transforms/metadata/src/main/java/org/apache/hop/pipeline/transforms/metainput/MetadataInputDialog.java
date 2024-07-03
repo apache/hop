@@ -91,7 +91,7 @@ public class MetadataInputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "MetadataInput.Transform.Name"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // See if the transform receives input.
     //

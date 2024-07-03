@@ -487,7 +487,7 @@ public class Translator {
     FormData fdPackages = new FormData();
     fdPackages.left = new FormAttachment(0, 0);
     fdPackages.right = new FormAttachment(100, 0);
-    fdPackages.top = new FormAttachment(wLocale, props.getMargin());
+    fdPackages.top = new FormAttachment(wLocale, PropsUi.getMargin());
     fdPackages.bottom = new FormAttachment(100, 0);
     wPackages.setLayoutData(fdPackages);
     wPackages.setSortable(true);
@@ -542,7 +542,7 @@ public class Translator {
         new Button[] {
           wReload, wSave, wZip, wClose,
         },
-        props.getMargin() * 3,
+        PropsUi.getMargin() * 3,
         null);
 
     int left = 30;
@@ -554,7 +554,7 @@ public class Translator {
     FormData fdAll = new FormData();
     fdAll.left = new FormAttachment(0, 0);
     fdAll.right = new FormAttachment(left, 0);
-    fdAll.bottom = new FormAttachment(wClose, -props.getMargin());
+    fdAll.bottom = new FormAttachment(wClose, -PropsUi.getMargin());
     wAll.setLayoutData(fdAll);
 
     Label wlTodo = new Label(composite, SWT.LEFT);
@@ -570,8 +570,8 @@ public class Translator {
     FormData fdTodo = new FormData();
     fdTodo.left = new FormAttachment(0, 0);
     fdTodo.right = new FormAttachment(left, 0);
-    fdTodo.top = new FormAttachment(wlTodo, props.getMargin());
-    fdTodo.bottom = new FormAttachment(wAll, -props.getMargin());
+    fdTodo.top = new FormAttachment(wlTodo, PropsUi.getMargin());
+    fdTodo.bottom = new FormAttachment(wAll, -PropsUi.getMargin());
     wTodo.setLayoutData(fdTodo);
     Control lastControl = wlTodo;
 
@@ -581,15 +581,15 @@ public class Translator {
     wlReferenceLocale.setText(BaseMessages.getString(PKG, "i18nDialog.TranslationReferenceLocale"));
     PropsUi.setLook(wlReferenceLocale);
     FormData fdlReferenceLocale = new FormData();
-    fdlReferenceLocale.left = new FormAttachment(left, props.getMargin());
+    fdlReferenceLocale.left = new FormAttachment(left, PropsUi.getMargin());
     fdlReferenceLocale.right = new FormAttachment(middle, 0);
-    fdlReferenceLocale.top = new FormAttachment(lastControl, props.getMargin());
+    fdlReferenceLocale.top = new FormAttachment(lastControl, PropsUi.getMargin());
     wlReferenceLocale.setLayoutData(fdlReferenceLocale);
 
     wReferenceLocale = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wReferenceLocale);
     FormData fdReferenceLocale = new FormData();
-    fdReferenceLocale.left = new FormAttachment(middle, props.getMargin());
+    fdReferenceLocale.left = new FormAttachment(middle, PropsUi.getMargin());
     fdReferenceLocale.right = new FormAttachment(100, 0);
     fdReferenceLocale.top = new FormAttachment(wlReferenceLocale, 0, SWT.CENTER);
     wReferenceLocale.setLayoutData(fdReferenceLocale);
@@ -604,15 +604,15 @@ public class Translator {
         BaseMessages.getString(PKG, "i18nDialog.TranslationSelectedSourceFolder"));
     PropsUi.setLook(wlSelectedSourceFolder);
     FormData fdlSelectedSourceFolder = new FormData();
-    fdlSelectedSourceFolder.left = new FormAttachment(left, props.getMargin());
+    fdlSelectedSourceFolder.left = new FormAttachment(left, PropsUi.getMargin());
     fdlSelectedSourceFolder.right = new FormAttachment(middle, 0);
-    fdlSelectedSourceFolder.top = new FormAttachment(lastControl, props.getMargin());
+    fdlSelectedSourceFolder.top = new FormAttachment(lastControl, PropsUi.getMargin());
     wlSelectedSourceFolder.setLayoutData(fdlSelectedSourceFolder);
 
     wSelectedSourceFolder = new Text(composite, SWT.SINGLE | SWT.LEFT);
     PropsUi.setLook(wSelectedSourceFolder);
     FormData fdSelectedSourceFolder = new FormData();
-    fdSelectedSourceFolder.left = new FormAttachment(middle, props.getMargin());
+    fdSelectedSourceFolder.left = new FormAttachment(middle, PropsUi.getMargin());
     fdSelectedSourceFolder.right = new FormAttachment(100, 0);
     fdSelectedSourceFolder.top = new FormAttachment(wlSelectedSourceFolder, 0, SWT.CENTER);
     wSelectedSourceFolder.setLayoutData(fdSelectedSourceFolder);
@@ -625,15 +625,15 @@ public class Translator {
     wlSelectedPackage.setText(BaseMessages.getString(PKG, "i18nDialog.TranslationSelectedPackage"));
     PropsUi.setLook(wlSelectedPackage);
     FormData fdlSelectedPackage = new FormData();
-    fdlSelectedPackage.left = new FormAttachment(left, props.getMargin());
+    fdlSelectedPackage.left = new FormAttachment(left, PropsUi.getMargin());
     fdlSelectedPackage.right = new FormAttachment(middle, 0);
-    fdlSelectedPackage.top = new FormAttachment(lastControl, props.getMargin());
+    fdlSelectedPackage.top = new FormAttachment(lastControl, PropsUi.getMargin());
     wlSelectedPackage.setLayoutData(fdlSelectedPackage);
 
     wSelectedPackage = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wSelectedPackage);
     FormData fdSelectedPackage = new FormData();
-    fdSelectedPackage.left = new FormAttachment(middle, props.getMargin());
+    fdSelectedPackage.left = new FormAttachment(middle, PropsUi.getMargin());
     fdSelectedPackage.right = new FormAttachment(100, 0);
     fdSelectedPackage.top = new FormAttachment(wlSelectedPackage, 0, SWT.CENTER);
     wSelectedPackage.setLayoutData(fdSelectedPackage);
@@ -646,15 +646,15 @@ public class Translator {
     wlKey.setText(BaseMessages.getString(PKG, "i18nDialog.TranslationKey"));
     PropsUi.setLook(wlKey);
     FormData fdlKey = new FormData();
-    fdlKey.left = new FormAttachment(left, props.getMargin());
+    fdlKey.left = new FormAttachment(left, PropsUi.getMargin());
     fdlKey.right = new FormAttachment(middle, 0);
-    fdlKey.top = new FormAttachment(lastControl, props.getMargin());
+    fdlKey.top = new FormAttachment(lastControl, PropsUi.getMargin());
     wlKey.setLayoutData(fdlKey);
 
     wKey = new Text(composite, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wKey);
     FormData fdKey = new FormData();
-    fdKey.left = new FormAttachment(middle, props.getMargin());
+    fdKey.left = new FormAttachment(middle, PropsUi.getMargin());
     fdKey.right = new FormAttachment(100, 0);
     fdKey.top = new FormAttachment(wlKey, 0, SWT.CENTER);
     wKey.setLayoutData(fdKey);
@@ -667,35 +667,35 @@ public class Translator {
     wlMain.setText(BaseMessages.getString(PKG, "i18nDialog.MainTranslation"));
     PropsUi.setLook(wlMain);
     FormData fdlMain = new FormData();
-    fdlMain.left = new FormAttachment(left, props.getMargin());
+    fdlMain.left = new FormAttachment(left, PropsUi.getMargin());
     fdlMain.right = new FormAttachment(middle, 0);
-    fdlMain.top = new FormAttachment(wKey, props.getMargin());
+    fdlMain.top = new FormAttachment(wKey, PropsUi.getMargin());
     wlMain.setLayoutData(fdlMain);
 
     wMain = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wMain);
     FormData fdMain = new FormData();
-    fdMain.left = new FormAttachment(middle, props.getMargin());
+    fdMain.left = new FormAttachment(middle, PropsUi.getMargin());
     fdMain.right = new FormAttachment(100, 0);
-    fdMain.top = new FormAttachment(wKey, props.getMargin());
-    fdMain.bottom = new FormAttachment(wKey, 250 + props.getMargin());
+    fdMain.top = new FormAttachment(wKey, PropsUi.getMargin());
+    fdMain.bottom = new FormAttachment(wKey, 250 + PropsUi.getMargin());
     wMain.setLayoutData(fdMain);
     wMain.setEditable(false);
 
     Button wSearch = new Button(composite, SWT.PUSH);
     wSearch.setText(BaseMessages.getString(PKG, "i18nDialog.Search"));
     FormData fdSearch = new FormData();
-    fdSearch.left = new FormAttachment(left, 3 * props.getMargin());
-    fdSearch.right = new FormAttachment(middle, -props.getMargin() * 2);
+    fdSearch.left = new FormAttachment(left, 3 * PropsUi.getMargin());
+    fdSearch.right = new FormAttachment(middle, -PropsUi.getMargin() * 2);
     fdSearch.top = new FormAttachment(wMain, 0, SWT.CENTER);
     wSearch.setLayoutData(fdSearch);
 
     Button wNext = new Button(composite, SWT.PUSH);
     wNext.setText(BaseMessages.getString(PKG, "i18nDialog.Next"));
     FormData fdNext = new FormData();
-    fdNext.left = new FormAttachment(left, 3 * props.getMargin());
-    fdNext.right = new FormAttachment(middle, -props.getMargin() * 2);
-    fdNext.top = new FormAttachment(wSearch, props.getMargin() * 2);
+    fdNext.left = new FormAttachment(left, 3 * PropsUi.getMargin());
+    fdNext.right = new FormAttachment(middle, -PropsUi.getMargin() * 2);
+    fdNext.top = new FormAttachment(wSearch, PropsUi.getMargin() * 2);
     wNext.setLayoutData(fdNext);
 
     // A few lines of source code at the bottom...
@@ -704,18 +704,18 @@ public class Translator {
     wlSource.setText(BaseMessages.getString(PKG, "i18nDialog.LineOfSourceCode"));
     PropsUi.setLook(wlSource);
     FormData fdlSource = new FormData();
-    fdlSource.left = new FormAttachment(left, props.getMargin());
+    fdlSource.left = new FormAttachment(left, PropsUi.getMargin());
     fdlSource.right = new FormAttachment(middle, 0);
-    fdlSource.top = new FormAttachment(wClose, -300 - props.getMargin());
+    fdlSource.top = new FormAttachment(wClose, -300 - PropsUi.getMargin());
     wlSource.setLayoutData(fdlSource);
 
     wSource = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.WRAP | SWT.V_SCROLL);
     PropsUi.setLook(wSource);
     FormData fdSource = new FormData();
-    fdSource.left = new FormAttachment(middle, props.getMargin());
+    fdSource.left = new FormAttachment(middle, PropsUi.getMargin());
     fdSource.right = new FormAttachment(100, 0);
-    fdSource.top = new FormAttachment(wClose, -300 - props.getMargin());
-    fdSource.bottom = new FormAttachment(wClose, -props.getMargin());
+    fdSource.top = new FormAttachment(wClose, -300 - PropsUi.getMargin());
+    fdSource.bottom = new FormAttachment(wClose, -PropsUi.getMargin());
     wSource.setLayoutData(fdSource);
     wSource.setEditable(false);
 
@@ -725,15 +725,15 @@ public class Translator {
     wlSourceFile.setText(BaseMessages.getString(PKG, "i18nDialog.SourceFile"));
     PropsUi.setLook(wlSourceFile);
     FormData fdlSourceFile = new FormData();
-    fdlSourceFile.left = new FormAttachment(left, props.getMargin());
+    fdlSourceFile.left = new FormAttachment(left, PropsUi.getMargin());
     fdlSourceFile.right = new FormAttachment(middle, 0);
-    fdlSourceFile.bottom = new FormAttachment(wSource, -2 * props.getMargin(), SWT.TOP);
+    fdlSourceFile.bottom = new FormAttachment(wSource, -2 * PropsUi.getMargin(), SWT.TOP);
     wlSourceFile.setLayoutData(fdlSourceFile);
 
     wSourceFile = new Text(composite, SWT.SINGLE | SWT.BORDER);
     PropsUi.setLook(wSourceFile);
     FormData fdSourceFile = new FormData();
-    fdSourceFile.left = new FormAttachment(middle, props.getMargin());
+    fdSourceFile.left = new FormAttachment(middle, PropsUi.getMargin());
     fdSourceFile.right = new FormAttachment(100, 0);
     fdSourceFile.top = new FormAttachment(wlSourceFile, 0, SWT.CENTER);
     wSourceFile.setLayoutData(fdSourceFile);
@@ -745,15 +745,15 @@ public class Translator {
     wlBundleFile.setText(BaseMessages.getString(PKG, "i18nDialog.BundleFile"));
     PropsUi.setLook(wlBundleFile);
     FormData fdlBundleFile = new FormData();
-    fdlBundleFile.left = new FormAttachment(left, props.getMargin());
+    fdlBundleFile.left = new FormAttachment(left, PropsUi.getMargin());
     fdlBundleFile.right = new FormAttachment(middle, 0);
-    fdlBundleFile.bottom = new FormAttachment(wSourceFile, -props.getMargin());
+    fdlBundleFile.bottom = new FormAttachment(wSourceFile, -PropsUi.getMargin());
     wlBundleFile.setLayoutData(fdlBundleFile);
 
     wBundleFile = new Text(composite, SWT.SINGLE | SWT.BORDER);
     PropsUi.setLook(wBundleFile);
     FormData fdBundleFile = new FormData();
-    fdBundleFile.left = new FormAttachment(middle, props.getMargin());
+    fdBundleFile.left = new FormAttachment(middle, PropsUi.getMargin());
     fdBundleFile.right = new FormAttachment(100, 0);
     fdBundleFile.top = new FormAttachment(wlBundleFile, 0, SWT.CENTER);
     wBundleFile.setLayoutData(fdBundleFile);
@@ -766,27 +766,27 @@ public class Translator {
     wlValue.setFont(GuiResource.getInstance().getFontBold());
     PropsUi.setLook(wlValue);
     FormData fdlValue = new FormData();
-    fdlValue.left = new FormAttachment(left, props.getMargin());
+    fdlValue.left = new FormAttachment(left, PropsUi.getMargin());
     fdlValue.right = new FormAttachment(middle, 0);
-    fdlValue.top = new FormAttachment(wMain, props.getMargin());
+    fdlValue.top = new FormAttachment(wMain, PropsUi.getMargin());
     wlValue.setLayoutData(fdlValue);
 
     wValue = new Text(composite, SWT.MULTI | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
     PropsUi.setLook(wValue);
     wValue.setFont(GuiResource.getInstance().getFontBold());
     FormData fdValue = new FormData();
-    fdValue.left = new FormAttachment(middle, props.getMargin());
+    fdValue.left = new FormAttachment(middle, PropsUi.getMargin());
     fdValue.right = new FormAttachment(100, 0);
-    fdValue.top = new FormAttachment(wMain, props.getMargin());
-    fdValue.bottom = new FormAttachment(wBundleFile, -props.getMargin());
+    fdValue.top = new FormAttachment(wMain, PropsUi.getMargin());
+    fdValue.bottom = new FormAttachment(wBundleFile, -PropsUi.getMargin());
     wValue.setLayoutData(fdValue);
     wValue.setEditable(true);
 
     wApply = new Button(composite, SWT.PUSH);
     wApply.setText(BaseMessages.getString(PKG, "i18nDialog.Apply"));
     FormData fdApply = new FormData();
-    fdApply.left = new FormAttachment(left, 3 * props.getMargin());
-    fdApply.right = new FormAttachment(middle, -props.getMargin() * 2);
+    fdApply.left = new FormAttachment(left, 3 * PropsUi.getMargin());
+    fdApply.right = new FormAttachment(middle, -PropsUi.getMargin() * 2);
     fdApply.top = new FormAttachment(wValue, 0, SWT.CENTER);
     wApply.setLayoutData(fdApply);
     wApply.setEnabled(false);
@@ -794,26 +794,26 @@ public class Translator {
     wRevert = new Button(composite, SWT.PUSH);
     wRevert.setText(BaseMessages.getString(PKG, "i18nDialog.Revert"));
     FormData fdRevert = new FormData();
-    fdRevert.left = new FormAttachment(left, 3 * props.getMargin());
-    fdRevert.right = new FormAttachment(middle, -props.getMargin() * 2);
-    fdRevert.top = new FormAttachment(wApply, props.getMargin() * 2);
+    fdRevert.left = new FormAttachment(left, 3 * PropsUi.getMargin());
+    fdRevert.right = new FormAttachment(middle, -PropsUi.getMargin() * 2);
+    fdRevert.top = new FormAttachment(wApply, PropsUi.getMargin() * 2);
     wRevert.setLayoutData(fdRevert);
     wRevert.setEnabled(false);
 
     Button wSearchV = new Button(composite, SWT.PUSH);
     wSearchV.setText(BaseMessages.getString(PKG, "i18nDialog.Search"));
     FormData fdSearchV = new FormData();
-    fdSearchV.left = new FormAttachment(left, 3 * props.getMargin());
-    fdSearchV.right = new FormAttachment(middle, -props.getMargin() * 2);
-    fdSearchV.top = new FormAttachment(wRevert, props.getMargin() * 4);
+    fdSearchV.left = new FormAttachment(left, 3 * PropsUi.getMargin());
+    fdSearchV.right = new FormAttachment(middle, -PropsUi.getMargin() * 2);
+    fdSearchV.top = new FormAttachment(wRevert, PropsUi.getMargin() * 4);
     wSearchV.setLayoutData(fdSearchV);
 
     Button wNextV = new Button(composite, SWT.PUSH);
     wNextV.setText(BaseMessages.getString(PKG, "i18nDialog.Next"));
     FormData fdNextV = new FormData();
-    fdNextV.left = new FormAttachment(left, 3 * props.getMargin());
-    fdNextV.right = new FormAttachment(middle, -props.getMargin() * 2);
-    fdNextV.top = new FormAttachment(wSearchV, props.getMargin() * 2);
+    fdNextV.left = new FormAttachment(left, 3 * PropsUi.getMargin());
+    fdNextV.right = new FormAttachment(middle, -PropsUi.getMargin() * 2);
+    fdNextV.top = new FormAttachment(wSearchV, PropsUi.getMargin() * 2);
     wNextV.setLayoutData(fdNextV);
 
     wAll.addSelectionListener(
@@ -924,7 +924,7 @@ public class Translator {
     lastValue = null;
 
     java.util.List<BundleFile> changedBundleFiles = store.getChangedBundleFiles();
-    if (changedBundleFiles.size() > 0) {
+    if (!changedBundleFiles.isEmpty()) {
 
       StringBuilder msg = new StringBuilder();
       for (BundleFile bundleFile : changedBundleFiles) {
@@ -973,7 +973,7 @@ public class Translator {
   protected void saveFilesToZip() {
     if (saveFiles()) {
       java.util.List<BundleFile> bundleFiles = store.findBundleFiles(selectedLocale, null);
-      if (bundleFiles.size() > 0) {
+      if (!bundleFiles.isEmpty()) {
 
         StringBuilder msg = new StringBuilder();
         for (BundleFile bundleFile : bundleFiles) {
@@ -1324,7 +1324,7 @@ public class Translator {
               item.setBackground(new Color(shell.getDisplay(), props.contrastColor(190, 190, 190)));
             } else if (todo.size() > 5) {
               item.setBackground(new Color(shell.getDisplay(), props.contrastColor(210, 210, 210)));
-            } else if (todo.size() > 0) {
+            } else if (!todo.isEmpty()) {
               item.setBackground(
                   new Color(shell.getDisplay(), props.contrastColor(230, 230, 230))); // light gray
             }

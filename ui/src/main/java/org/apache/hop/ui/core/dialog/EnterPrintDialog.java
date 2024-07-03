@@ -125,7 +125,7 @@ public class EnterPrintDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "EnterPrintDialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Canvas
     Label wlCanvas = new Label(shell, SWT.NONE);

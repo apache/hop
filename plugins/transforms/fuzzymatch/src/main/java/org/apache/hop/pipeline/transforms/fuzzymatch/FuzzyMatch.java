@@ -226,20 +226,13 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     }
     Object[] retval = null;
     switch (meta.getAlgorithm()) {
-      case LEVENSHTEIN:
-      case DAMERAU_LEVENSHTEIN:
-      case NEEDLEMAN_WUNSH:
+      case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH:
         retval = doDistance(keyRow);
         break;
-      case DOUBLE_METAPHONE:
-      case METAPHONE:
-      case SOUNDEX:
-      case REFINED_SOUNDEX:
+      case DOUBLE_METAPHONE, METAPHONE, SOUNDEX, REFINED_SOUNDEX:
         retval = doPhonetic(keyRow);
         break;
-      case JARO:
-      case JARO_WINKLER:
-      case PAIR_SIMILARITY:
+      case JARO, JARO_WINKLER, PAIR_SIMILARITY:
         retval = doSimilarity(keyRow);
         break;
       default:
@@ -561,9 +554,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
     data.indexOfCachedFields = new int[nrFields];
 
     switch (meta.getAlgorithm()) {
-      case LEVENSHTEIN:
-      case DAMERAU_LEVENSHTEIN:
-      case NEEDLEMAN_WUNSH:
+      case LEVENSHTEIN, DAMERAU_LEVENSHTEIN, NEEDLEMAN_WUNSH:
         data.minimalDistance = Const.toInt(resolve(meta.getMinimalValue()), 0);
         if (isDetailed()) {
           logDetailed(
@@ -582,9 +573,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> {
           }
         }
         break;
-      case JARO:
-      case JARO_WINKLER:
-      case PAIR_SIMILARITY:
+      case JARO, JARO_WINKLER, PAIR_SIMILARITY:
         data.minimalSimilarity = Const.toDouble(resolve(meta.getMinimalValue()), 0);
         if (isDetailed()) {
           logDetailed(

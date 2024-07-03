@@ -96,7 +96,7 @@ public class TransformErrorMetaDialog extends Dialog {
     ModifyListener lsMod = e -> transformErrorMeta.setChanged();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();

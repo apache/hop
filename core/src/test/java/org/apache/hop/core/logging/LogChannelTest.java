@@ -44,8 +44,8 @@ public class LogChannelTest {
   private MockedStatic<DefaultLogLevel> mockedDefaultLogLevel;
 
   private LogChannel logChannel;
-  private String logChannelSubject = "pdi";
-  private String channelId = "1234-5678-abcd-efgh";
+  private final String logChannelSubject = "pdi";
+  private final String channelId = "1234-5678-abcd-efgh";
 
   private LogLevel logLevel;
   private ILogMessage logMsgInterface;

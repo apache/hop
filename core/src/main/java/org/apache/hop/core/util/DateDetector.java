@@ -190,7 +190,6 @@ public class DateDetector {
 
   // util class, hide constructor
   private DateDetector() {}
-  ;
 
   /**
    * @param dateFormat - date format for get regexp
@@ -205,8 +204,8 @@ public class DateDetector {
    * @return regexp for given date format
    */
   public static String getRegexpByDateFormat(String dateFormat, String locale) {
-    if (locale != null && LOCALE_en_US.equalsIgnoreCase(locale)) {
-      return (String) DATE_FORMAT_TO_REGEXPS_US.get(dateFormat);
+    if (LOCALE_en_US.equalsIgnoreCase(locale)) {
+      return DATE_FORMAT_TO_REGEXPS_US.get(dateFormat);
     }
     return (String) DATE_FORMAT_TO_REGEXPS.get(dateFormat);
   }
@@ -227,8 +226,8 @@ public class DateDetector {
    * @return {@link java.lang.String} string wich represented Date Format
    */
   public static String getDateFormatByRegex(String regex, String locale) {
-    if (locale != null && LOCALE_en_US.equalsIgnoreCase(locale)) {
-      return (String) DATE_FORMAT_TO_REGEXPS_US.getKey(regex);
+    if (LOCALE_en_US.equalsIgnoreCase(locale)) {
+      return DATE_FORMAT_TO_REGEXPS_US.getKey(regex);
     }
     return (String) DATE_FORMAT_TO_REGEXPS.getKey(regex);
   }
@@ -367,10 +366,7 @@ public class DateDetector {
    */
   public static boolean isValidDateFormatToStringDate(String dateFormat, String dateString) {
     String detectedDateFormat = detectDateFormat(dateString);
-    if ((dateFormat != null) && (dateFormat.equals(detectedDateFormat))) {
-      return true;
-    }
-    return false;
+    return (dateFormat != null) && (dateFormat.equals(detectedDateFormat));
   }
 
   /**
@@ -385,9 +381,6 @@ public class DateDetector {
         dateFormat != null
             ? detectDateFormatBiased(dateString, locale, dateFormat)
             : detectDateFormat(dateString, locale);
-    if ((dateFormat != null) && (dateFormat.equals(detectedDateFormat))) {
-      return true;
-    }
-    return false;
+    return (dateFormat != null) && (dateFormat.equals(detectedDateFormat));
   }
 }

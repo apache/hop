@@ -35,7 +35,7 @@ import org.junit.Test;
 public class BaseTransformMetaCloningTest {
 
   @Test
-  public void testClone() throws Exception {
+  public void testClone() {
     final Database db1 = mock(Database.class);
     final Database db2 = mock(Database.class);
     final TransformMeta transformMeta = mock(TransformMeta.class);
@@ -51,7 +51,7 @@ public class BaseTransformMetaCloningTest {
     assertTrue(clone.hasChanged());
 
     // is it OK ?
-    assertTrue(clone.databases == meta.databases);
+    assertSame(clone.databases, meta.databases);
     assertArrayEquals(meta.databases, clone.databases);
 
     assertEquals(meta.parentTransformMeta, clone.parentTransformMeta);
@@ -69,7 +69,7 @@ public class BaseTransformMetaCloningTest {
   }
 
   @Test
-  public void testCloneWithInfoTransforms() throws Exception {
+  public void testCloneWithInfoTransforms() {
     final Database db1 = mock(Database.class);
     final Database db2 = mock(Database.class);
     final TransformMeta transformMeta = mock(TransformMeta.class);
@@ -92,7 +92,7 @@ public class BaseTransformMetaCloningTest {
     assertTrue(clone.hasChanged());
 
     // is it OK ?
-    assertTrue(clone.databases == meta.databases);
+    assertSame(clone.databases, meta.databases);
     assertArrayEquals(meta.databases, clone.databases);
 
     assertEquals(meta.parentTransformMeta, clone.parentTransformMeta);

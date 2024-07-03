@@ -423,7 +423,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
       } else {
         out.println(
             "<H1>Workflow "
-                + Encode.forHtml("\'" + workflowName + "\'")
+                + Encode.forHtml("'" + workflowName + "'")
                 + " could not be found.</H1>");
         out.println(
             "<a href=\""
@@ -441,7 +441,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
 
   @Override
   public String getService() {
-    return CONTEXT_PATH + " (" + toString() + ")";
+    return CONTEXT_PATH + " (" + this + ")";
   }
 
   @Override

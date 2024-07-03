@@ -98,7 +98,7 @@ public class ParquetOutputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "ParquetOutput.Name"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);

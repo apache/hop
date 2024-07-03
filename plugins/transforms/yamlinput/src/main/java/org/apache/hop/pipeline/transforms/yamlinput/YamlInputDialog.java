@@ -148,7 +148,7 @@ public class YamlInputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "YamlInputDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

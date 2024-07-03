@@ -58,7 +58,7 @@ import org.eclipse.swt.SWT;
 
 public class HopGuiFileDelegate {
 
-  private HopGui hopGui;
+  private final HopGui hopGui;
 
   public HopGuiFileDelegate(HopGui hopGui) {
     this.hopGui = hopGui;
@@ -275,7 +275,7 @@ public class HopGuiFileDelegate {
           filenames.add(filename);
           String operation = event.getOperation();
           String dateString = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(event.getDate());
-          rows.add(new RowMetaAndData(rowMeta, new Object[] {filename, operation, dateString}));
+          rows.add(new RowMetaAndData(rowMeta, filename, operation, dateString));
         }
       }
 

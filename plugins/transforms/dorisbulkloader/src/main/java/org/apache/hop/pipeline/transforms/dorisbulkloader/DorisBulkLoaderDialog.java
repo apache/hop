@@ -112,7 +112,7 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "DorisBulkLoaderDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS: at the bottom
     wOk = new Button(shell, SWT.PUSH);

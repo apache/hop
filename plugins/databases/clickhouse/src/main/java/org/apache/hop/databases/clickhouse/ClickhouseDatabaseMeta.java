@@ -176,9 +176,7 @@ public class ClickhouseDatabaseMeta extends BaseDatabaseMeta implements IDatabas
       case IValueMeta.TYPE_BOOLEAN:
         fieldDefinitionDdl += "UINT8";
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_INTEGER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (precision == 0) {
           fieldDefinitionDdl += ddlForIntegerValue(length);
         } else {

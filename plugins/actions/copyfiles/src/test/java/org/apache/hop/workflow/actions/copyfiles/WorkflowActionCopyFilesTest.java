@@ -45,10 +45,10 @@ import org.junit.Test;
 public class WorkflowActionCopyFilesTest {
   private ActionCopyFiles entry;
 
-  private final String EMPTY = "";
+  private static final String EMPTY = "";
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
@@ -130,7 +130,7 @@ public class WorkflowActionCopyFilesTest {
         XmlHandler.getSubNode(XmlHandler.loadXmlFile(is, null, false, false), "entry"),
         null,
         new Variables());
-    assertTrue(loadedentry.destinationFileFolder[0].equals(destPath[0]));
-    assertTrue(loadedentry.sourceFileFolder[0].equals(srcPath[0]));
+    assertEquals(loadedentry.destinationFileFolder[0], destPath[0]);
+    assertEquals(loadedentry.sourceFileFolder[0], srcPath[0]);
   }
 }

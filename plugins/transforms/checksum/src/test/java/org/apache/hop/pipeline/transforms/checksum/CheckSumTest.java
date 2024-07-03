@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -104,7 +103,7 @@ public class CheckSumTest {
     meta.setResultFieldName("hex");
     meta.setCheckSumType(checkSumType);
     meta.setResultType(CheckSumMeta.ResultType.HEXADECIMAL);
-    meta.setFields(Arrays.asList(new Field("test")));
+    meta.setFields(List.of(new Field("test")));
 
     String checkSumPluginPid =
         PluginRegistry.getInstance().getPluginId(TransformPluginType.class, meta);
@@ -135,11 +134,11 @@ public class CheckSumTest {
   }
 
   private class MockRowListener extends RowAdapter {
-    private List<Object[]> written;
+    private final List<Object[]> written;
 
-    private List<Object[]> read;
+    private final List<Object[]> read;
 
-    private List<Object[]> error;
+    private final List<Object[]> error;
 
     public MockRowListener() {
       written = new ArrayList<>();

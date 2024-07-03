@@ -19,6 +19,7 @@ package org.apache.hop.core;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -44,8 +45,8 @@ public class DbCacheEntryTest {
     DbCacheEntry otherEntry = new DbCacheEntry();
     assertFalse(otherEntry.sameDB("otherDb"));
     assertEquals(0, otherEntry.hashCode());
-    assertFalse(entry.equals(otherEntry));
-    assertFalse(entry.equals(new Object()));
+    assertNotEquals(entry, otherEntry);
+    assertNotEquals(entry, new Object());
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     DataOutputStream dos = new DataOutputStream(baos);
@@ -57,7 +58,7 @@ public class DbCacheEntryTest {
     InputStream is = new ByteArrayInputStream(bytes);
     DataInputStream dis = new DataInputStream(is);
     DbCacheEntry disEntry = new DbCacheEntry(dis);
-    assertTrue(disEntry.equals(entry));
+    assertEquals(disEntry, entry);
     try {
       new DbCacheEntry(dis);
       fail("Should throw HopEofException on EOFException");

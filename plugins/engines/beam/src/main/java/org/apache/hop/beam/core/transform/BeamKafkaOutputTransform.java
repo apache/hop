@@ -112,15 +112,12 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
       int keyIndex = rowMeta.indexOfValue(keyField);
       if (keyIndex < 0) {
         throw new HopException(
-            "Unable to find key field " + keyField + " in input row: " + rowMeta.toString());
+            "Unable to find key field " + keyField + " in input row: " + rowMeta);
       }
       int messageIndex = rowMeta.indexOfValue(messageField);
       if (messageIndex < 0) {
         throw new HopException(
-            "Unable to find message field "
-                + messageField
-                + " in input row: "
-                + rowMeta.toString());
+            "Unable to find message field " + messageField + " in input row: " + rowMeta);
       }
 
       // Add custom configuration options to this map:
@@ -231,10 +228,10 @@ public class BeamKafkaOutputTransform extends PTransform<PCollection<HopRow>, PD
   private static final class HopRowToKVStringGenericRecordFn
       extends DoFn<HopRow, KV<String, GenericRecord>> {
 
-    private String rowMetaJson;
-    private String transformName;
-    private int keyIndex;
-    private int valueIndex;
+    private final String rowMetaJson;
+    private final String transformName;
+    private final int keyIndex;
+    private final int valueIndex;
 
     private static final Logger LOG =
         LoggerFactory.getLogger(HopRowToKVStringGenericRecordFn.class);

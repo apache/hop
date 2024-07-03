@@ -20,7 +20,6 @@ import static java.util.AbstractMap.SimpleEntry;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
@@ -87,17 +86,15 @@ public class S3FileObjectTest {
   private S3FileObject s3FileObjectFileSpy;
   private S3FileObject s3FileObjectSpyRoot;
   private AmazonS3 s3ServiceMock;
-  private static final String S3VFS_USE_TEMPORARY_FILE_ON_UPLOAD_DATA =
-      "s3.vfs.useTempFileOnUploadData";
   private ObjectListing childObjectListing;
   private S3Object s3ObjectMock;
   private S3ObjectInputStream s3ObjectInputStream;
   private ObjectMetadata s3ObjectMetadata;
-  private List<String> childObjectNameComp = new ArrayList<>();
-  private List<String> childBucketNameListComp = new ArrayList<>();
-  private long contentLength = 42;
+  private final List<String> childObjectNameComp = new ArrayList<>();
+  private final List<String> childBucketNameListComp = new ArrayList<>();
+  private final long contentLength = 42;
   private final String origKey = "some/key";
-  private Date testDate = new Date();
+  private final Date testDate = new Date();
 
   @BeforeClass
   public static void initHop() throws Exception {
@@ -142,7 +139,6 @@ public class S3FileObjectTest {
     s3FileObjectSpyRoot = spy(s3FileObjectRoot);
 
     // specify the behaviour of S3 Service
-    // when( s3ServiceMock.getBucket( BUCKET_NAME ) ).thenReturn( testBucket );
     when(s3ServiceMock.getObject(BUCKET_NAME, OBJECT_NAME)).thenReturn(s3Object);
     when(s3ServiceMock.getObject(BUCKET_NAME, OBJECT_NAME)).thenReturn(s3Object);
     when(s3ServiceMock.listBuckets()).thenReturn(createBuckets());
@@ -254,7 +250,7 @@ public class S3FileObjectTest {
   }
 
   @Test(expected = NullPointerException.class)
-  public void testCanRenameToNullFile() throws Exception {
+  public void testCanRenameToNullFile() {
     // This is a bug / weakness in VFS itself
     s3FileObjectBucketSpy.canRenameTo(null);
   }
@@ -301,7 +297,7 @@ public class S3FileObjectTest {
   public void testListChildrenNotRoot() throws FileSystemException {
     fileSystemSpy.init();
     FileObject[] children = s3FileObjectBucketSpy.getChildren();
-    assertTrue(children.length == 6);
+    assertEquals(6, children.length);
     List<String> childNameArray =
         Arrays.asList(children).stream()
             .map(child -> child.getName().getPath())
@@ -313,7 +309,7 @@ public class S3FileObjectTest {
   public void testListChildrenRoot() throws FileSystemException {
     fileSystemSpy.init();
     FileObject[] children = s3FileObjectSpyRoot.getChildren();
-    assertTrue(children.length == 4);
+    assertEquals(4, children.length);
     List<String> childNameArray =
         Arrays.asList(children).stream()
             .map(child -> child.getName().getPath())

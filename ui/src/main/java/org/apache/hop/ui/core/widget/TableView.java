@@ -2409,8 +2409,7 @@ public class TableView extends Composite {
         isTextButton = false;
         editText(row, rowNr, colNr, selectText, extra, columns[colNr - 1]);
         break;
-      case ColumnInfo.COLUMN_TYPE_CCOMBO:
-      case ColumnInfo.COLUMN_TYPE_FORMAT:
+      case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
         editCombo(row, rowNr, colNr);
         break;
       case ColumnInfo.COLUMN_TYPE_BUTTON:
@@ -2661,12 +2660,9 @@ public class TableView extends Composite {
     if (colinfo.getType() == ColumnInfo.COLUMN_TYPE_FORMAT) {
       int type = ValueMetaFactory.getIdForValueMeta(row.getText(colinfo.getFieldTypeColumn()));
       switch (type) {
-        case IValueMeta.TYPE_DATE:
-        case IValueMeta.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
           return Const.getDateFormats();
-        case IValueMeta.TYPE_INTEGER:
-        case IValueMeta.TYPE_BIGNUMBER:
-        case IValueMeta.TYPE_NUMBER:
+        case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER:
           return Const.getNumberFormats();
         case IValueMeta.TYPE_STRING:
           return Const.getConversionFormats();
@@ -2899,12 +2895,10 @@ public class TableView extends Composite {
         final ColumnInfo column = columns[c - 1];
         if (column != null) {
           switch (column.getType()) {
-            case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON:
-            case ColumnInfo.COLUMN_TYPE_TEXT:
+            case ColumnInfo.COLUMN_TYPE_TEXT_BUTTON, ColumnInfo.COLUMN_TYPE_TEXT:
               haveToGetTexts = true;
               break;
-            case ColumnInfo.COLUMN_TYPE_CCOMBO:
-            case ColumnInfo.COLUMN_TYPE_FORMAT:
+            case ColumnInfo.COLUMN_TYPE_CCOMBO, ColumnInfo.COLUMN_TYPE_FORMAT:
               haveToGetTexts = true;
               if (column.getComboValues() != null) {
                 for (String comboValue : columns[c - 1].getComboValues()) {

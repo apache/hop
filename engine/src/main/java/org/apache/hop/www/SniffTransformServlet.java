@@ -330,7 +330,7 @@ public class SniffTransformServlet extends BaseHttpServlet implements IHopServer
 
   @Override
   public String getService() {
-    return CONTEXT_PATH + " (" + toString() + ")";
+    return CONTEXT_PATH + " (" + this + ")";
   }
 
   @Override

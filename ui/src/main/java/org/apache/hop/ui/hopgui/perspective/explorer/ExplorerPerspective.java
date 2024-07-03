@@ -550,8 +550,7 @@ public class ExplorerPerspective implements IHopPerspective, TabClosable {
           SWT.KeyUp,
           event -> {
             switch (event.keyCode) {
-              case SWT.CR:
-              case SWT.KEYPAD_CR:
+              case SWT.CR, SWT.KEYPAD_CR:
                 // If name changed
                 if (!item.getText().equals(text.getText())) {
                   try {

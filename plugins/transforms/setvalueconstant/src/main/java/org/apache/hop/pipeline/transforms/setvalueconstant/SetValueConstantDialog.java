@@ -86,7 +86,7 @@ public class SetValueConstantDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SetValueConstantDialog.Shell.Title"));
