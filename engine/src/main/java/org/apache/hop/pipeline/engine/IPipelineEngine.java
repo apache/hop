@@ -49,7 +49,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 public interface IPipelineEngine<T extends PipelineMeta>
     extends IVariables, ILoggingObject, INamedParameters, IExtensionData {
 
-  public static final String PIPELINE_IN_PREVIEW_MODE = "PIPELINE_IN_PREVIEW_MODE";
+  String PIPELINE_IN_PREVIEW_MODE = "PIPELINE_IN_PREVIEW_MODE";
 
   T getPipelineMeta();
 
@@ -153,7 +153,7 @@ public interface IPipelineEngine<T extends PipelineMeta>
    *
    * @return True if there are halted components
    */
-  public boolean hasHaltedComponents();
+  boolean hasHaltedComponents();
 
   /**
    * Indicates whether or not the engine is running

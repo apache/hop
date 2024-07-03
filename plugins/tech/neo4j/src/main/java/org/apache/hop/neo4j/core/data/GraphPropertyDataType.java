@@ -160,13 +160,7 @@ public enum GraphPropertyDataType {
             .toLocalDateTime();
       case ByteArray:
         return valueMeta.getBinary(valueData);
-      case Duration:
-      case DateTime:
-      case Time:
-      case Point:
-      case LocalTime:
-      case Map:
-      case List:
+      case Duration, DateTime, Time, Point, LocalTime, Map, List:
       default:
         throw new HopValueException(
             "Data conversion to Neo4j type '"
@@ -180,13 +174,9 @@ public enum GraphPropertyDataType {
   public int getHopType() throws HopValueException {
 
     switch (this) {
-      case String:
-      case Map: // convert to JSON
-      case List: // convert to JSON
+      case String, Map, List: // convert to JSON
         return IValueMeta.TYPE_STRING;
-      case Node: // Convert to Graph data type
-      case Relationship:
-      case Path:
+      case Node, Relationship, Path:
         return ValueMetaGraph.TYPE_GRAPH;
       case Boolean:
         return IValueMeta.TYPE_BOOLEAN;
@@ -194,16 +184,11 @@ public enum GraphPropertyDataType {
         return IValueMeta.TYPE_NUMBER;
       case Integer:
         return IValueMeta.TYPE_INTEGER;
-      case Date:
-      case LocalDateTime:
+      case Date, LocalDateTime:
         return IValueMeta.TYPE_DATE;
       case ByteArray:
         return IValueMeta.TYPE_BINARY;
-      case Duration:
-      case DateTime:
-      case Time:
-      case Point:
-      case LocalTime:
+      case Duration, DateTime, Time, Point, LocalTime:
       default:
         throw new HopValueException(
             "Data conversion to Neo4j type '" + name() + "' is not supported yet");

@@ -85,22 +85,18 @@ public class OdfCell implements IKCell {
   public Object getValue() {
     try {
       switch (getType()) {
-        case BOOLEAN_FORMULA:
-        case BOOLEAN:
+        case BOOLEAN_FORMULA, BOOLEAN:
           return cell.getBooleanValue();
-        case DATE_FORMULA:
-        case DATE:
+        case DATE_FORMULA, DATE:
           // Timezone conversion needed since POI doesn't support this apparently
           //
           long time = cell.getDateValue().getTime().getTime();
           long tzOffset = TimeZone.getDefault().getOffset(time);
 
           return new Date(time + tzOffset);
-        case NUMBER_FORMULA:
-        case NUMBER:
+        case NUMBER_FORMULA, NUMBER:
           return Double.valueOf(cell.getDoubleValue());
-        case STRING_FORMULA:
-        case LABEL:
+        case STRING_FORMULA, LABEL:
           return cell.getStringValue();
         case EMPTY:
         default:

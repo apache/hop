@@ -1015,8 +1015,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         DLField field = f.getFields().get(i);
         IValueMeta valueMeta = null;
         switch (field.getUpdateType()) {
-          case DATE_INSERTED_UPDATED:
-          case DATE_INSERTED:
+          case DATE_INSERTED_UPDATED, DATE_INSERTED:
             valueMeta = new ValueMetaDate(field.getLookup());
             break;
           case LAST_VERSION:
@@ -1054,9 +1053,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       for (DLField field : f.getFields()) {
         switch (field.getUpdateType()) {
-          case DATE_INSERTED_UPDATED:
-          case DATE_INSERTED:
-          case LAST_VERSION:
+          case DATE_INSERTED_UPDATED, DATE_INSERTED, LAST_VERSION:
             sql += ", ?";
             break;
           default:
@@ -1101,8 +1098,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (DLField field : f.getFields()) {
         IValueMeta valueMeta = null;
         switch (field.getUpdateType()) {
-          case DATE_INSERTED_UPDATED:
-          case DATE_UPDATED:
+          case DATE_INSERTED_UPDATED, DATE_UPDATED:
             valueMeta = new ValueMetaDate(field.getLookup());
             break;
           case LAST_VERSION:
@@ -1197,8 +1193,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     //
     for (DLField field : f.getFields()) {
       switch (field.getUpdateType()) {
-        case DATE_INSERTED_UPDATED:
-        case DATE_INSERTED:
+        case DATE_INSERTED_UPDATED, DATE_INSERTED:
           insertRow[insertIndex++] = new Date();
           break;
         case LAST_VERSION:
@@ -1274,8 +1269,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       for (DLField field : f.getFields()) {
         switch (field.getUpdateType()) {
-          case DATE_INSERTED_UPDATED:
-          case DATE_UPDATED:
+          case DATE_INSERTED_UPDATED, DATE_UPDATED:
             updateRow[updateIndex++] = new Date();
             break;
           case LAST_VERSION:
@@ -1358,8 +1352,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (DLField field : f.getFields()) {
         IValueMeta valueMeta = null;
         switch (field.getUpdateType()) {
-          case DATE_INSERTED_UPDATED:
-          case DATE_UPDATED:
+          case DATE_INSERTED_UPDATED, DATE_UPDATED:
             valueMeta = new ValueMetaDate(field.getLookup());
             break;
           default:
@@ -1405,8 +1398,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     }
     for (DLField field : f.getFields()) {
       switch (field.getUpdateType()) {
-        case DATE_INSERTED_UPDATED:
-        case DATE_UPDATED:
+        case DATE_INSERTED_UPDATED, DATE_UPDATED:
           dimensionUpdateRow[updateIndex++] = valueDate;
           break;
         default:
@@ -1453,8 +1445,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       for (DLField field : f.getFields()) {
         IValueMeta valueMeta = null;
         switch (field.getUpdateType()) {
-          case DATE_INSERTED_UPDATED:
-          case DATE_UPDATED:
+          case DATE_INSERTED_UPDATED, DATE_UPDATED:
             valueMeta = new ValueMetaDate(field.getLookup());
             break;
           default:
@@ -1492,8 +1483,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     for (int i = 0; i < f.getFields().size(); i++) {
       DLField field = f.getFields().get(i);
       switch (field.getUpdateType()) {
-        case DATE_INSERTED_UPDATED:
-        case DATE_UPDATED:
+        case DATE_INSERTED_UPDATED, DATE_UPDATED:
           punchThroughRow[punchIndex++] = new Date();
           break;
         case PUNCH_THROUGH:

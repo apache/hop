@@ -92,7 +92,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "SplitFieldToRowsDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);

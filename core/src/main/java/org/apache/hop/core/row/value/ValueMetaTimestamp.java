@@ -70,9 +70,6 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   @Override
   public Date getDate(Object object) throws HopValueException {
     Timestamp timestamp = getTimestamp(object);
-    if (timestamp == null) {
-      return null;
-    }
     return timestamp;
   }
 
@@ -134,8 +131,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return (Timestamp) index[((Integer) object).intValue()];
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -147,8 +143,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertStringToTimestamp((String) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_NUMBER:
         switch (storageType) {
@@ -160,8 +155,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertNumberToTimestamp((Double) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_INTEGER:
         switch (storageType) {
@@ -173,8 +167,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertIntegerToTimestamp((Long) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BIGNUMBER:
         switch (storageType) {
@@ -186,21 +179,20 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           case STORAGE_TYPE_INDEXED:
             return convertBigNumberToTimestamp((BigDecimal) index[((Integer) object).intValue()]);
           default:
-            throw new HopValueException(
-                toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+            throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
         }
       case TYPE_BOOLEAN:
         throw new HopValueException(
-            toString() + " : I don't know how to convert a boolean to a timestamp.");
+            this + " : I don't know how to convert a boolean to a timestamp.");
       case TYPE_BINARY:
         throw new HopValueException(
-            toString() + " : I don't know how to convert a binary value to timestamp.");
+            this + " : I don't know how to convert a binary value to timestamp.");
       case TYPE_SERIALIZABLE:
         throw new HopValueException(
-            toString() + " : I don't know how to convert a serializable value to timestamp.");
+            this + " : I don't know how to convert a serializable value to timestamp.");
 
       default:
-        throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
+        throw new HopValueException(this + " : Unknown type " + type + CONST_SPECIFIED);
     }
   }
 
@@ -273,7 +265,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
         returnValue = (Timestamp) getDateFormat().parse(string);
       } catch (ParseException ex) {
         throw new HopValueException(
-            toString()
+            this
                 + " : couldn't convert string ["
                 + string
                 + "] to a timestamp, expecting format [yyyy-mm-dd hh:mm:ss.ffffff]",
@@ -586,8 +578,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       case STORAGE_TYPE_INDEXED:
         return convertStringToBinaryString(getString(index[((Integer) object).intValue()]));
       default:
-        throw new HopValueException(
-            toString() + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
+        throw new HopValueException(this + CONST_UNKNOWN_TYPE + storageType + CONST_SPECIFIED);
     }
   }
 
@@ -622,12 +613,12 @@ public class ValueMetaTimestamp extends ValueMetaDate {
             break;
 
           default:
-            throw new HopFileException(toString() + CONST_UNKNOWN_TYPE + getStorageType());
+            throw new HopFileException(this + CONST_UNKNOWN_TYPE + getStorageType());
         }
       }
     } catch (ClassCastException e) {
       throw new RuntimeException(
-          toString()
+          this
               + " : There was a data type error: the data type of "
               + object.getClass().getName()
               + " object ["
@@ -637,10 +628,10 @@ public class ValueMetaTimestamp extends ValueMetaDate {
               + "]");
     } catch (IOException e) {
       throw new HopFileException(
-          toString() + " : Unable to write value timestamp data to output stream", e);
+          this + " : Unable to write value timestamp data to output stream", e);
     } catch (HopValueException e) {
       throw new RuntimeException(
-          toString()
+          this
               + " : There was a data type error: the data type of "
               + object.getClass().getName()
               + " object ["
@@ -653,7 +644,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
 
   @Override
   public Object readData(DataInputStream inputStream)
-      throws HopFileException, HopEofException, SocketTimeoutException {
+      throws HopFileException, SocketTimeoutException {
     try {
       // Is the value NULL?
       if (inputStream.readBoolean()) {
@@ -676,7 +667,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
           return readSmallInteger(inputStream); // just an index: 4-bytes should be enough.
 
         default:
-          throw new HopFileException(toString() + CONST_UNKNOWN_TYPE + getStorageType());
+          throw new HopFileException(this + CONST_UNKNOWN_TYPE + getStorageType());
       }
     } catch (EOFException e) {
       throw new HopEofException(e);
@@ -684,7 +675,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
       throw e;
     } catch (IOException e) {
       throw new HopFileException(
-          toString() + " : Unable to read value timestamp data from input stream", e);
+          this + " : Unable to read value timestamp data from input stream", e);
     }
   }
 

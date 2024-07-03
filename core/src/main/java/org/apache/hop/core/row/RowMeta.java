@@ -769,7 +769,7 @@ public class RowMeta implements IRowMeta {
       throw new HopEofException(
           "End of file while reading the number of metadata values in the row metadata", e);
     } catch (IOException e) {
-      throw new HopFileException("Unable to read nr of metadata values: " + e.toString(), e);
+      throw new HopFileException("Unable to read nr of metadata values: " + e, e);
     }
 
     for (int i = 0; i < nr; i++) {
@@ -781,8 +781,7 @@ public class RowMeta implements IRowMeta {
       } catch (EOFException e) {
         throw new HopEofException(e);
       } catch (Exception e) {
-        throw new HopFileException(
-            toString() + " : Unable to read row metadata from input stream", e);
+        throw new HopFileException(this + " : Unable to read row metadata from input stream", e);
       }
     }
   }
@@ -805,7 +804,7 @@ public class RowMeta implements IRowMeta {
           throw e;
         } catch (IOException e) {
           throw new HopFileException(
-              toString() + " : Unable to read the marker flag data from input stream", e);
+              this + " : Unable to read the marker flag data from input stream", e);
         }
       }
       return data;

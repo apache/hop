@@ -157,9 +157,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
       case IValueMeta.TYPE_BOOLEAN:
         retval += "CHAR(1)";
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_INTEGER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_BIGNUMBER:
         if (fieldname.equalsIgnoreCase(tk)
             || // Technical key
             fieldname.equalsIgnoreCase(pk) // Primary key

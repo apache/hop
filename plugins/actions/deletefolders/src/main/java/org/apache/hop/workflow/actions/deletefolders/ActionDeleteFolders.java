@@ -256,11 +256,9 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    boolean retval = false;
-    if ((nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrErrors >= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrErrors >= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
     return retval;
   }
 
@@ -269,14 +267,11 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
   }
 
   private boolean getSuccessStatus() {
-    boolean retval = false;
-
-    if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrSuccess >= nrLimitFolders
-            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED))
-        || (nrErrors <= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrSuccess >= nrLimitFolders
+                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FOLDERS_DELETED))
+            || (nrErrors <= nrLimitFolders && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
 
     return retval;
   }

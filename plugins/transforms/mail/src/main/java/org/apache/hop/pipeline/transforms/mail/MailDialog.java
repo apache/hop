@@ -221,7 +221,7 @@ public class MailDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "MailDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);

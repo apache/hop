@@ -18,9 +18,8 @@
 package org.apache.hop.pipeline.transforms.calculator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertTrue;
 
 import org.apache.hop.metadata.serializer.xml.XmlMetadataUtil;
 import org.junit.Test;
@@ -33,12 +32,12 @@ public class CalculatorMetaFunctionTest {
     CalculatorMetaFunction meta2 = (CalculatorMetaFunction) meta1.clone();
     assertNotSame(meta1, meta2);
 
-    assertFalse(meta1.equals(null));
-    assertFalse(meta1.equals(new Object()));
-    assertTrue(meta1.equals(meta2));
+    assertNotEquals(null, meta1);
+    assertNotEquals(meta1, new Object());
+    assertEquals(meta1, meta2);
 
     meta2.setCalcType(CalculatorMetaFunction.CalculationType.ADD_DAYS);
-    assertFalse(meta1.equals(meta2));
+    assertNotEquals(meta1, meta2);
   }
 
   @Test

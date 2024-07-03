@@ -81,7 +81,7 @@ public class PipelineLogEditor extends MetadataEditor<PipelineLog> {
     PropsUi props = PropsUi.getInstance();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());

@@ -18,9 +18,9 @@
 package org.apache.hop.server;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -233,7 +233,7 @@ public class HopServerTest {
   }
 
   @Test
-  public void testAddCredentials() throws IOException, ClassNotFoundException {
+  public void testAddCredentials() {
     String testUser = "test_username";
     hopServer.setUsername(testUser);
     String testPassword = "test_password";
@@ -293,18 +293,18 @@ public class HopServerTest {
 
     hopServer2.verifyAndModifyHopServerName(list, null);
 
-    assertTrue(!hopServer.getName().equals(hopServer2.getName()));
+    assertFalse(hopServer.getName().equals(hopServer2.getName()));
   }
 
   @Test
-  public void testEqualsHashCodeConsistency() throws Exception {
+  public void testEqualsHashCodeConsistency() {
     HopServer server = new HopServer();
     server.setName("server");
     TestUtils.checkEqualsHashCodeConsistency(server, server);
 
     HopServer serverSame = new HopServer();
     serverSame.setName("server");
-    assertTrue(server.equals(serverSame));
+    assertEquals(server, serverSame);
     TestUtils.checkEqualsHashCodeConsistency(server, serverSame);
 
     HopServer serverCaps = new HopServer();

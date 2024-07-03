@@ -18,7 +18,7 @@
 package org.apache.hop.www;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,9 +68,9 @@ public class HopServerPipelineStatusTest {
         "There should be one \"log_date\" node in the XML",
         1,
         XmlHandler.countNodes(newPipelineStatus, "log_date"));
-    assertTrue(
+    assertFalse(
         "The \"log_date\" node should have a null value",
-        !Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")));
+        Utils.isEmpty(XmlHandler.getTagValue(newPipelineStatus, "log_date")));
   }
 
   @Test

@@ -101,17 +101,12 @@ public class ExecInfoMeta extends BaseTransformMeta<ExecInfo, ExecInfoData> {
     }
 
     switch (operationType) {
-      case GetExecutionIds:
-      case FindChildIds:
-      case FindParentId:
+      case GetExecutionIds, FindChildIds, FindParentId:
         // The output is a single execution ID field
         //
         inputRowMeta.addRowMeta(new RowMetaBuilder().addString("id").build());
         return;
-      case GetExecutionAndState:
-      case FindPreviousSuccessfulExecution:
-      case FindLastExecution:
-      case FindExecutions:
+      case GetExecutionAndState, FindPreviousSuccessfulExecution, FindLastExecution, FindExecutions:
         inputRowMeta.addRowMeta(
             new RowMetaBuilder()
                 .addString("executionId")

@@ -103,8 +103,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
             return (GenericRecord) object;
           default:
             throw new HopValueException(
-                "Only normal storage type is supported for the Avro GenericRecord value : "
-                    + toString());
+                "Only normal storage type is supported for the Avro GenericRecord value : " + this);
         }
       case TYPE_STRING:
         switch (storageType) {
@@ -119,12 +118,11 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
             }
           default:
             throw new HopValueException(
-                "Only normal storage type is supported for Avro GenericRecord value : "
-                    + toString());
+                "Only normal storage type is supported for Avro GenericRecord value : " + this);
         }
       default:
         throw new HopValueException(
-            "Unable to convert data type " + toString() + " to an Avro GenericRecord value");
+            "Unable to convert data type " + this + " to an Avro GenericRecord value");
     }
   }
 
@@ -195,7 +193,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
+                  this + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           if (string != null) {
             string = trim(string);
@@ -204,25 +202,23 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
 
         case TYPE_DATE:
           throw new HopValueException(
-              "You can't convert a Date to an Avro GenericRecord data type for : " + toString());
+              "You can't convert a Date to an Avro GenericRecord data type for : " + this);
 
         case TYPE_NUMBER:
           throw new HopValueException(
-              "You can't convert a Number to an Avro GenericRecord data type for : " + toString());
+              "You can't convert a Number to an Avro GenericRecord data type for : " + this);
 
         case TYPE_INTEGER:
           throw new HopValueException(
-              "You can't convert an Integer to an Avro GenericRecord data type for : "
-                  + toString());
+              "You can't convert an Integer to an Avro GenericRecord data type for : " + this);
 
         case TYPE_BIGNUMBER:
           throw new HopValueException(
-              "You can't convert a BigNumber to an Avro GenericRecord data type for : "
-                  + toString());
+              "You can't convert a BigNumber to an Avro GenericRecord data type for : " + this);
 
         case TYPE_BOOLEAN:
           throw new HopValueException(
-              "You can't convert a Boolean to an Avro GenericRecord data type for : " + toString());
+              "You can't convert a Boolean to an Avro GenericRecord data type for : " + this);
 
         case TYPE_BINARY:
           switch (storageType) {
@@ -240,7 +236,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
+                  this + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           break;
 
@@ -257,7 +253,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break; // just go for the default toString()
             default:
               throw new HopValueException(
-                  toString() + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
+                  this + CONST_UNKNOWN_STORAGE_TYPE + storageType + CONST_SPECIFIED);
           }
           break;
 
@@ -268,16 +264,12 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
               break;
             default:
               throw new HopValueException(
-                  toString()
-                      + " : Unsupported storage type "
-                      + getStorageTypeDesc()
-                      + " for "
-                      + toString());
+                  this + " : Unsupported storage type " + getStorageTypeDesc() + " for " + this);
           }
           break;
 
         default:
-          throw new HopValueException(toString() + " : Unknown type " + type + CONST_SPECIFIED);
+          throw new HopValueException(this + " : Unknown type " + type + CONST_SPECIFIED);
       }
 
       if (isOutputPaddingEnabled() && getLength() > 0) {
@@ -287,7 +279,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
       return string;
     } catch (ClassCastException e) {
       throw new HopValueException(
-          toString()
+          this
               + " : There was a data type error: the data type of "
               + object.getClass().getName()
               + " object ["
@@ -467,7 +459,7 @@ public class ValueMetaAvroRecord extends ValueMetaBase implements IValueMeta {
     } catch (SocketTimeoutException e) {
       throw e;
     } catch (IOException e) {
-      throw new HopFileException(toString() + " : Unable to read value data from input stream", e);
+      throw new HopFileException(this + " : Unable to read value data from input stream", e);
     }
   }
 

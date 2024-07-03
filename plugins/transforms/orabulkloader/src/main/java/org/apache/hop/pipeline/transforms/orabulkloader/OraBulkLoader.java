@@ -275,9 +275,7 @@ public class OraBulkLoader extends BaseTransform<OraBulkLoaderMeta, OraBulkLoade
             contents.append(" CHAR");
           }
           break;
-        case IValueMeta.TYPE_INTEGER:
-        case IValueMeta.TYPE_NUMBER:
-        case IValueMeta.TYPE_BIGNUMBER:
+        case IValueMeta.TYPE_INTEGER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
           break;
         case IValueMeta.TYPE_DATE:
           if (OraBulkLoaderMeta.DATE_MASK_DATE.equals(mapping.getDateMask())) {

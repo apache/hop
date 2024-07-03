@@ -219,7 +219,7 @@ public class ScriptValuesDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

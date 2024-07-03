@@ -52,15 +52,13 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
 
   private Object[] getSystemData(IRowMeta inputRowMeta, Object[] inputRowData) throws HopException {
     Object[] row = new Object[data.outputRowMeta.size()];
-    for (int i = 0; i < inputRowMeta.size(); i++) {
-      row[i] = inputRowData[i]; // no data is changed, clone is not needed here.
-    }
+    // no data is changed, clone is not needed here.
+    if (inputRowMeta.size() >= 0) System.arraycopy(inputRowData, 0, row, 0, inputRowMeta.size());
     for (int i = 0, index = inputRowMeta.size(); i < meta.getFieldName().length; i++, index++) {
       Calendar cal;
 
       switch (meta.getFieldType()[i]) {
-        case TYPE_SYSTEM_INFO_SYSTEM_START:
-        case TYPE_SYSTEM_INFO_PIPELINE_DATE_TO:
+        case TYPE_SYSTEM_INFO_SYSTEM_START, TYPE_SYSTEM_INFO_PIPELINE_DATE_TO:
           row[index] = getPipeline().getExecutionStartDate();
           break;
         case TYPE_SYSTEM_INFO_SYSTEM_DATE:
@@ -434,7 +432,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
           break;
         case TYPE_SYSTEM_INFO_THIS_QUARTER_START:
           cal = Calendar.getInstance();
-          cal.add(Calendar.MONTH, 0 - (cal.get(Calendar.MONTH) % 3));
+          cal.add(Calendar.MONTH, -(cal.get(Calendar.MONTH) % 3));
           cal.set(Calendar.DAY_OF_MONTH, 1);
           cal.set(Calendar.HOUR_OF_DAY, 0);
           cal.set(Calendar.MINUTE, 0);
@@ -761,7 +759,7 @@ public class SystemData extends BaseTransform<SystemDataMeta, SystemDataData> {
 
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && previous.size() > 0) {
+      if (previous != null && !previous.isEmpty()) {
         data.readsRows = true;
       }
 

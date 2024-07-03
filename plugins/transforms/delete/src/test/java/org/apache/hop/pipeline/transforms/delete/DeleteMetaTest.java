@@ -17,7 +17,7 @@
 
 package org.apache.hop.pipeline.transforms.delete;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
@@ -175,13 +175,13 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
   @Test
   public void testCommitCountFixed() {
     meta.setCommitSize("100");
-    assertTrue(meta.getCommitSize(del) == 100);
+    assertEquals(100, meta.getCommitSize(del));
   }
 
   @Test
   public void testCommitCountVar() {
     meta.setCommitSize("${max.sz}");
-    assertTrue(meta.getCommitSize(del) == 10);
+    assertEquals(10, meta.getCommitSize(del));
   }
 
   @Test
@@ -200,12 +200,8 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public DeleteLookupField getTestObject() {
-
-      DeleteLookupField field =
-          new DeleteLookupField(
-              UUID.randomUUID().toString(), UUID.randomUUID().toString(), new ArrayList<>());
-
-      return field;
+      return new DeleteLookupField(
+          UUID.randomUUID().toString(), UUID.randomUUID().toString(), new ArrayList<>());
     }
 
     @Override
@@ -228,15 +224,11 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public DeleteKeyField getTestObject() {
-
-      DeleteKeyField field =
-          new DeleteKeyField(
-              UUID.randomUUID().toString(),
-              "=",
-              UUID.randomUUID().toString(),
-              UUID.randomUUID().toString());
-
-      return field;
+      return new DeleteKeyField(
+          UUID.randomUUID().toString(),
+          "=",
+          UUID.randomUUID().toString(),
+          UUID.randomUUID().toString());
     }
 
     @Override

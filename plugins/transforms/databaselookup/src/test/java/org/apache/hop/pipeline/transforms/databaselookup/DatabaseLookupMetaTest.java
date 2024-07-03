@@ -18,8 +18,8 @@
 package org.apache.hop.pipeline.transforms.databaselookup;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
@@ -153,7 +153,7 @@ public class DatabaseLookupMetaTest {
     lookup.setSchemaName("SCHEMA");
     lookup.setTableName("TABLE");
     DatabaseLookupMeta meta2 = meta.clone();
-    assertFalse(meta2 == meta);
+    assertNotSame(meta2, meta);
     Lookup lookup2 = meta2.getLookup();
 
     assertEquals(meta.getSchemaName(), meta2.getSchemaName());

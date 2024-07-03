@@ -85,7 +85,7 @@ public class SetValueFieldDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "SetValueFieldDialog.Shell.Label"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the buttons
     //

@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -35,7 +36,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -62,19 +62,13 @@ public class SqsReaderDialog extends BaseTransformDialog {
    * localized keys is expected to reside in {the package of the class
    * specified}/messages/messages_{locale}.properties
    */
-  private static Class<?> PKG = SqsReaderMeta.class; // for i18n purposes
+  private static final Class<?> PKG = SqsReaderMeta.class; // for i18n purposes
 
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
   // the dialog writes the settings to it when confirmed
   private SqsReaderMeta meta;
 
-  // text field holding the name of the field to add to the row stream
-  private CTabFolder tabFolder;
-  private CTabItem tbtmSettings;
-  private ScrolledComposite scrlSettingsComp;
-  private Composite settingsComp;
-  private Label lblAWSCredChain;
   private ComboVar tAWSCredChain;
   private Label lblAWSKey;
   private TextVar tAWSKey;
@@ -82,27 +76,13 @@ public class SqsReaderDialog extends BaseTransformDialog {
   private PasswordTextVar tAWSKeySecret;
   private Label lblAWSRegion;
   private ComboVar tAWSRegion;
-  private CTabItem tbtmReaderOutput;
-  private ScrolledComposite scrlreaderOutputComp;
-  private Composite readerOutputComp;
-  private Label lblMessageID;
   private TextVar tMessageID;
-  private Label lblMessageBody;
   private TextVar tMessageBody;
-  private Label lblReceiptHandle;
   private TextVar tReceiptHandle;
-  private Label lblBodyMD5;
   private TextVar tBodyMD5;
-  private Label lblMessageDelete;
   private ComboVar tMessageDelete;
-  private Label lblSQSQueue;
   private TextVar tSQSQueue;
-  private Label lblDevInfo;
-  private Group grpOutputField;
-  private Group grpOutputSettings;
-  private Label lblMaxMessages;
   private TextVar tMaxMessages;
-  private Label lblSNSMessage;
   private TextVar tSNSMessage;
 
   /**
@@ -141,7 +121,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, meta);
 
     // Save the value of the changed flag on the meta object. If the user cancels
@@ -151,12 +131,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
     // The ModifyListener used on all controls. It will update the meta object to
     // indicate that changes are being made.
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            meta.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> meta.setChanged();
 
     // ------------------------------------------------------- //
     // SWT code for building the actual settings dialog        //
@@ -174,7 +149,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
     // transformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -183,7 +158,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -196,29 +171,31 @@ public class SqsReaderDialog extends BaseTransformDialog {
     // ------------------------------------------------------- //
 
     // TABS - ANFANG
-    tabFolder = new CTabFolder(shell, SWT.BORDER);
-    FormData fd_tabFolder = new FormData();
-    fd_tabFolder.right = new FormAttachment(100, 0);
-    fd_tabFolder.top = new FormAttachment(wTransformName, margin);
-    fd_tabFolder.left = new FormAttachment(0, 0);
-    fd_tabFolder.bottom = new FormAttachment(100, -50);
-    tabFolder.setLayoutData(fd_tabFolder);
-    props.setLook(tabFolder);
+    // text field holding the name of the field to add to the row stream
+    CTabFolder tabFolder = new CTabFolder(shell, SWT.BORDER);
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
+    tabFolder.setLayoutData(fdTabFolder);
+    PropsUi.setLook(tabFolder);
 
     // ------------------------------------------------------- //
     // - TAB Settings START //
     // ------------------------------------------------------- //
 
     // Settings-TAB - ANFANG
-    tbtmSettings = new CTabItem(tabFolder, SWT.NONE);
+    CTabItem tbtmSettings = new CTabItem(tabFolder, SWT.NONE);
     tbtmSettings.setText(BaseMessages.getString(PKG, "SQSReaderTransform.Settings.Title"));
 
-    scrlSettingsComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite scrlSettingsComp =
+        new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     scrlSettingsComp.setLayout(new FillLayout());
-    props.setLook(scrlSettingsComp);
+    PropsUi.setLook(scrlSettingsComp);
 
-    settingsComp = new Composite(scrlSettingsComp, SWT.NONE);
-    props.setLook(settingsComp);
+    Composite settingsComp = new Composite(scrlSettingsComp, SWT.NONE);
+    PropsUi.setLook(settingsComp);
 
     FormLayout settingsLayout = new FormLayout();
     settingsLayout.marginWidth = 3;
@@ -227,115 +204,108 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
     // Use AWS Credentials Provider Chain
     // Credentials Chain
-    lblAWSCredChain = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSCredChain);
-    FormData fd_lblAWSCredChain = new FormData();
-    fd_lblAWSCredChain.left = new FormAttachment(0, 0);
-    fd_lblAWSCredChain.top = new FormAttachment(0, margin);
-    fd_lblAWSCredChain.right = new FormAttachment(middle, -margin);
-    lblAWSCredChain.setLayoutData(fd_lblAWSCredChain);
+    Label lblAWSCredChain = new Label(settingsComp, SWT.RIGHT);
+    PropsUi.setLook(lblAWSCredChain);
+    FormData fdLblAWSCredChain = new FormData();
+    fdLblAWSCredChain.left = new FormAttachment(0, 0);
+    fdLblAWSCredChain.top = new FormAttachment(0, margin);
+    fdLblAWSCredChain.right = new FormAttachment(middle, -margin);
+    lblAWSCredChain.setLayoutData(fdLblAWSCredChain);
     lblAWSCredChain.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSCredChain.Label"));
 
     tAWSCredChain = new ComboVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSCredChain);
-    FormData fd_tAWSCredChain = new FormData();
-    fd_tAWSCredChain.top = new FormAttachment(0, margin);
-    fd_tAWSCredChain.left = new FormAttachment(middle, 0);
-    fd_tAWSCredChain.right = new FormAttachment(100, 0);
-    tAWSCredChain.setLayoutData(fd_tAWSCredChain);
+    PropsUi.setLook(tAWSCredChain);
+    FormData fdTAWSCredChain = new FormData();
+    fdTAWSCredChain.top = new FormAttachment(0, margin);
+    fdTAWSCredChain.left = new FormAttachment(middle, 0);
+    fdTAWSCredChain.right = new FormAttachment(100, 0);
+    tAWSCredChain.setLayoutData(fdTAWSCredChain);
     tAWSCredChain.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSCredChain.Tooltip"));
-    tAWSCredChain.addModifyListener(
-        new ModifyListener() {
-
-          @Override
-          public void modifyText(ModifyEvent arg0) {
-            changeCredentialChainSelection();
-          }
-        });
+    tAWSCredChain.addModifyListener(arg0 -> changeCredentialChainSelection());
 
     // AWS Key
     lblAWSKey = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSKey);
-    FormData fd_lblAWSKey = new FormData();
-    fd_lblAWSKey.left = new FormAttachment(0, 0);
-    fd_lblAWSKey.top = new FormAttachment(tAWSCredChain, margin);
-    fd_lblAWSKey.right = new FormAttachment(middle, -margin);
-    lblAWSKey.setLayoutData(fd_lblAWSKey);
+    PropsUi.setLook(lblAWSKey);
+    FormData fdLblAWSKey = new FormData();
+    fdLblAWSKey.left = new FormAttachment(0, 0);
+    fdLblAWSKey.top = new FormAttachment(tAWSCredChain, margin);
+    fdLblAWSKey.right = new FormAttachment(middle, -margin);
+    lblAWSKey.setLayoutData(fdLblAWSKey);
     lblAWSKey.setText(BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSKey.Label"));
 
     tAWSKey = new TextVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSKey);
-    FormData fd_tAWSKey = new FormData();
-    fd_tAWSKey.top = new FormAttachment(tAWSCredChain, margin);
-    fd_tAWSKey.left = new FormAttachment(middle, 0);
-    fd_tAWSKey.right = new FormAttachment(100, 0);
-    tAWSKey.setLayoutData(fd_tAWSKey);
+    PropsUi.setLook(tAWSKey);
+    FormData fdTAWSKey = new FormData();
+    fdTAWSKey.top = new FormAttachment(tAWSCredChain, margin);
+    fdTAWSKey.left = new FormAttachment(middle, 0);
+    fdTAWSKey.right = new FormAttachment(100, 0);
+    tAWSKey.setLayoutData(fdTAWSKey);
     tAWSKey.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSKey.Tooltip"));
 
     // AWS Key Secret
     lblAWSKeySecret = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSKeySecret);
-    FormData fd_lblAWSKeySecret = new FormData();
-    fd_lblAWSKeySecret.left = new FormAttachment(0, 0);
-    fd_lblAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
-    fd_lblAWSKeySecret.right = new FormAttachment(middle, -margin);
-    lblAWSKeySecret.setLayoutData(fd_lblAWSKeySecret);
+    PropsUi.setLook(lblAWSKeySecret);
+    FormData fdLblAWSKeySecret = new FormData();
+    fdLblAWSKeySecret.left = new FormAttachment(0, 0);
+    fdLblAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
+    fdLblAWSKeySecret.right = new FormAttachment(middle, -margin);
+    lblAWSKeySecret.setLayoutData(fdLblAWSKeySecret);
     lblAWSKeySecret.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSKeySecret.Label"));
 
     tAWSKeySecret =
         new PasswordTextVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSKeySecret);
-    FormData fd_tAWSKeySecret = new FormData();
-    fd_tAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
-    fd_tAWSKeySecret.left = new FormAttachment(middle, 0);
-    fd_tAWSKeySecret.right = new FormAttachment(100, 0);
-    tAWSKeySecret.setLayoutData(fd_tAWSKeySecret);
+    PropsUi.setLook(tAWSKeySecret);
+    FormData fdTAWSKeySecret = new FormData();
+    fdTAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
+    fdTAWSKeySecret.left = new FormAttachment(middle, 0);
+    fdTAWSKeySecret.right = new FormAttachment(100, 0);
+    tAWSKeySecret.setLayoutData(fdTAWSKeySecret);
     tAWSKeySecret.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSKeySecret.Tooltip"));
 
     // AWS Region
     lblAWSRegion = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSRegion);
-    FormData fd_lblAWSRegion = new FormData();
-    fd_lblAWSRegion.left = new FormAttachment(0, 0);
-    fd_lblAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
-    fd_lblAWSRegion.right = new FormAttachment(middle, -margin);
-    lblAWSRegion.setLayoutData(fd_lblAWSRegion);
+    PropsUi.setLook(lblAWSRegion);
+    FormData fdLblAWSRegion = new FormData();
+    fdLblAWSRegion.left = new FormAttachment(0, 0);
+    fdLblAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
+    fdLblAWSRegion.right = new FormAttachment(middle, -margin);
+    lblAWSRegion.setLayoutData(fdLblAWSRegion);
     lblAWSRegion.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSRegion.Label"));
 
     tAWSRegion = new ComboVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSRegion);
-    FormData fd_tAWSRegion = new FormData();
-    fd_tAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
-    fd_tAWSRegion.left = new FormAttachment(middle, 0);
-    fd_tAWSRegion.right = new FormAttachment(100, 0);
-    tAWSRegion.setLayoutData(fd_tAWSRegion);
+    PropsUi.setLook(tAWSRegion);
+    FormData fdTAWSRegion = new FormData();
+    fdTAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
+    fdTAWSRegion.left = new FormAttachment(middle, 0);
+    fdTAWSRegion.right = new FormAttachment(100, 0);
+    tAWSRegion.setLayoutData(fdTAWSRegion);
     tAWSRegion.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.AWSRegion.Tooltip"));
     populateAWSRegion(tAWSRegion);
 
     // SQS Queue
-    lblSQSQueue = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblSQSQueue);
-    FormData fd_lblSQSQueue = new FormData();
-    fd_lblSQSQueue.left = new FormAttachment(0, 0);
-    fd_lblSQSQueue.top = new FormAttachment(tAWSRegion, margin);
-    fd_lblSQSQueue.right = new FormAttachment(middle, -margin);
-    lblSQSQueue.setLayoutData(fd_lblSQSQueue);
+    Label lblSQSQueue = new Label(settingsComp, SWT.RIGHT);
+    PropsUi.setLook(lblSQSQueue);
+    FormData fdLblSQSQueue = new FormData();
+    fdLblSQSQueue.left = new FormAttachment(0, 0);
+    fdLblSQSQueue.top = new FormAttachment(tAWSRegion, margin);
+    fdLblSQSQueue.right = new FormAttachment(middle, -margin);
+    lblSQSQueue.setLayoutData(fdLblSQSQueue);
     lblSQSQueue.setText(BaseMessages.getString(PKG, "SQSReaderTransform.Settings.SQSQueue.Label"));
 
     tSQSQueue = new TextVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tSQSQueue);
-    FormData fd_tSQSQueue = new FormData();
-    fd_tSQSQueue.top = new FormAttachment(tAWSRegion, margin);
-    fd_tSQSQueue.left = new FormAttachment(middle, 0);
-    fd_tSQSQueue.right = new FormAttachment(100, 0);
-    tSQSQueue.setLayoutData(fd_tSQSQueue);
+    PropsUi.setLook(tSQSQueue);
+    FormData fdTSQSQueue = new FormData();
+    fdTSQSQueue.top = new FormAttachment(tAWSRegion, margin);
+    fdTSQSQueue.left = new FormAttachment(middle, 0);
+    fdTSQSQueue.right = new FormAttachment(100, 0);
+    tSQSQueue.setLayoutData(fdTSQSQueue);
     tSQSQueue.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.Settings.SQSQueue.Tooltip"));
 
@@ -357,35 +327,36 @@ public class SqsReaderDialog extends BaseTransformDialog {
     // ------------------------------------------------------- //
 
     // Output-TAB - ANFANG
-    tbtmReaderOutput = new CTabItem(tabFolder, SWT.NONE);
+    CTabItem tbtmReaderOutput = new CTabItem(tabFolder, SWT.NONE);
     tbtmReaderOutput.setText(BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.Title"));
 
-    scrlreaderOutputComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite scrlreaderOutputComp =
+        new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     scrlreaderOutputComp.setLayout(new FillLayout());
-    props.setLook(scrlreaderOutputComp);
+    PropsUi.setLook(scrlreaderOutputComp);
 
-    readerOutputComp = new Composite(scrlreaderOutputComp, SWT.NONE);
-    props.setLook(readerOutputComp);
+    Composite readerOutputComp = new Composite(scrlreaderOutputComp, SWT.NONE);
+    PropsUi.setLook(readerOutputComp);
 
-    FormLayout ReaderOutputLayout = new FormLayout();
-    ReaderOutputLayout.marginWidth = 3;
-    ReaderOutputLayout.marginHeight = 3;
-    readerOutputComp.setLayout(ReaderOutputLayout);
+    FormLayout readerOutputLayout = new FormLayout();
+    readerOutputLayout.marginWidth = 3;
+    readerOutputLayout.marginHeight = 3;
+    readerOutputComp.setLayout(readerOutputLayout);
 
     // ------------------------------------------------------- //
     // --- GROUP Output Settings START //
     // ------------------------------------------------------- //
 
-    grpOutputSettings = new Group(readerOutputComp, SWT.SHADOW_NONE);
-    props.setLook(grpOutputSettings);
+    Group grpOutputSettings = new Group(readerOutputComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(grpOutputSettings);
     grpOutputSettings.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.OutputSettings.GroupTitle"));
-    FormData fd_grpOutputSettings = new FormData();
-    fd_grpOutputSettings.top = new FormAttachment(0, margin);
-    fd_grpOutputSettings.left = new FormAttachment(0, margin);
-    fd_grpOutputSettings.right = new FormAttachment(100, -margin);
-    fd_grpOutputSettings.bottom = new FormAttachment(40, -margin);
-    grpOutputSettings.setLayoutData(fd_grpOutputSettings);
+    FormData fdGrpOutputSettings = new FormData();
+    fdGrpOutputSettings.top = new FormAttachment(0, margin);
+    fdGrpOutputSettings.left = new FormAttachment(0, margin);
+    fdGrpOutputSettings.right = new FormAttachment(100, -margin);
+    fdGrpOutputSettings.bottom = new FormAttachment(40, -margin);
+    grpOutputSettings.setLayoutData(fdGrpOutputSettings);
 
     FormLayout outputSettingsLayout = new FormLayout();
     outputSettingsLayout.marginWidth = 10;
@@ -394,44 +365,44 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
     // FELDER
     // Message Deletion
-    lblMessageDelete = new Label(grpOutputSettings, SWT.RIGHT);
-    props.setLook(lblMessageDelete);
-    FormData fd_lblMessageDelete = new FormData();
-    fd_lblMessageDelete.left = new FormAttachment(0, 0);
-    fd_lblMessageDelete.top = new FormAttachment(0, margin);
-    fd_lblMessageDelete.right = new FormAttachment(middle, -margin);
-    lblMessageDelete.setLayoutData(fd_lblMessageDelete);
+    Label lblMessageDelete = new Label(grpOutputSettings, SWT.RIGHT);
+    PropsUi.setLook(lblMessageDelete);
+    FormData fdLblMessageDelete = new FormData();
+    fdLblMessageDelete.left = new FormAttachment(0, 0);
+    fdLblMessageDelete.top = new FormAttachment(0, margin);
+    fdLblMessageDelete.right = new FormAttachment(middle, -margin);
+    lblMessageDelete.setLayoutData(fdLblMessageDelete);
     lblMessageDelete.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MessageDelete.Label"));
 
     tMessageDelete = new ComboVar(variables, grpOutputSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tMessageDelete);
-    FormData fd_tMessageDelete = new FormData();
-    fd_tMessageDelete.top = new FormAttachment(0, margin);
-    fd_tMessageDelete.left = new FormAttachment(middle, 0);
-    fd_tMessageDelete.right = new FormAttachment(100, 0);
-    tMessageDelete.setLayoutData(fd_tMessageDelete);
+    PropsUi.setLook(tMessageDelete);
+    FormData fdTMessageDelete = new FormData();
+    fdTMessageDelete.top = new FormAttachment(0, margin);
+    fdTMessageDelete.left = new FormAttachment(middle, 0);
+    fdTMessageDelete.right = new FormAttachment(100, 0);
+    tMessageDelete.setLayoutData(fdTMessageDelete);
     tMessageDelete.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MessageDelete.Tooltip"));
 
     // Max Messages
-    lblMaxMessages = new Label(grpOutputSettings, SWT.RIGHT);
-    props.setLook(lblMaxMessages);
-    FormData fd_lblMaxMessages = new FormData();
-    fd_lblMaxMessages.left = new FormAttachment(0, 0);
-    fd_lblMaxMessages.top = new FormAttachment(tMessageDelete, margin);
-    fd_lblMaxMessages.right = new FormAttachment(middle, -margin);
-    lblMaxMessages.setLayoutData(fd_lblMaxMessages);
+    Label lblMaxMessages = new Label(grpOutputSettings, SWT.RIGHT);
+    PropsUi.setLook(lblMaxMessages);
+    FormData fdLblMaxMessages = new FormData();
+    fdLblMaxMessages.left = new FormAttachment(0, 0);
+    fdLblMaxMessages.top = new FormAttachment(tMessageDelete, margin);
+    fdLblMaxMessages.right = new FormAttachment(middle, -margin);
+    lblMaxMessages.setLayoutData(fdLblMaxMessages);
     lblMaxMessages.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MaxMessages.Label"));
 
     tMaxMessages = new TextVar(variables, grpOutputSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tMaxMessages);
-    FormData fd_tMaxMessages = new FormData();
-    fd_tMaxMessages.top = new FormAttachment(tMessageDelete, margin);
-    fd_tMaxMessages.left = new FormAttachment(middle, 0);
-    fd_tMaxMessages.right = new FormAttachment(100, 0);
-    tMaxMessages.setLayoutData(fd_tMaxMessages);
+    PropsUi.setLook(tMaxMessages);
+    FormData fdTMaxMessages = new FormData();
+    fdTMaxMessages.top = new FormAttachment(tMessageDelete, margin);
+    fdTMaxMessages.left = new FormAttachment(middle, 0);
+    fdTMaxMessages.right = new FormAttachment(100, 0);
+    tMaxMessages.setLayoutData(fdTMaxMessages);
     tMaxMessages.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MaxMessages.Tooltip"));
 
@@ -442,16 +413,16 @@ public class SqsReaderDialog extends BaseTransformDialog {
     // --- GROUP Output Fields START //
     // ------------------------------------------------------- //
 
-    grpOutputField = new Group(readerOutputComp, SWT.SHADOW_NONE);
-    props.setLook(grpOutputField);
+    Group grpOutputField = new Group(readerOutputComp, SWT.SHADOW_NONE);
+    PropsUi.setLook(grpOutputField);
     grpOutputField.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.OutputFields.GroupTitle"));
-    FormData fd_grpOutputField = new FormData();
-    fd_grpOutputField.top = new FormAttachment(40, margin);
-    fd_grpOutputField.left = new FormAttachment(0, margin);
-    fd_grpOutputField.right = new FormAttachment(100, -margin);
-    fd_grpOutputField.bottom = new FormAttachment(100, -margin);
-    grpOutputField.setLayoutData(fd_grpOutputField);
+    FormData fdGrpOutputField = new FormData();
+    fdGrpOutputField.top = new FormAttachment(40, margin);
+    fdGrpOutputField.left = new FormAttachment(0, margin);
+    fdGrpOutputField.right = new FormAttachment(100, -margin);
+    fdGrpOutputField.bottom = new FormAttachment(100, -margin);
+    grpOutputField.setLayoutData(fdGrpOutputField);
 
     FormLayout outputFieldsLayout = new FormLayout();
     outputFieldsLayout.marginWidth = 10;
@@ -460,107 +431,107 @@ public class SqsReaderDialog extends BaseTransformDialog {
 
     // FELDER
     // MessageID
-    lblMessageID = new Label(grpOutputField, SWT.RIGHT);
-    props.setLook(lblMessageID);
-    FormData fd_lblMessageID = new FormData();
-    fd_lblMessageID.left = new FormAttachment(0, 0);
-    fd_lblMessageID.top = new FormAttachment(0, margin);
-    fd_lblMessageID.right = new FormAttachment(middle, -margin);
-    lblMessageID.setLayoutData(fd_lblMessageID);
+    Label lblMessageID = new Label(grpOutputField, SWT.RIGHT);
+    PropsUi.setLook(lblMessageID);
+    FormData fdLblMessageID = new FormData();
+    fdLblMessageID.left = new FormAttachment(0, 0);
+    fdLblMessageID.top = new FormAttachment(0, margin);
+    fdLblMessageID.right = new FormAttachment(middle, -margin);
+    lblMessageID.setLayoutData(fdLblMessageID);
     lblMessageID.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MessageID.Label"));
 
     tMessageID = new TextVar(variables, grpOutputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tMessageID);
-    FormData fd_tMessageID = new FormData();
-    fd_tMessageID.top = new FormAttachment(0, margin);
-    fd_tMessageID.left = new FormAttachment(middle, 0);
-    fd_tMessageID.right = new FormAttachment(100, 0);
-    tMessageID.setLayoutData(fd_tMessageID);
+    PropsUi.setLook(tMessageID);
+    FormData fdTMessageID = new FormData();
+    fdTMessageID.top = new FormAttachment(0, margin);
+    fdTMessageID.left = new FormAttachment(middle, 0);
+    fdTMessageID.right = new FormAttachment(100, 0);
+    tMessageID.setLayoutData(fdTMessageID);
     tMessageID.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MessageID.Tooltip"));
 
     // MessageBody
-    lblMessageBody = new Label(grpOutputField, SWT.RIGHT);
-    props.setLook(lblMessageBody);
-    FormData fd_lblMessageBody = new FormData();
-    fd_lblMessageBody.left = new FormAttachment(0, 0);
-    fd_lblMessageBody.top = new FormAttachment(tMessageID, margin);
-    fd_lblMessageBody.right = new FormAttachment(middle, -margin);
-    lblMessageBody.setLayoutData(fd_lblMessageBody);
+    Label lblMessageBody = new Label(grpOutputField, SWT.RIGHT);
+    PropsUi.setLook(lblMessageBody);
+    FormData fdLblMessageBody = new FormData();
+    fdLblMessageBody.left = new FormAttachment(0, 0);
+    fdLblMessageBody.top = new FormAttachment(tMessageID, margin);
+    fdLblMessageBody.right = new FormAttachment(middle, -margin);
+    lblMessageBody.setLayoutData(fdLblMessageBody);
     lblMessageBody.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MessageBody.Label"));
 
     tMessageBody = new TextVar(variables, grpOutputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tMessageBody);
-    FormData fd_tMessageBody = new FormData();
-    fd_tMessageBody.top = new FormAttachment(tMessageID, margin);
-    fd_tMessageBody.left = new FormAttachment(middle, 0);
-    fd_tMessageBody.right = new FormAttachment(100, 0);
-    tMessageBody.setLayoutData(fd_tMessageBody);
+    PropsUi.setLook(tMessageBody);
+    FormData fdTMessageBody = new FormData();
+    fdTMessageBody.top = new FormAttachment(tMessageID, margin);
+    fdTMessageBody.left = new FormAttachment(middle, 0);
+    fdTMessageBody.right = new FormAttachment(100, 0);
+    tMessageBody.setLayoutData(fdTMessageBody);
     tMessageBody.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.MessageBody.Tooltip"));
 
     // ReceiptHandle
-    lblReceiptHandle = new Label(grpOutputField, SWT.RIGHT);
-    props.setLook(lblReceiptHandle);
-    FormData fd_lblReceiptHandle = new FormData();
-    fd_lblReceiptHandle.left = new FormAttachment(0, 0);
-    fd_lblReceiptHandle.top = new FormAttachment(tMessageBody, margin);
-    fd_lblReceiptHandle.right = new FormAttachment(middle, -margin);
-    lblReceiptHandle.setLayoutData(fd_lblReceiptHandle);
+    Label lblReceiptHandle = new Label(grpOutputField, SWT.RIGHT);
+    PropsUi.setLook(lblReceiptHandle);
+    FormData fdLblReceiptHandle = new FormData();
+    fdLblReceiptHandle.left = new FormAttachment(0, 0);
+    fdLblReceiptHandle.top = new FormAttachment(tMessageBody, margin);
+    fdLblReceiptHandle.right = new FormAttachment(middle, -margin);
+    lblReceiptHandle.setLayoutData(fdLblReceiptHandle);
     lblReceiptHandle.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.ReceiptHandle.Label"));
 
     tReceiptHandle = new TextVar(variables, grpOutputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tReceiptHandle);
-    FormData fd_tReceiptHandle = new FormData();
-    fd_tReceiptHandle.top = new FormAttachment(tMessageBody, margin);
-    fd_tReceiptHandle.left = new FormAttachment(middle, 0);
-    fd_tReceiptHandle.right = new FormAttachment(100, 0);
-    tReceiptHandle.setLayoutData(fd_tReceiptHandle);
+    PropsUi.setLook(tReceiptHandle);
+    FormData fdTReceiptHandle = new FormData();
+    fdTReceiptHandle.top = new FormAttachment(tMessageBody, margin);
+    fdTReceiptHandle.left = new FormAttachment(middle, 0);
+    fdTReceiptHandle.right = new FormAttachment(100, 0);
+    tReceiptHandle.setLayoutData(fdTReceiptHandle);
     tReceiptHandle.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.ReceiptHandle.Tooltip"));
 
     // BodyMD5
-    lblBodyMD5 = new Label(grpOutputField, SWT.RIGHT);
-    props.setLook(lblBodyMD5);
-    FormData fd_lblBodyMD5 = new FormData();
-    fd_lblBodyMD5.left = new FormAttachment(0, 0);
-    fd_lblBodyMD5.top = new FormAttachment(tReceiptHandle, margin);
-    fd_lblBodyMD5.right = new FormAttachment(middle, -margin);
-    lblBodyMD5.setLayoutData(fd_lblBodyMD5);
+    Label lblBodyMD5 = new Label(grpOutputField, SWT.RIGHT);
+    PropsUi.setLook(lblBodyMD5);
+    FormData fdLblBodyMD5 = new FormData();
+    fdLblBodyMD5.left = new FormAttachment(0, 0);
+    fdLblBodyMD5.top = new FormAttachment(tReceiptHandle, margin);
+    fdLblBodyMD5.right = new FormAttachment(middle, -margin);
+    lblBodyMD5.setLayoutData(fdLblBodyMD5);
     lblBodyMD5.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.BodyMD5.Label"));
 
     tBodyMD5 = new TextVar(variables, grpOutputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tBodyMD5);
-    FormData fd_tBodyMD5 = new FormData();
-    fd_tBodyMD5.top = new FormAttachment(tReceiptHandle, margin);
-    fd_tBodyMD5.left = new FormAttachment(middle, 0);
-    fd_tBodyMD5.right = new FormAttachment(100, 0);
-    tBodyMD5.setLayoutData(fd_tBodyMD5);
+    PropsUi.setLook(tBodyMD5);
+    FormData fdTBodyMD5 = new FormData();
+    fdTBodyMD5.top = new FormAttachment(tReceiptHandle, margin);
+    fdTBodyMD5.left = new FormAttachment(middle, 0);
+    fdTBodyMD5.right = new FormAttachment(100, 0);
+    tBodyMD5.setLayoutData(fdTBodyMD5);
     tBodyMD5.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.BodyMD5.Tooltip"));
 
     // SNSMessage
-    lblSNSMessage = new Label(grpOutputField, SWT.RIGHT);
-    props.setLook(lblSNSMessage);
-    FormData fd_lblSNSMessage = new FormData();
-    fd_lblSNSMessage.left = new FormAttachment(0, 0);
-    fd_lblSNSMessage.top = new FormAttachment(tBodyMD5, margin);
-    fd_lblSNSMessage.right = new FormAttachment(middle, -margin);
-    lblSNSMessage.setLayoutData(fd_lblSNSMessage);
+    Label lblSNSMessage = new Label(grpOutputField, SWT.RIGHT);
+    PropsUi.setLook(lblSNSMessage);
+    FormData fdLblSNSMessage = new FormData();
+    fdLblSNSMessage.left = new FormAttachment(0, 0);
+    fdLblSNSMessage.top = new FormAttachment(tBodyMD5, margin);
+    fdLblSNSMessage.right = new FormAttachment(middle, -margin);
+    lblSNSMessage.setLayoutData(fdLblSNSMessage);
     lblSNSMessage.setText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.SNSMessage.Label"));
 
     tSNSMessage = new TextVar(variables, grpOutputField, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tSNSMessage);
-    FormData fd_tSNSMessage = new FormData();
-    fd_tSNSMessage.top = new FormAttachment(tBodyMD5, margin);
-    fd_tSNSMessage.left = new FormAttachment(middle, 0);
-    fd_tSNSMessage.right = new FormAttachment(100, 0);
-    tSNSMessage.setLayoutData(fd_tSNSMessage);
+    PropsUi.setLook(tSNSMessage);
+    FormData fdTSNSMessage = new FormData();
+    fdTSNSMessage.top = new FormAttachment(tBodyMD5, margin);
+    fdTSNSMessage.left = new FormAttachment(middle, 0);
+    fdTSNSMessage.right = new FormAttachment(100, 0);
+    tSNSMessage.setLayoutData(fdTSNSMessage);
     tSNSMessage.setToolTipText(
         BaseMessages.getString(PKG, "SQSReaderTransform.ReaderOutput.SNSMessage.Tooltip"));
 
@@ -569,13 +540,13 @@ public class SqsReaderDialog extends BaseTransformDialog {
     grpOutputField.setTabList(readerOutputTabList);
 
     readerOutputComp.pack();
-    Rectangle ReaderOutputBounds = readerOutputComp.getBounds();
+    Rectangle readerOutputBounds = readerOutputComp.getBounds();
 
     scrlreaderOutputComp.setContent(readerOutputComp);
     scrlreaderOutputComp.setExpandHorizontal(true);
     scrlreaderOutputComp.setExpandVertical(true);
-    scrlreaderOutputComp.setMinWidth(ReaderOutputBounds.width);
-    scrlreaderOutputComp.setMinHeight(ReaderOutputBounds.height);
+    scrlreaderOutputComp.setMinWidth(readerOutputBounds.width);
+    scrlreaderOutputComp.setMinHeight(readerOutputBounds.height);
     // ReaderOutput-TAB - Ende
 
     scrlSettingsComp.layout();
@@ -603,6 +574,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
     // default listener (for hitting "enter")
     SelectionAdapter lsDef =
         new SelectionAdapter() {
+          @Override
           public void widgetDefaultSelected(SelectionEvent e) {
             ok();
           }
@@ -615,6 +587,7 @@ public class SqsReaderDialog extends BaseTransformDialog {
     // Detect X or ALT-F4 or something that kills this window and cancel the dialog properly
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             cancel();
           }

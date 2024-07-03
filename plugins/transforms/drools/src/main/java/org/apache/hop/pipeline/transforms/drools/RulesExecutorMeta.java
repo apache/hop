@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     keywords = "i18n::RulesExecutor.keyword",
     documentationUrl = "/pipeline/transforms/rulesexecutor.html")
 public class RulesExecutorMeta extends BaseTransformMeta<RulesExecutor, RulesExecutorData> {
-  private static Class<?> PKG = Rules.class; // for i18n purposes
+  private static final Class<?> PKG = Rules.class; // for i18n purposes
 
   // Contain storage keys in single location to cut down on save/load bugs
 

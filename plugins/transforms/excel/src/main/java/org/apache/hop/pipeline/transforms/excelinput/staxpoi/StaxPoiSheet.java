@@ -356,19 +356,14 @@ public class StaxPoiSheet implements IKSheet {
     }
     try {
       switch (type) {
-        case NUMBER:
-        case NUMBER_FORMULA:
+        case NUMBER, NUMBER_FORMULA:
           return Double.parseDouble(vContent);
-        case BOOLEAN:
-        case BOOLEAN_FORMULA:
+        case BOOLEAN, BOOLEAN_FORMULA:
           return vContent.equals("1");
-        case DATE:
-        case DATE_FORMULA:
+        case DATE, DATE_FORMULA:
           Double xlDate = Double.parseDouble(vContent);
           return DateUtil.getJavaDate(xlDate, DATE_TZ);
-        case LABEL:
-        case STRING_FORMULA:
-        case EMPTY:
+        case LABEL, STRING_FORMULA, EMPTY:
         default:
           return vContent;
       }

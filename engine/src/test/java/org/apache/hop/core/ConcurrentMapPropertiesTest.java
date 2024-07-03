@@ -43,7 +43,7 @@ public class ConcurrentMapPropertiesTest {
       c.put(unique, unique);
     }
 
-    Assert.assertTrue(p.equals(c));
+    Assert.assertEquals(p, c);
     Assert.assertEquals(p.size(), c.size());
 
     List<String> removeKeys = new ArrayList<>(c.size());
@@ -60,12 +60,12 @@ public class ConcurrentMapPropertiesTest {
     }
 
     Assert.assertEquals(p.size(), c.size());
-    Assert.assertTrue(p.equals(c));
+    Assert.assertEquals(p, c);
 
     p.clear();
     c.clear();
 
-    Assert.assertTrue(p.equals(c));
+    Assert.assertEquals(p, c);
     Assert.assertEquals(0, p.size());
     Assert.assertEquals(0, c.size());
 
@@ -73,7 +73,7 @@ public class ConcurrentMapPropertiesTest {
     p.putAll(addKeys);
     c.putAll(addKeys);
 
-    Assert.assertTrue(p.equals(c));
+    Assert.assertEquals(p, c);
 
     for (String property : removeKeys) {
       Assert.assertEquals(p.getProperty(property), c.getProperty(property));

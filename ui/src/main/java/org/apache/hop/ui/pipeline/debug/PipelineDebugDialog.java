@@ -123,7 +123,7 @@ public class PipelineDebugDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "PipelineDebugDialog.Shell.Title"));
 
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
     middle = props.getMiddlePct();
 
     Button wOk = new Button(shell, SWT.PUSH);

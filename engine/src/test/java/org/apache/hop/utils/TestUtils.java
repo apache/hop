@@ -17,7 +17,7 @@
 
 package org.apache.hop.utils;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.io.IOException;
@@ -106,7 +106,7 @@ public class TestUtils {
 
   public static void checkEqualsHashCodeConsistency(Object object1, Object object2) {
     if (object1.equals(object2)) {
-      assertTrue("inconsistent hashcode and equals", object1.hashCode() == object2.hashCode());
+      assertEquals("inconsistent hashcode and equals", object1.hashCode(), object2.hashCode());
     }
   }
 }

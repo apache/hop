@@ -74,7 +74,7 @@ public class PipelineProbeEditor extends MetadataEditor<PipelineProbe> {
     PropsUi props = PropsUi.getInstance();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     Label wIcon = new Label(parent, SWT.RIGHT);
     wIcon.setImage(getImage());

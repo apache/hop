@@ -91,12 +91,10 @@ public class RandomValueMeta extends BaseTransformMeta<RandomValue, RandomValueD
         case STRING:
           v = new ValueMetaString(field.getName(), 13, 0);
           break;
-        case UUID:
-        case UUID4:
+        case UUID, UUID4:
           v = new ValueMetaString(field.getName(), 36, 0);
           break;
-        case HMAC_MD5:
-        case HMAC_SHA1:
+        case HMAC_MD5, HMAC_SHA1:
           v = new ValueMetaString(field.getName(), 100, 0);
           break;
         default:

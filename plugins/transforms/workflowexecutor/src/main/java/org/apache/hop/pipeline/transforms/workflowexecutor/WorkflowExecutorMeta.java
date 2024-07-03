@@ -424,9 +424,7 @@ public class WorkflowExecutorMeta
 
     row.clear();
 
-    if (nextTransform != null
-        && resultRowsTargetTransformMeta != null
-        && nextTransform.equals(resultRowsTargetTransformMeta)) {
+    if (nextTransform != null && nextTransform.equals(resultRowsTargetTransformMeta)) {
       for (int i = 0; i < resultRowsField.length; i++) {
         IValueMeta value;
         try {
@@ -442,16 +440,12 @@ public class WorkflowExecutorMeta
         }
         row.addValueMeta(value);
       }
-    } else if (nextTransform != null
-        && resultFilesTargetTransformMeta != null
-        && nextTransform.equals(resultFilesTargetTransformMeta)) {
+    } else if (nextTransform != null && nextTransform.equals(resultFilesTargetTransformMeta)) {
       if (!Utils.isEmpty(resultFilesFileNameField)) {
         IValueMeta value = new ValueMetaString("filename", 255, 0);
         row.addValueMeta(value);
       }
-    } else if (nextTransform != null
-        && executionResultTargetTransformMeta != null
-        && nextTransform.equals(executionResultTargetTransformMeta)) {
+    } else if (nextTransform != null && nextTransform.equals(executionResultTargetTransformMeta)) {
       if (!Utils.isEmpty(executionTimeField)) {
         IValueMeta value = new ValueMetaInteger(executionTimeField, 15, 0);
         row.addValueMeta(value);

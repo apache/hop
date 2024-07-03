@@ -1233,7 +1233,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
   @Override
   public String getService() {
-    return CONTEXT_PATH + " (" + toString() + ")";
+    return CONTEXT_PATH + " (" + this + ")";
   }
 
   @Override

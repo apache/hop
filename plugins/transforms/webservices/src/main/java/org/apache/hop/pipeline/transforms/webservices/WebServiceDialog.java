@@ -339,7 +339,7 @@ public class WebServiceDialog extends BaseTransformDialog {
 
   private void addTabFieldIn() {
     TableView oldTableView = fieldInTableView;
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     Composite vCompositeTabField = new Composite(wTabFolder, SWT.NONE);
     FormLayout formLayout = new FormLayout();
@@ -419,7 +419,8 @@ public class WebServiceDialog extends BaseTransformDialog {
         });
 
     Button[] buttons = new Button[] {vButton};
-    BaseTransformDialog.positionBottomButtons(vCompositeTabField, buttons, props.getMargin(), null);
+    BaseTransformDialog.positionBottomButtons(
+        vCompositeTabField, buttons, PropsUi.getMargin(), null);
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
@@ -480,7 +481,7 @@ public class WebServiceDialog extends BaseTransformDialog {
 
   private void addTabFieldOut() {
     TableView oldTableView = fieldOutTableView;
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Initialization of the output tab
     //
@@ -558,7 +559,7 @@ public class WebServiceDialog extends BaseTransformDialog {
         });
     Button[] buttons = new Button[] {vButton};
     BaseTransformDialog.positionBottomButtons(
-        vCompositeTabFieldOut, buttons, props.getMargin(), null);
+        vCompositeTabFieldOut, buttons, PropsUi.getMargin(), null);
 
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment(0, 0);
@@ -795,7 +796,7 @@ public class WebServiceDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "WebServiceDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons OK / Cancel / ... at the bottom
     wOk = new Button(shell, SWT.PUSH);

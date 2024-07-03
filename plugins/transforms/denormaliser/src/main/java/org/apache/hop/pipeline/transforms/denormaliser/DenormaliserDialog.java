@@ -85,7 +85,7 @@ public class DenormaliserDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "DenormaliserDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);

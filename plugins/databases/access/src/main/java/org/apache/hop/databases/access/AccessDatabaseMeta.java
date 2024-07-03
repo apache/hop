@@ -122,8 +122,7 @@ public class AccessDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
 
     switch (valueMeta.getType()) {
-      case IValueMeta.TYPE_TIMESTAMP:
-      case IValueMeta.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
         retval += "DATETIME";
         break;
       case IValueMeta.TYPE_BOOLEAN:

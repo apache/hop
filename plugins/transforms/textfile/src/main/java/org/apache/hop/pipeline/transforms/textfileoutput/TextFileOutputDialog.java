@@ -194,7 +194,7 @@ public class TextFileOutputDialog extends BaseTransformDialog {
     shell.setText(getDialogTitle());
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);

@@ -217,7 +217,7 @@ public class PreviewRowsDialog {
     //
     bottomButton = buttons.get(0);
     BaseTransformDialog.positionBottomButtons(
-        shell, buttons.toArray(new Button[buttons.size()]), props.getMargin(), null);
+        shell, buttons.toArray(new Button[buttons.size()]), PropsUi.getMargin(), null);
 
     if (addFields()) {
       return;
@@ -250,7 +250,7 @@ public class PreviewRowsDialog {
 
   private boolean addFields() {
     PropsUi props = PropsUi.getInstance();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     if (wlFields == null) {
       wlFields = new Label(shell, SWT.LEFT);

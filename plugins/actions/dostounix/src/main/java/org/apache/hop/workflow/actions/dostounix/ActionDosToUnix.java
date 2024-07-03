@@ -386,25 +386,20 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   private boolean checkIfSuccessConditionBroken() {
-    boolean retval = false;
-    if ((nrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrErrorFiles >= limitFiles
-            && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrAllErrors > 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrErrorFiles >= limitFiles
+                && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS));
     return retval;
   }
 
   private boolean getSuccessStatus() {
-    boolean retval = false;
-
-    if ((nrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
-        || (nrProcessedFiles >= limitFiles
-            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED))
-        || (nrErrorFiles < limitFiles
-            && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrAllErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_NO_ERRORS))
+            || (nrProcessedFiles >= limitFiles
+                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_PROCESSED))
+            || (nrErrorFiles < limitFiles
+                && getSuccessCondition().equals(SUCCESS_IF_ERROR_FILES_LESS));
 
     return retval;
   }
@@ -634,7 +629,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
           BaseMessages.getString(
               PKG,
               "JobDosToUnix.Error.Exception.Processing",
-              realSourceFilefoldername.toString(),
+              realSourceFilefoldername,
               e.getMessage()));
       // Update Errors
       updateErrors();
@@ -669,20 +664,12 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       if (convertion == CONVERTION_TYPE_GUESS) {
         // Get file Type
         int fileType = getFileType(file);
-        if (fileType == TYPE_DOS_FILE) {
-          // File type is DOS
-          // We need to convert it to UNIX
-          convertToUnix = true;
-        } else {
-          // File type is not DOS
-          // so let's convert it to DOS
-          convertToUnix = false;
-        }
-      } else if (convertion == CONVERTION_TYPE_DOS_TO_UNIX) {
-        convertToUnix = true;
-      } else {
-        convertToUnix = false;
-      }
+        // File type is DOS
+        // We need to convert it to UNIX
+        // File type is not DOS
+        // so let's convert it to DOS
+        convertToUnix = fileType == TYPE_DOS_FILE;
+      } else convertToUnix = convertion == CONVERTION_TYPE_DOS_TO_UNIX;
 
       retval = convert(file, convertToUnix);
 

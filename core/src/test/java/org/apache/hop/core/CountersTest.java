@@ -43,6 +43,6 @@ public class CountersTest extends TestCase {
 
     // Same object is returned
     Counters cntrsCopy = Counters.getInstance();
-    assertTrue(cntrsCopy == cntrs);
+    assertSame(cntrsCopy, cntrs);
   }
 }

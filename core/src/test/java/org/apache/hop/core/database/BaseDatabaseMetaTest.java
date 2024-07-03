@@ -262,7 +262,7 @@ public class BaseDatabaseMetaTest {
             (Answer<Boolean>)
                 invocation -> {
                   rowCnt++;
-                  return new Boolean(rowCnt < 3);
+                  return Boolean.valueOf(rowCnt < 3);
                 });
     Mockito.when(db.getDatabaseMetaData()).thenReturn(dmd);
     Mockito.when(dmd.getIndexInfo(null, null, "FOO", false, true)).thenReturn(rs);

@@ -657,9 +657,7 @@ public class ExcelWriterTransform
               cell.setCellValue(vMeta.getBoolean(v));
             }
             break;
-          case IValueMeta.TYPE_BIGNUMBER:
-          case IValueMeta.TYPE_NUMBER:
-          case IValueMeta.TYPE_INTEGER:
+          case IValueMeta.TYPE_BIGNUMBER, IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER:
             if (v != null) {
               cell.setCellValue(vMeta.getNumber(v));
             }

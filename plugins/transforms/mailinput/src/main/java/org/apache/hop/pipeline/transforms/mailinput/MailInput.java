@@ -418,9 +418,9 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> {
     // Received Date
     try {
       switch (meta.getConditionOnReceivedDate()) {
-        case MailConnectionMeta.CONDITION_DATE_EQUAL:
-        case MailConnectionMeta.CONDITION_DATE_GREATER:
-        case MailConnectionMeta.CONDITION_DATE_SMALLER:
+        case MailConnectionMeta.CONDITION_DATE_EQUAL,
+            MailConnectionMeta.CONDITION_DATE_GREATER,
+            MailConnectionMeta.CONDITION_DATE_SMALLER:
           String realBeginDate = resolve(meta.getReceivedDate1());
           if (Utils.isEmpty(realBeginDate)) {
             throw new HopException(

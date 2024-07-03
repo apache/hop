@@ -363,14 +363,14 @@ public class SwitchCaseMeta extends BaseTransformMeta<SwitchCase, SwitchCaseData
     // TODO
   }
 
-  private static IStream newDefaultStream =
+  private static final IStream newDefaultStream =
       new Stream(
           StreamType.TARGET,
           null,
           BaseMessages.getString(PKG, "SwitchCaseMeta.TargetStream.Default.Description"),
           StreamIcon.TARGET,
           null);
-  private static IStream newCaseTargetStream =
+  private static final IStream newCaseTargetStream =
       new Stream(
           StreamType.TARGET,
           null,

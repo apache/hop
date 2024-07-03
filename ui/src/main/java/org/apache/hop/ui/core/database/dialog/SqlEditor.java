@@ -107,7 +107,7 @@ public class SqlEditor {
     shell.setLayout(formLayout);
     shell.setText(BaseMessages.getString(PKG, "SQLEditor.Title"));
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     Button wExec = new Button(shell, SWT.PUSH);
     wExec.setText(BaseMessages.getString(PKG, "SQLEditor.Button.Execute"));

@@ -92,7 +92,7 @@ public class SetVariableDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "SetVariableDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);

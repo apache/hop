@@ -98,7 +98,7 @@ public class UniqueRowsDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "UniqueRowsDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);

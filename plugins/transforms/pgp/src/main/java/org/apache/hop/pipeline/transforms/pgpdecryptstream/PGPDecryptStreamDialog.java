@@ -98,7 +98,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "PGPDecryptStreamDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -223,7 +223,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
         new SelectionAdapter() {
           @Override
           public void widgetSelected(SelectionEvent e) {
-            PassphraseFromField();
+            passphraseFromField();
           }
         });
 
@@ -249,7 +249,9 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     wPassphraseFieldName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -293,7 +295,9 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     wStreamFieldName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -336,7 +340,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     setButtonPositions(new Button[] {wOk, wCancel}, margin, wResult);
 
     getData();
-    PassphraseFromField();
+    passphraseFromField();
     input.setChanged(changed);
 
     BaseDialog.defaultShellHandling(shell, c -> ok(), c -> cancel());
@@ -388,7 +392,7 @@ public class PGPDecryptStreamDialog extends BaseTransformDialog {
     dispose();
   }
 
-  private void PassphraseFromField() {
+  private void passphraseFromField() {
     wlPassphrase.setEnabled(!wPassphraseFromField.getSelection());
     wPassphrase.setEnabled(!wPassphraseFromField.getSelection());
     wlPassphraseFromField.setEnabled(wPassphraseFromField.getSelection());

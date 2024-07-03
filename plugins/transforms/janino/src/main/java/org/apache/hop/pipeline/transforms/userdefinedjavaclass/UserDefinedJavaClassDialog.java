@@ -220,7 +220,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "UserDefinedJavaClassDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     // Buttons go at the very bottom
     //

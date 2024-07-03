@@ -113,25 +113,26 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder(200); // 133 chars in just spaces and tag names alone
 
-    retval.append(super.getXml());
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("include_subfolders", includesubfolders));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("compare_filecontent", comparefilecontent));
-    retval
-        .append(CONST_SPACE_SHORT)
-        .append(XmlHandler.addTagValue("compare_filesize", comparefilesize));
+    // 133 chars in just spaces and tag names alone
+    String retval =
+        super.getXml()
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("include_subfolders", includesubfolders)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("compare_filecontent", comparefilecontent)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("compare_filesize", comparefilesize)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("compareonly", compareonly)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue("wildcard", wildcard)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue(CONST_FILENAME1, filename1)
+            + CONST_SPACE_SHORT
+            + XmlHandler.addTagValue(CONST_FILENAME2, filename2);
 
-    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("compareonly", compareonly));
-    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue("wildcard", wildcard));
-    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue(CONST_FILENAME1, filename1));
-    retval.append(CONST_SPACE_SHORT).append(XmlHandler.addTagValue(CONST_FILENAME2, filename2));
-
-    return retval.toString();
+    return retval;
   }
 
   @Override
@@ -224,11 +225,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           return false;
         }
       }
-      if (in1.available() != in2.available()) {
-        return false;
-      } else {
-        return true;
-      }
+      return in1.available() == in2.available();
     } catch (IOException e) {
       throw new HopFileException(e);
     } finally {
@@ -294,11 +291,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
           } else {
             if (folder1.getType() == FileType.FILE) {
               // simply compare 2 files ..
-              if (equalFileContents(folder1, folder2)) {
-                result.setResult(true);
-              } else {
-                result.setResult(false);
-              }
+              result.setResult(equalFileContents(folder1, folder2));
             } else if (folder1.getType() == FileType.FOLDER) {
               // We compare 2 folders ...
 

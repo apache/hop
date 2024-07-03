@@ -270,20 +270,18 @@ public class ResultFile implements Cloneable {
 
   @JsonIgnore
   public String getXml() {
-    StringBuilder xml = new StringBuilder();
 
-    xml.append(XmlHandler.openTag(XML_TAG));
+    String xml =
+        XmlHandler.openTag(XML_TAG)
+            + XmlHandler.addTagValue("type", getTypeCode())
+            + XmlHandler.addTagValue("file", file.getName().toString())
+            + XmlHandler.addTagValue(CONST_PARENT_ORIGIN, originParent)
+            + XmlHandler.addTagValue(CONST_ORIGIN, origin)
+            + XmlHandler.addTagValue(CONST_COMMENT, comment)
+            + XmlHandler.addTagValue(CONST_TIMESTAMP, timestamp)
+            + XmlHandler.closeTag(XML_TAG);
 
-    xml.append(XmlHandler.addTagValue("type", getTypeCode()));
-    xml.append(XmlHandler.addTagValue("file", file.getName().toString()));
-    xml.append(XmlHandler.addTagValue(CONST_PARENT_ORIGIN, originParent));
-    xml.append(XmlHandler.addTagValue(CONST_ORIGIN, origin));
-    xml.append(XmlHandler.addTagValue(CONST_COMMENT, comment));
-    xml.append(XmlHandler.addTagValue(CONST_TIMESTAMP, timestamp));
-
-    xml.append(XmlHandler.closeTag(XML_TAG));
-
-    return xml.toString();
+    return xml;
   }
 
   public ResultFile(Node node) throws HopFileException {

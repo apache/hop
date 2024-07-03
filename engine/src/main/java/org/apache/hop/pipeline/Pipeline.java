@@ -255,7 +255,7 @@ public abstract class Pipeline
   private boolean safeModeEnabled;
 
   /** Int value for storage pipeline statuses */
-  private AtomicInteger status;
+  private final AtomicInteger status;
 
   /** Boolean to check if pipeline is already stopped */
   private final AtomicBoolean isAlreadyStopped = new AtomicBoolean(false);
@@ -285,7 +285,7 @@ public abstract class Pipeline
   }
 
   /** The number of errors that have occurred during execution of the pipeline. */
-  private AtomicInteger errors;
+  private final AtomicInteger errors;
 
   /** Whether the pipeline is ready to start. */
   private boolean readyToStart;
@@ -310,7 +310,7 @@ public abstract class Pipeline
   private int nrOfFinishedTransforms;
 
   /** The named parameters. */
-  private INamedParameters namedParams = new NamedParameters();
+  private final INamedParameters namedParams = new NamedParameters();
 
   /** The pipeline log table database connection. */
   private Database pipelineLogTableDatabaseConnection;
@@ -319,7 +319,7 @@ public abstract class Pipeline
   private AtomicInteger transformPerformanceSnapshotSeqNr;
 
   /** The last written transform performance sequence number. */
-  private int lastWrittenTransformPerformanceSequenceNr;
+  private final int lastWrittenTransformPerformanceSequenceNr;
 
   /** The last transform performance snapshot sequence number added. */
   private int lastTransformPerformanceSnapshotSeqNrAdded;
@@ -355,7 +355,7 @@ public abstract class Pipeline
 
   private HttpServletRequest servletRequest;
 
-  private Map<String, Object> extensionDataMap;
+  private final Map<String, Object> extensionDataMap;
 
   protected int rowSetSize;
 

@@ -27,7 +27,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
@@ -256,8 +255,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> {
     }
   }
 
-  private URIBuilder constructUrlBuilder(IRowMeta outputRowMeta, Object[] row)
-      throws HopValueException, HopException {
+  private URIBuilder constructUrlBuilder(IRowMeta outputRowMeta, Object[] row) throws HopException {
     URIBuilder uriBuilder;
     try {
       String baseUrl = data.realUrl;

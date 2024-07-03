@@ -441,9 +441,7 @@ public class JdbcMetadata extends BaseTransform<JdbcMetadataMeta, JdbcMetadataDa
         // can deliver.
         boolean v;
         switch (resultSetMetaData.getColumnType(k)) {
-          case Types.INTEGER:
-          case Types.SMALLINT:
-          case Types.TINYINT:
+          case Types.INTEGER, Types.SMALLINT, Types.TINYINT:
             v = resultSet.getInt(k) == 1;
             break;
           default:

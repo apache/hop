@@ -171,9 +171,7 @@ public class GuiCompositeWidgets {
       // Add the GUI element
       //
       switch (elementType) {
-        case TEXT:
-        case FILENAME:
-        case FOLDER:
+        case TEXT, FILENAME, FOLDER:
           control = getTextControl(parent, guiElements, props, lastControl, label);
           break;
         case CHECKBOX:
@@ -724,9 +722,7 @@ public class GuiCompositeWidgets {
         String stringValue = value == null ? "" : Const.NVL(value.toString(), "");
 
         switch (guiElements.getType()) {
-          case TEXT:
-          case FILENAME:
-          case FOLDER:
+          case TEXT, FILENAME, FOLDER:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               textVar.setText(stringValue);
@@ -752,8 +748,7 @@ public class GuiCompositeWidgets {
             MetaSelectionLine line = (MetaSelectionLine) control;
             line.setText(stringValue);
             break;
-          case BUTTON:
-          case LINK:
+          case BUTTON, LINK:
             // No data to set
             break;
           default:
@@ -820,9 +815,7 @@ public class GuiCompositeWidgets {
         Object value = null;
 
         switch (guiElements.getType()) {
-          case TEXT:
-          case FILENAME:
-          case FOLDER:
+          case TEXT, FILENAME, FOLDER:
             if (guiElements.isVariablesEnabled()) {
               TextVar textVar = (TextVar) control;
               value = textVar.getText();
@@ -848,8 +841,7 @@ public class GuiCompositeWidgets {
             MetaSelectionLine line = (MetaSelectionLine) control;
             value = line.getText();
             break;
-          case BUTTON:
-          case LINK:
+          case BUTTON, LINK:
             // No data to retrieve from widget
             break;
           default:

@@ -205,9 +205,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
 
     for (RandomValueMeta.RVField field : meta.getFields()) {
       switch (field.getType()) {
-        case NUMBER:
-        case INTEGER:
-        case STRING:
+        case NUMBER, INTEGER, STRING:
           random = true;
           break;
         case HMAC_MD5:

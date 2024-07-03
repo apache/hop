@@ -132,19 +132,13 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
     switch (type) {
       case BYTES:
         return IValueMeta.TYPE_BINARY;
-      case INT:
-      case LONG:
+      case INT, LONG:
         return IValueMeta.TYPE_INTEGER;
-      case FLOAT:
-      case DOUBLE:
+      case FLOAT, DOUBLE:
         return IValueMeta.TYPE_NUMBER;
       case BOOLEAN:
         return IValueMeta.TYPE_BOOLEAN;
-      case STRING:
-      case RECORD:
-      case ARRAY:
-      case MAP:
-      case FIXED:
+      case STRING, RECORD, ARRAY, MAP, FIXED:
         return IValueMeta.TYPE_STRING;
       default:
         return IValueMeta.TYPE_NONE;
@@ -168,9 +162,7 @@ public class AvroDecode extends BaseTransform<AvroDecodeMeta, AvroDecodeData> {
         case STRING:
           hopValue = ((Utf8) avroValue).toString();
           break;
-        case BYTES:
-        case LONG:
-        case DOUBLE:
+        case BYTES, LONG, DOUBLE:
           hopValue = avroValue;
           break;
         case INT:

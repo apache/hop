@@ -119,7 +119,7 @@ public class NotePadDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(title);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = 30;
 
     // Some buttons at the bottom

@@ -80,8 +80,7 @@ public class SqlScriptParser {
                 i = i + 1;
               }
               break;
-            case '\'':
-            case '"':
+            case '\'', '"':
               mode = MODE.STRING;
               currentStringChar = ch;
               break;
@@ -183,8 +182,7 @@ public class SqlScriptParser {
                 ch = 0;
               }
               break;
-            case '\'':
-            case '"':
+            case '\'', '"':
               mode = MODE.STRING;
               currentStringChar = ch;
               break;

@@ -789,7 +789,7 @@ public class TeraFastDialog extends BaseTransformDialog {
     formData.left = new FormAttachment(0, 0);
     formData.top = new FormAttachment(wlReturn, factory.getMargin());
     formData.right = new FormAttachment(this.wGetLU, -factory.getMargin());
-    formData.bottom = new FormAttachment(wOk, -2 * props.getMargin());
+    formData.bottom = new FormAttachment(wOk, -2 * PropsUi.getMargin());
     this.wReturn.setLayoutData(formData);
   }
 

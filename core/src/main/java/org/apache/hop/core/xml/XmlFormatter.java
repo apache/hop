@@ -113,8 +113,7 @@ public class XmlFormatter {
             wr.writeEndElement();
             wasStart = false;
             break;
-          case XMLStreamConstants.SPACE:
-          case XMLStreamConstants.CHARACTERS:
+          case XMLStreamConstants.SPACE, XMLStreamConstants.CHARACTERS:
             str.append(rd.getText());
             break;
           case XMLStreamConstants.CDATA:

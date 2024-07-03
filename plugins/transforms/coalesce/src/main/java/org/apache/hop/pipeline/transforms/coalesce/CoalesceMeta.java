@@ -333,10 +333,10 @@ public class CoalesceMeta extends BaseTransformMeta<CoalesceTransform, CoalesceD
                 type = IValueMeta.TYPE_STRING;
               }
               break;
-            case IValueMeta.TYPE_BOOLEAN:
-            case IValueMeta.TYPE_INET:
-            case IValueMeta.TYPE_SERIALIZABLE:
-            case IValueMeta.TYPE_BINARY:
+            case IValueMeta.TYPE_BOOLEAN,
+                IValueMeta.TYPE_INET,
+                IValueMeta.TYPE_SERIALIZABLE,
+                IValueMeta.TYPE_BINARY:
             default:
               return IValueMeta.TYPE_STRING;
           }

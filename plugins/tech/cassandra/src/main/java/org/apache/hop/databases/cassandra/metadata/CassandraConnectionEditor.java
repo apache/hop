@@ -64,7 +64,7 @@ public class CassandraConnectionEditor extends MetadataEditor<CassandraConnectio
     this.parent = parent;
 
     PropsUi props = PropsUi.getInstance();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
 
     // Name...

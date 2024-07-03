@@ -53,15 +53,12 @@ import org.apache.hop.pipeline.transform.TransformStatus;
 public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAnalyticsData> {
 
   private BetaAnalyticsDataClient analyticsData;
-  private List<DimensionHeader> dimensionHeaders;
-  private List<MetricHeader> metricHeaders;
+
   private List<Dimension> dimensionList;
   private List<Metric> metricList;
-  private RunReportResponse response;
   private InputStream inputStream;
   private int requestOffset = 0;
   private int REQUEST_ROW_SIZE = 100000;
-  private int rowsProcessed = 0;
 
   private int rowLimit;
 
@@ -150,11 +147,12 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
   }
 
   private void readResponse() {
-    response = analyticsData.runReport(getRequest());
+    List<DimensionHeader> dimensionHeaders;
+    RunReportResponse response = analyticsData.runReport(getRequest());
     dimensionHeaders = response.getDimensionHeadersList();
-    metricHeaders = response.getMetricHeadersList();
+    List<MetricHeader> metricHeaders = response.getMetricHeadersList();
 
-    if (response.getRowsList().size() > 0) {
+    if (!response.getRowsList().isEmpty()) {
       try {
         for (Row gaRow : response.getRowsList()) {
           Object[] newRow = RowDataUtil.allocateRowData(meta.getGoogleAnalyticsFields().size());
@@ -163,13 +161,13 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
             GoogleAnalyticsField field = meta.getGoogleAnalyticsFields().get(i);
             String fieldName = field.getFeedField();
             String type = field.getFeedFieldType();
-            if (type.equals(meta.FIELD_TYPE_DIMENSION)) {
+            if (type.equals(GoogleAnalyticsMeta.FIELD_TYPE_DIMENSION)) {
               for (int j = 0; j < dimensionHeaders.size(); j++) {
                 if (dimensionHeaders.get(j).getName().equals(fieldName)) {
                   newRow[i] = gaRow.getDimensionValues(j).getValue();
                 }
               }
-            } else if (type.equals(meta.FIELD_TYPE_METRIC)) {
+            } else if (type.equals(GoogleAnalyticsMeta.FIELD_TYPE_METRIC)) {
               for (int j = 0; j < metricHeaders.size(); j++) {
                 if (metricHeaders.get(j).getName().equals(fieldName)) {
                   MetricType metricType = metricHeaders.get(j).getType();
@@ -181,17 +179,17 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
                       Long longValue = Long.valueOf(gaRow.getMetricValues(j).getValue());
                       newRow[i] = gaValueMetaInt.convertData(valueMetaInt, longValue);
                       break;
-                    case TYPE_FLOAT:
-                    case TYPE_SECONDS:
-                    case TYPE_MILLISECONDS:
-                    case TYPE_MINUTES:
-                    case TYPE_HOURS:
-                    case TYPE_STANDARD:
-                    case TYPE_CURRENCY:
-                    case TYPE_FEET:
-                    case TYPE_MILES:
-                    case TYPE_METERS:
-                    case TYPE_KILOMETERS:
+                    case TYPE_FLOAT,
+                        TYPE_SECONDS,
+                        TYPE_MILLISECONDS,
+                        TYPE_MINUTES,
+                        TYPE_HOURS,
+                        TYPE_STANDARD,
+                        TYPE_CURRENCY,
+                        TYPE_FEET,
+                        TYPE_MILES,
+                        TYPE_METERS,
+                        TYPE_KILOMETERS:
                       IValueMeta valueMetaNumber = new ValueMetaNumber("num");
                       IValueMeta gaValueMetaNumber =
                           data.outputMeta.getValueMeta(dimensionList.size() + j);
@@ -212,7 +210,7 @@ public class GoogleAnalytics extends BaseTransform<GoogleAnalyticsMeta, GoogleAn
         e.printStackTrace();
       }
       // check if we're still below the row limit, adjust REQUEST_ROW_SIZE if we're getting close.
-      rowsProcessed = (int) getLinesWritten();
+      int rowsProcessed = (int) getLinesWritten();
       if (getLinesWritten() + REQUEST_ROW_SIZE > rowLimit) {
         REQUEST_ROW_SIZE = rowLimit - (int) getLinesWritten();
       }

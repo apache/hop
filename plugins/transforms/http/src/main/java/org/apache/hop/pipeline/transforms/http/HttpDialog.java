@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -143,7 +144,7 @@ public class HttpDialog extends BaseTransformDialog {
     Control lastControl = setupTransformNameField(lsMod);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    PropsUi.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB);
+    PropsUi.setLook(wTabFolder, Props.WIDGET_STYLE_TAB);
 
     // ////////////////////////
     // START OF GENERAL TAB ///
@@ -321,7 +322,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private void setupHeadBlock(ModifyListener lsMod, Composite wAdditionalComp) {
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     Label wlHeaders = new Label(wAdditionalComp, SWT.NONE);
     wlHeaders.setText(BaseMessages.getString(PKG, "HTTPDialog.Headers.Label"));
     PropsUi.setLook(wlHeaders);
@@ -373,7 +374,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupParamBlock(
       ModifyListener lsMod, Control lastControl, Composite wAdditionalComp) {
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText(BaseMessages.getString(PKG, "HTTPDialog.Parameters.Label"));
     PropsUi.setLook(wlFields);
@@ -381,7 +382,6 @@ public class HttpDialog extends BaseTransformDialog {
     fdlFields.left = new FormAttachment(0, 0);
     fdlFields.top = new FormAttachment(lastControl, margin);
     wlFields.setLayoutData(fdlFields);
-    lastControl = wlFields;
 
     Button wGet = new Button(wAdditionalComp, SWT.PUSH);
     wGet.setText(BaseMessages.getString(PKG, "HTTPDialog.GetFields.Button"));
@@ -426,7 +426,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupProxyPort(ModifyListener lsMod, Control lastControl, Group gProxy) {
     // Proxy port
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlProxyPort = new Label(gProxy, SWT.RIGHT);
     wlProxyPort.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyPort.Label"));
@@ -455,7 +455,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupProxyHost(ModifyListener lsMod, Group gProxy) {
     // Proxy host
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlProxyHost = new Label(gProxy, SWT.RIGHT);
     wlProxyHost.setText(BaseMessages.getString(PKG, "HTTPDialog.ProxyHost.Label"));
@@ -489,7 +489,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupHttpPasswordLine(ModifyListener lsMod, Group gHttpAuth) {
     // Http Password
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlHttpPassword = new Label(gHttpAuth, SWT.RIGHT);
     wlHttpPassword.setText(BaseMessages.getString(PKG, "HTTPDialog.HttpPassword.Label"));
@@ -512,7 +512,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupHttpLoginLine(ModifyListener lsMod, Group gHttpAuth) {
     // Http Login
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlHttpLogin = new Label(gHttpAuth, SWT.RIGHT);
     wlHttpLogin.setText(BaseMessages.getString(PKG, "HTTPDialog.HttpLogin.Label"));
@@ -546,7 +546,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupResponseHeaderLine(ModifyListener lsMod, Group gOutputFields) {
     // Response header line...
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlResponseHeader = new Label(gOutputFields, SWT.RIGHT);
     wlResponseHeader.setText(BaseMessages.getString(PKG, "HTTPDialog.ResponseHeader.Label"));
@@ -568,7 +568,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupResponseTimeLine(ModifyListener lsMod, Group gOutputFields) {
     // Response time line...
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlResponseTime = new Label(gOutputFields, SWT.RIGHT);
     wlResponseTime.setText(BaseMessages.getString(PKG, "HTTPDialog.ResponseTime.Label"));
@@ -590,7 +590,7 @@ public class HttpDialog extends BaseTransformDialog {
 
   private void setupStatusCodeLine(ModifyListener lsMod, Group gOutputFields) {
     // Resultcode line...
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlResultCode = new Label(gOutputFields, SWT.RIGHT);
     wlResultCode.setText(BaseMessages.getString(PKG, "HTTPDialog.ResultCode.Label"));
@@ -613,7 +613,7 @@ public class HttpDialog extends BaseTransformDialog {
   private void setupResultLine(ModifyListener lsMod, Control lastControl, Group gOutputFields) {
     // Result line...
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlResult = new Label(gOutputFields, SWT.RIGHT);
     wlResult.setText(BaseMessages.getString(PKG, "HTTPDialog.Result.Label"));
@@ -645,7 +645,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private void setupCloseWaitTimeLine(ModifyListener lsMod, Group gSettings) {
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlCloseIdleConnectionsTime = new Label(gSettings, SWT.RIGHT);
     wlCloseIdleConnectionsTime.setText(
@@ -670,7 +670,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private void setupSocketTimeoutLine(ModifyListener lsMod, Group gSettings) {
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlSocketTimeOut = new Label(gSettings, SWT.RIGHT);
     wlSocketTimeOut.setText(BaseMessages.getString(PKG, "HTTPDialog.SocketTimeOut.Label"));
@@ -692,7 +692,7 @@ public class HttpDialog extends BaseTransformDialog {
   }
 
   private void setupConnectionTimeoutLine(ModifyListener lsMod, Group gSettings) {
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlConnectionTimeOut = new Label(gSettings, SWT.RIGHT);
     wlConnectionTimeOut.setText(BaseMessages.getString(PKG, "HTTPDialog.ConnectionTimeOut.Label"));
@@ -717,7 +717,7 @@ public class HttpDialog extends BaseTransformDialog {
   private Control setupEncodingLine(ModifyListener lsMod, Control lastControl, Group gSettings) {
     // Encoding
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlEncoding = new Label(gSettings, SWT.RIGHT);
     wlEncoding.setText(BaseMessages.getString(PKG, "HTTPDialog.Encoding.Label"));
@@ -738,7 +738,9 @@ public class HttpDialog extends BaseTransformDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do Nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -757,7 +759,7 @@ public class HttpDialog extends BaseTransformDialog {
       ModifyListener lsMod, Control lastControl, Group gSettings) {
     // UrlField Line
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     wlUrlField = new Label(gSettings, SWT.RIGHT);
     wlUrlField.setText(BaseMessages.getString(PKG, "HTTPDialog.UrlField.Label"));
@@ -781,7 +783,9 @@ public class HttpDialog extends BaseTransformDialog {
     wUrlField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -800,7 +804,7 @@ public class HttpDialog extends BaseTransformDialog {
   private Control setupUrlInFieldLine(Control lastControl, Group gSettings) {
     // UrlInField line
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlUrlInField = new Label(gSettings, SWT.RIGHT);
     wlUrlInField.setText(BaseMessages.getString(PKG, "HTTPDialog.UrlInField.Label"));
@@ -832,7 +836,7 @@ public class HttpDialog extends BaseTransformDialog {
   private Control setupIgnoreSslLine(Control lastControl, Group gSettings) {
     // ignoreSsl line
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     Label wlIgnoreSsl = new Label(gSettings, SWT.RIGHT);
     wlIgnoreSsl.setText(BaseMessages.getString(PKG, "HTTPDialog.IgnoreSsl.Label"));
@@ -864,7 +868,7 @@ public class HttpDialog extends BaseTransformDialog {
       ModifyListener lsMod, Control transformNameControl, Group gSettings) {
     // The URL to use
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     wlUrl = new Label(gSettings, SWT.RIGHT);
     wlUrl.setText(BaseMessages.getString(PKG, "HTTPDialog.URL.Label"));
@@ -901,7 +905,7 @@ public class HttpDialog extends BaseTransformDialog {
   private Control setupTransformNameField(ModifyListener lsMod) {
     // TransformName line
     //
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "HTTPDialog.TransformName.Label"));
@@ -920,8 +924,7 @@ public class HttpDialog extends BaseTransformDialog {
     fdTransformName.top = new FormAttachment(0, margin);
     fdTransformName.right = new FormAttachment(100, 0);
     wTransformName.setLayoutData(fdTransformName);
-    Control lastControl = wTransformName;
-    return lastControl;
+    return wTransformName;
   }
 
   private void setupButtons() {
@@ -932,7 +935,7 @@ public class HttpDialog extends BaseTransformDialog {
     wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
-    setButtonPositions(new Button[] {wOk, wCancel}, props.getMargin(), null);
+    setButtonPositions(new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
   }
 
   private void setEncodings() {

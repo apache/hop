@@ -255,8 +255,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
               // formatter pattern to
               // the user.
               //
-            case IValueMeta.TYPE_TIMESTAMP:
-            case IValueMeta.TYPE_DATE:
+            case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
               // Keep the data format as indicated.
               if (valueMeta.isStorageBinaryString() && meta.getFieldFormatOk()[i]) {
                 line.append(valueMeta.getString(valueData));
@@ -725,8 +724,7 @@ public class MonetDbBulkLoader extends BaseTransform<MonetDbBulkLoaderMeta, Mone
         }
 
         switch (type) {
-          case ERROR:
-          case RESULT:
+          case ERROR, RESULT:
             break;
           default:
             // unknown, header, ...

@@ -90,7 +90,7 @@ public class CloneRowDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "CloneRowDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);

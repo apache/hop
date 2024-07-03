@@ -62,7 +62,7 @@ public class AbortDialog extends BaseTransformDialog {
   private Label hSpacer;
 
   private final int middle = props.getMiddlePct();
-  private final int margin = props.getMargin();
+  private final int margin = PropsUi.getMargin();
 
   public AbortDialog(
       Shell parent, IVariables variables, AbortMeta transformMeta, PipelineMeta pipelineMeta) {

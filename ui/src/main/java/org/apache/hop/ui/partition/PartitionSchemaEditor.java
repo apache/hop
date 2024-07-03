@@ -69,7 +69,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
 
     PropsUi props = PropsUi.getInstance();
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();

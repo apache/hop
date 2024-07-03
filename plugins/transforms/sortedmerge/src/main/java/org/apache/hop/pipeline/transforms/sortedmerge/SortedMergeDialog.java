@@ -88,7 +88,7 @@ public class SortedMergeDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "SortedMergeDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);

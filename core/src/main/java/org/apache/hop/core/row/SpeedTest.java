@@ -31,22 +31,22 @@ public class SpeedTest {
   private static final String CONST_MS = " ms (";
   private static final String CONST_RS = " r/s)";
   private static final String CONST_STRINGS = "String";
-  private Object[] rowString10;
-  private Object[] rowString100;
-  private Object[] rowString1000;
+  private final Object[] rowString10;
+  private final Object[] rowString100;
+  private final Object[] rowString1000;
 
-  private Object[] rowMixed10;
-  private Object[] rowMixed100;
-  private Object[] rowMixed1000;
+  private final Object[] rowMixed10;
+  private final Object[] rowMixed100;
+  private final Object[] rowMixed1000;
 
-  private IRowMeta metaString10;
-  private IRowMeta metaMixed10;
+  private final IRowMeta metaString10;
+  private final IRowMeta metaMixed10;
 
-  private IRowMeta metaString100;
-  private IRowMeta metaMixed100;
+  private final IRowMeta metaString100;
+  private final IRowMeta metaMixed100;
 
-  private IRowMeta metaString1000;
-  private IRowMeta metaMixed1000;
+  private final IRowMeta metaString1000;
+  private final IRowMeta metaMixed1000;
 
   public SpeedTest() {
     rowString10 = new Object[10];
@@ -89,7 +89,7 @@ public class SpeedTest {
     IValueMeta meta = new ValueMetaString(CONST_STRINGS + (i + 1), 20, 0);
     metaString10.addValueMeta(meta);
 
-    rowMixed10[i * 5 + 0] = StringUtil.generateRandomString(20, "", "", false);
+    rowMixed10[i * 5] = StringUtil.generateRandomString(20, "", "", false);
     IValueMeta meta0 = new ValueMetaString(CONST_STRINGS + (i * 5 + 1), 20, 0);
     metaMixed10.addValueMeta(meta0);
 

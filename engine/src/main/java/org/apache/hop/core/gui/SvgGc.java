@@ -106,15 +106,15 @@ public class SvgGc implements IGc {
   protected Color hopFalse;
   protected Color deprecated;
 
-  private HopSvgGraphics2D gc;
+  private final HopSvgGraphics2D gc;
 
-  private int iconSize;
-  private int miniIconSize;
+  private final int iconSize;
+  private final int miniIconSize;
 
-  private Map<String, SvgFile> transformImages;
-  private Map<String, SvgFile> actionImages;
+  private final Map<String, SvgFile> transformImages;
+  private final Map<String, SvgFile> actionImages;
 
-  private Point area;
+  private final Point area;
 
   private int alpha;
 
@@ -127,11 +127,11 @@ public class SvgGc implements IGc {
   private int lineWidth;
   private ELineStyle lineStyle;
 
-  private int yOffset;
+  private final int yOffset;
 
-  private int xOffset;
+  private final int xOffset;
 
-  private AffineTransform originalTransform;
+  private final AffineTransform originalTransform;
 
   public SvgGc(HopSvgGraphics2D gc, Point area, int iconSize, int xOffset, int yOffset)
       throws HopException {
@@ -285,7 +285,7 @@ public class SvgGc implements IGc {
     int[] xPoints = new int[polygon.length / 2];
     int[] yPoints = new int[polygon.length / 2];
     for (int i = 0; i < nPoints; i++) {
-      xPoints[i] = polygon[2 * i + 0] + xOffset;
+      xPoints[i] = polygon[2 * i] + xOffset;
       yPoints[i] = polygon[2 * i + 1] + yOffset;
     }
 
@@ -298,7 +298,7 @@ public class SvgGc implements IGc {
     int[] xPoints = new int[polyline.length / 2];
     int[] yPoints = new int[polyline.length / 2];
     for (int i = 0; i < nPoints; i++) {
-      xPoints[i] = polyline[2 * i + 0] + xOffset;
+      xPoints[i] = polyline[2 * i] + xOffset;
       yPoints[i] = polyline[2 * i + 1] + yOffset;
     }
     gc.drawPolyline(xPoints, yPoints, nPoints);

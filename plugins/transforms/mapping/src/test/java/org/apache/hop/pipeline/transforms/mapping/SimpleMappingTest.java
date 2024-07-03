@@ -16,6 +16,7 @@
  */
 package org.apache.hop.pipeline.transforms.mapping;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -156,10 +157,9 @@ public class SimpleMappingTest {
     verify(transformMockHelper.pipeline, never()).waitUntilFinished();
     verify(transformMockHelper.pipeline, never())
         .addActiveSubPipeline(anyString(), any(Pipeline.class));
-    // verify( transformMockHelper.pipeline, times( 1 ) ).removeActiveSubPipeline( anyString() );
     verify(transformMockHelper.pipeline, never()).getActiveSubPipeline(anyString());
     verify(transformMockHelper.pipeline, times(1)).getErrors();
-    assertTrue("The transform contains the errors", smp.getErrors() == errorCount);
+    assertEquals("The transform contains the errors", smp.getErrors(), errorCount);
   }
 
   @Test
@@ -231,8 +231,5 @@ public class SimpleMappingTest {
     smp.dispose();
     verify(transformMockHelper.pipeline, times(1)).isFinished();
     verify(transformMockHelper.pipeline, times(1)).waitUntilFinished();
-    // verify( transformMockHelper.pipeline, times( 1 ) ).removeActiveSubPipelineformation(
-    // anyString() );
-
   }
 }

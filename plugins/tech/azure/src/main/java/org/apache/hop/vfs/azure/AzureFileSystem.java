@@ -29,9 +29,9 @@ import org.apache.commons.vfs2.provider.AbstractFileSystem;
 
 public class AzureFileSystem extends AbstractFileSystem {
 
-  private CloudBlobClient client;
+  private final CloudBlobClient client;
 
-  private String account;
+  private final String account;
 
   public AzureFileSystem(
       AzureFileName fileName,

@@ -31,6 +31,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -41,7 +42,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -69,7 +69,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
    * localized keys is expected to reside in {the package of the class
    * specified}/messages/messages_{locale}.properties
    */
-  private static Class<?> PKG = SnsNotifyMeta.class; // for i18n purposes
+  private static final Class<?> PKG = SnsNotifyMeta.class; // for i18n purposes
 
   // this is the object the stores the transform's settings
   // the dialog reads the settings from it when opening
@@ -77,29 +77,17 @@ public class SnsNotifyDialog extends BaseTransformDialog {
   private SnsNotifyMeta meta;
 
   // text field holding the name of the field to add to the row stream
-  private CTabFolder tabFolder;
-  private CTabItem tbtmSettings;
-  private ScrolledComposite scrlSettingsComp;
-  private Composite settingsComp;
+
   private Label lblAWSKey;
   private TextVar tAWSKey;
   private Label lblAWSKeySecret;
   private PasswordTextVar tAWSKeySecret;
   private Label lblAWSRegion;
   private ComboVar tAWSRegion;
-  private CTabItem tbtmNotifications;
-  private ScrolledComposite scrlNotificationsComp;
-  private Composite notificationsComp;
-  private Label lblnotifyPoint;
   private Combo tnotifyPoint;
-  private Label lblMessageID;
   private TextVar tMessageID;
   private ColumnInfo fieldColumn;
   private TableView tTableNotifyProps;
-
-  private Label lblDevInfo;
-
-  private Label lblAWSCredChain;
 
   private ComboVar tAWSCredChain;
 
@@ -134,6 +122,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
    */
   @Override
   public String open() {
+    CTabFolder tabFolder;
 
     // store some convenient SWT variables
     Shell parent = getParent();
@@ -141,7 +130,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     // SWT code for preparing the dialog
     shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX);
-    props.setLook(shell);
+    PropsUi.setLook(shell);
     setShellImage(shell, meta);
 
     // Save the value of the changed flag on the meta object. If the user cancels
@@ -151,12 +140,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     // The ModifyListener used on all controls. It will update the meta object to
     // indicate that changes are being made.
-    ModifyListener lsMod =
-        new ModifyListener() {
-          public void modifyText(ModifyEvent e) {
-            meta.setChanged();
-          }
-        };
+    ModifyListener lsMod = e -> meta.setChanged();
 
     // ------------------------------------------------------- //
     // SWT code for building the actual settings dialog        //
@@ -174,7 +158,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     // transformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
-    props.setLook(wlTransformName);
+    PropsUi.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
     fdlTransformName.right = new FormAttachment(middle, -margin);
@@ -183,7 +167,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     wTransformName = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     wTransformName.setText(transformName);
-    props.setLook(wTransformName);
+    PropsUi.setLook(wTransformName);
     wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment(middle, 0);
@@ -197,28 +181,29 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     // TABS - ANFANG
     tabFolder = new CTabFolder(shell, SWT.BORDER);
-    FormData fd_tabFolder = new FormData();
-    fd_tabFolder.right = new FormAttachment(100, 0);
-    fd_tabFolder.top = new FormAttachment(wTransformName, margin);
-    fd_tabFolder.left = new FormAttachment(0, 0);
-    fd_tabFolder.bottom = new FormAttachment(100, -50);
-    tabFolder.setLayoutData(fd_tabFolder);
-    props.setLook(tabFolder);
+    FormData fdTabFolder = new FormData();
+    fdTabFolder.right = new FormAttachment(100, 0);
+    fdTabFolder.top = new FormAttachment(wTransformName, margin);
+    fdTabFolder.left = new FormAttachment(0, 0);
+    fdTabFolder.bottom = new FormAttachment(100, -50);
+    tabFolder.setLayoutData(fdTabFolder);
+    PropsUi.setLook(tabFolder);
 
     // ------------------------------------------------------- //
     // - TAB Settings START //
     // ------------------------------------------------------- //
 
     // Settings-TAB - ANFANG
-    tbtmSettings = new CTabItem(tabFolder, SWT.NONE);
+    CTabItem tbtmSettings = new CTabItem(tabFolder, SWT.NONE);
     tbtmSettings.setText(BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.Title"));
 
-    scrlSettingsComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite scrlSettingsComp =
+        new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     scrlSettingsComp.setLayout(new FillLayout());
-    props.setLook(scrlSettingsComp);
+    PropsUi.setLook(scrlSettingsComp);
 
-    settingsComp = new Composite(scrlSettingsComp, SWT.NONE);
-    props.setLook(settingsComp);
+    Composite settingsComp = new Composite(scrlSettingsComp, SWT.NONE);
+    PropsUi.setLook(settingsComp);
 
     FormLayout settingsLayout = new FormLayout();
     settingsLayout.marginWidth = 3;
@@ -227,94 +212,87 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     // Use AWS Credentials Provider Chain
     // Credentials Chain
-    lblAWSCredChain = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSCredChain);
-    FormData fd_lblAWSCredChain = new FormData();
-    fd_lblAWSCredChain.left = new FormAttachment(0, 0);
-    fd_lblAWSCredChain.top = new FormAttachment(0, margin);
-    fd_lblAWSCredChain.right = new FormAttachment(middle, -margin);
-    lblAWSCredChain.setLayoutData(fd_lblAWSCredChain);
+    Label lblAWSCredChain = new Label(settingsComp, SWT.RIGHT);
+    PropsUi.setLook(lblAWSCredChain);
+    FormData fdLblAWSCredChain = new FormData();
+    fdLblAWSCredChain.left = new FormAttachment(0, 0);
+    fdLblAWSCredChain.top = new FormAttachment(0, margin);
+    fdLblAWSCredChain.right = new FormAttachment(middle, -margin);
+    lblAWSCredChain.setLayoutData(fdLblAWSCredChain);
     lblAWSCredChain.setText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSCredChain.Label"));
 
     tAWSCredChain = new ComboVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSCredChain);
-    FormData fd_tAWSCredChain = new FormData();
-    fd_tAWSCredChain.top = new FormAttachment(0, margin);
-    fd_tAWSCredChain.left = new FormAttachment(middle, 0);
-    fd_tAWSCredChain.right = new FormAttachment(100, 0);
-    tAWSCredChain.setLayoutData(fd_tAWSCredChain);
+    PropsUi.setLook(tAWSCredChain);
+    FormData fdTAWSCredChain = new FormData();
+    fdTAWSCredChain.top = new FormAttachment(0, margin);
+    fdTAWSCredChain.left = new FormAttachment(middle, 0);
+    fdTAWSCredChain.right = new FormAttachment(100, 0);
+    tAWSCredChain.setLayoutData(fdTAWSCredChain);
     tAWSCredChain.setToolTipText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSCredChain.Tooltip"));
-    tAWSCredChain.addModifyListener(
-        new ModifyListener() {
-
-          @Override
-          public void modifyText(ModifyEvent arg0) {
-            changeCredentialChainSelection();
-          }
-        });
+    tAWSCredChain.addModifyListener(arg0 -> changeCredentialChainSelection());
 
     // AWS Key
     lblAWSKey = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSKey);
-    FormData fd_lblAWSKey = new FormData();
-    fd_lblAWSKey.left = new FormAttachment(0, 0);
-    fd_lblAWSKey.top = new FormAttachment(tAWSCredChain, margin);
-    fd_lblAWSKey.right = new FormAttachment(middle, -margin);
-    lblAWSKey.setLayoutData(fd_lblAWSKey);
+    PropsUi.setLook(lblAWSKey);
+    FormData fdLblAWSKey = new FormData();
+    fdLblAWSKey.left = new FormAttachment(0, 0);
+    fdLblAWSKey.top = new FormAttachment(tAWSCredChain, margin);
+    fdLblAWSKey.right = new FormAttachment(middle, -margin);
+    lblAWSKey.setLayoutData(fdLblAWSKey);
     lblAWSKey.setText(BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSKey.Label"));
 
     tAWSKey = new TextVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSKey);
-    FormData fd_tAWSKey = new FormData();
-    fd_tAWSKey.top = new FormAttachment(tAWSCredChain, margin);
-    fd_tAWSKey.left = new FormAttachment(middle, 0);
-    fd_tAWSKey.right = new FormAttachment(100, 0);
-    tAWSKey.setLayoutData(fd_tAWSKey);
+    PropsUi.setLook(tAWSKey);
+    FormData fdTAWSKey = new FormData();
+    fdTAWSKey.top = new FormAttachment(tAWSCredChain, margin);
+    fdTAWSKey.left = new FormAttachment(middle, 0);
+    fdTAWSKey.right = new FormAttachment(100, 0);
+    tAWSKey.setLayoutData(fdTAWSKey);
     tAWSKey.setToolTipText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSKey.Tooltip"));
 
     // AWS Key Secret
     lblAWSKeySecret = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSKeySecret);
-    FormData fd_lblAWSKeySecret = new FormData();
-    fd_lblAWSKeySecret.left = new FormAttachment(0, 0);
-    fd_lblAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
-    fd_lblAWSKeySecret.right = new FormAttachment(middle, -margin);
-    lblAWSKeySecret.setLayoutData(fd_lblAWSKeySecret);
+    PropsUi.setLook(lblAWSKeySecret);
+    FormData fdLblAWSKeySecret = new FormData();
+    fdLblAWSKeySecret.left = new FormAttachment(0, 0);
+    fdLblAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
+    fdLblAWSKeySecret.right = new FormAttachment(middle, -margin);
+    lblAWSKeySecret.setLayoutData(fdLblAWSKeySecret);
     lblAWSKeySecret.setText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSKeySecret.Label"));
 
     tAWSKeySecret =
         new PasswordTextVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSKeySecret);
-    FormData fd_tAWSKeySecret = new FormData();
-    fd_tAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
-    fd_tAWSKeySecret.left = new FormAttachment(middle, 0);
-    fd_tAWSKeySecret.right = new FormAttachment(100, 0);
-    tAWSKeySecret.setLayoutData(fd_tAWSKeySecret);
+    PropsUi.setLook(tAWSKeySecret);
+    FormData fdTAWSKeySecret = new FormData();
+    fdTAWSKeySecret.top = new FormAttachment(tAWSKey, margin);
+    fdTAWSKeySecret.left = new FormAttachment(middle, 0);
+    fdTAWSKeySecret.right = new FormAttachment(100, 0);
+    tAWSKeySecret.setLayoutData(fdTAWSKeySecret);
     tAWSKeySecret.setToolTipText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSKeySecret.Tooltip"));
 
     // AWS Region
     lblAWSRegion = new Label(settingsComp, SWT.RIGHT);
-    props.setLook(lblAWSRegion);
-    FormData fd_lblAWSRegion = new FormData();
-    fd_lblAWSRegion.left = new FormAttachment(0, 0);
-    fd_lblAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
-    fd_lblAWSRegion.right = new FormAttachment(middle, -margin);
-    lblAWSRegion.setLayoutData(fd_lblAWSRegion);
+    PropsUi.setLook(lblAWSRegion);
+    FormData fdLblAWSRegion = new FormData();
+    fdLblAWSRegion.left = new FormAttachment(0, 0);
+    fdLblAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
+    fdLblAWSRegion.right = new FormAttachment(middle, -margin);
+    lblAWSRegion.setLayoutData(fdLblAWSRegion);
     lblAWSRegion.setText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSRegion.Label"));
 
     tAWSRegion = new ComboVar(variables, settingsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tAWSRegion);
-    FormData fd_tAWSRegion = new FormData();
-    fd_tAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
-    fd_tAWSRegion.left = new FormAttachment(middle, 0);
-    fd_tAWSRegion.right = new FormAttachment(100, 0);
-    tAWSRegion.setLayoutData(fd_tAWSRegion);
+    PropsUi.setLook(tAWSRegion);
+    FormData fdTAWSRegion = new FormData();
+    fdTAWSRegion.top = new FormAttachment(tAWSKeySecret, margin);
+    fdTAWSRegion.left = new FormAttachment(middle, 0);
+    fdTAWSRegion.right = new FormAttachment(100, 0);
+    tAWSRegion.setLayoutData(fdTAWSRegion);
     tAWSRegion.setToolTipText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Settings.AWSRegion.Tooltip"));
     populateAWSRegion(tAWSRegion);
@@ -337,16 +315,17 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     // ------------------------------------------------------- //
 
     // Notifications-TAB - ANFANG
-    tbtmNotifications = new CTabItem(tabFolder, SWT.NONE);
+    CTabItem tbtmNotifications = new CTabItem(tabFolder, SWT.NONE);
     tbtmNotifications.setText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Notifications.Title"));
 
-    scrlNotificationsComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
+    ScrolledComposite scrlNotificationsComp =
+        new ScrolledComposite(tabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     scrlNotificationsComp.setLayout(new FillLayout());
-    props.setLook(scrlNotificationsComp);
+    PropsUi.setLook(scrlNotificationsComp);
 
-    notificationsComp = new Composite(scrlNotificationsComp, SWT.NONE);
-    props.setLook(notificationsComp);
+    Composite notificationsComp = new Composite(scrlNotificationsComp, SWT.NONE);
+    PropsUi.setLook(notificationsComp);
 
     FormLayout notificationsLayout = new FormLayout();
     notificationsLayout.marginWidth = 3;
@@ -355,45 +334,45 @@ public class SnsNotifyDialog extends BaseTransformDialog {
 
     // FELDER
     // Notification Point
-    lblnotifyPoint = new Label(notificationsComp, SWT.RIGHT);
-    props.setLook(lblnotifyPoint);
-    FormData fd_lblnotifyPoint = new FormData();
-    fd_lblnotifyPoint.left = new FormAttachment(0, 0);
-    fd_lblnotifyPoint.top = new FormAttachment(0, margin);
-    fd_lblnotifyPoint.right = new FormAttachment(middle, -margin);
-    lblnotifyPoint.setLayoutData(fd_lblnotifyPoint);
+    Label lblnotifyPoint = new Label(notificationsComp, SWT.RIGHT);
+    PropsUi.setLook(lblnotifyPoint);
+    FormData fdLblnotifyPoint = new FormData();
+    fdLblnotifyPoint.left = new FormAttachment(0, 0);
+    fdLblnotifyPoint.top = new FormAttachment(0, margin);
+    fdLblnotifyPoint.right = new FormAttachment(middle, -margin);
+    lblnotifyPoint.setLayoutData(fdLblnotifyPoint);
     lblnotifyPoint.setText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Notifications.notifyPoint.Label"));
 
     tnotifyPoint = new Combo(notificationsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
-    props.setLook(tnotifyPoint);
-    FormData fd_tnotifyPoint = new FormData();
-    fd_tnotifyPoint.top = new FormAttachment(0, margin);
-    fd_tnotifyPoint.left = new FormAttachment(middle, 0);
-    fd_tnotifyPoint.right = new FormAttachment(100, 0);
-    tnotifyPoint.setLayoutData(fd_tnotifyPoint);
+    PropsUi.setLook(tnotifyPoint);
+    FormData fdTnotifyPoint = new FormData();
+    fdTnotifyPoint.top = new FormAttachment(0, margin);
+    fdTnotifyPoint.left = new FormAttachment(middle, 0);
+    fdTnotifyPoint.right = new FormAttachment(100, 0);
+    tnotifyPoint.setLayoutData(fdTnotifyPoint);
     tnotifyPoint.setToolTipText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Notifications.notifyPoint.Tooltip"));
     tnotifyPoint.setItems(meta.getNotifyPointValues());
 
     // MessageID
-    lblMessageID = new Label(notificationsComp, SWT.RIGHT);
-    props.setLook(lblMessageID);
-    FormData fd_lblMessageID = new FormData();
-    fd_lblMessageID.left = new FormAttachment(0, 0);
-    fd_lblMessageID.top = new FormAttachment(tnotifyPoint, margin);
-    fd_lblMessageID.right = new FormAttachment(middle, -margin);
-    lblMessageID.setLayoutData(fd_lblMessageID);
+    Label lblMessageID = new Label(notificationsComp, SWT.RIGHT);
+    PropsUi.setLook(lblMessageID);
+    FormData fdLblMessageID = new FormData();
+    fdLblMessageID.left = new FormAttachment(0, 0);
+    fdLblMessageID.top = new FormAttachment(tnotifyPoint, margin);
+    fdLblMessageID.right = new FormAttachment(middle, -margin);
+    lblMessageID.setLayoutData(fdLblMessageID);
     lblMessageID.setText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Notifications.MessageID.Label"));
 
     tMessageID = new TextVar(variables, notificationsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    props.setLook(tMessageID);
-    FormData fd_tMessageID = new FormData();
-    fd_tMessageID.top = new FormAttachment(tnotifyPoint, margin);
-    fd_tMessageID.left = new FormAttachment(middle, 0);
-    fd_tMessageID.right = new FormAttachment(100, 0);
-    tMessageID.setLayoutData(fd_tMessageID);
+    PropsUi.setLook(tMessageID);
+    FormData fdTMessageID = new FormData();
+    fdTMessageID.top = new FormAttachment(tnotifyPoint, margin);
+    fdTMessageID.left = new FormAttachment(middle, 0);
+    fdTMessageID.right = new FormAttachment(100, 0);
+    tMessageID.setLayoutData(fdTMessageID);
     tMessageID.setToolTipText(
         BaseMessages.getString(PKG, "SNSNotifyTransform.Notifications.MessageID.Tooltip"));
 
@@ -451,24 +430,24 @@ public class SnsNotifyDialog extends BaseTransformDialog {
             lsMod,
             props);
 
-    FormData fd_TableNotifyProps = new FormData();
-    fd_TableNotifyProps.left = new FormAttachment(0, 0);
-    fd_TableNotifyProps.top = new FormAttachment(tMessageID, margin);
-    fd_TableNotifyProps.right = new FormAttachment(100, 0);
-    fd_TableNotifyProps.bottom = new FormAttachment(100, -margin);
-    tTableNotifyProps.setLayoutData(fd_TableNotifyProps);
+    FormData fdTableNotifyProps = new FormData();
+    fdTableNotifyProps.left = new FormAttachment(0, 0);
+    fdTableNotifyProps.top = new FormAttachment(tMessageID, margin);
+    fdTableNotifyProps.right = new FormAttachment(100, 0);
+    fdTableNotifyProps.bottom = new FormAttachment(100, -margin);
+    tTableNotifyProps.setLayoutData(fdTableNotifyProps);
 
     Control[] notificationTabList = new Control[] {tnotifyPoint, tMessageID, tTableNotifyProps};
     notificationsComp.setTabList(notificationTabList);
 
     notificationsComp.pack();
-    Rectangle NotificationsBounds = notificationsComp.getBounds();
+    Rectangle notificationsBounds = notificationsComp.getBounds();
 
     scrlNotificationsComp.setContent(notificationsComp);
     scrlNotificationsComp.setExpandHorizontal(true);
     scrlNotificationsComp.setExpandVertical(true);
-    scrlNotificationsComp.setMinWidth(NotificationsBounds.width);
-    scrlNotificationsComp.setMinHeight(NotificationsBounds.height);
+    scrlNotificationsComp.setMinWidth(notificationsBounds.width);
+    scrlNotificationsComp.setMinHeight(notificationsBounds.height);
     // Notifications-TAB - Ende
 
     scrlSettingsComp.layout();
@@ -496,6 +475,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     // default listener (for hitting "enter")
     SelectionAdapter lsDef =
         new SelectionAdapter() {
+          @Override
           public void widgetDefaultSelected(SelectionEvent e) {
             ok();
           }
@@ -508,6 +488,7 @@ public class SnsNotifyDialog extends BaseTransformDialog {
     // Detect X or ALT-F4 or something that kills this window and cancel the dialog properly
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             cancel();
           }
@@ -574,21 +555,18 @@ public class SnsNotifyDialog extends BaseTransformDialog {
   /** This methods set the Input-Fields in Column Field for each table-row */
   private void setComboValues() {
     Runnable fieldLoader =
-        new Runnable() {
-          public void run() {
+        () -> {
+          IRowMeta prevFields;
 
-            IRowMeta prevFields;
-
-            try {
-              prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
-            } catch (HopException e) {
-              prevFields = new RowMeta();
-              logError(BaseMessages.getString(PKG, "SNSNotifyTransform.ErrorText.NoPrevFields"));
-            }
-            String[] prevTransformFieldNames = prevFields.getFieldNames();
-            Arrays.sort(prevTransformFieldNames);
-            fieldColumn.setComboValues(prevTransformFieldNames);
+          try {
+            prevFields = pipelineMeta.getPrevTransformFields(variables, transformName);
+          } catch (HopException e) {
+            prevFields = new RowMeta();
+            logError(BaseMessages.getString(PKG, "SNSNotifyTransform.ErrorText.NoPrevFields"));
           }
+          String[] prevTransformFieldNames = prevFields.getFieldNames();
+          Arrays.sort(prevTransformFieldNames);
+          fieldColumn.setComboValues(prevTransformFieldNames);
         };
     new Thread(fieldLoader).start();
   }

@@ -464,10 +464,7 @@ public class GitGuiPlugin
 
     if (file != null) {
       switch (file.getChangeType()) {
-        case DELETE:
-        case MODIFY:
-        case RENAME:
-        case COPY:
+        case DELETE, MODIFY, RENAME, COPY:
           treeItem.setForeground(colorStaged);
           break;
         case ADD:

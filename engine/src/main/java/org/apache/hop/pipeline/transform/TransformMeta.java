@@ -295,9 +295,7 @@ public class TransformMeta
       throw e;
     } catch (Exception e) {
       throw new HopXmlException(
-          BaseMessages.getString(PKG, "TransformMeta.Exception.UnableToLoadTransformMeta")
-              + e.toString(),
-          e);
+          BaseMessages.getString(PKG, "TransformMeta.Exception.UnableToLoadTransformMeta") + e, e);
     }
   }
 
@@ -384,7 +382,7 @@ public class TransformMeta
 
   public boolean hasChanged() {
     ITransformMeta meta = this.getTransform();
-    return meta != null ? meta.hasChanged() : false;
+    return meta != null && meta.hasChanged();
   }
 
   public void setChanged(boolean ch) {
@@ -762,12 +760,9 @@ public class TransformMeta
     if (!isPartitioned() && isTargetPartitioned()) {
       return true;
     }
-    if (isPartitioned()
+    return isPartitioned()
         && isTargetPartitioned()
-        && !transformPartitioningMeta.equals(targetTransformPartitioningMeta)) {
-      return true;
-    }
-    return false;
+        && !transformPartitioningMeta.equals(targetTransformPartitioningMeta);
   }
 
   /**

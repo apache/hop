@@ -87,8 +87,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
       case MINIMAL:
         logger.warn(message);
         break;
-      case BASIC:
-      case DETAILED:
+      case BASIC, DETAILED:
         logger.info(message);
         break;
       case DEBUG:
@@ -113,7 +112,7 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
       }
       loggingObject = loggingObject.getParent();
     }
-    if (subjects.size() > 0) {
+    if (!subjects.isEmpty()) {
       return subjects.size() > 1 ? formatDetailedSubject(subjects) : subjects.get(0);
     } else {
       return "";

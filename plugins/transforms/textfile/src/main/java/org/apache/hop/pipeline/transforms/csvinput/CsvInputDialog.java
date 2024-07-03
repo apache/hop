@@ -164,7 +164,7 @@ public class CsvInputDialog extends BaseTransformDialog
     shell.setText(BaseMessages.getString(PKG, "CsvInputDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Transform name line
     //

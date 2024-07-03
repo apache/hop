@@ -82,7 +82,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "ClosureGeneratorDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     //

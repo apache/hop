@@ -175,10 +175,10 @@ public class HopNeo4jPerspective implements IHopPerspective {
     composite = new Composite(parent, SWT.NONE);
     PropsUi.setLook(composite);
     FormLayout layout = new FormLayout();
-    layout.marginLeft = props.getMargin();
-    layout.marginTop = props.getMargin();
-    layout.marginLeft = props.getMargin();
-    layout.marginBottom = props.getMargin();
+    layout.marginLeft = PropsUi.getMargin();
+    layout.marginTop = PropsUi.getMargin();
+    layout.marginLeft = PropsUi.getMargin();
+    layout.marginBottom = PropsUi.getMargin();
     composite.setLayout(layout);
 
     FormData formData = new FormData();
@@ -188,7 +188,7 @@ public class HopNeo4jPerspective implements IHopPerspective {
     formData.bottom = new FormAttachment(100, 0);
     composite.setLayoutData(formData);
 
-    int margin = (int) (props.getMargin() * props.getZoomFactor());
+    int margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
 
     // Add a simple label to test
     //

@@ -18,7 +18,6 @@
 
 package org.apache.hop.execution;
 
-import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -33,7 +32,7 @@ public class ExecutionDataSetMetaDeserializer
     extends JsonDeserializer<Map<String, ExecutionDataSetMeta>> {
   @Override
   public Map<String, ExecutionDataSetMeta> deserialize(
-      JsonParser parser, DeserializationContext context) throws IOException, JacksonException {
+      JsonParser parser, DeserializationContext context) throws IOException {
     JsonDeserializer<Object> deserializer =
         context.findRootValueDeserializer(context.constructType(Map.class));
 

@@ -360,7 +360,7 @@ public class GraphModelEditor extends MetadataEditor<GraphModel> {
     wModelComp.setLayout(formLayout);
 
     middle = props.getMiddlePct();
-    margin = props.getMargin();
+    margin = PropsUi.getMargin();
 
     // Model properties
     //  - Name

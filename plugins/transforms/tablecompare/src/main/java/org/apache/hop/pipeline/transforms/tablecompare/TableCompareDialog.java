@@ -114,7 +114,7 @@ public class TableCompareDialog extends BaseTransformDialog {
     formLayout.marginHeight = PropsUi.getFormMargin();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     wOk = new Button(shell, SWT.PUSH);
     wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));

@@ -611,6 +611,7 @@ public class ProjectsGuiPlugin {
           if (pipelineRunConfig.getEngineRunConfiguration()
               instanceof LocalPipelineRunConfiguration) {
             localFound = true;
+            break;
           }
         }
         if (!localFound) {
@@ -628,6 +629,7 @@ public class ProjectsGuiPlugin {
           if (workflowRunConfig.getEngineRunConfiguration()
               instanceof LocalWorkflowRunConfiguration) {
             localFound = true;
+            break;
           }
         }
         if (!localFound) {

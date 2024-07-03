@@ -87,7 +87,7 @@ public class HopDescribedVariablesDialog extends Dialog {
 
     shell.setLayout(formLayout);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // The buttons at the bottom
     //

@@ -138,23 +138,15 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
         String mask = null;
 
         switch (aggregate.getType()) {
-          case First:
-          case Last:
-          case FirstIncludingNull:
-          case LastIncludingNull:
-          case Minimum:
-          case Maximum:
+          case First, Last, FirstIncludingNull, LastIncludingNull, Minimum, Maximum:
             valueType = subj.getType();
             mask = subj.getConversionMask();
             break;
-          case CountDistinct:
-          case CountAll:
-          case CountAny:
+          case CountDistinct, CountAll, CountAny:
             valueType = IValueMeta.TYPE_INTEGER;
             mask = "0";
             break;
-          case Sum:
-          case Average:
+          case Sum, Average:
             if (subj.isNumeric()) {
               valueType = subj.getType();
             } else {
@@ -162,15 +154,11 @@ public class MemoryGroupByMeta extends BaseTransformMeta<MemoryGroupBy, MemoryGr
             }
             mask = subj.getConversionMask();
             break;
-          case Median:
-          case Percentile:
-          case StandardDeviation:
+          case Median, Percentile, StandardDeviation:
             valueType = IValueMeta.TYPE_NUMBER;
             mask = subj.getConversionMask();
             break;
-          case ConcatComma:
-          case ConcatString:
-          case ConcatDistinct:
+          case ConcatComma, ConcatString, ConcatDistinct:
             valueType = IValueMeta.TYPE_STRING;
             break;
           default:

@@ -137,7 +137,7 @@ public class ExecSqlDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "ExecSqlDialog.Shell.Label"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);

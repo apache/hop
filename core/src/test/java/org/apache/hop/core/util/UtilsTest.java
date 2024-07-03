@@ -149,7 +149,7 @@ public class UtilsTest {
     assertEquals(1, newS.length);
     assertEquals(2, newS[0].length);
     assertArrayEquals(newS[0], s2);
-    assertTrue(newS[0] == s2); // If arrays are equal sized, it should return original object
+    assertSame(newS[0], s2); // If arrays are equal sized, it should return original object
 
     long[][] newL = Utils.normalizeArrays(3, l1, l2);
     assertEquals(2, newL.length);
@@ -163,7 +163,7 @@ public class UtilsTest {
     assertEquals(1, newL.length);
     assertEquals(2, newL[0].length);
     assertArrayEquals(newL[0], l2);
-    assertTrue(newL[0] == l2); // If arrays are equal sized, it should return original object
+    assertSame(newL[0], l2); // If arrays are equal sized, it should return original object
 
     short[][] newSh = Utils.normalizeArrays(3, sh1, sh2);
     assertEquals(2, newSh.length);
@@ -177,7 +177,7 @@ public class UtilsTest {
     assertEquals(1, newSh.length);
     assertEquals(2, newSh[0].length);
     assertArrayEquals(newSh[0], sh2);
-    assertTrue(newSh[0] == sh2); // If arrays are equal sized, it should return original object
+    assertSame(newSh[0], sh2); // If arrays are equal sized, it should return original object
 
     boolean[][] newB = Utils.normalizeArrays(3, b1, b2);
     assertEquals(2, newB.length);
@@ -190,7 +190,7 @@ public class UtilsTest {
     newB = Utils.normalizeArrays(2, b2);
     assertEquals(1, newB.length);
     assertEquals(2, newB[0].length);
-    assertTrue(newB[0] == b2); // If arrays are equal sized, it should return original object
+    assertSame(newB[0], b2); // If arrays are equal sized, it should return original object
 
     int[][] newI = Utils.normalizeArrays(3, i1, i2);
     assertEquals(2, newI.length);
@@ -204,11 +204,11 @@ public class UtilsTest {
     assertEquals(1, newI.length);
     assertEquals(2, newI[0].length);
     assertArrayEquals(newI[0], i2);
-    assertTrue(newI[0] == i2); // If arrays are equal sized, it should return original object
+    assertSame(newI[0], i2); // If arrays are equal sized, it should return original object
   }
 
   @Test
-  public void testDamerauLevenshteinDistance() throws Exception {
+  public void testDamerauLevenshteinDistance() {
     int distance = Utils.getDamerauLevenshteinDistance("Hello", "Hallow");
     assertEquals(2, distance);
     distance = Utils.getDamerauLevenshteinDistance("Green", "Grean");

@@ -87,7 +87,7 @@ public class ActionAs400CommandDialog extends ActionDialog {
     changed = action.hasChanged();
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;

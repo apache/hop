@@ -28,7 +28,7 @@ import org.mockito.Mockito;
 public class UserDefinedJavaClassMetaTest {
 
   @Test
-  public void cookClassErrorCompilationTest() throws Exception {
+  public void cookClassErrorCompilationTest() {
     String wrongCode =
         "public boolean processRow() {\n"
             + "   return true;\n"
@@ -82,7 +82,7 @@ public class UserDefinedJavaClassMetaTest {
     Class<?> clazz1 = userDefinedJavaClassMetaSpy.cookClass(userDefinedJavaClassDef1, null);
     Class<?> clazz2 =
         userDefinedJavaClassMetaSpy.cookClass(userDefinedJavaClassDef1, clazz1.getClassLoader());
-    Assert.assertTrue(clazz1 == clazz2); // Caching should work here and return exact same class
+    Assert.assertSame(clazz1, clazz2); // Caching should work here and return exact same class
 
     UserDefinedJavaClassMeta userDefinedJavaClassMeta2 = new UserDefinedJavaClassMeta();
     UserDefinedJavaClassDef userDefinedJavaClassDef2 =
@@ -97,22 +97,12 @@ public class UserDefinedJavaClassMetaTest {
     Class<?> clazz3 =
         userDefinedJavaClassMeta2Spy.cookClass(userDefinedJavaClassDef2, clazz2.getClassLoader());
 
-    Assert.assertTrue(clazz3 != clazz1); // They should not be the exact same class
+    Assert.assertNotSame(clazz3, clazz1); // They should not be the exact same class
   }
 
   @Test
-  public void oderDefinitionTest() throws Exception {
+  public void oderDefinitionTest() {
     String codeBlock1 = "public boolean processRow() {\n" + "    return true;\n" + "}\n\n";
-    String codeBlock2 =
-        "public boolean extraClassA() {\n"
-            + "    // Random comment\n"
-            + "    return true;\n"
-            + "}\n\n";
-    String codeBlock3 =
-        "public boolean extraClassB() {\n"
-            + "    // Random comment\n"
-            + "    return true;\n"
-            + "}\n\n";
     UserDefinedJavaClassMeta userDefinedJavaClassMeta = new UserDefinedJavaClassMeta();
     UserDefinedJavaClassDef processClassDef =
         new UserDefinedJavaClassDef(
@@ -143,11 +133,11 @@ public class UserDefinedJavaClassMetaTest {
 
     // Test reording the reverse order test
     List<UserDefinedJavaClassDef> orderDefs = userDefinedJavaClassMeta.orderDefinitions(defs);
-    Assert.assertTrue(orderDefs.get(0).getClassName().equals("A"));
-    Assert.assertTrue(orderDefs.get(1).getClassName().equals("B"));
-    Assert.assertTrue(orderDefs.get(2).getClassName().equals("C"));
-    Assert.assertTrue(orderDefs.get(3).getClassName().equals("Process"));
-    Assert.assertTrue(orderDefs.get(4).getClassName().equals("ProcessA"));
+    Assert.assertEquals("A", orderDefs.get(0).getClassName());
+    Assert.assertEquals("B", orderDefs.get(1).getClassName());
+    Assert.assertEquals("C", orderDefs.get(2).getClassName());
+    Assert.assertEquals("Process", orderDefs.get(3).getClassName());
+    Assert.assertEquals("ProcessA", orderDefs.get(4).getClassName());
 
     // Random order test
     defs.clear();
@@ -157,10 +147,10 @@ public class UserDefinedJavaClassMetaTest {
     defs.add(normalClassBDef);
     defs.add(processClassDef);
     orderDefs = userDefinedJavaClassMeta.orderDefinitions(defs);
-    Assert.assertTrue(orderDefs.get(0).getClassName().equals("A"));
-    Assert.assertTrue(orderDefs.get(1).getClassName().equals("B"));
-    Assert.assertTrue(orderDefs.get(2).getClassName().equals("C"));
-    Assert.assertTrue(orderDefs.get(3).getClassName().equals("Process"));
-    Assert.assertTrue(orderDefs.get(4).getClassName().equals("ProcessA"));
+    Assert.assertEquals("A", orderDefs.get(0).getClassName());
+    Assert.assertEquals("B", orderDefs.get(1).getClassName());
+    Assert.assertEquals("C", orderDefs.get(2).getClassName());
+    Assert.assertEquals("Process", orderDefs.get(3).getClassName());
+    Assert.assertEquals("ProcessA", orderDefs.get(4).getClassName());
   }
 }

@@ -645,7 +645,7 @@ public class PluginRegistry {
 
     IPlugin plugin =
         getPlugins(pluginType).stream()
-            .filter(p -> p.getClassMap().values().contains(className))
+            .filter(p -> p.getClassMap().containsValue(className))
             .findFirst()
             .orElse(null);
 
@@ -855,7 +855,7 @@ public class PluginRegistry {
       throw new HopPluginException(
           "Unable to find the classname for class type " + classType.getClass().getName());
     }
-    return (T) getClass(plugin, className);
+    return getClass(plugin, className);
   }
 
   /**
@@ -989,7 +989,7 @@ public class PluginRegistry {
       // All these plugin type interfaces are singletons...
       // So we should call a static getInstance() method...
       //
-      Method method = pluginTypeClass.getMethod("getInstance", new Class<?>[0]);
+      Method method = pluginTypeClass.getMethod("getInstance");
 
       return (IPluginType) method.invoke(null, new Object[0]);
     } catch (Exception e) {

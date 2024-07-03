@@ -62,11 +62,11 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
 
   private String name;
 
-  private LogChannel log;
+  private final LogChannel log;
 
-  private Map<Class<?>, String> objectTypes = new HashMap<>();
+  private final Map<Class<?>, String> objectTypes = new HashMap<>();
 
-  private Class<T> pluginClass;
+  private final Class<T> pluginClass;
 
   private List<String> extraLibraryFolders;
 

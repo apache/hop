@@ -999,17 +999,13 @@ public class DimensionLookupMeta extends BaseTransformMeta<DimensionLookup, Dime
         break;
       }
       switch (updateType) {
-        case DATE_UPDATED:
-        case DATE_INSERTED:
-        case DATE_INSERTED_UPDATED:
+        case DATE_UPDATED, DATE_INSERTED, DATE_INSERTED_UPDATED:
           valueMeta = new ValueMetaDate(field.getLookup());
           break;
         case LAST_VERSION:
           valueMeta = new ValueMetaBoolean(field.getLookup());
           break;
-        case INSERT:
-        case UPDATE:
-        case PUNCH_THROUGH:
+        case INSERT, UPDATE, PUNCH_THROUGH:
           IValueMeta prevValueMeta = prev.searchValueMeta(field.getName());
           if (prevValueMeta == null) {
             errorFields.add(field.getName());

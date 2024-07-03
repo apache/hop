@@ -987,17 +987,15 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     String errmsg = "";
     try {
       String realfoldername = variables.resolve(wFtpDirectory.getText());
-      if (!Utils.isEmpty(realfoldername)) {
-        if (connect()) {
-          if (wProtocol.getText().equals(ActionFtpDelete.PROTOCOL_FTP)) {
-            ftpclient.changeWorkingDirectory(pwdFolder);
-            ftpclient.changeWorkingDirectory(realfoldername);
-            folderexists = true;
-          } else if (wProtocol.getText().equals(ActionFtpDelete.PROTOCOL_SFTP)) {
-            sftpclient.chdir(pwdFolder);
-            sftpclient.chdir(realfoldername);
-            folderexists = true;
-          }
+      if (!Utils.isEmpty(realfoldername) && connect()) {
+        if (wProtocol.getText().equals(ActionFtpDelete.PROTOCOL_FTP)) {
+          ftpclient.changeWorkingDirectory(pwdFolder);
+          ftpclient.changeWorkingDirectory(realfoldername);
+          folderexists = true;
+        } else if (wProtocol.getText().equals(ActionFtpDelete.PROTOCOL_SFTP)) {
+          sftpclient.chdir(pwdFolder);
+          sftpclient.chdir(realfoldername);
+          folderexists = true;
         }
       }
     } catch (Exception e) {
@@ -1158,9 +1156,11 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     wNrErrorsLessThan.setText(Const.NVL(action.getLimitSuccess(), "10"));
 
     if (action.getSuccessCondition() != null) {
-      if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED)) {
+      if (action
+          .getSuccessCondition()
+          .equals(ActionFtpDelete.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED)) {
         wSuccessCondition.select(1);
-      } else if (action.getSuccessCondition().equals(action.SUCCESS_IF_ERRORS_LESS)) {
+      } else if (action.getSuccessCondition().equals(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS)) {
         wSuccessCondition.select(2);
       } else {
         wSuccessCondition.select(0);
@@ -1222,11 +1222,11 @@ public class ActionFtpDeleteDialog extends ActionDialog {
     actionFtpDelete.setLimitSuccess(wNrErrorsLessThan.getText());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
-      actionFtpDelete.setSuccessCondition(actionFtpDelete.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
+      actionFtpDelete.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
     } else if (wSuccessCondition.getSelectionIndex() == 2) {
-      actionFtpDelete.setSuccessCondition(actionFtpDelete.SUCCESS_IF_ERRORS_LESS);
+      actionFtpDelete.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ERRORS_LESS);
     } else {
-      actionFtpDelete.setSuccessCondition(actionFtpDelete.SUCCESS_IF_ALL_FILES_DOWNLOADED);
+      actionFtpDelete.setSuccessCondition(ActionFtpDelete.SUCCESS_IF_ALL_FILES_DOWNLOADED);
     }
 
     actionFtpDelete.setUsePublicKey(wUsePublicKey.getSelection());

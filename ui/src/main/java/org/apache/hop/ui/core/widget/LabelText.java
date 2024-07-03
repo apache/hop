@@ -42,7 +42,7 @@ public class LabelText extends Composite {
         labelText,
         toolTipText,
         props.getMiddlePct(),
-        props.getMargin());
+        PropsUi.getMargin());
   }
 
   public LabelText(

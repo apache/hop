@@ -86,7 +86,9 @@ public class HopSearchPerspective implements IHopPerspective {
   private TableView wResults;
   List<ISearchResult> allSearchResults;
 
-  public HopSearchPerspective() {}
+  public HopSearchPerspective() {
+    // Do nothing
+  }
 
   @Override
   public String getId() {
@@ -148,7 +150,9 @@ public class HopSearchPerspective implements IHopPerspective {
   }
 
   @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
+    // Do nothing
+  }
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
@@ -169,10 +173,10 @@ public class HopSearchPerspective implements IHopPerspective {
     composite = new Composite(parent, SWT.NONE);
     PropsUi.setLook(composite);
     FormLayout layout = new FormLayout();
-    layout.marginLeft = props.getMargin();
-    layout.marginTop = props.getMargin();
-    layout.marginLeft = props.getMargin();
-    layout.marginBottom = props.getMargin();
+    layout.marginLeft = PropsUi.getMargin();
+    layout.marginTop = PropsUi.getMargin();
+    layout.marginLeft = PropsUi.getMargin();
+    layout.marginBottom = PropsUi.getMargin();
     composite.setLayout(layout);
 
     FormData formData = new FormData();
@@ -182,7 +186,7 @@ public class HopSearchPerspective implements IHopPerspective {
     formData.bottom = new FormAttachment(100, 0);
     composite.setLayoutData(formData);
 
-    int margin = (int) (props.getMargin() * props.getZoomFactor());
+    int margin = (int) (PropsUi.getMargin() * props.getZoomFactor());
 
     // Add a simple label to test
     //
@@ -477,10 +481,14 @@ public class HopSearchPerspective implements IHopPerspective {
   }
 
   @Override
-  public void navigateToPreviousFile() {}
+  public void navigateToPreviousFile() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToNextFile() {}
+  public void navigateToNextFile() {
+    // Do nothing
+  }
 
   @Override
   public boolean hasNavigationPreviousFile() {

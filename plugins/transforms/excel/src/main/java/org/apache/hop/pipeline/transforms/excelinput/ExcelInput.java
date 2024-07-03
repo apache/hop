@@ -192,8 +192,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
               // Use case: we find a numeric value: convert it using the supplied format to the
               // desired data type...
               //
-            case IValueMeta.TYPE_NUMBER:
-            case IValueMeta.TYPE_INTEGER:
+            case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_INTEGER:
               if (field.getHopType() == IValueMeta.TYPE_DATE) {
                 // number to string conversion (20070522.00 --> "20070522")
                 //
@@ -315,8 +314,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
       return;
     }
     switch (cell.getType()) {
-      case BOOLEAN:
-      case BOOLEAN_FORMULA:
+      case BOOLEAN, BOOLEAN_FORMULA:
         if (!(v.getType() == IValueMeta.TYPE_STRING
             || v.getType() == IValueMeta.TYPE_NONE
             || v.getType() == IValueMeta.TYPE_BOOLEAN)) {
@@ -326,8 +324,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         }
         break;
 
-      case DATE:
-      case DATE_FORMULA:
+      case DATE, DATE_FORMULA:
         if (!(v.getType() == IValueMeta.TYPE_STRING
             || v.getType() == IValueMeta.TYPE_NONE
             || v.getType() == IValueMeta.TYPE_DATE)) {
@@ -340,8 +337,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         }
         break;
 
-      case LABEL:
-      case STRING_FORMULA:
+      case LABEL, STRING_FORMULA:
         if (v.getType() == IValueMeta.TYPE_BOOLEAN
             || v.getType() == IValueMeta.TYPE_DATE
             || v.getType() == IValueMeta.TYPE_INTEGER
@@ -359,8 +355,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> {
         // OK
         break;
 
-      case NUMBER:
-      case NUMBER_FORMULA:
+      case NUMBER, NUMBER_FORMULA:
         if (!(v.getType() == IValueMeta.TYPE_STRING
             || v.getType() == IValueMeta.TYPE_NONE
             || v.getType() == IValueMeta.TYPE_INTEGER

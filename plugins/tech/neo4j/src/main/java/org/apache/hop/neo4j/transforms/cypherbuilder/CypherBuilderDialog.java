@@ -502,9 +502,7 @@ public class CypherBuilderDialog extends BaseTransformDialog {
       case DELETE:
         addOperationDelete(operation);
         break;
-      case EDGE_MATCH:
-      case EDGE_MERGE:
-      case EDGE_CREATE:
+      case EDGE_MATCH, EDGE_MERGE, EDGE_CREATE:
         addOperationEdgeMatch(operation);
         break;
       case ORDER_BY:
@@ -718,9 +716,13 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     operationEdit();
   }
 
-  private void operationMoveUp() {}
+  private void operationMoveUp() {
+    // Do nothing
+  }
 
-  private void operationMoveDown() {}
+  private void operationMoveDown() {
+    // Do noting
+  }
 
   private Control addOperationWidgetText(
       BaseOperation operation,
@@ -730,7 +732,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
       String value,
       ITextChanged changed) {
     Label wlText = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlText);
     wlText.setText(label);
     wlText.setToolTipText(toolTip);
     FormData fdlText = new FormData();
@@ -740,7 +741,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     wlText.setLayoutData(fdlText);
 
     Text wText = new Text(wOperationComp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    // props.setLook(wlText);
     wText.setText(Const.NVL(value, ""));
     FormData fdText = new FormData();
     fdText.left = new FormAttachment(middle, margin);
@@ -754,7 +754,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetType(IOperation operation, Control lastControl) {
     Label wlOperationType = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlOperationType);
     wlOperationType.setText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.NodeOperationType.Label"));
     wlOperationType.setToolTipText(
@@ -766,7 +765,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     wlOperationType.setLayoutData(fdlOperationType);
 
     Text wOperationType = new Text(wOperationComp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    // props.setLook(wlOperationType);
     wOperationType.setText(Const.NVL(operation.getOperationType().keyWord(), ""));
     wOperationType.setEditable(false);
     FormData fdOperationType = new FormData();
@@ -780,7 +778,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetDetachDelete(DeleteOperation operation, Control lastControl) {
     Label wlDetachDelete = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlDetachDelete);
     wlDetachDelete.setText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.DetachDelete.Label"));
     wlDetachDelete.setToolTipText(
@@ -792,7 +789,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     wlDetachDelete.setLayoutData(fdlDetachDelete);
 
     Button wDetachDelete = new Button(wOperationComp, SWT.CHECK | SWT.LEFT);
-    // props.setLook(wlDetachDelete);
     wDetachDelete.setSelection(operation.isDetach());
     FormData fdDetachDelete = new FormData();
     fdDetachDelete.left = new FormAttachment(middle, margin);
@@ -807,7 +803,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetLabels(BaseOperation operation, Control lastControl) {
     Label wlLabels = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlLabels);
     wlLabels.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Labels.Label"));
     wlLabels.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Labels.Tooltip"));
@@ -860,7 +855,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetName(IOperation operation) {
     Label wlName = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlName);
     wlName.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Name.Label"));
     wlName.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Name.Tooltip"));
@@ -871,7 +865,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     wlName.setLayoutData(fdlName);
 
     Text wName = new Text(wOperationComp, SWT.SINGLE | SWT.BORDER | SWT.LEFT);
-    // props.setLook(wlName);
     wName.setText(Const.NVL(operation.getName(), ""));
     FormData fdName = new FormData();
     fdName.top = new FormAttachment(wlName, 0, SWT.CENTER);
@@ -892,7 +885,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetKeys(BaseOperation operation, Control lastControl) {
     Label wlKeys = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlKeys);
     wlKeys.setText(BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Keys.Label"));
     wlKeys.setToolTipText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Keys.Tooltip"));
@@ -958,7 +950,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetProperties(BaseOperation operation, Control lastControl) {
     Label wlProperties = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlProperties);
     wlProperties.setText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.Properties.Label"));
     wlProperties.setToolTipText(
@@ -1041,7 +1032,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
   private Control addOperationWidgetOrderByProperties(
       BaseOperation operation, Control lastControl) {
     Label wlProperties = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlProperties);
     wlProperties.setText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.OrderByProperties.Label"));
     wlProperties.setToolTipText(
@@ -1127,7 +1117,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetReturnValues(ReturnOperation operation, Control lastControl) {
     Label wlReturnValues = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlReturnValues);
     wlReturnValues.setText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.ReturnValues.Label"));
     wlReturnValues.setToolTipText(
@@ -1236,7 +1225,6 @@ public class CypherBuilderDialog extends BaseTransformDialog {
 
   private Control addOperationWidgetSetProperties(SetOperation operation, Control lastControl) {
     Label wlProperties = new Label(wOperationComp, SWT.RIGHT);
-    // props.setLook(wlProperties);
     wlProperties.setText(
         BaseMessages.getString(PKG, "CypherBuilderDialog.Operation.SetProperties.Label"));
     wlProperties.setToolTipText(

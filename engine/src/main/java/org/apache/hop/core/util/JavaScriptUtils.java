@@ -178,7 +178,7 @@ public class JavaScriptUtils {
     } else if (classType.equalsIgnoreCase("java.lang.Double")) {
       return BigDecimal.valueOf(((Double) value).doubleValue());
     } else if (classType.equalsIgnoreCase("java.lang.String")) {
-      return BigDecimal.valueOf((new Long((String) value)).longValue());
+      return BigDecimal.valueOf((Long.valueOf((String) value)).longValue());
     } else {
       throw new RuntimeException(
           "JavaScript conversion to BigNumber not implemented for " + classType);

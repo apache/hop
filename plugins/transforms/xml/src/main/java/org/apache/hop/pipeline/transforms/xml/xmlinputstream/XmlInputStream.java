@@ -439,8 +439,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         outputRowData = null; // ignore & continue
         break;
 
-      case XMLStreamConstants.CHARACTERS:
-      case XMLStreamConstants.CDATA:
+      case XMLStreamConstants.CHARACTERS, XMLStreamConstants.CDATA:
         if (data.pos_xml_dataName >= 0) {
           outputRowData[data.pos_xml_dataName] = data.elementName[data.elementLevel];
         }
@@ -631,7 +630,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       data.staxInstance = XMLInputFactory.newInstance(); // could select the parser later on
       data.staxInstance.setProperty("javax.xml.stream.isCoalescing", false);
       data.filenr = 0;
-      if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).size() == 0
+      if (getPipelineMeta().findPreviousTransforms(getTransformMeta()).isEmpty()
           && !meta.sourceFromInput) {
         String filename = resolve(meta.getFilename());
         if (Utils.isEmpty(filename)) {

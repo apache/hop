@@ -39,7 +39,7 @@ public class KerberosUtil {
 
   /** A Login Configuration that is pre-configured based on our static configuration. */
   public static class HopLoginConfiguration extends Configuration {
-    private AppConfigurationEntry[] entries;
+    private final AppConfigurationEntry[] entries;
 
     public HopLoginConfiguration(AppConfigurationEntry[] entries) {
       if (entries == null) {

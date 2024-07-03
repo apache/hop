@@ -91,7 +91,7 @@ public class NumberRangeDialog extends BaseTransformDialog {
     wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, props.getMargin(), null);
+        shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), null);
 
     // Create controls
     wTransformName =
@@ -106,7 +106,9 @@ public class NumberRangeDialog extends BaseTransformDialog {
     inputFieldControl.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -140,8 +142,8 @@ public class NumberRangeDialog extends BaseTransformDialog {
     PropsUi.setLook(rulesLable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
-    lableFormData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
-    lableFormData.top = new FormAttachment(fallBackValueControl, props.getMargin());
+    lableFormData.right = new FormAttachment(props.getMiddlePct(), -PropsUi.getMargin());
+    lableFormData.top = new FormAttachment(fallBackValueControl, PropsUi.getMargin());
     rulesLable.setLayoutData(lableFormData);
 
     final int FieldsRows = input.getRules().size();
@@ -175,9 +177,9 @@ public class NumberRangeDialog extends BaseTransformDialog {
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment(0, 0);
-    fdFields.top = new FormAttachment(rulesLable, props.getMargin());
+    fdFields.top = new FormAttachment(rulesLable, PropsUi.getMargin());
     fdFields.right = new FormAttachment(100, 0);
-    fdFields.bottom = new FormAttachment(wOk, -2 * props.getMargin());
+    fdFields.bottom = new FormAttachment(wOk, -2 * PropsUi.getMargin());
     rulesControl.setLayoutData(fdFields);
   }
 
@@ -188,12 +190,12 @@ public class NumberRangeDialog extends BaseTransformDialog {
     PropsUi.setLook(lable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
-    lableFormData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
+    lableFormData.right = new FormAttachment(props.getMiddlePct(), -PropsUi.getMargin());
     // In case it is the first control
     if (prevControl != null) {
-      lableFormData.top = new FormAttachment(prevControl, props.getMargin());
+      lableFormData.top = new FormAttachment(prevControl, PropsUi.getMargin());
     } else {
-      lableFormData.top = new FormAttachment(0, props.getMargin());
+      lableFormData.top = new FormAttachment(0, PropsUi.getMargin());
     }
     lable.setLayoutData(lableFormData);
 
@@ -204,9 +206,9 @@ public class NumberRangeDialog extends BaseTransformDialog {
     widgetFormData.left = new FormAttachment(props.getMiddlePct(), 0);
     // In case it is the first control
     if (prevControl != null) {
-      widgetFormData.top = new FormAttachment(prevControl, props.getMargin());
+      widgetFormData.top = new FormAttachment(prevControl, PropsUi.getMargin());
     } else {
-      widgetFormData.top = new FormAttachment(0, props.getMargin());
+      widgetFormData.top = new FormAttachment(0, PropsUi.getMargin());
     }
     widgetFormData.right = new FormAttachment(100, 0);
     control.setLayoutData(widgetFormData);
@@ -221,12 +223,12 @@ public class NumberRangeDialog extends BaseTransformDialog {
     PropsUi.setLook(lable);
     FormData lableFormData = new FormData();
     lableFormData.left = new FormAttachment(0, 0);
-    lableFormData.right = new FormAttachment(props.getMiddlePct(), -props.getMargin());
+    lableFormData.right = new FormAttachment(props.getMiddlePct(), -PropsUi.getMargin());
     // In case it is the first control
     if (prevControl != null) {
-      lableFormData.top = new FormAttachment(prevControl, props.getMargin());
+      lableFormData.top = new FormAttachment(prevControl, PropsUi.getMargin());
     } else {
-      lableFormData.top = new FormAttachment(0, props.getMargin());
+      lableFormData.top = new FormAttachment(0, PropsUi.getMargin());
     }
     lable.setLayoutData(lableFormData);
 
@@ -237,9 +239,9 @@ public class NumberRangeDialog extends BaseTransformDialog {
     widgetFormData.left = new FormAttachment(props.getMiddlePct(), 0);
     // In case it is the first control
     if (prevControl != null) {
-      widgetFormData.top = new FormAttachment(prevControl, props.getMargin());
+      widgetFormData.top = new FormAttachment(prevControl, PropsUi.getMargin());
     } else {
-      widgetFormData.top = new FormAttachment(0, props.getMargin());
+      widgetFormData.top = new FormAttachment(0, PropsUi.getMargin());
     }
     widgetFormData.right = new FormAttachment(100, 0);
     control.setLayoutData(widgetFormData);

@@ -128,7 +128,7 @@ public class EnterTextDialog extends Dialog {
     shell.setLayout(formLayout);
     shell.setText(title);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     if (!readonly) {

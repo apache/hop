@@ -99,7 +99,7 @@ public class CheckResultDialog extends Dialog {
     shell.setText(BaseMessages.getString(PKG, "CheckResultDialog.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons at the bottom
     //

@@ -76,7 +76,7 @@ public class MessageBox extends Dialog {
     layout.marginBottom = PropsUi.getFormMargin();
     shell.setLayout(layout);
 
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Optional to the right
     //

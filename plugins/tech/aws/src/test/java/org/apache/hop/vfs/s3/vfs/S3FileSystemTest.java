@@ -130,7 +130,7 @@ public class S3FileSystemTest {
     assertEquals(10, s3FileSystem.convertToInt(10L));
 
     // TEST 2: at int max
-    assertEquals(Integer.MAX_VALUE, s3FileSystem.convertToInt((long) Integer.MAX_VALUE));
+    assertEquals(Integer.MAX_VALUE, s3FileSystem.convertToInt(Integer.MAX_VALUE));
 
     // TEST 3: above int max
     assertEquals(Integer.MAX_VALUE, s3FileSystem.convertToInt(5L * 1024L * 1024L * 1024L));

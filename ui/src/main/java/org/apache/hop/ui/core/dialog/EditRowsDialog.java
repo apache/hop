@@ -146,7 +146,7 @@ public class EditRowsDialog {
         new Button[] {
           wOk, wCancel,
         },
-        props.getMargin(),
+        PropsUi.getMargin(),
         null);
 
     if (addFields()) {
@@ -161,7 +161,7 @@ public class EditRowsDialog {
   }
 
   private boolean addFields() {
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     if (wlMessage == null) {
       wlMessage = new Label(shell, SWT.LEFT);

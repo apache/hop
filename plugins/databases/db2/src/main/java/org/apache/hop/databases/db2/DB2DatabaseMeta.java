@@ -156,15 +156,13 @@ public class DB2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
     int type = v.getType();
     switch (type) {
-      case IValueMeta.TYPE_TIMESTAMP:
-      case IValueMeta.TYPE_DATE:
+      case IValueMeta.TYPE_TIMESTAMP, IValueMeta.TYPE_DATE:
         retval += "TIMESTAMP";
         break;
       case IValueMeta.TYPE_BOOLEAN:
         retval += "CHARACTER(1)";
         break;
-      case IValueMeta.TYPE_NUMBER:
-      case IValueMeta.TYPE_BIGNUMBER:
+      case IValueMeta.TYPE_NUMBER, IValueMeta.TYPE_BIGNUMBER:
         if (fieldname.equalsIgnoreCase(tk) && useAutoinc) { // Technical key: auto increment field!
           retval +=
               "BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 0, INCREMENT BY 1, NOCACHE)";

@@ -80,7 +80,7 @@ public class EnterSearchDialog {
     shell.setLayout(formLayout);
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Search Transforms?...
     Label wlTransform = new Label(shell, SWT.RIGHT);
@@ -176,7 +176,7 @@ public class EnterSearchDialog {
         });
 
     BaseTransformDialog.positionBottomButtons(
-        shell, new Button[] {wOk, wCancel}, props.getMargin(), wFilter);
+        shell, new Button[] {wOk, wCancel}, PropsUi.getMargin(), wFilter);
 
     getData();
 

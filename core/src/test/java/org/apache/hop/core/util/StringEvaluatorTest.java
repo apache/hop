@@ -19,6 +19,7 @@ package org.apache.hop.core.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class StringEvaluatorTest {
     }
     assertFalse(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isNumber());
-    assertTrue(mask.equals(evaluator.getAdvicedResult().getConversionMeta().getConversionMask()));
+    assertEquals(mask, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
   /////////////////////////////////////
@@ -192,7 +193,7 @@ public class StringEvaluatorTest {
     }
     assertFalse(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isNumber());
-    assertTrue(mask.equals(evaluator.getAdvicedResult().getConversionMeta().getConversionMask()));
+    assertEquals(mask, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
   /////////////////////////////////////
@@ -214,7 +215,7 @@ public class StringEvaluatorTest {
     }
     assertFalse(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isInteger());
-    assertTrue(mask.equals(evaluator.getAdvicedResult().getConversionMeta().getConversionMask()));
+    assertEquals(mask, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
   /////////////////////////////////////
@@ -294,7 +295,7 @@ public class StringEvaluatorTest {
     assertFalse(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isDate());
     String actualMask = evaluator.getAdvicedResult().getConversionMeta().getConversionMask();
-    assertTrue(maskEn.equals(actualMask));
+    assertEquals(maskEn, actualMask);
   }
 
   @Test
@@ -311,8 +312,8 @@ public class StringEvaluatorTest {
     evaluator.evaluateString("02/29/2000 00:00:00");
     assertFalse(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isDate());
-    assertTrue(
-        sampleFormat.equals(evaluator.getAdvicedResult().getConversionMeta().getConversionMask()));
+    assertEquals(
+        sampleFormat, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 
   @Test
@@ -326,12 +327,10 @@ public class StringEvaluatorTest {
     evaluator.evaluateString("02/29/20 00:00:00");
     assertFalse(evaluator.getStringEvaluationResults().isEmpty());
     assertTrue(evaluator.getAdvicedResult().getConversionMeta().isDate());
-    assertFalse(
-        sampleLongFormat.equals(
-            evaluator.getAdvicedResult().getConversionMeta().getConversionMask()));
+    assertNotEquals(
+        sampleLongFormat, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
     // should advice short format
-    assertTrue(
-        sampleShortFormat.equals(
-            evaluator.getAdvicedResult().getConversionMeta().getConversionMask()));
+    assertEquals(
+        sampleShortFormat, evaluator.getAdvicedResult().getConversionMeta().getConversionMask());
   }
 }

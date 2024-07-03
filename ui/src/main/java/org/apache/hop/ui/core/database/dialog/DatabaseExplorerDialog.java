@@ -315,7 +315,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData prevNData = new FormData();
     prevNData.left = new FormAttachment(0, 0);
     prevNData.right = new FormAttachment(100, 0);
-    prevNData.top = new FormAttachment(bPrev, props.getMargin());
+    prevNData.top = new FormAttachment(bPrev, PropsUi.getMargin());
     bPrevN.setLayoutData(prevNData);
 
     bCount = new Button(buttonsComposite, SWT.PUSH);
@@ -333,7 +333,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData countData = new FormData();
     countData.left = new FormAttachment(0, 0);
     countData.right = new FormAttachment(100, 0);
-    countData.top = new FormAttachment(bPrevN, props.getMargin());
+    countData.top = new FormAttachment(bPrevN, PropsUi.getMargin());
     bCount.setLayoutData(countData);
 
     bShow = new Button(buttonsComposite, SWT.PUSH);
@@ -351,7 +351,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData showData = new FormData();
     showData.left = new FormAttachment(0, 0);
     showData.right = new FormAttachment(100, 0);
-    showData.top = new FormAttachment(bCount, props.getMargin() * 7);
+    showData.top = new FormAttachment(bCount, PropsUi.getMargin() * 7);
     bShow.setLayoutData(showData);
 
     bDDL = new Button(buttonsComposite, SWT.PUSH);
@@ -367,7 +367,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData ddlData = new FormData();
     ddlData.left = new FormAttachment(0, 0);
     ddlData.right = new FormAttachment(100, 0);
-    ddlData.top = new FormAttachment(bShow, props.getMargin());
+    ddlData.top = new FormAttachment(bShow, PropsUi.getMargin());
     bDDL.setLayoutData(ddlData);
 
     bDDL2 = new Button(buttonsComposite, SWT.PUSH);
@@ -384,7 +384,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData ddl2Data = new FormData();
     ddl2Data.left = new FormAttachment(0, 0);
     ddl2Data.right = new FormAttachment(100, 0);
-    ddl2Data.top = new FormAttachment(bDDL, props.getMargin());
+    ddl2Data.top = new FormAttachment(bDDL, PropsUi.getMargin());
     bDDL2.setLayoutData(ddl2Data);
 
     bSql = new Button(buttonsComposite, SWT.PUSH);
@@ -402,7 +402,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData sqlData = new FormData();
     sqlData.left = new FormAttachment(0, 0);
     sqlData.right = new FormAttachment(100, 0);
-    sqlData.top = new FormAttachment(bDDL2, props.getMargin());
+    sqlData.top = new FormAttachment(bDDL2, PropsUi.getMargin());
     bSql.setLayoutData(sqlData);
 
     bTruncate = new Button(buttonsComposite, SWT.PUSH);
@@ -420,7 +420,7 @@ public class DatabaseExplorerDialog extends Dialog {
     FormData truncateData = new FormData();
     truncateData.left = new FormAttachment(0, 0);
     truncateData.right = new FormAttachment(100, 0);
-    truncateData.top = new FormAttachment(bSql, props.getMargin() * 7);
+    truncateData.top = new FormAttachment(bSql, PropsUi.getMargin() * 7);
     bTruncate.setLayoutData(truncateData);
 
     FormData fdComposite = new FormData();
@@ -766,7 +766,7 @@ public class DatabaseExplorerDialog extends Dialog {
     List<Object[]> rows = pd.open();
     if (rows != null) // otherwise an already shown error...
     {
-      if (rows.size() > 0) {
+      if (!rows.isEmpty()) {
         PreviewRowsDialog prd =
             new PreviewRowsDialog(shell, variables, SWT.NONE, tableName, pd.getRowMeta(), rows);
         prd.open();

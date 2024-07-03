@@ -264,8 +264,7 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
         case IValueMeta.TYPE_NUMBER:
           values[i] = valueMeta.getNumber(valueData);
           break;
-        case IValueMeta.TYPE_DATE:
-        case IValueMeta.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
           values[i] = valueMeta.getDate(valueData);
           break;
         case IValueMeta.TYPE_STRING:
@@ -316,8 +315,7 @@ public class AccessOutput extends BaseTransform<AccessOutputMeta, AccessOutputDa
           column.setType(DataType.DOUBLE);
           column.setLength(DataType.DOUBLE.getFixedSize());
           break;
-        case IValueMeta.TYPE_DATE:
-        case IValueMeta.TYPE_TIMESTAMP:
+        case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
           column.setType(DataType.SHORT_DATE_TIME);
           column.setLength(DataType.SHORT_DATE_TIME.getFixedSize());
           break;

@@ -237,14 +237,11 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction, I
   }
 
   private boolean getStatus() {
-    boolean retval = false;
-
-    if ((nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_ALL_FILES_DOWNLOADED))
-        || (nrFilesDeleted >= limitFiles
-            && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED))
-        || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS))) {
-      retval = true;
-    }
+    boolean retval =
+        (nrErrors == 0 && getSuccessCondition().equals(SUCCESS_IF_ALL_FILES_DOWNLOADED))
+            || (nrFilesDeleted >= limitFiles
+                && getSuccessCondition().equals(SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED))
+            || (nrErrors <= limitFiles && getSuccessCondition().equals(SUCCESS_IF_ERRORS_LESS));
 
     return retval;
   }

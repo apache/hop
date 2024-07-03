@@ -86,7 +86,7 @@ public class JaninoDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "JaninoDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Some buttons at the bottom
     wOk = new Button(shell, SWT.PUSH);
@@ -197,7 +197,7 @@ public class JaninoDialog extends BaseTransformDialog {
     wFields.addModifyListener(
         arg0 ->
             // Now set the combo's
-            shell.getDisplay().asyncExec(() -> setComboBoxes()));
+            shell.getDisplay().asyncExec(this::setComboBoxes));
 
     getData();
     currentMeta.setChanged(changed);

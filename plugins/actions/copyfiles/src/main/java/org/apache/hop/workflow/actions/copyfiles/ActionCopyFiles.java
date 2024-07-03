@@ -19,7 +19,7 @@ package org.apache.hop.workflow.actions.copyfiles;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -457,7 +457,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               // Copy the file to the destination folder
               //
               NameFileFilter nameFileFilter =
-                  new NameFileFilter(Arrays.asList(sourceFileFolder.getName().getBaseName()));
+                  new NameFileFilter(
+                      Collections.singletonList(sourceFileFolder.getName().getBaseName()));
               FileSelector fileSelector = new FileFilterSelector(nameFileFilter);
               destinationFileFolder.copyFrom(sourceFileFolder.getParent(), fileSelector);
 

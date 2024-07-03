@@ -19,6 +19,7 @@ package org.apache.hop.core.extension;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -108,9 +109,8 @@ public class ExtensionPointIntegrationTest {
             ExtensionPointPluginType.class,
             PluginRegistry.getInstance()
                 .getPlugin(ExtensionPointPluginType.class, "id" + jobAfterOpen.id));
-    assertTrue(
-        ExtensionPointMap.getInstance().getTableValue(jobAfterOpen.id, "id" + jobAfterOpen.id)
-            == null);
+    assertNull(
+        ExtensionPointMap.getInstance().getTableValue(jobAfterOpen.id, "id" + jobAfterOpen.id));
     assertEquals(
         HopExtensionPoint.values().length - 1, ExtensionPointMap.getInstance().getNumberOfRows());
   }

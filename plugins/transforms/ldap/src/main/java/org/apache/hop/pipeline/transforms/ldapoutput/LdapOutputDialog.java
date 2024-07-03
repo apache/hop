@@ -169,7 +169,7 @@ public class LdapOutputDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "LdapOutputDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // Buttons go at the bottom
     //

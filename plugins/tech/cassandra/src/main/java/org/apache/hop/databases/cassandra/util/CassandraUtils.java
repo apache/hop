@@ -22,7 +22,7 @@ import com.google.common.base.Joiner;
 import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -91,11 +91,9 @@ public class CassandraUtils {
         return "bigint";
       case IValueMeta.TYPE_NUMBER:
         return "double";
-      case IValueMeta.TYPE_DATE:
-      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
         return "timestamp";
-      case IValueMeta.TYPE_BINARY:
-      case IValueMeta.TYPE_SERIALIZABLE:
+      case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE:
         return "blob";
     }
 
@@ -114,11 +112,9 @@ public class CassandraUtils {
         return DataTypes.BIGINT;
       case IValueMeta.TYPE_NUMBER:
         return DataTypes.DOUBLE;
-      case IValueMeta.TYPE_DATE:
-      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
         return DataTypes.TIMESTAMP; // CQL timestamp
-      case IValueMeta.TYPE_BINARY:
-      case IValueMeta.TYPE_SERIALIZABLE:
+      case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE:
       default:
         return DataTypes.BLOB;
     }
@@ -135,15 +131,13 @@ public class CassandraUtils {
     String[] cqlStatements = source.split(";");
     List<String> individualStatements = new ArrayList<>();
 
-    if (cqlStatements.length > 0) {
-      for (String cqlC : cqlStatements) {
-        cqlC = cqlC.trim();
-        if (!cqlC.endsWith(";")) {
-          cqlC += ";";
-        }
-
-        individualStatements.add(cqlC);
+    for (String cqlC : cqlStatements) {
+      cqlC = cqlC.trim();
+      if (!cqlC.endsWith(";")) {
+        cqlC += ";";
       }
+
+      individualStatements.add(cqlC);
     }
 
     return individualStatements;
@@ -157,7 +151,7 @@ public class CassandraUtils {
    * @return an array of bytes containing the compressed query
    */
   public static byte[] compressCQLQuery(String queryStr, Compression compression) {
-    byte[] data = queryStr.getBytes(Charset.forName("UTF-8"));
+    byte[] data = queryStr.getBytes(StandardCharsets.UTF_8);
 
     if (compression != Compression.GZIP) {
       return data;
@@ -217,7 +211,7 @@ public class CassandraUtils {
         && tempS.charAt(fromIndex - 1) != ' '
         && (fromIndex + 4 < tempS.length())
         && tempS.charAt(fromIndex + 4) != ' ') {
-      tempS = tempS.substring(fromIndex + 4, tempS.length());
+      tempS = tempS.substring(fromIndex + 4);
       fromIndex = tempS.indexOf("from");
       offset += (4 + fromIndex);
     }
@@ -628,8 +622,7 @@ public class CassandraUtils {
           String cassandraString = dt.getString(decomposed);
           return quote + cassandraString + quote;
         }
-      case IValueMeta.TYPE_DATE:
-      case IValueMeta.TYPE_TIMESTAMP:
+      case IValueMeta.TYPE_DATE, IValueMeta.TYPE_TIMESTAMP:
         {
           TimestampSerializer ts = TimestampSerializer.instance;
           Date toConvert = vm.getDate(value);
@@ -637,8 +630,7 @@ public class CassandraUtils {
               ts.toStringUTC(toConvert); // Timestamp string in format "yyyy-MM-dd'T'HH:mm:ss.SSSX"
           return "'" + escapeSingleQuotes(cassandraFormattedDateString) + "'";
         }
-      case IValueMeta.TYPE_BINARY:
-      case IValueMeta.TYPE_SERIALIZABLE:
+      case IValueMeta.TYPE_BINARY, IValueMeta.TYPE_SERIALIZABLE:
 
         // TODO blob constant (hex string) for TYPE_BINARY (see
         // http://cassandra.apache.org/doc/cql3/CQL.html)
@@ -679,7 +671,6 @@ public class CassandraUtils {
    * @param password the password for (optional) authentication
    * @param opts the additional options to the driver
    * @return a connection to cassandra
-   * @throws Exception if a problem occurs during connection
    */
   public static DriverConnection getCassandraConnection(
       String hosts,
@@ -687,8 +678,7 @@ public class CassandraUtils {
       String localDataCenter,
       String username,
       String password,
-      Map<String, String> opts)
-      throws Exception {
+      Map<String, String> opts) {
     DriverConnection conn = new DriverConnection();
     conn.setHosts(hosts);
     conn.setDefaultPort(port);
@@ -798,19 +788,13 @@ public class CassandraUtils {
       return partitionKey;
     } else if (primaryKey.charAt(0) == '(') {
       return getPartitionKeyIter(
-          primaryKey.substring(1, primaryKey.length()),
-          partitionKey + primaryKey.charAt(0),
-          ++parenLevel);
+          primaryKey.substring(1), partitionKey + primaryKey.charAt(0), ++parenLevel);
     } else if (primaryKey.charAt(0) == ')') {
       return getPartitionKeyIter(
-          primaryKey.substring(1, primaryKey.length()),
-          partitionKey + primaryKey.charAt(0),
-          --parenLevel);
+          primaryKey.substring(1), partitionKey + primaryKey.charAt(0), --parenLevel);
     } else {
       return getPartitionKeyIter(
-          primaryKey.substring(1, primaryKey.length()),
-          partitionKey + primaryKey.charAt(0),
-          parenLevel);
+          primaryKey.substring(1), partitionKey + primaryKey.charAt(0), parenLevel);
     }
   }
 }

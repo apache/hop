@@ -374,7 +374,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     // Create buttons
     Button[] buttons = editor.createButtonsForButtonBar(composite);
     if (buttons != null) {
-      BaseTransformDialog.positionBottomButtons(composite, buttons, props.getMargin(), null);
+      BaseTransformDialog.positionBottomButtons(composite, buttons, PropsUi.getMargin(), null);
     }
 
     // Create editor content area
@@ -389,9 +389,9 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
     fdArea.top = new FormAttachment(0, 0);
     fdArea.right = new FormAttachment(100, 0);
     if (buttons != null) {
-      fdArea.bottom = new FormAttachment(buttons[0], -props.getMargin());
+      fdArea.bottom = new FormAttachment(buttons[0], -PropsUi.getMargin());
     } else {
-      fdArea.bottom = new FormAttachment(100, -props.getMargin());
+      fdArea.bottom = new FormAttachment(100, -PropsUi.getMargin());
     }
 
     area.setLayoutData(fdArea);
@@ -580,8 +580,7 @@ public class MetadataPerspective implements IHopPerspective, TabClosable {
           SWT.KeyUp,
           event -> {
             switch (event.keyCode) {
-              case SWT.CR:
-              case SWT.KEYPAD_CR:
+              case SWT.CR, SWT.KEYPAD_CR:
                 // If name changed
                 if (!item.getText().equals(text.getText())) {
                   try {

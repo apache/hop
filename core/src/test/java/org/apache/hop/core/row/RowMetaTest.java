@@ -43,7 +43,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -66,9 +65,6 @@ public class RowMetaTest {
   public static void setUpBeforeClass() throws Exception {
     HopClientEnvironment.init();
   }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
@@ -164,32 +160,32 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testAddValueMetaValueMetaInterface() throws HopPluginException {
+  public void testAddValueMetaValueMetaInterface() {
     rowMeta.addValueMeta(charly);
     assertTrue(rowMeta.getValueMetaList().contains(charly));
   }
 
   @Test
-  public void testAddValueMetaNullName() throws HopPluginException {
+  public void testAddValueMetaNullName() {
     IValueMeta vmi = new ValueMetaBase();
     rowMeta.addValueMeta(vmi);
     assertTrue(rowMeta.getValueMetaList().contains(vmi));
   }
 
   @Test
-  public void testAddValueMetaIntValueMetaInterface() throws HopPluginException {
+  public void testAddValueMetaIntValueMetaInterface() {
     rowMeta.addValueMeta(1, charly);
-    assertTrue(rowMeta.getValueMetaList().indexOf(charly) == 1);
+    assertEquals(1, rowMeta.getValueMetaList().indexOf(charly));
   }
 
   @Test
   public void testGetValueMeta() {
     // see before method insertion order.
-    assertTrue(rowMeta.getValueMeta(1).equals(integer));
+    assertEquals(rowMeta.getValueMeta(1), integer);
   }
 
   @Test
-  public void testSetValueMeta() throws HopPluginException {
+  public void testSetValueMeta() {
     rowMeta.setValueMeta(1, charly);
     assertEquals(1, rowMeta.getValueMetaList().indexOf(charly));
     assertEquals("There is still 3 elements:", 3, rowMeta.size());
@@ -197,7 +193,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testSetValueMetaDup() throws HopPluginException {
+  public void testSetValueMetaDup() {
     rowMeta.setValueMeta(1, dup);
     assertEquals("There is still 3 elements:", 3, rowMeta.size());
     assertEquals(-1, rowMeta.indexOfValue("integer"));
@@ -214,7 +210,7 @@ public class RowMetaTest {
   }
 
   @Test
-  public void testSetValueMetaNullName() throws HopPluginException {
+  public void testSetValueMetaNullName() {
     IValueMeta vmi = new ValueMetaBase();
     rowMeta.setValueMeta(1, vmi);
     assertEquals(1, rowMeta.getValueMetaList().indexOf(vmi));
@@ -285,7 +281,7 @@ public class RowMetaTest {
     rowMeta.removeValueMeta("string");
     assertEquals(2, rowMeta.size());
     assertNotNull(rowMeta.searchValueMeta("integer"));
-    assertTrue(rowMeta.searchValueMeta("integer").getName().equals("integer"));
+    assertEquals("integer", rowMeta.searchValueMeta("integer").getName());
     assertNull(rowMeta.searchValueMeta("string"));
   }
 
@@ -296,7 +292,7 @@ public class RowMetaTest {
     assertNotNull(rowMeta.searchValueMeta("date"));
     assertNotNull(rowMeta.searchValueMeta("string"));
     assertNull(rowMeta.searchValueMeta("notExists"));
-    assertTrue(rowMeta.searchValueMeta("date").getName().equals("date"));
+    assertEquals("date", rowMeta.searchValueMeta("date").getName());
     assertNull(rowMeta.searchValueMeta("integer"));
   }
 
@@ -312,7 +308,7 @@ public class RowMetaTest {
       rowMeta.addValueMeta(integer);
     }
     String resultName = "integer_13";
-    assertTrue(rowMeta.searchValueMeta(resultName).getName().equals(resultName));
+    assertEquals(rowMeta.searchValueMeta(resultName).getName(), resultName);
   }
 
   @Test

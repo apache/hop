@@ -66,7 +66,7 @@ public class MongoDbConnectionEditor extends MetadataEditor<MongoDbConnection>
     this.parent = parent;
 
     PropsUi props = PropsUi.getInstance();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
     int middle = props.getMiddlePct();
 
     // Name...

@@ -80,7 +80,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     }
     buttons.add(wCancel);
     BaseTransformDialog.positionBottomButtons(
-        shell, buttons.toArray(new Button[0]), props.getMargin(), null);
+        shell, buttons.toArray(new Button[0]), PropsUi.getMargin(), null);
 
     Button wHelp = editor.createHelpButton(shell);
     FormData fdHelp = new FormData();
@@ -98,7 +98,7 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
     fdArea.left = new FormAttachment(0, 0);
     fdArea.top = new FormAttachment(0, 0);
     fdArea.right = new FormAttachment(100, 0);
-    fdArea.bottom = new FormAttachment(wOk, -props.getMargin());
+    fdArea.bottom = new FormAttachment(wOk, -PropsUi.getMargin());
     area.setLayoutData(fdArea);
     PropsUi.setLook(area);
 

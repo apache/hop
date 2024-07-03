@@ -18,7 +18,6 @@
 package org.apache.hop.core.logging;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
@@ -51,49 +50,47 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testWhenLogMarkMappingTurnOn_DetailedSubjectUsed() throws Exception {
+  public void testWhenLogMarkMappingTurnOn_DetailedSubjectUsed() {
     turnOnLogMarkMapping();
 
     logMessage = new LogMessage(LOG_MESSAGE, treeLogChannelId, LOG_LEVEL);
-    assertTrue(LOG_MESSAGE.equals(logMessage.getMessage()));
-    assertTrue(LOG_LEVEL.equals(logMessage.getLevel()));
-    assertTrue(treeLogChannelId.equals(logMessage.getLogChannelId()));
-    assertTrue(
-        "[PIPELINE_SUBJECT].[TRANSFORM_SUBJECT].PIPELINE_CHILD_SUBJECT"
-            .equals(logMessage.getSubject()));
+    assertEquals(LOG_MESSAGE, logMessage.getMessage());
+    assertEquals(LOG_LEVEL, logMessage.getLevel());
+    assertEquals(treeLogChannelId, logMessage.getLogChannelId());
+    assertEquals(
+        "[PIPELINE_SUBJECT].[TRANSFORM_SUBJECT].PIPELINE_CHILD_SUBJECT", logMessage.getSubject());
   }
 
   @Test
-  public void testWhenLogMarkMappingTurnOff_SimpleSubjectUsed() throws Exception {
+  public void testWhenLogMarkMappingTurnOff_SimpleSubjectUsed() {
     turnOffLogMarkMapping();
 
     logMessage = new LogMessage(LOG_MESSAGE, treeLogChannelId, LOG_LEVEL);
-    assertTrue(LOG_MESSAGE.equals(logMessage.getMessage()));
-    assertTrue(LOG_LEVEL.equals(logMessage.getLevel()));
-    assertTrue(treeLogChannelId.equals(logMessage.getLogChannelId()));
-    assertTrue("PIPELINE_CHILD_SUBJECT".equals(logMessage.getSubject()));
+    assertEquals(LOG_MESSAGE, logMessage.getMessage());
+    assertEquals(LOG_LEVEL, logMessage.getLevel());
+    assertEquals(treeLogChannelId, logMessage.getLogChannelId());
+    assertEquals("PIPELINE_CHILD_SUBJECT", logMessage.getSubject());
   }
 
   @Test
   public void
-      testWhenLogMarkMappingTurnOnAndNoSubMappingUsed_DetailedSubjectContainsOnlySimpleSubject()
-          throws Exception {
+      testWhenLogMarkMappingTurnOnAndNoSubMappingUsed_DetailedSubjectContainsOnlySimpleSubject() {
     turnOnLogMarkMapping();
 
     simpleLogChannelId =
         LoggingRegistry.getInstance().registerLoggingSource(getLoggingObjectWithOneParent());
 
     logMessage = new LogMessage(LOG_MESSAGE, simpleLogChannelId, LOG_LEVEL);
-    assertTrue(LOG_MESSAGE.equals(logMessage.getMessage()));
-    assertTrue(LOG_LEVEL.equals(logMessage.getLevel()));
-    assertTrue(simpleLogChannelId.equals(logMessage.getLogChannelId()));
-    assertTrue("PIPELINE_SUBJECT".equals(logMessage.getSubject()));
+    assertEquals(LOG_MESSAGE, logMessage.getMessage());
+    assertEquals(LOG_LEVEL, logMessage.getLevel());
+    assertEquals(simpleLogChannelId, logMessage.getLogChannelId());
+    assertEquals("PIPELINE_SUBJECT", logMessage.getSubject());
 
     LoggingRegistry.getInstance().removeIncludingChildren(simpleLogChannelId);
   }
 
   @Test
-  public void testToString() throws Exception {
+  public void testToString() {
     turnOnLogMarkMapping();
 
     simpleLogChannelId =
@@ -105,7 +102,7 @@ public class LogMessageTest {
   }
 
   @Test
-  public void testToString_withOneArgument() throws Exception {
+  public void testToString_withOneArgument() {
     turnOnLogMarkMapping();
 
     simpleLogChannelId =

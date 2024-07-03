@@ -450,7 +450,7 @@ public abstract class AbstractMeta
 
   /** Remove listener */
   public void addCurrentDirectoryChangedListener(ICurrentDirectoryChangedListener listener) {
-    if (listener != null && !currentDirectoryChangedListeners.contains(listener)) {
+    if (listener != null) {
       currentDirectoryChangedListeners.add(listener);
     }
   }

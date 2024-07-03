@@ -19,7 +19,7 @@
 package org.apache.hop.core.row.value;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -40,7 +40,7 @@ import org.junit.Test;
 
 public class ValueMetaAvroRecordTest {
 
-  private static final String schemaJson =
+  private static final String SCHEMA_JSON =
       "{\n"
           + "  \"doc\": \"No documentation URL for now\",\n"
           + "  \"fields\": [\n"
@@ -99,7 +99,7 @@ public class ValueMetaAvroRecordTest {
 
   @Test
   public void testCloneMeta() {
-    Schema schema = new Schema.Parser().parse(schemaJson);
+    Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     String schemaString1 = schema.toString(true);
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test");
     valueMeta.setSchema(schema);
@@ -118,7 +118,7 @@ public class ValueMetaAvroRecordTest {
 
     GenericRecord cloned = (GenericRecord) valueMeta.cloneValueData(genericRecord);
 
-    assertFalse(genericRecord == cloned);
+    assertNotSame(genericRecord, cloned);
     verifyGenericRecords(genericRecord, cloned);
   }
 
@@ -128,7 +128,7 @@ public class ValueMetaAvroRecordTest {
 
     assertEquals("Avro Generic Record", valueMeta.toStringMeta());
 
-    Schema schema = new Schema.Parser().parse(schemaJson);
+    Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     valueMeta.setSchema(schema);
 
     assertEquals(
@@ -143,7 +143,7 @@ public class ValueMetaAvroRecordTest {
 
   @Test
   public void testWriteReadMeta() throws Exception {
-    Schema schema = new Schema.Parser().parse(schemaJson);
+    Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", schema);
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -163,7 +163,7 @@ public class ValueMetaAvroRecordTest {
 
   @Test
   public void testStoreLoadMetaInJson() throws Exception {
-    Schema schema = new Schema.Parser().parse(schemaJson);
+    Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     ValueMetaAvroRecord valueMeta = new ValueMetaAvroRecord("test", schema);
 
     JSONObject jValue = new JSONObject();
@@ -214,7 +214,7 @@ public class ValueMetaAvroRecordTest {
   }
 
   private GenericRecord generateGenericRecord() {
-    Schema schema = new Schema.Parser().parse(schemaJson);
+    Schema schema = new Schema.Parser().parse(SCHEMA_JSON);
     GenericRecord genericRecord = new GenericData.Record(schema);
     genericRecord.put("id", 1234567L);
     genericRecord.put("sysdate", new Utf8("2021/02/04 15:28:45.999"));

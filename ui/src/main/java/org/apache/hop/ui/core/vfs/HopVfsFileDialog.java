@@ -318,7 +318,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     //
     ToolBar navigateToolBar = new ToolBar(navigateComposite, SWT.LEFT | SWT.HORIZONTAL);
     navigateToolBar.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, true));
-    PropsUi.setLook(navigateToolBar, PropsUi.WIDGET_STYLE_DEFAULT);
+    PropsUi.setLook(navigateToolBar, Props.WIDGET_STYLE_DEFAULT);
 
     navigateToolbarWidgets = new GuiToolbarWidgets();
     navigateToolbarWidgets.registerGuiPluginObject(this);
@@ -1352,8 +1352,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
           SWT.KeyUp,
           event -> {
             switch (event.keyCode) {
-              case SWT.CR:
-              case SWT.KEYPAD_CR:
+              case SWT.CR, SWT.KEYPAD_CR:
                 // If name changed
                 if (!item.getText().equals(text.getText())) {
                   try {

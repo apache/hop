@@ -126,7 +126,7 @@ public class ExecutionInfoLocationEditor extends MetadataEditor<ExecutionInfoLoc
     // This will make it more conforming the rest.
     //
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     ScrolledComposite wMainSComp = new ScrolledComposite(parent, SWT.V_SCROLL | SWT.H_SCROLL);
     wMainSComp.setLayout(new FillLayout());

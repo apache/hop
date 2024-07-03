@@ -813,7 +813,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // We moved around some items: store undo info...
           //
           boolean also = false;
-          if (selectedNotes != null && selectedNotes.size() > 0 && previousNoteLocations != null) {
+          if (selectedNotes != null && !selectedNotes.isEmpty() && previousNoteLocations != null) {
             int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
 
             addUndoPosition(
@@ -822,10 +822,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                 previousNoteLocations,
                 workflowMeta.getSelectedNoteLocations(),
                 also);
-            also = selectedActions != null && selectedActions.size() > 0;
+            also = selectedActions != null && !selectedActions.isEmpty();
           }
           if (selectedActions != null
-              && selectedActions.size() > 0
+              && !selectedActions.isEmpty()
               && previousTransformLocations != null) {
             int[] indexes = workflowMeta.getActionIndexes(selectedActions);
             addUndoPosition(
@@ -903,7 +903,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // We moved around some items: store undo info...
             boolean also = false;
             if (selectedNotes != null
-                && selectedNotes.size() > 0
+                && !selectedNotes.isEmpty()
                 && previousNoteLocations != null) {
               int[] indexes = workflowMeta.getNoteIndexes(selectedNotes);
               addUndoPosition(
@@ -912,10 +912,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   previousNoteLocations,
                   workflowMeta.getSelectedNoteLocations(),
                   also);
-              also = selectedActions != null && selectedActions.size() > 0;
+              also = selectedActions != null && !selectedActions.isEmpty();
             }
             if (selectedActions != null
-                && selectedActions.size() > 0
+                && !selectedActions.isEmpty()
                 && previousTransformLocations != null) {
               int[] indexes = workflowMeta.getActionIndexes(selectedActions);
               addUndoPosition(
@@ -1001,8 +1001,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // If we get a background single click then simply clear selection...
     //
     if (fSingleClickType == SingleClickType.Workflow) {
-      if (workflowMeta.getSelectedActions().size() > 0
-          || workflowMeta.getSelectedNotes().size() > 0) {
+      if (!workflowMeta.getSelectedActions().isEmpty()
+          || !workflowMeta.getSelectedNotes().isEmpty()) {
         workflowMeta.unselectAll();
         selectionRegion = null;
         updateGui();
@@ -1334,10 +1334,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @Override
-  public void mouseEnter(MouseEvent event) {}
+  public void mouseEnter(MouseEvent event) {
+    // Do nothing
+  }
 
   @Override
-  public void mouseExit(MouseEvent event) {}
+  public void mouseExit(MouseEvent event) {
+    // Do nothing
+  }
 
   private void addCandidateAsHop() {
     if (hopCandidate != null) {
@@ -1681,15 +1685,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do
     }
 
-    if (selectedAction != null && selection.size() == 0) {
+    if (selectedAction != null && selection.isEmpty()) {
       workflowActionDelegate.deleteAction(workflowMeta, selectedAction);
       return;
     }
 
-    if (selection.size() > 0) {
+    if (!selection.isEmpty()) {
       workflowActionDelegate.deleteActions(workflowMeta, selection);
     }
-    if (workflowMeta.getSelectedNotes().size() > 0) {
+    if (!workflowMeta.getSelectedNotes().isEmpty()) {
       notePadDelegate.deleteNotes(workflowMeta, workflowMeta.getSelectedNotes());
     }
   }
@@ -2610,8 +2614,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           GuiResource.getInstance().getImagePipeline();
           break;
 
-        case ACTION_RESULT_FAILURE:
-        case ACTION_RESULT_SUCCESS:
+        case ACTION_RESULT_FAILURE, ACTION_RESULT_SUCCESS:
           ActionResult actionResult = (ActionResult) areaOwner.getOwner();
           actionCopy = (ActionMeta) areaOwner.getParent();
           Result result = actionResult.getResult();
@@ -2678,8 +2681,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   + "that was reached last time the pipeline was executed.");
           tipImage = GuiResource.getInstance().getImageCheckpoint();
           break;
-        case ACTION_INFO_ICON:
-        case ACTION_ICON:
+        case ACTION_INFO_ICON, ACTION_ICON:
           ActionMeta actionMetaInfo = (ActionMeta) areaOwner.getOwner();
 
           // If transform is deprecated, display first
@@ -3238,8 +3240,10 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return workflowMeta;
   }
 
-  /** Use method hasChanged() */
-  @Deprecated
+  /**
+   * @deprecated Use method hasChanged()
+   */
+  @Deprecated(since = "2.10")
   public boolean hasContentChanged() {
     return workflowMeta.hasChanged();
   }
@@ -3972,7 +3976,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   // TODO
-  public void editAction(WorkflowMeta workflowMeta, ActionMeta actionCopy) {}
+  public void editAction(WorkflowMeta workflowMeta, ActionMeta actionCopy) {
+    // Do nothing
+  }
 
   @Override
   public String getName() {
@@ -4250,7 +4256,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       String actionId = actionResult.getLogChannelId();
 
       List<Execution> executions = iLocation.findExecutions(actionId);
-      if (executions.size() > 0) {
+      if (!executions.isEmpty()) {
         Execution execution = executions.get(0);
         ExecutionState executionState = iLocation.getExecutionState(execution.getId());
         executionPerspective.createExecutionViewer(locationName, execution, executionState);

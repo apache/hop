@@ -73,16 +73,14 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
       }
       // To make it easier to inject, also check the code
       //
-      if (eo instanceof IEnumHasCode) {
-        IEnumHasCode hasCode = (IEnumHasCode) eo;
+      if (eo instanceof IEnumHasCode hasCode) {
         if (hasCode.getCode().equalsIgnoreCase(v)) {
           return e;
         }
       }
       // Perhaps the user is trying to use the description from the GUI...
       //
-      if (eo instanceof IEnumHasCodeAndDescription) {
-        IEnumHasCodeAndDescription hasDescription = (IEnumHasCodeAndDescription) eo;
+      if (eo instanceof IEnumHasCodeAndDescription hasDescription) {
         if (hasDescription.getDescription().equalsIgnoreCase(v)) {
           return e;
         }
@@ -126,9 +124,6 @@ public class DefaultInjectionTypeConverter extends InjectionTypeConverter {
 
   @Override
   public Boolean boolean2boolean(Boolean v) throws HopValueException {
-    if (v == null) {
-      return null;
-    }
     return v;
   }
 

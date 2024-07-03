@@ -137,7 +137,7 @@ public class ActionMeta implements Cloneable, IGuiPosition, IChanged, IAttribute
         }
       }
     } catch (Throwable e) {
-      String message = "Unable to read Workflow action copy info from XML node : " + e.toString();
+      String message = "Unable to read Workflow action copy info from XML node : " + e;
       throw new HopXmlException(message, e);
     }
   }

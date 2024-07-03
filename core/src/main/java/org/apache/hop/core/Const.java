@@ -1915,7 +1915,7 @@ public class Const {
     // string...
     // In our example that would be "d"...
     if (from + sepLen <= string.length()) {
-      list.add(nullToEmpty(string.substring(from, string.length())));
+      list.add(nullToEmpty(string.substring(from)));
     }
 
     return list.toArray(new String[list.size()]);
@@ -1978,7 +1978,7 @@ public class Const {
     // string...
     // In our example that would be "d"...
     if (from + 1 <= string.length()) {
-      list.add(nullToEmpty(string.substring(from, string.length())));
+      list.add(nullToEmpty(string.substring(from)));
     }
 
     return list.toArray(new String[list.size()]);
@@ -2290,12 +2290,12 @@ public class Const {
   }
 
   public static String getSimpleStackTrace(Throwable aThrowable) {
-    final StringBuilder result = new StringBuilder();
-    result.append(ExceptionUtils.getMessage(aThrowable));
-    result.append(Const.CR);
-    result.append("Root cause: ");
-    result.append(ExceptionUtils.getRootCauseMessage(aThrowable));
-    return result.toString();
+    String result =
+        ExceptionUtils.getMessage(aThrowable)
+            + Const.CR
+            + "Root cause: "
+            + ExceptionUtils.getRootCauseMessage(aThrowable);
+    return result;
   }
 
   /**
@@ -2393,7 +2393,7 @@ public class Const {
       int dateFormatsCount = toInt(BaseMessages.getString(PKG, "Const.DateFormat.Count"), 0);
       dateFormats = new String[dateFormatsCount];
       for (int i = 1; i <= dateFormatsCount; i++) {
-        dateFormats[i - 1] = BaseMessages.getString(PKG, "Const.DateFormat" + Integer.toString(i));
+        dateFormats[i - 1] = BaseMessages.getString(PKG, "Const.DateFormat" + i);
       }
       Arrays.sort(dateFormats);
     }
@@ -2411,7 +2411,7 @@ public class Const {
       numberFormats = new String[numberFormatsCount + 1];
       numberFormats[0] = DEFAULT_NUMBER_FORMAT;
       for (int i = 1; i <= numberFormatsCount; i++) {
-        numberFormats[i] = BaseMessages.getString(PKG, "Const.NumberFormat" + Integer.toString(i));
+        numberFormats[i] = BaseMessages.getString(PKG, "Const.NumberFormat" + i);
       }
     }
     return numberFormats;

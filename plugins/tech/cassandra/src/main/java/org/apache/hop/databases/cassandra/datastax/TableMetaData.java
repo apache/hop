@@ -161,20 +161,13 @@ public class TableMetaData implements ITableMetaData {
 
     String typeCql = dataType.asCql(false, false).toUpperCase();
     switch (typeCql) {
-      case "BIGINT":
-      case "COUNTER":
-      case "INT":
-      case "SMALLINT":
-      case "TINYINT":
+      case "BIGINT", "COUNTER", "INT", "SMALLINT", "TINYINT":
         return new ValueMetaInteger(name);
-      case "DOUBLE":
-      case "FLOAT":
+      case "DOUBLE", "FLOAT":
         return new ValueMetaNumber(name);
-      case "DATE":
-      case "TIMESTAMP":
+      case "DATE", "TIMESTAMP":
         return new ValueMetaDate(name);
-      case "DECIMAL":
-      case "VARINT":
+      case "DECIMAL", "VARINT":
         return new ValueMetaBigNumber(name);
       case "BLOB":
         return new ValueMetaBinary(name);

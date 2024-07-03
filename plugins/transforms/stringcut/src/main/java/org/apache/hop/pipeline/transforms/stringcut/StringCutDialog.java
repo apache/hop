@@ -83,7 +83,7 @@ public class StringCutDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "StringCutDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // THE BUTTONS
     wOk = new Button(shell, SWT.PUSH);

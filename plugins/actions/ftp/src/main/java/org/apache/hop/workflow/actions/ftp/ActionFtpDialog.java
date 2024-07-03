@@ -1386,9 +1386,9 @@ public class ActionFtpDialog extends ActionDialog {
     }
 
     if (action.getSuccessCondition() != null) {
-      if (action.getSuccessCondition().equals(action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED)) {
+      if (action.getSuccessCondition().equals(ActionFtp.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED)) {
         wSuccessCondition.select(1);
-      } else if (action.getSuccessCondition().equals(action.SUCCESS_IF_ERRORS_LESS)) {
+      } else if (action.getSuccessCondition().equals(ActionFtp.SUCCESS_IF_ERRORS_LESS)) {
         wSuccessCondition.select(2);
       } else {
         wSuccessCondition.select(0);
@@ -1472,11 +1472,11 @@ public class ActionFtpDialog extends ActionDialog {
     action.setNrLimit(wNrErrorsLessThan.getText());
 
     if (wSuccessCondition.getSelectionIndex() == 1) {
-      action.setSuccessCondition(action.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
+      action.setSuccessCondition(ActionFtp.SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED);
     } else if (wSuccessCondition.getSelectionIndex() == 2) {
-      action.setSuccessCondition(action.SUCCESS_IF_ERRORS_LESS);
+      action.setSuccessCondition(ActionFtp.SUCCESS_IF_ERRORS_LESS);
     } else {
-      action.setSuccessCondition(action.SUCCESS_IF_NO_ERRORS);
+      action.setSuccessCondition(ActionFtp.SUCCESS_IF_NO_ERRORS);
     }
   }
 

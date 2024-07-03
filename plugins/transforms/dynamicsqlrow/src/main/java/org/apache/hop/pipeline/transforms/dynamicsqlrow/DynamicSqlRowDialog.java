@@ -105,7 +105,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
     shell.setText(BaseMessages.getString(PKG, "DynamicSQLRowDialog.Shell.Title"));
 
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -154,7 +154,9 @@ public class DynamicSqlRowDialog extends BaseTransformDialog {
     wSqlFieldName.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {

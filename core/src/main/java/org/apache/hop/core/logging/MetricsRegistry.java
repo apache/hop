@@ -46,16 +46,12 @@ public class MetricsRegistry {
     IMetrics metric = snapshot.getMetric();
     String channelId = logChannel.getLogChannelId();
     switch (metric.getType()) {
-      case START:
-      case STOP:
+      case START, STOP:
         Queue<IMetricsSnapshot> list = getSnapshotList(channelId);
         list.add(snapshot);
 
         break;
-      case MIN:
-      case MAX:
-      case SUM:
-      case COUNT:
+      case MIN, MAX, SUM, COUNT:
         Map<String, IMetricsSnapshot> map = getSnapshotMap(channelId);
         map.put(snapshot.getKey(), snapshot);
 

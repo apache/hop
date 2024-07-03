@@ -145,7 +145,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     // This will make it more conforming the rest.
     //
     int middle = props.getMiddlePct();
-    int margin = props.getMargin();
+    int margin = PropsUi.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = PropsUi.getFormMargin();
