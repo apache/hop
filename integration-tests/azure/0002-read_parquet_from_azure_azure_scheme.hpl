@@ -44,7 +44,7 @@ limitations under the License.
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Generate rows Azurite (azfs scheme)</from>
+      <from>Generate rows Azurite (azure scheme)</from>
       <to>Parquet File Input</to>
       <enabled>Y</enabled>
     </hop>
@@ -67,7 +67,7 @@ limitations under the License.
     </GUI>
   </transform>
   <transform>
-    <name>Generate rows Azurite (azfs scheme)</name>
+    <name>Generate rows Azurite (azure scheme)</name>
     <type>RowGenerator</type>
     <description/>
     <distribute>Y</distribute>
@@ -79,9 +79,13 @@ limitations under the License.
     </partitioning>
     <fields>
       <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
         <length>-1</length>
         <name>filename</name>
-        <nullif>azfs://devstoreaccount1/mycontainer/azfs-scheme.parquet</nullif>
+        <nullif>azure:///mycontainer/azure-scheme.parquet</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>

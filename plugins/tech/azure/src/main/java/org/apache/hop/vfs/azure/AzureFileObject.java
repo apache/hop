@@ -204,6 +204,14 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
     }
   }
 
+  @Override
+  public FileType getType() throws FileSystemException {
+    if (type == null) {
+      type = super.getType();
+    }
+    return type;
+  }
+
   private boolean pathsMatch(String path, String currentPath) {
     return path.replace("/" + ((AzureFileSystem) getFileSystem()).getAccount(), "")
         .equals(currentPath);
@@ -234,11 +242,12 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   public boolean canRenameTo(FileObject newfile) {
-    throw new UnsupportedOperationException();
+    return true;
   }
 
   @Override
   protected void doDelete() throws Exception {
+    doAttach();
     if (container == null) {
       throw new UnsupportedOperationException();
     } else {
@@ -354,7 +363,7 @@ public class AzureFileObject extends AbstractFileObject<AzureFileSystem> {
   }
 
   @Override
-  protected FileType doGetType() throws Exception {
+  protected FileType doGetType() {
     return type;
   }
 
