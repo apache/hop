@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -35,6 +36,7 @@ import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -49,7 +51,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
     documentationUrl = "/pipeline/transforms/redshift-bulkloader.html",
     isIncludeJdbcDrivers = true,
-    classLoaderGroup = "redshift")
+    classLoaderGroup = "redshift",
+    actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 public class RedshiftBulkLoaderMeta
     extends BaseTransformMeta<RedshiftBulkLoader, RedshiftBulkLoaderData> {
   private static final Class<?> PKG = RedshiftBulkLoaderMeta.class;
@@ -62,19 +65,22 @@ public class RedshiftBulkLoaderMeta
   @HopMetadataProperty(
       key = "connection",
       injectionKey = "CONNECTIONNAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.CONNECTIONNAME")
+      injectionKeyDescription = "RedshiftBulkLoader.Injection.CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   @HopMetadataProperty(
       key = "schema",
       injectionKey = "SCHEMANAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.SCHEMANAME")
+      injectionKeyDescription = "RedshiftBulkLoader.Injection.SCHEMANAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_SCHEMA)
   private String schemaName;
 
   @HopMetadataProperty(
       key = "table",
       injectionKey = "TABLENAME",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.TABLENAME")
+      injectionKeyDescription = "RedshiftBulkLoader.Injection.TABLENAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TABLE)
   private String tablename;
 
   @HopMetadataProperty(
@@ -116,7 +122,8 @@ public class RedshiftBulkLoaderMeta
   @HopMetadataProperty(
       key = "truncate",
       injectionKey = "TRUNCATE_TABLE",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.TruncateTable.Field")
+      injectionKeyDescription = "RedshiftBulkLoader.Injection.TruncateTable.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_TRUNCATE)
   private boolean truncateTable;
 
   @HopMetadataProperty(
@@ -166,21 +173,18 @@ public class RedshiftBulkLoaderMeta
       injectionKeyDescription = "")
   private String copyFromFilename;
 
+  /** Fields containing the values in the input stream to insert */
   @HopMetadataProperty(
       groupKey = "fields",
       key = "field",
       injectionGroupKey = "FIELDS",
       injectionGroupDescription = "RedshiftBulkLoader.Injection.FIELDS",
       injectionKey = "FIELDSTREAM",
-      injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDSTREAM")
-  /** Fields containing the values in the input stream to insert */
+      injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDSTREAM",
+      hopMetadataPropertyType = HopMetadataPropertyType.FIELD_LIST)
   private List<RedshiftBulkLoaderField> fields;
 
   @HopMetadataProperty(
-      groupKey = "fields",
-      key = "field",
-      injectionGroupKey = "FIELDS",
-      injectionGroupDescription = "RedshiftBulkLoader.Injection.FIELDS",
       injectionKey = "FIELDDATABASE",
       injectionKeyDescription = "RedshiftBulkLoader.Injection.FIELDDATABASE")
   /** Fields in the table to insert */

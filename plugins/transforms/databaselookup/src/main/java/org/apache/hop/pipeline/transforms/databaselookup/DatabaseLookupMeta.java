@@ -21,6 +21,7 @@ import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -47,7 +49,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::DatabaseLookup.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
     keywords = "i18n::DatabaseLookupMeta.keyword",
-    documentationUrl = "/pipeline/transforms/databaselookup.html")
+    documentationUrl = "/pipeline/transforms/databaselookup.html",
+    actionTransformTypes = {ActionTransformType.LOOKUP, ActionTransformType.RDBMS})
 public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, DatabaseLookupData> {
 
   private static final Class<?> PKG = DatabaseLookupMeta.class; // For Translator
@@ -69,7 +72,9 @@ public class DatabaseLookupMeta extends BaseTransformMeta<DatabaseLookup, Databa
   public static final int CONDITION_IS_NOT_NULL = 9;
 
   /** database connection */
-  @HopMetadataProperty(injectionKeyDescription = "DatabaseLookupMeta.Injection.Connection")
+  @HopMetadataProperty(
+      injectionKeyDescription = "DatabaseLookupMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** ICache values we look up --> faster */

@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -51,7 +53,8 @@ import org.apache.hop.pipeline.transform.TransformMeta;
     description = "i18n::Delete.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::DeleteMeta.Keyword",
-    documentationUrl = "/pipeline/transforms/delete.html")
+    documentationUrl = "/pipeline/transforms/delete.html",
+    actionTransformTypes = {ActionTransformType.DELETE, ActionTransformType.RDBMS})
 public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   private static final Class<?> PKG = DeleteMeta.class; // For Translator
 
@@ -62,7 +65,8 @@ public class DeleteMeta extends BaseTransformMeta<Delete, DeleteData> {
   /** database connection */
   @HopMetadataProperty(
       key = "connection",
-      injectionKeyDescription = "DeleteMeta.Injection.Connection")
+      injectionKeyDescription = "DeleteMeta.Injection.Connection",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   /** Commit size for inserts/updates */

@@ -23,6 +23,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.ActionTransformType;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,6 +35,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -48,7 +50,8 @@ import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
     description = "i18n::InsertUpdate.Description",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
     keywords = "i18n::InsertUpdateMeta.keyword",
-    documentationUrl = "/pipeline/transforms/insertupdate.html")
+    documentationUrl = "/pipeline/transforms/insertupdate.html",
+    actionTransformTypes = {ActionTransformType.OUTPUT, ActionTransformType.RDBMS})
 public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpdateData> {
   private static final Class<?> PKG = InsertUpdateMeta.class; // For Translator
 
@@ -79,7 +82,8 @@ public class InsertUpdateMeta extends BaseTransformMeta<InsertUpdate, InsertUpda
   @HopMetadataProperty(
       key = "connection",
       injectionKeyDescription = "InsertUpdateMeta.Injection.CONNECTIONNAME",
-      injectionKey = "CONNECTIONNAME")
+      injectionKey = "CONNECTIONNAME",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_CONNECTION)
   private String connection;
 
   public String getConnection() {

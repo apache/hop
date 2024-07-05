@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.tableoutput;
 
 import java.util.Objects;
 import org.apache.hop.metadata.api.HopMetadataProperty;
+import org.apache.hop.metadata.api.HopMetadataPropertyType;
 
 public class TableOutputField {
 
@@ -45,7 +46,8 @@ public class TableOutputField {
   @HopMetadataProperty(
       key = "column_name",
       injectionKey = "DATABASE_FIELDNAME",
-      injectionKeyDescription = "TableOutputMeta.Injection.FieldDatabase.Field")
+      injectionKeyDescription = "TableOutputMeta.Injection.FieldDatabase.Field",
+      hopMetadataPropertyType = HopMetadataPropertyType.RDBMS_COLUMN)
   private String fieldDatabase;
 
   /**
