@@ -73,5 +73,9 @@ public class CrateDBBulkLoaderData extends BaseTransformData implements ITransfo
     return insertRowMeta;
   }
 
+  public void setDatabaseMeta(DatabaseMeta databaseMeta) {
+    this.databaseMeta = databaseMeta;
+  }
+
   public void close() throws IOException {}
 }

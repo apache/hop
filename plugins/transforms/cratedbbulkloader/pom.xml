@@ -30,6 +30,7 @@
 
     <properties>
         <cratedb-jdbc.version>2.7.0</cratedb-jdbc.version>
+        <testcontainers.version>1.19.8</testcontainers.version>
     </properties>
 
     <dependencies>
@@ -47,7 +48,13 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>cratedb</artifactId>
-            <version>1.19.7</version>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
