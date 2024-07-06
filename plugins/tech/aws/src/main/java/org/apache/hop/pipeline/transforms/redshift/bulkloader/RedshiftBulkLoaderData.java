@@ -28,6 +28,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class RedshiftBulkLoaderData extends BaseTransformData implements ITransformData {
   protected Database db;
   protected DatabaseMeta databaseMeta;
@@ -67,5 +68,7 @@ public class RedshiftBulkLoaderData extends BaseTransformData implements ITransf
     return insertRowMeta;
   }
 
-  public void close() throws IOException {}
+  public void close() throws IOException {
+    // Do nothing
+  }
 }

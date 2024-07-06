@@ -64,7 +64,9 @@ public class AuthenticationConsumerPluginType extends BasePluginType<Authenticat
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationConsumerPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationConsumerPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(AuthenticationConsumerPlugin annotation) {

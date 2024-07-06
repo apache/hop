@@ -42,7 +42,9 @@ public class AsyncGuiPlugin {
 
   private static AsyncGuiPlugin instance = null;
 
-  public AsyncGuiPlugin() {}
+  public AsyncGuiPlugin() {
+    // Do nothing
+  }
 
   /**
    * Gets instance

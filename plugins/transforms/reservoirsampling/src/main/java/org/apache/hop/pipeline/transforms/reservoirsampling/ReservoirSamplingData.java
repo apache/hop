@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
  *
  * @version 1.0
  */
+@SuppressWarnings("java:S1104")
 public class ReservoirSamplingData extends BaseTransformData implements ITransformData {
 
   // the output data format

@@ -53,7 +53,9 @@ public class MockDriver implements Driver {
     drivers.clear();
   }
 
-  public MockDriver() {}
+  public MockDriver() {
+    // Do nothing
+  }
 
   @Override
   public boolean acceptsURL(String url) throws SQLException {

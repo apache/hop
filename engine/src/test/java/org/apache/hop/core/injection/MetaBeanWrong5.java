@@ -22,5 +22,7 @@ package org.apache.hop.core.injection;
 public class MetaBeanWrong5 {
 
   @Injection(name = "TEST")
-  public void setter(int index, int value) {}
+  public void setter(int index, int value) {
+    // Do nothing
+  }
 }

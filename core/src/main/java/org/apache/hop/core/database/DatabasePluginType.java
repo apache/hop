@@ -81,7 +81,9 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, DatabaseMetaPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, DatabaseMetaPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(DatabaseMetaPlugin annotation) {

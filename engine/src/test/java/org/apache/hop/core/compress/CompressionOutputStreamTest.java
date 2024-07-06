@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -47,19 +45,13 @@ public class CompressionOutputStreamTest {
     PluginRegistry.init();
   }
 
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
-
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     factory = CompressionProviderFactory.getInstance();
     ICompressionProvider provider = factory.getCompressionProviderByName(PROVIDER_NAME);
     ByteArrayOutputStream in = new ByteArrayOutputStream();
     outStream = new DummyCompressionOS(in, provider);
   }
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testCtor() {

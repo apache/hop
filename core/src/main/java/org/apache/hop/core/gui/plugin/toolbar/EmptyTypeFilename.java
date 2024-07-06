@@ -21,7 +21,9 @@ import org.apache.hop.core.gui.plugin.ITypeFilename;
 
 public class EmptyTypeFilename implements ITypeFilename {
 
-  public EmptyTypeFilename() {}
+  public EmptyTypeFilename() {
+    // Do nothing
+  }
 
   @Override
   public String getDefaultFileExtension() {

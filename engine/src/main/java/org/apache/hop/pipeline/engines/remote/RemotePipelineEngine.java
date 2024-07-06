@@ -629,7 +629,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override
-  public void cleanup() {}
+  public void cleanup() {
+    // Do nothing
+  }
 
   @Override
   public void waitUntilFinished() {
@@ -719,7 +721,9 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   }
 
   @Override
-  public void pipelineCompleted() throws HopException {}
+  public void pipelineCompleted() throws HopException {
+    // Do nothing
+  }
 
   @Override
   public String getComponentLogText(String componentName, int copyNr) {

@@ -25,6 +25,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class ScriptData extends BaseTransformData implements ITransformData {
 
   public ScriptEngine engine;

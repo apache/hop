@@ -26,5 +26,7 @@ public class MetaBeanParentItem extends BaseTransformMeta<ITransform, ITransform
   public String name;
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 }

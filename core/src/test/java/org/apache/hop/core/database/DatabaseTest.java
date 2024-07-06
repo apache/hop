@@ -58,7 +58,6 @@ import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -105,9 +104,6 @@ public class DatabaseTest {
     when(log.getLogLevel()).thenReturn(LogLevel.NOTHING);
     variables = new Variables();
   }
-
-  @After
-  public void tearDown() {}
 
   @Test
   public void testGetQueryFieldsFromDatabaseMetaData() throws Exception {

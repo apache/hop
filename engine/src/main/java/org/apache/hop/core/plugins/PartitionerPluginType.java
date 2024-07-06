@@ -71,7 +71,9 @@ public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, PartitionerPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, PartitionerPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(PartitionerPlugin annotation) {

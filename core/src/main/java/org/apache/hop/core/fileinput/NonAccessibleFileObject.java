@@ -45,7 +45,9 @@ public class NonAccessibleFileObject implements FileObject {
   }
 
   @Override
-  public void close() throws FileSystemException {}
+  public void close() throws FileSystemException {
+    // Do nothing
+  }
 
   @Override
   public void copyFrom(FileObject arg0, FileSelector arg1) throws FileSystemException {
@@ -192,7 +194,9 @@ public class NonAccessibleFileObject implements FileObject {
   }
 
   @Override
-  public void refresh() throws FileSystemException {}
+  public void refresh() throws FileSystemException {
+    // Do nothing
+  }
 
   @Override
   public FileObject resolveFile(String arg0) throws FileSystemException {

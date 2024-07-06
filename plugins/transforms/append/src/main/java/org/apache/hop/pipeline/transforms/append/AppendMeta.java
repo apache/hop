@@ -173,7 +173,9 @@ public class AppendMeta extends BaseTransformMeta<Append, AppendData> {
   }
 
   @Override
-  public void resetTransformIoMeta() {}
+  public void resetTransformIoMeta() {
+    // Do nothing
+  }
 
   @Override
   public PipelineType[] getSupportedPipelineTypes() {

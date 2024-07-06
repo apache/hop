@@ -22,6 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Detect last row data */
+@SuppressWarnings("java:S1104")
 public class DetectLastRowData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

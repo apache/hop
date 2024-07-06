@@ -62,7 +62,9 @@ public class BaseHopServerPluginTest {
         spy(
             new BaseHopServerPlugin() {
               @Override
-              public void handleRequest(IHopServerRequest request) throws IOException {}
+              public void handleRequest(IHopServerRequest request) throws IOException {
+                // Do nothing
+              }
 
               @Override
               public String getContextPath() {
@@ -145,7 +147,7 @@ public class BaseHopServerPluginTest {
   }
 
   @Test
-  public void testGetService() throws Exception {
+  public void testGetService() {
     when(baseHopServerPlugin.getContextPath()).thenReturn("/Path");
     assertThat(baseHopServerPlugin.getService().startsWith("/Path"), is(true));
   }

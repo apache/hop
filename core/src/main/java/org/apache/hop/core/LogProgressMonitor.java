@@ -44,10 +44,14 @@ public class LogProgressMonitor implements IProgressMonitor {
   }
 
   @Override
-  public void worked(int nrWorks) {}
+  public void worked(int nrWorks) {
+    // Do nothing
+  }
 
   @Override
-  public void done() {}
+  public void done() {
+    // Do nothing
+  }
 
   @Override
   public void setTaskName(String taskName) {

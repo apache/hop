@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
 /** Holds data objects used in StreamSchema */
+@SuppressWarnings("java:S1104")
 public class StreamSchemaData extends BaseTransformData implements ITransformData {
 
   public IRowMeta outputRowMeta;

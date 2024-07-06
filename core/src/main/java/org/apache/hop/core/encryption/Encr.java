@@ -33,7 +33,9 @@ public class Encr {
 
   private static ITwoWayPasswordEncoder encoder;
 
-  public Encr() {}
+  public Encr() {
+    // Do nothing
+  }
 
   public static void init(String encoderPluginId) throws HopException {
     if (Utils.isEmpty(encoderPluginId)) {

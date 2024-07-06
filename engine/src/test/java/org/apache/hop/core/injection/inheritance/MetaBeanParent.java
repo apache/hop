@@ -42,5 +42,7 @@ public class MetaBeanParent<T extends MetaBeanParentItem, A>
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 }

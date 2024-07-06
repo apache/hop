@@ -99,5 +99,7 @@ public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngi
   }
 
   @Override
-  public void pipelineCompleted() throws HopException {}
+  public void pipelineCompleted() throws HopException {
+    // Do nothing
+  }
 }

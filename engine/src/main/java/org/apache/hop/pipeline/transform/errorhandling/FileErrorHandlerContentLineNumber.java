@@ -51,8 +51,12 @@ public class FileErrorHandlerContentLineNumber extends AbstractFileErrorHandler 
   }
 
   @Override
-  public void handleNonExistantFile(FileObject file) {}
+  public void handleNonExistantFile(FileObject file) {
+    // Do nothing
+  }
 
   @Override
-  public void handleNonAccessibleFile(FileObject file) {}
+  public void handleNonAccessibleFile(FileObject file) {
+    // Do nothing
+  }
 }

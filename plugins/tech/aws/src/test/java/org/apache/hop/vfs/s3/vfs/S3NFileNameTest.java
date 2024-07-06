@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.vfs.s3.s3n.vfs.S3NFileName;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 /** created by: rfellows date: 05/17/2012 */
@@ -34,16 +33,13 @@ public class S3NFileNameTest {
   public static final String SCHEME = "s3n";
   public static final int PORT = 843;
 
-  @BeforeClass
-  public static void init() throws Exception {}
-
   @Before
   public void setup() {
     fileName = new S3NFileName(SCHEME, "", "", FileType.FOLDER);
   }
 
   @Test
-  public void testGetURI() throws Exception {
+  public void testGetURI() {
     String expected = buildS3URL("/");
     assertEquals(expected, fileName.getURI());
   }

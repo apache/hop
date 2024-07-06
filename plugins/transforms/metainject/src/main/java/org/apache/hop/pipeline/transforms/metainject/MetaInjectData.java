@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 
+@SuppressWarnings("java:S1104")
 public class MetaInjectData extends BaseTransformData implements ITransformData {
   public PipelineMeta pipelineMeta;
   public Map<String, ITransformMeta> transformInjectionMetasMap;

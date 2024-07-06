@@ -29,7 +29,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -61,11 +60,8 @@ public class WorkflowActionFilesExistTest {
         TestUtils.createRamFile(getClass().getSimpleName() + "/existingFile2.ext", action);
   }
 
-  @After
-  public void tearDown() throws Exception {}
-
   @Test
-  public void testSetNrErrorsFalseResult() throws Exception {
+  public void testSetNrErrorsFalseResult() {
     action.setArguments(new String[] {"nonExistingFile.ext"});
 
     Result res = action.execute(new Result(), 0);
@@ -78,7 +74,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testExecuteWithException() throws Exception {
+  public void testExecuteWithException() {
     action.setArguments(new String[] {null});
 
     Result res = action.execute(new Result(), 0);
@@ -89,7 +85,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testExecuteSuccess() throws Exception {
+  public void testExecuteSuccess() {
     action.setArguments(new String[] {existingFile1, existingFile2});
 
     Result res = action.execute(new Result(), 0);
@@ -98,7 +94,7 @@ public class WorkflowActionFilesExistTest {
   }
 
   @Test
-  public void testExecuteFail() throws Exception {
+  public void testExecuteFail() {
     action.setArguments(
         new String[] {
           existingFile1, existingFile2, "nonExistingFile1.ext", "nonExistingFile2.ext"

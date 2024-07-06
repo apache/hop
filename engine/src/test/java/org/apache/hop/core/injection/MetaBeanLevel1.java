@@ -46,5 +46,7 @@ public class MetaBeanLevel1 extends BaseTransformMeta<ITransform, ITransformData
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do noting
+  }
 }

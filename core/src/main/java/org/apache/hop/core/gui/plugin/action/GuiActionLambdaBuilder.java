@@ -24,7 +24,9 @@ import org.apache.hop.core.gui.plugin.IGuiRefresher;
 
 public class GuiActionLambdaBuilder<T> {
 
-  public GuiActionLambdaBuilder() {}
+  public GuiActionLambdaBuilder() {
+    // Do nothing
+  }
 
   /**
    * Create a copy of the given action and create an action lambda for it.

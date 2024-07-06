@@ -31,8 +31,6 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,12 +43,9 @@ public class WorkflowActionFolderIsEmptyTest {
   private String nonEmptyDir;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     HopLogStore.init();
   }
-
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
 
   @Before
   public void setUp() throws Exception {
@@ -76,11 +71,8 @@ public class WorkflowActionFolderIsEmptyTest {
     file.deleteOnExit();
   }
 
-  @After
-  public void tearDown() throws Exception {}
-
   @Test
-  public void testSetNrErrorsSuccess() throws Exception {
+  public void testSetNrErrorsSuccess() {
     action.setFolderName(emptyDir);
 
     Result result = action.execute(new Result(), 0);
@@ -90,7 +82,7 @@ public class WorkflowActionFolderIsEmptyTest {
   }
 
   @Test
-  public void testSetNrErrorsFail() throws Exception {
+  public void testSetNrErrorsFail() {
     action.setFolderName(nonEmptyDir);
 
     Result result = action.execute(new Result(), 0);

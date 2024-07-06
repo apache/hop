@@ -144,7 +144,9 @@ public class LoggingBuffer {
     return getBuffer(null, true);
   }
 
-  public void close() {}
+  public void close() {
+    // Do nothing
+  }
 
   public void doAppend(HopLoggingEvent event) {
     if (event.getMessage() instanceof LogMessage) {

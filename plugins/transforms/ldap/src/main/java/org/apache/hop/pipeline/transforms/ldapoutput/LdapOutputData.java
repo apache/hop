@@ -20,6 +20,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
 
+@SuppressWarnings("java:S1104")
 public class LdapOutputData extends BaseTransformData implements ITransformData {
   LdapConnection connection;
   int indexOfDNField;

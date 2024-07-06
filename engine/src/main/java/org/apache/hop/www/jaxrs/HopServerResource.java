@@ -34,7 +34,9 @@ import org.apache.hop.www.HopServerSingleton;
 @Path("/carte")
 public class HopServerResource {
 
-  public HopServerResource() {}
+  public HopServerResource() {
+    // Do nothing
+  }
 
   public static IPipelineEngine<PipelineMeta> getPipeline(String id) {
     return HopServerSingleton.getInstance()

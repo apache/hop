@@ -210,7 +210,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
     }
   }
 
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   /**
    * Sets the changed.
@@ -348,7 +350,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       String[] output,
       IRowMeta info,
       IHopMetadataProvider metadataProvider)
-      throws HopTransformException {}
+      throws HopTransformException {
+    // Do nothing
+  }
 
   /**
    * Standard method to return an SqlStatement object with Sql statements that the transform needs
@@ -408,8 +412,7 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
   }
 
   /**
-   * This method returns all the database connections that are used by the transform.
-   *
+   * @deprecated This method returns all the database connections that are used by the transform.
    * @return an array of database connections meta-data. Return an empty array if no connections are
    *     used.
    */
@@ -805,7 +808,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    *
    * @param stream The optional stream to handle.
    */
-  public void handleStreamSelection(IStream stream) {}
+  public void handleStreamSelection(IStream stream) {
+    // Do nothing
+  }
 
   /** Reset transform io meta. */
   public void resetTransformIoMeta() {
@@ -822,9 +827,13 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
    *
    * @param transforms the transforms to reference
    */
-  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {}
+  public void searchInfoAndTargetTransforms(List<TransformMeta> transforms) {
+    // Do nothing
+  }
 
-  public void convertIOMetaToTransformNames() {}
+  public void convertIOMetaToTransformNames() {
+    // Do nothing
+  }
 
   /**
    * @return The supported pipeline types that this transform supports.
@@ -873,7 +882,9 @@ public class BaseTransformMeta<Main extends ITransform, Data extends ITransformD
       String[] output,
       IRowMeta info,
       IVariables variables,
-      IHopMetadataProvider metadataProvider) {}
+      IHopMetadataProvider metadataProvider) {
+    // Do nothing
+  }
 
   /**
    * Load the referenced object

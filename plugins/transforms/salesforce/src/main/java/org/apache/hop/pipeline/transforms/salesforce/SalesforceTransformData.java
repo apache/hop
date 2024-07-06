@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.salesforce;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class SalesforceTransformData extends BaseTransformData implements ITransformData {
 
   public SalesforceConnection connection;

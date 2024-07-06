@@ -764,7 +764,9 @@ public class ActionMailDialog extends ActionDialog {
     wEncoding.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {

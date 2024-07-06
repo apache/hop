@@ -21,6 +21,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Stores data for the OraBulkLoader transformation. */
+@SuppressWarnings("java:S1104")
 public class OraBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 

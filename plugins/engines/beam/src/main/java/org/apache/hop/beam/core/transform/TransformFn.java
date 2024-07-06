@@ -142,7 +142,9 @@ public class TransformFn extends TransformBaseFn {
   }
 
   @Setup
-  public void setup() {}
+  public void setup() {
+    // Do nothing
+  }
 
   /**
    * Reset the row buffer every time we start a new bundle to prevent the output of double rows

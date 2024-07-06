@@ -112,8 +112,6 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
     assertEquals(m7, t1o7);
   }
 
-  public void testDelete() {}
-
   public void testListObjectNames() throws HopException {
     IHopMetadataSerializer<MetadataType1> s1 =
         multiMetadataProvider.getSerializer(MetadataType1.class);
@@ -149,6 +147,4 @@ public class MultiMetadataSerializerTest extends MetadataTestBase {
     assertFalse(s1.exists("t8o8"));
     assertFalse(s2.exists("t9o9"));
   }
-
-  public void testLoadAll() {}
 }

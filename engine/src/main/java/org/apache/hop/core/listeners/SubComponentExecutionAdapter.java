@@ -26,14 +26,22 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 public class SubComponentExecutionAdapter implements ISubComponentExecutionListener {
 
   @Override
-  public void beforePipelineExecution(IPipelineEngine<PipelineMeta> pipeline) throws HopException {}
+  public void beforePipelineExecution(IPipelineEngine<PipelineMeta> pipeline) throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void afterPipelineExecution(IPipelineEngine<PipelineMeta> pipeline) throws HopException {}
+  public void afterPipelineExecution(IPipelineEngine<PipelineMeta> pipeline) throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void beforeJobExecution(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {}
+  public void beforeJobExecution(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void afterJobExecution(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {}
+  public void afterJobExecution(IWorkflowEngine<WorkflowMeta> workflow) throws HopException {
+    // Do nothing
+  }
 }

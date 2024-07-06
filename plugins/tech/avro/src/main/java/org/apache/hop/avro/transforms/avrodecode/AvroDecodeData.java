@@ -22,10 +22,13 @@ import org.apache.hop.core.row.value.ValueMetaAvroRecord;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class AvroDecodeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public int inputIndex;
   public ValueMetaAvroRecord avroValueMeta;
 
-  public AvroDecodeData() {}
+  public AvroDecodeData() {
+    // Do nothing
+  }
 }

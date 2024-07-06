@@ -46,8 +46,6 @@ import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableD
 import org.apache.hop.workflow.actions.setvariables.ActionSetVariables.VariableType;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -61,24 +59,18 @@ public class ActionSetVariablesTest {
   private ActionSetVariables action;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
-
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionSetVariables();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));
     action.setParentWorkflow(workflow);
     workflow.setStopped(false);
   }
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testSerialization() throws Exception {

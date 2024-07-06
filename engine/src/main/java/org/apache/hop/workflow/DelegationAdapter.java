@@ -27,10 +27,14 @@ public class DelegationAdapter implements IDelegationListener {
   @Override
   public void workflowDelegationStarted(
       IWorkflowEngine<WorkflowMeta> delegatedWorkflow,
-      WorkflowExecutionConfiguration workflowExecutionConfiguration) {}
+      WorkflowExecutionConfiguration workflowExecutionConfiguration) {
+    // Do nothing
+  }
 
   @Override
   public void pipelineDelegationStarted(
       IPipelineEngine<PipelineMeta> delegatedPipeline,
-      PipelineExecutionConfiguration pipelineExecutionConfiguration) {}
+      PipelineExecutionConfiguration pipelineExecutionConfiguration) {
+    // Do nothing
+  }
 }

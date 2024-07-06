@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.postgresql.PGConnection;
 
 /** Stores data for the GPBulkLoader transform. */
+@SuppressWarnings("java:S1104")
 public class PGBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 

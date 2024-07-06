@@ -550,7 +550,9 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
     return false;
   }
 
-  protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {}
+  protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {
+    // Do nothing
+  }
 
   protected String extractDocumentationUrl(T annotation) {
     return null;

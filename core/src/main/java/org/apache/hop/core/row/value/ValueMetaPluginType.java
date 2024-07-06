@@ -73,7 +73,9 @@ public class ValueMetaPluginType extends BasePluginType<ValueMetaPlugin> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, ValueMetaPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, ValueMetaPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(ValueMetaPlugin annotation) {

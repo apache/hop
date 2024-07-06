@@ -46,7 +46,9 @@ public class Slf4jLoggingEventListener implements IHopLoggingEventListener {
 
   private static final String SEPARATOR = "/";
 
-  public Slf4jLoggingEventListener() {}
+  public Slf4jLoggingEventListener() {
+    // Do nothing
+  }
 
   @Override
   public void eventAdded(HopLoggingEvent event) {

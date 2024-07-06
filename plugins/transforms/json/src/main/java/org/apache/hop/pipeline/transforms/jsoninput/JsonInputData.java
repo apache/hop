@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransformData;
 import org.apache.hop.pipeline.transforms.jsoninput.reader.IJsonReader;
 
+@SuppressWarnings("java:S1104")
 public class JsonInputData extends BaseFileInputTransformData implements ITransformData {
   public Object[] previousRow;
   public IRowMeta inputRowMeta;

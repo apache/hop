@@ -350,7 +350,9 @@ public class ActionShellDialog extends ActionDialog {
     wAppendLogfile.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            // Do nothing
+          }
         });
 
     // Set the logfile path + base-name

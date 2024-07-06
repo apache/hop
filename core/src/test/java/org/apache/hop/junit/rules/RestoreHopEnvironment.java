@@ -55,7 +55,9 @@ public class RestoreHopEnvironment extends ExternalResource {
    * Creates a {@code RestoreHopEnvironment} rule that restores all system properties and resets any
    * Hop related environment instances.
    */
-  public RestoreHopEnvironment() {}
+  public RestoreHopEnvironment() {
+    // Do nothing
+  }
 
   void defaultInit() throws Throwable {
     // make sure static class initializers are correctly initialized
@@ -89,8 +91,6 @@ public class RestoreHopEnvironment extends ExternalResource {
     HopVfs.reset();
     XmlHandlerCache.getInstance().clear();
     ValueMetaFactory.pluginRegistry = PluginRegistry.getInstance();
-    // under no circumstance reset the LoggingRegistry
-    //    LoggingRegistry.getInstance().reset();
   }
 
   @Override

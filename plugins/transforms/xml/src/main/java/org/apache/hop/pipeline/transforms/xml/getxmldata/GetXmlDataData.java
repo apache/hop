@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.dom4j.Document;
 import org.dom4j.Node;
 
+@SuppressWarnings("java:S1104")
 public class GetXmlDataData extends BaseTransformData implements ITransformData {
   public String thisline;
   public String nextline;

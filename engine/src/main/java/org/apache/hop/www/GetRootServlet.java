@@ -30,7 +30,9 @@ public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/";
 
-  public GetRootServlet() {}
+  public GetRootServlet() {
+    // Do nothing
+  }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response)

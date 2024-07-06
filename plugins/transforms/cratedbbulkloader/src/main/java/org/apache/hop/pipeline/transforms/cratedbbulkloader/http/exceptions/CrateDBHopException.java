@@ -18,7 +18,9 @@
 package org.apache.hop.pipeline.transforms.cratedbbulkloader.http.exceptions;
 
 public class CrateDBHopException extends Exception {
-  public CrateDBHopException(int statusCode, String body) {}
+  public CrateDBHopException(int statusCode, String body) {
+    // Do nothing
+  }
 
   public CrateDBHopException(String message, int statusCode, String body) {
     super(String.format("%s: %d %s", message, statusCode, body));

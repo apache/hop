@@ -21,6 +21,7 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class WriteToLogData extends BaseTransformData implements ITransformData {
 
   public int[] fieldnrs;

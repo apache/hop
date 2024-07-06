@@ -24,6 +24,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class ValueMapperData extends BaseTransformData implements ITransformData {
   public IRowMeta previousMeta;
   public IRowMeta outputMeta;

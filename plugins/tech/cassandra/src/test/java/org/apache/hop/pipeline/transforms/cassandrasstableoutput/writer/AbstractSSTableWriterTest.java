@@ -65,11 +65,17 @@ public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
   }
 
   @Override
-  public void init() throws Exception {}
+  public void init() throws Exception {
+    // Do nothing
+  }
 
   @Override
-  public void processRow(Map<String, Object> record) throws Exception {}
+  public void processRow(Map<String, Object> record) throws Exception {
+    // Do nothing
+  }
 
   @Override
-  public void close() throws Exception {}
+  public void close() throws Exception {
+    // Do nothing
+  }
 }

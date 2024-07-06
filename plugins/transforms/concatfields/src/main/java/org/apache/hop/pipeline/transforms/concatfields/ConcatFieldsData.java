@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * ConcatFieldsData
  *
  */
+@SuppressWarnings("java:S1104")
 public class ConcatFieldsData extends BaseTransformData implements ITransformData {
   public List<Integer> inputFieldIndexes;
   public List<Integer> outputFieldIndexes;

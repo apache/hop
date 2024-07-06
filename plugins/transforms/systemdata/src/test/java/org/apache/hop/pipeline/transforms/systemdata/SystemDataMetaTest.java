@@ -37,7 +37,6 @@ import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -77,9 +76,6 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
         SystemDataTypes.getTypeFromString(
             SystemDataTypes.TYPE_SYSTEM_INFO_HOSTNAME.getDescription());
   }
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testLoadXml() throws Exception {

@@ -75,7 +75,9 @@ public class Field {
   }
 
   public static final class TestCodeConverter implements IIntCodeConverter {
-    public TestCodeConverter() {}
+    public TestCodeConverter() {
+      // Do nothing
+    }
 
     @Override
     public String getCode(int type) {

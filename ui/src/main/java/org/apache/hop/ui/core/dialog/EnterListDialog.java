@@ -294,7 +294,9 @@ public class EnterListDialog extends Dialog {
     ddSource.addDragListener(
         new DragSourceListener() {
           @Override
-          public void dragStart(DragSourceEvent event) {}
+          public void dragStart(DragSourceEvent event) {
+            // Do nothing
+          }
 
           @Override
           public void dragSetData(DragSourceEvent event) {
@@ -307,23 +309,33 @@ public class EnterListDialog extends Dialog {
           }
 
           @Override
-          public void dragFinished(DragSourceEvent event) {}
+          public void dragFinished(DragSourceEvent event) {
+            // Do nothing
+          }
         });
     DropTarget ddTarget = new DropTarget(wListDest, DND.DROP_MOVE | DND.DROP_COPY);
     ddTarget.setTransfer(transfers);
     ddTarget.addDropListener(
         new DropTargetListener() {
           @Override
-          public void dragEnter(DropTargetEvent event) {}
+          public void dragEnter(DropTargetEvent event) {
+            // Do nothing
+          }
 
           @Override
-          public void dragLeave(DropTargetEvent event) {}
+          public void dragLeave(DropTargetEvent event) {
+            // Do nothing
+          }
 
           @Override
-          public void dragOperationChanged(DropTargetEvent event) {}
+          public void dragOperationChanged(DropTargetEvent event) {
+            // Do nothing
+          }
 
           @Override
-          public void dragOver(DropTargetEvent event) {}
+          public void dragOver(DropTargetEvent event) {
+            // Do nothing
+          }
 
           @Override
           public void drop(DropTargetEvent event) {
@@ -339,7 +351,9 @@ public class EnterListDialog extends Dialog {
           }
 
           @Override
-          public void dropAccept(DropTargetEvent event) {}
+          public void dropAccept(DropTargetEvent event) {
+            // Do nothing
+          }
         });
 
     // Catch close of dialog

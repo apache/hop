@@ -26,7 +26,9 @@ public class WorkflowStatus {
   private String name;
   private String status;
 
-  public WorkflowStatus() {}
+  public WorkflowStatus() {
+    // Do nothing
+  }
 
   public String getId() {
     return id;

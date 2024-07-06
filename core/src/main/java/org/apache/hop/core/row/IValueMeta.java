@@ -1367,7 +1367,9 @@ public interface IValueMeta extends Cloneable {
   void loadMetaFromJson(JSONObject jValue);
 
   class ValueMetaHopMetadataObjectFactory implements IHopMetadataObjectFactory {
-    public ValueMetaHopMetadataObjectFactory() {}
+    public ValueMetaHopMetadataObjectFactory() {
+      // Do nothing
+    }
 
     @Override
     public Object createObject(String id, Object parentObject) throws HopException {

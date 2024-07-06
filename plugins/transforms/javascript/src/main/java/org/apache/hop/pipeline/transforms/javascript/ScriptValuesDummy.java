@@ -59,10 +59,14 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void addRowListener(IRowListener rowListener) {}
+  public void addRowListener(IRowListener rowListener) {
+    // Do nothing
+  }
 
   @Override
-  public void dispose() {}
+  public void dispose() {
+    // Do nothing
+  }
 
   @Override
   public long getErrors() {
@@ -152,7 +156,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setPartitionId(String partitionId) {}
+  public void setPartitionId(String partitionId) {
+    // Do nothing
+  }
 
   @Override
   public String getPartitionId() {
@@ -165,49 +171,81 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void markStart() {}
+  public void markStart() {
+    // Do nothing
+  }
 
   @Override
-  public void markStop() {}
+  public void markStop() {
+    // Do nothing
+  }
 
   @Override
-  public void stopRunning() throws HopException {}
+  public void stopRunning() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void putRow(IRowMeta rowMeta, Object[] row) throws HopException {}
+  public void putRow(IRowMeta rowMeta, Object[] row) throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void removeRowListener(IRowListener rowListener) {}
+  public void removeRowListener(IRowListener rowListener) {
+    // Do nothing
+  }
 
-  public void run() {}
-
-  @Override
-  public void setErrors(long errors) {}
-
-  @Override
-  public void setOutputDone() {}
-
-  public void setPartitionID(String partitionID) {}
-
-  public void start() {}
+  public void run() {
+    // Do nothing
+  }
 
   @Override
-  public void stopAll() {}
+  public void setErrors(long errors) {
+    // Do nothing
+  }
+
+  @Override
+  public void setOutputDone() {
+    // Do nothing
+  }
+
+  public void setPartitionID(String partitionID) {
+    // Do nothing
+  }
+
+  public void start() {
+    // Do nothing
+  }
+
+  @Override
+  public void stopAll() {
+    // Do nothing
+  }
 
   public void stopRunning(ITransform transformMetaInterface, ITransformData iTransformData)
-      throws HopException {}
+      throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void cleanup() {}
+  public void cleanup() {
+    // Do nothing
+  }
 
   @Override
-  public void pauseRunning() {}
+  public void pauseRunning() {
+    // Do nothing
+  }
 
   @Override
-  public void resumeRunning() {}
+  public void resumeRunning() {
+    // Do nothing
+  }
 
   @Override
-  public void copyFrom(IVariables variables) {}
+  public void copyFrom(IVariables variables) {
+    // Do nothing
+  }
 
   @Override
   public String resolve(String aString) {
@@ -236,7 +274,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setParentVariables(IVariables parent) {}
+  public void setParentVariables(IVariables parent) {
+    // Do nothing
+  }
 
   @Override
   public String getVariable(String variableName, String defaultValue) {
@@ -249,10 +289,14 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void initializeFrom(IVariables parent) {}
+  public void initializeFrom(IVariables parent) {
+    // Do nothing
+  }
 
   @Override
-  public void setVariables(Map<String, String> map) {}
+  public void setVariables(Map<String, String> map) {
+    // Do nothing
+  }
 
   @Override
   public String[] getVariableNames() {
@@ -260,10 +304,14 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setVariable(String variableName, String variableValue) {}
+  public void setVariable(String variableName, String variableValue) {
+    // Do nothing
+  }
 
   @Override
-  public void shareWith(IVariables variables) {}
+  public void shareWith(IVariables variables) {
+    // Do nothing
+  }
 
   public IRowMeta getInputRowMeta() {
     return inputRowMeta;
@@ -274,23 +322,33 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void initBeforeStart() throws HopTransformException {}
+  public void initBeforeStart() throws HopTransformException {
+    // Do nothing
+  }
 
   @Override
-  public void addTransformFinishedListener(ITransformFinishedListener transformListener) {}
+  public void addTransformFinishedListener(ITransformFinishedListener transformListener) {
+    // Do nothing
+  }
 
   @Override
-  public void addTransformStartedListener(ITransformStartedListener transformListener) {}
+  public void addTransformStartedListener(ITransformStartedListener transformListener) {
+    // Do nothing
+  }
 
   @Override
-  public void setLinesRejected(long linesRejected) {}
+  public void setLinesRejected(long linesRejected) {
+    // Do nothing
+  }
 
   @Override
   public int getCopy() {
     return 0;
   }
 
-  public void addTransformListener(ComponentListener transformListener) {}
+  public void addTransformListener(ComponentListener transformListener) {
+    // Do nothing
+  }
 
   @Override
   public boolean isMapping() {
@@ -337,7 +395,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setLogLevel(LogLevel logLevel) {}
+  public void setLogLevel(LogLevel logLevel) {
+    // Do nothing
+  }
 
   @Override
   public String getLogChannelId() {
@@ -358,16 +418,24 @@ public class ScriptValuesDummy implements ITransform {
     return false;
   }
 
-  public void setUsingThreadPriorityManagment(boolean usingThreadPriorityManagment) {}
+  public void setUsingThreadPriorityManagment(boolean usingThreadPriorityManagment) {
+    // Do nothing
+  }
 
   @Override
-  public void setRunning(boolean running) {}
+  public void setRunning(boolean running) {
+    // Do nothing
+  }
 
   @Override
-  public void setStopped(boolean stopped) {}
+  public void setStopped(boolean stopped) {
+    // Do nothing
+  }
 
   @Override
-  public void setSafeStopped(boolean stopped) {}
+  public void setSafeStopped(boolean stopped) {
+    // Do nothing
+  }
 
   @Override
   public int rowsetInputSize() {
@@ -419,13 +487,19 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void identifyErrorOutput() {}
+  public void identifyErrorOutput() {
+    // Do nothing
+  }
 
   @Override
-  public void setPartitioned(boolean partitioned) {}
+  public void setPartitioned(boolean partitioned) {
+    // Do nothing
+  }
 
   @Override
-  public void setRepartitioning(int partitioningMethod) {}
+  public void setRepartitioning(int partitioningMethod) {
+    // Do nothing
+  }
 
   @Override
   public boolean canProcessOneRow() {
@@ -441,7 +515,9 @@ public class ScriptValuesDummy implements ITransform {
     return false;
   }
 
-  public void setWaitingForData(boolean waitingForData) {}
+  public void setWaitingForData(boolean waitingForData) {
+    // Do nothing
+  }
 
   public boolean isIdle() {
     return false;
@@ -451,19 +527,29 @@ public class ScriptValuesDummy implements ITransform {
     return false;
   }
 
-  public void setPassingData(boolean passingData) {}
+  public void setPassingData(boolean passingData) {
+    // Do nothing
+  }
 
   @Override
-  public void batchComplete() throws HopException {}
+  public void batchComplete() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void startBundle() throws HopException {}
+  public void startBundle() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void finishBundle() throws HopException {}
+  public void finishBundle() throws HopException {
+    // Do nothing
+  }
 
   @Override
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {}
+  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
+    // Do nothing
+  }
 
   @Override
   public IHopMetadataProvider getMetadataProvider() {
@@ -476,7 +562,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setCurrentOutputRowSetNr(int index) {}
+  public void setCurrentOutputRowSetNr(int index) {
+    // Do nothing
+  }
 
   @Override
   public int getCurrentOutputRowSetNr() {
@@ -484,7 +572,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setCurrentInputRowSetNr(int index) {}
+  public void setCurrentInputRowSetNr(int index) {
+    // Do nothing
+  }
 
   @Override
   public ITransformMeta getMeta() {
@@ -502,7 +592,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setInitStartDate(Date initStartDate) {}
+  public void setInitStartDate(Date initStartDate) {
+    // Do nothing
+  }
 
   @Override
   public Date getExecutionStartDate() {
@@ -510,7 +602,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setExecutionStartDate(Date executionStartDate) {}
+  public void setExecutionStartDate(Date executionStartDate) {
+    // Do nothing
+  }
 
   @Override
   public Date getFirstRowReadDate() {
@@ -518,7 +612,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setFirstRowReadDate(Date firstRowReadDate) {}
+  public void setFirstRowReadDate(Date firstRowReadDate) {
+    // Do nothing
+  }
 
   @Override
   public Date getLastRowWrittenDate() {
@@ -526,7 +622,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setLastRowWrittenDate(Date lastRowWrittenDate) {}
+  public void setLastRowWrittenDate(Date lastRowWrittenDate) {
+    // Do nothing
+  }
 
   @Override
   public Date getExecutionEndDate() {
@@ -534,7 +632,9 @@ public class ScriptValuesDummy implements ITransform {
   }
 
   @Override
-  public void setExecutionEndDate(Date executionEndDate) {}
+  public void setExecutionEndDate(Date executionEndDate) {
+    // Do nothing
+  }
 
   @Override
   public Map<String, Object> getExtensionDataMap() {

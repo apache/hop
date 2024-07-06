@@ -36,6 +36,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.ini4j.Profile.Section;
 import org.ini4j.Wini;
 
+@SuppressWarnings("java:S1104")
 public class PropertyInputData extends BaseTransformData implements ITransformData {
   public String currentLine;
   public IRowMeta outputRowMeta;

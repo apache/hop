@@ -80,7 +80,9 @@ public class SortedFileOutputStream extends FileOutputStream {
 
   /** Catch <code>flush</code> method, don't do nothing */
   @Override
-  public void flush() throws IOException {}
+  public void flush() throws IOException {
+    // Do nothing
+  }
 
   /**
    * If internally stored content is available, sorting keys of content, then sending content to

@@ -63,14 +63,18 @@ final class DynamicWaitTimes {
       }
     }
 
-    public void remove(IRowSet rowSet) {}
+    public void remove(IRowSet rowSet) {
+      // Do nothing
+    }
 
     protected boolean allowAdjust() {
       return active;
     }
 
     /** only for test */
-    protected void doReset(int index) {}
+    protected void doReset(int index) {
+      // Do nothing
+    }
   }
 
   private static class MultiStreamStatus extends SingleStreamStatus {

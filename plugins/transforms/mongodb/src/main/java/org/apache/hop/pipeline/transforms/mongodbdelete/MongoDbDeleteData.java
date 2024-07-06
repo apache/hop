@@ -37,6 +37,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Data class for the MongoDbDelete step */
+@SuppressWarnings("java:S1104")
 public class MongoDbDeleteData extends BaseTransformData implements ITransformData {
 
   private static final Class<?> PKG = MongoDbDeleteMeta.class;

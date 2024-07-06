@@ -23,6 +23,7 @@ import org.apache.hop.execution.ExecutionInfoLocation;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class ExecInfoData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

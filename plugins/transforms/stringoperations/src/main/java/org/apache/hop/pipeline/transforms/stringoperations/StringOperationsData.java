@@ -22,6 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Apply certain operations too string. */
+@SuppressWarnings("java:S1104")
 public class StringOperationsData extends BaseTransformData implements ITransformData {
 
   public int[] inStreamNrs; // string infields

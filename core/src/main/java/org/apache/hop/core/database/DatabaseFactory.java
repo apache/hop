@@ -34,7 +34,9 @@ public class DatabaseFactory implements IDatabaseFactory {
   public static final ILoggingObject loggingObject =
       new SimpleLoggingObject("Database factory", LoggingObjectType.GENERAL, null);
 
-  public DatabaseFactory() {}
+  public DatabaseFactory() {
+    // Do nothing
+  }
 
   @Override
   public String getConnectionTestReport(IVariables variables, DatabaseMeta databaseMeta)

@@ -60,5 +60,7 @@ public class MissingAction extends ActionBase implements IAction {
 
   @Override
   public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
-      throws HopXmlException {}
+      throws HopXmlException {
+    // Do nothing
+  }
 }

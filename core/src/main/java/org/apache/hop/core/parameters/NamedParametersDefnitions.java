@@ -28,7 +28,9 @@ public class NamedParametersDefnitions implements INamedParameterDefinitions {
   protected Map<String, NamedParameterDefinition> params = new HashMap<>();
 
   /** Default constructor. */
-  public NamedParametersDefnitions() {}
+  public NamedParametersDefnitions() {
+    // Do nothing
+  }
 
   @Override
   public void addParameterDefinition(String key, String defValue, String description)

@@ -31,7 +31,9 @@ public class NamedParameters implements INamedParameters {
   protected Map<String, NamedParameter> params = new HashMap<>();
 
   /** Default constructor. */
-  public NamedParameters() {}
+  public NamedParameters() {
+    // Do nothing
+  }
 
   @Override
   public void addParameterDefinition(String key, String defValue, String description)

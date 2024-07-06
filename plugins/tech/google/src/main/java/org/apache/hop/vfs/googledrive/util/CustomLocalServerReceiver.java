@@ -154,7 +154,9 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     private String host = "localhost";
     private int port = -1;
 
-    public Builder() {}
+    public Builder() {
+      // Do nothing
+    }
 
     public CustomLocalServerReceiver build() {
       return new CustomLocalServerReceiver(this.host, this.port);

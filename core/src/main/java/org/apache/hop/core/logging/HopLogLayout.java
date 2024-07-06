@@ -97,7 +97,9 @@ public class HopLogLayout {
     return false;
   }
 
-  public void activateOptions() {}
+  public void activateOptions() {
+    // Do nothing
+  }
 
   public boolean isTimeAdded() {
     return timeAdded;
