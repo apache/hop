@@ -44,7 +44,9 @@ public class FileErrorHandlerMissingFiles extends AbstractFileErrorHandler {
   }
 
   @Override
-  public void handleLineError(long lineNr, String filePart) {}
+  public void handleLineError(long lineNr, String filePart) {
+    // Do nothing
+  }
 
   @Override
   public void handleNonExistantFile(FileObject file) throws HopException {

@@ -24,6 +24,7 @@ import java.util.Map;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceTransformData;
 
+@SuppressWarnings("java:S1104")
 public class SalesforceUpsertData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

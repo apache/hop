@@ -73,7 +73,9 @@ public class GuiPluginType extends BasePluginType<GuiPlugin> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, GuiPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, GuiPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(GuiPlugin annotation) {

@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.stream.IStream;
 
+@SuppressWarnings("java:S1104")
 public class StreamLookupData extends BaseTransformData implements ITransformData {
   /** used to store values in used to look up things */
   public Map<RowMetaAndData, Object[]> look;

@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class PipelineExecutorData extends BaseTransformData implements ITransformData {
   private IPipelineEngine<PipelineMeta> executorPipeline;
   private PipelineMeta executorPipelineMeta;

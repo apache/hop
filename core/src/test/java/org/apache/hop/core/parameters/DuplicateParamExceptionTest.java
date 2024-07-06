@@ -28,7 +28,9 @@ public class DuplicateParamExceptionTest {
   DuplicateParamException exception;
 
   @Before
-  public void setUp() throws Exception {}
+  public void setUp() throws Exception {
+    // Do nothing
+  }
 
   @Test
   public void testConstructors() {

@@ -30,7 +30,9 @@ import org.apache.hop.core.row.IRowMeta;
 public class RowAdapter implements IRowListener {
 
   /** Instantiates a new row adapter. */
-  public RowAdapter() {}
+  public RowAdapter() {
+    // Do nothing
+  }
 
   /**
    * Empty method implementing the IRowListener.errorRowWrittenEvent interface method
@@ -38,7 +40,9 @@ public class RowAdapter implements IRowListener {
    * @see IRowListener#errorRowWrittenEvent(IRowMeta, java.lang.Object[])
    */
   @Override
-  public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
+  public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+    // Do nothing
+  }
 
   /**
    * Empty method implementing the IRowListener.rowReadEvent interface method
@@ -46,7 +50,9 @@ public class RowAdapter implements IRowListener {
    * @see IRowListener#rowReadEvent(IRowMeta, java.lang.Object[])
    */
   @Override
-  public void rowReadEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
+  public void rowReadEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+    // Do nothing
+  }
 
   /**
    * Empty method implementing the IRowListener.rowWrittenEvent interface method
@@ -54,5 +60,7 @@ public class RowAdapter implements IRowListener {
    * @see IRowListener#rowWrittenEvent(IRowMeta, java.lang.Object[])
    */
   @Override
-  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
+  public void rowWrittenEvent(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+    // Do nothing
+  }
 }

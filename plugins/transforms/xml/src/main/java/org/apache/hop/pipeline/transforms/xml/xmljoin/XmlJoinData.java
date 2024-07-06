@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+@SuppressWarnings("java:S1104")
 public class XmlJoinData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

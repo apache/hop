@@ -329,7 +329,9 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     wDataField.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -364,7 +366,9 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
     wFormat.addFocusListener(
         new FocusListener() {
           @Override
-          public void focusLost(FocusEvent e) {}
+          public void focusLost(FocusEvent e) {
+            // Do nothing
+          }
 
           @Override
           public void focusGained(FocusEvent e) {
@@ -395,7 +399,9 @@ public class DorisBulkLoaderDialog extends BaseTransformDialog {
           }
 
           @Override
-          public void widgetDefaultSelected(SelectionEvent selectionEvent) {}
+          public void widgetDefaultSelected(SelectionEvent selectionEvent) {
+            // Do nothing
+          }
         });
 
     // lineDelimiter

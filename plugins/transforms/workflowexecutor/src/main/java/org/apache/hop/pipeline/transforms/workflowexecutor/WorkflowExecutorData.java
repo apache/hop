@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
+@SuppressWarnings("java:S1104")
 public class WorkflowExecutorData extends BaseTransformData implements ITransformData {
   public IWorkflowEngine<WorkflowMeta> executorWorkflow;
   public WorkflowMeta executorWorkflowMeta;

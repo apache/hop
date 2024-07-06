@@ -19,6 +19,7 @@ package org.apache.hop.core.logging;
 
 import org.apache.hop.core.metrics.MetricsSnapshotType;
 
+@SuppressWarnings("java:S1104")
 public class Metrics implements IMetrics {
 
   // Database

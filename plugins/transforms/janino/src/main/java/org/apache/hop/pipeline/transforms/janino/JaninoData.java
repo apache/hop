@@ -23,6 +23,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.codehaus.janino.ExpressionEvaluator;
 
+@SuppressWarnings("java:S1104")
 public class JaninoData extends BaseTransformData implements ITransformData {
   public static final int RETURN_TYPE_STRING = 0;
   public static final int RETURN_TYPE_NUMBER = 1;

@@ -38,7 +38,6 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValida
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.YNLoadSaveValidator;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -89,9 +88,6 @@ public class LoadFileInputMetaTest implements IInitializer<ITransformMeta> {
     meta.setExtensionField(null);
     return meta;
   }
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testGetXml() throws Exception {

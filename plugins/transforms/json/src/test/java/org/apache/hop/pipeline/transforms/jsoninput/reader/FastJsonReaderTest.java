@@ -30,7 +30,6 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.transforms.jsoninput.JsonInputField;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,9 +50,6 @@ public class FastJsonReaderTest {
   public void setUp() throws Exception {
     fields = new JsonInputField[] {};
   }
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testFastJsonReaderCreated_Default() throws HopException {

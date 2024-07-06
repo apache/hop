@@ -27,7 +27,9 @@ import org.w3c.dom.Node;
 
 public class BeamBaseTransformHandler {
 
-  public BeamBaseTransformHandler() {}
+  public BeamBaseTransformHandler() {
+    // Do nothing
+  }
 
   protected Node getTransformXmlNode(TransformMeta transformMeta) throws HopException {
     String xml = transformMeta.getXml();

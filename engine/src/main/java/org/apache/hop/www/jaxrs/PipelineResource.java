@@ -48,7 +48,9 @@ import org.apache.hop.www.HopServerSingleton;
 @Path("/carte/pipeline")
 public class PipelineResource {
 
-  public PipelineResource() {}
+  public PipelineResource() {
+    // Do nothing
+  }
 
   @GET
   @Path("/log/{id : .+}")

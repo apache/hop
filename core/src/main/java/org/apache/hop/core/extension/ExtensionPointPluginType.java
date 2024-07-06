@@ -75,7 +75,9 @@ public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, ExtensionPoint annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, ExtensionPoint annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(ExtensionPoint annotation) {

@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.input.MappingInput;
 import org.apache.hop.pipeline.transforms.output.MappingOutput;
 
+@SuppressWarnings("java:S1104")
 public class SimpleMappingData extends BaseTransformData implements ITransformData {
   public LocalPipelineEngine mappingPipeline;
 

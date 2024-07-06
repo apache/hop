@@ -75,7 +75,9 @@ public class VfsPluginType extends BasePluginType<VfsPlugin> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, VfsPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, VfsPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(VfsPlugin annotation) {

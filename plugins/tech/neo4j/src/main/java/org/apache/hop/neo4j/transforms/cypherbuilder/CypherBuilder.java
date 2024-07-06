@@ -288,7 +288,9 @@ public class CypherBuilder extends BaseTransform<CypherBuilderMeta, CypherBuilde
 
   private final class RowsTransaction implements TransactionWork<HopException> {
 
-    public RowsTransaction() {}
+    public RowsTransaction() {
+      // Do nothing
+    }
 
     @Override
     public HopException execute(Transaction tx) {

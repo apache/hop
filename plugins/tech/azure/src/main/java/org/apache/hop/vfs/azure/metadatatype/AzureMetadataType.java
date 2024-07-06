@@ -39,7 +39,9 @@ public class AzureMetadataType extends HopMetadataBase implements Serializable, 
 
   @HopMetadataProperty private String storageAccountEndpoint;
 
-  public AzureMetadataType() {}
+  public AzureMetadataType() {
+    // Do nothing
+  }
 
   /**
    * Gets description

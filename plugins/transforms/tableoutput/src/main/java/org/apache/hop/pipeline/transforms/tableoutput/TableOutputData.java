@@ -32,6 +32,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Storage class for table output transform. */
+@SuppressWarnings("java:S1104")
 public class TableOutputData extends BaseTransformData implements ITransformData {
   public Database db;
   public int warnings;

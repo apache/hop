@@ -28,8 +28,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,24 +38,18 @@ public class ActionMailValidatorTest {
   private ActionMailValidator action;
 
   @BeforeClass
-  public static void setUpBeforeClass() throws Exception {
+  public static void setUpBeforeClass() {
     HopLogStore.init();
   }
 
-  @AfterClass
-  public static void tearDownAfterClass() throws Exception {}
-
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionMailValidator();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));
     action.setParentWorkflow(workflow);
     workflow.setStopped(false);
   }
-
-  @After
-  public void tearDown() throws Exception {}
 
   @Test
   public void testExecute() {

@@ -31,6 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Performs an insert/update/delete depending on the value of a field. */
+@SuppressWarnings("java:S1104")
 public class SynchronizeAfterMergeData extends BaseTransformData implements ITransformData {
   public Database db;
 

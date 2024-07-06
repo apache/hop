@@ -21,6 +21,7 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class ProcessFilesData extends BaseTransformData implements ITransformData {
   public int indexOfSourceFilename;
   public int indexOfTargetFilename;

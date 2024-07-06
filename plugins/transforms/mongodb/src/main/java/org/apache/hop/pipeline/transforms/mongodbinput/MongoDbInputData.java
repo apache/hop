@@ -37,6 +37,7 @@ import org.apache.hop.mongo.wrapper.field.MongoField;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class MongoDbInputData extends BaseTransformData implements ITransformData {
 
   public static final int MONGO_DEFAULT_PORT = 27017;

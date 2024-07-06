@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 
+@SuppressWarnings("java:S1104")
 public class RestData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta inputRowMeta;

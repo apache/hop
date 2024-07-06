@@ -80,7 +80,9 @@ public class ServerConnectionManager {
     return new X509TrustManager() {
       @Override
       public void checkClientTrusted(X509Certificate[] certs, String param)
-          throws CertificateException {}
+          throws CertificateException {
+        // Do nothing
+      }
 
       @Override
       public void checkServerTrusted(X509Certificate[] certs, String param)

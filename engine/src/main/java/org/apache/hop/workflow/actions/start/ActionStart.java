@@ -262,5 +262,7 @@ public class ActionStart extends ActionBase implements Cloneable, IAction {
       List<ICheckResult> remarks,
       WorkflowMeta workflowMeta,
       IVariables variables,
-      IHopMetadataProvider metadataProvider) {}
+      IHopMetadataProvider metadataProvider) {
+    // Do nothing
+  }
 }

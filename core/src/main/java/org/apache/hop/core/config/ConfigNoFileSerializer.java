@@ -24,7 +24,9 @@ import org.apache.hop.core.exception.HopException;
 
 public class ConfigNoFileSerializer implements IHopConfigSerializer {
   @Override
-  public void writeToFile(String filename, Map<String, Object> configMap) throws HopException {}
+  public void writeToFile(String filename, Map<String, Object> configMap) throws HopException {
+    // Do nothing
+  }
 
   @Override
   public Map<String, Object> readFromFile(String filename) throws HopException {

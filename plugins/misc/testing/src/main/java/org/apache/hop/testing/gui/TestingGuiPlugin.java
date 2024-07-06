@@ -28,9 +28,7 @@ import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.action.GuiContextActionFilter;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -95,7 +93,7 @@ public class TestingGuiPlugin {
       "pipeline-graph-transform-20820-enable-tweak-bypass-transform";
   public static final String ACTION_ID_PIPELINE_GRAPH_TRANSFORM_DISABLE_TWEAK_BYPASS_TRANSFORM =
       "pipeline-graph-transform-20830-disable-tweak-bypass-transform";
-  protected static Class<?> PKG = TestingGuiPlugin.class; // For Translator
+  protected static final Class<?> PKG = TestingGuiPlugin.class; // For Translator
 
   public static final String ID_TOOLBAR_ITEM_UNIT_TEST_EDIT =
       "HopGuiPipelineGraph-ToolBar-20015-unit-test-edit";
@@ -113,7 +111,9 @@ public class TestingGuiPlugin {
 
   private static TestingGuiPlugin instance = null;
 
-  public TestingGuiPlugin() {}
+  public TestingGuiPlugin() {
+    // Do nothing
+  }
 
   public static TestingGuiPlugin getInstance() {
     if (instance == null) {
@@ -207,7 +207,7 @@ public class TestingGuiPlugin {
       TransformMeta transformMeta,
       PipelineUnitTest unitTest,
       DataSet dataSet)
-      throws HopPluginException, HopValueException, HopException {
+      throws HopException {
     HopGui hopGui = HopGui.getInstance();
 
     // Now we need to map the fields from the input data set to the transform...
@@ -427,7 +427,7 @@ public class TestingGuiPlugin {
       TransformMeta transformMeta,
       PipelineUnitTest unitTest,
       DataSet dataSet)
-      throws HopPluginException, HopValueException, HopException {
+      throws HopException {
     // Now we need to map the fields from the transform to golden data set fields...
     //
     IRowMeta transformFields;

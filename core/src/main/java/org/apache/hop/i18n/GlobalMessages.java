@@ -84,7 +84,9 @@ public class GlobalMessages extends AbstractMessageHandler {
    * TODO: extend from abstract class to ensure singleton status and migrate instantiation to class
    * controlled private
    */
-  public GlobalMessages() {}
+  public GlobalMessages() {
+    // Do nothing
+  }
 
   public static synchronized IMessageHandler getInstance() {
     if (GMinstance == null) {

@@ -120,10 +120,14 @@ public class GoogleDriveConfigPlugin implements IConfigOptions, IGuiPluginCompos
   }
 
   @Override
-  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {}
+  public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+    // Do nothing
+  }
 
   @Override
-  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {}
+  public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+    // Do nothing
+  }
 
   @Override
   public void widgetModified(

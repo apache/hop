@@ -73,7 +73,9 @@ public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswo
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, TwoWayPasswordEncoderPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, TwoWayPasswordEncoderPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(TwoWayPasswordEncoderPlugin annotation) {

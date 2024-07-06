@@ -72,7 +72,9 @@ public class TransformPluginType extends BasePluginType<Transform> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, Transform annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, Transform annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(Transform annotation) {

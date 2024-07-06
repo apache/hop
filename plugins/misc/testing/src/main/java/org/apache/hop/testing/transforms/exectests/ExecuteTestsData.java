@@ -24,6 +24,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.testing.PipelineUnitTest;
 
+@SuppressWarnings("java:S1104")
 public class ExecuteTestsData extends BaseTransformData implements ITransformData {
 
   public List<PipelineUnitTest> tests;
@@ -31,5 +32,7 @@ public class ExecuteTestsData extends BaseTransformData implements ITransformDat
   public IRowMeta outputRowMeta;
   public boolean hasPrevious;
 
-  public ExecuteTestsData() {}
+  public ExecuteTestsData() {
+    // Do nothing
+  }
 }

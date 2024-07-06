@@ -75,7 +75,9 @@ public class SearchableAnalyserPluginType extends BasePluginType<SearchableAnaly
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, SearchableAnalyserPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, SearchableAnalyserPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(SearchableAnalyserPlugin annotation) {

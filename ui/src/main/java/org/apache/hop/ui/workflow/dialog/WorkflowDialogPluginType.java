@@ -73,7 +73,9 @@ public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugi
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, WorkflowDialogPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, WorkflowDialogPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(WorkflowDialogPlugin annotation) {

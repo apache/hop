@@ -23,5 +23,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 /** Data class for the Abort transform. */
 public class AbortData extends BaseTransformData implements ITransformData {
   /** Default constructor for AbortData. */
-  public AbortData() {}
+  public AbortData() {
+    // Not used
+  }
 }

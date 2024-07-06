@@ -24,6 +24,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Stores data for the Insert/Update transform. */
+@SuppressWarnings("java:S1104")
 public class InsertUpdateData extends BaseTransformData implements ITransformData {
   public Database db;
 

@@ -83,7 +83,9 @@ public class ActionPluginType extends BasePluginType<Action> {
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, Action annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, Action annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(Action annotation) {

@@ -37,7 +37,9 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
  */
 public class CurrentDirectoryResolver {
 
-  public CurrentDirectoryResolver() {}
+  public CurrentDirectoryResolver() {
+    // Do nothing
+  }
 
   /**
    * The logic of this method:

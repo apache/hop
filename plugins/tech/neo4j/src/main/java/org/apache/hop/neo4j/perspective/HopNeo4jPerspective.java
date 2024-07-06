@@ -115,7 +115,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
   private Font defaultTabFont;
   private Text wUsedConnection;
 
-  public HopNeo4jPerspective() {}
+  public HopNeo4jPerspective() {
+    // Do nothing
+  }
 
   @Override
   public String getId() {
@@ -144,7 +146,9 @@ public class HopNeo4jPerspective implements IHopPerspective {
   }
 
   @Override
-  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {}
+  public void setActiveFileTypeHandler(IHopFileTypeHandler activeFileTypeHandler) {
+    // Do nothing
+  }
 
   @Override
   public List<IHopFileType> getSupportedHopFileTypes() {
@@ -1137,10 +1141,14 @@ public class HopNeo4jPerspective implements IHopPerspective {
   }
 
   @Override
-  public void navigateToPreviousFile() {}
+  public void navigateToPreviousFile() {
+    // Do nothing
+  }
 
   @Override
-  public void navigateToNextFile() {}
+  public void navigateToNextFile() {
+    // Do nothing
+  }
 
   @Override
   public boolean hasNavigationPreviousFile() {

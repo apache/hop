@@ -29,6 +29,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+@SuppressWarnings("java:S1104")
 public class JsonOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

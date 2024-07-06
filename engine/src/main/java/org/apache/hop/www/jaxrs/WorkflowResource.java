@@ -44,7 +44,9 @@ import org.apache.hop.www.HopServerSingleton;
 @Path("/carte/workflow")
 public class WorkflowResource {
 
-  public WorkflowResource() {}
+  public WorkflowResource() {
+    // Do nothing
+  }
 
   @GET
   @Path("/log/{id : .+}")

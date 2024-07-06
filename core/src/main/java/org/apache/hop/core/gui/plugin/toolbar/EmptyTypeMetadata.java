@@ -22,7 +22,9 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 public class EmptyTypeMetadata implements ITypeMetadata {
 
-  public EmptyTypeMetadata() {}
+  public EmptyTypeMetadata() {
+    // Do nothing
+  }
 
   @Override
   public Class<? extends IHopMetadata> getMetadataClass() {

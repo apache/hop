@@ -38,6 +38,7 @@ import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
  * @deprecated replaced by implementation in the ...transforms.fileinput.text package
  */
 @Deprecated(since = "2.0")
+@SuppressWarnings("java:S1104")
 public class TextFileInputData extends BaseTransformData implements ITransformData {
 
   public List<TextFileLine> lineBuffer;

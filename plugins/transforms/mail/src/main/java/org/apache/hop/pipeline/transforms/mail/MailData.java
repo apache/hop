@@ -26,6 +26,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Send mail transform. based on Mail action */
+@SuppressWarnings("java:S1104")
 public class MailData extends BaseTransformData implements ITransformData {
   public int indexOfDestination;
   public int indexOfDestinationCc;

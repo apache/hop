@@ -618,7 +618,9 @@ public class XmlWellFormedDialog extends ActionDialog {
     wAddFilenameToResult.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            // Do nothing
+          }
         });
 
     FormData fdFileResult = new FormData();

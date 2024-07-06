@@ -24,10 +24,13 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class AvroEncodeData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
   public List<Integer> sourceFieldIndexes;
   public Schema avroSchema;
 
-  public AvroEncodeData() {}
+  public AvroEncodeData() {
+    // Do nothing
+  }
 }

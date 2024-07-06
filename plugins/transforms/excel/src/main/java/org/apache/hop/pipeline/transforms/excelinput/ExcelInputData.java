@@ -33,6 +33,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.errorhandling.IFileErrorHandler;
 
+@SuppressWarnings("java:S1104")
 public class ExcelInputData extends BaseTransformData implements ITransformData {
   /** The previous row in case we want to repeat values... */
   public Object[] previousRow;

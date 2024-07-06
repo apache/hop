@@ -34,6 +34,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
+@SuppressWarnings("java:S1104")
 public class TextFileOutputData extends BaseTransformData implements ITransformData {
 
   interface IFileStreamsCollection {

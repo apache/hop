@@ -22,6 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Clone row data */
+@SuppressWarnings("java:S1104")
 public class CloneRowData extends BaseTransformData implements ITransformData {
 
   protected long nrclones;

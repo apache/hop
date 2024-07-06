@@ -60,7 +60,9 @@ public class BeamHiveCatalogInputMeta
   @HopMetadataProperty(key = "hive_metastore_table")
   private String hiveMetastoreTable;
 
-  public BeamHiveCatalogInputMeta() {}
+  public BeamHiveCatalogInputMeta() {
+    // Do nothing
+  }
 
   @Override
   public String getDialogClassName() {

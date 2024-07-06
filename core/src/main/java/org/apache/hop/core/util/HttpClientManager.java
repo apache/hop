@@ -270,9 +270,13 @@ public class HttpClientManager {
               return null;
             }
 
-            public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+              // Do nothing
+            }
 
-            public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+            public void checkServerTrusted(X509Certificate[] certs, String authType) {
+              // Do nothing
+            }
           }
         };
 

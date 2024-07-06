@@ -25,6 +25,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Data structure used by Denormaliser during processing */
+@SuppressWarnings("java:S1104")
 public class DenormaliserData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 

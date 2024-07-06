@@ -1362,7 +1362,9 @@ public class CypherBuilderDialog extends BaseTransformDialog {
     return formLayout;
   }
 
-  private void enableFields() {}
+  private void enableFields() {
+    // Do nothing
+  }
 
   private void cancel() {
     transformName = null;

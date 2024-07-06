@@ -21,9 +21,13 @@ import org.apache.hop.core.auth.core.AuthenticationConsumptionException;
 import org.apache.hop.core.auth.core.IAuthenticationConsumer;
 
 public class TwoConstructorConsumer implements IAuthenticationConsumer<Object, Object> {
-  public TwoConstructorConsumer(String one) {}
+  public TwoConstructorConsumer(String one) {
+    // Do nothing
+  }
 
-  public TwoConstructorConsumer(Integer two) {}
+  public TwoConstructorConsumer(Integer two) {
+    // Do nothing
+  }
 
   @Override
   public Object consume(Object authenticationProvider) throws AuthenticationConsumptionException {

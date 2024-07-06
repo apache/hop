@@ -158,7 +158,9 @@ public class SetTransformDebugLevelExtensionPoint
                       }
 
                       @Override
-                      public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) {}
+                      public void errorRowWrittenEvent(IRowMeta rowMeta, Object[] row) {
+                        // Do nothing
+                      }
                     });
               }
             }

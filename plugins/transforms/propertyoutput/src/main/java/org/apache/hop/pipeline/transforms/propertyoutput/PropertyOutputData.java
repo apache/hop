@@ -27,6 +27,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 
 /** Output rows to Properties file and create a file. */
+@SuppressWarnings("java:S1104")
 public class PropertyOutputData extends BaseTransformData implements ITransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;

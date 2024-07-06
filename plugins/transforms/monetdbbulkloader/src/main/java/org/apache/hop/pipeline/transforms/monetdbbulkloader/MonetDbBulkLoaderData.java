@@ -25,6 +25,7 @@ import org.monetdb.mcl.io.BufferedMCLReader;
 import org.monetdb.mcl.io.BufferedMCLWriter;
 import org.monetdb.mcl.net.MapiSocket;
 
+@SuppressWarnings("java:S1104")
 public class MonetDbBulkLoaderData extends BaseTransformData implements ITransformData {
   public Database db;
 

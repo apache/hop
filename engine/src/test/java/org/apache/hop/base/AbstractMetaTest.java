@@ -68,19 +68,19 @@ public class AbstractMetaTest {
   }
 
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     meta = new AbstractMetaStub();
   }
 
   @Test
-  public void testGetSetFilename() throws Exception {
+  public void testGetSetFilename() {
     assertNull(meta.getFilename());
     meta.setFilename("myfile");
     assertEquals("myfile", meta.getFilename());
   }
 
   @Test
-  public void testAddNameChangedListener() throws Exception {
+  public void testAddNameChangedListener() {
     meta.fireNameChangedListeners("a", "a");
     meta.fireNameChangedListeners("a", "b");
     meta.addNameChangedListener(null);
@@ -96,7 +96,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testAddFilenameChangedListener() throws Exception {
+  public void testAddFilenameChangedListener() {
     meta.fireFilenameChangedListeners("a", "a");
     meta.fireFilenameChangedListeners("a", "b");
     meta.addFilenameChangedListener(null);
@@ -112,7 +112,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testAddRemoveFireContentChangedListener() throws Exception {
+  public void testAddRemoveFireContentChangedListener() {
     assertTrue(meta.getContentChangedListeners().isEmpty());
     IContentChangedListener listener = mock(IContentChangedListener.class);
     meta.addContentChangedListener(listener);
@@ -131,7 +131,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testAddCurrentDirectoryChangedListener() throws Exception {
+  public void testAddCurrentDirectoryChangedListener() {
     meta.fireNameChangedListeners("a", "a");
     meta.fireNameChangedListeners("a", "b");
     meta.addCurrentDirectoryChangedListener(null);
@@ -148,7 +148,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testAddRemoveViewUndo() throws Exception {
+  public void testAddRemoveViewUndo() {
     // addUndo() right now will fail with an NPE
     assertEquals(0, meta.getUndoSize());
     meta.clearUndo();
@@ -194,7 +194,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetSetAttributes() throws Exception {
+  public void testGetSetAttributes() {
     assertNull(meta.getAttributesMap());
     Map<String, Map<String, String>> attributesMap = new HashMap<>();
     meta.setAttributesMap(attributesMap);
@@ -215,7 +215,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testNotes() throws Exception {
+  public void testNotes() {
     assertNull(meta.getNotes());
     // most note methods will NPE at this point, so call clear() to create an empty note list
     meta.clear();
@@ -268,7 +268,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testAddDeleteModifyObserver() throws Exception {
+  public void testAddDeleteModifyObserver() {
     IHopObserver observer = mock(IHopObserver.class);
     meta.addObserver(observer);
     Object event = new Object();
@@ -281,7 +281,7 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testHasMissingPlugins() throws Exception {
+  public void testHasMissingPlugins() {
     assertFalse(meta.hasMissingPlugins());
   }
 
@@ -342,7 +342,9 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setName(String newName) {}
+    public void setName(String newName) {
+      // Do nothing
+    }
 
     @Override
     public boolean isNameSynchronizedWithFilename() {
@@ -350,7 +352,9 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {}
+    public void setNameSynchronizedWithFilename(boolean nameSynchronizedWithFilename) {
+      // Do nothing
+    }
 
     @Override
     public String getDescription() {
@@ -358,7 +362,9 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setDescription(String description) {}
+    public void setDescription(String description) {
+      // Do nothing
+    }
 
     @Override
     public String getExtendedDescription() {
@@ -366,17 +372,25 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setExtendedDescription(String extendedDescription) {}
+    public void setExtendedDescription(String extendedDescription) {
+      // Do nothing
+    }
 
     // Reuse this method to set a mock internal variable variables
     @Override
-    public void setInternalHopVariables(IVariables var) {}
+    public void setInternalHopVariables(IVariables var) {
+      // Do nothing
+    }
 
     @Override
-    protected void setInternalFilenameHopVariables(IVariables var) {}
+    protected void setInternalFilenameHopVariables(IVariables var) {
+      // Do nothing
+    }
 
     @Override
-    protected void setInternalNameHopVariable(IVariables var) {}
+    protected void setInternalNameHopVariable(IVariables var) {
+      // Do nothing
+    }
 
     @Override
     public Date getCreatedDate() {
@@ -384,10 +398,14 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setCreatedDate(Date createdDate) {}
+    public void setCreatedDate(Date createdDate) {
+      // Do nothing
+    }
 
     @Override
-    public void setCreatedUser(String createdUser) {}
+    public void setCreatedUser(String createdUser) {
+      // Do nothing
+    }
 
     @Override
     public String getCreatedUser() {
@@ -395,7 +413,9 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setModifiedDate(Date modifiedDate) {}
+    public void setModifiedDate(Date modifiedDate) {
+      // Do nothing
+    }
 
     @Override
     public Date getModifiedDate() {
@@ -403,7 +423,9 @@ public class AbstractMetaTest {
     }
 
     @Override
-    public void setModifiedUser(String modifiedUser) {}
+    public void setModifiedUser(String modifiedUser) {
+      // Do nothing
+    }
 
     @Override
     public String getModifiedUser() {

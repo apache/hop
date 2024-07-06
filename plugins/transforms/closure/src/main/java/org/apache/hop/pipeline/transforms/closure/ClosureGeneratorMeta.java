@@ -73,7 +73,9 @@ public class ClosureGeneratorMeta
   }
 
   @Override
-  public void setDefault() {}
+  public void setDefault() {
+    // Do nothing
+  }
 
   @Override
   public void getFields(

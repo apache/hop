@@ -68,7 +68,9 @@ public class AuthenticationProviderPluginType extends BasePluginType<Authenticat
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationProviderPlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, AuthenticationProviderPlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(AuthenticationProviderPlugin annotation) {

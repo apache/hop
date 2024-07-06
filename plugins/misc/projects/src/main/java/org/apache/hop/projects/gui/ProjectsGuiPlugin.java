@@ -110,7 +110,9 @@ public class ProjectsGuiPlugin {
       "0005-navigate-project-home"; // right next to Home button
 
   /** Automatically instantiated when the toolbar widgets etc need it */
-  public ProjectsGuiPlugin() {}
+  public ProjectsGuiPlugin() {
+    // Do nothing
+  }
 
   public static void enableHopGuiProject(
       String projectName, Project project, LifecycleEnvironment environment) throws HopException {
@@ -1034,8 +1036,7 @@ public class ProjectsGuiPlugin {
    * @return
    * @throws Exception
    */
-  public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider)
-      throws Exception {
+  public List<String> getEnvironmentsList(ILogChannel log, IHopMetadataProvider metadataProvider) {
     return ProjectsConfigSingleton.getConfig().listEnvironmentNames();
   }
 

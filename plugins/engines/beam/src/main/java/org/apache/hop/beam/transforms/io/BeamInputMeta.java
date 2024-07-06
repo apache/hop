@@ -58,7 +58,9 @@ public class BeamInputMeta extends BaseTransformMeta<BeamInput, BeamInputData>
   @HopMetadataProperty(key = "file_description_name")
   private String fileDefinitionName;
 
-  public BeamInputMeta() {}
+  public BeamInputMeta() {
+    // Do nothing
+  }
 
   @Override
   public String getDialogClassName() {

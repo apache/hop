@@ -71,7 +71,9 @@ public class WorkflowEnginePluginType extends BasePluginType<WorkflowEnginePlugi
 
   @Override
   protected void addExtraClasses(
-      Map<Class<?>, String> classMap, Class<?> clazz, WorkflowEnginePlugin annotation) {}
+      Map<Class<?>, String> classMap, Class<?> clazz, WorkflowEnginePlugin annotation) {
+    // Do nothing
+  }
 
   @Override
   protected String extractDocumentationUrl(WorkflowEnginePlugin annotation) {

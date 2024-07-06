@@ -39,5 +39,7 @@ public class DataFlowJvmStart implements JvmInitializer {
   }
 
   @Override
-  public void beforeProcessing(PipelineOptions options) {}
+  public void beforeProcessing(PipelineOptions options) {
+    // Do nothing
+  }
 }

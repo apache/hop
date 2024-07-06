@@ -26,7 +26,6 @@ import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.ActionSerializationTestUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -41,11 +40,8 @@ public class ActionSNMPTrapTest {
     HopLogStore.init();
   }
 
-  @AfterClass
-  public static void tearDownAfterClass() {}
-
   @Before
-  public void setUp() throws Exception {
+  public void setUp() {
     workflow = new LocalWorkflowEngine(new WorkflowMeta());
     action = new ActionSNMPTrap();
     workflow.getWorkflowMeta().addAction(new ActionMeta(action));

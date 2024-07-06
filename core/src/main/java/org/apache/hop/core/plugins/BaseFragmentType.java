@@ -100,7 +100,9 @@ public abstract class BaseFragmentType<T extends Annotation> extends BasePluginT
   }
 
   @Override
-  protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {}
+  protected void addExtraClasses(Map<Class<?>, String> classMap, Class<?> clazz, T annotation) {
+    // Do nothing
+  }
 
   protected abstract class FragmentTypeListener implements IPluginTypeListener {
     private final PluginRegistry registry;

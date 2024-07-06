@@ -222,5 +222,7 @@ public class KettleConst {
 
   public static final List<String> transTypes = Arrays.asList("TRANS");
 
-  public KettleConst() {}
+  public KettleConst() {
+    // Do nothing
+  }
 }

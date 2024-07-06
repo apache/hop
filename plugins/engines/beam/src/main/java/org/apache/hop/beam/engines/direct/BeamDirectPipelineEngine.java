@@ -32,7 +32,9 @@ import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 public class BeamDirectPipelineEngine extends BeamPipelineEngine
     implements IPipelineEngine<PipelineMeta> {
 
-  public BeamDirectPipelineEngine() {}
+  public BeamDirectPipelineEngine() {
+    // Do nothing
+  }
 
   @Override
   public IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration() {

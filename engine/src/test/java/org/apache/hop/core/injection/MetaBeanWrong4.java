@@ -22,5 +22,7 @@ package org.apache.hop.core.injection;
 public class MetaBeanWrong4 {
 
   @InjectionDeep
-  public void getter(int index) {}
+  public void getter(int index) {
+    // Do nothing
+  }
 }

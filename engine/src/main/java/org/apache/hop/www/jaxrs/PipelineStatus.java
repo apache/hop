@@ -30,7 +30,9 @@ public class PipelineStatus {
   private String status;
   private List<TransformStatus> transformStatuses = new ArrayList<>();
 
-  public PipelineStatus() {}
+  public PipelineStatus() {
+    // Do nothing
+  }
 
   public String getId() {
     return id;

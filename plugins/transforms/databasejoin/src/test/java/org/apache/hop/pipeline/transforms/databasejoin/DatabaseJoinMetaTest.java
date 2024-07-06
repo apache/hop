@@ -56,11 +56,8 @@ public class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
             "sql", "rowLimit", "outerJoin", "replaceVariables", "connection", "parameters");
 
     Map<String, String> getterMap = new HashMap<>();
-    //    getterMap.put("parameters", "getParameters");
-    //    getterMap.put("databaseMeta", "getDatabaseMeta");
 
     Map<String, String> setterMap = new HashMap<>();
-    // setterMap.put("parameters", "setParameters");
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put(
@@ -81,7 +78,9 @@ public class DatabaseJoinMetaTest implements IInitializer<DatabaseJoinMeta> {
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify(DatabaseJoinMeta someMeta) {}
+  public void modify(DatabaseJoinMeta someMeta) {
+    // Do nothing
+  }
 
   @Test
   public void testSerialization() throws HopException {

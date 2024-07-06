@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.serverstatus;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 
+@SuppressWarnings("java:S1104")
 public class GetServerStatusData extends BaseTransformData {
   public IRowMeta outputRowMeta;
   public int serverFieldIndex;

@@ -330,7 +330,9 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
     wEncryptionMode.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            // Do nothing
+          }
         });
 
     // Level mode
@@ -355,7 +357,9 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog {
     wLevelMode.addSelectionListener(
         new SelectionAdapter() {
           @Override
-          public void widgetSelected(SelectionEvent e) {}
+          public void widgetSelected(SelectionEvent e) {
+            // Do nothing
+          }
         });
 
     FormData fdSenderSettings = new FormData();

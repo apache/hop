@@ -22,6 +22,7 @@ import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.http.NameValuePair;
 
+@SuppressWarnings("java:S1104")
 public class HttpData extends BaseTransformData implements ITransformData {
   public int[] argnrs;
   public IRowMeta outputRowMeta;

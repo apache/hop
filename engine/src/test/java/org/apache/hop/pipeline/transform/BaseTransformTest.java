@@ -332,7 +332,9 @@ public class BaseTransformTest {
       }
 
       @Override
-      public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {}
+      public void putRow(IRowMeta rowMeta, Object[] row) throws HopTransformException {
+        // Do nothing
+      }
 
       @Override
       public void putError(
@@ -342,7 +344,9 @@ public class BaseTransformTest {
           String errorDescriptions,
           String fieldNames,
           String errorCodes)
-          throws HopTransformException {}
+          throws HopTransformException {
+        // Do nothing
+      }
     };
   }
 
