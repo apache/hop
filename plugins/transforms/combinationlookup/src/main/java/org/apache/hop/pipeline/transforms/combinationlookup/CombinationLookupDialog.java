@@ -155,6 +155,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
           }
         };
     backupChanged = input.hasChanged();
+    databaseMeta = input.getDatabaseMeta();
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -178,9 +179,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wTransformName.setLayoutData(fdTransformName);
 
     // Connection line
-    wConnection = addConnectionLine(shell, wTransformName, input.getConnection(), lsMod);
+    wConnection = addConnectionLine(shell, wTransformName, input.getDatabaseMeta(), lsMod);
     wConnection.addSelectionListener(lsSelection);
-
     wConnection.addModifyListener(
         e -> {
           // We have new content: change connection:
@@ -708,25 +708,23 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       // Determine the creation of the technical key for
       // backwards compatibility. Can probably be removed at
       // version 3.x or so (Sven Boden).
-
-      if (Utils.isEmpty(input.getConnection())) {
-        DatabaseMeta dbMeta = pipelineMeta.findDatabase(input.getConnection(), variables);
-        if (dbMeta == null || !dbMeta.supportsAutoinc()) {
-          returnFields.setUseAutoIncrement(false);
-        }
-        if (dbMeta != null
-            && dbMeta.supportsSequences()
-            && StringUtils.isNotEmpty(fields.getSequenceFrom())) {
-          wSeq.setText(fields.getSequenceFrom());
-          returnFields.setUseAutoIncrement(false);
-          wTableMax.setSelection(false);
-        }
+      DatabaseMeta dbMeta = input.getDatabaseMeta();
+      if (dbMeta == null || !dbMeta.supportsAutoinc()) {
+        returnFields.setUseAutoIncrement(false);
       }
       wAutoinc.setSelection(returnFields.isUseAutoIncrement());
 
       wSeqButton.setSelection(StringUtils.isNotEmpty(fields.getSequenceFrom()));
       if (!returnFields.isUseAutoIncrement() && StringUtils.isEmpty(fields.getSequenceFrom())) {
         wTableMax.setSelection(true);
+      }
+
+      if (dbMeta != null
+          && dbMeta.supportsSequences()
+          && StringUtils.isNotEmpty(fields.getSequenceFrom())) {
+        wSeq.setText(fields.getSequenceFrom());
+        returnFields.setUseAutoIncrement(false);
+        wTableMax.setSelection(false);
       }
     } else {
       // The "creation" field now determines the behaviour of the
@@ -748,8 +746,8 @@ public class CombinationLookupDialog extends BaseTransformDialog {
     wTable.setText(Const.NVL(input.getTableName(), ""));
     wTk.setText(Const.NVL(returnFields.getTechnicalKeyField(), ""));
 
-    if (input.getConnection() != null) {
-      wConnection.setText(input.getConnection());
+    if (input.getDatabaseMeta() != null) {
+      wConnection.setText(input.getDatabaseMeta().getName());
     }
     wHashfield.setText(Const.NVL(input.getHashField(), ""));
 
@@ -826,7 +824,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
       fields.setSequenceFrom(null);
     }
 
-    in.setConnection(wConnection.getText());
+    in.setDatabaseMeta(findDatabase(wConnection.getText()));
     in.setCommitSize(Const.toInt(wCommit.getText(), 0));
     in.setCacheSize(Const.toInt(wCachesize.getText(), 0));
 
@@ -956,7 +954,7 @@ public class CombinationLookupDialog extends BaseTransformDialog {
                   shell,
                   SWT.NONE,
                   variables,
-                  pipelineMeta.findDatabase(wConnection.getText(), variables),
+                  info.getDatabaseMeta(),
                   DbCache.getInstance(),
                   sql.getSql());
           sqledit.open();
