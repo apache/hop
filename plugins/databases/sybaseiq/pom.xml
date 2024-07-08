@@ -25,7 +25,6 @@
     </parent>
 
     <artifactId>hop-databases-sybaseiq</artifactId>
-
     <packaging>jar</packaging>
     <name>Hop Plugins Databases SybaseIQ</name>
 

@@ -23,28 +23,37 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/mail</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/mail</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-mail:jar</include>
             </includes>
+            <outputDirectory>plugins/transforms/mail</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>provided</scope>
+            <includes>
+                <include>com.sun.activation:jakarta.activation:jar</include>
+                <include>com.sun.mail:jakarta.mail:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
+
 </assembly>

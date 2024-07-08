@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-cubeoutput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Cube Output</name>
 
 </project>

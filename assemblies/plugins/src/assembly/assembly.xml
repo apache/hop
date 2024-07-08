@@ -19,24 +19,40 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <id>core-libs</id>
+    <id>plugins</id>
     <formats>
         <format>zip</format>
     </formats>
     <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>lib</baseDirectory>
-    <fileSets>
-        <fileSet>
-            <directory>${assembly.dir}</directory>
-            <outputDirectory>.</outputDirectory>
-        </fileSet>
-    </fileSets>
+    <baseDirectory>.</baseDirectory>
     <dependencySets>
         <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.apache.hop:hop-plugins-static-schema:jar</include>
+                <include>*:*:zip</include>
             </includes>
+            <unpack>true</unpack>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>
     </dependencySets>
+    <fileSets>
+        <fileSet>
+            <directory>databases</directory>
+            <includes>
+                <include>**/*.zip</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>transforms</directory>
+            <includes>
+                <include>**/*.zip</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>actions</directory>
+            <includes>
+                <include>**/*.zip</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 </assembly>

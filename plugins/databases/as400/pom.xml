@@ -26,7 +26,6 @@
 
     <artifactId>hop-databases-as400</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases AS400</name>
 
 </project>

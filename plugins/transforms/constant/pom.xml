@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-constant</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Constant</name>
 
 </project>

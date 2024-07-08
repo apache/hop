@@ -56,3 +56,5 @@ integration-tests/spreadsheet/files/exel-multi-part_4.xlsx
 integration-tests/json/output
 integration-tests/mdi/files/excelwriter-mdi-test.xlsx
 integration-tests/spreadsheet/files/sample-file-append.xlsx
+
+assemblies/debug/audit

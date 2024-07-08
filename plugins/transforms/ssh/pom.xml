@@ -27,8 +27,11 @@
 
     <artifactId>hop-transform-ssh</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms SSH</name>
+
+    <properties>
+        <sshlib.version>2.2.23</sshlib.version>
+    </properties>
 
     <dependencies>
         <dependency>

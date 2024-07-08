@@ -23,33 +23,26 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/doris</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/doris</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/doris</outputDirectory>
             <filtered>true</filtered>
         </file>
-
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-doris:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/doris</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

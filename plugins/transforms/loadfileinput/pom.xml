@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-loadfileinput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Load File Input</name>
 
 </project>

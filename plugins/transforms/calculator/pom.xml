@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-calculator</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Calculator</name>
 
     <properties>

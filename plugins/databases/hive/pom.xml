@@ -26,64 +26,18 @@
 
     <artifactId>hop-databases-hive</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Apache Hive</name>
 
     <properties>
-        <hive.version>2.3.9</hive.version>
+        <hive.version>4.0.0</hive.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-client-api</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-jdbc</artifactId>
             <version>${hive.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>jdk.tools</groupId>
-                    <artifactId>jdk.tools</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.glassfish.web</groupId>
-                    <artifactId>javax.servlet.jsp</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>

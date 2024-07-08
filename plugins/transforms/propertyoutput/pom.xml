@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-propertyoutput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Property Output</name>
 
 </project>

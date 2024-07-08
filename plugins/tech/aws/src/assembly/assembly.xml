@@ -22,43 +22,42 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>tech/aws</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/tech/aws</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-tech-aws:jar</include>
             </includes>
+            <outputDirectory>plugins/tech/aws</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-tech-aws:jar</exclude>
+            </excludes>
+            <outputDirectory>plugins/tech/aws/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>provided</scope>
             <includes>
-                <include>com.amazonaws:aws-java-sdk-core</include>
-                <include>software.amazon.ion:ion-java</include>
-                <include>com.fasterxml.jackson.dataformat:jackson-dataformat-cbor</include>
-                <include>joda-time:joda-time</include>
-                <include>com.amazonaws:aws-java-sdk-s3</include>
-                <include>com.amazonaws:aws-java-sdk-sns:jar</include>
-                <include>com.amazonaws:aws-java-sdk-sqs:jar</include>
-                <include>com.amazonaws:aws-java-sdk-kms</include>
                 <include>com.amazon.redshift:redshift-jdbc42:jar</include>
             </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

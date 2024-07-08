@@ -25,16 +25,18 @@
     </parent>
 
     <artifactId>hop-databases-duckdb</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases DuckDB</name>
+
+    <properties>
+        <duckdb.version>1.0.0</duckdb.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.duckdb</groupId>
             <artifactId>duckdb_jdbc</artifactId>
-            <version>0.10.2</version>
+            <version>${duckdb.version}</version>
         </dependency>
     </dependencies>
 

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-dynamicsqlrow</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Dynamic SQL Row</name>
 
 </project>

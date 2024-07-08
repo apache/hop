@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-fieldschangesequence</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Fields Changing Sequence</name>
 
 </project>

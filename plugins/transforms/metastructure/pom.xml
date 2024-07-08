@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-metastructure</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Metadata Structure of Stream</name>
 
 </project>

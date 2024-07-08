@@ -26,7 +26,6 @@
 
     <artifactId>hop-transform-datagrid</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Datagrid</name>
 
 </project>

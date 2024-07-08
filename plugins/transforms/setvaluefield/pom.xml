@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-setvaluefield</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Set Value to a Field</name>
 
 </project>

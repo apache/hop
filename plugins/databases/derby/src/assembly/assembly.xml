@@ -23,27 +23,26 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/derby</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/derby</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-derby:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/derby</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.apache.derby:derbyclient:jar</include>
+            </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

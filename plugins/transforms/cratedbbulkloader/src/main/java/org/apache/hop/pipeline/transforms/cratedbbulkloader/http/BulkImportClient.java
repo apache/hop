@@ -52,7 +52,7 @@ public class BulkImportClient {
 
   public HttpBulkImportResponse batchInsert(
       String schema, String table, String[] columns, List<Object[]> args)
-      throws HopException, CrateDBHopException, JsonProcessingException {
+      throws HopException, CrateDBHopException, JsonProcessingException, IOException {
     ObjectMapper mapper = new ObjectMapper();
     BulkImportRequest body = new BulkImportRequest(schema + "." + table, List.of(columns), args);
     HttpRequest request =

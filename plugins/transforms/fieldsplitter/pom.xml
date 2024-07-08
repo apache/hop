@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-fieldsplitter</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Field Splitter</name>
 
 </project>

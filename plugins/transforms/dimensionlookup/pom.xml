@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-dimensionlookup</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Dimension Lookup</name>
 
 </project>

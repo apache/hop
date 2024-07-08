@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.cratedbbulkloader.http;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.net.http.HttpResponse;
 import org.apache.hop.core.exception.HopException;
 
@@ -38,7 +39,7 @@ public class HttpBulkImportResponse {
   }
 
   public static HttpBulkImportResponse fromHttpResponse(HttpResponse<String> response)
-      throws HopException {
+      throws HopException, IOException {
     ObjectMapper mapper =
         new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 

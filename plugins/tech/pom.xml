@@ -25,119 +25,17 @@
     </parent>
 
     <artifactId>hop-plugins-tech</artifactId>
-    <version>2.10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-
     <name>Hop Plugins Technology</name>
 
-    <properties>
-        <!-- Test running configuration -->
-        <spring.framework.version>4.3.2.RELEASE</spring.framework.version>
-    </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-core</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-core</artifactId>
-                <version>${project.version}</version>
-                <classifier>test</classifier>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.hop</groupId>
-                <artifactId>hop-engine</artifactId>
-                <version>${project.version}</version>
-                <type>test-jar</type>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <dependencies>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-ui</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>${javax.servlet-api.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hop</groupId>
-            <artifactId>hop-engine</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.framework.version}</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.svg</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                    <include>**/*.svg</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
-
-    <profiles>
-        <profile>
-            <id>highdeps</id>
-            <activation>
-                <property>
-                    <name>!skipDefault</name>
-                </property>
-            </activation>
-            <modules>
-                <module>avro</module>
-                <module>aws</module>
-                <module>azure</module>
-                <module>cassandra</module>
-                <module>dropbox</module>
-                <module>google</module>
-                <module>neo4j</module>
-                <module>parquet</module>
-            </modules>
-        </profile>
-
-    </profiles>
+    <modules>
+        <module>avro</module>
+        <module>aws</module>
+        <module>azure</module>
+        <module>cassandra</module>
+        <module>dropbox</module>
+        <module>google</module>
+        <module>neo4j</module>
+        <module>parquet</module>
+    </modules>
 </project>

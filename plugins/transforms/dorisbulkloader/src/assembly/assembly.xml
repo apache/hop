@@ -22,28 +22,28 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/dorisbulkloader</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/dorisbulkloader</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-dorisbulkloader:jar</include>
             </includes>
+            <outputDirectory>plugins/transforms/dorisbulkloader</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

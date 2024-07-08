@@ -27,14 +27,25 @@
 
     <artifactId>hop-transform-yamlinput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Yaml Input</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>${snakeyaml.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

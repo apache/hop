@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-simpleeval</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Simple evaluation</name>
 
 </project>

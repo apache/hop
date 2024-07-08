@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-stringcut</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms String Cut</name>
 
 </project>

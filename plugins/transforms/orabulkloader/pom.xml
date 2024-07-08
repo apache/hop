@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-orabulkloader</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Oracle bulk loader</name>
 
 </project>

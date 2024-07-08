@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-abort</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Abort</name>
 
 </project>

@@ -23,33 +23,40 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/vertica</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/vertica</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/vertica</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-verticabulkloader:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/vertica</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-transform-verticabulkloader:jar</exclude>
+            </excludes>
+            <outputDirectory>plugins/databases/vertica/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

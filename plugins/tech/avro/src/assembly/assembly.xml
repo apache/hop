@@ -22,38 +22,28 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>tech/avro</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/tech/avro</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-tech-avro:jar</include>
             </includes>
-        </dependencySet>
-        <dependencySet>
-            <outputDirectory>lib</outputDirectory>
-            <scope>runtime</scope>
-            <includes>
-                <include>org.codehaus.jackson:jackson-core-asl:jar</include>
-                <include>org.codehaus.jackson:jackson-mapper-asl:jar</include>
-                <include>com.thoughtworks.paranamer:paranamer:jar</include>
-                <include>org.tukaani:xz:jar</include>
-            </includes>
+            <outputDirectory>plugins/tech/avro</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -23,28 +23,34 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/snowflake</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/snowflake</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-snowflake-bulkloader:jar</include>
             </includes>
+            <outputDirectory>plugins/transforms/snowflake</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>net.snowflake:snowflake-jdbc:jar</include>
+            </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

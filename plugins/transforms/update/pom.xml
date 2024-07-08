@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-update</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Update</name>
 
 </project>

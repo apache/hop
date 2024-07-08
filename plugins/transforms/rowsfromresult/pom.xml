@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-rowsfromresult</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Rows From Result</name>
 
 </project>

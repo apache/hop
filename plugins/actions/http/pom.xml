@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-http</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions HTTP</name>
 
 </project>

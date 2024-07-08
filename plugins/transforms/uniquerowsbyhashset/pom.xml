@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-uniquerowsbyhashset</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Unique Rows By Hash Set</name>
 
 </project>

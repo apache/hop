@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-sort</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Sort Rows</name>
 
 </project>

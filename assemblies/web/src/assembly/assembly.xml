@@ -56,36 +56,6 @@
         </fileSet>
     </fileSets>
     <dependencySets>
-        <!-- hop lib/core jar files -->
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-assemblies-libs:zip</include>
-            </includes>
-            <unpack>true</unpack>
-            <outputDirectory>WEB-INF/lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <!-- hop lib/beam jar files -->
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-assemblies-libs-beam:zip</include>
-            </includes>
-            <unpack>true</unpack>
-            <outputDirectory>WEB-INF/lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <!-- the engine-beam lib -->
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-engine-beam</include>
-            </includes>
-            <outputDirectory>WEB-INF/lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-
         <!-- static files like the shell scripts -->
         <dependencySet>
             <includes>
@@ -110,16 +80,6 @@
                 <include>org.apache.hop:hop-ui-rap:jar</include>
             </includes>
             <outputDirectory>WEB-INF/lib</outputDirectory>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
-        </dependencySet>
-        <!-- samples -->
-        <dependencySet>
-            <includes>
-                <include>org.apache.hop:hop-assemblies-samples:zip</include>
-            </includes>
-            <unpack>true</unpack>
-            <outputDirectory>.</outputDirectory>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>false</useProjectArtifact>
         </dependencySet>

@@ -23,45 +23,52 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/kafka</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/kafka</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/kafka</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-kafka:jar</include>
             </includes>
+            <outputDirectory>plugins/transforms/kafka</outputDirectory>
         </dependencySet>
         <dependencySet>
-
-            <outputDirectory>lib</outputDirectory>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-transform-kafka:jar</exclude>
+            </excludes>
+            <outputDirectory>plugins/transforms/kafka/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>provided</scope>
             <includes>
                 <include>org.apache.kafka:kafka-clients:jar</include>
-                <include>io.confluent:kafka-schema-registry-client:jar</include>
-                <include>io.confluent:kafka-avro-serializer:jar</include>
-                <include>io.confluent:common-config:jar</include>
-                <include>io.confluent:common-utils:jar</include>
-                <include>com.101tec:zkclient:jar</include>
+                <include>org.apache.avro:avro:jar</include>
+                <include>com.google.guava:guava:jar</include>
+                <include>com.github.luben:*:jar</include>
+                <include>org.lz4:*:jar</include>
+                <include>org.xerial.snappy:*:jar</include>
             </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

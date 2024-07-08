@@ -25,9 +25,7 @@
     </parent>
 
     <artifactId>hop-databases-ingres</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Ingres</name>
 
 </project>

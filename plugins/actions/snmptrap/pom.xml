@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-snmptrap</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Send SNMP trap</name>
 
     <properties>

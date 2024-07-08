@@ -27,18 +27,24 @@
 
     <artifactId>hop-transform-snowflake-bulkloader</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Snowflake Bulk Loader</name>
 
-    <properties>
-        <snowflake.jdbc.version>3.14.3</snowflake.jdbc.version>
-    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs-jdbc</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>net.snowflake</groupId>
             <artifactId>snowflake-jdbc</artifactId>
-            <version>${snowflake.jdbc.version}</version>
         </dependency>
     </dependencies>
 </project>

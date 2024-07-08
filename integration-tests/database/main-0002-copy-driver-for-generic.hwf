@@ -35,14 +35,14 @@ limitations under the License.
       <description/>
       <type>SPECIAL</type>
       <attributes/>
+      <DayOfMonth>1</DayOfMonth>
+      <hour>12</hour>
+      <intervalMinutes>60</intervalMinutes>
+      <intervalSeconds>0</intervalSeconds>
+      <minutes>0</minutes>
       <repeat>N</repeat>
       <schedulerType>0</schedulerType>
-      <intervalSeconds>0</intervalSeconds>
-      <intervalMinutes>60</intervalMinutes>
-      <hour>12</hour>
-      <minutes>0</minutes>
       <weekDay>1</weekDay>
-      <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <xloc>50</xloc>
       <yloc>50</yloc>
@@ -63,7 +63,7 @@ limitations under the License.
       <create_destination_folder>N</create_destination_folder>
       <fields>
         <field>
-          <source_filefolder>EMPTY_SOURCE_URL-0-${user.dir}/plugins/databases/postgresql/lib/</source_filefolder>
+          <source_filefolder>EMPTY_SOURCE_URL-0-${user.dir}/lib/jdbc/</source_filefolder>
           <source_configuration_name>LOCAL-SOURCE-FILE-0</source_configuration_name>
           <destination_filefolder>EMPTY_DEST_URL-0-${user.dir}/lib/core/</destination_filefolder>
           <destination_configuration_name>LOCAL-DEST-FILE-0</destination_configuration_name>

@@ -97,72 +97,23 @@
     </distributionManagement>
 
     <properties>
-        <accessors-smart.version>2.4.9</accessors-smart.version>
-        <akka.version>2.5.32</akka.version>
         <apache-beam.version>2.56.0</apache-beam.version>
-        <apache-flink.version>1.16.3</apache-flink.version>
-        <apache-spark.version>3.4.3</apache-spark.version>
-        <asm.version>9.3</asm.version>
         <assembly_appendId>false</assembly_appendId>
         <assembly_package-phase>package</assembly_package-phase>
         <attach-sources-phase>verify</attach-sources-phase>
-        <avro.version>1.11.3</avro.version>
-        <aws-java-sdk.version>1.12.347</aws-java-sdk.version>
-        <batik.version>1.17</batik.version>
         <build.dependenciesDirectory>${project.build.directory}/dependency</build.dependenciesDirectory>
         <byte-buddy.version>1.14.15</byte-buddy.version>
-        <commons-beanutils.version>1.9.4</commons-beanutils.version>
-        <commons-codec.version>1.15</commons-codec.version>
-        <commons-compress.version>1.26.0</commons-compress.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
-        <commons-lang3.version>3.12.0</commons-lang3.version>
-        <commons-logging.version>1.1.3</commons-logging.version>
-        <curator.version>5.4.0</curator.version>
-        <encoder.version>1.2</encoder.version>
-        <gax.version>2.46.1</gax.version>
-        <google-api-client.version>2.2.0</google-api-client.version>
-        <google-api-common.version>2.13.0</google-api-common.version>
-        <google-api-services-bigquery.version>v2-rev20240229-2.0.0</google-api-services-bigquery.version>
-        <google-api-services-storage.version>v1-rev20240311-2.0.0</google-api-services-storage.version>
-        <google-auth-library-credentials.version>1.12.1</google-auth-library-credentials.version>
-        <google-auth-library-oauth2-http.version>1.12.1</google-auth-library-oauth2-http.version>
-        <google-cloud-storage.version>2.15.0</google-cloud-storage.version>
-        <google-http-client.version>1.42.3</google-http-client.version>
-        <google-oauth-client.version>1.34.1</google-oauth-client.version>
-        <grpc.version>1.60.1</grpc.version>
-        <gson.version>2.10</gson.version>
-        <guava.version>32.1.2-jre</guava.version>
-        <hadoop.version>3.3.6</hadoop.version>
-        <hive.version>2.3.9</hive.version>
-        <httpccore.version>4.4.15</httpccore.version>
-        <httpclient.version>4.5.13</httpclient.version>
-        <jackcess.version>4.0.4</jackcess.version>
-        <jackson.version>2.15.0</jackson.version>
+        <hadoop.version>3.1.0</hadoop.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <jakarta-mail.version>2.0.1</jakarta-mail.version>
-        <jakarta.version>3.1.0</jakarta.version>
         <jandex.version>3.1.8</jandex.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
-        <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <jetty.version>9.4.41.v20210516</jetty.version>
-        <joda-time.version>2.12.1</joda-time.version>
-        <jsch.version>0.1.55</jsch.version>
-        <json-simple.version>1.1.1</json-simple.version>
-        <json-smart.version>2.5.0</json-smart.version>
-        <json4s.version>3.7.0-M11</json4s.version>
         <junit.version>5.10.2</junit.version>
-        <juniversalchardet.version>2.4.0</juniversalchardet.version>
-        <kafka-clients.version>3.3.1</kafka-clients.version>
-        <kryo.version>5.3.0</kryo.version>
-        <libthrift.version>0.16.0</libthrift.version>
         <license.bundleLicenseFile>META-INF/LICENSE.txt</license.bundleLicenseFile>
         <license.failOnLicenseCheck>false</license.failOnLicenseCheck>
         <license.inceptionYear>2020</license.inceptionYear>
         <license.licenseFile>LICENSE.txt</license.licenseFile>
         <license.licenseName>apache_v2</license.licenseName>
         <license.organizationName>Apache</license.organizationName>
-        <log4j.version>2.19.0</log4j.version>
-        <lz4.version>1.8.0</lz4.version>
         <maven-failsafe-plugin.forkCount>1</maven-failsafe-plugin.forkCount>
         <maven-failsafe-plugin.reuseForks>true</maven-failsafe-plugin.reuseForks>
         <maven-surefire-plugin.argLine>-Duser.timezone=UTC
@@ -190,244 +141,40 @@
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
         <maven.compiler.source>${target.jdk.version}</maven.compiler.source>
         <maven.compiler.target>${target.jdk.version}</maven.compiler.target>
-        <metrics.version>4.2.12</metrics.version>
-        <minlog.version>1.3.1</minlog.version>
         <mockito-core.version>5.12.0</mockito-core.version>
-        <netty.version>4.1.89.Final</netty.version>
         <objenesis.version>3.4</objenesis.version>
-        <ognl.version>3.3.4</ognl.version>
-        <okhttp.version>4.12.0</okhttp.version>
-        <okio.version>3.9.0</okio.version>
-        <opencensus-api.version>0.31.1</opencensus-api.version>
-        <opencensus-contrib-http-util.version>0.31.1</opencensus-contrib-http-util.version>
-        <opencsv.version>5.7.1</opencsv.version>
-        <org.eclipse.commands.version>3.12.0</org.eclipse.commands.version>
-        <org.eclipse.equinox.version>3.19.0</org.eclipse.equinox.version>
         <org.eclipse.platform.version>3.126.0</org.eclipse.platform.version>
-        <paranamer.version>2.8</paranamer.version>
-        <perfmark.version>0.26.0</perfmark.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <protobuf.version>3.25.2</protobuf.version>
-        <rhino.version>1.7.14</rhino.version>
-        <scala.version>2.12.17</scala.version>
         <set-highest-basedir-phase>initialize</set-highest-basedir-phase>
         <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
-        <slf4j.version>2.0.4</slf4j.version>
-        <snakeyaml.version>2.0</snakeyaml.version>
-        <snappy-java.version>1.1.10.5</snappy-java.version>
         <sonar-maven-plugin.version>4.0.0.4121</sonar-maven-plugin.version>
-        <sshlib.version>2.2.23</sshlib.version>
         <target.jdk.version>17</target.jdk.version>
-        <wagon-plugin.version>2.0.2</wagon-plugin.version>
-        <woodstox.version>6.4.0</woodstox.version>
-        <xerces.version>2.12.2</xerces.version>
-        <zookeeper.version>3.8.4</zookeeper.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-core</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-emr</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-iam</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-pricing</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-redshift</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${aws-java-sdk.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-core</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-cbor</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-smile</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.dataformat</groupId>
-                <artifactId>jackson-dataformat-yaml</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-base</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jaxrs</groupId>
-                <artifactId>jackson-jaxrs-json-provider</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.jr</groupId>
-                <artifactId>jackson-jr-objects</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.module</groupId>
-                <artifactId>jackson-module-jaxb-annotations</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.guava</groupId>
-                <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${commons-beanutils.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>commons-codec</groupId>
-                <artifactId>commons-codec</artifactId>
-                <version>${commons-codec.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>commons-fileupload</groupId>
-                <artifactId>commons-fileupload</artifactId>
-                <version>${commons-fileupload.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-                <version>${commons-logging.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>${commons-compress.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>3.0.0-M4</version>
-                <type>maven-plugin</type>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>wagon-maven-plugin</artifactId>
-                <version>${wagon-plugin.version}</version>
-            </dependency>
-
-            <!-- Third-party dependencies -->
-            <dependency>
-                <groupId>org.mozilla</groupId>
-                <artifactId>rhino</artifactId>
-                <version>${rhino.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.owasp.encoder</groupId>
-                <artifactId>encoder</artifactId>
-                <version>${encoder.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>xerces</groupId>
-                <artifactId>xercesImpl</artifactId>
-                <version>${xerces.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>*</groupId>
-                        <artifactId>*</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy</artifactId>
-                <version>${byte-buddy.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>net.bytebuddy</groupId>
-                <artifactId>byte-buddy-agent</artifactId>
-                <version>${byte-buddy.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.hamcrest</groupId>
-                <artifactId>java-hamcrest</artifactId>
-                <version>${java-hamcrest.version}</version>
-                <scope>test</scope>
+                <groupId>io.smallrye</groupId>
+                <artifactId>jandex</artifactId>
+                <version>${jandex.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${byte-buddy.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>java-hamcrest</artifactId>
+            <version>${java-hamcrest.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
@@ -723,6 +470,8 @@
                 <module>core</module>
                 <module>engine</module>
                 <module>engine-beam</module>
+                <module>lib</module>
+                <module>lib-jdbc</module>
                 <module>plugins</module>
                 <module>rap</module>
                 <module>rcp</module>
@@ -810,6 +559,7 @@
             <id>swt-unix</id>
             <activation>
                 <os>
+                    <name>Linux</name>
                     <family>unix</family>
                 </os>
             </activation>

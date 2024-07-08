@@ -25,8 +25,19 @@
     </parent>
 
     <artifactId>hop-databases-h2</artifactId>
-
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases H2</name>
+
+    <properties>
+        <h2.version>2.2.224</h2.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>${h2.version}</version>
+        </dependency>
+    </dependencies>
+
 </project>

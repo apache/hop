@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-coalesce</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Coalesce</name>
 
 </project>

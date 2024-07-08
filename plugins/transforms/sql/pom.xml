@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-sql</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms SQL</name>
 
 </project>

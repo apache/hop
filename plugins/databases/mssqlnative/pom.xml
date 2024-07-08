@@ -26,10 +26,18 @@
 
     <artifactId>hop-databases-mssqlnative</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases MS SQL Server (native)</name>
 
+    <properties>
+        <mssqlnative.version>12.6.3.jre11</mssqlnative.version>
+    </properties>
+
     <dependencies>
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <version>${mssqlnative.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-mssql</artifactId>

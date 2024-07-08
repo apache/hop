@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-validator</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Data Validator</name>
 
 </project>

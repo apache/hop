@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-clonerow</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Clone Row</name>
 
 </project>

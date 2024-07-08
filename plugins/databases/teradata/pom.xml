@@ -25,7 +25,6 @@
     </parent>
 
     <artifactId>hop-databases-teradata</artifactId>
-
     <packaging>jar</packaging>
     <name>Hop Plugins Databases Teradata</name>
 

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-janino</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Janino</name>
 
     <properties>
@@ -46,25 +45,5 @@
             <version>${janino-version}</version>
         </dependency>
     </dependencies>
-
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                    <include>**/*.properties</include>
-                    <include>**/*.svg</include>
-                </includes>
-            </resource>
-        </resources>
-    </build>
 
 </project>

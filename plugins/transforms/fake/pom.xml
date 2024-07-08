@@ -27,19 +27,50 @@
 
     <artifactId>hop-transform-fake</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Fake</name>
+
+    <properties>
+        <automaton.version>1.11-8</automaton.version>
+        <javafaker.version>1.0.2</javafaker.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>com.github.javafaker</groupId>
             <artifactId>javafaker</artifactId>
-            <version>1.0.2</version>
+            <version>${javafaker.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.yaml</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>dk.brics.automaton</groupId>
             <artifactId>automaton</artifactId>
-            <version>1.11-8</version>
+            <version>${automaton.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

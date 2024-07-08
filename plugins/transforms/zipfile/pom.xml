@@ -27,10 +27,6 @@
 
     <artifactId>hop-transform-zipfile</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Zipfile</name>
 
-    <properties></properties>
-
-    <dependencies></dependencies>
 </project>

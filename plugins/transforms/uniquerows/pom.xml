@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-uniquerows</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Unique Rows</name>
 
 </project>

@@ -23,35 +23,35 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>tech/neo4j</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/tech/neo4j</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-tech-neo4j:jar</include>
             </includes>
+            <outputDirectory>plugins/tech/neo4j</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
             <scope>runtime</scope>
-            <includes>
-                <include>org.neo4j.driver:neo4j-java-driver</include>
-                <include>org.reactivestreams:reactive-streams:jar</include>
-            </includes>
+            <excludes>
+                <exclude>org.apache.hop:hop-tech-neo4j:jar</exclude>
+            </excludes>
+            <outputDirectory>plugins/tech/neo4j/lib</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

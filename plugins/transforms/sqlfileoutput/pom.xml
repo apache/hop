@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-sqlfileoutput</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms SQL File Output</name>
 
 </project>

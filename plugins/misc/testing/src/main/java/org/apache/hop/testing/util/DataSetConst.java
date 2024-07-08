@@ -17,12 +17,12 @@
 
 package org.apache.hop.testing.util;
 
+import com.google.common.math.DoubleMath;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math3.util.Precision;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopValueException;
@@ -379,7 +379,7 @@ public class DataSetConst {
                       Double d1 = transformValueMeta.getNumber(transformValue);
                       Double d2 = transformValueMeta.getNumber(goldenValueConverted);
 
-                      if (Precision.equals(d1, d2, 0.000001d)) {
+                      if (DoubleMath.fuzzyEquals(d1, d2, 0.000001d)) {
                         cmp = 0;
                       }
                     }

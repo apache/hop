@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-selectvalues</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Select Values</name>
 
 </project>

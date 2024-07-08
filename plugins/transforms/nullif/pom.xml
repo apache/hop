@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-nullif</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Null If</name>
 
 </project>

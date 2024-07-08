@@ -22,28 +22,35 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/cratedbbulkloader</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/transforms/cratedbbulkloader</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
+
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
-
             <includes>
                 <include>org.apache.hop:hop-transform-cratedbbulkloader:jar</include>
             </includes>
+            <outputDirectory>plugins/transforms/cratedbbulkloader</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>org.apache.hop:hop-transform-cratedbbulkloader:jar</exclude>
+            </excludes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

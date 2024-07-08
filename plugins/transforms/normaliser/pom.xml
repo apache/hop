@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-normaliser</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Row Normaliser</name>
 
 </project>

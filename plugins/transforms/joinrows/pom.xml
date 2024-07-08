@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-joinrows</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Join Rows</name>
 
 </project>

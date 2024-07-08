@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-filestoresult</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Files To Result</name>
 
 </project>

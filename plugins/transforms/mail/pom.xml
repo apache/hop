@@ -27,19 +27,30 @@
 
     <artifactId>hop-transform-mail</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Mail</name>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <dependency>
             <groupId>com.sun.activation</groupId>
             <artifactId>jakarta.activation</artifactId>
-            <version>${jakarta-mail.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
-            <version>${jakarta-mail.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

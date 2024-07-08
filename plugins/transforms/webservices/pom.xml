@@ -27,14 +27,17 @@
 
     <artifactId>hop-transform-webservices</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Web Services</name>
+
+    <properties>
+        <wsdl4j.version>1.6.2</wsdl4j.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>wsdl4j</groupId>
             <artifactId>wsdl4j</artifactId>
-            <version>1.6.2</version>
+            <version>${wsdl4j.version}</version>
         </dependency>
     </dependencies>
 </project>

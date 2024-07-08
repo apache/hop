@@ -23,28 +23,22 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/sapdb</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/sapdb</outputDirectory>
             <filtered>true</filtered>
         </file>
 
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-sapdb:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/sapdb</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-stringoperations</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms String Operations</name>
 
 </project>

@@ -272,7 +272,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
       appendRowAsJsonLine(data.outputRowMeta, r);
       try {
         writeIfBatchSizeRecordsAreReached();
-      } catch (CrateDBHopException e) {
+      } catch (IOException | CrateDBHopException e) {
         throw new HopException(e);
       }
     }
@@ -366,7 +366,8 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
     }
   }
 
-  private void writeIfBatchSizeRecordsAreReached() throws HopException, CrateDBHopException {
+  private void writeIfBatchSizeRecordsAreReached()
+      throws HopException, CrateDBHopException, IOException {
     int maxBatchSize = Integer.parseInt(meta.getBatchSize());
     if (data.httpBulkArgs.size() >= maxBatchSize) {
       String[] columns =
@@ -380,7 +381,7 @@ public class CrateDBBulkLoader extends BaseTransform<CrateDBBulkLoaderMeta, Crat
   }
 
   private void writeBatchToCrateDB(String schema, String table, String[] columns)
-      throws HopException, CrateDBHopException {
+      throws HopException, CrateDBHopException, IOException {
     try {
       final HttpBulkImportResponse httpResponse =
           bulkImportClient.batchInsert(schema, table, columns, data.httpBulkArgs);

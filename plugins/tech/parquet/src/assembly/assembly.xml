@@ -16,67 +16,54 @@
   -->
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
     <id>hop-tech-parquet</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>tech/parquet</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/tech/parquet</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
 
     <fileSets>
         <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
+            <directory>${project.basedir}/src/main/samples</directory>
+            <outputDirectory>config/projects/samples/</outputDirectory>
         </fileSet>
     </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-tech-parquet:jar</include>
             </includes>
+            <outputDirectory>plugins/tech/parquet</outputDirectory>
         </dependencySet>
         <dependencySet>
-            <outputDirectory>lib</outputDirectory>
+            <scope>runtime</scope>
+            <excludes>
+                <exclude>
+                    org.apache.hop:hop-tech-parquet:jar
+                </exclude>
+            </excludes>
+            <includes>
+                <include>org.apache.parquet:*:jar</include>
+            </includes>
+            <outputDirectory>plugins/tech/parquet/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
             <scope>runtime</scope>
             <includes>
-                <include>com.fasterxml.woodstox:woodstox-core</include>
-                <include>com.github.luben:zstd-jni:jar</include>
-                <include>com.google.code.findbugs:jsr305:jar</include>
-                <include>com.google.protobuf:protobuf-java:jar</include>
-                <include>commons-collections:commons-collections:jar</include>
-                <include>javax.xml.bind:jaxb-api:jar</include>
-                <include>org.apache.curator:curator-client:jar</include>
-                <include>org.apache.curator:curator-framework:jar</include>
-                <include>org.apache.curator:curator-recipes:jar</include>
-                <include>org.apache.hadoop:hadoop-auth:jar</include>
-                <include>org.apache.hadoop:hadoop-client:jar</include>
-                <include>org.apache.hadoop:hadoop-client-api:jar</include>
-                <include>org.apache.hadoop:hadoop-client-runtime:jar</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-common:jar</include>
-                <include>org.apache.hadoop:hadoop-mapreduce-client-jobclient:jar</include>
-                <include>org.apache.hadoop:hadoop-yarn-api:jar</include>
-                <include>org.apache.hadoop:hadoop-yarn-client:jar</include>
-                <include>org.apache.hadoop:hadoop-yarn-server-common:jar</include>
-                <include>org.apache.parquet:parquet-avro:jar</include>
-                <include>org.apache.parquet:parquet-column:jar</include>
-                <include>org.apache.parquet:parquet-common:jar</include>
-                <include>org.apache.parquet:parquet-encoding:jar</include>
-                <include>org.apache.parquet:parquet-format-structures:jar</include>
-                <include>org.apache.parquet:parquet-hadoop:jar</include>
-                <include>org.apache.parquet:parquet-jackson:jar</include>
-                <include>org.apache.yetus:audience-annotations:jar</include>
-                <include>org.apache.zookeeper:zookeeper:jar</include>
+                <include>org.apache.hadoop:*:jar</include>
+                <include>org.apache.hadoop.thirdparty:*:jar</include>
             </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

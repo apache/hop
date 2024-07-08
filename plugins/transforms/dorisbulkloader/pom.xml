@@ -27,26 +27,6 @@
 
     <artifactId>hop-transform-dorisbulkloader</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Doris Bulk Loader</name>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.googlecode.json-simple</groupId>
-            <artifactId>json-simple</artifactId>
-            <version>1.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.5.13</version>
-        </dependency>
-    </dependencies>
 
 </project>

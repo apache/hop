@@ -23,33 +23,26 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/mariadb</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/mariadb</outputDirectory>
             <filtered>true</filtered>
         </file>
         <file>
             <source>${project.basedir}/src/main/resources/dependencies.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/mariadb</outputDirectory>
             <filtered>true</filtered>
         </file>
-
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-mariadb:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/mariadb</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

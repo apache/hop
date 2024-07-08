@@ -29,12 +29,24 @@
     <packaging>jar</packaging>
     <name>Hop Plugins Actions AS/400 Command</name>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs-jdbc</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <dependency>
             <groupId>net.sf.jt400</groupId>
             <artifactId>jt400</artifactId>
-            <version>10.5</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
 </project>

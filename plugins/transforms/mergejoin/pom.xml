@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-mergejoin</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Merge Join</name>
 
 </project>

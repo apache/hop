@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-textfile</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Text File</name>
 
     <dependencies>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-fileexists</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms File Exists</name>
 
 </project>

@@ -16,33 +16,34 @@
   ~
   -->
 
-<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
     <id>hop-databases-monetdb</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/monetdb</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/monetdb</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
+
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-monetdb:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/monetdb</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>monetdb:monetdb-jdbc:jar</include>
+            </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

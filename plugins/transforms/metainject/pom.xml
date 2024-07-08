@@ -27,14 +27,13 @@
 
     <artifactId>hop-transform-metainject</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms ETL Metadata Injection</name>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-rowsfromresult</artifactId>
-            <version>2.10.0-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

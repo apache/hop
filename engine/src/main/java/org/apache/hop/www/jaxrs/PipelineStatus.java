@@ -17,9 +17,9 @@
 
 package org.apache.hop.www.jaxrs;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.hop.pipeline.transform.TransformStatus;
 
 @XmlRootElement

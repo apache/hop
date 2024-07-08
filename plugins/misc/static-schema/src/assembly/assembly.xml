@@ -17,42 +17,19 @@
   -->
 
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.2.0"
-          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
-    <id>plugins</id>
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.2.0 http://maven.apache.org/xsd/assembly-2.2.0.xsd">
+    <id>hop-misc-testing</id>
     <formats>
         <format>zip</format>
     </formats>
-    <includeBaseDirectory>true</includeBaseDirectory>
-    <baseDirectory>plugins</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <dependencySets>
         <dependencySet>
             <includes>
-                <include>*:*:zip</include>
+                <include>org.apache.hop:hop-misc-static-schema:jar</include>
             </includes>
-            <unpack>true</unpack>
-            <useProjectArtifact>false</useProjectArtifact>
-            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
-    <fileSets>
-        <fileSet>
-            <directory>databases</directory>
-            <includes>
-                <include>**/*.zip</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>transforms</directory>
-            <includes>
-                <include>**/*.zip</include>
-            </includes>
-        </fileSet>
-        <fileSet>
-            <directory>actions</directory>
-            <includes>
-                <include>**/*.zip</include>
-            </includes>
-        </fileSet>
-    </fileSets>
 </assembly>

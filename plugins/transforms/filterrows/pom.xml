@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-filterrows</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Filter Rows</name>
 
 </project>

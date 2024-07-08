@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-waitforsql</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Wait for SQL</name>
 
 </project>

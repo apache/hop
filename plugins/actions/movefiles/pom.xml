@@ -27,10 +27,26 @@
 
     <artifactId>hop-action-movefiles</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Move files</name>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.hop</groupId>
+                <artifactId>hop-libs</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-blob</artifactId>
@@ -39,8 +55,8 @@
         </dependency>
         <dependency>
             <groupId>org.apache.hop</groupId>
-            <artifactId>hop-plugins-tech-azure</artifactId>
-            <version>${project.parent.version}</version>
+            <artifactId>hop-tech-azure</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

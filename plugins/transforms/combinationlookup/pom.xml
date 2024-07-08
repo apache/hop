@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-combinationlookup</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Combination Lookup</name>
 
 </project>

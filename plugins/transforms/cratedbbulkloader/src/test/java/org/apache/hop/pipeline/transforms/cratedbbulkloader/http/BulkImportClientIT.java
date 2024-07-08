@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -70,7 +71,7 @@ public class BulkImportClientIT {
 
   @Test
   public void whenDataSizeGreaterThanMaxSize_shouldReturnRejectedRows()
-      throws HopException, JsonProcessingException, CrateDBHopException {
+      throws HopException, JsonProcessingException, CrateDBHopException, IOException {
     BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "password");
 
     var response =
@@ -89,7 +90,7 @@ public class BulkImportClientIT {
 
   @Test
   public void whenRequestIsValid_shouldReturn200AndResult()
-      throws HopException, JsonProcessingException, SQLException, CrateDBHopException {
+      throws HopException, JsonProcessingException, SQLException, CrateDBHopException, IOException {
     BulkImportClient client = new BulkImportClient(CRATE_ENDPOINT, "alice", "password");
     HttpBulkImportResponse response =
         client.batchInsert(

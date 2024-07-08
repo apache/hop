@@ -23,11 +23,11 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/postgresql</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/postgresql</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
@@ -36,6 +36,13 @@
             <includes>
                 <include>org.apache.hop:hop-databases-postgresql:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/postgresql</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>org.postgresql:postgresql:jar</include>
+            </includes>
+            <outputDirectory>lib/jdbc</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-columnexists</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Column exists</name>
 
 </project>

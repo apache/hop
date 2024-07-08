@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-tableexists</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Table Exists</name>
 
 </project>

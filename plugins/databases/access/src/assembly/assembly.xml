@@ -23,35 +23,38 @@
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>databases/access</baseDirectory>
+    <baseDirectory>.</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
-            <outputDirectory>.</outputDirectory>
+            <outputDirectory>plugins/databases/access</outputDirectory>
             <filtered>true</filtered>
         </file>
     </files>
-    <fileSets>
-        <fileSet>
-            <outputDirectory>lib</outputDirectory>
-            <excludes>
-                <exclude>**/*</exclude>
-            </excludes>
-        </fileSet>
-    </fileSets>
     <dependencySets>
         <dependencySet>
             <includes>
                 <include>org.apache.hop:hop-databases-access:jar</include>
             </includes>
+            <outputDirectory>plugins/databases/access</outputDirectory>
         </dependencySet>
         <dependencySet>
             <includes>
                 <include>net.sf.ucanaccess:ucanaccess:jar</include>
-                <include>com.healthmarketscience.jackcess:jackcess:jar</include>
+            </includes>
+            <outputDirectory>plugins/databases/access/lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
                 <include>org.hsqldb:hsqldb:jar</include>
             </includes>
-            <outputDirectory>lib</outputDirectory>
+            <outputDirectory>lib/jdbc</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.healthmarketscience.jackcess:jackcess:jar</include>
+            </includes>
+            <outputDirectory>lib/core</outputDirectory>
         </dependencySet>
     </dependencySets>
 </assembly>

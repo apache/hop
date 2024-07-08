@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-replacestring</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Replace In String</name>
 
 </project>

@@ -18,13 +18,13 @@
 package org.apache.hop.pipeline.transform;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.xml.bind.annotation.XmlRootElement;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;

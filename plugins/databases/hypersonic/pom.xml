@@ -26,7 +26,13 @@
 
     <artifactId>hop-databases-hypersonic</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Databases Hypersonic</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

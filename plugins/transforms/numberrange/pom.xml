@@ -27,7 +27,6 @@
 
     <artifactId>hop-transform-numberrange</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Transforms Number Range</name>
 
 </project>

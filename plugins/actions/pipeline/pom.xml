@@ -27,7 +27,6 @@
 
     <artifactId>hop-action-pipeline</artifactId>
     <packaging>jar</packaging>
-
     <name>Hop Plugins Actions Pipeline</name>
 
 </project>
