@@ -22,16 +22,16 @@ under the License.
 
 == Description
 
-The Get Mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
+The `Get Mails (POP3/IMAP)` action retrieves mails from a POP3 or IMAP server and stores them into one or more files.
 
 == Options
 
-=== General
+=== General tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-2+|**Server Settings**
+2+|Server Settings
 |Workflow action name|The name of the workflow action.
 |Source Host|The host name or IP-address of the pop server.
 |Use SSL |If checked A secure connection will be used to communicate with the server.
@@ -47,7 +47,7 @@ The Get Mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and 
 * IMAP
 * MBOX
 |Test connection|Click this button to test the provided settings
-2+|**Target folder**
+2+|Target folder
 |Target directory|The directory in which you want to put the mail files.
 |Create folder|check to create the specified target directory if it doesn't exist
 |Target filename pattern|The filename pattern (start of filename). The default pattern is `name_{SYS\|hhmmss_MMddyyyy\|}_#IdFile#.mail`
@@ -58,18 +58,18 @@ The Get Mails (POP3/IMAP) action retrieves mails from a POP3 or IMAP server and 
 |Attachment wildcard|the wildcard to use to save attachments for retrieved email messages (none = all)
 |===
 
-=== Settings
+=== Settings tab
 
-**Action**: this dropdown box lets you specify the action to perform on the retrieved email messages:
+[options="header", width="90%", cols="1,3"]
+|===
+|Option|Description
+|Action|This dropdown box lets you specify the action to perform on the retrieved email messages:
 
 * Get messages
 * Move messages to folder (IMAP only since POP3 only knows one folder "INBOX")
 * Delete messages
 
-[options="header"]
-|===
-|Option|Description
-2+|**POP3 settings**
+2+|POP3 settings
 |Retrieve
 a|Select the e-mails to retrieve:
 
@@ -77,7 +77,7 @@ a|Select the e-mails to retrieve:
 * Retrieve first ... emails
 |Retrieve the .. first emails|Allows you to specify the number of emails to retrieve if "first ... emails" is selected.
 |Delete emails after retrieval|check to delete the mails on the pop server after retrieval.
-2+|**IMAP settings**
+2+|IMAP settings
 |Option|Description
 |IMAP folder|the folder on the IMAP server to retrieve messages from
 |Include subfolders|check to select messages for subfolders from the selected IMAP folder
@@ -104,19 +104,19 @@ a|Select the e-mails to retrieve:
 |Create folder|create a folder on the IMAP server to move the messages to if it doesn't exist.
 |===
 
-=== Filters
+=== Filters tab
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-2+|**Header**
+2+|Header
 |Sender (FROM)|messages will be filtered on sender
 |Recipient (TO)|messages will be filtered on recipient
 |Subject|messages will be filtered on subject
-2+|**Content**
+2+|Content
 |Option|Description
 |Body|messages will be filtered on the specified text in the email body
-2+|**Received date**
+2+|Received date
 |Option|Description
 |Condition a|Choose a date or date range. The available options are
 

@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The Evaluate Row Numbers In A Table action you can define the success condition that can be evaluated and branch the workflow process by the result.
+The `Evaluate row numbers in a table` action evaluates the number of rows in a table and lets you define the success condition that can be used to branch the workflow into success/error streams.
 
 You can either just test the number of rows in a target table, or write a custom SQL statement.
 
@@ -37,12 +37,28 @@ For the success condition you can check the number of rows if they are:
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Property|Description
-|Custom SQL|Check this option when you want to specify a custom SQL statement in the below field
+|Action name|The name to use for this workflow action
+|Connection|The xref:metadata-types/rdbms-connection.adoc[Relational database connection to use]
+|Target schema|The database schema name
+|Target table name|The database table name
+2+|Success condition
+|Success when rows count a|
+
+* Equal to
+* Different from
+* Smaller than
+* Smaller or equal to
+* Greater than (default)
+* Greater than or equal to
+|Limit|the number of rows to evaluate in combination with the selected option above.
+2+|Custom SQL
+|Custom SQL|Check this option when you want to specify a custom SQL statement in the `SQL Script` field below.
 |Use variable substitution|Variables in the SQL statements will be substituted.
 |Clear list of result rows|Clears the internal list of result rows before executing.
 |Add rows to result|Adds all rows returned from the SQL statement within the internal list of result rows.
 This list of result rows can then be used in subsequent workflow actions to loop over or e.g. within a pipeline by the Get rows from result transform.
+|SQL Script|The custom SQL script to use. The `Custom SQL` option above needs to be checked before this field is enabled.
 |===

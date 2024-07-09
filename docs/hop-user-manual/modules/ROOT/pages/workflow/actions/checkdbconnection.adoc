@@ -22,18 +22,20 @@ under the License.
 
 == Description
 
-The Check DB Connections workflow action verifies connectivity with one or several databases.
+The `Check DB Connections` workflow action verifies connectivity with one or several databases.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |Connection|List of connections.
-|Wait|After the connection was opened, wait x (s, min, hrs).
-|Units of Time|Specify the unit of measurement for the length of time to remain connected.
-|Get connections|Get available connects.
+// |Wait|After the connection was opened, wait x (s, min, hrs).
+// |Units of Time|Specify the unit of measurement for the length of time to remain connected.
+// |Get connections|Get available connects.
 |===
+
+The `Get connections` retrieves all of the available xref:metadata-types/rdbms-connection.adoc[Relational Database Connections] in the current project.
+
+The `Delete` button deletes the selected database connection line from the `Connections` table.

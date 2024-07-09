@@ -23,17 +23,24 @@ under the License.
 
 = Cassandra Exec CQL
 
-The Cassandra Exec CQL action executes one or more CassandraQL statements on a Cassandra cluster.
+The `Cassandra Exec CQL` action executes one or more Cassandra Quqery Languague (SQL) statements on a Cassandra cluster.
 
 You can use it to create or drop key spaces, tables, indexes and so on.
 
 If all statements executed successfully the result will be true (success).
 
+Check the https://cassandra.apache.org/doc/stable/cassandra/cql/[Cassandra docs] for more information about CQL.
+
 == Options
 
-* Cassandra Connection: You can specify the name of the connection to use either as a fixed value or as a variable expression.
+[%header, width="90%", cols="1,3"]
+|===
+|Option|Description
+|xref:metadata-types/cassandra/cassandra-connection.adoc[Cassandra Connection]| You can specify the name of the connection to use either as a fixed value or as a variable expression.
 There are buttons to the right of the input field to hel you manage the metadata.
-* CQL Script: You can enter one or more CQL statements ending with a semi-colon on a new line.
+|CQL Script| You can enter one or more CQL statements ending with a semi-colon on a new line.
+|Replace variables in script|Check this option to added variables in your CQL script. These variables will be replaced with the variables values before sending the CQL script to the Cassandra cluster.
+|===
 
 == Example:
 

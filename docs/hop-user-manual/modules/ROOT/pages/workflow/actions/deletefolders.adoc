@@ -22,22 +22,22 @@ under the License.
 
 == Description
 
-The Delete Folders action deletes a set of folders and their content.
+The `Delete Folders` action deletes a set of folders and their content.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
+|Action name|The name of the workflow action.
 |Settings|Copy previous results to args: Enable this option if the folders you want to delete come from the result files of the previous action in the workflow.
 |Success on a|Success condition : select one of :
-* When no error reported : everything deleted just fine * When at least x folders processed : specify x in the Limit field below * When the number of errors less than : specify the max nr of errors in the limit field below
-|Folders a|This is the list of all the folders to delete.
-You can use the Folder field and these buttons to maintain the list:
 
-* Add : add Folder field to the list of folders
-* Folder ... : select a folder
-* Delete : remove the selected folders from the list
-* Edit : move the selected folder to the Folder field for editing
+* When no error reported : everything deleted just fine
+* When at least x folders processed : specify x in the Limit field below
+* When the number of errors less than : specify the max nr of errors in the limit field below
+|Limit|the number of folders to delete or number of errors, depending on the option chosen in the `Success condition` above.
+|Folders a|This is the list of all the folders to delete.
 |===
+
+After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.

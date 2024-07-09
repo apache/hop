@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The Add Filenames To Result action adds a set of files or folders to the result list of the workflow action.
+The `Add Filenames to result` action adds a set of files or folders to the result list of the workflow action.
 
 This list of filenames can then be used in the various workflow actions all around.
 
@@ -31,12 +31,13 @@ This list of filenames can then be used in the various workflow actions all arou
 [options="header"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |Include subfolders|Include subfolders of the selected folders
-|Copy previous results to?|Passes the results of the previous action to the arguments of this action.
+|Copy previous results to args?|Passes the results of the previous action to the arguments of this action.
 |Clear result filenames?|This option clears the list of result files (from previous workflow actions) before creating a new list.
-|File/Folder|Specify the list of files or folders with wildcards (regular expressions) in this grid.
+|File/Folder|Specify the list of files or folders with wildcards (regular expressions) in this grid. +
 You can add a different source/destination on each line.
+|Wildcard (RegExp)|A regular expression wildcard to include file patterns in the list of file names.
 |===
+
+After specifying a folder and wildcard (regular expression), use the `Add` button to add your file/folder selection to the table. Use the `Delete` or `Edit` buttons to remove or edit selected lines in the table.

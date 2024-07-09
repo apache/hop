@@ -22,16 +22,14 @@ under the License.
 
 == Description
 
-The Delete Filenames From Result action deletes all the filenames that are in the result files list of the last workflow action.
+The `Delete filenames from result` action deletes all the filenames that are in the result files list of the last workflow action.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |Limit action to| Enable this feature if you want to limit the deletion to certain filenames in the result file list.
 |Wildcard|The regular expression to limit the files to delete
 |Exclude wildcard|The regular expression to exclude certain files from being deleted.

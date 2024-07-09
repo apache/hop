@@ -22,7 +22,7 @@ under the License.
 
 == Description
 
-The JavaScript action runs Javascript code and returns a boolean expression.
+The `JavaScript` action runs Javascript code and returns a boolean expression.
 
 The result can be used to determine which action will be executed next.
 
@@ -32,12 +32,10 @@ The Javascript workflow action evaluates and returns a true or false.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |JavaScript|The JavaScript field.
 |===
 

@@ -16,13 +16,13 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Folders Compare action compares two folders to determine if the content is identical; the result will either be true or false.
+:description: The Compare Folders action compares two folders to determine if the content is identical; the result will either be true or false.
 
-= Folders Compare
+= Compare folders
 
 == Description
 
-The Folders Compare action compares two folders to determine if the content is identical; the result will either be true or false.
+The `Compare folders` action compares two folders to determine if the content is identical; the result will either be true or false.
 
 == Options
 

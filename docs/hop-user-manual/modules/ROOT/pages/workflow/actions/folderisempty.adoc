@@ -16,22 +16,22 @@ under the License.
 ////
 :documentationPath: /workflow/actions/
 :language: en_US
-:description: The Folder Is Empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
+:description: The Check if a folder is empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
 
 = Folder is Empty
 
 == Description
 
-The Folder Is Empty action verifies if a folder is empty, that there are no regular files or sub-folders in the folder.
+The `Check if a folder is empty` action verifies if a folder is empty and that there are no regular files or sub-folders in the folder.
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-This name has to be unique in a single workflow.
+|Action name|The name of the workflow action.
 |Folder name|The name of the folder to verify for emptiness.
+|Include subfolders|Check if there are subfolders in the folder to check.
 |Limit search to|Limits the search for files to those with a certain wildcard (regular expression)
 |Wildcard|The wildcard (regular expression) to limit the files to look for with, for example: .*\.txt$
 |===

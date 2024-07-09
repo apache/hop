@@ -22,16 +22,14 @@ under the License.
 
 == Description
 
-The DTD Validator action verifies if an XML file corresponds to a certain structure or format according to a Document Type Definition or link:http://en.wikipedia.org/wiki/Document_Type_Definition[DTD].
+The `DTD Validator` action verifies if an XML file corresponds to a certain structure or format according to a Document Type Definition or link:http://en.wikipedia.org/wiki/Document_Type_Definition[DTD].
 
 == Options
 
-[options="header"]
+[options="header", width="90%", cols="1,3"]
 |===
 |Option|Description
-|Workflow action name|The name of the workflow action.
-*Note*: This name has to be unique in a single workflow.
-A workflow action can be placed several times on the canvas, however it will be the same workflow action.
+|Action name|The name of the workflow action.
 |XML File name|The name of the XML file to validate
 |DTD Intern|Check this if the DTD is contained in the XML file
 |DTD File name|If the DTD is not internal, specify the DTD file to validate with.
